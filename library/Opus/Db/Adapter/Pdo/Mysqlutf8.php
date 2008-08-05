@@ -160,7 +160,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         $name = $this->_tableprefix . strtolower($name);
         // build sql query
         $stmt = 'CREATE TABLE ' . $this->_quoteIdentifier($name)
-              . ' ( ' . $this->_quoteIdentifier($name . '_id') . ' INT NOT NULL, '
+              . ' ( ' . $this->_quoteIdentifier($name . '_id') . ' INT NOT NULL  AUTO_INCREMENT, '
               . ' PRIMARY KEY ( ' . $this->_quoteIdentifier($name . '_id') . ' ))';
         try {
             $this->query($stmt);
