@@ -393,6 +393,37 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if an exception is thrown when query execution failes.
+     *
+     * @return void
+     */
+    public function testAddFieldThrowExecutionException() {
+        // Get the default adapter.
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        // Determine its real classname.
+        $classname = get_class($adapter);
+
+        // Retrieve database configuration.
+        $config = Zend_Registry::get('Zend_Config');
+        $dbconf = $config->db->params->toArray();
+
+        // Go on with testing.
+        $dba = $adapter;
+        $dba->createTable('timmy');
+        $fielddef = array('name' => 'test1', 'type' => 'INT');
+
+        // Put a mockkup in place, mocking the query method.
+        $dba = $this->getMock($classname, array('query'), array($dbconf));
+        $dba->expects($this->once())
+        ->method('query')
+        ->will($this->throwException(new Exception('Failed!!!')));
+
+        // This shall throw an exception.
+        $this->setExpectedException('Exception');
+        $dba->addField('timmy', $fielddef);
+    }
+
+    /**
      * Test of removing a field
      *
      * @return void
@@ -405,6 +436,40 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $dba->addField('timmy', $fielddef);
         $this->assertEquals(true, $dba->removeField('timmy', 'test1'));
     }
+
+    /**
+     * Test if an exception is thrown when query execution failes.
+     *
+     * @return void
+     */
+    public function testRemoveFieldThrowExecutionException() {
+        // Get the default adapter.
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        // Determine its real classname.
+        $classname = get_class($adapter);
+
+        // Retrieve database configuration.
+        $config = Zend_Registry::get('Zend_Config');
+        $dbconf = $config->db->params->toArray();
+
+        // Go on with testing.
+        $dba = $adapter;
+        $dba->createTable('timmy');
+        $fielddef = array('name' => 'test1', 'type' => 'INT');
+        $dba->addField('timmy', $fielddef);
+
+        // Put a mockkup in place, mocking the query method.
+        $dba = $this->getMock($classname, array('query'), array($dbconf));
+        $dba->expects($this->once())
+            ->method('query')
+            ->will($this->throwException(new Exception('Failed!!!')));
+
+        // This shall throw an exception.
+        $this->setExpectedException('Exception');
+        $dba->removeField('timmy', 'test1');
+    }
+
+
 
     /**
      * Test of removing a non existing field
