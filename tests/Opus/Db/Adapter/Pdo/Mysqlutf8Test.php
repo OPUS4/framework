@@ -556,4 +556,33 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         }
         $this->fail('Exception expected but none raised.');
     }
+
+    /**
+     * Check behavior of the private function isExistent() is an emtpy table description
+     * is returned by the database adapter.
+     *
+     * @return void
+     */
+    public function testIsExistentOnEmptyTable() {
+        // Get the default adapter.
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        // Determine its real classname.
+        $classname = get_class($adapter);
+        // Retrieve database configuration.
+        $config = Zend_Registry::get('Zend_Config');
+        $dbconf = $config->db->params->toArray();
+
+        // Create a clean table.
+        $dba = $adapter;
+        $dba->createTable('timmy');
+
+        // Put a mockkup in place, mocking the describeTable() method.
+        $dba = $this->getMock($classname, array('describeTable'), array($dbconf));
+        $dba->expects($this->once())
+            ->method('describeTable')
+            ->will($this->returnValue(array()));
+
+        $this->setExpectedException('Exception');
+        $dba->removeField('timmy', 'not_a_field');
+    }
 }
