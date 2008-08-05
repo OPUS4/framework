@@ -507,7 +507,21 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $dba->removeField('timmy', 'test1');
     }
 
-
+    /**
+     * Test of removing a field from a non existing table
+     *
+     * @return  void
+     */
+    public function testRemoveNonexistingTable()
+    {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        try {
+            $dba->removeField('timmy', 'test1');
+        } catch (Exception $e) {
+            return;
+        }
+        $this->fail('Exception expected but none raised.');
+    }
 
     /**
      * Test of removing a non existing field
