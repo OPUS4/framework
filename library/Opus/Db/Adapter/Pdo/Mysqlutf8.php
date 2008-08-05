@@ -201,10 +201,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      *     'name' => '...',
      *     'type' => ... ONLY types INT, VARCHAR, TEXT
      *     'length' => ... needed for VARCHAR, optional INT, should integer value
-     *     'tableref' => 'table_name' ... not implemented yet
+     *     'tableref' => 'table_name' ... TODO not implemented yet, should raise an exception if destination table doesn't contain a primary key
      * );
-     *
-     * Fremdschlüssel: Wenn Zieltabelle kein Primärschlüssel hat => Exception
      *
      * @param string $table    Contains name of table
      * @param array  $fielddef Contains an array of elements
