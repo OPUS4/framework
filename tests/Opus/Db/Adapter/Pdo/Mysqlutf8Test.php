@@ -251,6 +251,40 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test of adding an integer field with an invalid table name
+     *
+     * @return void
+     */
+    public function testAddFieldWithInvalidTableName()
+    {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => '');
+        try {
+                $dba->addField('timmäää', $fielddef);
+        } catch (Exception $e) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
+    }
+
+    /**
+     * Test of adding an integer field with nonexisting table
+     *
+     * @return void
+     */
+    public function testAddFieldWithoutExistingTable()
+    {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => '');
+        try {
+                $dba->addField('timmy', $fielddef);
+        } catch (Exception $e) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
+    }
+
+    /**
      * Test of adding an integer field with empty length argument
      *
      * @return void
