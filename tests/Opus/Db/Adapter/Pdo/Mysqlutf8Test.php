@@ -423,7 +423,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('An expected exception has not been raised.');
+        $this->fail('Exception expected but none raised.');
     }
 
     /**
@@ -453,8 +453,12 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         ->will($this->throwException(new Exception('Failed!!!')));
 
         // This shall throw an exception.
-        $this->setExpectedException('Exception');
-        $dba->addField('timmy', $fielddef);
+        try {
+            $dba->addField('timmy', $fielddef);
+        } catch (Exception $ex) {
+            return;
+        }
+        $this->fail('Exception expected but none raised.');
     }
 
     /**
@@ -519,7 +523,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('An expected exception has not been raised.');
+        $this->fail('Exception expected but none raised.');
     }
 
     /**
@@ -536,6 +540,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         } catch (Exception $e) {
             return;
         }
-        $this->fail('An expected exception has not been raised.');
+        $this->fail('Exception expected but none raised.');
     }
 }
