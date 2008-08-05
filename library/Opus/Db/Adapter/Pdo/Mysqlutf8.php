@@ -87,47 +87,41 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
     }
 
     /**
-     * Check for a table inside database
+     * Checks for a valid table and optionally field name.
+     * Returns false on invalid names or nonexisting tables / fields.
      *
      * @param string $tablename Contains table name
-     * @throws Exception Exception on invalid name or non-existing table
-     * @return string On Success table name including table prefix
+     * @param string $fieldname (Optional) Contains field name
+     * @throws Exception Exception on empty table
+     * @return boolean
      */
-    private function checkTable($tablename) {
-        // check for a valid table name
+    private function isExistent($tablename, $fieldname = null) {
         if (self::isValidName($tablename) === false) {
-            throw new Exception('Invalid table name.');
+            return false;
         }
-        // table name is valid, add table_prefix
+        // table name is valid, add tableprefix
         $tablename = strtolower($this->_tableprefix . $tablename);
         // check for table inside database
         if (in_array($tablename, $this->listTables()) === false) {
-            throw new Exception('Table not found in database.');
+            return false;
         }
-        return $tablename;
-    }
+        // is optional field name set
+        if (empty($fieldname) === false) {
+            if (self::isValidName($fieldname) === false) {
+                return false;
+            }
+            // get informations about specific table
+            $tableinfo = $this->describeTable(strtolower($tablename));
+            if (empty($tableinfo) === true) {
+                // this should never happen
+                throw new Exception('Get a table without any field definitions.');
+            }
+            // is specific field in table
+            $result = array_key_exists(strtolower($fieldname), $tableinfo);
+            return $result;
+        }
 
-    /**
-     * Enter description here...
-     *
-     * @param string $table     Contains table name (should be checked earlier)
-     * @param string $fieldname Contains field name
-     * @throws Exception Exception on invalid name or non-existing field
-     * @return boolean
-     */
-    private function checkField($table, $fieldname) {
-        if (self::isValidName($fieldname) === false) {
-            throw new Exception('Invalid field name.');
-        }
-        // get informations about specific table
-        $tableinfo = $this->describeTable(strtolower($table));
-        if (empty($tableinfo) === true) {
-            // this should never happen
-            throw new Exception('Get a table without any field definitions.');
-        }
-        // is specific field in table
-        $result = array_key_exists(strtolower($fieldname), $tableinfo);
-        return $result;
+        return true;
     }
 
     /**
@@ -219,19 +213,23 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      */
     public function addField($table, array $fielddef) {
         // check for a vaild table contains afterwards table name with table prefix!
-        $table = $this->checkTable($table);
+        if ($this->isExistent($table) === false) {
+            throw new Exception('Table \'' . $table . '\' doesn\'t exists.');
+        }
         if (empty($fielddef) === true) {
             throw new Exception('No data transmitted.');
         }
         if (array_key_exists('name', $fielddef) === false) {
             throw new Exception('Field name missing.');
         }
-        if ($this->checkField($table, $fielddef['name']) === true) {
+        if ($this->isExistent($table, $fielddef['name']) === true) {
             throw new Exception('Table contain already a field with this name.');
         }
         if (array_key_exists('type', $fielddef) === false) {
             throw new Exception('Field type missing.');
         }
+        // add table prefix
+        $table = $this->_tableprefix . $table;
         // start creating sql statement
         $stmt = 'ALTER TABLE ' . $this->_quoteIdentifier($table)
               . ' ADD COLUMN ' . $this->_quoteIdentifier(strtolower($fielddef['name']));
@@ -300,11 +298,15 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      */
     public function removeField($table, $name) {
         // check for a vaild table contains afterwards table name with table prefix!
-        $table = $this->checkTable($table);
-        // check for a valid field name
-        if ($this->checkField($table, $name) === false) {
-            throw new Exception('Specific field not found in table.');
+        if ($this->isExistent($table) === false) {
+            throw new Exception('Table \'' . $table . '\' doesn\'t exists.');
         }
+        // check for a valid field name
+        if ($this->isExistent($table, $name) === false) {
+            throw new Exception('Specific field \'' . $name . '\' not found in table.');
+        }
+        // add table prefix
+        $table = $this->_tableprefix . $table;
         // get table informations
         $tableinfo = $this->describeTable($table);
         // check for primary key which shouldn't be removed
