@@ -120,6 +120,9 @@ class Opus_Application_Bootstrap {
         // Include the above made configuration changes in the application configuration.
         $config->merge(Zend_Registry::get('Zend_Config'));
 
+        // Put manipulated database configuration back to registry.
+        Zend_Registry::set('Zend_Config', $config);
+
         // Use zend_Db factory to create a database adapter
         // and make it the default for all tables.
         $db = Zend_Db::factory($config->db);
