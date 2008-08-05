@@ -114,7 +114,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
             $tableinfo = $this->describeTable(strtolower($tablename));
             if (empty($tableinfo) === true) {
                 // this should never happen
-                throw new Exception('Get a table without any field definitions.');
+                throw new Exception('Got empty table description.');
             }
             // is specific field in table
             $result = array_key_exists(strtolower($fieldname), $tableinfo);
