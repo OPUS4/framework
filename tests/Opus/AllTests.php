@@ -70,7 +70,20 @@ class Opus_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus');
+        $suite->addTest(Opus_Application_AllTests::suite());
+        $suite->addTest(Opus_Client_AllTests::suite());
+        $suite->addTest(Opus_Collection_AllTests::suite());
         $suite->addTest(Opus_Db_AllTests::suite());
+        $suite->addTest(Opus_Document_AllTests::suite());
+        $suite->addTest(Opus_File_AllTests::suite());
+        $suite->addTest(Opus_Form_AllTests::suite());
+        $suite->addTest(Opus_Identifier_AllTests::suite());
+        $suite->addTest(Opus_Licence_AllTests::suite());
+        $suite->addTest(Opus_Mail_AllTests::suite());
+        $suite->addTest(Opus_Person_AllTests::suite());
+        $suite->addTest(Opus_Search_AllTests::suite());
+        $suite->addTest(Opus_Security_AllTests::suite());
+        $suite->addTest(Opus_Workflow_AllTests::suite());
         return $suite;
     }
 
