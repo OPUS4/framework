@@ -58,6 +58,7 @@ class Opus_Application_Bootstrap {
      */
     protected static $applicationRootDirectory = '';
 
+
     /**
      * Stores a reference to the cache component.
      *
@@ -79,16 +80,22 @@ class Opus_Application_Bootstrap {
      * Setup and run the dispatch loop. Finally send the response to the client.
      *
      * @param string $applicationRootDirectory Full path to directory of application modules and configuration.
+     *                                         Must not be empty.
      * @param string $configLevel              Determines wich level of configuration is to be used.
      *                                         choose CONFIG_PRODUCTION or CONFIG_TEST.
+     * @param string $configPath               (Optional) Path to look for config.ini file.
+     * @throws Exception                       Exception is thrown on empty application base path.
      * @return void
      *
      */
-    public static function run($applicationRootDirectory, $configLevel) {
+    public static function run($applicationRootDirectory, $configLevel, $configPath = null) {
+        if ( empty($applicationRootDirectory) === true ) {
+            throw new Exception('Configuration error. No application base path given.');
+        }
         self::$applicationRootDirectory = $applicationRootDirectory;
 
         self::setupEnvironment();
-        self::configure($configLevel);
+        self::configure($configLevel, $configPath);
         self::setupDatabase();
         self::setupLogging();
         self::setupCache();
@@ -169,11 +176,13 @@ class Opus_Application_Bootstrap {
      *
      * @param string $configLevel Determines wich level of configuration is to be used.
      *                            choose CONFIG_PRODUCTION or CONFIG_TEST.
+     * @param string $confiPath   (Optional) Path to config.ini. If no path is given,
+     *                            the application root directory is assumed to hold the config.ini.
      * @throws Exception          Exception is thrown if configuration level is invalid.
      * @return void
      *
      */
-    protected static function configure($configLevel) {
+    protected static function configure($configLevel, $configPath = null) {
 
         // Make sure that invalid configuration level values fail.
         if (($configLevel !== self::CONFIG_PRODUCTION) and (($configLevel !== self::CONFIG_TEST))) {
@@ -182,10 +191,12 @@ class Opus_Application_Bootstrap {
 
         // build path to ini file
         $pathToIni = 'config.ini';
-        if ( empty(self::$applicationRootDirectory) === false ) {
+        if ( empty(self::$configPath) === false ) {
             // only prepend path information if given
             // to aviod invalid filename "/config.ini"
             $pathToIni = self::$applicationRootDirectory . DIRECTORY_SEPARATOR . $pathToIni;
+        } else {
+            $pathToIni = $configPath . DIRECTORY_SEPARATOR . $pathToIni;
         }
         $config = new Zend_Config_Ini($pathToIni, $configLevel);
         $registry = Zend_Registry::getInstance();
@@ -316,7 +327,7 @@ class Opus_Application_Bootstrap {
 
         $backendOptions = array(
         // Directory where to put the cache files. Must be writeable for application server
-                'cache_dir' => dirname(self::$applicationRootDirectory) . '/tmp/'
+                'cache_dir' => self::$applicationRootDirectory . '/tmp/'
                 );
 
                 self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
@@ -331,7 +342,7 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupLogging()
     {
-        $logfile = @fopen(dirname(self::$applicationRootDirectory) . '/tmp/opus.log', 'a', false);
+        $logfile = @fopen(self::$applicationRootDirectory . '/tmp/opus.log', 'a', false);
         if ( $logfile === false ) {
             throw new Exception('Failed to open logging file.');
         }
