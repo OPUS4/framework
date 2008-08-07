@@ -32,7 +32,7 @@
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Universitaetsbibliothek Stuttgart, 1998-2008
  * @license     http://www.gnu.org/licenses/gpl.html
- * @version     $Id: AllTests.php 485 2008-07-22 12:23:38Z claussnitzer $
+ * @version     $Id$
  */
 
 // The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
