@@ -90,7 +90,6 @@ class Opus_Application_Bootstrap {
         self::setupEnvironment();
         self::configure($configLevel);
         self::setupDatabase();
-        self::setupAuthentication();
         self::setupLogging();
         self::setupCache();
         self::setupTranslation();
@@ -130,26 +129,6 @@ class Opus_Application_Bootstrap {
 
         // Register the adapter within Zend_Registry.
         Zend_Registry::getInstance()->set('db_adapter', $db);
-    }
-
-    /**
-     * Setup Zend_Auth component with custom database adapter and
-     * register the adapter configuration with Zend_Registry.
-     *
-     * @return void
-     *
-     */
-    protected static function setupAuthentication() {
-        $adapter = new Zend_Auth_Adapter_DbTable(Zend_Db_Table::getDefaultAdapter());
-        $adapter->setTableName('ACCOUNTS');
-        $adapter->setIdentityColumn('username');
-        $adapter->setCredentialColumn('password');
-
-        // Setup session based storage of identities.
-        Zend_Auth::getInstance()->setStorage(new Zend_Auth_Storage_Session());
-
-        // Register.
-        Zend_Registry::getInstance()->set('auth_adapter', $adapter);
     }
 
     /**
