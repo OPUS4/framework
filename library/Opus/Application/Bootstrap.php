@@ -176,7 +176,7 @@ class Opus_Application_Bootstrap {
      *
      * @param string $configLevel Determines wich level of configuration is to be used.
      *                            choose CONFIG_PRODUCTION or CONFIG_TEST.
-     * @param string $confiPath   (Optional) Path to config.ini. If no path is given,
+     * @param string $configPath  (Optional) Path to config.ini. If no path is given,
      *                            the application root directory is assumed to hold the config.ini.
      * @throws Exception          Exception is thrown if configuration level is invalid.
      * @return void
