@@ -37,8 +37,8 @@
 
 
 // Define global constants for test suite setup.
-define('SQL_DROP_SCRIPT_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'drop.sql');
-define('SQL_CREATE_SCRIPT_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'db' . DIRECTORY_SEPARATOR . 'create.sql');
+define('SQL_DROP_SCRIPT_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'db_schema' . DIRECTORY_SEPARATOR . 'drop.sql');
+define('SQL_CREATE_SCRIPT_PATH', dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'db_schema' . DIRECTORY_SEPARATOR . 'create.sql');
 
 // Configure include path.
 set_include_path('.' . PATH_SEPARATOR
