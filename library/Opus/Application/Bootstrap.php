@@ -255,13 +255,12 @@ class Opus_Application_Bootstrap {
     protected static function setupView()
     {
         Zend_Layout::startMvc(array(
-			'layoutPath'=>self::$applicationRootDirectory . '/modules/default/views/layouts',
+			'layoutPath'=>self::$applicationRootDirectory . '/layouts',
 			'layout'=>'common'));
 
         // Initialize view with custom encoding and global view helpers.
         $view = new Zend_View;
         $view->setEncoding('UTF-8');
-        $view->addHelperPath(self::$applicationRootDirectory . '/modules/default/views/helpers', 'Opus_View_Helper');
 
         // Set path to Zend extension view helpers to be accessible in other
         // modules too.
