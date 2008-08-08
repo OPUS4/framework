@@ -198,6 +198,12 @@ class Opus_Application_Bootstrap {
         } else {
             $pathToIni = $configPath . DIRECTORY_SEPARATOR . $pathToIni;
         }
+
+        // Check if the config file really exists.
+        if ( file_exists($pathToIni) === false ) {
+            throw new Exception('Config file ' . $pathToIni . ' does not exist.');
+        }
+
         $config = new Zend_Config_Ini($pathToIni, $configLevel);
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Config', $config);
