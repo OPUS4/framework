@@ -67,7 +67,7 @@ class TestHelper extends Opus_Application_Bootstrap {
      */
     public static function init() {
         self::setupEnvironment();
-        self::configure(self::CONFIG_TEST);
+        self::configure(self::CONFIG_TEST, dirname(__FILE__));
         self::setupDatabase();
     }
 
