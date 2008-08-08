@@ -37,10 +37,10 @@
 ; Have a look on Zend_Db::factory() method for information about adapter creation.
 
 [production]
-db.params.host = localhost
-db.params.username = demetrios
+db.params.host = 
+db.params.username = 
 db.params.password = 
-db.params.dbname = demetrios
+db.params.dbname = 
 
 [test : production]
-db.params.dbname = demetrios_test
+db.params.dbname = 
