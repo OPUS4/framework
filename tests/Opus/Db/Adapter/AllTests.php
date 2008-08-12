@@ -68,53 +68,12 @@ class Opus_Db_Adapter_AllTests {
     /**
      * Construct and return the test suite.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
      * @return PHPUnit_Framework_TestSuite The suite.
      */
     public static function suite() {
-        self::setupDatabase();
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Db_Adapter');
         $suite->addTest(Opus_Db_Adapter_Pdo_AllTests::suite());
         return $suite;
-    }
-
-    /**
-     * Load external drop and create scripts to setup a clean
-     * database schema.
-     *
-     * @return void
-     */
-    protected static function setupDatabase() {
-        $sql_drop = file_get_contents(SQL_DROP_SCRIPT_PATH);
-        $sql_create = file_get_contents(SQL_CREATE_SCRIPT_PATH);
-
-        $dba = Zend_Db_Table::getDefaultAdapter();
-        self::executeSqlScript($dba, $sql_drop);
-        self::executeSqlScript($dba, $sql_create);
-    }
-
-    /**
-     * Separate single sql commands from a given script and
-     * execute them in batch.
-     *
-     * @param Zend_Db_Adapter_Abstract $dba Database adapter to use.
-     * @param string                   $sql Sql script.
-     * @return void
-     */
-    protected static function executeSqlScript(Zend_Db_Adapter_Abstract $dba, $sql) {
-        // strip comments
-        $sql = preg_replace('/--.*/', '', $sql);
-        // strip newline
-        $sql = preg_replace('/(\n|\r)/', '', $sql);
-        // tokenize commands and execute in batch
-        $commands = explode(';',$sql);
-        foreach ($commands as $command) {
-            $command = trim($command);
-            if (strlen($command) > 0) {
-                $dba->query($command);
-            }
-        }
     }
 
 }
