@@ -220,7 +220,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   INDEX Person_External_Key_FKIndex1 (`person_id` ASC) ,
   CONSTRAINT `has`
     FOREIGN KEY (`person_id` )
-    REFERENCES `opus400`.`persons` (`person_id` ))
+    REFERENCES `opus400`.`persons` (`person_id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
