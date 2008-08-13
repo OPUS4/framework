@@ -122,18 +122,12 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   `file_label` TEXT NOT NULL COMMENT 'Anzeigetext für Datei' ,
   `file_type` VARCHAR(255) NOT NULL COMMENT 'Dateityp nach Dublin Core' ,
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type der Datei' ,
-  `file_language` VARCHAR(3) NOT NULL COMMENT 'Sprache der Datei' ,
+  `file_language` VARCHAR(3) NULL COMMENT 'Sprache der Datei' ,
   PRIMARY KEY (`document_files_id`) ,
   INDEX has (`document_id` ASC) ,
-  INDEX fk_Document_Files_Hash (`document_files_id` ASC) ,
   CONSTRAINT `has`
     FOREIGN KEY (`document_id` )
     REFERENCES `opus400`.`documents` (`document_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Document_Files_Hash`
-    FOREIGN KEY (`document_files_id` )
-    REFERENCES `opus400`.`hash` (`document_files_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 PACK_KEYS = 0
@@ -141,23 +135,16 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`hash`
+-- Table `opus400`.`file_hashvalues`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`hash` (
-  `hash_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
+  `file_hashvalues_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `document_files_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
   `hash_type` VARCHAR(50) NOT NULL COMMENT 'Art des Hashes' ,
   `hash_value` TEXT NOT NULL COMMENT 'Hashwert ' ,
-  PRIMARY KEY (`hash_id`) ,
-  INDEX Hash_FKIndex1 (`document_files_id` ASC) ,
-  INDEX fk_Hash_Document_Files (`document_files_id` ASC) ,
-  INDEX fk_Hash_Document_Files1 (`document_files_id` ASC) ,
-  CONSTRAINT `fk_Hash_Document_Files`
-    FOREIGN KEY (`document_files_id` )
-    REFERENCES `opus400`.`document_files` (`document_files_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Hash_Document_Files1`
+  PRIMARY KEY (`file_hashvalues_id`, `document_files_id`) ,
+  INDEX fk_file_hashvalues_document_files (`document_files_id` ASC) ,
+  CONSTRAINT `fk_file_hashvalues_document_files`
     FOREIGN KEY (`document_files_id` )
     REFERENCES `opus400`.`document_files` (`document_files_id` )
     ON DELETE NO ACTION
@@ -207,8 +194,8 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`persons`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
-  `person_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `academic_title` VARCHAR(255) NOT NULL COMMENT 'Akademischer Titel' ,
+  `person_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `academic_title` VARCHAR(255) NULL COMMENT 'Akademischer Titel' ,
   `date_of_birth` DATETIME NOT NULL COMMENT 'Geburtsdatum' ,
   `email` VARCHAR(100) NOT NULL COMMENT 'Email-Adresse' ,
   `first_name` VARCHAR(255) NOT NULL COMMENT 'Vorname' ,
