@@ -42,6 +42,7 @@ class Opus_Person_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Person');
+        $suite->addTestSuite('Opus_Person_InformationTest');
         return $suite;
     }
 
