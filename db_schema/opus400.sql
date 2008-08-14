@@ -30,7 +30,7 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`documents`
+-- table `opus400`.`documents`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `opus400`.`documents` ;
 
