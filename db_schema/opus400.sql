@@ -100,37 +100,13 @@ COMMENT = '\n';
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
-  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_contents_id` INT(11) NOT NULL ,
-  `replacement_for_id` INT(11) NOT NULL ,
-  `replacement_by_id` INT(11) NOT NULL ,
-  `current_replacement_id` INT(11) NOT NULL ,
-  PRIMARY KEY (`institutes_replacement_id`) ,
-  INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
-  INDEX replacement_for_id (`replacement_for_id` ASC) ,
-  INDEX replacement_by_id (`replacement_by_id` ASC) ,
-  INDEX current_replacement (`current_replacement_id` ASC) ,
-  CONSTRAINT `institutes_contents_id`
-    FOREIGN KEY (`institutes_contents_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `replacement_for_id`
-    FOREIGN KEY (`replacement_for_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `replacement_by_id`
-    FOREIGN KEY (`replacement_by_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `current_replacement`
-    FOREIGN KEY (`current_replacement_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
+  `institutes_contents_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
+  `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
+  `postal_adress` TEXT NULL ,
+  `institutes_site` TEXT NULL ,
+  PRIMARY KEY (`institutes_contents_id`) )
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -363,34 +339,15 @@ COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_structure`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
-  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
+  `institutes_structure_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_contents_id` INT(11) NOT NULL ,
-  `replacement_for_id` INT(11) NOT NULL ,
-  `replacement_by_id` INT(11) NOT NULL ,
-  `current_replacement_id` INT(11) NOT NULL ,
-  PRIMARY KEY (`institutes_replacement_id`) ,
+  `left` INT(11) NOT NULL ,
+  `right` INT(11) NULL ,
+  PRIMARY KEY (`institutes_structure_id`) ,
   INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
-  INDEX replacement_for_id (`replacement_for_id` ASC) ,
-  INDEX replacement_by_id (`replacement_by_id` ASC) ,
-  INDEX current_replacement (`current_replacement_id` ASC) ,
   CONSTRAINT `institutes_contents_id`
     FOREIGN KEY (`institutes_contents_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `replacement_for_id`
-    FOREIGN KEY (`replacement_for_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `replacement_by_id`
-    FOREIGN KEY (`replacement_by_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `current_replacement`
-    FOREIGN KEY (`current_replacement_id` )
     REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
