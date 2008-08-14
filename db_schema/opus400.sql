@@ -8,8 +8,6 @@ USE `opus400`;
 -- -----------------------------------------------------
 -- Table `opus400`.`licences`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`licences` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `licences_id` INT NOT NULL AUTO_INCREMENT ,
   `shortname` VARCHAR(20) NULL ,
@@ -30,10 +28,8 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- table `opus400`.`documents`
+-- Table `opus400`.`documents`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`documents` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `documents_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
   `licences_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
@@ -84,8 +80,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_identifiers`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_identifiers` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
   `document_identifiers_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel auf DocumentTabelle' ,
@@ -106,8 +100,6 @@ COMMENT = '\n';
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_contents_id` INT(11) NOT NULL ,
@@ -146,8 +138,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_files`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_files` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   `document_files_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -171,8 +161,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`file_hashvalues`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`file_hashvalues` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
   `file_hashvalues_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `document_files_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
@@ -192,8 +180,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_subjects`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_subjects` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   `document_subjects_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
   `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -213,8 +199,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_title_abstracts`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_title_abstracts` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
   `document_title_abstracts_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -233,8 +217,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`persons`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`persons` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
   `persons_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `academic_title` VARCHAR(255) NULL COMMENT 'Akademischer Titel' ,
@@ -252,8 +234,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`person_external_keys`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`person_external_keys` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   `person_external_keys_Id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `persons_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
@@ -274,8 +254,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`link_documents_persons`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`link_documents_persons` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
   `link_documents_persons_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
   `documents_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
@@ -306,8 +284,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_patents`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_patents` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
   `document_patents_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel auf Document Tabelle' ,
@@ -329,8 +305,6 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_statistics`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_statistics` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   `document_statistics_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -351,8 +325,6 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_notes`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_notes` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
   `document_notes_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -372,8 +344,6 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_enrichments`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`document_enrichments` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   `document_enrichments_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
@@ -393,8 +363,6 @@ COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_structure`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_contents_id` INT(11) NOT NULL ,
@@ -433,8 +401,6 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_replacement`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
-
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_contents_id` INT(11) NOT NULL ,
