@@ -42,6 +42,7 @@ class Opus_Identifier_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Identifier');
+        $suite->addTestSuite('Opus_Identifier_UrnTest');
         return $suite;
     }
 
