@@ -42,6 +42,8 @@ class Opus_File_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_File');
+        $suite->addTestSuite('Opus_File_StorageTest');
+        $suite->addTestSuite('Opus_File_HashTest');
         return $suite;
     }
 
