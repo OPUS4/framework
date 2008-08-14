@@ -27,7 +27,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Universitaetsbibliothek Stuttgart, 1998-2008
  * @license     http://www.gnu.org/licenses/gpl.html
