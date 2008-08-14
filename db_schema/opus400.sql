@@ -8,8 +8,10 @@ USE `opus400`;
 -- -----------------------------------------------------
 -- Table `opus400`.`licences`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`licences` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
-  `licence_id` INT NOT NULL AUTO_INCREMENT ,
+  `licences_id` INT NOT NULL AUTO_INCREMENT ,
   `shortname` VARCHAR(20) NULL ,
   `longname` VARCHAR(255) NULL ,
   `desc_text` MEDIUMTEXT NULL ,
@@ -23,16 +25,18 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `mime_type` VARCHAR(30) NULL ,
   `logo` MEDIUMTEXT NULL ,
   `comment` MEDIUMTEXT NULL ,
-  PRIMARY KEY (`licence_id`) )
+  PRIMARY KEY (`licences_id`) )
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
 -- Table `opus400`.`documents`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`documents` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
-  `document_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
-  `licence_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
+  `documents_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
+  `licences_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
   `book_series_volume` VARCHAR(25) NOT NULL COMMENT 'Band des Gesamttitels' ,
   `book_volume` VARCHAR(25) NOT NULL COMMENT 'Band' ,
   `contributing_corporation` TEXT NOT NULL COMMENT 'Sonstige beteiligte Institutionen (dc:contributor.corporate)' ,
@@ -66,11 +70,11 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `published_date` DATE NULL ,
   `non_institute_affiliation` TEXT NOT NULL COMMENT 'Für alles, was kein universitätsinternes Institut im Sinne von Tabelle Institutes ist' ,
   `vg_wort_pixel_url` TEXT NOT NULL COMMENT 'URL auf den VG-Wort-Zählpixel' ,
-  PRIMARY KEY (`document_id`) ,
-  INDEX fk_Document_license (`licence_id` ASC) ,
+  PRIMARY KEY (`documents_id`) ,
+  INDEX fk_Document_license (`licences_id` ASC) ,
   CONSTRAINT `fk_Document_license`
-    FOREIGN KEY (`licence_id` )
-    REFERENCES `opus400`.`licences` (`licence_id` )
+    FOREIGN KEY (`licences_id` )
+    REFERENCES `opus400`.`licences` (`licences_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 PACK_KEYS = 0
@@ -78,19 +82,21 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_resource_identifiers`
+-- Table `opus400`.`document_identifiers`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_resource_identifiers` (
-  `document_resources_identifiers_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT NOT NULL COMMENT 'Fremdschlüssel auf DocumentTabelle' ,
-  `resource_link_type` ENUM('DOI', 'Handle', 'URN', 'STD-DOI', 'URL', 'CRIS-Link', 'Splash-URL') NOT NULL COMMENT 'Art des Verweises (intern und extern)' ,
-  `resource_link_value` TEXT NOT NULL COMMENT 'Verweis' ,
-  `resource_Label` TEXT NOT NULL COMMENT 'Anzeigetext für den Verweis' ,
-  PRIMARY KEY (`document_resources_identifiers_id`) ,
-  INDEX has (`document_id` ASC) ,
+DROP TABLE IF EXISTS `opus400`.`document_identifiers` ;
+
+CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
+  `document_identifiers_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel auf DocumentTabelle' ,
+  `identifier_type` ENUM('DOI', 'Handle', 'URN', 'STD-DOI', 'URL', 'CRIS-Link', 'Splash-URL') NOT NULL COMMENT 'Art des Verweises (intern und extern)' ,
+  `identifier_value` TEXT NOT NULL COMMENT 'Verweis' ,
+  `identifier_label` TEXT NOT NULL COMMENT 'Anzeigetext für den Verweis' ,
+  PRIMARY KEY (`document_identifiers_id`) ,
+  INDEX has (`documents_id` ASC) ,
   CONSTRAINT `has`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -98,15 +104,41 @@ COMMENT = '\n';
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`institutes`
+-- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes` (
-  `institutes_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
-  `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
-  `postal_adress` TEXT NULL ,
-  `institutes_site` TEXT NULL ,
-  PRIMARY KEY (`institutes_id`) )
+DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
+
+CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
+  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT(11) NOT NULL ,
+  `replacement_for_id` INT(11) NOT NULL ,
+  `replacement_by_id` INT(11) NOT NULL ,
+  `current_replacement_id` INT(11) NOT NULL ,
+  PRIMARY KEY (`institutes_replacement_id`) ,
+  INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
+  INDEX replacement_for_id (`replacement_for_id` ASC) ,
+  INDEX replacement_by_id (`replacement_by_id` ASC) ,
+  INDEX current_replacement (`current_replacement_id` ASC) ,
+  CONSTRAINT `institutes_contents_id`
+    FOREIGN KEY (`institutes_contents_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `replacement_for_id`
+    FOREIGN KEY (`replacement_for_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `replacement_by_id`
+    FOREIGN KEY (`replacement_by_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `current_replacement`
+    FOREIGN KEY (`current_replacement_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -114,9 +146,11 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_files`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_files` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   `document_files_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `file_path_name` TEXT NOT NULL COMMENT 'Pfad und Dateiname' ,
   `file_sort_order` TINYINT(4) NOT NULL COMMENT 'Sortierung der Dateien' ,
   `file_label` TEXT NOT NULL COMMENT 'Anzeigetext für Datei' ,
@@ -124,10 +158,10 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type der Datei' ,
   `file_language` VARCHAR(3) NULL COMMENT 'Sprache der Datei' ,
   PRIMARY KEY (`document_files_id`) ,
-  INDEX has (`document_id` ASC) ,
+  INDEX has (`documents_id` ASC) ,
   CONSTRAINT `has`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 PACK_KEYS = 0
@@ -137,6 +171,8 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`file_hashvalues`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`file_hashvalues` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
   `file_hashvalues_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `document_files_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
@@ -156,18 +192,20 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_subjects`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_subjects` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
-  `document_subject_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
-  `document_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `document_subjects_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
+  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `subject_type` ENUM('Psyndex Terms', 'DDC', 'SWD', '...') NOT NULL COMMENT 'Art der Erschließung' ,
   `subject_value` VARCHAR(255) NOT NULL COMMENT 'Wert zu subject_type (kontrolliertes/freies Schlagwort, Notation, etc)' ,
   `language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
   `external_subject_key` VARCHAR(255) NULL COMMENT 'Identifikator zur Auflösung von Deskriptoren in Fremdsystemen' ,
-  PRIMARY KEY (`document_subject_id`) ,
-  INDEX opus_subject_FKIndex1 (`document_id` ASC) ,
+  PRIMARY KEY (`document_subjects_id`) ,
+  INDEX opus_subject_FKIndex1 (`documents_id` ASC) ,
   CONSTRAINT `has`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` ))
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` ))
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -175,17 +213,19 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_title_abstracts`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_title_abstracts` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
-  `document_title_abstract_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
-  `document_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `document_title_abstracts_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `title_abstract_type` ENUM('Title', 'Abstract', 'Subtitle') NOT NULL COMMENT 'Titel/Abstract des Dokuments' ,
   `title_abstract_value` TEXT NOT NULL COMMENT 'Inhalt zu title_abstract_type' ,
   `title_abstract_language` VARCHAR(3) NOT NULL COMMENT 'Sprache des Titels, Abstracts' ,
-  PRIMARY KEY (`document_title_abstract_id`) ,
-  INDEX Title_Abstract_FKIndex1 (`document_id` ASC) ,
+  PRIMARY KEY (`document_title_abstracts_id`) ,
+  INDEX Title_Abstract_FKIndex1 (`documents_id` ASC) ,
   CONSTRAINT `has`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` ))
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` ))
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -193,15 +233,17 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`persons`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`persons` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
-  `person_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `persons_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `academic_title` VARCHAR(255) NULL COMMENT 'Akademischer Titel' ,
   `date_of_birth` DATETIME NOT NULL COMMENT 'Geburtsdatum' ,
   `email` VARCHAR(100) NOT NULL COMMENT 'Email-Adresse' ,
   `first_name` VARCHAR(255) NOT NULL COMMENT 'Vorname' ,
   `last_name` VARCHAR(255) NOT NULL COMMENT 'Nachname' ,
   `place_of_birth` VARCHAR(255) NOT NULL COMMENT 'Geburtsort' ,
-  PRIMARY KEY (`person_id`) ,
+  PRIMARY KEY (`persons_id`) ,
   INDEX last_name (`last_name` ASC) )
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -210,17 +252,19 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`person_external_keys`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`person_external_keys` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
-  `person_external_key_Id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `person_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
+  `person_external_keys_Id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `persons_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
   `type` ENUM('PND', '...') NOT NULL COMMENT 'Art der externen ID (z.B. PND)' ,
   `value` TEXT NOT NULL COMMENT 'Wert' ,
   `resolver` VARCHAR(255) NOT NULL COMMENT 'URL zum Auflösungsmechanismus' ,
-  PRIMARY KEY (`person_external_key_Id`) ,
-  INDEX Person_External_Key_FKIndex1 (`person_id` ASC) ,
+  PRIMARY KEY (`person_external_keys_Id`) ,
+  INDEX Person_External_Key_FKIndex1 (`persons_id` ASC) ,
   CONSTRAINT `has`
-    FOREIGN KEY (`person_id` )
-    REFERENCES `opus400`.`persons` (`person_id` )
+    FOREIGN KEY (`persons_id` )
+    REFERENCES `opus400`.`persons` (`persons_id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 PACK_KEYS = 0
@@ -230,25 +274,28 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 -- Table `opus400`.`link_documents_persons`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`link_documents_persons` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
-  `link_document_person_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `document_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Institute Tabelle' ,
+  `link_documents_persons_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `documents_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Institute Tabelle' ,
+  `persons_id` INT(11) NOT NULL ,
   `role` ENUM('Author', 'Editor', 'Referee', 'Contributor') NOT NULL ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Reihenfolge der Autoren' ,
-  PRIMARY KEY (`link_document_person_id`) ,
-  INDEX Person_has_Document_FKIndex1 (`link_document_person_id` ASC) ,
-  INDEX Person_has_Document_FKIndex2 (`document_id` ASC) ,
-  INDEX Rel_06 (`institutes_id` ASC) ,
+  PRIMARY KEY (`link_documents_persons_id`) ,
+  INDEX Person_has_Document_FKIndex1 (`link_documents_persons_id` ASC) ,
+  INDEX Person_has_Document_FKIndex2 (`documents_id` ASC) ,
+  INDEX Rel_06 (`institutes_contents_id` ASC) ,
   CONSTRAINT `Rel_04`
-    FOREIGN KEY (`link_document_person_id` )
-    REFERENCES `opus400`.`persons` (`person_id` ),
+    FOREIGN KEY (`persons_id` )
+    REFERENCES `opus400`.`persons` (`persons_id` ),
   CONSTRAINT `Rel_05`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` ),
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` ),
   CONSTRAINT `Rel_06`
-    FOREIGN KEY (`institutes_id` )
-    REFERENCES `opus400`.`institutes` (`institutes_id` )
+    FOREIGN KEY (`institutes_contents_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 COMMENT = 'Possilbe values for role:\nauthor\nadvisor\neditor\ntranslator'
@@ -257,46 +304,23 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_subjects_relations`
+-- Table `opus400`.`document_patents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_subjects_relations` (
-  `link_subject_relations_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_subject_mother_id` INT NOT NULL COMMENT 'Elternknoten der Beziehung' ,
-  `document_subject_daughter_id` INT NOT NULL COMMENT 'Kind der Beziehung' ,
-  `relation_type` ENUM('broader', 'narrower', 'related', 'synonym') NOT NULL COMMENT 'Art der Beziehung' ,
-  PRIMARY KEY (`link_subject_relations_id`) ,
-  INDEX fk_Subject_Relations_Document_Subject (`document_subject_mother_id` ASC) ,
-  INDEX fk_Subject_Relations_Document_Subject1 (`document_subject_daughter_id` ASC) ,
-  CONSTRAINT `fk_Subject_Relations_Document_Subject`
-    FOREIGN KEY (`document_subject_mother_id` )
-    REFERENCES `opus400`.`document_subjects` (`document_subject_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Subject_Relations_Document_Subject1`
-    FOREIGN KEY (`document_subject_daughter_id` )
-    REFERENCES `opus400`.`document_subjects` (`document_subject_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-COMMENT = 'Abbildung qualifizierter Beziehungen zwischen Schlagworten';
+DROP TABLE IF EXISTS `opus400`.`document_patents` ;
 
-
--- -----------------------------------------------------
--- Table `opus400`.`document_patent_informations`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_patent_informations` (
-  `patent_information_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT NOT NULL COMMENT 'Fremdschlüssel auf Document Tabelle' ,
+CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
+  `document_patents_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel auf Document Tabelle' ,
   `patent_countries` TEXT NOT NULL COMMENT 'Länder, in denen Patent erteilt wurde' ,
   `patent_date_granted` DATE NOT NULL COMMENT 'Datum der Patenterteilung' ,
   `patent_number` VARCHAR(255) NOT NULL COMMENT 'Patentnummer' ,
   `patent_year_applied` YEAR NOT NULL COMMENT 'Jahr der Antragsstellung' ,
   `patent_application` TEXT NOT NULL COMMENT 'Beschreibung der Anwendung/ des Patents' ,
-  PRIMARY KEY (`patent_information_id`) ,
-  INDEX fk_Patent_Information_Document (`document_id` ASC) ,
+  PRIMARY KEY (`document_patents_id`) ,
+  INDEX fk_Patent_Information_Document (`documents_id` ASC) ,
   CONSTRAINT `fk_Patent_Information_Document`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -305,18 +329,20 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_statistics`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_statistics` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   `document_statistics_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `statistic_type` TEXT NOT NULL COMMENT 'Art der dokumentbezogenen Statistik' ,
   `statistic_value` TEXT NOT NULL COMMENT 'Kennwert' ,
   `start_survey_period` DATETIME NOT NULL ,
   `end_survey_period` DATETIME NOT NULL ,
   PRIMARY KEY (`document_statistics_id`) ,
-  INDEX fk_Document_Statistics_Document (`document_id` ASC) ,
+  INDEX fk_Document_Statistics_Document (`documents_id` ASC) ,
   CONSTRAINT `fk_Document_Statistics_Document`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -325,17 +351,19 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_notes`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_notes` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
   `document_notes_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `message` TEXT NOT NULL COMMENT 'Mitteilungstext' ,
   `creator` TEXT NOT NULL COMMENT 'Verfasser der Mitteilung' ,
   `scope` ENUM('private', 'public', 'reference') NOT NULL COMMENT 'Sichtbarkeit: intern, extern, Verweis auf andere Dokumentversion ' ,
   PRIMARY KEY (`document_notes_id`) ,
-  INDEX fk_Document_Notes_Document (`document_id` ASC) ,
+  INDEX fk_Document_Notes_Document (`documents_id` ASC) ,
   CONSTRAINT `fk_Document_Notes_Document`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -344,16 +372,18 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 -- Table `opus400`.`document_enrichments`
 -- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`document_enrichments` ;
+
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
-  `document_enrichment_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `document_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `document_enrichments_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `enrichment_type` VARCHAR(255) NOT NULL COMMENT 'Art der Erweiterung' ,
   `enrichment_value` TEXT NOT NULL COMMENT 'Wert der Erweiterung' ,
-  PRIMARY KEY (`document_enrichment_id`) ,
-  INDEX fk_Document_Enrichment_Document (`document_id` ASC) ,
+  PRIMARY KEY (`document_enrichments_id`) ,
+  INDEX fk_Document_Enrichment_Document (`documents_id` ASC) ,
   CONSTRAINT `fk_Document_Enrichment_Document`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`document_id` )
+    FOREIGN KEY (`documents_id` )
+    REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -361,27 +391,83 @@ COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_institutes_relations`
+-- Table `opus400`.`institutes_structure`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_institutes_relations` (
-  `link_institutes_relation_id` INT NOT NULL AUTO_INCREMENT ,
-  `institutes_mother_id` INT NOT NULL ,
-  `institutes_daughter_id` INT NOT NULL ,
-  `relation_type` ENUM('sub','top') NOT NULL ,
-  PRIMARY KEY (`link_institutes_relation_id`) ,
-  INDEX fk_link_institutes_relation_institutes (`institutes_mother_id` ASC) ,
-  INDEX fk_link_institutes_relation_institutes1 (`institutes_daughter_id` ASC) ,
-  CONSTRAINT `fk_link_institutes_relation_institutes`
-    FOREIGN KEY (`institutes_mother_id` )
-    REFERENCES `opus400`.`institutes` (`institutes_id` )
+DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
+
+CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
+  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT(11) NOT NULL ,
+  `replacement_for_id` INT(11) NOT NULL ,
+  `replacement_by_id` INT(11) NOT NULL ,
+  `current_replacement_id` INT(11) NOT NULL ,
+  PRIMARY KEY (`institutes_replacement_id`) ,
+  INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
+  INDEX replacement_for_id (`replacement_for_id` ASC) ,
+  INDEX replacement_by_id (`replacement_by_id` ASC) ,
+  INDEX current_replacement (`current_replacement_id` ASC) ,
+  CONSTRAINT `institutes_contents_id`
+    FOREIGN KEY (`institutes_contents_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_link_institutes_relation_institutes1`
-    FOREIGN KEY (`institutes_daughter_id` )
-    REFERENCES `opus400`.`institutes` (`institutes_id` )
+  CONSTRAINT `replacement_for_id`
+    FOREIGN KEY (`replacement_for_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `replacement_by_id`
+    FOREIGN KEY (`replacement_by_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `current_replacement`
+    FOREIGN KEY (`current_replacement_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
+
+
+-- -----------------------------------------------------
+-- Table `opus400`.`institutes_replacement`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `opus400`.`institutes_replacement` ;
+
+CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
+  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT(11) NOT NULL ,
+  `replacement_for_id` INT(11) NOT NULL ,
+  `replacement_by_id` INT(11) NOT NULL ,
+  `current_replacement_id` INT(11) NOT NULL ,
+  PRIMARY KEY (`institutes_replacement_id`) ,
+  INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
+  INDEX replacement_for_id (`replacement_for_id` ASC) ,
+  INDEX replacement_by_id (`replacement_by_id` ASC) ,
+  INDEX current_replacement (`current_replacement_id` ASC) ,
+  CONSTRAINT `institutes_contents_id`
+    FOREIGN KEY (`institutes_contents_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `replacement_for_id`
+    FOREIGN KEY (`replacement_for_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `replacement_by_id`
+    FOREIGN KEY (`replacement_by_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `current_replacement`
+    FOREIGN KEY (`current_replacement_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 
