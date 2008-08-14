@@ -18,8 +18,7 @@ require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHe
  * Main test suite for testing database access and models.
  *
  * @category    Tests
- * @package     Opus_Application_Framework
- * @subpackage  Data
+ * @package     Opus_Person
  */
 class Opus_Person_AllTests {
 

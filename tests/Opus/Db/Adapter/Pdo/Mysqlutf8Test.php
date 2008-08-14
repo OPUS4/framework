@@ -2,8 +2,9 @@
 /**
  * Test cases for Site entity.
  *
- * @package     Opus_Application_Framework
- * @subpackage  Db_Adapter_Pdo
+ * @category    Tests
+ * @package     Opus_Db
+ * @subpackage  Opus_Db_Adapter
  *
  * @group       Mysqlutf8Test
  */

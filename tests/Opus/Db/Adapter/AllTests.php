@@ -50,8 +50,8 @@ require_once dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR 
  * Main test suite for testing database access and models.
  *
  * @category    Tests
- * @package     Opus_Application_Framework
- * @subpackage  Data
+ * @package     Opus_Db
+ * @subpackage  Opus_Db_Adapter
  */
 class Opus_Db_Adapter_AllTests {
 

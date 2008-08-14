@@ -50,8 +50,8 @@ require_once dirname(dirname(dirname(dirname(dirname(__FILE__))))) . DIRECTORY_S
  * Main test suite for grouping and executing all subsequent test suites.
  *
  * @category    Tests
- * @package     Opus_Application_Framework
- * @subpackage  Data_Model
+ * @package     Opus_Db
+ * @subpackage  Data_Db_Adapter
  */
 class Opus_Db_Adapter_Pdo_AllTests {
 
