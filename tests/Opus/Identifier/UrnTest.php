@@ -43,13 +43,24 @@ class Opus_Identifier_UrnTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test data provider for a bad document identifier input value.
+     *
+     * @return array Array containing invalid document identifier.
+     */
+    public function badIdProvider() {
+        return array(
+        array('!ERROR!', 'Used invalid arguments for document id.'),
+        );
+    }
+
+    /**
      * Test if a valid URN is generated.
      *
      * @param string $document_id Identifier of the Document.
      * @param string $urn         A full qualified and valid URN.
      * @param string $checkdigit  Check digit valid for the given URN.
      * @return void
-     * 
+     *
      * @dataProvider provider
      */
     public function testUrn($document_id, $urn, $checkdigit) {
@@ -65,7 +76,7 @@ class Opus_Identifier_UrnTest extends PHPUnit_Framework_TestCase {
      * @param string $urn         A full qualified and valid URN.
      * @param string $checkdigit  Check digit valid for the given URN.
      * @return void
-     * 
+     *
      * @dataProvider provider
      */
     public function testCheckDigit($document_id, $urn, $checkdigit) {
@@ -82,11 +93,41 @@ class Opus_Identifier_UrnTest extends PHPUnit_Framework_TestCase {
      * @param string $niss  Namespace specific string part of the URN.
      * @param string $msg   Message on failing test.
      * @return void
-     * 
+     *
      * @dataProvider badProvider
      */
     public function testInitializeWithInvalidValues($snid1, $snid2, $niss, $msg) {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Opus_Identifier_Urn($snid1, $snid2, $niss);
+    }
+
+    /**
+     * Test if illegal document identifier value raises an exception on calling urn generator.
+     *
+     * @param string $document_id Identifier of the Document.
+     * @param string $msg         Message on failing test.
+     * @return void
+     *
+     * @dataProvider badIdProvider
+     */
+    public function testCallUrnGeneratorWithInvalidValue($document_id, $msg) {
+        $this->setExpectedException('InvalidArgumentException', $msg);
+        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $generated = $identifier->getUrn($document_id);
+    }
+
+    /**
+     * Test if illegal document identifier value raises an exception on calling check digit generator.
+     *
+     * @param string $document_id Identifier of the Document.
+     * @param string $msg         Message on failing test.
+     * @return void
+     *
+     * @dataProvider badIdProvider
+     */
+    public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg) {
+        $this->setExpectedException('InvalidArgumentException', $msg);
+        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $generated = $identifier->getCheckDigit($document_id);
     }
 }
