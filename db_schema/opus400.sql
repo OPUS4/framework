@@ -10,21 +10,23 @@ USE `opus400`;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `licences_id` INT NOT NULL AUTO_INCREMENT ,
-  `shortname` VARCHAR(20) NULL ,
-  `longname` VARCHAR(255) NULL ,
+  `shortname` VARCHAR(20) NOT NULL ,
+  `longname` VARCHAR(255) NOT NULL ,
   `desc_text` MEDIUMTEXT NULL ,
-  `active` TINYINT NULL ,
-  `sort` TINYINT(2) NULL ,
-  `pod_allowed` TINYINT(1) NULL ,
-  `language` CHAR(3) NULL ,
-  `link` MEDIUMTEXT NULL ,
-  `link_to_sign` MEDIUMTEXT NULL ,
+  `active` TINYINT NOT NULL ,
+  `sort` TINYINT(2) NOT NULL ,
+  `pod_allowed` TINYINT(1) NOT NULL ,
+  `language` CHAR(3) NOT NULL ,
+  `link` MEDIUMTEXT NOT NULL ,
+  `link_to_sign` MEDIUMTEXT NOT NULL ,
   `desc_html` MEDIUMTEXT NULL ,
-  `mime_type` VARCHAR(30) NULL ,
+  `mime_type` VARCHAR(30) NOT NULL ,
   `logo` MEDIUMTEXT NULL ,
   `comment` MEDIUMTEXT NULL ,
   PRIMARY KEY (`licences_id`) )
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
 
 
 -- -----------------------------------------------------
@@ -33,39 +35,39 @@ ENGINE = InnoDB;
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `documents_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
   `licences_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
-  `book_series_volume` VARCHAR(25) NOT NULL COMMENT 'Band des Gesamttitels' ,
-  `book_volume` VARCHAR(25) NOT NULL COMMENT 'Band' ,
-  `contributing_corporation` TEXT NOT NULL COMMENT 'Sonstige beteiligte Institutionen (dc:contributor.corporate)' ,
-  `creating_corporation` TEXT NOT NULL COMMENT 'Urheber (dc:creator.corporate)' ,
-  `diss_date_accepted` DATE NOT NULL COMMENT 'Datum der mündlichen Prüfung (für Dissertationen)' ,
-  `server_date_modified` DATETIME NOT NULL COMMENT 'letzte Änderung des Datensatzes (dc:date.modified)' ,
+  `book_series_volume` VARCHAR(25) NULL COMMENT 'Band des Gesamttitels' ,
+  `book_volume` VARCHAR(25) NULL COMMENT 'Band' ,
+  `contributing_corporation` TEXT NULL COMMENT 'Sonstige beteiligte Institutionen (dc:contributor.corporate)' ,
+  `creating_corporation` TEXT NULL COMMENT 'Urheber (dc:creator.corporate)' ,
+  `diss_date_accepted` DATE NULL COMMENT 'Datum der mündlichen Prüfung (für Dissertationen)' ,
+  `server_date_modified` DATETIME NULL COMMENT 'letzte Änderung des Datensatzes (dc:date.modified)' ,
   `server_date_published` DATETIME NOT NULL COMMENT 'Veröffentlichungsdatum auf Server (dc:date.creation)' ,
-  `server_date_unlocking` DATE NOT NULL COMMENT 'Freigabedatum (Embargofrist)' ,
-  `server_date_valid` DATE NOT NULL COMMENT 'Gültig bis' ,
+  `server_date_unlocking` DATE NULL COMMENT 'Freigabedatum (Embargofrist)' ,
+  `server_date_valid` DATE NULL COMMENT 'Gültig bis' ,
   `document_type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Dokumenttyp (type)' ,
-  `edition` VARCHAR(25) NOT NULL COMMENT 'Auflage' ,
-  `first_page` INT NOT NULL COMMENT 'Seite von' ,
-  `last_page` INT NOT NULL COMMENT 'Seite bis' ,
+  `edition` VARCHAR(25) NULL COMMENT 'Auflage' ,
+  `first_page` INT NULL COMMENT 'Seite von' ,
+  `last_page` INT NULL COMMENT 'Seite bis' ,
   `publication_status` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Bearbeitungsstatus (temp, in review, published)' ,
-  `isbn` TEXT NOT NULL COMMENT 'ISBN' ,
-  `issn` TEXT NOT NULL COMMENT 'ISSN' ,
-  `journal_issue` VARCHAR(25) NOT NULL COMMENT 'Heft' ,
-  `journal_volume` VARCHAR(25) NOT NULL COMMENT 'Jahrgang' ,
-  `language` VARCHAR(3) NOT NULL COMMENT '(hauptsächliche) Sprache des Dokuments' ,
-  `page_number` INT NOT NULL COMMENT 'Seitenzahl' ,
-  `place` VARCHAR(255) NOT NULL COMMENT 'Veröffentlichungsort' ,
-  `publisher` VARCHAR(255) NOT NULL COMMENT 'Verlag' ,
+  `isbn` TEXT NULL COMMENT 'ISBN' ,
+  `issn` TEXT NULL COMMENT 'ISSN' ,
+  `journal_issue` VARCHAR(25) NULL COMMENT 'Heft' ,
+  `journal_volume` VARCHAR(25) NULL COMMENT 'Jahrgang' ,
+  `language` VARCHAR(3) NULL COMMENT '(hauptsächliche) Sprache des Dokuments' ,
+  `page_number` INT NULL COMMENT 'Seitenzahl' ,
+  `place` VARCHAR(255) NULL COMMENT 'Veröffentlichungsort' ,
+  `publisher` VARCHAR(255) NULL COMMENT 'Verlag' ,
   `publisher_university` INT NOT NULL COMMENT 'Veröffentlichende Universität' ,
-  `range_id` INT NOT NULL COMMENT 'Bereichs-Id (Zugänglichkeit nur auf Campus)' ,
+  `range_id` INT NULL COMMENT 'Bereichs-Id (Zugänglichkeit nur auf Campus)' ,
   `reviewed` ENUM('peer', 'editorial', 'open') NOT NULL COMMENT 'Art der Review' ,
-  `source` VARCHAR(255) NOT NULL COMMENT 'Bibliographische Daten aus OPUS 3' ,
-  `swb_id` VARCHAR(255) NOT NULL COMMENT 'SWB ID' ,
+  `source` VARCHAR(255) NULL COMMENT 'Bibliographische Daten aus OPUS 3' ,
+  `swb_id` VARCHAR(255) NULL COMMENT 'SWB ID' ,
   `completed_year` YEAR NOT NULL COMMENT 'Jahr der Fertigstellung (bei Dissertationen)' ,
   `completed_date` DATE NULL ,
   `published_year` YEAR NOT NULL COMMENT 'Erscheinungsjahr der Primärveröffentlichung' ,
   `published_date` DATE NULL ,
-  `non_institute_affiliation` TEXT NOT NULL COMMENT 'Für alles, was kein universitätsinternes Institut im Sinne von Tabelle Institutes ist' ,
-  `vg_wort_pixel_url` TEXT NOT NULL COMMENT 'URL auf den VG-Wort-Zählpixel' ,
+  `non_institute_affiliation` TEXT NULL COMMENT 'Für alles, was kein universitätsinternes Institut im Sinne von Tabelle Institutes ist' ,
+  `vg_wort_pixel_url` TEXT NULL COMMENT 'URL auf den VG-Wort-Zählpixel' ,
   PRIMARY KEY (`documents_id`) ,
   INDEX fk_Document_license (`licences_id` ASC) ,
   CONSTRAINT `fk_Document_license`
@@ -73,6 +75,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
     REFERENCES `opus400`.`licences` (`licences_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -94,6 +99,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 COMMENT = '\n';
 
 
@@ -107,6 +114,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
   `postal_adress` TEXT NULL ,
   `institutes_site` TEXT NULL ,
   PRIMARY KEY (`institutes_contents_id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -130,6 +140,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -149,6 +162,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
     REFERENCES `opus400`.`document_files` (`document_files_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -168,6 +184,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   CONSTRAINT `has`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` ))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -186,6 +205,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
   CONSTRAINT `has`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` ))
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -196,13 +218,16 @@ ROW_FORMAT = DEFAULT;
 CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
   `persons_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `academic_title` VARCHAR(255) NULL COMMENT 'Akademischer Titel' ,
-  `date_of_birth` DATETIME NOT NULL COMMENT 'Geburtsdatum' ,
-  `email` VARCHAR(100) NOT NULL COMMENT 'Email-Adresse' ,
-  `first_name` VARCHAR(255) NOT NULL COMMENT 'Vorname' ,
+  `date_of_birth` DATETIME NULL COMMENT 'Geburtsdatum' ,
+  `email` VARCHAR(100) NULL COMMENT 'Email-Adresse' ,
+  `first_name` VARCHAR(255) NULL COMMENT 'Vorname' ,
   `last_name` VARCHAR(255) NOT NULL COMMENT 'Nachname' ,
-  `place_of_birth` VARCHAR(255) NOT NULL COMMENT 'Geburtsort' ,
+  `place_of_birth` VARCHAR(255) NULL COMMENT 'Geburtsort' ,
   PRIMARY KEY (`persons_id`) ,
   INDEX last_name (`last_name` ASC) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -215,7 +240,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   `persons_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
   `type` ENUM('PND', '...') NOT NULL COMMENT 'Art der externen ID (z.B. PND)' ,
   `value` TEXT NOT NULL COMMENT 'Wert' ,
-  `resolver` VARCHAR(255) NOT NULL COMMENT 'URL zum Auflösungsmechanismus' ,
+  `resolver` VARCHAR(255) NULL COMMENT 'URL zum Auflösungsmechanismus' ,
   PRIMARY KEY (`person_external_keys_Id`) ,
   INDEX Person_External_Key_FKIndex1 (`persons_id` ASC) ,
   CONSTRAINT `has`
@@ -223,6 +248,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
     REFERENCES `opus400`.`persons` (`persons_id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -252,6 +280,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
     REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 COMMENT = 'Possilbe values for role:\nauthor\nadvisor\neditor\ntranslator'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -275,7 +306,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
 
 
 -- -----------------------------------------------------
@@ -314,7 +347,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci;
 
 
 -- -----------------------------------------------------
@@ -333,6 +368,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 
 
@@ -389,6 +426,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
     REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
