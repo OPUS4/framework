@@ -1,10 +1,10 @@
 <?
 $field = $this->field;
 ?>
-<div class="<?= $field->getType() ?>">
-<? if ($field->isMandatory()) {
+<div class="<?= $field->getFieldType() ?>">
+<? /*if ($field->isMandatory()) {
     print("Mandatory!!!  ");
-} ?>
+}*/ ?>
 <?= $field->getName() ?>
 <br>
 <?

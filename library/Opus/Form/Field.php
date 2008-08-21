@@ -17,15 +17,18 @@ class Field {
     protected $language;
     protected $errorMessage = 'standard_error';
     protected $errorRegularExp = null;
+    private $translate;
     
     private function _translateArray($array) {
         foreach ($array as $number => $value) {
-            $array[$number] = $translate->_($value);
+            $array[$number] = $this->translate->_($value);
         }
         return $array;
     }
     
     public function Field($type, $mandatory = false, $repeatable = false, $language = false, $data = null) {
+        $this->translate = Zend_Registry::getInstance()->get('Zend_Translate');
+        
         $this->type = $type;
         $this->mandatory = $mandatory;
         $this->repeatable = $repeatable;
@@ -70,11 +73,15 @@ class Field {
     }
     
     public function getName() {
-        $translate->_($this->type.'_name');
+        $this->translate->_($this->type.'_name');
+    }
+    
+    public function isMandatory() {
+        return $this->mandatory;
     }
     
     public function getErrorMessage() {
-        return $translate->_($this->errorMessage);
+        return $this->translate->_($this->errorMessage);
     }
 }
 ?>
