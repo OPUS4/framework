@@ -1,0 +1,26 @@
+<?
+$field = $this->field;
+?>
+<div class="<?= $field->getType() ?>">
+<? if ($field->isMandatory()) {
+    print("Mandatory!!!  ");
+} ?>
+<?= $field->getName() ?>
+<br>
+<?
+$i = 0;
+$language = $field->getValuesLanguage();
+foreach ($field->getValues as $number => $value) {
+    $i ++;
+    $errorMessages = $field->getErrorMessages();
+    if (isset($errorMessages[$number])) {
+        $errorMessages[$number];
+    }
+    print($language[$number]);
+    print('<br>');
+    print('<input type = "text" name = "'.$field->getType().'['.$i.']" ' .
+            'value = "'.$value.'">');
+    
+}
+?>
+</div>
