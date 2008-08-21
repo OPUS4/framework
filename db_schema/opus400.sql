@@ -14,9 +14,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `longname` VARCHAR(255) NOT NULL ,
   `desc_text` MEDIUMTEXT NULL ,
   `active` TINYINT NOT NULL ,
-  `sort` TINYINT(2) NOT NULL ,
+  `sort` TINYINT NOT NULL ,
   `pod_allowed` TINYINT(1) NOT NULL ,
-  `language` CHAR(3) NOT NULL ,
+  `language` VARCHAR(3) NOT NULL ,
   `link` MEDIUMTEXT NOT NULL ,
   `link_to_sign` MEDIUMTEXT NOT NULL ,
   `desc_html` MEDIUMTEXT NULL ,
@@ -33,13 +33,13 @@ COLLATE = utf8_general_ci;
 -- Table `opus400`.`documents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
-  `documents_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
+  `documents_id` INT NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
   `licences_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
   `book_series_volume` VARCHAR(25) NULL COMMENT 'Band des Gesamttitels' ,
   `book_volume` VARCHAR(25) NULL COMMENT 'Band' ,
   `contributing_corporation` TEXT NULL COMMENT 'Sonstige beteiligte Institutionen (dc:contributor.corporate)' ,
   `creating_corporation` TEXT NULL COMMENT 'Urheber (dc:creator.corporate)' ,
-  `diss_date_accepted` DATE NULL COMMENT 'Datum der mündlichen Prüfung (für Dissertationen)' ,
+  `date_accepted` DATE NULL COMMENT 'Datum der mündlichen Prüfung (für Dissertationen)' ,
   `server_date_modified` DATETIME NULL COMMENT 'letzte Änderung des Datensatzes (dc:date.modified)' ,
   `server_date_published` DATETIME NOT NULL COMMENT 'Veröffentlichungsdatum auf Server (dc:date.creation)' ,
   `server_date_unlocking` DATE NULL COMMENT 'Freigabedatum (Embargofrist)' ,
@@ -49,8 +49,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `first_page` INT NULL COMMENT 'Seite von' ,
   `last_page` INT NULL COMMENT 'Seite bis' ,
   `publication_status` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Bearbeitungsstatus (temp, in review, published)' ,
-  `isbn` TEXT NULL COMMENT 'ISBN' ,
-  `issn` TEXT NULL COMMENT 'ISSN' ,
   `journal_issue` VARCHAR(25) NULL COMMENT 'Heft' ,
   `journal_volume` VARCHAR(25) NULL COMMENT 'Jahrgang' ,
   `language` VARCHAR(3) NULL COMMENT '(hauptsächliche) Sprache des Dokuments' ,
@@ -63,7 +61,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `source` VARCHAR(255) NULL COMMENT 'Bibliographische Daten aus OPUS 3' ,
   `swb_id` VARCHAR(255) NULL COMMENT 'SWB ID' ,
   `completed_year` YEAR NOT NULL COMMENT 'Jahr der Fertigstellung (bei Dissertationen)' ,
-  `completed_date` DATE NULL ,
+  `completed_date` DATE NULL COMMENT 'Datum der Fertigstellung' ,
   `published_year` YEAR NOT NULL COMMENT 'Erscheinungsjahr der Primärveröffentlichung' ,
   `published_date` DATE NULL ,
   `non_institute_affiliation` TEXT NULL COMMENT 'Für alles, was kein universitätsinternes Institut im Sinne von Tabelle Institutes ist' ,
@@ -88,7 +86,7 @@ ROW_FORMAT = DEFAULT;
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
   `document_identifiers_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel auf DocumentTabelle' ,
-  `identifier_type` ENUM('DOI', 'Handle', 'URN', 'STD-DOI', 'URL', 'CRIS-Link', 'Splash-URL') NOT NULL COMMENT 'Art des Verweises (intern und extern)' ,
+  `identifier_type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn') NOT NULL COMMENT 'Art des Verweises (intern und extern)' ,
   `identifier_value` TEXT NOT NULL COMMENT 'Verweis' ,
   `identifier_label` TEXT NOT NULL COMMENT 'Anzeigetext für den Verweis' ,
   PRIMARY KEY (`document_identifiers_id`) ,
@@ -101,14 +99,16 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
-COMMENT = '\n';
+COMMENT = '\n'
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
 -- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
-  `institutes_contents_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
   `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
   `postal_adress` TEXT NULL ,
@@ -125,8 +125,8 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_files`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
-  `document_files_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `document_files_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `file_path_name` TEXT NOT NULL COMMENT 'Pfad und Dateiname' ,
   `file_sort_order` TINYINT(4) NOT NULL COMMENT 'Sortierung der Dateien' ,
   `file_label` TEXT NOT NULL COMMENT 'Anzeigetext für Datei' ,
@@ -152,7 +152,7 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
   `file_hashvalues_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
-  `document_files_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
+  `document_files_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
   `hash_type` VARCHAR(50) NOT NULL COMMENT 'Art des Hashes' ,
   `hash_value` TEXT NOT NULL COMMENT 'Hashwert ' ,
   PRIMARY KEY (`file_hashvalues_id`, `document_files_id`) ,
@@ -174,8 +174,8 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   `document_subjects_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
-  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
-  `subject_type` ENUM('Psyndex Terms', 'DDC', 'SWD', '...') NOT NULL COMMENT 'Art der Erschließung' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `subject_type` ENUM('psyndex terms', 'ddc', 'swd') NOT NULL COMMENT 'Art der Erschließung' ,
   `subject_value` VARCHAR(255) NOT NULL COMMENT 'Wert zu subject_type (kontrolliertes/freies Schlagwort, Notation, etc)' ,
   `language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
   `external_subject_key` VARCHAR(255) NULL COMMENT 'Identifikator zur Auflösung von Deskriptoren in Fremdsystemen' ,
@@ -195,9 +195,9 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_title_abstracts`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
-  `document_title_abstracts_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
-  `documents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
-  `title_abstract_type` ENUM('Title', 'Abstract', 'Subtitle') NOT NULL COMMENT 'Titel/Abstract des Dokuments' ,
+  `document_title_abstracts_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
+  `title_abstract_type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Titel/Abstract des Dokuments' ,
   `title_abstract_value` TEXT NOT NULL COMMENT 'Inhalt zu title_abstract_type' ,
   `title_abstract_language` VARCHAR(3) NOT NULL COMMENT 'Sprache des Titels, Abstracts' ,
   PRIMARY KEY (`document_title_abstracts_id`) ,
@@ -216,7 +216,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`persons`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
-  `persons_id` INT(11) NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `persons_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `academic_title` VARCHAR(255) NULL COMMENT 'Akademischer Titel' ,
   `date_of_birth` DATETIME NULL COMMENT 'Geburtsdatum' ,
   `email` VARCHAR(100) NULL COMMENT 'Email-Adresse' ,
@@ -237,8 +237,8 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   `person_external_keys_Id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `persons_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
-  `type` ENUM('PND', '...') NOT NULL COMMENT 'Art der externen ID (z.B. PND)' ,
+  `persons_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Person Tabelle' ,
+  `type` ENUM('pnd') NOT NULL COMMENT 'Art der externen ID (z.B. PND)' ,
   `value` TEXT NOT NULL COMMENT 'Wert' ,
   `resolver` VARCHAR(255) NULL COMMENT 'URL zum Auflösungsmechanismus' ,
   PRIMARY KEY (`person_external_keys_Id`) ,
@@ -259,11 +259,11 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`link_documents_persons`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
-  `link_documents_persons_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `documents_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_contents_id` INT(11) NOT NULL COMMENT 'Fremdschlüssel zur Institute Tabelle' ,
-  `persons_id` INT(11) NOT NULL ,
-  `role` ENUM('Author', 'Editor', 'Referee', 'Contributor') NOT NULL ,
+  `link_documents_persons_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
+  `documents_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT NOT NULL COMMENT 'Fremdschlüssel zur Institute Tabelle' ,
+  `persons_id` INT NOT NULL ,
+  `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator') NOT NULL ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Reihenfolge der Autoren' ,
   PRIMARY KEY (`link_documents_persons_id`) ,
   INDEX Person_has_Document_FKIndex1 (`link_documents_persons_id` ASC) ,
@@ -283,7 +283,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
-COMMENT = 'Possilbe values for role:\nauthor\nadvisor\neditor\ntranslator'
+COMMENT = 'Possilbe values for role:\n\nENUM(\'advisor\', \'author\', \'contributor\', \'editor\', \'referee\',  \'other\', \'translator\')'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -377,10 +377,10 @@ COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 -- Table `opus400`.`institutes_structure`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
-  `institutes_structure_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_contents_id` INT(11) NOT NULL ,
-  `left` INT(11) NOT NULL ,
-  `right` INT(11) NULL ,
+  `institutes_structure_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT NOT NULL ,
+  `left` INT NOT NULL ,
+  `right` INT NULL ,
   PRIMARY KEY (`institutes_structure_id`) ,
   INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
   CONSTRAINT `institutes_contents_id`
@@ -396,11 +396,11 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`institutes_replacement`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
-  `institutes_replacement_id` INT(11) NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_contents_id` INT(11) NOT NULL ,
-  `replacement_for_id` INT(11) NOT NULL ,
-  `replacement_by_id` INT(11) NOT NULL ,
-  `current_replacement_id` INT(11) NOT NULL ,
+  `institutes_replacement_id` INT NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_contents_id` INT NOT NULL ,
+  `replacement_for_id` INT NOT NULL ,
+  `replacement_by_id` INT NOT NULL ,
+  `current_replacement_id` INT NOT NULL ,
   PRIMARY KEY (`institutes_replacement_id`) ,
   INDEX institutes_contents_id (`institutes_contents_id` ASC) ,
   INDEX replacement_for_id (`replacement_for_id` ASC) ,
