@@ -261,7 +261,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => '');
         try {
-                $dba->addField('timmäää', $fielddef);
+            $dba->addField('timmäää', $fielddef);
         } catch (Exception $e) {
             return;
         }
@@ -278,7 +278,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => '');
         try {
-                $dba->addField('timmy', $fielddef);
+            $dba->addField('timmy', $fielddef);
         } catch (Exception $e) {
             return;
         }
@@ -296,6 +296,42 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $dba->createTable('timmy');
         $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => '');
         $this->assertEquals(true, $dba->addField('timmy', $fielddef));
+    }
+
+    /**
+     * Test of adding an integer field with to short ( < 0) length argument
+     *
+     * @return void
+     */
+    public function testAddFieldTypeIntWithToShortLengthArgument()
+    {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->createTable('timmy');
+        $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => -1);
+        try {
+            $dba->addField('timmy', $fielddef);
+        } catch (Exception $e) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
+    }
+
+    /**
+     * Test of adding an integer field with to long ( > 255) length argument
+     *
+     * @return void
+     */
+    public function testAddFieldTypeIntWithToLongLengthArgument()
+    {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->createTable('timmy');
+        $fielddef = array('name' => 'test1', 'type' => 'INT', 'length' => 256);
+        try {
+            $dba->addField('timmy', $fielddef);
+        } catch (Exception $e) {
+            return;
+        }
+        $this->fail('An expected exception has not been raised.');
     }
 
     /**

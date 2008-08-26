@@ -264,6 +264,10 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
                 if (is_int($fielddef['length']) === false) {
                     throw new Exception('Length value for VARCHAR must be an integer value.');
                 }
+                // lenght should be between 0 and 255 chars long
+                if (($fielddef['length'] < 0) or ($fielddef['length'] > 255)) {
+                    throw new Exception('Length should be between 0 and 255 chars long.');
+                }
                 $stmt .= ' VARCHAR(' . $fielddef['length'] . ')';
                 break;
 
