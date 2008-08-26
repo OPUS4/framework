@@ -9,63 +9,62 @@ USE `opus400`;
 -- Table `opus400`.`licences`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
-  `licences_id` INT NOT NULL AUTO_INCREMENT ,
-  `shortname` VARCHAR(20) NOT NULL ,
-  `longname` VARCHAR(255) NOT NULL ,
-  `desc_text` MEDIUMTEXT NULL ,
-  `active` TINYINT NOT NULL ,
-  `sort` TINYINT NOT NULL ,
-  `pod_allowed` TINYINT(1) NOT NULL ,
-  `language` VARCHAR(3) NOT NULL ,
-  `link` MEDIUMTEXT NOT NULL ,
-  `link_to_sign` MEDIUMTEXT NOT NULL ,
-  `desc_html` MEDIUMTEXT NULL ,
-  `mime_type` VARCHAR(30) NOT NULL ,
-  `logo` MEDIUMTEXT NULL ,
-  `comment` MEDIUMTEXT NULL ,
+  `licences_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel' ,
+  `active` TINYINT NOT NULL COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)? / Flag: kann die Lizenz ausgewählt werden  (0=nein, 1=ja)?' ,
+  `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment. / Interner Kommentar.' ,
+  `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML...). / Beschreibung der Lizenz in einer Auszeichnungssprache (XHTML...).' ,
+  `desc_text` MEDIUMTEXT NULL COMMENT 'Description of the licence in short and pure text form. / Kurzbeschreibung der Lizenz in reiner Textform.' ,
+  `language` VARCHAR(3) NOT NULL COMMENT 'Language of the licence (triple-digit, ISO639-2/B). / Sprache der Lizenz (dreistellig, ISO639-2/B).' ,
+  `link_licence` MEDIUMTEXT NOT NULL COMMENT 'URI of the licence. / URI der Lizenz.' ,
+  `link_logo` MEDIUMTEXT NULL COMMENT 'URI of the licence logo. / URI des Lizenzlogos.' ,
+  `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form. / URI des Lizenzvertrages.' ,
+  `mime_type` VARCHAR(30) NOT NULL COMMENT 'Mime type. / Mime-type.' ,
+  `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users. / Kompletter Name der Lizenz. Dieser wird angezeigt.' ,
+  `name_short` VARCHAR(20) NOT NULL COMMENT 'Unique token of the licence. / Eindeutiges Kürzel der Lizenz.' ,
+  `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed (0=no, 1=yes)? / Flag: ist Print-on-Demand erlaubt (0=nein, 1=ja)?' ,
+  `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99). / Sortierreihenfolge (00 bis 99).' ,
   PRIMARY KEY (`licences_id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci;
+COLLATE = utf8_general_ci
+COMMENT = 'Table for licence related data.';
 
 
 -- -----------------------------------------------------
 -- Table `opus400`.`documents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
-  `documents_id` INT NOT NULL AUTO_INCREMENT COMMENT 'eindeutige datenbankinterne Kennnummer, Primärschlüssel für andere Tabellen' ,
-  `licences_id` INT NOT NULL COMMENT 'Nutzungslizenz' ,
-  `book_series_volume` VARCHAR(25) NULL COMMENT 'Band des Gesamttitels' ,
-  `book_volume` VARCHAR(25) NULL COMMENT 'Band' ,
-  `contributing_corporation` TEXT NULL COMMENT 'Sonstige beteiligte Institutionen (dc:contributor.corporate)' ,
-  `creating_corporation` TEXT NULL COMMENT 'Urheber (dc:creator.corporate)' ,
-  `date_accepted` DATE NULL COMMENT 'Datum der mündlichen Prüfung (für Dissertationen)' ,
-  `server_date_modified` DATETIME NULL COMMENT 'letzte Änderung des Datensatzes (dc:date.modified)' ,
-  `server_date_published` DATETIME NOT NULL COMMENT 'Veröffentlichungsdatum auf Server (dc:date.creation)' ,
-  `server_date_unlocking` DATE NULL COMMENT 'Freigabedatum (Embargofrist)' ,
-  `server_date_valid` DATE NULL COMMENT 'Gültig bis' ,
-  `document_type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Dokumenttyp (type)' ,
-  `edition` VARCHAR(25) NULL COMMENT 'Auflage' ,
-  `first_page` INT NULL COMMENT 'Seite von' ,
-  `last_page` INT NULL COMMENT 'Seite bis' ,
-  `publication_status` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Bearbeitungsstatus (temp, in review, published)' ,
-  `journal_issue` VARCHAR(25) NULL COMMENT 'Heft' ,
-  `journal_volume` VARCHAR(25) NULL COMMENT 'Jahrgang' ,
-  `language` VARCHAR(3) NULL COMMENT '(hauptsächliche) Sprache des Dokuments' ,
-  `page_number` INT NULL COMMENT 'Seitenzahl' ,
-  `place` VARCHAR(255) NULL COMMENT 'Veröffentlichungsort' ,
-  `publisher` VARCHAR(255) NULL COMMENT 'Verlag' ,
-  `publisher_university` INT NOT NULL COMMENT 'Veröffentlichende Universität' ,
-  `range_id` INT NULL COMMENT 'Bereichs-Id (Zugänglichkeit nur auf Campus)' ,
-  `reviewed` ENUM('peer', 'editorial', 'open') NOT NULL COMMENT 'Art der Review' ,
-  `source` VARCHAR(255) NULL COMMENT 'Bibliographische Daten aus OPUS 3' ,
-  `swb_id` VARCHAR(255) NULL COMMENT 'SWB ID' ,
-  `completed_year` YEAR NOT NULL COMMENT 'Jahr der Fertigstellung (bei Dissertationen)' ,
-  `completed_date` DATE NULL COMMENT 'Datum der Fertigstellung' ,
-  `published_year` YEAR NOT NULL COMMENT 'Erscheinungsjahr der Primärveröffentlichung' ,
-  `published_date` DATE NULL ,
-  `non_institute_affiliation` TEXT NULL COMMENT 'Für alles, was kein universitätsinternes Institut im Sinne von Tabelle Institutes ist' ,
-  `vg_wort_pixel_url` TEXT NULL COMMENT 'URL auf den VG-Wort-Zählpixel' ,
+  `documents_id` INT NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel.' ,
+  `licences_id` INT NOT NULL COMMENT 'Foreign key:  licences.licences_id / Fremdschlüssel: licences.licences_id' ,
+  `range_id` INT NULL COMMENT 'Foreign key: ?.? / Fremdschlüssel: ?.?' ,
+  `completed_date` DATE NULL COMMENT 'Date of completion. / Datum der Fertigstellung.' ,
+  `completed_year` YEAR NOT NULL COMMENT 'Year of completion, if the complete date is unknown. / Jahr der Fertigstellung, wenn das vollständige Datum unbekannt ist.' ,
+  `contributing_corporation` TEXT NULL COMMENT 'Contribution corporation. / Sonstige beteiligte Körperschaft.' ,
+  `creating_corporation` TEXT NULL COMMENT 'Creating corporation. / Körperschaft als Urheber.' ,
+  `date_accepted` DATE NULL COMMENT 'Date of final exam (date of the doctoral graduation). / Datum der letzten Prüfung (Datum der Promotion).' ,
+  `document_type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Document type. / Dokumenttyp.' ,
+  `edition` VARCHAR(25) NULL COMMENT 'Edition. / Auflage.' ,
+  `issue` VARCHAR(25) NULL COMMENT 'Issue. / Heft.' ,
+  `language` VARCHAR(3) NULL COMMENT 'Primary language of the document (triple-digit, ISO639-2/B). / Haupsächliche Sprache des Dokuments (dreistellig, ISO639-2/B).' ,
+  `non_institute_affiliation` TEXT NULL COMMENT 'Institutions, which are not officialy part of the university. / Einrichtungen, welche kein offizielles universitätsinternes Institut sind.' ,
+  `page_first` INT NULL COMMENT 'First page of a text. / Erste Seite eines Textes.' ,
+  `page_last` INT NULL COMMENT 'Last page of a text. / Letzte Seite eines Textes.' ,
+  `page_number` INT NULL COMMENT 'Page number. / Seitenzahl.' ,
+  `publication_status` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'Processing status of the document. / Bearbeitungsstatus des Dokuments.' ,
+  `published_date` DATE NULL COMMENT 'Date of first publication. / Datum der Primärveröffentlichung.' ,
+  `published_year` YEAR NOT NULL COMMENT 'Year of first publication, if the complete date is unknown. / Erscheinungsjahr der Primärveröffentlichung, wenn das vollständige Datum unbekannt ist.' ,
+  `publisher_name` VARCHAR(255) NULL COMMENT 'Name of publisher. / Name des Verlags.' ,
+  `publisher_place` VARCHAR(255) NULL COMMENT 'Place of publication. / Veröffentlichungsort.' ,
+  `publisher_university` INT NOT NULL COMMENT 'Publishing university. / Veröffentlichende Universität.' ,
+  `reviewed` ENUM('peer', 'editorial', 'open') NOT NULL COMMENT 'Style of the review process. / Art der Begutachtung.' ,
+  `server_date_modified` DATETIME NULL COMMENT 'Last modification of the document (is generated by the system). / Letzte Änderung des Dokumentes (wird vom System generiert).' ,
+  `server_date_published` DATETIME NOT NULL COMMENT 'Date of publication on the repository (is generated by the system). / Veröffentlichungsdatum auf  dem  Repository (wird vom System generiert).' ,
+  `server_date_unlocking` DATE NULL COMMENT 'Expiration date of a embargo. / Datum des Ablaufs einer Sperrfrist (Embargofrist).' ,
+  `server_date_valid` DATE NULL COMMENT 'Expiration date of the validity of the document. / Ablauf des Gültigkeitsdatums des Dokuments.' ,
+  `source` VARCHAR(255) NULL COMMENT 'Bibliographic date from OPUS 3.x (formerly source_text). / Bibliographische Daten aus OPUS 3.x (ehemals source_text).' ,
+  `swb_id` VARCHAR(255) NULL COMMENT 'Identification number of the SWB. / Identifikationsnummer des SWB.' ,
+  `vg_wort_pixel_url` TEXT NULL COMMENT 'URI to the VG Wort tracking pixel. / URI auf den VG-Wort-Zählpixel.' ,
+  `volume` VARCHAR(25) NULL COMMENT 'Volume. / Jahrgang.' ,
   PRIMARY KEY (`documents_id`) ,
   INDEX fk_Document_license (`licences_id` ASC) ,
   CONSTRAINT `fk_Document_license`
@@ -76,6 +75,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
+COMMENT = 'Document related data (monolingual, unreproducible colums).'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
