@@ -357,6 +357,8 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testStoringData() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $count_pre = (int)$dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
@@ -371,7 +373,9 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
             );
         file_put_contents($tempfilename, 'blablub');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
-        $this->assertGreaterThan(1, $storage->store($fileInformation));
+        $id = $storage->store($fileInformation);
+        $count_post = (int)$dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
+        $this->assertGreaterThan($count_pre, $count_post, 'No new records in database.');
     }
 
     /**
