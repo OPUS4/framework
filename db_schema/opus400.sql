@@ -336,7 +336,11 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
@@ -387,8 +391,8 @@ COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
   `institutes_structure_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_contents_id` INT UNSIGNED NULL ,
-  `left` INT NOT NULL ,
-  `right` INT NULL ,
+  `left` INT UNSIGNED NOT NULL ,
+  `right` INT UNSIGNED NULL ,
   PRIMARY KEY (`institutes_structure_id`) ,
   INDEX fk_institutes_structure_institutes_contents (`institutes_contents_id` ASC) ,
   CONSTRAINT `fk_institutes_structure_institutes_contents`
@@ -396,6 +400,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
     REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
