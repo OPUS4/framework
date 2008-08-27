@@ -57,7 +57,7 @@ class DbConnection extends Zend_Db_Table
     }
     
     /**
-     * action performed if connection is closed
+     * Action performed if connection is closed
      * @return void
      */
     public function closeConnection()
