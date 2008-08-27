@@ -30,7 +30,8 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      */
     private function rm_recursive($filepath) {
         if ((is_dir($filepath) === true) and (is_link($filepath) === false)) {
-            if ($dh = opendir($filepath)) {
+            $dh = opendir($filepath);
+            if ($dh !== false) {
                 while (($sf = readdir($dh)) !== false) {
                     if ($sf === '.' or $sf === '..') {
                         continue;
@@ -52,7 +53,14 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        $this->tmp_dir = '/tmp/Opus_Test';
+        if (empty($_ENV['TMP']) === false) {
+            $this->tmp_dir = $_ENV['TMP'];
+        } else if (empty($_ENV['TEMP']) === false) {
+            $this->tmp_dir = $_ENV['TEMP'];
+        } else {
+            $this->tmp_dir = '/tmp';
+        }
+        $this->tmp_dir .= DIRECTORY_SEPARATOR . 'Opus_Test';
         $this->rm_recursive($this->tmp_dir);
         mkdir($this->tmp_dir);
         TestHelper::clearTable('document_files');
@@ -93,7 +101,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testInitStorageWithInvalidDirectory() {
-        $path = $this->tmp_dir . '/Opus';
+        $path = $this->tmp_dir . DIRECTORY_SEPARATOR . 'Opus';
         $this->setExpectedException('Opus_File_Exception', 'Committed value is not a valid directory name.');
         $this->assertEquals(true, Opus_File_Storage::getInstance($path) instanceof Opus_File_Storage);
     }
@@ -104,7 +112,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testInitStorageWithReadOnlyDirectory() {
-        $readonlydir = $this->tmp_dir . '/Readonly';
+        $readonlydir = $this->tmp_dir . DIRECTORY_SEPARATOR . 'Readonly';
         // Create a readonly directory
         mkdir($readonlydir, 0554, true);
         $this->setExpectedException('Opus_File_Exception', 'Repository directory is not writable.');
@@ -143,7 +151,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'sourcePath is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => '',
                 'fileName' => '',
                 'sortOrder' => '',
@@ -155,7 +163,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'documentId is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => '1',
                 'fileName' => '',
                 'sortOrder' => '',
@@ -167,7 +175,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'fileName is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => '',
@@ -179,7 +187,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'sortOrder is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => 1,
@@ -191,7 +199,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'publishYear is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => 1,
@@ -203,7 +211,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'label is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => 1,
@@ -215,7 +223,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'type is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => 1,
@@ -227,7 +235,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 'language is empty.'
                 ),
             array(
-                'sourcePath' => '/tmp/test',
+                'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test',
                 'documentId' => 1,
                 'fileName' => 'e.pdf',
                 'sortOrder' => 1,
@@ -281,7 +289,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      */
     public function testStoringWithFileNotExists() {
         $fileInformation = array(
-            'sourcePath' => '/tmp/test' . rand(0, 128) . '.pdf',
+            'sourcePath' => $this->tmp_dir . DIRECTORY_SEPARATOR . 'test' . rand(0, 128) . '.pdf',
             'documentId' => 1,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
@@ -442,7 +450,13 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
         $storage->remove($id);
-        $this->assertFileNotExists($this->tmp_dir . '/2008/1/e.pdf');
+        $this->assertFileNotExists($this->tmp_dir
+                . DIRECTORY_SEPARATOR
+                . $fileInformation['publishYear']
+                . DIRECTORY_SEPARATOR
+                . $fileInformation['documentId']
+                . DIRECTORY_SEPARATOR
+                . $fileInformation['fileName']);
     }
 
     /**
@@ -488,7 +502,12 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         file_put_contents($tempfilename, 'blablub');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
-        $this->assertEquals('2008/1/e.pdf', $storage->getPath($id));
+        $this->assertEquals(
+            $fileInformation['publishYear']
+            . DIRECTORY_SEPARATOR
+            . $fileInformation['documentId']
+            . DIRECTORY_SEPARATOR
+            . $fileInformation['fileName'], $storage->getPath($id));
     }
 
     /**
