@@ -35,13 +35,19 @@
 
 class DbConnection extends Zend_Db_Table
 {
+    /**
+     * sets up database
+     * 
+     * overrides Zend_Db_Table::_setupDatabaseAdapter
+     */
     protected function _setupDatabaseAdapter()
     {
-        $options= array (
-            'host' => 'localhost',
-            'username' => 'opus_mysql',
-            'password' => 'my2005S',
-            'dbname' => 'opus400'
+        //TODO get connection information from ini-file
+        $options= array(
+            'host'=> 'localhost',
+            'username'=> 'opus_mysql',
+            'password'=> 'my2005S',
+            'dbname'=> 'opus400'
         );
         $db= Zend_Db :: factory('mysqli', $options);
         $this->_setAdapter($db);
@@ -49,6 +55,9 @@ class DbConnection extends Zend_Db_Table
         parent :: _setupDatabaseAdapter();
     }
     
+    /**
+     * action performed if connection is closed
+     */
     public function closeConnection()
     {
         $this->getAdapter()->closeConnection();
