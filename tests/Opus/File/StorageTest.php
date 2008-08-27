@@ -14,8 +14,20 @@
  */
 class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
 
+    /**
+     * Holds directory information
+     *
+     * @var string
+     */
     protected $tmp_dir = null;
 
+    /**
+     * Delete recurisvely directories and files.
+     *
+     * @param string $filepath Contains path for deleting.
+     * @throws Exception Thrown if deletion of a file or directory is not possible.
+     * @return boolean
+     */
     private function rm_recursive($filepath) {
         if ((is_dir($filepath) === true) and (is_link($filepath) === false)) {
             if ($dh = opendir($filepath)) {
@@ -23,7 +35,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                     if ($sf === '.' or $sf === '..') {
                         continue;
                     }
-                    if (! $this->rm_recursive($filepath . DIRECTORY_SEPARATOR . $sf)) {
+                    if ($this->rm_recursive($filepath . DIRECTORY_SEPARATOR . $sf) === false) {
                         throw new Exception($filepath . DIRECTORY_SEPARATOR . $sf . ' could not be deleted.');
                     }
                 }
@@ -34,6 +46,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         return @unlink($filepath);
     }
 
+    /**
+     * Setup test enviroment
+     *
+     * @return void
+     */
     public function setUp() {
         $this->tmp_dir = '/tmp/Opus_Test';
         $this->rm_recursive($this->tmp_dir);
@@ -41,6 +58,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_files');
     }
 
+    /**
+     * Cleanup test enviroment
+     *
+     * @return void
+     */
     public function tearDown() {
         $this->rm_recursive($this->tmp_dir);
     }
@@ -58,6 +80,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if a repository without or wrong parameter could be instantiated
      *
+     * @return void
      */
     public function testInitStorageWithoutDirectory() {
         $this->setExpectedException('InvalidArgumentException', 'Path value is empty.');
@@ -78,6 +101,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if directory is writeable
      *
+     * @return void
      */
     public function testInitStorageWithReadOnlyDirectory() {
         $readonlydir = $this->tmp_dir . '/Readonly';
@@ -90,6 +114,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Try to store with an empty array.
      *
+     * @return void
      */
     public function testStoringWithEmptyArray() {
         $fileInformation = array();
@@ -219,6 +244,17 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Serveral tests for checking array values
      *
+     * @param string $sourcePath  Contain path to source file
+     * @param string $documentId  Contain document identifier
+     * @param string $fileName    Contain new file name
+     * @param string $sortOrder   Sort order
+     * @param string $publishYear Year of publishing
+     * @param string $label       Comment for file
+     * @param string $type        File type
+     * @param string $language    Language of file
+     * @param string $mimetype    Mimetype of file
+     * @param string $msg         Contain compair message
+     * @return void
      * @dataProvider providerBadArrayInformation
      */
     public function testStoringWithInvalidInformations($sourcePath, $documentId, $fileName, $sortOrder, $publishYear, $label, $type, $language, $mimetype, $msg) {
@@ -241,6 +277,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if uploaded file a really uploaded file
      *
+     * @return void
      */
     public function testStoringWithFileNotExists() {
         $fileInformation = array(
@@ -262,6 +299,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test for proper file permissions
      *
+     * @return void
      */
     public function testStoringWithInvalidFilePermission() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -286,6 +324,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test for an non-integer documentId value
      *
+     * @return void
      */
     public function testStoringWithInvalidDocumentId() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -309,6 +348,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test for an non-integer sortOrder value
      *
+     * @return void
      */
     public function testStoringWithInvalidSortOrder() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -332,6 +372,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test for an non-integer publishYear value
      *
+     * @return void
      */
     public function testStoringWithInvalidPublishYear() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -355,10 +396,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test for storing data
      *
+     * @return void
      */
     public function testStoringData() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-        $count_pre = (int)$dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
+        $count_pre = (int) $dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
@@ -374,13 +416,14 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         file_put_contents($tempfilename, 'blablub');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
-        $count_post = (int)$dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
+        $count_post = (int) $dba->query('SELECT COUNT(*) FROM document_files')->fetchColumn(0);
         $this->assertGreaterThan($count_pre, $count_post, 'No new records in database.');
     }
 
     /**
      * Test to remove inserted data
      *
+     * @return void
      */
     public function testRemovingData() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -405,6 +448,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to remove inserted data with invalid identifier
      *
+     * @return void
      */
     public function testRemovingDataWithInvalidIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -415,6 +459,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to remove inserted data with non-existing identifier
      *
+     * @return void
      */
     public function testRemovingDataWithNonExistingIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -425,6 +470,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to get file path
      *
+     * @return void
      */
     public function testGetPath() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -448,6 +494,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to get file path with invalid identifier
      *
+     * @return void
      */
     public function testGetPathWithInvalidIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -458,6 +505,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to get file path with non-existing identifier
      *
+     * @return void
      */
     public function testGetPathWithNonExistingIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -468,6 +516,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to all file identifiers
      *
+     * @return void
      */
     public function testGetAllFileIdentifiers() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
@@ -505,6 +554,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to get all file idenitifiers with invalid document identifier
      *
+     * @return void
      */
     public function testGetAllFileIdsWithInvalidIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -515,6 +565,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     /**
      * Test to get all file idenitifiers with non-existing document identifier
      *
+     * @return void
      */
     public function testGetAllFileIdsWithNonExistingIdentifier() {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
