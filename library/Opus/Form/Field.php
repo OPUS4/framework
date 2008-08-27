@@ -58,16 +58,36 @@ class Field {
         return $this->add;
     }
     
-    public function isValid() {
-        if ($mandatory && count($this->value) == 0) {
-            return false;
+    public function isMandatoryFilled() {
+        return (!$this->mandatory || count($this->value) != 0);
+    }
+    
+    public function isValid($lineNr = null) {
+        
+        if (!is_null($lineNr) && !is_null($this->errorRegularExp)) {
+            print('Test_');
+            
+            if (!isset($this->value[$lineNr])) {
+                print('value nicht vorhanden');
+                return true;
+            }
+            print($this->value[$lineNr]);
+            print(mb_ereg_match('/^[a-zA-ZäÄöÖüÜß-]*, [a-zA-ZäÄöÖüÜß. ]*$/', 'Leidinger, T'));
+            return preg_match($this->errorRegularExp, $this->value[$lineNr]);
         }
-        if (!is_null($this->errorRegularExp)) {
-            foreach ($this->value as $valueLine) {
-                if (!mb_ereg_match($this->errorRegularExp, $valueLine)) 
+        
+        if (is_null($lineNr)) {
+            print('Test1');
+            if (!$this->isMandatoryFilled()) {
+                return false;
+            }
+            foreach ($this->value as $nr => $valueLine) {
+                if (!$this->isValid($nr)) {
                     return false;
+                }
             }       
         }
+        print('Test2');
         return true;
     }
     
@@ -88,7 +108,7 @@ class Field {
     }
     
     public function getName() {
-        return /*$this->translate->_(*/$this->type.'_name';//);
+        return $this->type;
     }
     
     public function isMandatory() {
@@ -103,8 +123,13 @@ class Field {
         return $this->language;
     }
     
-    public function getErrorMessage() {
-        return /*$this->translate->_(*/$this->errorMessage;//);
+    public function getErrorMessage($lineNr) {
+        
+        return $this->errorMessage;
+    }
+    
+    public function setRegularExpression($regExp) {
+        $this->errorRegularExp = $regExp;
     }
     
     public function render() {
@@ -114,4 +139,3 @@ class Field {
         return $view->render('form_element.phtml');
     }
 }
-?>

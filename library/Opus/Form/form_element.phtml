@@ -1,4 +1,6 @@
 <?
+
+require_once 'functions.php';
 $field= $this->field;
 $translate= Zend_Registry :: getInstance()->get('Zend_Translate');
 ?>
@@ -11,7 +13,7 @@ if ($field->isMandatory())
 }
 ?>
 <b>
-<?= $translate->_($field->getName()) ?>
+<?= $translate->_($field->getName() . '_caption') ?>
 </b>
 <br>
 <?= $translate->_($field->getName().'_description') ?> 
@@ -20,19 +22,26 @@ if ($field->isMandatory())
 $i= 0;
 $language= $field->getValuesLanguage();
 //rint("<b>".print_r($field->getValues(),true)."<br>".print_r($language)."</b>");
-$output = '';
+     /*$output = '';
 $output .= '<tr>' . "\n" . 
-        '<td><input type = "text" name = "' . $field->getFieldType() . '[value][%1$d]" ' . 'value = "%2$s"></td>' . "\n" . 
+        '<td>' .
+        '   <input type = "text" ' .
+        '           name = "' . $field->getFieldType() . '[value][%1$d]" ' . 
+        '           value = "%2$s">' .
+        '</td>' . "\n" . 
         '<td>';
         
         if ($field->hasLanguage()) {
-            $output .= $translate->_('Sprache').': <input name="' . $field->getFieldType() . '[language][%1$d]" type="text" ' . '       value="%3$s" />';
+            $output .= $translate->_('Sprache') . 
+                    ': <input name="' . $field->getFieldType() . '[language][%1$d]" ' .
+                            ' type="text" ' . 
+                            ' value="%3$s" />';
         }
         
 $output .= '</td>' . "\n".
-        '</tr>';
-        
+        '</tr>';  */ 
 print ('<br><table>');
+
 foreach ($field->getValues() as $number => $value)
 {
     $i++;
@@ -40,29 +49,20 @@ foreach ($field->getValues() as $number => $value)
     if (isset($errorMessages[$number])) {
         $errorMessages[$number];
     }*/
-    /*print ('<tr>');
-    print ('<td><input type = "text" name = "' . $field->getFieldType() . '[value][' . $i . ']" ' . 'value = "' . $translate->_($value) . '"></td>');
-    print ('<td>Sprache: <input name="' . $field->getFieldType() . '[language][' . $i . ']" type="text" value="' . $translate->_($language[$number]) . '" /></td>');
-    print ('</tr>');*/
-    //print($output);
-    if ($field->hasLanguage()) {
-        $languageValue = $translate->_($language[$number]); 
-       
-    } else {
-        $languageValue = '';
-    }
-    echo sprintf($output, $i, $translate->_($value), $languageValue);
+    $languageValue = ($field->hasLanguage())?$translate->_($language[$number]):''; 
+    echo output($i, $translate->_($value), $languageValue, $field);
 }
 if ($field->addLine() || count($field->getValues()) == 0)
 {
     $i++;
-    /*print ('Sprache: <input name="' . $field->getFieldType() . '[language][' . $i . ']" type="text" value="' . $translate->_('Sprache 1') . '"');
-    print ('<br>');
-    print ('<input type = "text" name = "' . $field->getFieldType() . '[value][' . $i . ']" ' . 'value = "">');
-    print ('<br>');*/
-    echo sprintf($output, $i, '', 'Sprache 1');
+    echo output($i, '', 'Sprache 1', $field);
 }
 print ('</table');
+print('<br>');
+print('<b>is valid: ' . $field->isValid(1) . '</b>');
+print('<br>');
+print('<b>is mandatoryFilled: ' . $field->isMandatoryFilled() . '</b>');
+print('<br>');
 if ($field->isRepeatable()) {
     print ('<input type="submit" name="' . $field->getFieldType() . '[add]" value="Feld hinzufügen"');
 }
