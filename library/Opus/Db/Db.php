@@ -36,9 +36,10 @@
 class DbConnection extends Zend_Db_Table
 {
     /**
-     * sets up database
+     * Sets up database
      * 
      * overrides Zend_Db_Table::_setupDatabaseAdapter
+     * @return void
      */
     protected function _setupDatabaseAdapter()
     {
@@ -57,6 +58,7 @@ class DbConnection extends Zend_Db_Table
     
     /**
      * action performed if connection is closed
+     * @return void
      */
     public function closeConnection()
     {
@@ -243,4 +245,3 @@ class Opus_Data_Db_Document_Title_Abstracts extends DbConnection {
      */
     protected $_primary = 'document_title_abstracts_id';
 }
-?>
