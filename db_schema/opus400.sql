@@ -178,7 +178,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   `document_subjects_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `documents_id` INT UNSIGNED NULL ,
   `subject_language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
-  `subject_type` ENUM('psyndex terms', 'ddc', 'swd') NOT NULL COMMENT 'Art der Erschließung' ,
+  `subject_type` ENUM('ddc', 'swd', 'psyndex', 'uncontrolled') NOT NULL COMMENT 'Art der Erschließung' ,
   `subject_value` VARCHAR(255) NOT NULL COMMENT 'Wert zu subject_type (kontrolliertes/freies Schlagwort, Notation, etc)' ,
   `external_subject_key` VARCHAR(255) NULL COMMENT 'Identifikator zur Auflösung von Deskriptoren in Fremdsystemen' ,
   PRIMARY KEY (`document_subjects_id`) ,
