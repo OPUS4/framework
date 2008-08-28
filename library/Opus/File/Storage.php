@@ -194,12 +194,12 @@ class Opus_File_Storage {
         try {
             $where = $filedb->getAdapter()->quoteInto('document_files_id = ?', $fileId);
             $filedb->delete($where);
-            $filedb->getAdapter()->commit();
             // Try to delete the file
             $destfile = $this->repositoryPath . DIRECTORY_SEPARATOR . $rows->file_path_name;
             if (unlink($destfile) === false) {
                 throw new Opus_File_Exception('Error occurs during file deleting.');
             }
+            $filedb->getAdapter()->commit();
         } catch (Exception $e) {
             // Something is going wrong, restore old data
             $filedb->getAdapter()->rollBack();
