@@ -26,6 +26,7 @@
  *
  * @category    Framework
  * @package     Opus_Db
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -38,7 +39,7 @@
  * as 'PDO_MYSQLUTF8' adapter.
  *
  * @category    Framework
- * @package     Opus_Application
+ * @package     Opus_Db
  *
  */
 class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql

@@ -36,7 +36,7 @@
  * Model class for database operations on table document_files.
  *
  * @category    Framework
- * @package     Opus_Application
+ * @package     Opus_File
  *
  */
 class Opus_File_DocumentFilesModel extends Zend_Db_Table {
