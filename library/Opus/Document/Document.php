@@ -1,5 +1,5 @@
 <?
-require_once 'Db/Db.php';
+require_once '../library/Opus/Db/Db.php';
 class Opus_Document
 {
     private $documentData;
