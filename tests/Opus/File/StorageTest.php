@@ -132,6 +132,148 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Contains several test cases for wrong array keys.
+     *
+     * @return array
+     */
+    public function providerBadArrayKeys() {
+        return
+            array(
+                array(
+                    array(
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'sourcePath does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'documentId does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'fileName does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'sortOrder does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'publishYear does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'type' => 'application/pdf',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'label does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'language' => 'english',
+                        'mimeType' => 'pdf'
+                    ),
+                    'type does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'mimeType' => 'pdf'
+                    ),
+                    'language does not exists.'
+                ),
+                array(
+                    array(
+                        'sourcePath' => '/tmp/test-data',
+                        'documentId' => 1,
+                        'fileName' => 'e.pdf',
+                        'sortOrder' => 1,
+                        'publishYear' => 2008,
+                        'label' => 'Test',
+                        'type' => 'application/pdf',
+                        'language' => 'english'
+                    ),
+                    'mimeType does not exists.'
+                )
+            );
+    }
+
+    /**
+     * Test if keys a correct.
+     *
+     * @param array  $fileInformation Contains an array with invalid keys
+     * @param string $msg             Error message
+     * @return void
+     * @dataProvider providerBadArrayKeys
+     */
+    public function testStoringWithInvalidArrayKeys(array $fileInformation, $msg) {
+        $this->setExpectedException('InvalidArgumentException', $msg);
+        $storage = Opus_File_Storage::getInstance($this->tmp_dir);
+        $storage->store($fileInformation);
+    }
+
+    /**
      * Contains several test cases
      *
      * @return array
@@ -402,6 +544,32 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Tried to store a file where parent directory is read only.
+     *
+     * @return void
+     */
+    public function testStoringWithReadonlyDestinationDirectory() {
+        $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
+        $fileInformation = array(
+            'sourcePath' => $tempfilename,
+            'documentId' => 1,
+            'fileName' => 'e.pdf',
+            'sortOrder' => 1,
+            'publishYear' => 2008,
+            'label' => 'Test',
+            'type' => 'application/pdf',
+            'language' => 'english',
+            'mimeType' => 'pdf'
+            );
+        mkdir($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'], 0555, true);
+        $this->setExpectedException('Opus_File_Exception', 'Error during inserting meta data or file movement: Could not create destination directory.');
+        $storage = Opus_File_Storage::getInstance($this->tmp_dir);
+        $storage->store($fileInformation);
+        unlink($tempfilename);
+    }
+
+
+    /**
      * Test for storing data
      *
      * @return void
@@ -479,6 +647,32 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $this->setExpectedException('Opus_File_Exception', 'Informations about specific entry not found.');
         $storage->remove(0);
+    }
+
+    /**
+     * Tried to remove a database entry without existing file.
+     *
+     * @return void
+     */
+    public function testRemovingDataWithoutExistingFile() {
+                $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
+        $fileInformation = array(
+            'sourcePath' => $tempfilename,
+            'documentId' => 1,
+            'fileName' => 'e.pdf',
+            'sortOrder' => 1,
+            'publishYear' => 2008,
+            'label' => 'Test',
+            'type' => 'application/pdf',
+            'language' => 'english',
+            'mimeType' => 'pdf'
+            );
+        file_put_contents($tempfilename, 'blablub');
+        $storage = Opus_File_Storage::getInstance($this->tmp_dir);
+        $id = $storage->store($fileInformation);
+        unlink($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'] . DIRECTORY_SEPARATOR . $fileInformation['documentId'] . DIRECTORY_SEPARATOR . $fileInformation['fileName']);
+        $this->setExpectedException('Opus_File_Exception', 'Error during deleting meta data or file: unlink(/tmp/Opus_Test/2008/1/e.pdf): No such file or directory');
+        $storage->remove($id);
     }
 
     /**
