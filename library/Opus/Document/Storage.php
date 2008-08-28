@@ -1,17 +1,20 @@
 <?
-require_once '../library/Opus/Db/Db.php';
-class Opus_Document
+class Opus_Document_Storage
 {
     private $documentData;
     private $documentsId;
+    
+    /*
+     * 
+     */
     private function _log($string)
     {
         print ($string);
     }
     /**
-    * set the document data for a Opus_Document object
-    * 
-    */
+     * Set the document data for a Opus_Document object
+     * 
+     */
     public function setData($data)
     {
         //TODO check for validity ???
@@ -21,7 +24,7 @@ class Opus_Document
     {
         $this->documentsId= $documentsId;
     }
-    public function Opus_Document($data= null, $documentsId= null)
+    public function __construct($data= null, $documentsId= null)
     {
         if (is_array($data))
         {
@@ -43,12 +46,14 @@ class Opus_Document
         return false;
     }
     /**
-    * saves data to database, without checking the correctness of it
-    *
-    * updates the database, if an document id is given, creates now document else
-    * @return document id
-    * 
-    */
+     * 
+     * 
+     * Saves data to database, without checking the correctness of it
+     *
+     * updates the database, if an document id is given, creates now document else
+     * @return document id
+     * 
+     */
     public function saveDocumentData()
     {
         if (is_null($this->documentsId))
@@ -133,8 +138,8 @@ class Opus_Document
                     //TODO was soll passieren, wenn wiederholbare daten hinzugefügt werden? alle alten daten löschen oder neue einfach hinzufügen?
                     /*if ($newEntry)
                     {*/
-                        $repeatableData['documents_id']= $this->documentsId;
-                        $table->insert($repeatableData);
+                    $repeatableData['documents_id']= $this->documentsId;
+                    $table->insert($repeatableData);
                     /*}
                     else
                     {
@@ -145,10 +150,10 @@ class Opus_Document
             else
             {
                 //TODO gleiches wie oben, wie sollen wiederholbare datensätze beim aktualisieren behandelt werden? 
-               /* if ($newEntry)
-                {*/
-                    $data[$tableName]['documents_id']= $this->documentsId;
-                    $table->insert($data[$tableName], $where);
+                /* if ($newEntry)
+                 {*/
+                $data[$tableName]['documents_id']= $this->documentsId;
+                $table->insert($data[$tableName], $where);
                 /*}
                 else
                 {
