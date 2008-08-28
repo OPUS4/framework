@@ -14,7 +14,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment. / Interner Kommentar.' ,
   `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML...). / Beschreibung der Lizenz in einer Auszeichnungssprache (XHTML...).' ,
   `desc_text` MEDIUMTEXT NULL COMMENT 'Description of the licence in short and pure text form. / Kurzbeschreibung der Lizenz in reiner Textform.' ,
-  `language` VARCHAR(3) NOT NULL COMMENT 'Language of the licence (triple-digit, ISO639-2/B). / Sprache der Lizenz (dreistellig, ISO639-2/B).' ,
+  `licence_language` VARCHAR(3) NOT NULL COMMENT 'Language of the licence (triple-digit, ISO639-2/B). / Sprache der Lizenz (dreistellig, ISO639-2/B).' ,
   `link_licence` MEDIUMTEXT NOT NULL COMMENT 'URI of the licence. / URI der Lizenz.' ,
   `link_logo` MEDIUMTEXT NULL COMMENT 'URI of the licence logo. / URI des Lizenzlogos.' ,
   `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form. / URI des Lizenzvertrages.' ,
@@ -27,7 +27,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
-COMMENT = 'Table for licence related data.';
+COMMENT = 'Table for licence related data.'
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
@@ -175,9 +177,9 @@ ROW_FORMAT = DEFAULT;
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   `document_subjects_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `documents_id` INT UNSIGNED NULL ,
+  `subject_language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
   `subject_type` ENUM('psyndex terms', 'ddc', 'swd') NOT NULL COMMENT 'Art der Erschließung' ,
   `subject_value` VARCHAR(255) NOT NULL COMMENT 'Wert zu subject_type (kontrolliertes/freies Schlagwort, Notation, etc)' ,
-  `language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
   `external_subject_key` VARCHAR(255) NULL COMMENT 'Identifikator zur Auflösung von Deskriptoren in Fremdsystemen' ,
   PRIMARY KEY (`document_subjects_id`) ,
   INDEX fk_document_subjects_documents (`documents_id` ASC) ,
@@ -308,15 +310,17 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
   `patent_year_applied` YEAR NOT NULL COMMENT 'Jahr der Antragsstellung' ,
   `patent_application` TEXT NOT NULL COMMENT 'Beschreibung der Anwendung/ des Patents' ,
   PRIMARY KEY (`document_patents_id`) ,
-  INDEX fk_Patent_Information_Document (`documents_id` ASC) ,
-  CONSTRAINT `fk_Patent_Information_Document`
+  INDEX fk_patent_information_document (`documents_id` ASC) ,
+  CONSTRAINT `fk_patent_information_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci;
+COLLATE = utf8_general_ci
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
@@ -330,8 +334,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   `start_survey_period` DATETIME NOT NULL ,
   `end_survey_period` DATETIME NOT NULL ,
   PRIMARY KEY (`document_statistics_id`) ,
-  INDEX fk_Document_Statistics_Document (`documents_id` ASC) ,
-  CONSTRAINT `fk_Document_Statistics_Document`
+  INDEX fk_document_statistics_Document (`documents_id` ASC) ,
+  CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
@@ -353,15 +357,17 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
   `creator` TEXT NOT NULL COMMENT 'Verfasser der Mitteilung' ,
   `scope` ENUM('private', 'public', 'reference') NOT NULL COMMENT 'Sichtbarkeit: intern, extern, Verweis auf andere Dokumentversion ' ,
   PRIMARY KEY (`document_notes_id`) ,
-  INDEX fk_Document_Notes_Document (`documents_id` ASC) ,
-  CONSTRAINT `fk_Document_Notes_Document`
+  INDEX fk_document_notes_document (`documents_id` ASC) ,
+  CONSTRAINT `fk_document_notes_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci;
+COLLATE = utf8_general_ci
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
@@ -373,8 +379,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   `enrichment_type` VARCHAR(255) NOT NULL COMMENT 'Art der Erweiterung' ,
   `enrichment_value` TEXT NOT NULL COMMENT 'Wert der Erweiterung' ,
   PRIMARY KEY (`document_enrichments_id`) ,
-  INDEX fk_Document_Enrichment_Document (`documents_id` ASC) ,
-  CONSTRAINT `fk_Document_Enrichment_Document`
+  INDEX fk_document_enrichment_document (`documents_id` ASC) ,
+  CONSTRAINT `fk_document_enrichment_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
     ON DELETE NO ACTION
@@ -382,7 +388,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
-COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung';
+COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung'
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
