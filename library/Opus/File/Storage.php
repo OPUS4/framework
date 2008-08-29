@@ -279,5 +279,12 @@ class Opus_File_Storage {
         return $result;
     }
 
-
+    /**
+     * Return path to repository
+     *
+     * @return string
+     */
+    public function getRepositoryPath() {
+        return $this->repositoryPath;
+    }
 }
