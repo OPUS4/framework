@@ -86,6 +86,15 @@ class TestHelper extends Opus_Application_Bootstrap {
         $adapter->query("DROP TABLE IF EXISTS $tablename ");
     }
 
+    /**
+     * Returns true if the underlying operating system is Microsoft Windows (TM).
+     *
+     * @return boolean True in case of MS Windows; False otherwise.
+     */
+    public static function isWindows() {
+       return (substr(PHP_OS, 0, 3) === 'WIN');
+    }
+
 }
 
 // Do test environment initializiation.

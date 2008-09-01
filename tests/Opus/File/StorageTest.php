@@ -78,8 +78,12 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
                 }
                 closedir($dh);
             }
+            // Ensure permission to remove (necessary for non-linux systems).
+            @chmod($filepath, 0777);
             return @rmdir($filepath);
         }
+        // Ensure permission to remove (necessary for non-linux systems).
+        @chmod($filepath, 0777);
         return @unlink($filepath);
     }
 
@@ -162,8 +166,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      */
     public function testInitStorageWithReadOnlyDirectory() {
         $readonlydir = $this->tmp_dir . DIRECTORY_SEPARATOR . 'Readonly';
-        // Create a readonly directory
-        mkdir($readonlydir, 0554, true);
+        // Create a readonly directory. This has to happen in
+        // two steps (creating, setup permissions) to make it
+        // work on non-linux os.
+        mkdir($readonlydir, 0777, true);
+        chmod($readonlydir, 0544);
         $this->setExpectedException('Opus_File_Exception', 'Repository directory is not writable.');
         $storage = Opus_File_Storage::getInstance($readonlydir);
     }
@@ -598,10 +605,14 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testStoringWithReadonlyDestinationDirectory() {
+        if (TestHelper::isWindows() === true) {
+            $this->markTestSkipped('No readonly directory supported by MS Windows.');
+        }
+
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -610,11 +621,10 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
             'language' => 'english',
             'mimeType' => 'pdf'
             );
-        mkdir($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'], 0555, true);
+        mkdir($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'], 0544, true);
         $this->setExpectedException('Opus_File_Exception', 'Error during inserting meta data or file movement: Could not create destination directory.');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $storage->store($fileInformation);
-        unlink($tempfilename);
     }
 
 
@@ -719,8 +729,12 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         file_put_contents($tempfilename, 'blablub');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
-        unlink($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'] . DIRECTORY_SEPARATOR . $fileInformation['documentId'] . DIRECTORY_SEPARATOR . $fileInformation['fileName']);
-        $this->setExpectedException('Opus_File_Exception', 'Error during deleting meta data or file: unlink(/tmp/Opus_Test/2008/' . $this->doc_id . '/e.pdf): No such file or directory');
+        $path = $this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear']
+            . DIRECTORY_SEPARATOR . $fileInformation['documentId'] . DIRECTORY_SEPARATOR
+            . $fileInformation['fileName'];
+        unlink($path);
+        $this->setExpectedException('Opus_File_Exception',
+            'Error during deleting meta data or file: unlink(' . $path . '): No such file or directory');
         $storage->remove($id);
     }
 
