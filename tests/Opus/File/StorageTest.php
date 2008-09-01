@@ -102,6 +102,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_files');
         TestHelper::clearTable('documents');
         $documents = new Opus_Db_Documents();
+        $server_date = new Zend_Date(Zend_Date::now());
         $document_data = array(
             'completed_year' => 2008,
             'document_type' => 'article',
@@ -109,7 +110,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
             'published_year' => 2008,
             'publisher_university' => 1,
             'reviewed' => 'open',
-            'server_date_published' => new Zend_Date('15.01.2008')
+            'server_date_published' => $server_date->getIso()
             );
         $this->doc_id = (int) $documents->insert($document_data);
     }
