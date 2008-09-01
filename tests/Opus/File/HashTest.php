@@ -199,6 +199,34 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
         $hash->generate($id, '');
     }
 
+    public function testStoreHashWithoutFile() {
+        $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
+        $storage = Opus_File_Storage::getInstance($this->tmp_dir);
+        $fileInformation = array(
+            'sourcePath' => $tempfilename,
+            'documentId' => $this->doc_id,
+            'fileName' => 'e.pdf',
+            'sortOrder' => 1,
+            'publishYear' => 2008,
+            'label' => 'Test',
+            'type' => 'application/pdf',
+            'language' => 'english',
+            'mimeType' => 'pdf'
+            );
+        file_put_contents($tempfilename, 'blablub');
+        $id = $storage->store($fileInformation);
+        $hash = new Opus_File_Hash($storage);
+        unlink($this->tmp_dir
+               . DIRECTORY_SEPARATOR
+               . $fileInformation['publishYear']
+               . DIRECTORY_SEPARATOR
+               . $this->doc_id
+               . DIRECTORY_SEPARATOR
+               . $fileInformation['fileName']);
+        $this->setExpectedException('Opus_File_Exception', 'File for hashing not found.');
+        $hash->generate($id, 'md5');
+    }
+
     /**
      * Test of verifying stored and latest hash sums of a file.
      *
@@ -298,5 +326,37 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
     public function testHashGetHashMethods() {
         $hash = new Opus_File_Hash(Opus_File_Storage::getInstance($this->tmp_dir));
         $this->assertNotNull($hash->getHashMethods());
+    }
+
+    /**
+     * Enter description here...
+     *
+     * @return void
+     */
+    public function testRetrieveHashValue() {
+        $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
+        $storage = Opus_File_Storage::getInstance($this->tmp_dir);
+        $fileInformation = array(
+            'sourcePath' => $tempfilename,
+            'documentId' => $this->doc_id,
+            'fileName' => 'e.pdf',
+            'sortOrder' => 1,
+            'publishYear' => 2008,
+            'label' => 'Test',
+            'type' => 'application/pdf',
+            'language' => 'english',
+            'mimeType' => 'pdf'
+            );
+        file_put_contents($tempfilename, 'blablub');
+        $id = $storage->store($fileInformation);
+        $hash = new Opus_File_Hash($storage);
+        $hash->generate($id, 'md5');
+        $this->assertNotNull($hash->get($id));
+    }
+
+    public function testRetrieveHashValueWithInvalidIdentifier() {
+        $hash = new Opus_File_Hash(Opus_File_Storage::getInstance($this->tmp_dir));
+        $this->setExpectedException('InvalidArgumentException', 'Identifier is not an integer value.');
+        $hash->get('WRONG');
     }
 }
