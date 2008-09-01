@@ -326,14 +326,31 @@ class Opus_Person_Information {
             );
         }
         if (is_array($data) === true) {
-            $result = array(
-                'first_name'     => $data['firstName'],
-                'last_name'      => $data['lastName'],
-                'place_of_birth' => $data['placeOfBirth'],
-                'date_of_birth'  => $data['dateOfBirth']->getIso(),
-                'email'          => $data['email'],
             // Insert empty parameter to have all keys presented.
-                'academic_title' => '');
+            $result = array(
+                'first_name' => '',
+                'last_name' => '',
+                'date_of_birth' => 0,
+                'place_of_birth' => '',
+                'email' => '',
+                'academic_title' => ''
+            );
+            // Insert values if they appear in the given record.
+            if (array_key_exists('firstName', $data) === true) {
+                $result['first_name'] = $data['firstName'];
+            }
+            if (array_key_exists('lastName', $data) === true) {
+                $result['last_name'] = $data['lastName'];
+            }
+            if (array_key_exists('placeOfBirth', $data) === true) {
+                $result['place_of_birth'] = $data['placeOfBirth'];
+            }
+            if (array_key_exists('dateOfBirth', $data) === true) {
+                $result['date_of_birth'] = $data['dateOfBirth']->getIso();
+            }
+            if (array_key_exists('email', $data) === true) {
+                 $result['email'] = $data['email'];
+            }
             if (array_key_exists('academicTitle', $data) === true) {
                 $result['academic_title'] = $data['academicTitle'];
             }

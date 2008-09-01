@@ -104,6 +104,47 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Data provider for records with missing attributes.
+     *
+     * @return array An array, each entry containing person information with one attribute
+     *               missing and an error message.
+     */
+    public function invalidPersonDataMissingAttributes() {
+        return array(
+        array(array(
+            'academicTitle'=> 'Dr.',
+            'lastName'     => 'Mustermann',
+            'placeOfBirth' => 'Musterstadt',
+            'dateOfBirth'  => new Zend_Date('01.01.1901'),
+            'email'        => 'mustermann@musterhost.de'), 'Missing first name not rejected.'),
+        array(array(
+            'academicTitle'=> 'Dr.',
+            'firstName'    => 'Max',
+            'placeOfBirth' => 'Musterstadt',
+            'dateOfBirth'  => new Zend_Date('01.01.1901'),
+            'email'        => 'mustermann@musterhost.de'), 'Missing last name not rejected.'),
+        array(array(
+            'academicTitle'=> 'Dr.',
+            'firstName'    => 'Max',
+            'lastName'     => 'Mustermann',
+            'dateOfBirth'  => new Zend_Date('01.01.1901'),
+            'email'        => 'mustermann@musterhost.de'), 'Missing placeOfBirth not rejected.'),
+        array(array(
+            'academicTitle'=> 'Dr.',
+            'firstName'    => 'Max',
+            'lastName'     => 'Mustermann',
+            'placeOfBirth' => 'Musterstadt',
+            'email'        => 'mustermann@musterhost.de'), 'Missing dateOfBirth not rejected.'),
+        array(array(
+            'academicTitle'=> 'Dr.',
+            'firstName'    => 'Max',
+            'lastName'     => 'Mustermann',
+            'placeOfBirth' => 'Musterstadt',
+            'dateOfBirth'  => new Zend_Date('01.01.1901')), 'Missing email not rejected.')
+        );
+    }
+
+    /**
      * Test data provider for invalid person data.
      *
      * @return array An array, each entry containing partially invalid person information and
@@ -149,6 +190,8 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+
+
     /**
      * Test data provider for invalid criteria data.
      *
@@ -170,10 +213,29 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
      * @param string $msg  Message to be shown on failure.
      * @return void
      *
-     * @dataProvider invalidPersonDataProvider
+     * @dataProvider invalidPersonDataProvider invalidPersonDataMissingAttributes
      *
      */
     public function testCallAddFunctionWithInvalidValues(array $data, $msg) {
+        try {
+            Opus_Person_Information::add($data);
+        } catch (InvalidArgumentException $ex) {
+            return;
+        }
+        $this->fail($msg);
+    }
+
+    /**
+     * Test if missing person data values raise exceptions in add function.
+     *
+     * @param array  $data Person information record.
+     * @param string $msg  Message to be shown on failure.
+     * @return void
+     *
+     * @dataProvider invalidPersonDataMissingAttributes
+     *
+     */
+    public function testCallAddFunctionWithMissingValues(array $data, $msg) {
         try {
             Opus_Person_Information::add($data);
         } catch (InvalidArgumentException $ex) {
@@ -280,9 +342,9 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testGetNonexistentRecordDeliversEmtpyResult() {
-       // Table is cleared before by setUp() so 4711 is not a used identifier.
-       $result = Opus_Person_Information::get(4711);
-       $this->assertTrue(empty($result), 'Result is not empty.');
+        // Table is cleared before by setUp() so 4711 is not a used identifier.
+        $result = Opus_Person_Information::get(4711);
+        $this->assertTrue(empty($result), 'Result is not empty.');
     }
 
     /**
@@ -380,6 +442,15 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
     }
 
 
+    /**
+     * Expect an exception when calling update() with an invalid identifer.
+     *
+     * @return void
+     */
+    public function testUpdateWithInvalidIdentifier() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Person_Information::add(array('id'=>'WRONG'));
+    }
 
     /**
      * Test if illegal person data values raise exceptions in update function.
@@ -434,6 +505,16 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
         // Try to get the removed person again and expect an empty result.
         $result = Opus_Person_Information::get($id);
         $this->assertTrue(empty($result), 'Result is not empty.');
+    }
+
+    /**
+     * Test if the internal map() function throws an Exception on invalid arguments.
+     *
+     * @return void
+     */
+    public function testInternalMapFunctionThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Person_InformationDelegateHelper::mapDelegate('wrong data here');
     }
 
 }
