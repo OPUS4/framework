@@ -199,6 +199,11 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
         $hash->generate($id, '');
     }
 
+    /**
+     * Test to generate a hash value for a non-existing file.
+     *
+     * @return void
+     */
     public function testStoreHashWithoutFile() {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
@@ -329,7 +334,7 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Enter description here...
+     * Test for retrieving hash values from the database.
      *
      * @return void
      */
@@ -354,6 +359,11 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($hash->get($id));
     }
 
+    /**
+     * Test for a valid identifier on retrieving a hash value.
+     *
+     * @return void
+     */
     public function testRetrieveHashValueWithInvalidIdentifier() {
         $hash = new Opus_File_Hash(Opus_File_Storage::getInstance($this->tmp_dir));
         $this->setExpectedException('InvalidArgumentException', 'Identifier is not an integer value.');
