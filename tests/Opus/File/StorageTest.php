@@ -51,6 +51,13 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
     protected $tmp_dir = null;
 
     /**
+     * Holds document id.
+     *
+     * @var integer
+     */
+    protected $doc_id = null;
+
+    /**
      * Delete recurisvely directories and files.
      *
      * @param string $filepath Contains path for deleting.
@@ -93,6 +100,18 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $this->rm_recursive($this->tmp_dir);
         mkdir($this->tmp_dir);
         TestHelper::clearTable('document_files');
+        TestHelper::clearTable('documents');
+        $documents = new Opus_Db_Documents();
+        $document_data = array(
+            'completed_year' => 2008,
+            'document_type' => 'article',
+            'publication_status' => 0,
+            'published_year' => 2008,
+            'publisher_university' => 1,
+            'reviewed' => 'open',
+            'server_date_published' => new Zend_Date('15.01.2008')
+            );
+        $this->doc_id = (int) $documents->insert($document_data);
     }
 
     /**
@@ -609,7 +628,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -634,7 +653,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -687,7 +706,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -700,7 +719,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
         unlink($this->tmp_dir . DIRECTORY_SEPARATOR . $fileInformation['publishYear'] . DIRECTORY_SEPARATOR . $fileInformation['documentId'] . DIRECTORY_SEPARATOR . $fileInformation['fileName']);
-        $this->setExpectedException('Opus_File_Exception', 'Error during deleting meta data or file: unlink(/tmp/Opus_Test/2008/1/e.pdf): No such file or directory');
+        $this->setExpectedException('Opus_File_Exception', 'Error during deleting meta data or file: unlink(/tmp/Opus_Test/2008/' . $this->doc_id . '/e.pdf): No such file or directory');
         $storage->remove($id);
     }
 
@@ -713,7 +732,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -725,8 +744,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         file_put_contents($tempfilename, 'blablub');
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $id = $storage->store($fileInformation);
-        $this->assertEquals(
-            $fileInformation['publishYear']
+        $this->assertEquals($fileInformation['publishYear']
             . DIRECTORY_SEPARATOR
             . $fileInformation['documentId']
             . DIRECTORY_SEPARATOR
@@ -765,7 +783,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $storage = Opus_File_Storage::getInstance($this->tmp_dir);
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e.pdf',
             'sortOrder' => 1,
             'publishYear' => 2008,
@@ -779,7 +797,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $tempfilename = tempnam($this->tmp_dir, 'OPUS_');
         $fileInformation = array(
             'sourcePath' => $tempfilename,
-            'documentId' => 1,
+            'documentId' => $this->doc_id,
             'fileName' => 'e2.pdf',
             'sortOrder' => 2,
             'publishYear' => 2008,
@@ -790,7 +808,7 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
             );
         file_put_contents($tempfilename, 'blabluba');
         $id = $storage->store($fileInformation);
-        $this->assertEquals(2, count($storage->getAllFileIds(1)));
+        $this->assertEquals(2, count($storage->getAllFileIds($this->doc_id)));
     }
 
     /**
