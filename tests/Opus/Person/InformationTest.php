@@ -449,7 +449,7 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function testUpdateWithInvalidIdentifier() {
         $this->setExpectedException('InvalidArgumentException');
-        Opus_Person_Information::add(array('id'=>'WRONG'));
+        Opus_Person_Information::update(array('id'=>'WRONG'));
     }
 
     /**
