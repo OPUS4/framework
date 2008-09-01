@@ -174,11 +174,9 @@ class Opus_File_Storage {
                     throw new Opus_File_Exception('Could not create destination directory.');
                 }
             }
-            // should be move_upload_file
-            if (rename($fileInformation['sourcePath'], $destdir . DIRECTORY_SEPARATOR .  $fileInformation['fileName']) === false) {
-                // Throw an exception
-                throw new Opus_File_Exception('Could not move file to destination directory.');
-            }
+            // rename throws a exception on failure
+            // not documented in php manuals until 01.09.2008
+            rename($fileInformation['sourcePath'], $destdir . DIRECTORY_SEPARATOR .  $fileInformation['fileName']);
             // Second: Try to put file meta data in database
             $file_data = array(
                 'documents_id'   => $fileInformation['documentId'],
@@ -225,9 +223,9 @@ class Opus_File_Storage {
             $filedb->delete($where);
             // Try to delete the file
             $destfile = $this->repositoryPath . DIRECTORY_SEPARATOR . $rows->file_path_name;
-            if (unlink($destfile) === false) {
-                throw new Opus_File_Exception('Error occurs during file deleting.');
-            }
+            // unlink throws an exception on failure
+            // not documented in php manuals until 01.09.2008
+            unlink($destfile);
             $filedb->getAdapter()->commit();
         } catch (Exception $e) {
             // Something is going wrong, restore old data
