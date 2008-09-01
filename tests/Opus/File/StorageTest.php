@@ -832,6 +832,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, count($storage->getAllFileIds(0)));
     }
 
+    /**
+     * Check for returning correct repository path.
+     *
+     * @return void
+     */
     public function testCheckRepositoryPath() {
         $this->assertEquals($this->tmp_dir,  Opus_File_Storage::getInstance($this->tmp_dir)->getRepositoryPath());
     }
