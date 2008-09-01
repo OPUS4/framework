@@ -125,17 +125,6 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a hash generator without a storage component can be initialised.
-     *
-     * @return void
-     */
-    public function testInitHashWithoutStorage() {
-        $this->setExpectedException('Opus_File_Exception', 'Failed to initialise.');
-        $storage = array();
-        $hash = new Opus_File_Hash(null);
-    }
-
-    /**
      * Test if a hash generator can be initialised.
      *
      * @return void
