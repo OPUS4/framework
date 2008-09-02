@@ -45,10 +45,10 @@ class Opus_Person_InformationDelegateHelper extends Opus_Person_Information {
      * Enables call to protected static method map().
      *
      * @param array $par Parameter for map() method.
-     * @throws InvalidArgumentException the map() method will throw this exception.
+     * @throws InvalidArgumentException The map() method will throw this exception.
      * @return array Return value of map().
      */
-    public static function mapDelegate($par) {
+    public static function mapDelegate(array $par) {
         return self::map($par);
     }
 
