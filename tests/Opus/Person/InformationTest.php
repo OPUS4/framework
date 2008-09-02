@@ -196,6 +196,7 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
      * Test data provider for invalid criteria data.
      *
      * @return array Each entry contains invalid criteria and error message.
+     * 
      */
     public function invalidCriteriaProvider() {
         return array(
@@ -213,7 +214,7 @@ class Opus_Person_InformationTest extends PHPUnit_Framework_TestCase {
      * @param string $msg  Message to be shown on failure.
      * @return void
      *
-     * @dataProvider invalidPersonDataProvider invalidPersonDataMissingAttributes
+     * @dataProvider invalidPersonDataProvider
      *
      */
     public function testCallAddFunctionWithInvalidValues(array $data, $msg) {
