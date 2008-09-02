@@ -44,11 +44,11 @@ class Opus_Person_InformationDelegateHelper extends Opus_Person_Information {
     /**
      * Enables call to protected static method map().
      *
-     * @param array $par Parameter for map() method.
+     * @param Zend_Db_Table_Row|array $par Parameter for map() method.
      * @throws InvalidArgumentException The map() method will throw this exception.
      * @return array Return value of map().
      */
-    public static function mapDelegate(array $par) {
+    public static function mapDelegate($par) {
         return self::map($par);
     }
 
