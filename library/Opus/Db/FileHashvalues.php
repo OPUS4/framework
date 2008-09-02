@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_File
+ * @package     Opus_Db
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -36,10 +36,10 @@
  * Model class for database operations on table file_hashvalues.
  *
  * @category    Framework
- * @package     Opus_File
+ * @package     Opus_Db
  *
  */
-class Opus_File_HashvaluesModel extends Zend_Db_Table {
+class Opus_Db_FileHashvalues extends Zend_Db_Table {
     /**
      * Contains table name
      *

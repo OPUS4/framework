@@ -118,7 +118,7 @@ class Opus_File_Hash {
             'hash_value' => $hash_data['hashvalue']
             );
         // Wrote hash meta values to database
-        $hashdb = new Opus_File_HashvaluesModel();
+        $hashdb = new Opus_Db_FileHashvalues();
         $hashdb->insert($hashdb_data);
     }
 
@@ -133,7 +133,7 @@ class Opus_File_Hash {
         if (is_int($fileId) === false) {
             throw new InvalidArgumentException('Identifier is not an integer value.');
         }
-        $hashdb = new Opus_File_HashvaluesModel();
+        $hashdb = new Opus_Db_FileHashvalues();
         $select = $hashdb->select()->where('document_files_id = ?' , $fileId);
         $result = $hashdb->fetchAll($select)->toArray();
         return $result;
@@ -158,7 +158,7 @@ class Opus_File_Hash {
                   . $this->storage->getPath($fileId);
         // Generate hash values
         $hash_data = $this->generate_hash($filedata, $method);
-        $hashdb = new Opus_File_HashvaluesModel();
+        $hashdb = new Opus_Db_FileHashvalues();
         // Get hash information from database
         $row = $hashdb->find($hash_data['hashvalue_id'], $fileId);
         if ($row->count() === 0) {
