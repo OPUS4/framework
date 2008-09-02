@@ -12,7 +12,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `licences_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel' ,
   `active` TINYINT NOT NULL COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)? / Flag: kann die Lizenz ausgewählt werden  (0=nein, 1=ja)?' ,
   `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment. / Interner Kommentar.' ,
-  `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML...). / Beschreibung der Lizenz in einer Auszeichnungssprache (XHTML...).' ,
+  `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML etc.). / Beschreibung der Lizenz in einer Auszeichnungssprache (XHTML etc).' ,
   `desc_text` MEDIUMTEXT NULL COMMENT 'Description of the licence in short and pure text form. / Kurzbeschreibung der Lizenz in reiner Textform.' ,
   `licence_language` VARCHAR(3) NOT NULL COMMENT 'Language of the licence (triple-digit, ISO639-2/B). / Sprache der Lizenz (dreistellig, ISO639-2/B).' ,
   `link_licence` MEDIUMTEXT NOT NULL COMMENT 'URI of the licence. / URI der Lizenz.' ,
@@ -20,7 +20,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`licences` (
   `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form. / URI des Lizenzvertrages.' ,
   `mime_type` VARCHAR(30) NOT NULL COMMENT 'Mime type. / Mime-type.' ,
   `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users. / Kompletter Name der Lizenz. Dieser wird angezeigt.' ,
-  `name_short` VARCHAR(20) NOT NULL COMMENT 'Unique token of the licence. / Eindeutiges Kürzel der Lizenz.' ,
   `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed (0=no, 1=yes)? / Flag: ist Print-on-Demand erlaubt (0=nein, 1=ja)?' ,
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99). / Sortierreihenfolge (00 bis 99).' ,
   PRIMARY KEY (`licences_id`) )
@@ -37,7 +36,7 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `documents_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel.' ,
-  `licences_id` INT UNSIGNED NULL ,
+  `licences_id` INT UNSIGNED NULL COMMENT 'Foreign key: licences.licences_id / Fremdschlüssel: licences.licences_id' ,
   `range_id` INT NULL COMMENT 'Foreign key: ?.? / Fremdschlüssel: ?.?' ,
   `completed_date` DATE NULL COMMENT 'Date of completion. / Datum der Fertigstellung.' ,
   `completed_year` YEAR NOT NULL COMMENT 'Year of completion, if the complete date is unknown. / Jahr der Fertigstellung, wenn das vollständige Datum unbekannt ist.' ,
@@ -199,11 +198,11 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_title_abstracts`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
-  `document_title_abstracts_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
-  `documents_id` INT UNSIGNED NULL ,
-  `title_abstract_type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Titel/Abstract des Dokuments' ,
-  `title_abstract_value` TEXT NOT NULL COMMENT 'Inhalt zu title_abstract_type' ,
-  `title_abstract_language` VARCHAR(3) NOT NULL COMMENT 'Sprache des Titels, Abstracts' ,
+  `document_title_abstracts_id` INT UNSIGNED NOT NULL COMMENT 'Primary key. / Primärschlüssel.' ,
+  `documents_id` INT UNSIGNED NULL COMMENT 'Foreign key: documents.documents_id / Fremdschlüssel: documents.documents_id' ,
+  `title_abstract_type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Type of title or abstract. / Art des Titels oder des Abstracts.' ,
+  `title_abstract_value` TEXT NOT NULL COMMENT 'Value of title or abstract. / Wert des Titels oder Abstracts.' ,
+  `title_abstract_language` VARCHAR(3) NOT NULL COMMENT 'Language of the title or abstract (triple-digit, ISO639-2/B). / Sprache des Titels oder Abstracts (dreistelligt, ISO639-2/B).' ,
   PRIMARY KEY (`document_title_abstracts_id`) ,
   INDEX fk_document_title_abstracts_documents (`documents_id` ASC) ,
   CONSTRAINT `fk_document_title_abstracts_documents`
@@ -214,6 +213,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
+COMMENT = 'Table with title and abstract related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -327,7 +327,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_statistics`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
-  `document_statistics_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
+  `document_statistics_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel.' ,
   `documents_id` INT UNSIGNED NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
   `statistic_type` TEXT NOT NULL COMMENT 'Art der dokumentbezogenen Statistik' ,
   `statistic_value` TEXT NOT NULL COMMENT 'Kennwert' ,
@@ -374,10 +374,10 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_enrichments`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
-  `document_enrichments_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `documents_id` INT UNSIGNED NOT NULL COMMENT 'Fremdschlüssel zur Document Tabelle' ,
-  `enrichment_type` VARCHAR(255) NOT NULL COMMENT 'Art der Erweiterung' ,
-  `enrichment_value` TEXT NOT NULL COMMENT 'Wert der Erweiterung' ,
+  `document_enrichments_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel.' ,
+  `documents_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key: documents.documents_id / Fremdschlüssel: documents.documents_id ' ,
+  `enrichment_type` VARCHAR(255) NOT NULL COMMENT 'Type of enrichment. / Art der Erweiterung.' ,
+  `enrichment_value` TEXT NOT NULL COMMENT 'Value of the enrichment. / Wert der Erweiterung.' ,
   PRIMARY KEY (`document_enrichments_id`) ,
   INDEX fk_document_enrichment_document (`documents_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
@@ -388,7 +388,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
-COMMENT = 'Multivalue Tabelle zur unkomplizierten Metadaten-Erweiterung'
+COMMENT = 'Table for data model enhancements.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
