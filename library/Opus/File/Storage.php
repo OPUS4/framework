@@ -159,7 +159,7 @@ class Opus_File_Storage {
         if (is_int($fileInformation['publishYear']) === false) {
             throw new InvalidArgumentException('publishYear is not an integer value.');
         }
-        $filedb = new Opus_File_DocumentFilesModel();
+        $filedb = new Opus_Db_DocumentFiles();
         $filedb->getAdapter()->beginTransaction();
         try {
             // First: Move uploaded file to destination directory
@@ -212,7 +212,7 @@ class Opus_File_Storage {
         if (is_int($fileId) === false) {
             throw new InvalidArgumentException('Identifier is not an integer value.');
         }
-        $filedb = new Opus_File_DocumentFilesModel();
+        $filedb = new Opus_Db_DocumentFiles();
         $rows = $filedb->find($fileId)->current();
         if (empty($rows) === true) {
             throw new Opus_File_Exception('Informations about specific entry not found.');
@@ -247,7 +247,7 @@ class Opus_File_Storage {
         if (is_int($fileId) === false) {
             throw new InvalidArgumentException('Identifier is not an integer value.');
         }
-        $filedb = new Opus_File_DocumentFilesModel();
+        $filedb = new Opus_Db_DocumentFiles();
         $rows = $filedb->find($fileId)->current();
         if (empty($rows) === true) {
             throw new Opus_File_Exception('Could not found any data to specific entry.');
@@ -268,7 +268,7 @@ class Opus_File_Storage {
             throw new InvalidArgumentException('Identifier is not an integer value.');
         }
         $result = array();
-        $filedb = new Opus_File_DocumentFilesModel();
+        $filedb = new Opus_Db_DocumentFiles();
         $select = $filedb->select()->where('documents_id = ?', $documentId);
         $results = $filedb->fetchAll($select);
         foreach ($results as $key => $value) {
