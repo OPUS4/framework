@@ -40,7 +40,7 @@
  *
  */
 
-class Opus_Db_DocumentFiles extends DbConnection {
+class Opus_Db_DocumentFiles extends Zend_Db_Table {
 
     /**
      * Real database name of the documents table.

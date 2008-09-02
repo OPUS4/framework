@@ -40,7 +40,7 @@
  *
  */
 
-class Opus_Db_DocumentEnrichments extends DbConnection {
+class Opus_Db_DocumentEnrichments extends Zend_Db_Table {
 
     /**
      * Real database name of the documents table.

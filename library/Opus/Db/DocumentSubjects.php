@@ -39,7 +39,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Data_Db_DocumentSubjects extends DbConnection {
+class Opus_Data_Db_DocumentSubjects extends Zend_Db_Table {
 
     /**
      * Real database name of the documents table.
