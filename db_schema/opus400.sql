@@ -110,7 +110,7 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
   `institutes_contents_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `institutes_id` INT NOT NULL ,
+  `institutes_id` INT UNSIGNED NOT NULL ,
   `institutes_language` VARCHAR(3) NOT NULL ,
   `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
   `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
