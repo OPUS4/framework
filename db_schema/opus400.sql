@@ -109,15 +109,14 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
-  `institutes_contents_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
-  `institutes_id` INT UNSIGNED NOT NULL ,
-  `institutes_language` VARCHAR(3) NOT NULL ,
+  `institutes_contents_id` INT UNSIGNED NOT NULL COMMENT 'Datensatz-ID' ,
+  `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Ident. Einrichtung unabh. v. d. verwendeten Sprache' ,
+  `institutes_language` VARCHAR(3) NOT NULL COMMENT 'ISO Sprachkürzel' ,
   `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
   `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
   `postal_adress` TEXT NULL ,
   `institutes_site` TEXT NULL ,
-  PRIMARY KEY (`institutes_contents_id`) ,
-  INDEX institute (`institutes_id` ASC) )
+  PRIMARY KEY (`institutes_id`, `institutes_language`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
@@ -272,7 +271,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
   `documents_id` INT UNSIGNED NOT NULL ,
   `persons_id` INT UNSIGNED NOT NULL ,
   `institutes_id` INT UNSIGNED NOT NULL ,
-  `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator') NOT NULL ,
+  `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator') NOT NULL COMMENT 'Rolle der Person im aktuellen Dokument-Institut-Kontext' ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Reihenfolge der Autoren' ,
   PRIMARY KEY (`link_documents_persons_id`) ,
   INDEX fk_link_documents_persons_documents (`documents_id` ASC) ,
@@ -290,7 +289,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_documents_persons_institutes_contents`
     FOREIGN KEY (`institutes_id` )
-    REFERENCES `opus400`.`institutes_contents` (`institutes_contents_id` )
+    REFERENCES `opus400`.`institutes_contents` (`institutes_id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -403,7 +402,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
   `institutes_structure_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `institutes_id` INT UNSIGNED NOT NULL ,
   `left` INT UNSIGNED NOT NULL ,
-  `right` INT UNSIGNED NULL ,
+  `right` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`institutes_structure_id`) ,
   INDEX fk_institutes_structure_institutes_contents (`institutes_id` ASC) ,
   CONSTRAINT `fk_institutes_structure_institutes_contents`
@@ -414,6 +413,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
+COMMENT = 'Nested Sets Struktur der Institute-Hierarchie'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -423,10 +423,10 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   `institutes_replacement_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
-  `institutes_id` INT UNSIGNED NOT NULL ,
-  `replacement_for_id` INT UNSIGNED NOT NULL ,
-  `replacement_by_id` INT UNSIGNED NOT NULL ,
-  `current_replacement_id` INT UNSIGNED NOT NULL ,
+  `institutes_id` INT UNSIGNED NOT NULL COMMENT 'betrachtete Einrichtung' ,
+  `replacement_for_id` INT UNSIGNED NOT NULL COMMENT 'ersetzte Einrichtung' ,
+  `replacement_by_id` INT UNSIGNED NOT NULL COMMENT 'ersetzende Einrichtung' ,
+  `current_replacement_id` INT UNSIGNED NOT NULL COMMENT 'aktuell nachfolgende Einrichtung' ,
   PRIMARY KEY (`institutes_replacement_id`) ,
   INDEX fk_link_institute (`institutes_id` ASC) ,
   INDEX fk_link_institute_replacement_for (`replacement_for_id` ASC) ,
