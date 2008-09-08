@@ -32,51 +32,39 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Document_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for testing database access and models.
+ * Test cases for class Opus_Document_Storage.
  *
  * @category    Tests
  * @package     Opus_Document
+ *
  */
-class Opus_Document_AllTests {
+class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
+
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Setup test environment
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function setUp() {
     }
 
     /**
-     * Construct and return the test suite.
+     * Cleanup test environment
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @return void
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Document');
-        $suite->addTestSuite('Opus_Document_StorageTest');
-        return $suite;
+    public function tearDown() {
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Document_AllTests::main') {
-    Opus_Document_AllTests::main();
+    /**
+     * Mock test.
+     *
+     * @return void
+     */
+    public function testSomething() {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
 }
