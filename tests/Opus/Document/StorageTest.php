@@ -71,6 +71,7 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testAddToDocuments() {
+        $this->fail('Opus_Db_Licences is not defined yet.');
         $licences = new Opus_Db_Licences();
         $licencesId = $licences->insert(array('name_long' => 'test licence'));
 
