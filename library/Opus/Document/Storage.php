@@ -67,7 +67,7 @@ class Opus_Document_Storage
         //access to the databases
         //creates an array to loop over the databases
         $tables= array (
-        'documents' => new Opus_Data_Db_Documents(), 'document_enrichments' => new Opus_Data_Db_Document_Enrichments(), 'document_files' => new Opus_Data_Db_Document_Files(), 'document_identifiers' => new Opus_Data_Db_Document_Identifiers(), 'document_notes' => new Opus_Data_Db_Document_Notes(), 'document_patents' => new Opus_Data_Db_Document_Patents(), 'document_statistics' => new Opus_Data_Db_Document_Statistics(), 'document_subjects' => new Opus_Data_Db_Document_Subjects(), 'document_title_abstracts' => new Opus_Data_Db_Document_Title_Abstracts());
+        'documents' => new Opus_Db_Documents(), 'document_enrichments' => new Opus_Db_Document_Enrichments(), 'document_files' => new Opus_Db_Document_Files(), 'document_identifiers' => new Opus_Db_Document_Identifiers(), 'document_notes' => new Opus_Db_Document_Notes(), 'document_patents' => new Opus_Db_Document_Patents(), 'document_statistics' => new Opus_Db_Document_Statistics(), 'document_subjects' => new Opus_Db_Document_Subjects(), 'document_title_abstracts' => new Opus_Db_Document_Title_Abstracts());
         //partition data to different tables
         foreach ($this->documentData as $key => $value)
         {
