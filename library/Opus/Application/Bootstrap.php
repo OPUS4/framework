@@ -303,7 +303,7 @@ class Opus_Application_Bootstrap {
 
         Zend_Translate::setCache(self::$cache);
         $sessiondata = new Zend_Session_Namespace();
-        $translate = new Zend_Translate('tmx', self::$applicationRootDirectory . '/modules/');
+        $translate = new Zend_Translate(Zend_Translate::AN_TMX, self::$applicationRootDirectory . '/modules/');
         if (empty($sessiondata->language) === false) {
             // Example for logging something
             $logger = Zend_Registry::get('Zend_Log');
