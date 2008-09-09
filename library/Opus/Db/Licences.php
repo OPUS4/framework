@@ -29,7 +29,7 @@
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: DocumentSubjects.php 669 2008-09-02 08:40:39Z gerhardt $
  */
 
 /**
@@ -39,19 +39,19 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_DocumentSubjects extends Zend_Db_Table {
+class Opus_Db_Licences extends Zend_Db_Table {
 
     /**
      * Real database name of the documents table.
      *
      * @var string
      */
-    protected $_name = 'document_subjects';
+    protected $_name = 'licences';
 
     /**
      * Real database name of the primary key column.
      *
      * @var string
      */
-    protected $_primary = 'document_subjects_id';
+    protected $_primary = 'licences_id';
 }

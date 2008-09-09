@@ -13,7 +13,7 @@ class Opus_Document_Storage
     }
     /**
      * Set the document data for a Opus_Document object
-     * 
+     *
      */
     public function setData($data)
     {
@@ -46,13 +46,13 @@ class Opus_Document_Storage
         return false;
     }
     /**
-     * 
-     * 
+     *
+     *
      * Saves data to database, without checking the correctness of it
      *
      * updates the database, if an document id is given, creates now document else
      * @return document id
-     * 
+     *
      */
     public function saveDocumentData()
     {
@@ -67,22 +67,30 @@ class Opus_Document_Storage
         //access to the databases
         //creates an array to loop over the databases
         $tables= array (
-        'documents' => new Opus_Db_Documents(), 'document_enrichments' => new Opus_Db_Document_Enrichments(), 'document_files' => new Opus_Db_Document_Files(), 'document_identifiers' => new Opus_Db_Document_Identifiers(), 'document_notes' => new Opus_Db_Document_Notes(), 'document_patents' => new Opus_Db_Document_Patents(), 'document_statistics' => new Opus_Db_Document_Statistics(), 'document_subjects' => new Opus_Db_Document_Subjects(), 'document_title_abstracts' => new Opus_Db_Document_Title_Abstracts());
+        'documents' => new Opus_Db_Documents(), 
+        'document_enrichments' => new Opus_Db_DocumentEnrichments(), 
+        'document_files' => new Opus_Db_DocumentFiles(), 
+        'document_identifiers' => new Opus_Db_DocumentIdentifiers(), 
+        'document_notes' => new Opus_Db_DocumentNotes(), 
+        'document_patents' => new Opus_Db_DocumentPatents(), 
+        //'document_statistics' => new Opus_Db_DocumentStatistics(), 
+        'document_subjects' => new Opus_Db_DocumentSubjects(), 
+        'document_title_abstracts' => new Opus_Db_DocumentTitleAbstracts());
         //partition data to different tables
         foreach ($this->documentData as $key => $value)
         {
             $keyInSchema= false;
             foreach ($tables as $tableName => $table)
             {
-                print ("<br>" . (is_array($value)));
-                print_r($value);
-                print ("<br>");
+                //print ("<br>" . (is_array($value)));
+                //print_r($value);
+                //print ("<br>");
                 //print_r(array_keys($value));
                 //print("<b style=\"color:red\">  ------ </b> ");
                 //print_r(array_values($table->info('cols')));
                 if (is_array($value) && array_intersect(array_keys($value), array_values($table->info('cols'))) == array_keys($value))
                 {
-                    print ("tablename: $tableName");
+                    //print ("tablename: $tableName");
                     $data[$tableName][]= $value;
                     $keyInSchema= true;
                     break;
@@ -127,8 +135,8 @@ class Opus_Document_Storage
             {
                 continue;
             }
-            print ("<br>");
-            print ($tableName);
+            //print ("<br>");
+            //print ($tableName);
             $where= $table->getAdapter()->quoteInto('documents_id = ?', $this->documentsId);
             //if not associated array (repeatable data) iterate over data entry
             if (!$this->_is_assoc($data[$tableName]))
@@ -151,7 +159,7 @@ class Opus_Document_Storage
             {
                 //TODO gleiches wie oben, wie sollen wiederholbare datensätze beim aktualisieren behandelt werden? 
                 /* if ($newEntry)
-                 {*/
+                {*/
                 $data[$tableName]['documents_id']= $this->documentsId;
                 $table->insert($data[$tableName], $where);
                 /*}
