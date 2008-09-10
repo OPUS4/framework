@@ -103,6 +103,11 @@ class Opus_File_StorageTest extends PHPUnit_Framework_TestCase {
         $this->tmp_dir .= DIRECTORY_SEPARATOR . 'Opus_Test';
         $this->rm_recursive($this->tmp_dir);
         mkdir($this->tmp_dir);
+        
+        // Workaround:
+        // Clear dependent table manually. Database constraints are not set up correctly.
+        TestHelper::clearTable('document_title_abstracts');
+        
         TestHelper::clearTable('document_files');
         TestHelper::clearTable('documents');
         $documents = new Opus_Db_Documents();
