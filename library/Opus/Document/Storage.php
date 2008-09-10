@@ -4,12 +4,24 @@ class Opus_Document_Storage
     private $documentData;
     private $documentsId;
     
+    /**
+     * Reference to logging facility.
+     *
+     * @var Zend_Log
+     */
+    protected $_logger = null;
+    
     /*
      * 
      */
     private function _log($string)
     {
-        print ($string);
+        // The use of print statements is prohibited!!
+        // It would break the output of the whole application.
+        // print ($string);
+        
+        // Use a logging component instead:
+        $this->_logger->info('Opus_Document_Storage: ' . $string);
     }
     /**
      * Set the document data for a Opus_Document object
@@ -35,6 +47,9 @@ class Opus_Document_Storage
             $this->setData(null);
         }
         $this->setDocumentsId($documentsId);
+        
+        // Fetch logging class from the registry.
+        $this->_logger = Zend_Registry::get('Zend_Log');
     }
     private function _is_assoc($array)
     {
