@@ -56,9 +56,14 @@ class TestHelper extends Opus_Application_Bootstrap {
      * @return void
      */
     public static function init() {
+        
+        // For logging base path.
+        self::$applicationRootDirectory = dirname(__FILE__);
+        
         self::setupEnvironment();
         self::configure(self::CONFIG_TEST, dirname(__FILE__));
         self::setupDatabase();
+        self::setupLogging();
     }
 
     /**
