@@ -200,7 +200,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_title_abstracts`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
-  `document_title_abstracts_id` INT UNSIGNED NOT NULL COMMENT 'Primary key. / Primärschlüssel.' ,
+  `document_title_abstracts_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key. / Primärschlüssel.' ,
   `documents_id` INT UNSIGNED NULL COMMENT 'Foreign key: documents.documents_id / Fremdschlüssel: documents.documents_id' ,
   `title_abstract_type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Type of title or abstract. / Art des Titels oder des Abstracts.' ,
   `title_abstract_value` TEXT NOT NULL COMMENT 'Value of title or abstract. / Wert des Titels oder Abstracts.' ,
