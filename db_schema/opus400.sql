@@ -176,7 +176,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_subjects`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
-  `document_subjects_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+  `document_subjects_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT UNSIGNED NULL ,
   `subject_language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
   `subject_type` ENUM('ddc', 'swd', 'psyndex', 'uncontrolled') NOT NULL COMMENT 'Art der Erschließung' ,
