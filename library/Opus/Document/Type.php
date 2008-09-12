@@ -284,11 +284,11 @@ class Opus_Document_Type {
     }
 
     /**
-     * Given a fieldname this method returns an validator instance based on Zend_Validate
-     * corresponding to the defined datatype of the field.
+     * Given a fieldname this method returns an validator instance implementing
+     * Zend_Validate_Interface in correspondance to the defined datatype of the field.
      *
      * @param string $name Name of the field.
-     * @return Zend_Validate Validator instance.
+     * @return Zend_Validate_Interface Validator instance.
      */
     public function getValidatorFor($name) {
         return null;
