@@ -109,13 +109,12 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`institutes_contents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
-  `institutes_contents_id` INT UNSIGNED NOT NULL COMMENT 'Datensatz-ID' ,
   `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Ident. Einrichtung unabh. v. d. verwendeten Sprache' ,
   `institutes_language` VARCHAR(3) NOT NULL COMMENT 'ISO Sprachkürzel' ,
-  `institutes_type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
-  `institutes_name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
-  `postal_adress` TEXT NULL ,
-  `institutes_site` TEXT NULL ,
+  `type` VARCHAR(50) NOT NULL COMMENT 'Art der Einrichtung' ,
+  `name` VARCHAR(255) NOT NULL COMMENT 'Bezeichnung der Einrichtung' ,
+  `postal_address` TEXT NULL ,
+  `site` TEXT NULL ,
   PRIMARY KEY (`institutes_id`, `institutes_language`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
@@ -399,10 +398,11 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`institutes_structure`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
-  `institutes_structure_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_structure_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `institutes_id` INT UNSIGNED NOT NULL ,
   `left` INT UNSIGNED NOT NULL ,
   `right` INT UNSIGNED NOT NULL ,
+  `visible` TINYINT NOT NULL DEFAULT 1 ,
   PRIMARY KEY (`institutes_structure_id`) ,
   INDEX fk_institutes_structure_institutes_contents (`institutes_id` ASC) ,
   CONSTRAINT `fk_institutes_structure_institutes_contents`
@@ -422,11 +422,11 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`institutes_replacement`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
-  `institutes_replacement_id` INT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
+  `institutes_replacement_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `institutes_id` INT UNSIGNED NOT NULL COMMENT 'betrachtete Einrichtung' ,
-  `replacement_for_id` INT UNSIGNED NOT NULL COMMENT 'ersetzte Einrichtung' ,
-  `replacement_by_id` INT UNSIGNED NOT NULL COMMENT 'ersetzende Einrichtung' ,
-  `current_replacement_id` INT UNSIGNED NOT NULL COMMENT 'aktuell nachfolgende Einrichtung' ,
+  `replacement_for_id` INT UNSIGNED NULL COMMENT 'ersetzte Einrichtung' ,
+  `replacement_by_id` INT UNSIGNED NULL COMMENT 'ersetzende Einrichtung' ,
+  `current_replacement_id` INT UNSIGNED NULL COMMENT 'aktuell nachfolgende Einrichtung' ,
   PRIMARY KEY (`institutes_replacement_id`) ,
   INDEX fk_link_institute (`institutes_id` ASC) ,
   INDEX fk_link_institute_replacement_for (`replacement_for_id` ASC) ,
