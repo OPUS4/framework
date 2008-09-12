@@ -24,62 +24,52 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: StorageTest.php 689 2008-09-09 10:50:30Z leidinger $
  */
-
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Validate_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for testing custom validators.
+ * Defines an validator for locale code strings.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_AllTests {
+class Opus_Validate_Locale extends Zend_Validate_Abstract {
+    /**
+     * Error message key.
+     *
+     */
+    const MSG_LOCALE = 'locale';
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Error message templates.
      *
-     * @return void
+     * @var array
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
-    }
+    protected $_messageTemplates = array(
+        self::MSG_LOCALE => "'%value%' is not a valid locale"
+    );
 
     /**
-     * Construct and return the test suite.
+     * Validate the given locale string.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @param string $value An locale string.
+     * @return boolean True if the given locale string is valid.
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
-        $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_LocaleTest');
-        $suite->addTestSuite('Opus_Validate_NoteScopeTest');
-        $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
-        return $suite;
+    public function isValid($value)
+    {
+        $this->_setValue($value);
+
+        if (Zend_Locale::isLocale($value) === false) {
+            $this->_error();
+            return false;
+        }
+
+        return true;
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Validate_AllTests::main') {
-    Opus_Validate_AllTests::main();
 }
