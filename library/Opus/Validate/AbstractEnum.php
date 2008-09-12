@@ -33,33 +33,31 @@
  */
 
 /**
- * Defines an validator for possible document type names.
+ * Defines an validator for possible enum values. Classes based on this
+ * abstract class have to define a protected variable $_valid_enums of
+ * type array.
  *
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_DocumentType extends Opus_Validate_AbstractEnum {
+abstract class Opus_Validate_AbstractEnum extends Zend_Validate_Abstract {
 
     /**
-     * Error message key.
+     * Validate the given value.
      *
+     * @param string $value An enum string.
+     * @return boolean True if the given enum string is known.
      */
-    const MSG_DOCUMENTTYPE = 'documenttype';
+    public function isValid($value)
+    {
+        $this->_setValue($value);
 
-    /**
-     * Error message templates.
-     *
-     * @var array
-     */
-    protected $_messageTemplates = array(
-        self::MSG_DOCUMENTTYPE => "'%value%' is not a valid document type"
-    );
+        if (array_search($value, $this->_valid_enums, true) === false) {
+            $this->_error();
+            return false;
+        }
 
-    /**
-     * Define valid enum values.
-     *
-     * @var array
-     */
-    protected $_valid_enums = array('article', 'book section', 'monograph', 'report', 'doctoral thesis');
+        return true;
+    }
 
 }
