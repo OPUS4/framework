@@ -29,56 +29,70 @@
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: AllTests.php 682 2008-09-08 11:46:13Z claussnitzer $
+ * @version     $Id: TypeTest.php 711 2008-09-12 12:08:05Z claussnitzer $
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Validate_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for testing custom validators.
+ * Test cases for class Opus_Validate_NoteScope.
  *
  * @category    Tests
  * @package     Opus_Validate
+ *
  */
-class Opus_Validate_AllTests {
+class Opus_Validate_NoteScopeTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Data provider for valid arguments.
+     *
+     * @return array Array of invalid arguments.
+     */
+    public function validDataProvider() {
+        return array(
+            array('private'),
+            array('public'),
+            array('reference')
+        );
+    }
+
+    /**
+     * Data provider for invalid arguments.
+     *
+     * @return array Array of invalid arguments.
+     */
+    public function invalidDataProvider() {
+        return array(
+            array(null),
+            array(''),
+            array(4711),
+            array(true),
+            array('not_a_valid_type')
+        );
+    }
+
+
+    /**
+     * Test validation of correct arguments.
      *
      * @return void
+     *
+     * @dataProvider validDataProvider
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function testValidArguments($arg) {
+        $validator = new Opus_Validate_NoteScope();
+        $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
 
     /**
-     * Construct and return the test suite.
+     * Test validation of incorrect arguments.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
+     * @return void
      *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @dataProvider invalidDataProvider
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
-        $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_NoteScopeTest');
-        $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
-        return $suite;
+    public function testInvalidArguments($arg) {
+        $validator = new Opus_Validate_NoteScope();
+        $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Validate_AllTests::main') {
-    Opus_Validate_AllTests::main();
 }
