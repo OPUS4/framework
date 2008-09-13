@@ -51,7 +51,10 @@ class Opus_Validate_Isbn10Test extends PHPUnit_Framework_TestCase {
      */
     public function validDataProvider() {
         return array(
-            array('3-86680-192-0')
+            array('3-86680-192-0'),
+            array('3-937602-69-0'),
+            array('3 86680 192 0'),
+            array('3 937602 69 0')
         );
     }
 
@@ -68,7 +71,8 @@ class Opus_Validate_Isbn10Test extends PHPUnit_Framework_TestCase {
             array(true, 'Boolean not rejected'),
             array('4711-0815',          'Malformed string not rejected.'),
             array('978-3-86680-192-9',  'ISBN-13 not rejected.'),
-            array('3-86680-192-5',      'Wrong check digit not rejected.')
+            array('3-86680-192-5',      'Wrong check digit not rejected.'),
+            array('3 86680 192-0',      'Mixed separators not rejected.')
         );
     }
 

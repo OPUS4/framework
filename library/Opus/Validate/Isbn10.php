@@ -80,13 +80,19 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
         }
 
         // check form
-        if (preg_match('/^[\d]*(-[\d]*){3}$/', $value) === 0) {
+        if (preg_match('/^[\d]*((-|\s)[\d]*){3}$/', $value) === 0) {
+            $this->_error(self::MSG_FORM);
+            return false;
+        }
+
+        // check for mixed separators
+        if ((preg_match('/-/', $value) > 0) and (preg_match('/\s/', $value) > 0)) {
             $this->_error(self::MSG_FORM);
             return false;
         }
 
         // Split ISBN into its parts
-        $isbn_parts = preg_split('/-/', $value);
+        $isbn_parts = preg_split('/(-|\s)/', $value);
 
         // Separate digits for checkdigit calculation
         $digits = array();
@@ -95,14 +101,14 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
                 $digits[] = $digit;
             }
         }
-        
+
         // Calculate and compare check digit
         $checkdigit = $this->calculateCheckDigit($digits);
         if ($checkdigit !== $isbn_parts[3]) {
             $this->_error(self::MSG_CHECK_DIGIT);
             return false;
         }
-        
+
         return true;
     }
 
