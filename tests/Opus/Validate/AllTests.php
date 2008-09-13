@@ -71,6 +71,7 @@ class Opus_Validate_AllTests {
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
         $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
+        $suite->addTestSuite('Opus_Validate_Isbn13Test');
         $suite->addTestSuite('Opus_Validate_LocaleTest');
         $suite->addTestSuite('Opus_Validate_NoteScopeTest');
         $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
