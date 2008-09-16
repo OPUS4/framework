@@ -26,7 +26,7 @@
  *
  * @category    Framework
  * @package     Opus_Document
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -47,89 +47,94 @@ class Opus_Document_Type {
 
     /**
      * Datatype for textfields.
-     * 
+     *
      */
     const DT_TEXT           = 0;
     /**
      * Datatype for numeric values.
      *
      */
-    const DT_NUMBER         = 1;
+    const DT_NUMBER         = 10;
     /**
      * Datatype for date values.
      *
      */
-    const DT_DATE           = 2;
+    const DT_DATE           = 20;
     /**
      * Datatype for language specification.
      *
      */
-    const DT_LANGUAGE       = 3;
+    const DT_LANGUAGE       = 30;
     /**
-     * Datatype for ISBN identifier.
+     * Datatype for ISBN-10 identifier.
      *
      */
-    const DT_ISBN           = 4;
+    const DT_ISBN_10        = 35;
+    /**
+     * Datatype for ISBN-13 identifier.
+     *
+     */
+    const DT_ISBN_13        = 40;
     /**
      * Datatype for boolean values.
      *
      */
-    const DT_BOOLEAN        = 5;
+    const DT_BOOLEAN        = 50;
     /**
      * Datatype for document type enum.
      *
      */
-    const DT_DOCUMENTTYPE   = 6;
+    const DT_DOCUMENTTYPE   = 60;
     /**
      * Datatype for review type enum.
      *
      */
-    const DT_REVIEWTYPE     = 7;
+    const DT_REVIEWTYPE     = 70;
     /**
      * Datatype for document abstract.
      *
      */
-    const DT_TITLE_ABSTRACT = 8;
+    const DT_TITLE_ABSTRACT = 80;
     /**
      * Datatype for main document title.
      *
      */
-    const DT_TITLE_MAIN     = 9;
+    const DT_TITLE_MAIN     = 90;
     /**
      * Datatype for title of superordinate document, catalog or list etc.
      *
      */
-    const DT_TITLE_PARENT   = 10;
+    const DT_TITLE_PARENT   = 100;
     /**
      * Datatype for subjects following SWD standard.
      *
      */
-    const DT_SUBJECT_SWD            = 11;
+    const DT_SUBJECT_SWD    = 110;
     /**
      * Datatype for subjects following DDC standard.
      *
      */
-    const DT_SUBJECT_DDC            = 12;
+    const DT_SUBJECT_DDC    = 120;
     /**
      * Datatype for subjects following PSYNDEX standard.
      *
      */
-    const DT_SUBJECT_PSYNDEX        = 13;
+    const DT_SUBJECT_PSYNDEX = 130;
     /**
      * Datatype for free form subjects.
      *
      */
-    const DT_SUBJECT_UNCONTROLLED   = 14;
+    const DT_SUBJECT_UNCONTROLLED = 140;
     /**
      * Datatype for notes on documents.
      *
      */
-    const DT_NOTE           = 15;
+    const DT_NOTE           = 150;
     /**
      * Datatype for publication scope of document notes.
      *
      */
-    const DT_NOTE_SCOPE     = 16;
+    const DT_NOTESCOPE     = 160;
 
     /**
      * This array internally defines all available fields with their corresponding types
@@ -139,11 +144,11 @@ class Opus_Document_Type {
      *
      * @var array
      */
-    private $__fields = array(
-    
-        // Simple types with single values.
-        // For each field multiplicity is assumed to equal 1.
-        
+    static private $__fields = array(
+
+    // Simple types with single values.
+    // For each field multiplicity is assumed to equal 1.
+
         'licences_id'               => array('type' => self::DT_NUMBER),
         'range_id'                  => array('type' => self::DT_NUMBER),
 
@@ -158,6 +163,7 @@ class Opus_Document_Type {
         'issue'                     => array('type' => self::DT_TEXT),
         'language'                  => array('type' => self::DT_LANGUAGE),
         'non_institute_affiliation' => array('type' => self::DT_TEXT),
+        'identifier_isbn'           => array('type' => self::DT_ISBN_13),
 
         'page_first'                => array('type' => self::DT_NUMBER),
         'page_last'                 => array('type' => self::DT_NUMBER),
@@ -180,7 +186,7 @@ class Opus_Document_Type {
         'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
         'volume'                    => array('type' => self::DT_NUMBER),
 
-        // Complex types with subsequent fields and multiple occurences.
+    // Complex types with subsequent fields and multiple occurences.
 
         'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 
             'fields' => array(
@@ -201,31 +207,31 @@ class Opus_Document_Type {
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_LANGUAGE))),
+                'external_key'  => array('type' => self::DT_TEXT))),
 
         'subject_ddc' => array('type' => self::DT_SUBJECT_DDC,
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_LANGUAGE))),
+                'external_key'  => array('type' => self::DT_TEXT))),
 
         'subject_psyndex' => array('type' => self::DT_SUBJECT_PSYNDEX,
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_LANGUAGE))),
+                'external_key'  => array('type' => self::DT_TEXT))),
 
         'subject_uncontrolled'  => array('type' => self::DT_SUBJECT_UNCONTROLLED,
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_LANGUAGE))),
-    
+                'external_key'  => array('type' => self::DT_TEXT))),
+
         'note' => array('type' => self::DT_NOTE, 'multiplicity' => '*',
             'fields' => array(
                 'message'   => array('type' => self::DT_TEXT),
                 'creator'   => array('type' => self::DT_TEXT),
-                'scope'     => array('type' => self::DT_NOTE_SCOPE))),
+                'scope'     => array('type' => self::DT_NOTESCOPE))),
     );
 
 
@@ -234,6 +240,7 @@ class Opus_Document_Type {
      *
      * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
      *                                the document type specification.
+     * @throws InvalidArgumentException If given argument is not a kind of XML source.
      */
     public function __construct($xml) {
         if (empty($xml) === false) {
@@ -251,18 +258,18 @@ class Opus_Document_Type {
 
     /**
      * Retrieve the complete list of fields that are available within Opus.
-     * 
+     *
      * The array contains items of the form 'fieldname' => array(...) whereas the array
      * specifies the datatype and multiplicity options. Every type description array defines
      * at least the key 'type' to determine its datatype (Opus_Document_Type::DT_* constants).
-     * 
+     *
      * E.g. 'date_accepted' => array('type' => self::DT_DATE)
-     * 
+     *
      * An optional 'multiplicity' key may state the allowed number of value instances. It can be
      * any positive integer greater then 0 or '*' to signal an unlimited number. If a datatype
      * is composed of subsequent fields, the 'fields' key specifies them in an array.
-     * 
-     * E.g. 'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 
+     *
+     * E.g. 'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*',
      *          'fields' => array(
      *              'value'     => array('type' => self::DT_TEXT),
      *              'language'  => array('type' => self::DT_LANGUAGE)))
@@ -270,8 +277,61 @@ class Opus_Document_Type {
      * @return array Nested associative array of available fields with corresponding datatypes.
      */
     public static function getAvailableFields() {
-         return self::$__fields;
+        return self::$__fields;
     }
+
+    /**
+     * Given a fieldname this method returns an validator instance implementing
+     * Zend_Validate_Interface in correspondance to the defined datatype of the field.
+     * 
+     * @param string|integer $par Name of the field or DT_* constant.
+     * @return Zend_Validate_Interface Validator instance. Null is returned if no
+     *                                 validator is defined or needed for the field type.
+     * @throws InvalidArgumentException If the specified type or field name is invalid.
+     */
+    public static function getValidatorFor($par) {
+
+        if (is_integer($par)) {
+            $type = $par;
+        } else if (is_string($par)) {
+            // get field description
+            $desc = self::$__fields[$par];
+            $type = $desc['type'];
+        } else {
+            throw new InvalidArgumentException($par . ' is not a valid field type.');
+        }
+        
+        switch ($type) {
+            case Opus_Document_Type::DT_NUMBER:
+                return new Zend_Validate_Int();
+                break;
+            case Opus_Document_Type::DT_DATE:
+                return new Opus_Validate_InstanceOf('Zend_Date');
+                break;
+            case Opus_Document_Type::DT_LANGUAGE:
+                return new Opus_Validate_Locale();
+                break;
+            case Opus_Document_Type::DT_ISBN_10:
+                return new Opus_Validate_Isbn10();
+                break;
+            case Opus_Document_Type::DT_ISBN_13:
+                return new Opus_Validate_Isbn13();
+                break;
+            case Opus_Document_Type::DT_DOCUMENTTYPE:
+                return new Opus_Validate_DocumentType();
+                break;
+            case Opus_Document_Type::DT_REVIEWTYPE:
+                return new Opus_Validate_ReviewType();
+                break;
+            case Opus_Document_Type::DT_NOTESCOPE:
+                return new Opus_Validate_NoteScope();
+                break;
+            default:
+                return null;
+                break;
+        }
+    }
+
 
     /**
      * Return all field definitions that are available for the document type
@@ -283,23 +343,13 @@ class Opus_Document_Type {
         return array();
     }
 
-    /**
-     * Given a fieldname this method returns an validator instance implementing
-     * Zend_Validate_Interface in correspondance to the defined datatype of the field.
-     *
-     * @param string $name Name of the field.
-     * @return Zend_Validate_Interface Validator instance.
-     */
-    public function getValidatorFor($name) {
-        return null;
-    }
 
     /**
      * Validates fieldname-value pairs.
-     * 
+     *
      * The given array has to map valid fieldnames to values. For complex datatyped fields
      * the value itself has to be an array, itself mapping fieldnames to values as well.
-     * 
+     *
      * E.g. 'title_abstract' => array(
      *          array(
      *              'value' => 'My title',

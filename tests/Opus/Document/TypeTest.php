@@ -39,26 +39,22 @@
  * @category    Tests
  * @package     Opus_Document
  *
+ * @group       TypeTest
+ *
  */
 class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
-
     /**
-     * Setup test environment
+     * XML documenttype description with no selected fields.
      *
-     * @return void
+     * @var string
      */
-    public function setUp() {
-    }
-
-    /**
-     * Cleanup test environment
-     *
-     * @return void
-     */
-    public function tearDown() {
-    }
-
+    private $__xml_nofields = '
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        </documenttype>
+    ';
 
     /**
      * Data provider for invalid creation arguments.
@@ -88,6 +84,118 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             return;
         }
         $this->fail($msg);
+    }
+
+
+    /**
+     * Test if all Opus available field descriptions can be retrieved.
+     *
+     * @return void
+     */
+    public function testAllFields() {
+        $result = Opus_Document_Type::getAvailableFields();
+        $this->assertFalse(empty($result), 'No field definitions returned.');
+    }
+
+    /**
+     * Loop through all declared fields and request their corresponding validators.
+     * Check if returned validator class matches the fields datatype.
+     *
+     * @return void
+     */
+    public function testGetSimpleValidatorsByFieldName() {
+        $fields = Opus_Document_Type::getAvailableFields();
+        foreach ($fields as $fname => $fdesc) {
+            $validator = Opus_Document_Type::getValidatorFor($fname);
+
+            if (is_null($validator) === false) {
+                $this->assertTrue($validator instanceof Zend_Validate_Interface,
+                'Returned object does not implement Zend_Validate_Interface');
+
+                switch ($fdesc['type']) {
+                    case Opus_Document_Type::DT_NUMBER:
+                        $expected = 'Zend_Validate_Int';
+                        break;
+                    case Opus_Document_Type::DT_DATE:
+                        $expected = 'Opus_Validate_InstanceOf';
+                        break;
+                    case Opus_Document_Type::DT_LANGUAGE:
+                        $expected = 'Opus_Validate_Locale';
+                        break;
+                    case Opus_Document_Type::DT_ISBN_10:
+                        $expected = 'Opus_Validate_Isbn10';
+                        break;
+                    case Opus_Document_Type::DT_ISBN_13:
+                        $expected = 'Opus_Validate_Isbn13';
+                        break;
+                    case Opus_Document_Type::DT_DOCUMENTTYPE:
+                        $expected = 'Opus_Validate_DocumentType';
+                        break;
+                    case Opus_Document_Type::DT_REVIEWTYPE:
+                        $expected = 'Opus_Validate_ReviewType';
+                        break;
+                    case Opus_Document_Type::DT_NOTESCOPE:
+                        $expected = 'Opus_Validate_NoteScope';
+                        break;
+                    case Opus_Document_Type::DT_BOOLEAN:
+                        $expected = 'Opus_Validate_Boolean';
+                        break;
+                }
+
+                $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
+            }
+        }
+    }
+
+    /**
+     * Loop through all declared fields and request their corresponding validators
+     * using the datatype specified.
+     * Check if returned validator class matches the datatype.
+     *
+     * @return void
+     */
+    public function testGetSimpleValidatorsByFieldType() {
+        $fields = Opus_Document_Type::getAvailableFields();
+        foreach ($fields as $fname => $fdesc) {
+            $validator = Opus_Document_Type::getValidatorFor($fdesc['type']);
+
+            if (is_null($validator) === false) {
+                $this->assertTrue($validator instanceof Zend_Validate_Interface,
+                'Returned object does not implement Zend_Validate_Interface');
+
+                switch ($fdesc['type']) {
+                    case Opus_Document_Type::DT_NUMBER:
+                        $expected = 'Zend_Validate_Int';
+                        break;
+                    case Opus_Document_Type::DT_DATE:
+                        $expected = 'Opus_Validate_InstanceOf';
+                        break;
+                    case Opus_Document_Type::DT_LANGUAGE:
+                        $expected = 'Opus_Validate_Locale';
+                        break;
+                    case Opus_Document_Type::DT_ISBN_10:
+                        $expected = 'Opus_Validate_Isbn10';
+                        break;
+                    case Opus_Document_Type::DT_ISBN_13:
+                        $expected = 'Opus_Validate_Isbn13';
+                        break;
+                    case Opus_Document_Type::DT_DOCUMENTTYPE:
+                        $expected = 'Opus_Validate_DocumentType';
+                        break;
+                    case Opus_Document_Type::DT_REVIEWTYPE:
+                        $expected = 'Opus_Validate_ReviewType';
+                        break;
+                    case Opus_Document_Type::DT_NOTESCOPE:
+                        $expected = 'Opus_Validate_NoteScope';
+                        break;
+                    case Opus_Document_Type::DT_BOOLEAN:
+                        $expected = 'Opus_Validate_Boolean';
+                        break;
+                }
+
+                $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
+            }
+        }
     }
 
 
