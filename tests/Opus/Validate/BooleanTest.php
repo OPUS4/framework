@@ -32,59 +32,78 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Validate_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for testing custom validators.
+ * Test cases for class Opus_Validate_Boolean.
  *
  * @category    Tests
  * @package     Opus_Validate
+ * 
+ * @group       BooleanTest
+ * 
  */
-class Opus_Validate_AllTests {
+class Opus_Validate_BooleanTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Data provider for valid arguments.
      *
+     * @return array Array of invalid arguments.
+     */
+    public function validDataProvider() {
+        return array(
+            array(true),
+            array(false)
+        );
+    }
+
+    /**
+     * Data provider for invalid arguments.
+     *
+     * @return array Array of invalid arguments and a message.
+     */
+    public function invalidDataProvider() {
+        return array(
+            array(null, 'Null value not rejected'),
+            array('',   'Empty string not rejected'),
+            array(4711, 'Integer not rejected')
+        );
+    }
+
+
+    /**
+     * Test validation of correct arguments.
+     *
+     * @param mixed $arg Value to check given by the data provider.
      * @return void
+     *
+     * @dataProvider validDataProvider
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function testValidArguments($arg) {
+        $validator = new Opus_Validate_Boolean();
+        $result = $validator->isValid($arg);
+        
+        $codes = $validator->getErrors();
+        $msgs  = $validator->getMessages();
+        $err   = '';
+        foreach($codes as $code) {
+            $err .= '(' . $msgs[$code] .') ';
+        }
+        
+        $this->assertTrue($result, $arg . ' should pass validation but validator says: ' . $err);
     }
 
     /**
-     * Construct and return the test suite.
+     * Test validation of incorrect arguments.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
+     * @param mixed  $arg Invalid value to check given by the data provider.
+     * @param string $msg Error message.
+     * @return void
      *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @dataProvider invalidDataProvider
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
-        $suite->addTestSuite('Opus_Validate_BooleanTest');
-        $suite->addTestSuite('Opus_Validate_ComplexTypeTest');
-        $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_InstanceOfTest');
-        $suite->addTestSuite('Opus_Validate_Isbn10Test');
-        $suite->addTestSuite('Opus_Validate_Isbn13Test');
-        $suite->addTestSuite('Opus_Validate_LocaleTest');
-        $suite->addTestSuite('Opus_Validate_NoteScopeTest');
-        $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
-        return $suite;
+    public function testInvalidArguments($arg, $msg) {
+        $validator = new Opus_Validate_Boolean();
+        $this->assertFalse($validator->isValid($arg), $msg);
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Validate_AllTests::main') {
-    Opus_Validate_AllTests::main();
 }

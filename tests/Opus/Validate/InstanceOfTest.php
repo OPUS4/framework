@@ -32,59 +32,69 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Validate_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for testing custom validators.
+ * Test cases for class Opus_Validate_InstanceOf.
  *
  * @category    Tests
  * @package     Opus_Validate
+ * 
+ * @group       InstanceOfTest
+ * 
  */
-class Opus_Validate_AllTests {
+class Opus_Validate_InstanceOfTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Name of the expected class.
+     *
+     */
+    const CLASS_EXPECTED = 'Zend_Date'; 
+    
+    /**
+     * Data provider for invalid arguments.
+     *
+     * @return array Array of invalid arguments and a message.
+     */
+    public function invalidDataProvider() {
+        return array(
+            array(null, 'Null value not rejected'),
+            array('',   'Empty string not rejected'),
+            array(4711, 'Integer not rejected'),
+            array(new Exception(), 'Wrong object type not rejected.')
+        );
+    }
+
+    
+    /**
+     * Test if an instance of the expected class gets validated correctly 
+     * to indeed have this class as its object type.
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function testAcceptRightClass() {
+        $validator = new Opus_Validate_InstanceOf(self::CLASS_EXPECTED);
+        $classname = self::CLASS_EXPECTED;
+        $result = $validator->isValid(new $classname);
+        $err = ''; // for sake of compiler happiness
+        if ($result === false) {
+            $msgs = $validator->getMessages();
+            $err = $msgs['instance'];
+        }
+        $this->assertTrue($result, 'An object of class ' . $classname . ' was rejected: ' . $err);
     }
 
     /**
-     * Construct and return the test suite.
+     * Test validation of incorrect arguments.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
+     * @param mixed  $arg Invalid value to check given by the data provider.
+     * @param string $msg Error message.
+     * @return void
      *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @dataProvider invalidDataProvider
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
-        $suite->addTestSuite('Opus_Validate_BooleanTest');
-        $suite->addTestSuite('Opus_Validate_ComplexTypeTest');
-        $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_InstanceOfTest');
-        $suite->addTestSuite('Opus_Validate_Isbn10Test');
-        $suite->addTestSuite('Opus_Validate_Isbn13Test');
-        $suite->addTestSuite('Opus_Validate_LocaleTest');
-        $suite->addTestSuite('Opus_Validate_NoteScopeTest');
-        $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
-        return $suite;
+    public function testInvalidArguments($arg, $msg) {
+        $validator = new Opus_Validate_InstanceOf(self::CLASS_EXPECTED);
+        $this->assertFalse($validator->isValid($arg), $msg);
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Validate_AllTests::main') {
-    Opus_Validate_AllTests::main();
 }

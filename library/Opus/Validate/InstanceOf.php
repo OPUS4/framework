@@ -24,7 +24,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -32,59 +32,74 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Validate_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing custom validators.
+ * Defines an validator checking the class type of a given object.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_AllTests {
+class Opus_Validate_InstanceOf extends Zend_Validate_Abstract {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Error message key for invalid type.
      *
-     * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
-    }
+    const MSG_TYPE = 'instance';
 
     /**
-     * Construct and return the test suite.
+     * Error message templates.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @var array
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Validate');
-        $suite->addTestSuite('Opus_Validate_BooleanTest');
-        $suite->addTestSuite('Opus_Validate_ComplexTypeTest');
-        $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_InstanceOfTest');
-        $suite->addTestSuite('Opus_Validate_Isbn10Test');
-        $suite->addTestSuite('Opus_Validate_Isbn13Test');
-        $suite->addTestSuite('Opus_Validate_LocaleTest');
-        $suite->addTestSuite('Opus_Validate_NoteScopeTest');
-        $suite->addTestSuite('Opus_Validate_ReviewTypeTest');
-        return $suite;
+    protected $_messageTemplates = array(
+        self::MSG_TYPE => "'%value%' is not of expected type '%classname%'.",
+    );
+
+    /**
+     * Placeholder for message variables.
+     *
+     * @var array
+     */
+    protected $_messageVariables = array(
+        'classname' => '_classname' // This point to the protected variable defined below
+    );
+    
+    /**
+     * Holds the name of the expected class.
+     *
+     * @var string
+     */
+    protected $_classname = '';
+    
+    /**
+     * Initialize the validator with the expected class name.
+     *
+     * @param string $classname Name of the class to check objects for.
+     * @throws InvalidArgumentException If $classname is empty.
+     */
+    public function __construct($classname) {
+        if (empty($classname) === true) {
+            throw new InvalidArgumentException('A classname has to be given.');
+        }
+        $this->_classname = $classname;
+    }
+    
+    /**
+     * Validate the given object instance.
+     *
+     * @param mixed $value An object.
+     * @return boolean True if the given object is an instance of the expected class.
+     */
+    public function isValid($value)
+    {
+        $this->_setValue(get_class($value));
+
+        if (($value instanceof $this->_classname) === false) {
+            $this->_error(self::MSG_TYPE);
+            return false;
+        }
+
+        return true;
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Validate_AllTests::main') {
-    Opus_Validate_AllTests::main();
 }
