@@ -345,7 +345,7 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupLogging()
     {
-        $logfile = @fopen(self::$applicationRootDirectory . '/tmp/opus.log', 'a', false);
+        $logfile = @fopen(self::$applicationRootDirectory . '/log/opus.log', 'a', false);
         if ( $logfile === false ) {
             throw new Exception('Failed to open logging file.');
         }
