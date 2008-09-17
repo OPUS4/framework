@@ -45,28 +45,16 @@
 class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * XML documenttype description with no selected fields.
-     *
-     * @var string
-     */
-    private $__xml_nofields = '
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-        </documenttype>
-    ';
-
-    /**
      * Data provider for invalid creation arguments.
      *
      * @return array Array of invalid creation arguments and an error message.
      */
     public function invalidCreationDataProvider() {
         return array(
-            array('','Empty string not rejected.'),
-            array(null,'Empty string not rejected.'),
-            array('/filethatnotexists.foo','Invalid filename not rejected.'),
-            array(new Exception(),'Wrong object type not rejected.'),
+        array('','Empty string not rejected.'),
+        array(null,'Null not rejected.'),
+        array('/filethatnotexists.foo','Invalid filename not rejected.'),
+        array(new Exception(),'Wrong object type not rejected.'),
         );
     }
 
@@ -86,13 +74,85 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->fail($msg);
     }
 
+    /**
+     * Create a document type by parsing an XML string.
+     *
+     * @return void
+     */
+    public function testCreateByXmlString() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <mandatory type="one-at-least">
+                        <field name="completed_year" languageoption="off" />
+                        <field name="completed_date" languageoption="off" />
+                    </mandatory>
+                </documenttype>';
+        try {
+            $type = new Opus_Document_Type($xml);
+        } catch (Exception $ex) {
+            $this->fail('Creation failed: ' . $ex->getMessage());
+        }
+    }
+
+    /**
+     * Create a document type by parsing an XML file.
+     *
+     * @return void
+     */
+    public function testCreateByXmlFile() {
+        $this->markTestIncomplete();
+        $xml = dirname(__FILE__) . '/TypeTest.xml';
+        try {
+            $type = new Opus_Document_Type($xml);
+        } catch (Exception $ex) {
+            $this->fail('Creation failed: ' . $ex->getMessage());
+        }
+    }
+
+
+    /**
+     * Create a document type by providing a DOMDocument.
+     *
+     * @return void
+     */
+    public function testCreateByXmlDomDocument() {
+        $this->markTestIncomplete();
+        $file = dirname(__FILE__) . '/TypeTest.xml';
+        $dom = new DOMDocument();
+        $dom->load($file);
+        try {
+            $type = new Opus_Document_Type($dom);
+        } catch (Exception $ex) {
+            $this->fail('Creation failed: ' . $ex->getMessage());
+        }
+    }
+    
+    /**
+     * Expect an exception when passing an invalid XML source.
+     *
+     * @return void
+     */
+    public function testCreateWithValidationErrors() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <not_a_valid_tag/>
+                </documenttype>';
+        $this->setExpectedException('Opus_Document_Exception');
+        $type = new Opus_Document_Type($xml);
+    }
+    
 
     /**
      * Test if all Opus available field descriptions can be retrieved.
      *
      * @return void
      */
-    public function testAllFields() {
+    public function testGetAllFields() {
         $result = Opus_Document_Type::getAvailableFields();
         $this->assertFalse(empty($result), 'No field definitions returned.');
     }
@@ -198,5 +258,29 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /**
+     * Test if declared fields can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetDefinedFields() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <mandatory type="one-at-least">
+                        <field name="completed_year" languageoption="off" />
+                        <field name="completed_date" languageoption="off" />
+                    </mandatory>
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        
+        $expected = array('language', 'completed_year', 'completed_date');
+        foreach ($expected as $e_fieldname) {
+            $this->assertArrayHasKey($e_fieldname, $fields, 'Expected field ' . $e_fieldname . ' is missing.');
+        }
+    }
 
 }

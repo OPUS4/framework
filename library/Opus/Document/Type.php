@@ -153,7 +153,7 @@ class Opus_Document_Type {
         'range_id'                  => array('type' => self::DT_NUMBER),
 
         'completed_date'            => array('type' => self::DT_DATE),
-        'completed_year'            => array('type' => self::DT_DATE),
+        'completed_year'            => array('type' => self::DT_NUMBER),
 
         'contributing_corporation'  => array('type' => self::DT_TEXT),
         'creating_corporation'      => array('type' => self::DT_TEXT),
@@ -185,6 +185,9 @@ class Opus_Document_Type {
         'swb_id'                    => array('type' => self::DT_NUMBER),
         'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
         'volume'                    => array('type' => self::DT_NUMBER),
+    
+        'collection_title'          => array('type' => self::DT_TEXT),
+        'collection_sequence_nr'    => array('type' => self::DT_NUMBER),
 
     // Complex types with subsequent fields and multiple occurences.
 
@@ -236,23 +239,116 @@ class Opus_Document_Type {
 
 
     /**
+     * Holds the document type definition that has been parsed
+     * on object construction.
+     *
+     * @var array
+     */
+    protected $_definition = array(
+        'fields' => array()
+    );
+
+    /**
      * Initialize an instance with an XML document type specification.
      *
-     * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
-     *                                the document type specification.
+     * @param string|DOMDocument $xml        XML string, a filename or an DOMDocument instance representing
+     *                                       the document type specification.
+     *
      * @throws InvalidArgumentException If given argument is not a kind of XML source.
+     * @throws Opus_Document_Exception  If parsing or validating fails.
+     *
      */
     public function __construct($xml) {
-        if (empty($xml) === false) {
-            if (is_string($xml) === true) {
-                if (is_file($xml)) {
 
-                }
-            } else if ($xml instanceof DOMDocument) {
+        // Determine the type of argument
+        $document = null;
+        $type = '';
+        if (is_string($xml) === true) {
+            $type = 'string';
+            if ( is_file($xml) === true ) {
+                $type = 'filename';
+            }
+        } else if ($xml instanceof DOMDocument) {
+            $type = 'domdocument';
+        }
 
+        // Apply XML loading method respectivly
+        try {
+            switch ($type) {
+                case 'string':
+                    $document = new DOMDocument();
+                    $document->loadXML($xml);
+                    break;
+
+                case 'filename':
+                    $document = new DOMDocument();
+                    $document->load($xml);
+                    break;
+
+                case 'domdocument':
+                    $document = $xml;
+                    break;
+
+                default:
+                    // just to trigger the catch block
+                    throw new InvalidArgumentException();
+                    break;
+            }
+        } catch (Exception $ex) {
+            throw new InvalidArgumentException('Argument should be an XML string, a filename or an DOMDocument object.');
+        }
+
+        // Validate the XML definition.
+        $schemapath = dirname(__FILE__) . '/documenttype.xsd';
+        if (@$document->schemaValidate($schemapath) === false) {
+            $errors = libxml_get_errors();
+            $errmsg = '';
+            foreach ($errors as $error) {
+                // TODO Deliver more detailed error description.
+                $errmsg .= $error->message . "\n";
+            }
+            libxml_clear_errors();
+            throw new Opus_Document_Exception('XML definition has errors: ' . $errmsg);
+        }
+
+        // Parse the definition.
+        try {
+            $this->_parse($document);
+        } catch (Exception $ex) {
+            throw new Opus_Document_Exception('Failure while parsing the XML definition: ' . $ex->getMessage());
+        }
+    }
+
+
+    /**
+     * Parse a DOM document to extract field descriptions.
+     *
+     * @param DOMDocument $dom The DOMDocument representing the XML document type specification.
+     * @throws Opus_Document_Exception Thrown on parsing errors.
+     * @return void
+     */
+    protected function _parse(DOMDocument $dom) {
+        $fields=$dom->getElementsByTagName('field');
+        $fieldsdef = &$this->_definition['fields'];
+        foreach ($fields as $field) {
+            $fieldname = $field->attributes->getNamedItem('name')->value;
+            $mandatory =  $field->attributes->getNamedItem('mandatory');
+            $multiplicity = $field->attributes->getNamedItem('multiplicity');
+            $languageoption = $field->attributes->getNamedItem('languageoption');
+
+            // check if the specified fieldname is valid
+            if (array_key_exists($fieldname, self::$__fields) === false ) {
+                throw new Opus_Document_Exception('"' . $fieldname . '" is not a valid field name');
+            }
+            // and if so, put into this types fieldlist
+            $fieldsdef[$fieldname] = array();
+            if (is_null($multiplicity) === false) {
+                $fieldsdef[$fieldname]['multiplicity'] = $multiplicity->value;
+            }
+            if (is_null($languageoption) === false) {
+                $fieldsdef[$fieldname]['languageoption'] = $languageoption->value;
             }
         }
-        throw new InvalidArgumentException('Argument should be an XML string, a filename or an DOMDocument object.');
     }
 
 
@@ -283,7 +379,7 @@ class Opus_Document_Type {
     /**
      * Given a fieldname this method returns an validator instance implementing
      * Zend_Validate_Interface in correspondance to the defined datatype of the field.
-     * 
+     *
      * @param string|integer $par Name of the field or DT_* constant.
      * @return Zend_Validate_Interface Validator instance. Null is returned if no
      *                                 validator is defined or needed for the field type.
@@ -300,7 +396,7 @@ class Opus_Document_Type {
         } else {
             throw new InvalidArgumentException($par . ' is not a valid field type.');
         }
-        
+
         switch ($type) {
             case Opus_Document_Type::DT_NUMBER:
                 return new Zend_Validate_Int();
@@ -340,7 +436,7 @@ class Opus_Document_Type {
      * @return array Nested associative array of available fields with corresponding datatypes.
      */
     public function getFields() {
-        return array();
+        return $this->_definition['fields'];
     }
 
 
