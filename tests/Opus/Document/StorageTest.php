@@ -26,7 +26,7 @@
  *
  * @category    Tests
  * @package     Opus_Document
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Tobias Leidinger <tobias.leidinger@googlemail.com
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -52,7 +52,7 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
         /* $registry = Zend_Registry::getInstance();
          $adapter = $registry->get('db_adapter');
          $adapter->deleteTable('documents');*/
-        TestHelper::clearTable('document_title_abstracts');
+        //TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
         TestHelper::clearTable('licences');
         
@@ -155,11 +155,12 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
         $data =
         array(
                 'document_type' => 'article',
-                array('title_abstract_type' => 'main', 'title_abstract_value' => 'main title', 'title_abstract_language' => 'de')
+                'title_main' => array(
+                                    array('value' => 'main title', 'language' => 'de')
+                                )
         );
         $storage = new Opus_Document_Storage($data);
         $id = $storage->saveDocumentData();
-        
         $title_abstract = new Opus_Db_DocumentTitleAbstracts();
         $where = $title_abstract->getAdapter()->quoteInto('documents_id = ?', $id);
         $row = $title_abstract->fetchRow($where);
@@ -169,5 +170,15 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($row->title_abstract_language, 'de');
     }
     
+    /*public function testAddAbstracts() {
+        $data =
+        array(
+                'document_type',
+                'title_abstract' => array(
+                                    array('value' => 'my abstract', 'language' => 'en'),
+                                    array('value' => 'deutsche Kurzzusammenfassung', 'language' => 'de')
+                                )
+        );
+    }*/
     
 }

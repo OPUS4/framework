@@ -1,7 +1,57 @@
-<?
+<?php
+/**
+ * This file is part of OPUS. The software OPUS has been originally developed
+ * at the University of Stuttgart with funding from the German Research Net,
+ * the Federal Department of Higher Education and Research and the Ministry
+ * of Science, Research and the Arts of the State of Baden-Wuerttemberg.
+ *
+ * OPUS 4 is a complete rewrite of the original OPUS software and was developed
+ * by the Stuttgart University Library, the Library Service Center
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
+ *
+ * LICENCE
+ * OPUS is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the Licence, or any later version.
+ * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * @category    Framework
+ * @package     Opus_Document
+ * @author      Tobias Leidinger (SULB: tobias.leidinger@googlemail.com) 
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License 
+ */
+
+/**
+ * Provides methods to store metadata of a document in the opus database
+ *
+ * @category Framework
+ * @package  Opus_Document
+ */
 class Opus_Document_Storage
 {
+    
+    /**
+     * Reference to data that is going to be stored
+     *
+     * @var array
+     */
     private $documentData;
+    
+    /**
+     * Id from database table documents, if the storage object is used for updating database
+     *
+     * @var int
+     */
     private $documentsId;
     
     /**
@@ -11,8 +61,10 @@ class Opus_Document_Storage
      */
     protected $_logger = null;
     
-    /*
-     * 
+    /**
+     * log system messages
+     *
+     * @param string $string
      */
     private function _log($string)
     {
@@ -23,34 +75,183 @@ class Opus_Document_Storage
         // Use a logging component instead:
         $this->_logger->info('Opus_Document_Storage: ' . $string);
     }
+    
     /**
-     * Set the document data for a Opus_Document object
-     *
+     * Set the document data to the storage object
+     * 
+     * Data has to have a valid structure, single valued fields are mapped from field name to their value
+     * and multivalued fields are mapped from field name to an array of arrays of name-value pairs
+     * 
+     * E.g. 'document_type'  => 'article',
+     *      'licences_id'    => '5', 
+     *      'title_abstract' => array(
+     *          array(
+     *              'value' => 'deutscher Abstract',
+     *              'language'  => 'de')
+     *          array(
+     *              'value' => 'abstract in English',
+     *              'language' => 'en')
+     *      )
+     * @param array $data Array associating fieldnames to values.
+     * @throws InvalidArgumentException if data is not valid or there is a problem converting the labels
+     * @return void
+     * 
      */
-    public function setData($data)
+    private function _setData($data)
     {
-        //TODO check for validity ???
-        $this->documentData= $data;
+        //TODO
+        //try to read document type from $data
+        //$documentType = $data['document_type'];
+        //read document structure from xml file
+        //$opusDocumentType = new Opus_Document_Type($documentType . '.xml');
+        //validate data
+        //if ($documentType->validate($data) === false) {
+        //    throw new InvalidArgumentException("array not valid");
+        //}
+        
+        $storageData = array();
+        
+        foreach ($data as $fieldName => $values) {
+            switch ($fieldName) {
+                case 'title_abstract':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'title_abstract_value' => $value['value'],
+                            'title_abstract_type' => 'abstract',
+                            'title_abstract_language' => $value['language']); 
+                    }
+                    break;
+                case 'title_main':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'title_abstract_value' => $value['value'],
+                            'title_abstract_type' => 'main',
+                            'title_abstract_language' => $value['language']); 
+                    }
+                    break;
+                case 'title_parent':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'title_abstract_value' => $value['value'],
+                            'title_abstract_type' => 'parent',
+                            'title_abstract_language' => $value['language']); 
+                    }
+                    break;
+                case 'subject_swd':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'subject_value' => $value['value'],
+                            'subject_type' => 'swd',
+                            'subject_language' => $value['language'],
+                            'external_subject_key' => $value['external_key']); 
+                    }
+                    break;
+                case 'subject_ddc':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'subject_value' => $value['value'],
+                            'subject_type' => 'ddc',
+                            'subject_language' => $value['language'],
+                            'external_subject_key' => $value['external_key']); 
+                    }
+                    break;
+                case 'subject_psyndex':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'subject_value' => $value['value'],
+                            'subject_type' => 'psyndex',
+                            'subject_language' => $value['language'],
+                            'external_subject_key' => $value['external_key']); 
+                    }
+                    break;
+                case 'subject_uncontrolled':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'subject_value' => $value['value'],
+                            'subject_type' => 'uncontrolled',
+                            'subject_language' => $value['language'],
+                            'external_subject_key' => $value['external_key']); 
+                    }
+                    break;
+                case 'notes_private':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'message' => $value['value'],
+                            'creator' => $value['creator'],
+                            'scope' => 'private'); 
+                    }
+                    break;
+                case 'notes_public':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'message' => $value['value'],
+                            'creator' => $value['creator'],
+                            'scope' => 'public'); 
+                    }
+                    break;
+                case 'notes_reference':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'message' => $value['value'],
+                            'creator' => $value['creator'],
+                            'scope' => 'reference'); 
+                    }
+                    break;
+                default:
+                    if (is_array($values) === true) {
+                        throw new InvalidArgumentException('No multivalue definition found for '.$fieldName);
+                    }
+                    $storageData[$fieldName] = $values;
+                        
+            }
+        }
+        
+        $this->documentData= $storageData;
     }
-    public function setDocumentsId($documentsId)
+    
+    /**
+     * set the id for the documents table, if needed
+     *
+     * @param int $documentsId
+     * @return void
+     */
+    public function _setDocumentsId($documentsId)
     {
         $this->documentsId= $documentsId;
     }
-    public function __construct($data= null, $documentsId= null)
+    
+    /**
+     * Initialize an instance of Opus_Document_Storage with the given data and an optional documents id
+     * 
+     * structure of $data specified in comment for $this->_setData
+     *
+     * @param array $data array with data
+     * @param int $documentsId documents id
+     * @throws InvalidArgumentException if no data array is given
+     */
+    public function __construct($data, $documentsId= null)
     {
         if (is_array($data))
         {
-            $this->setData($data);
+            $this->_setData($data);
         }
         else
         {
-            $this->setData(null);
+            throw new InvalidArgumentException('there has to be an data array');
         }
-        $this->setDocumentsId($documentsId);
+        $this->_setDocumentsId($documentsId);
         
         // Fetch logging class from the registry.
         $this->_logger = Zend_Registry::get('Zend_Log');
-    }
+    }    
+    
+    /**
+     * check whether the array is associative or not 
+     *
+     * @param array $array
+     * @return boolean
+     */
+    
     private function _is_assoc($array)
     {
         foreach (array_keys($array) as $k => $v)
@@ -65,7 +266,7 @@ class Opus_Document_Storage
      *
      * Saves data to database, without checking the correctness of it
      *
-     * updates the database, if an document id is given, creates now document else
+     * updates the database, if an document id is given, creates new document else
      * @return document id
      *
      */
@@ -94,40 +295,36 @@ class Opus_Document_Storage
         //partition data to different tables
         foreach ($this->documentData as $key => $value)
         {
-            $keyInSchema= false;
-            foreach ($tables as $tableName => $table)
-            {
-                //print ("<br>" . (is_array($value)));
-                //print_r($value);
-                //print ("<br>");
-                //print_r(array_keys($value));
-                //print("<b style=\"color:red\">  ------ </b> ");
-                //print_r(array_values($table->info('cols')));
-                if (is_array($value) && array_intersect(array_keys($value), array_values($table->info('cols'))) == array_keys($value))
-                {
-                    //print ("tablename: $tableName");
-                    $data[$tableName][]= $value;
-                    $keyInSchema= true;
-                    break;
+            if (is_array($value) === false) {
+                if (in_array($key, array_values($tables['documents']->info('cols')))) {
+                    $data['documents'][$key] = $value;
+                    $keyInSchema = true;
+                } else {
+                    throw new Opus_Document_Exception('single valued fields have to belong to documents table');
                 }
-                if (!(is_array($value)) && in_array($key, array_values($table->info('cols'))))
-                {
-                    $data[$tableName][$key]= $value;
-                    $keyInSchema= true;
-                    break;
-                }
-            }
-            if (!$keyInSchema)
-            {
-                if (is_array($value))
-                {
-                    throw new Exception('one of keys [' . implode(', ', array_keys($value)) . '] is not a key in database schema');
-                }
-                else
-                {
-                    throw new Exception($key . ' is not a key in database schema');
+            } else { 
+                foreach ($value as $val) {
+                    $keyInSchema = false;
+                    foreach ($tables as $tableName => $table)
+                    {
+                        if ($tableName == 'documents') {
+                            continue;
+                        }
+                        
+                        if (array_intersect(array_keys($val), array_values($table->info('cols'))) == array_keys($val))
+                        {
+                            $data[$tableName][]= $val;
+                            $keyInSchema= true;
+                            break;
+                        }
+                    }
+                    if (!$keyInSchema)
+                    {
+                        throw new Exception('one of keys [' . implode(', ', array_keys($value)) . '] is not a key in database schema');
+                    }
                 }
             }
+            
         }
         $noDocuments= false;
         if ($this->documentsId == null)
@@ -150,38 +347,20 @@ class Opus_Document_Storage
             {
                 continue;
             }
-            //print ("<br>");
-            //print ($tableName);
             $where= $table->getAdapter()->quoteInto('documents_id = ?', $this->documentsId);
             //if not associated array (repeatable data) iterate over data entry
             if (!$this->_is_assoc($data[$tableName]))
             {
                 foreach ($data[$tableName] as $repeatableData)
                 {
-                    //TODO was soll passieren, wenn wiederholbare daten hinzugefügt werden? alle alten daten löschen oder neue einfach hinzufügen?
-                    /*if ($newEntry)
-                    {*/
                     $repeatableData['documents_id']= $this->documentsId;
                     $table->insert($repeatableData);
-                    /*}
-                    else
-                    {
-                        $table->update($repeatableData, $where);
-                    }*/
                 }
             }
             else
             {
-                //TODO gleiches wie oben, wie sollen wiederholbare datensätze beim aktualisieren behandelt werden? 
-                /* if ($newEntry)
-                {*/
                 $data[$tableName]['documents_id']= $this->documentsId;
                 $table->insert($data[$tableName], $where);
-                /*}
-                else
-                {
-                    $table->update($data[$tableName], $where);
-                }*/
             }
         }
         return $this->documentsId;
