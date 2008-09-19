@@ -134,8 +134,28 @@ class Opus_Document_Type {
      * Datatype for publication scope of document notes.
      *
      */
-    const DT_NOTESCOPE     = 160;
-
+    const DT_NOTESCOPE  = 160;
+    
+    /**
+     * Datatype for referring to a person.
+     *
+     */
+    const DT_PERSON     = 170;
+    
+    /**
+     * Datatype for referring to an institute.
+     *
+     */
+    const DT_INSTITUTE  = 180;
+    
+    /**
+     * Datatype for referring to a collection.
+     *
+     */
+    const DT_COLLECTION  = 180;
+    
+    
+    
     /**
      * This array internally defines all available fields with their corresponding types
      * and other flags. It is used to return all available fields and to guide the
@@ -162,7 +182,6 @@ class Opus_Document_Type {
         'edition'                   => array('type' => self::DT_NUMBER),
         'issue'                     => array('type' => self::DT_TEXT),
         'language'                  => array('type' => self::DT_LANGUAGE),
-        'non_institute_affiliation' => array('type' => self::DT_TEXT),
         'identifier_isbn'           => array('type' => self::DT_ISBN_13),
 
         'page_first'                => array('type' => self::DT_NUMBER),
@@ -186,8 +205,10 @@ class Opus_Document_Type {
         'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
         'volume'                    => array('type' => self::DT_NUMBER),
     
-        'collection_title'          => array('type' => self::DT_TEXT),
-        'collection_sequence_nr'    => array('type' => self::DT_NUMBER),
+        'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*'),
+        'non_institute_affiliation' => array('type' => self::DT_TEXT),
+    
+        'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*'),
 
     // Complex types with subsequent fields and multiple occurences.
 
@@ -235,6 +256,26 @@ class Opus_Document_Type {
                 'message'   => array('type' => self::DT_TEXT),
                 'creator'   => array('type' => self::DT_TEXT),
                 'scope'     => array('type' => self::DT_NOTESCOPE))),
+    
+        'person_advisor' => array('type' => self::DT_PERSON, 
+            'fields' => array(
+                'first_name' => array('type' => self::DT_TEXT),
+                'last_name' => array('type' => self::DT_TEXT))),
+    
+        'person_author' => array('type' => self::DT_PERSON, 
+            'fields' => array(
+                'first_name' => array('type' => self::DT_TEXT),
+                'last_name' => array('type' => self::DT_TEXT))),
+            
+        'person_other' => array('type' => self::DT_PERSON, 
+            'fields' => array(
+                'first_name' => array('type' => self::DT_TEXT),
+                'last_name' => array('type' => self::DT_TEXT))),
+    
+        'person_referee' => array('type' => self::DT_PERSON, 
+            'fields' => array(
+                'first_name' => array('type' => self::DT_TEXT),
+                'last_name' => array('type' => self::DT_TEXT))),
     );
 
 
@@ -370,6 +411,10 @@ class Opus_Document_Type {
      *              'value'     => array('type' => self::DT_TEXT),
      *              'language'  => array('type' => self::DT_LANGUAGE)))
      *
+     * Some datatypes describe complex datasets like institutes (DT_INSTITUTE), persons (ST_PERSON)
+     * or collections (DT_COLLECTION). Field values of those datatypes are usally internal identifier
+     * numbers corresponding with persistent entities of the referred kind respectivly. 
+     * 
      * @return array Nested associative array of available fields with corresponding datatypes.
      */
     public static function getAvailableFields() {
@@ -401,27 +446,71 @@ class Opus_Document_Type {
             case Opus_Document_Type::DT_NUMBER:
                 return new Zend_Validate_Int();
                 break;
+                
             case Opus_Document_Type::DT_DATE:
                 return new Opus_Validate_InstanceOf('Zend_Date');
                 break;
+                
             case Opus_Document_Type::DT_LANGUAGE:
                 return new Opus_Validate_Locale();
                 break;
+                
             case Opus_Document_Type::DT_ISBN_10:
                 return new Opus_Validate_Isbn10();
                 break;
+                
             case Opus_Document_Type::DT_ISBN_13:
                 return new Opus_Validate_Isbn13();
                 break;
+                
             case Opus_Document_Type::DT_DOCUMENTTYPE:
                 return new Opus_Validate_DocumentType();
                 break;
+                
             case Opus_Document_Type::DT_REVIEWTYPE:
                 return new Opus_Validate_ReviewType();
                 break;
+                
             case Opus_Document_Type::DT_NOTESCOPE:
                 return new Opus_Validate_NoteScope();
                 break;
+                
+            case Opus_Document_Type::DT_TITLE_ABSTRACT:
+                return new Opus_Validate_ComplexType(self::$__fields['title_abstract']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_TITLE_MAIN:
+                return new Opus_Validate_ComplexType(self::$__fields['title_main']['fields']);
+                break;
+
+            case Opus_Document_Type::DT_TITLE_PARENT:
+                return new Opus_Validate_ComplexType(self::$__fields['title_parent']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_SUBJECT_DDC:
+                return new Opus_Validate_ComplexType(self::$__fields['subject_ddc']['fields']);
+                break;
+
+            case Opus_Document_Type::DT_SUBJECT_PSYNDEX:
+                return new Opus_Validate_ComplexType(self::$__fields['subject_psyndex']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_SUBJECT_SWD:
+                return new Opus_Validate_ComplexType(self::$__fields['subject_swd']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_SUBJECT_UNCONTROLLED:
+                return new Opus_Validate_ComplexType(self::$__fields['subject_uncontrolled']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_NOTE:
+                return new Opus_Validate_ComplexType(self::$__fields['note']['fields']);
+                break;
+                
+            case Opus_Document_Type::DT_PERSON:
+                return new Opus_Validate_ComplexType(self::$__fields['person_advisor']['fields']);
+                break;
+                
             default:
                 return null;
                 break;
@@ -456,8 +545,18 @@ class Opus_Document_Type {
      * @param array $data Array associating fieldnames to values.
      * @return booelean True if the data is valid, false if not.
      */
-    public function validate(array $data) {
-        return false;
+    public static function validate(array $data) {
+        
+        // That the validation fails if the given array is empty.
+        $result = false;
+        foreach ($data as $fieldname => $value) {
+            $validator = self::getValidatorFor($fieldname);
+            $result = true;            
+            if (is_null($validator) === false) {
+                $result = ($result and $validator->isValid($value));
+            }
+        }
+        return $result;
     }
 
 }

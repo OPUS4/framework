@@ -58,6 +58,48 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+
+
+    /**
+     * Data provider for valid field-value pairs.
+     *
+     * @return array Array of valid field-value pairs.
+     */
+    public function validFieldDataProvider() {
+        return array(
+            array('completed_year', '1965'),
+            array('completed_date', new Zend_Date()),
+            array('document_type', 'article'),
+            array('language', 'en'),
+            array('identifier_isbn', '978-3-7657-2780-1'),
+            array('reviewed', 'peer'),
+            array('title_abstract', array('value' => 'This document is all about...', 'language' => 'de')),
+            array('subject_swd', array('value' => 'ABC', 'language' => 'fr', 'external_key' => 'FOO')),
+            array('note', array('message' => 'This one is good.', 'creator' => 'Doe, John', 'scope' => 'public')),
+            array('person_author', array('first_name' => 'John', 'last_name' => 'Doe'))
+        );
+    }
+
+    /**
+     * Data provider for invalid field-value pairs.
+     *
+     * @return array Array of invalid field-value pairs.
+     */
+    public function invalidFieldDataProvider() {
+        return array(
+            array('completed_year', null),
+            array('completed_date', new Exception()),
+            array('document_type', 'who cares!'),
+            array('language', 'üöä'),
+            array('identifier_isbn', '978-3-:)-7657-2780-1'),
+            array('reviewed', '-> deer'),
+            array('title_abstract', array('value' => 'This document is all about...', 'language' => null)),
+            array('subject_swd', array('value' => 'ABC', 'language' => null, 'external_key' => 'FOO')),
+            array('note', array('message' => 'This one is good.', 'creator' => 'Doe, John', 'scope' => '!internal!'))
+        );
+    }
+    
+
     /**
      * Test if an InvalidArgumentException occurs.
      *
@@ -103,7 +145,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlFile() {
-        $this->markTestIncomplete();
         $xml = dirname(__FILE__) . '/TypeTest.xml';
         try {
             $type = new Opus_Document_Type($xml);
@@ -119,7 +160,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlDomDocument() {
-        $this->markTestIncomplete();
         $file = dirname(__FILE__) . '/TypeTest.xml';
         $dom = new DOMDocument();
         $dom->load($file);
@@ -129,7 +169,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->fail('Creation failed: ' . $ex->getMessage());
         }
     }
-    
+
     /**
      * Expect an exception when passing an invalid XML source.
      *
@@ -145,7 +185,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Document_Exception');
         $type = new Opus_Document_Type($xml);
     }
-    
+
 
     /**
      * Test if all Opus available field descriptions can be retrieved.
@@ -163,7 +203,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function testGetSimpleValidatorsByFieldName() {
+    public function testGetValidatorsByFieldName() {
         $fields = Opus_Document_Type::getAvailableFields();
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fname);
@@ -176,30 +216,42 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     case Opus_Document_Type::DT_NUMBER:
                         $expected = 'Zend_Validate_Int';
                         break;
+                        
                     case Opus_Document_Type::DT_DATE:
                         $expected = 'Opus_Validate_InstanceOf';
                         break;
+                        
                     case Opus_Document_Type::DT_LANGUAGE:
                         $expected = 'Opus_Validate_Locale';
                         break;
+                        
                     case Opus_Document_Type::DT_ISBN_10:
                         $expected = 'Opus_Validate_Isbn10';
                         break;
+                        
                     case Opus_Document_Type::DT_ISBN_13:
                         $expected = 'Opus_Validate_Isbn13';
                         break;
+                        
                     case Opus_Document_Type::DT_DOCUMENTTYPE:
                         $expected = 'Opus_Validate_DocumentType';
                         break;
+                        
                     case Opus_Document_Type::DT_REVIEWTYPE:
                         $expected = 'Opus_Validate_ReviewType';
                         break;
+                        
                     case Opus_Document_Type::DT_NOTESCOPE:
                         $expected = 'Opus_Validate_NoteScope';
                         break;
+                        
                     case Opus_Document_Type::DT_BOOLEAN:
                         $expected = 'Opus_Validate_Boolean';
                         break;
+                        
+                    default:
+                        $expected = 'Opus_Validate_ComplexType';
+                        break;    
                 }
 
                 $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
@@ -214,7 +266,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function testGetSimpleValidatorsByFieldType() {
+    public function testGetValidatorsByFieldType() {
         $fields = Opus_Document_Type::getAvailableFields();
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fdesc['type']);
@@ -227,30 +279,42 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     case Opus_Document_Type::DT_NUMBER:
                         $expected = 'Zend_Validate_Int';
                         break;
+                        
                     case Opus_Document_Type::DT_DATE:
                         $expected = 'Opus_Validate_InstanceOf';
                         break;
+                        
                     case Opus_Document_Type::DT_LANGUAGE:
                         $expected = 'Opus_Validate_Locale';
                         break;
+                        
                     case Opus_Document_Type::DT_ISBN_10:
                         $expected = 'Opus_Validate_Isbn10';
                         break;
+                        
                     case Opus_Document_Type::DT_ISBN_13:
                         $expected = 'Opus_Validate_Isbn13';
                         break;
+                        
                     case Opus_Document_Type::DT_DOCUMENTTYPE:
                         $expected = 'Opus_Validate_DocumentType';
                         break;
+                        
                     case Opus_Document_Type::DT_REVIEWTYPE:
                         $expected = 'Opus_Validate_ReviewType';
                         break;
+                        
                     case Opus_Document_Type::DT_NOTESCOPE:
                         $expected = 'Opus_Validate_NoteScope';
                         break;
+                        
                     case Opus_Document_Type::DT_BOOLEAN:
                         $expected = 'Opus_Validate_Boolean';
                         break;
+                        
+                    default:
+                        $expected = 'Opus_Validate_ComplexType';
+                        break;    
                 }
 
                 $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
@@ -276,11 +340,37 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
-        
+
         $expected = array('language', 'completed_year', 'completed_date');
         foreach ($expected as $e_fieldname) {
             $this->assertArrayHasKey($e_fieldname, $fields, 'Expected field ' . $e_fieldname . ' is missing.');
         }
     }
 
+    /**
+     * Test if correct field value passes validation.
+     *
+     * @return void
+     *
+     * @dataProvider validFieldDataProvider
+     */
+    public function testCorrectFieldPassesValidation($fieldname, $value) {
+        $result = Opus_Document_Type::validate(array($fieldname => $value));
+        $msg = $fieldname . '=>' . $value . ' should be validated as correct.';
+        $this->assertTrue($result, $msg);
+    }
+
+    /**
+     * Test if incorrect field values get rejected.
+     *
+     * @return void
+     *
+     * @dataProvider invalidFieldDataProvider
+     */
+    public function testIncorrectFieldRejectedByValidation($fieldname, $value) {
+        $result = Opus_Document_Type::validate(array($fieldname => $value));
+        $msg = $fieldname . '=>' . $value . ' should be validated as wrong.';
+        $this->assertFalse($result, $msg);
+    }
+    
 }
