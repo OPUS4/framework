@@ -49,13 +49,8 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        /* $registry = Zend_Registry::getInstance();
-         $adapter = $registry->get('db_adapter');
-         $adapter->deleteTable('documents');*/
-        //TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
         TestHelper::clearTable('licences');
-        
     }
 
     /**
@@ -64,6 +59,7 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
+        
     }
 
     /**
@@ -170,15 +166,68 @@ class Opus_Document_StorageTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($row->title_abstract_language, 'de');
     }
     
-    /*public function testAddAbstracts() {
+    public function testAddAbstracts() {
         $data =
         array(
-                'document_type',
+                'document_type' => 'article',
                 'title_abstract' => array(
                                     array('value' => 'my abstract', 'language' => 'en'),
                                     array('value' => 'deutsche Kurzzusammenfassung', 'language' => 'de')
                                 )
         );
-    }*/
+        
+        $storage = new Opus_Document_Storage($data);
+        $id = $storage->saveDocumentData();
+        $title_abstract = new Opus_Db_DocumentTitleAbstracts();
+        $where = $title_abstract->getAdapter()->quoteInto('documents_id = ?', $id);
+        $rowSet = $title_abstract->fetchAll($where);
+        foreach ($rowSet as $row) {
+            
+            $language = $row->title_abstract_language;
+            $value = $row->title_abstract_value;
+            $this->assertTrue(is_string($value));
+            $this->assertTrue(is_string($language));
+            
+            $this->assertTrue($language == 'de' || $language == 'en', 'language not set correctly');
+            //$this->assertTrue( || $value = 'deutsche Kurzzusammenfassung', 'value not set correctly');
+            
+            switch ($language) {
+                case 'de':
+                    $this->assertEquals('deutsche Kurzzusammenfassung', $value, 'value of de line not set correctly');
+                    break;
+                case 'en':
+                    $this->assertEquals('my abstract', $value, 'value of en line not set correctly');
+                    break;
+                default:
+                    $this->fail('should never happen');
+            }
+            
+        }
+        
+    }
     
+    
+public function testAddSubjects() {
+        $data =
+        array(
+                'document_type' => 'article',
+                'subject_swd' => array(
+                                    array('value' => 'keyword 1'),
+                                    array('value' => 'keyword 2')
+                                )
+        );
+        
+        $storage = new Opus_Document_Storage($data);
+        $id = $storage->saveDocumentData();
+        $subjects = new Opus_Db_DocumentSubjects();
+        $where = $subjects->getAdapter()->quoteInto('documents_id = ?', $id);
+        $rowSet = $subjects->fetchAll($where);
+        foreach ($rowSet as $row) {
+            $value = $row->subject_value;
+            $this->assertTrue(is_string($value));
+            $this->assertTrue($value == 'keyword 1' || $value == 'keyword 2', 'value not set correctly');
+            
+        }
+        
+    }
 }

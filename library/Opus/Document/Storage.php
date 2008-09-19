@@ -110,7 +110,6 @@ class Opus_Document_Storage
         //}
         
         $storageData = array();
-        
         foreach ($data as $fieldName => $values) {
             switch ($fieldName) {
                 case 'title_abstract':
@@ -139,11 +138,18 @@ class Opus_Document_Storage
                     break;
                 case 'subject_swd':
                     foreach ($values as $value) {
-                        $storageData[$fieldName][] = array(
+                        $data = array(
                             'subject_value' => $value['value'],
                             'subject_type' => 'swd',
-                            'subject_language' => $value['language'],
-                            'external_subject_key' => $value['external_key']); 
+                            );
+                        if (isset($value['language'])) {
+                            $data['subject_language'] = $value['language'];
+                        }
+                        if (isset($value['external_key'])) {
+                            $data['external_subject_key'] = $value['external_key'];
+                        }
+                        
+                        $storageData[$fieldName][] = $data; 
                     }
                     break;
                 case 'subject_ddc':
