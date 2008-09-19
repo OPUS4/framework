@@ -74,6 +74,7 @@ class Opus_Validate_ReviewTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of correct arguments.
      *
+     * @param string $arg Argument value to validate.
      * @return void
      *
      * @dataProvider validDataProvider
@@ -86,6 +87,7 @@ class Opus_Validate_ReviewTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of incorrect arguments.
      *
+     * @param string $arg Argument value to validate.
      * @return void
      *
      * @dataProvider invalidDataProvider

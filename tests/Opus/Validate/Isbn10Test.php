@@ -92,8 +92,8 @@ class Opus_Validate_Isbn10Test extends PHPUnit_Framework_TestCase {
         $codes = $validator->getErrors();
         $msgs  = $validator->getMessages();
         $err   = '';
-        foreach($codes as $code) {
-            $err .= '(' . $msgs[$code] .') ';
+        foreach ($codes as $code) {
+            $err .= '(' . $msgs[$code] . ') ';
         }
         
         $this->assertTrue($result, $arg . ' should pass validation but validator says: ' . $err);

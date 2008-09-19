@@ -61,7 +61,8 @@ class Opus_Validate_InstanceOf extends Zend_Validate_Abstract {
      * @var array
      */
     protected $_messageVariables = array(
-        'classname' => '_classname' // This point to the protected variable defined below
+        // This points to the protected variable defined below
+        'classname' => '_classname' 
     );
     
     /**

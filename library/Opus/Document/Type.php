@@ -292,8 +292,8 @@ class Opus_Document_Type {
     /**
      * Initialize an instance with an XML document type specification.
      *
-     * @param string|DOMDocument $xml        XML string, a filename or an DOMDocument instance representing
-     *                                       the document type specification.
+     * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
+     *                                the document type specification.
      *
      * @throws InvalidArgumentException If given argument is not a kind of XML source.
      * @throws Opus_Document_Exception  If parsing or validating fails.
@@ -426,15 +426,17 @@ class Opus_Document_Type {
      * Zend_Validate_Interface in correspondance to the defined datatype of the field.
      *
      * @param string|integer $par Name of the field or DT_* constant.
+     * @throws InvalidArgumentException If the specified type or field name is invalid.
+     * 
      * @return Zend_Validate_Interface Validator instance. Null is returned if no
      *                                 validator is defined or needed for the field type.
-     * @throws InvalidArgumentException If the specified type or field name is invalid.
+     * 
      */
     public static function getValidatorFor($par) {
 
-        if (is_integer($par)) {
+        if (is_integer($par) === true) {
             $type = $par;
-        } else if (is_string($par)) {
+        } else if (is_string($par) === true) {
             // get field description
             $desc = self::$__fields[$par];
             $type = $desc['type'];
@@ -443,71 +445,71 @@ class Opus_Document_Type {
         }
 
         switch ($type) {
-            case Opus_Document_Type::DT_NUMBER:
+            case self::DT_NUMBER:
                 return new Zend_Validate_Int();
                 break;
                 
-            case Opus_Document_Type::DT_DATE:
+            case self::DT_DATE:
                 return new Opus_Validate_InstanceOf('Zend_Date');
                 break;
                 
-            case Opus_Document_Type::DT_LANGUAGE:
+            case self::DT_LANGUAGE:
                 return new Opus_Validate_Locale();
                 break;
                 
-            case Opus_Document_Type::DT_ISBN_10:
+            case self::DT_ISBN_10:
                 return new Opus_Validate_Isbn10();
                 break;
                 
-            case Opus_Document_Type::DT_ISBN_13:
+            case self::DT_ISBN_13:
                 return new Opus_Validate_Isbn13();
                 break;
                 
-            case Opus_Document_Type::DT_DOCUMENTTYPE:
+            case self::DT_DOCUMENTTYPE:
                 return new Opus_Validate_DocumentType();
                 break;
                 
-            case Opus_Document_Type::DT_REVIEWTYPE:
+            case self::DT_REVIEWTYPE:
                 return new Opus_Validate_ReviewType();
                 break;
                 
-            case Opus_Document_Type::DT_NOTESCOPE:
+            case self::DT_NOTESCOPE:
                 return new Opus_Validate_NoteScope();
                 break;
                 
-            case Opus_Document_Type::DT_TITLE_ABSTRACT:
+            case self::DT_TITLE_ABSTRACT:
                 return new Opus_Validate_ComplexType(self::$__fields['title_abstract']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_TITLE_MAIN:
+            case self::DT_TITLE_MAIN:
                 return new Opus_Validate_ComplexType(self::$__fields['title_main']['fields']);
                 break;
 
-            case Opus_Document_Type::DT_TITLE_PARENT:
+            case self::DT_TITLE_PARENT:
                 return new Opus_Validate_ComplexType(self::$__fields['title_parent']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_SUBJECT_DDC:
+            case self::DT_SUBJECT_DDC:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_ddc']['fields']);
                 break;
 
-            case Opus_Document_Type::DT_SUBJECT_PSYNDEX:
+            case self::DT_SUBJECT_PSYNDEX:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_psyndex']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_SUBJECT_SWD:
+            case self::DT_SUBJECT_SWD:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_swd']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_SUBJECT_UNCONTROLLED:
+            case self::DT_SUBJECT_UNCONTROLLED:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_uncontrolled']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_NOTE:
+            case self::DT_NOTE:
                 return new Opus_Validate_ComplexType(self::$__fields['note']['fields']);
                 break;
                 
-            case Opus_Document_Type::DT_PERSON:
+            case self::DT_PERSON:
                 return new Opus_Validate_ComplexType(self::$__fields['person_advisor']['fields']);
                 break;
                 

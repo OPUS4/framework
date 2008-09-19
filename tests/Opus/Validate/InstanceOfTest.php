@@ -75,12 +75,11 @@ class Opus_Validate_InstanceOfTest extends PHPUnit_Framework_TestCase {
         $validator = new Opus_Validate_InstanceOf(self::CLASS_EXPECTED);
         $classname = self::CLASS_EXPECTED;
         $result = $validator->isValid(new $classname);
-        $err = ''; // for sake of compiler happiness
         if ($result === false) {
             $msgs = $validator->getMessages();
             $err = $msgs['instance'];
+            $this->fail('An object of class ' . $classname . ' was rejected: ' . $err);
         }
-        $this->assertTrue($result, 'An object of class ' . $classname . ' was rejected: ' . $err);
     }
 
     /**

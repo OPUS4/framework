@@ -86,7 +86,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
     public function invalidDataProvider() {
         return array(
             array(array('yesno' => null, 'integer' => 'cuatro mil setecientos y once')),
-            //array(array('yesno' => 'true', 'integer' => true))
+
             /*
              * Setting 'integer' to true will make the test fail because
              * of a validation bug in Zend_Validate_Int (ZF 1.6.0). The
@@ -116,6 +116,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Set up test fixture.
      *
+     * @return void
      */
     public function setUp() {
         $this->__fixture = new Opus_Validate_ComplexType($this->__fieldef);
@@ -135,7 +136,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test is creation with malformed arguments throws InvalidArgumentException.
      *
-     * @param $fielddef Malformed field definition.
+     * @param mixed $fielddef Malformed field definition.
      * @return void
      * 
      * @dataProvider malformedTypeDataProvider
@@ -149,7 +150,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test successfull validation.
      *
-     * @param $data Field data.
+     * @param mixed $data Field data.
      * @return void
      *
      * @dataProvider validDataProvider
@@ -162,7 +163,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test successfull rejection of invalid data.
      *
-     * @param $data Field data.
+     * @param mixed $data Field data.
      * @return void
      *
      * @dataProvider invalidDataProvider

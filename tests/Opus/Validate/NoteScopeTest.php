@@ -74,6 +74,7 @@ class Opus_Validate_NoteScopeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of correct arguments.
      *
+     * @param mixed $arg Value for validation.
      * @return void
      *
      * @dataProvider validDataProvider
@@ -85,7 +86,8 @@ class Opus_Validate_NoteScopeTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test validation of incorrect arguments.
-     *
+     * 
+     * @param mixed $arg Value for validation.
      * @return void
      *
      * @dataProvider invalidDataProvider

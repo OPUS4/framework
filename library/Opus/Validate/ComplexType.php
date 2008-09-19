@@ -54,7 +54,7 @@ class Opus_Validate_ComplexType extends Zend_Validate_Abstract {
      * @var array
      */
     protected $_messageTemplates = array(
-        self::MSG_INVALID => "At least one sub field of the complex field is invalid",
+        self::MSG_INVALID => 'At least one sub field of the complex field is invalid',
     );
     
     
@@ -69,13 +69,13 @@ class Opus_Validate_ComplexType extends Zend_Validate_Abstract {
      * Construct the complex type validator using the given
      * field description. For example, such a description may have the form:
      *
-     * array('value'     => array('type' => self::DT_TEXT),
-     *       'language'  => array('type' => self::DT_LANGUAGE))
+     * E.g. array('value'     => array('type' => self::DT_TEXT),
+     *            'language'  => array('type' => self::DT_LANGUAGE))
      *
      * Those descriptions can be obtained by the getAvailableFields()
      * method of Opus_Document_Type.
      *
-     * @param $fielddesciption Description of a field type.
+     * @param string $fielddesciption Description of a field type.
      * @throws InvalidArgumentException If the field type definition is malformed.
      */
     public function __construct($fielddesciption) {
@@ -106,7 +106,7 @@ class Opus_Validate_ComplexType extends Zend_Validate_Abstract {
      * can only check values that are present. There is no checking for missing
      * mandatory fields whatsoever.
      *
-     * @param array $value Data of complex field type.
+     * @param mixed $value Data of complex field type.
      * @return boolean True if the all values are valid.
      */
     public function isValid($value)
@@ -118,12 +118,7 @@ class Opus_Validate_ComplexType extends Zend_Validate_Abstract {
             if (array_key_exists($name, $value) === true) {
                 $validator = $fdesc['validator'];
                 if (is_null($validator) === false) {
-                    /*
-                     * Use && instead of and because of possible PHP bug:
-                     * http://bugs.php.net/46092
-                     * 
-                     */
-                    $result = $result && $validator->isValid($value[$name]);
+                    $result = ($result and $validator->isValid($value[$name]));
                 }
             }
         }

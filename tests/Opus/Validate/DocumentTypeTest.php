@@ -76,6 +76,7 @@ class Opus_Validate_DocumentTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of correct arguments.
      *
+     * @param string $arg Name of a document type to validate.
      * @return void
      *
      * @dataProvider validDataProvider
@@ -88,6 +89,7 @@ class Opus_Validate_DocumentTypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of incorrect arguments.
      *
+     * @param string $arg Name of a document type to validate.
      * @return void
      *
      * @dataProvider invalidDataProvider

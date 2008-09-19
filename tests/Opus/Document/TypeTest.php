@@ -103,6 +103,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if an InvalidArgumentException occurs.
      *
+     * @param mixed  $arg Constructor parameter.
+     * @param string $msg Error message.
      * @return void
      *
      * @dataProvider invalidCreationDataProvider
@@ -350,6 +352,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if correct field value passes validation.
      *
+     * @param string $fieldname Name of a field.
+     * @param string $value     Value to validate against the field's type
      * @return void
      *
      * @dataProvider validFieldDataProvider
@@ -363,6 +367,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if incorrect field values get rejected.
      *
+     * @param string $fieldname Name of a field.
+     * @param string $value     Value to validate against the field's type
      * @return void
      *
      * @dataProvider invalidFieldDataProvider
