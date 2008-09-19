@@ -59,6 +59,8 @@ class Opus_Collection_Structure {
      * 
      */
     public function __construct($ID) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->constructorID($ID);
         if ($ID == 'institute') {
             $this->collectionsIdentifier = 'institutes_id';
             $this->collections_structure        = new Opus_Db_InstitutesStructure();
@@ -133,8 +135,9 @@ class Opus_Collection_Structure {
         foreach ($this->collectionStructure as $index1 => $nested_set) {
             // If node is the desgnated parent
             if ($parent == $this->collectionStructure[$index1][$this->collectionsIdentifier]) {
-                // If parent has no child
-                if ($this->collectionStructure[$index1]['right'] == $this->collectionStructure[$index1]['left']+1) {
+                // If parent has no child or new node shall be most left sibling
+                if (($this->collectionStructure[$index1]['right'] == $this->collectionStructure[$index1]['left']+1) ||
+                    ($leftSibling == 0)){
                     // LEFT of new node is RIGHT of the parent
                     $new_left = $this->collectionStructure[$index1]['right'];
                 } else {
@@ -255,6 +258,7 @@ class Opus_Collection_Structure {
      *
      */
     public function leftOrder() {
+        $tmpCollectionStructure = array();
         foreach ($this->collectionStructure as $index=>$record) {
             $tmpCollectionStructure[$record['left']] = $record;
         }

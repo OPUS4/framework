@@ -63,6 +63,8 @@ class Opus_Collection_Contents {
      * 
      */
     public function __construct($ID) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->constructorID($ID);
         if ($ID == 'institute') {
             $this->collectionsIdentifier    = 'institutes_id';
             $this->collections_contents     = new Opus_Db_InstitutesContents();
