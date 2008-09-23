@@ -98,7 +98,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             array('note', array('message' => 'This one is good.', 'creator' => 'Doe, John', 'scope' => '!internal!'))
         );
     }
-    
+
 
     /**
      * Test if an InvalidArgumentException occurs.
@@ -218,42 +218,42 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     case Opus_Document_Type::DT_NUMBER:
                         $expected = 'Zend_Validate_Int';
                         break;
-                        
+
                     case Opus_Document_Type::DT_DATE:
                         $expected = 'Opus_Validate_InstanceOf';
                         break;
-                        
+
                     case Opus_Document_Type::DT_LANGUAGE:
                         $expected = 'Opus_Validate_Locale';
                         break;
-                        
+
                     case Opus_Document_Type::DT_ISBN_10:
                         $expected = 'Opus_Validate_Isbn10';
                         break;
-                        
+
                     case Opus_Document_Type::DT_ISBN_13:
                         $expected = 'Opus_Validate_Isbn13';
                         break;
-                        
+
                     case Opus_Document_Type::DT_DOCUMENTTYPE:
                         $expected = 'Opus_Validate_DocumentType';
                         break;
-                        
+
                     case Opus_Document_Type::DT_REVIEWTYPE:
                         $expected = 'Opus_Validate_ReviewType';
                         break;
-                        
+
                     case Opus_Document_Type::DT_NOTESCOPE:
                         $expected = 'Opus_Validate_NoteScope';
                         break;
-                        
+
                     case Opus_Document_Type::DT_BOOLEAN:
                         $expected = 'Opus_Validate_Boolean';
                         break;
-                        
+
                     default:
                         $expected = 'Opus_Validate_ComplexType';
-                        break;    
+                        break;
                 }
 
                 $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
@@ -281,42 +281,42 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     case Opus_Document_Type::DT_NUMBER:
                         $expected = 'Zend_Validate_Int';
                         break;
-                        
+
                     case Opus_Document_Type::DT_DATE:
                         $expected = 'Opus_Validate_InstanceOf';
                         break;
-                        
+
                     case Opus_Document_Type::DT_LANGUAGE:
                         $expected = 'Opus_Validate_Locale';
                         break;
-                        
+
                     case Opus_Document_Type::DT_ISBN_10:
                         $expected = 'Opus_Validate_Isbn10';
                         break;
-                        
+
                     case Opus_Document_Type::DT_ISBN_13:
                         $expected = 'Opus_Validate_Isbn13';
                         break;
-                        
+
                     case Opus_Document_Type::DT_DOCUMENTTYPE:
                         $expected = 'Opus_Validate_DocumentType';
                         break;
-                        
+
                     case Opus_Document_Type::DT_REVIEWTYPE:
                         $expected = 'Opus_Validate_ReviewType';
                         break;
-                        
+
                     case Opus_Document_Type::DT_NOTESCOPE:
                         $expected = 'Opus_Validate_NoteScope';
                         break;
-                        
+
                     case Opus_Document_Type::DT_BOOLEAN:
                         $expected = 'Opus_Validate_Boolean';
                         break;
-                        
+
                     default:
                         $expected = 'Opus_Validate_ComplexType';
-                        break;    
+                        break;
                 }
 
                 $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
@@ -365,6 +365,17 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Enter description here...
+     *
+     * @return void
+     */
+    public function testValidateEmptyArray() {
+        $array = array();
+        $result = Opus_Document_Type::validate($array);
+        $this->assertEquals(false, $result);
+    }
+
+    /**
      * Test if incorrect field values get rejected.
      *
      * @param string $fieldname Name of a field.
@@ -378,5 +389,5 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $msg = $fieldname . '=>' . $value . ' should be validated as wrong.';
         $this->assertFalse($result, $msg);
     }
-    
+
 }

@@ -135,27 +135,27 @@ class Opus_Document_Type {
      *
      */
     const DT_NOTESCOPE  = 160;
-    
+
     /**
      * Datatype for referring to a person.
      *
      */
     const DT_PERSON     = 170;
-    
+
     /**
      * Datatype for referring to an institute.
      *
      */
     const DT_INSTITUTE  = 180;
-    
+
     /**
      * Datatype for referring to a collection.
      *
      */
     const DT_COLLECTION  = 190;
-    
-    
-    
+
+
+
     /**
      * This array internally defines all available fields with their corresponding types
      * and other flags. It is used to return all available fields and to guide the
@@ -204,25 +204,25 @@ class Opus_Document_Type {
         'swb_id'                    => array('type' => self::DT_NUMBER),
         'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
         'volume'                    => array('type' => self::DT_NUMBER),
-    
+
         'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*'),
         'non_institute_affiliation' => array('type' => self::DT_TEXT),
-    
+
         'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*'),
 
     // Complex types with subsequent fields and multiple occurences.
 
-        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 
+        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*',
             'fields' => array(
                 'value'     => array('type' => self::DT_TEXT),
                 'language'  => array('type' => self::DT_LANGUAGE))),
 
-        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*', 
+        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*',
             'fields' => array(
                 'value'     => array('type' => self::DT_TEXT),
                 'language'  => array('type' => self::DT_LANGUAGE))),
 
-        'title_parent' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 
+        'title_parent' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*',
             'fields' => array(
                 'value'     => array('type' => self::DT_TEXT),
                 'language'  => array('type' => self::DT_LANGUAGE))),
@@ -256,23 +256,23 @@ class Opus_Document_Type {
                 'message'   => array('type' => self::DT_TEXT),
                 'creator'   => array('type' => self::DT_TEXT),
                 'scope'     => array('type' => self::DT_NOTESCOPE))),
-    
-        'person_advisor' => array('type' => self::DT_PERSON, 
+
+        'person_advisor' => array('type' => self::DT_PERSON,
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
-    
-        'person_author' => array('type' => self::DT_PERSON, 
+
+        'person_author' => array('type' => self::DT_PERSON,
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
-            
-        'person_other' => array('type' => self::DT_PERSON, 
+
+        'person_other' => array('type' => self::DT_PERSON,
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
-    
-        'person_referee' => array('type' => self::DT_PERSON, 
+
+        'person_referee' => array('type' => self::DT_PERSON,
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
@@ -413,8 +413,8 @@ class Opus_Document_Type {
      *
      * Some datatypes describe complex datasets like institutes (DT_INSTITUTE), persons (ST_PERSON)
      * or collections (DT_COLLECTION). Field values of those datatypes are usally internal identifier
-     * numbers corresponding with persistent entities of the referred kind respectivly. 
-     * 
+     * numbers corresponding with persistent entities of the referred kind respectivly.
+     *
      * @return array Nested associative array of available fields with corresponding datatypes.
      */
     public static function getAvailableFields() {
@@ -427,10 +427,10 @@ class Opus_Document_Type {
      *
      * @param string|integer $par Name of the field or DT_* constant.
      * @throws InvalidArgumentException If the specified type or field name is invalid.
-     * 
+     *
      * @return Zend_Validate_Interface Validator instance. Null is returned if no
      *                                 validator is defined or needed for the field type.
-     * 
+     *
      */
     public static function getValidatorFor($par) {
 
@@ -448,39 +448,39 @@ class Opus_Document_Type {
             case self::DT_NUMBER:
                 return new Zend_Validate_Int();
                 break;
-                
+
             case self::DT_DATE:
                 return new Opus_Validate_InstanceOf('Zend_Date');
                 break;
-                
+
             case self::DT_LANGUAGE:
                 return new Opus_Validate_Locale();
                 break;
-                
+
             case self::DT_ISBN_10:
                 return new Opus_Validate_Isbn10();
                 break;
-                
+
             case self::DT_ISBN_13:
                 return new Opus_Validate_Isbn13();
                 break;
-                
+
             case self::DT_DOCUMENTTYPE:
                 return new Opus_Validate_DocumentType();
                 break;
-                
+
             case self::DT_REVIEWTYPE:
                 return new Opus_Validate_ReviewType();
                 break;
-                
+
             case self::DT_NOTESCOPE:
                 return new Opus_Validate_NoteScope();
                 break;
-                
+
             case self::DT_TITLE_ABSTRACT:
                 return new Opus_Validate_ComplexType(self::$__fields['title_abstract']['fields']);
                 break;
-                
+
             case self::DT_TITLE_MAIN:
                 return new Opus_Validate_ComplexType(self::$__fields['title_main']['fields']);
                 break;
@@ -488,7 +488,7 @@ class Opus_Document_Type {
             case self::DT_TITLE_PARENT:
                 return new Opus_Validate_ComplexType(self::$__fields['title_parent']['fields']);
                 break;
-                
+
             case self::DT_SUBJECT_DDC:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_ddc']['fields']);
                 break;
@@ -496,23 +496,23 @@ class Opus_Document_Type {
             case self::DT_SUBJECT_PSYNDEX:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_psyndex']['fields']);
                 break;
-                
+
             case self::DT_SUBJECT_SWD:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_swd']['fields']);
                 break;
-                
+
             case self::DT_SUBJECT_UNCONTROLLED:
                 return new Opus_Validate_ComplexType(self::$__fields['subject_uncontrolled']['fields']);
                 break;
-                
+
             case self::DT_NOTE:
                 return new Opus_Validate_ComplexType(self::$__fields['note']['fields']);
                 break;
-                
+
             case self::DT_PERSON:
                 return new Opus_Validate_ComplexType(self::$__fields['person_advisor']['fields']);
                 break;
-                
+
             default:
                 return null;
                 break;
@@ -548,12 +548,14 @@ class Opus_Document_Type {
      * @return booelean True if the data is valid, false if not.
      */
     public static function validate(array $data) {
-        
+
         // That the validation fails if the given array is empty.
-        $result = false;
+        if (empty($data) === true) {
+            return false;
+        }
+        $result = true;
         foreach ($data as $fieldname => $value) {
             $validator = self::getValidatorFor($fieldname);
-            $result = true;            
             if (is_null($validator) === false) {
                 $result = ($result and $validator->isValid($value));
             }
