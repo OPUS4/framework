@@ -41,17 +41,23 @@
 class Opus_Collection_Replacement {
 
     /**
-     * @var object Container for institutes_replacement table gateway
+     * Container for institutes_replacement table gateway
+     * 
+     * @var object 
      */
     private $collections_replacement;
     
     /**
-     * @var string Container for identifying attribute
+     * Container for identifying attribute
+     * 
+     * @var string 
      */
     private $collectionsIdentifier;
     
     /**
-     * @var object Container for validation object
+     * Container for validation object
+     * 
+     * @var object 
      */
     private $validation;
     

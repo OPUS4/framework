@@ -41,27 +41,37 @@
 class Opus_Collection_Structure {
 
     /**
-     * @var array The collection-structure (tree) array
+     * The collection-structure (tree) array
+     * 
+     * @var array 
      */
     public $collectionStructure;
     
     /**
-     * @var object Container for collections_structure table gateway
+     * Container for collections_structure table gateway
+     * 
+     * @var object 
      */
     private $collections_structure;
     
     /**
-     * @var array Container for collections_structure table metadata
+     * Container for collections_structure table metadata
+     * 
+     * @var array 
      */
     public $collections_structure_info;
     
     /**
-     * @var string Container for identifying attribute
+     * Container for identifying attribute
+     * 
+     * @var string 
      */
     private $collectionsIdentifier;
     
     /**
-     * @var object Container for validation object
+     * Container for validation object
+     * 
+     * @var object 
      */
     private $validation;
     
@@ -99,6 +109,7 @@ class Opus_Collection_Structure {
     
     /**
      * Load structure from database.
+     * 
      * @return void
      */
     public function load() {
@@ -137,7 +148,7 @@ class Opus_Collection_Structure {
      *
      * @param integer $collections_id Number identifying the specific collection.
      * @param integer $parent         Designated parent node.
-     * @param integer $leftSibling    '(Optional) Designated left sibling node or 0 for no sibling. 
+     * @param integer $leftSibling    (Optional) Designated left sibling node or 0 for no sibling. 
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */

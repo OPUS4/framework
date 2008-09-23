@@ -44,7 +44,7 @@ class Opus_Collection_Information {
     /**
      * Create a complete new collection structure (role). 
      *
-     * @param array(string => array(string => mixed) $roleArray Array with collection_role database records.
+     * @param array(string => array) $roleArray Array with collection_role database records.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer ID of the newely created Collection Tree
      */
@@ -76,7 +76,7 @@ class Opus_Collection_Information {
      * @param integer                                $role_id        Identifies tree for new collection.
      * @param integer                                $parent_id      Parent node of collection.
      * @param integer                                $leftSibling_id Left sibling node of collection.
-     * @param array(string => array(string => mixed) $contentArray   Array with collection_content database records.
+     * @param array(string => array) $contentArray   Array with collection_content database records.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer $collections_id ID of the newely created Collection
      */

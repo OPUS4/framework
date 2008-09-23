@@ -41,22 +41,30 @@
 class Opus_Collection_Roles {
     
     /**
-     * @var array The collection-roles array. 
+     * The collection-roles array. 
+     * 
+     * @var array 
      */
     public $collectionRoles;
     
     /**
-     * @var integer ID for this collections_roles. 
+     * ID for this collections_roles. 
+     * 
+     * @var integer 
      */
     public $roles_id;
     
     /**
-     * @var object Container for collections_roles table gateway. 
+     * Container for collections_roles table gateway. 
+     * 
+     * @var object 
      */
     private $collections_roles;
     
     /**
-     * @var array Container for collections_roles table metadata. 
+     * Container for collections_roles table metadata. 
+     * 
+     * @var array 
      */
     private $collections_roles_info;
     
@@ -73,7 +81,7 @@ class Opus_Collection_Roles {
     /**
      * Creates a blank collection role array. 
      *
-     * @param array(string) $languages (Optional) Array of ISO-Code identifying the languages.
+     * @param array(int => string) $languages (Optional) Array of ISO-Code identifying the languages.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -110,7 +118,7 @@ class Opus_Collection_Roles {
     /**
      * Updating collection-role.
      *
-     * @param array(string => array(string => mixed) $collectionRolesRecords A collection-role array
+     * @param array(string => array) $collectionRolesRecords A collection-role array
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -148,8 +156,7 @@ class Opus_Collection_Roles {
         $collectionRoles = $this->collections_roles
                                     ->fetchAll($this->collections_roles
                                                     ->select()
-                                                    ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id)
-                                               )
+                                                    ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
                                     ->toArray();
         // Replace numeric index by language codes
         foreach ($collectionRoles as $numIndex => $record) {

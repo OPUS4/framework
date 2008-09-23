@@ -41,38 +41,51 @@
 class Opus_Collection_Contents {
     
     /**
-     * @var array The collection-content array
+     * The collection-content array
+     * 
+     * @var array 
      */
     public $collectionContents;
 
     /**
+     * ID for this collection-content
      * 
-     * @var integer ID for this collection-content
+     * @var integer 
      */
     public $collections_id;
 
     /**
-     * @var object Container for collections_contents table gateway
+     * Container for collections_contents table gateway
+     * 
+     * @var object 
      */
     private $collections_contents;
 
     /**
-     * @var array Container for collections_contents table metadata
+     * Container for collections_contents table metadata
+     * 
+     * @var array 
      */
     private $collections_contents_info;
 
     /**
-     * @var string Container for identifying attribute
+     * Container for identifying attribute
+     * 
+     * @var string 
      */
     private $collectionsIdentifier;
 
     /**
-     * @var integer ID for this collections_roles
+     * ID for this collections_roles
+     * 
+     * @var integer 
      */
     private $role_id;
 
     /**
-     * @var object Container for validation object
+     * Container for validation object
+     * 
+     * @var object 
      */
     private $validation;
     
@@ -100,7 +113,7 @@ class Opus_Collection_Contents {
     /**
      * Creates a collection-content array. 
      *
-     * @param array(string) $languages (Optional) Array of ISO-Code identifying the languages.
+     * @param array(int => string) $languages (Optional) Array of ISO-Code identifying the languages.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -136,7 +149,7 @@ class Opus_Collection_Contents {
     /**
      * Updating collection-content.
      *
-     * @param array(string => array(string => mixed) $collectionContentsRecords A collection-content array
+     * @param array(string => array) $collectionContentsRecords A collection-content array
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
