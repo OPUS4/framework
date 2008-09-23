@@ -324,6 +324,19 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    
+    /**
+     * Test if attempt to retrieve an validator for an unknown fieldname throws an
+     * InvalidArgumentException().
+     * 
+     * @return void
+     *
+     */
+    public function testGetValidatorForUnknownFieldThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Document_Type::getValidatorFor('Ernie&Bert');
+    }
+    
     /**
      * Test if declared fields can be retrieved.
      *
@@ -388,6 +401,16 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $result = Opus_Document_Type::validate(array($fieldname => $value));
         $msg = $fieldname . '=>' . $value . ' should be validated as wrong.';
         $this->assertFalse($result, $msg);
+    }
+    
+    /**
+     * Test if use of an invalid fieldname throws an exception.
+     *
+     * @return void
+     */
+    public function testInvalidFieldNameThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Document_Type::validate(array('novalidfieldname' => 'somevalue'));
     }
 
 }

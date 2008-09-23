@@ -438,6 +438,9 @@ class Opus_Document_Type {
             $type = $par;
         } else if (is_string($par) === true) {
             // get field description
+            if (array_key_exists($par, self::$__fields) === false) {
+                throw new InvalidArgumentException($par . ' is not a valid field name.');
+            } 
             $desc = self::$__fields[$par];
             $type = $desc['type'];
         } else {
