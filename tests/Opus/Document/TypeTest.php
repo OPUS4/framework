@@ -365,7 +365,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Enter description here...
+     * Test if an empty data value is rejected.
      *
      * @return void
      */
