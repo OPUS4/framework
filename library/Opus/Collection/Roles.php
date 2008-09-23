@@ -85,7 +85,7 @@ class Opus_Collection_Roles {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function create($languages = array()) {
+    public function create(array $languages = array()) {
         // Clear collection-role array
         $this->collectionRoles = array();
         // New generated collection-role gets temporary ID 0
@@ -122,7 +122,7 @@ class Opus_Collection_Roles {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function update($collectionRolesRecords){
+    public function update(array $collectionRolesRecords){
         // For every given language
         foreach ($collectionRolesRecords as $language => $collectionRolesRecord) {
             // Is the language code valid for this record?

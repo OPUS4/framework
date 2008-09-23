@@ -48,7 +48,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer ID of the newely created Collection Tree
      */
-    static public function newCollectionTree($roleArray) {
+    static public function newCollectionTree(array $roleArray) {
         $role = new Opus_Collection_Roles();
         $role->create();
         foreach ($roleArray as $language => $record) {
@@ -80,7 +80,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer $collections_id ID of the newely created Collection
      */
-    static public function newCollection($role_id, $parent_id, $leftSibling_id, $contentArray) {
+    static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
         $occ = new Opus_Collection_Contents($role_id);
         $occ->create();
         foreach ($contentArray as $language => $record) {

@@ -117,7 +117,7 @@ class Opus_Collection_Contents {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function create($languages = array()) {
+    public function create(array $languages = array()) {
         // Clear collection-content array
         $this->collectionContents = array();
         // New generated collection-content gets temporary ID 0
@@ -153,7 +153,7 @@ class Opus_Collection_Contents {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function update($collectionContentsRecords){
+    public function update(array $collectionContentsRecords){
         // For every given language
         foreach ($collectionContentsRecords as $language => $collectionContentsRecord) {
             // Is the language code valid for this record?
