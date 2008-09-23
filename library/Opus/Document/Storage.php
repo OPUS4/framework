@@ -188,6 +188,22 @@ class Opus_Document_Storage
                             'external_subject_key' => $value['external_key']); 
                     }
                     break;
+                case 'identifier_urn':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'identifier_value' => $value,
+                            'identifier_type' => 'urn',
+                            'identifier_label' => 'URN'); 
+                    }
+                    break;
+                case 'identifier_url':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'identifier_value' => $value,
+                            'identifier_type' => 'url',
+                            'identifier_label' => 'Frontdoor-URL'); 
+                    }
+                    break;
                 case 'notes_private':
                     foreach ($values as $value) {
                         $storageData[$fieldName][] = array(
