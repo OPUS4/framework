@@ -36,7 +36,7 @@
  * Extends default Exception class.
  *
  * @category    Framework
- * @package     Opus_Docuemnt
+ * @package     Opus_Document
  */
 class Opus_Document_Exception extends Exception {
 
