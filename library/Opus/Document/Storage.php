@@ -170,6 +170,15 @@ class Opus_Document_Storage
                             'external_subject_key' => $value['external_key']); 
                     }
                     break;
+                case 'subject_msc2000':
+                    foreach ($values as $value) {
+                        $storageData[$fieldName][] = array(
+                            'subject_value' => $value['value'],
+                            'subject_type' => 'msc2000',
+                            'subject_language' => $value['language'],
+                            'external_subject_key' => $value['external_key']); 
+                    }
+                    break;
                 case 'subject_uncontrolled':
                     foreach ($values as $value) {
                         $storageData[$fieldName][] = array(
