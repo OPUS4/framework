@@ -44,16 +44,16 @@ class Opus_Collection_Information {
     /**
      * Create a complete new collection structure (role). 
      *
-     * @param   array     $roleArray    Array with collection_role database records.
+     * @param   array $roleArray Array with collection_role database records.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return integer ID of the newely created Collection Tree
      */
     static public function newCollectionTree($roleArray) {
         $role = new Opus_Collection_Roles();
         $role->create();
         foreach ($roleArray as $language => $record) {
             $role->addLanguage($language);
-            $role->update(array($language=>$record));   
+            $role->update(array($language => $record));   
         }
         
         $db = Zend_Registry::get('db_adapter');
@@ -73,19 +73,19 @@ class Opus_Collection_Information {
     /**
      * Create a new collection . 
      *
-     * @param   integer     $role_id        Identifies tree for new collection.
-     * @param   integer     $parent_id      Parent node of collection.
-     * @param   integer     $leftSibling_id Left sibling node of collection.
-     * @param   array       $contentArray   Array with collection_content database records.
+     * @param   integer $role_id Identifies tree for new collection.
+     * @param   integer $parent_id Parent node of collection.
+     * @param   integer $leftSibling_id Left sibling node of collection.
+     * @param   array $contentArray Array with collection_content database records.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return integer $collections_id ID of the newely created Collection
      */
     static public function newCollection($role_id, $parent_id, $leftSibling_id, $contentArray) {
         $occ = new Opus_Collection_Contents($role_id);
         $occ->create();
         foreach ($contentArray as $language => $record) {
             $occ->addLanguage($language);
-            $occ->update(array($language=>$record));   
+            $occ->update(array($language => $record));   
         }
         $db = Zend_Registry::get('db_adapter');
         $db->beginTransaction();
@@ -105,15 +105,14 @@ class Opus_Collection_Information {
     /**
      * Create a new position in the tree for a given collection . 
      *
-     * @param   integer     $collections_id Identifies the collection.
-     * @param   integer     $role_id        Identifies tree for collection.
-     * @param   integer     $parent_id      Parent node of collection.
-     * @param   integer     $leftSibling_id Left sibling node of collection.
+     * @param   integer $collections_id Identifies the collection.
+     * @param   integer $role_id Identifies tree for collection.
+     * @param   integer $parent_id Parent node of collection.
+     * @param   integer $leftSibling_id Left sibling node of collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function newCollectionPosition($role_id, $collections_id, $parent_id, $leftSibling_id) {
-        
         $ocs = new Opus_Collection_Structure($role_id);  
         $db = Zend_Registry::get('db_adapter');  
         $db->beginTransaction();
@@ -121,17 +120,15 @@ class Opus_Collection_Information {
         $ocs->insert($collections_id, $parent_id, $leftSibling_id);
         $ocs->save();
         $db->commit();
-        
-        return $collections_id;
     }
     
     /**
      * Delete an occurrence of a collection in the tree. 
      *
-     * @param   integer     $role_id   Identifies tree for collection.
-     * @param   integer     $left      LEFT attribute of the tree position.
+     * @param   integer $role_id Identifies tree for collection.
+     * @param   integer $left LEFT attribute of the tree position.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function deleteCollectionPosition($role_id, $left) {
         $ocs = new Opus_Collection_Structure($role_id);
@@ -153,10 +150,10 @@ class Opus_Collection_Information {
     /**
      * Delete a collection (not really). 
      *
-     * @param   integer     $role_id            Identifies tree for collection.
-     * @param   integer     $collections_id    Identifies the collection.
+     * @param   integer $role_id Identifies tree for collection.
+     * @param   integer $collections_id Identifies the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function deleteCollection($role_id, $collections_id) {
         // Do not really kill from structure but hide

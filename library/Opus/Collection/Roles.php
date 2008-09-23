@@ -40,22 +40,32 @@
  */
 class Opus_Collection_Roles {
     
-    // The collection-roles array
+    /**
+     * The collection-roles array. 
+     */
     public $collectionRoles;
-    // ID for this collections_roles
+    
+    /**
+     * ID for this collections_roles. 
+     */
     public $roles_id;
-    // Container for collections_roles table gateway
+    
+    /**
+     * Container for collections_roles table gateway. 
+     */
     private $collections_roles;
-    // Container for collections_roles table metadata
+    
+    /**
+     * Container for collections_roles table metadata. 
+     */
     private $collections_roles_info;
     
     /**
      * Constructor. 
-     *
-     * 
+     * @return void
      */
     public function __construct() {
-        $this->collectionRoles         = array();
+        $this->collectionRoles          = array();
         $this->collections_roles        = new Opus_Db_CollectionsRoles();
         $this->collections_roles_info   = $this->collections_roles->info();
     }
@@ -64,9 +74,9 @@ class Opus_Collection_Roles {
     /**
      * Creates a blank collection role array. 
      *
-     * @param   array     $languages        Array of ISO-Code identifying the languages.
+     * @param   array $languages Array of ISO-Code identifying the languages.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function create($languages = array()) {
         // Clear collection-role array
@@ -76,9 +86,6 @@ class Opus_Collection_Roles {
         if (!is_array($languages)) {
             throw new InvalidArgumentException('Given languages parameter is not an array.');
         }
- /*       if (empty($languages)) {
-            throw new InvalidArgumentException('Given languages parameter is empty.');
-        }*/
         foreach ($languages as $language) {
             $this->addLanguage($language);
         }
@@ -87,9 +94,9 @@ class Opus_Collection_Roles {
     /**
      * Adds a new language to role.
      *
-     * @param   string     $language        ISO-Code identifying the language.
+     * @param   string $language ISO-Code identifying the language.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function addLanguage($language) {
         $this->validation = new Opus_Collection_Validation();
@@ -104,9 +111,9 @@ class Opus_Collection_Roles {
     /**
      * Updating collection-role.
      *
-     * @param   $collectionRolesRecords     A collection-role array
+     * @param   $collectionRolesRecords A collection-role array
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function update($collectionRolesRecords){
         // For every given language
@@ -132,9 +139,9 @@ class Opus_Collection_Roles {
     /**
      * Load collection-role from database.
      *
-     * @param   integer     $roles_id        Number identifying the role.
+     * @param   integer $roles_id Number identifying the role.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function load($roles_id) {
         $this->validation = new Opus_Collection_Validation();
@@ -142,17 +149,17 @@ class Opus_Collection_Roles {
         $collectionRoles = $this->collections_roles
                                     ->fetchAll($this->collections_roles
                                                     ->select()
-                                                    ->where($this->collections_roles_info['primary'][1].' = ?', $roles_id)
+                                                    ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id)
                                                )
                                     ->toArray();
         // Replace numeric index by language codes
-        foreach ($collectionRoles as $numIndex=>$record) {
+        foreach ($collectionRoles as $numIndex => $record) {
             $this->collectionRoles[$record[$this->collections_roles_info['primary'][2]]] = $record;
         }
         // Has the collection-role already an ID?
         if ($this->roles_id > 0) {
             // Then overwrite the loaded data
-            foreach ($this->collectionRoles as $index=>$record) {
+            foreach ($this->collectionRoles as $index => $record) {
                 $this->collectionRoles[$index][$this->collections_roles_info['primary'][1]] = $this->roles_id;
             }
         } else {
@@ -164,12 +171,13 @@ class Opus_Collection_Roles {
     /**
      * Save collection-role to database.
      *
-     * @throws  Exception   On failed database access.
+     * @throws  Exception On failed database access.
+     * @return void
      */
     public function save() {
         try {
             // Is the collection-role a complete new one?
-            if ($this->roles_id == 0) {
+            if ($this->roles_id === 0) {
                 // Find out valid ID for the new record
                 $db = Zend_Registry::get('db_adapter');
                 $selectMaxId = $db->select()
@@ -179,11 +187,11 @@ class Opus_Collection_Roles {
                 $this->roles_id = $db->fetchOne($selectMaxId) + 1;
             }
             // Delete outdated database records
-            $this->collections_roles->delete($this->collections_roles_info['primary'][1].' = '.$this->roles_id);
+            $this->collections_roles->delete($this->collections_roles_info['primary'][1] . ' = ' . $this->roles_id);
             // Insert updated database records
             foreach ($this->collectionRoles as $language=>$record) {
-                foreach ($record as $index=>$attribute) {
-                    if ($attribute == NULL) {
+                foreach ($record as $index => $attribute) {
+                    if ($attribute === NULL) {
                         unset ($record[$index]);
                     }
                 }
@@ -203,7 +211,8 @@ class Opus_Collection_Roles {
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
      *
-     * @throws  Exception   On failed database access.
+     * @throws  Exception On failed database access.
+     * @return void
      */
     public function createDatabaseTables() {
         // Fetch DB adapter
@@ -224,7 +233,6 @@ class Opus_Collection_Roles {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
         
-        
         $tabellenname = 'collections_replacement_' . $this->roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
               `collections_replacement_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -233,28 +241,28 @@ class Opus_Collection_Roles {
               `replacement_by_id` INT UNSIGNED,
               `current_replacement_id` INT UNSIGNED,
               PRIMARY KEY (`collections_replacement_id`) ,
-              INDEX fk_link_collections_'.$this->roles_id.' (`collections_id` ASC) ,
-              INDEX fk_link_collections_replacement_for_'.$this->roles_id.' (`replacement_for_id` ASC) ,
-              INDEX fk_link_collections_replacement_by_'.$this->roles_id.' (`replacement_by_id` ASC) ,
-              INDEX fk_link_collections_current_replacement_'.$this->roles_id.' (`current_replacement_id` ASC) ,
-              CONSTRAINT `fk_link_collections_'.$this->roles_id.'`
+              INDEX fk_link_collections_' . $this->roles_id . ' (`collections_id` ASC) ,
+              INDEX fk_link_collections_replacement_for_' . $this->roles_id . ' (`replacement_for_id` ASC) ,
+              INDEX fk_link_collections_replacement_by_' . $this->roles_id . ' (`replacement_by_id` ASC) ,
+              INDEX fk_link_collections_current_replacement_' . $this->roles_id . ' (`current_replacement_id` ASC) ,
+              CONSTRAINT `fk_link_collections_' . $this->roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents_'.$this->roles_id.'` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_replacement_for_'.$this->roles_id.'`
+              CONSTRAINT `fk_link_collections_replacement_for_' . $this->roles_id . '`
                 FOREIGN KEY (`replacement_for_id` )
-                REFERENCES `collections_contents_'.$this->roles_id.'` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_replacement_by_'.$this->roles_id.'`
+              CONSTRAINT `fk_link_collections_replacement_by_' . $this->roles_id . '`
                 FOREIGN KEY (`replacement_by_id` )
-                REFERENCES `collections_contents_'.$this->roles_id.'` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_current_replacement_'.$this->roles_id.'`
+              CONSTRAINT `fk_link_collections_current_replacement_' . $this->roles_id . '`
                 FOREIGN KEY (`current_replacement_id` )
-                REFERENCES `collections_contents_'.$this->roles_id.'` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
@@ -269,9 +277,7 @@ class Opus_Collection_Roles {
             throw new Exception('Error creating collection replacement table: ' . $e->getMessage());
         }
         
-        
-        
-                $tabellenname = 'collections_structure_' . $this->roles_id;
+        $tabellenname = 'collections_structure_' . $this->roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
               `collections_structure_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` int(10) UNSIGNED NOT NULL ,
@@ -279,8 +285,8 @@ class Opus_Collection_Roles {
               `right` int(10) UNSIGNED NOT NULL ,
               `visible` tinyint(1) NOT NULL default 1,
               PRIMARY KEY (`collections_structure_id`) ,
-              INDEX fk_collections_structure_collections_contents_'.$this->roles_id.' (`collections_id` ASC) ,
-              CONSTRAINT `fk_collections_structure_collections_contents_'.$this->roles_id.'`
+              INDEX fk_collections_structure_collections_contents_' . $this->roles_id . ' (`collections_id` ASC) ,
+              CONSTRAINT `fk_collections_structure_collections_contents_' . $this->roles_id . '`
                 FOREIGN KEY (`collections_id` )
                 REFERENCES `collections_contents` (`collections_id` )
                 ON DELETE NO ACTION

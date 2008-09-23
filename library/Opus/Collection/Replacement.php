@@ -40,24 +40,32 @@
  */
 class Opus_Collection_Replacement {
 
-    // Container for institutes_replacement table gateway
+    /**
+     * Container for institutes_replacement table gateway
+     */
     private $collections_replacement;
-    // Container for identifying attribute
+    
+    /**
+     * Container for identifying attribute
+     */
     private $collectionsIdentifier;
-    // Container for validation object
+    
+    /**
+     * Container for validation object
+     */
     private $validation;
     
     /**
      * Constructor. 
      *
-     * @param   string/integer     $ID     Number identifying the collection tree (role) 
-     *                                     or 'institute' for the institutes tree.
-     * 
+     * @param   string/integer $ID Number identifying the collection tree (role) 
+     *                             or 'institute' for the institutes tree.
+     * @return void
      */
     public function __construct($ID) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->constructorID($ID);
-        if ($ID == 'institute') {
+        if ($ID === 'institute') {
             $this->collectionsIdentifier    = 'institutes_id';
             $this->collections_replacement = new Opus_Db_InstitutesReplacement();
         } else {
@@ -70,17 +78,17 @@ class Opus_Collection_Replacement {
     /**
      * Creates a database entry for a deleted collection. 
      *
-     * @param   integer     $collections_id     Number identifying the deleted collection.
+     * @param   integer $collections_id Number identifying the deleted collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function delete($collections_id) {
         try {
             $this->collections_replacement
                  ->insert(array($this->collectionsIdentifier         => $collections_id,
-                                'replacement_for_id'       => NULL,
-                                'replacement_by_id'        => NULL,
-                                'current_replacement_id'   => NULL,
+                                'replacement_for_id'       => null,
+                                'replacement_by_id'        => null,
+                                'current_replacement_id'   => null,
                                 ));
         } catch (Exception $e) {
             $db = Zend_Registry::get('db_adapter');
@@ -90,14 +98,13 @@ class Opus_Collection_Replacement {
     }
     
     
-    
     /**
      * Creates a database entry for a replaced collection. 
      *
-     * @param   integer     $collections_id_old     Number identifying the replaced collection.
-     * @param   integer     $collections_id_new     Number identifying the replacing collection.
+     * @param   integer $collections_id_old Number identifying the replaced collection.
+     * @param   integer $collections_id_new Number identifying the replacing collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function replace($collections_id_old, $collections_id_new) {
         try {
@@ -121,15 +128,14 @@ class Opus_Collection_Replacement {
     }
     
     
-    
     /**
      * Creates a database entry for a collection divided into two new collections. 
      *
-     * @param   integer     $collections_id_old     Number identifying the divided collection.
-     * @param   integer     $collections_id_new1    Number identifying the first replacing collection.
-     * @param   integer     $collections_id_new2    Number identifying the second replacing collection.
+     * @param   integer $collections_id_old Number identifying the divided collection.
+     * @param   integer $collections_id_new1 Number identifying the first replacing collection.
+     * @param   integer $collections_id_new2 Number identifying the second replacing collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function split($collections_id_old, $collections_id_new1, $collections_id_new2) {
         try {
@@ -143,15 +149,14 @@ class Opus_Collection_Replacement {
     }
     
     
-    
     /**
      * Creates a database entry for two collections merged together into a new collection. 
      *
-     * @param   integer     $collections_id_old1    Number identifying the first of the merged collections.
-     * @param   integer     $collections_id_old2    Number identifying the second of the merged collections.
-     * @param   integer     $collections_id_new     Number identifying the new created merged collection.
+     * @param   integer $collections_id_old1 Number identifying the first of the merged collections.
+     * @param   integer $collections_id_old2 Number identifying the second of the merged collections.
+     * @param   integer $collections_id_new Number identifying the new created merged collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     public function merge($collections_id_old1, $collections_id_old2, $collections_id_new) {
         try {
@@ -165,31 +170,29 @@ class Opus_Collection_Replacement {
     }
     
     
-    
     /**
      * Fetch the replacement records for a collection. 
      *
-     * @param   integer     $collections_id    Number identifying the collection.
+     * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return array Replacement records
      */
     public function getReplacementRecords($collections_id) {
         $set = $this->collections_replacement
                     ->fetchAll($this->collections_replacement
                                 ->select()
-                                ->where($this->collectionsIdentifier.' = ?', $collections_id))
+                                ->where($this->collectionsIdentifier . ' = ?', $collections_id))
                     ->toArray();
         return $set;
     }
     
     
-    
     /**
      * Fetch the actual (last) replacement for a collection. 
      *
-     * @param   integer     $collections_id    Number identifying the collection.
+     * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return integer ID of current replacing collection 
      */
     public function getCurrent($collections_id) {
         $set = $this->getReplacementRecords($collections_id);
@@ -204,9 +207,9 @@ class Opus_Collection_Replacement {
     /**
      * Fetch the direct ancestor of a collection. 
      *
-     * @param   integer     $collections_id    Number identifying the collection.
+     * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return integer ID of direct ancestor collection
      */
     public function getAncestor($collections_id) {
         $ancestor = array();
@@ -221,9 +224,9 @@ class Opus_Collection_Replacement {
     /**
      * Fetch the direct replacement for a collection. 
      *
-     * @param   integer     $collections_id    Number identifying the collection.
+     * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return integer ID of direct replacing collection
      */
     public function getReplacement($collections_id) {
         $replacement = array();
@@ -233,8 +236,4 @@ class Opus_Collection_Replacement {
         }
         return array_unique($replacement);
     }
-    
-    
-    
-    
 }

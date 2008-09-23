@@ -43,16 +43,16 @@ class Opus_Collection_Validation {
     /**
      * Verify if given argument is a valid Constructor ID (roles_id). 
      *
-     * @param   integer     $ID     Argument to verify.
+     * @param   integer $ID Argument to verify.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function constructorID($ID) {
-        if ($ID==='institute') {
+        if ($ID === 'institute') {
             return true;
-        } elseif (!is_int($ID)) {
+        } else if (is_int($ID) === false) {
             throw new InvalidArgumentException($ID . ' is neither integer nor "institute".');
-        } elseif ($ID < 1) {
+        } else if ($ID < 1) {
             throw new InvalidArgumentException($ID . ' is neither positive integer nor "institute".');
         }
     }
@@ -60,14 +60,14 @@ class Opus_Collection_Validation {
     /**
      * Verify if given argument is a valid ID. 
      *
-     * @param   integer     $ID     Argument to verify.
+     * @param   integer $ID Argument to verify.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function ID($ID) {
-        if (!is_int($ID)) {
+        if (is_int($ID) === false) {
             throw new InvalidArgumentException($ID . ' is not an integer.');
-        } elseif ($ID < 1) {
+        } else if ($ID < 1) {
             throw new InvalidArgumentException($ID . ' is not a positive integer.');
         }
     }
@@ -75,12 +75,12 @@ class Opus_Collection_Validation {
     /**
      * Verify if given argument is a valid collection structure node (LEFT or RIGHT). 
      *
-     * @param   integer     $node     Argument to verify.
+     * @param   integer $node Argument to verify.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function node($node) {
-        if (!is_int($node)) {
+        if (is_int($node) === false) {
             throw new InvalidArgumentException($node . ' is not an integer.');
         } elseif ($node < 0) {
             throw new InvalidArgumentException($node . ' is negative.');
@@ -90,12 +90,12 @@ class Opus_Collection_Validation {
     /**
      * Verify if given argument is a valid language code). 
      *
-     * @param   integer     $language     Argument to verify.
+     * @param   integer $language Argument to verify.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * 
+     * @return void
      */
     static public function language($language) {
-        if (!is_string($language)) {
+        if (is_string($language) === false) {
             throw new InvalidArgumentException('Language code must be a string.');
         } elseif (strlen($language) != 3) {
             throw new InvalidArgumentException($ID . ' is not a three letter language code.');
