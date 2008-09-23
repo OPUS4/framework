@@ -81,7 +81,7 @@ class Opus_Collection_Roles {
     /**
      * Creates a blank collection role array. 
      *
-     * @param array(int => string) $languages (Optional) Array of ISO-Code identifying the languages.
+     * @param array(integer => string) $languages (Optional) Array of ISO-Code identifying the languages.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -118,7 +118,7 @@ class Opus_Collection_Roles {
     /**
      * Updating collection-role.
      *
-     * @param array(string => array) $collectionRolesRecords A collection-role array
+     * @param array(string => array(string => string)) $collectionRolesRecords A collection-role array
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */

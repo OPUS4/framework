@@ -113,7 +113,7 @@ class Opus_Collection_Contents {
     /**
      * Creates a collection-content array. 
      *
-     * @param array(int => string) $languages (Optional) Array of ISO-Code identifying the languages.
+     * @param array(integer => string) $languages (Optional) Array of ISO-Code identifying the languages.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -149,7 +149,7 @@ class Opus_Collection_Contents {
     /**
      * Updating collection-content.
      *
-     * @param array(string => array) $collectionContentsRecords A collection-content array
+     * @param array(string => array(string => string)) $collectionContentsRecords A collection-content array
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
