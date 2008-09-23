@@ -36,7 +36,7 @@
  * Provides functions to add, remove, alter and retrieve collection information.
  *
  * @category Framework
- * @package  Opus_Collection
+ * @package  Opus_Collections
  */
 class Opus_Collection_Information {
     
@@ -44,8 +44,8 @@ class Opus_Collection_Information {
     /**
      * Create a complete new collection structure (role). 
      *
-     * @param   array $roleArray Array with collection_role database records.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param array(string => array(string => mixed) $roleArray Array with collection_role database records.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer ID of the newely created Collection Tree
      */
     static public function newCollectionTree($roleArray) {
@@ -73,11 +73,11 @@ class Opus_Collection_Information {
     /**
      * Create a new collection . 
      *
-     * @param   integer $role_id Identifies tree for new collection.
-     * @param   integer $parent_id Parent node of collection.
-     * @param   integer $leftSibling_id Left sibling node of collection.
-     * @param   array $contentArray Array with collection_content database records.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param integer                                $role_id        Identifies tree for new collection.
+     * @param integer                                $parent_id      Parent node of collection.
+     * @param integer                                $leftSibling_id Left sibling node of collection.
+     * @param array(string => array(string => mixed) $contentArray   Array with collection_content database records.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer $collections_id ID of the newely created Collection
      */
     static public function newCollection($role_id, $parent_id, $leftSibling_id, $contentArray) {
@@ -105,11 +105,11 @@ class Opus_Collection_Information {
     /**
      * Create a new position in the tree for a given collection . 
      *
-     * @param   integer $collections_id Identifies the collection.
-     * @param   integer $role_id Identifies tree for collection.
-     * @param   integer $parent_id Parent node of collection.
-     * @param   integer $leftSibling_id Left sibling node of collection.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param integer $role_id        Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @param integer $parent_id      Parent node of collection.
+     * @param integer $leftSibling_id Left sibling node of collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     static public function newCollectionPosition($role_id, $collections_id, $parent_id, $leftSibling_id) {
@@ -125,9 +125,9 @@ class Opus_Collection_Information {
     /**
      * Delete an occurrence of a collection in the tree. 
      *
-     * @param   integer $role_id Identifies tree for collection.
-     * @param   integer $left LEFT attribute of the tree position.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param integer $role_id Identifies tree for collection.
+     * @param integer $left    LEFT attribute of the tree position.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     static public function deleteCollectionPosition($role_id, $left) {
@@ -150,9 +150,9 @@ class Opus_Collection_Information {
     /**
      * Delete a collection (not really). 
      *
-     * @param   integer $role_id Identifies tree for collection.
-     * @param   integer $collections_id Identifies the collection.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param integer $role_id        Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     static public function deleteCollection($role_id, $collections_id) {

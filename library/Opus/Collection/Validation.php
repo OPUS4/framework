@@ -36,7 +36,7 @@
  * Provides validation functions.
  *
  * @category Framework
- * @package  Opus_Collection
+ * @package  Opus_Collections
  */
 class Opus_Collection_Validation {
     
@@ -45,7 +45,7 @@ class Opus_Collection_Validation {
      *
      * @param   integer $ID Argument to verify.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
+     * @return boolean True for institute
      */
     static public function constructorID($ID) {
         if ($ID === 'institute') {
@@ -82,7 +82,7 @@ class Opus_Collection_Validation {
     static public function node($node) {
         if (is_int($node) === false) {
             throw new InvalidArgumentException($node . ' is not an integer.');
-        } elseif ($node < 0) {
+        } else if ($node < 0) {
             throw new InvalidArgumentException($node . ' is negative.');
         }
     }
@@ -97,7 +97,7 @@ class Opus_Collection_Validation {
     static public function language($language) {
         if (is_string($language) === false) {
             throw new InvalidArgumentException('Language code must be a string.');
-        } elseif (strlen($language) != 3) {
+        } else if (strlen($language) != 3) {
             throw new InvalidArgumentException($ID . ' is not a three letter language code.');
         }
     }

@@ -36,33 +36,32 @@
  * Collection role related methods.
  *
  * @category Framework
- * @package  Opus_Collection
+ * @package  Opus_Collections
  */
 class Opus_Collection_Roles {
     
     /**
-     * The collection-roles array. 
+     * @var array The collection-roles array. 
      */
     public $collectionRoles;
     
     /**
-     * ID for this collections_roles. 
+     * @var integer ID for this collections_roles. 
      */
     public $roles_id;
     
     /**
-     * Container for collections_roles table gateway. 
+     * @var object Container for collections_roles table gateway. 
      */
     private $collections_roles;
     
     /**
-     * Container for collections_roles table metadata. 
+     * @var array Container for collections_roles table metadata. 
      */
     private $collections_roles_info;
     
     /**
      * Constructor. 
-     * @return void
      */
     public function __construct() {
         $this->collectionRoles          = array();
@@ -74,8 +73,8 @@ class Opus_Collection_Roles {
     /**
      * Creates a blank collection role array. 
      *
-     * @param   array $languages Array of ISO-Code identifying the languages.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param array(string) $languages (Optional) Array of ISO-Code identifying the languages.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     public function create($languages = array()) {
@@ -83,7 +82,7 @@ class Opus_Collection_Roles {
         $this->collectionRoles = array();
         // New generated collection-role gets temporary ID 0
         $this->roles_id = 0;
-        if (!is_array($languages)) {
+        if (is_array($languages) === false) {
             throw new InvalidArgumentException('Given languages parameter is not an array.');
         }
         foreach ($languages as $language) {
@@ -94,14 +93,14 @@ class Opus_Collection_Roles {
     /**
      * Adds a new language to role.
      *
-     * @param   string $language ISO-Code identifying the language.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param string $language ISO-Code identifying the language.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     public function addLanguage($language) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->language($language);
-        $collectionRolesRecord = array_fill_keys ($this->collections_roles_info['cols'] , NULL );
+        $collectionRolesRecord = array_fill_keys($this->collections_roles_info['cols'] , null);
         $collectionRolesRecord[$this->collections_roles_info['primary'][2]] = $language;
         $collectionRolesRecord[$this->collections_roles_info['primary'][1]] = $this->roles_id;
         $this->collectionRoles[$language] = $collectionRolesRecord;
@@ -111,22 +110,22 @@ class Opus_Collection_Roles {
     /**
      * Updating collection-role.
      *
-     * @param   $collectionRolesRecords A collection-role array
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @param array(string => array(string => mixed) $collectionRolesRecords A collection-role array
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     public function update($collectionRolesRecords){
         // For every given language
         foreach ($collectionRolesRecords as $language => $collectionRolesRecord) {
             // Is the language code valid for this record?
-            if (!isset($this->collectionRoles[$language])) {
+            if (isset($this->collectionRoles[$language]) === false) {
                 throw new InvalidArgumentException("Unknown language code '$language'.");
             }
             // For every given attribute
             foreach ($collectionRolesRecord as $attribute => $content) {
-                if (in_array($attribute, $this->collections_roles_info['primary'])) {
+                if (in_array($attribute, $this->collections_roles_info['primary']) === true) {
                     throw new InvalidArgumentException('Primary key attributes may not be updated.');
-                } elseif (!in_array($attribute, $this->collections_roles_info['cols'])) {
+                } else if (in_array($attribute, $this->collections_roles_info['cols']) === false) {
                     throw new InvalidArgumentException("Unknown attribute '$attribute'.");
                 }
                 $this->collectionRoles[$language][$attribute] = $content;
@@ -182,16 +181,15 @@ class Opus_Collection_Roles {
                 $db = Zend_Registry::get('db_adapter');
                 $selectMaxId = $db->select()
                                 ->from($this->collections_roles_info['name'],
-                                'MAX('.$this->collections_roles_info['primary'][1].')')
-                ;
-                $this->roles_id = $db->fetchOne($selectMaxId) + 1;
+                                'MAX(' . $this->collections_roles_info['primary'][1] . ')');
+                $this->roles_id = ($db->fetchOne($selectMaxId) + 1);
             }
             // Delete outdated database records
             $this->collections_roles->delete($this->collections_roles_info['primary'][1] . ' = ' . $this->roles_id);
             // Insert updated database records
-            foreach ($this->collectionRoles as $language=>$record) {
+            foreach ($this->collectionRoles as $language => $record) {
                 foreach ($record as $index => $attribute) {
-                    if ($attribute === NULL) {
+                    if ($attribute === null) {
                         unset ($record[$index]);
                     }
                 }
