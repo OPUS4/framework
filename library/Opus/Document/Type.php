@@ -152,7 +152,7 @@ class Opus_Document_Type {
      * Datatype for referring to a collection.
      *
      */
-    const DT_COLLECTION  = 180;
+    const DT_COLLECTION  = 190;
     
     
     
