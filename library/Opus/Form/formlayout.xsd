@@ -50,8 +50,6 @@
 	<complexType name="FormLayoutType">
 		<sequence maxOccurs="unbounded">
 			<choice maxOccurs="unbounded">
-				<element name="field" type="opus:FieldType" />
-				<element name="group" type="opus:GroupType" />
 				<element name="page" type="opus:PageType" />
 			</choice>
 		</sequence>
