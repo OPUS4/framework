@@ -39,12 +39,18 @@
  *
  * It also specifies the fields and datatypes that can be used with Opus_Document and provides
  * validation facilities for them.
- *
+ * 
  * @category Framework
  * @package  Opus_Document
  */
 class Opus_Document_Type {
 
+    /**
+     * Name of the registry key holding the array of all registered document types.
+     *
+     */
+    const ZEND_REGISTRY_KEY = 'Opus_Document_Type';
+    
     /**
      * Datatype for textfields.
      *
@@ -297,7 +303,7 @@ class Opus_Document_Type {
     protected $_name = '';
     
     /**
-     * Initialize an instance with an XML document type specification.
+     * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
      * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
      *                                the document type specification.
@@ -365,6 +371,15 @@ class Opus_Document_Type {
         } catch (Exception $ex) {
             throw new Opus_Document_Exception('Failure while parsing the XML definition: ' . $ex->getMessage());
         }
+        
+        // Register
+        $registry = Zend_Registry::getInstance();
+        if ($registry->isRegistered(self::ZEND_REGISTRY_KEY) === false) {
+            $registry->set(self::ZEND_REGISTRY_KEY, array());            
+        }
+        $registered = $registry->get(self::ZEND_REGISTRY_KEY);
+        $registered[$this->_name] = $this;
+        $registered = $registry->set(self::ZEND_REGISTRY_KEY, $registered);
     }
 
 

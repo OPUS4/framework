@@ -44,6 +44,18 @@
  */
 class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
+    
+    /**
+     * Drop the Zend_Registry.
+     *
+     * @return void
+     */
+    public function setUp() {
+        Zend_Registry::_unsetInstance();
+    }
+    
+    
+    
     /**
      * Data provider for invalid creation arguments.
      *
@@ -430,5 +442,69 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('doctoral_thesis', $type->getName(), 'Name returned is wrong.');         
     }
     
+    
+    /**
+     * Test if no type is registered initially.
+     *
+     * @return void
+     */
+    public function testRegistryIsInitiallyEmpty() {
+        $registry = Zend_Registry::getInstance();
+        $this->assertFalse($registry->isRegistered(Opus_Document_Type::ZEND_REGISTRY_KEY), 'Registry is not initially empty.');
+    }
+    
+    /**
+     * Test if successfully creating a type registers it in the Zend Registry. 
+     *
+     * @return void
+     */
+    public function testTypeGetsRegisteredInZendRegistry() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <mandatory type="one-at-least">
+                        <field name="completed_year" languageoption="off" />
+                        <field name="completed_date" languageoption="off" />
+                    </mandatory>
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        
+        // Check if the type is registered.
+        $registry = Zend_Registry::getInstance();
+        $registered = $registry->get(Opus_Document_Type::ZEND_REGISTRY_KEY);
+        $this->assertArrayHasKey('doctoral_thesis', $registered, 'Document type has not been registered.');
+    }
+    
+    /**
+     * Test if a type specification gets overwritten when another one gets registered
+     * under the same name.  
+     *
+     * @return void
+     */
+    public function testTypeOverrideInRegistry() {
+        $xml1 = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                </documenttype>';
+        $type1 = new Opus_Document_Type($xml1);
+        $xml2 = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                </documenttype>';
+        $type2 = new Opus_Document_Type($xml2);
+        
+        // Check if the type2 is registered.
+        $registry = Zend_Registry::getInstance();
+        $registered = $registry->get(Opus_Document_Type::ZEND_REGISTRY_KEY);
+        $result = $registered['doctoral_thesis'];                
+        $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
+        $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
+    }
     
 }
