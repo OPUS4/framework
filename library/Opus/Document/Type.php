@@ -423,7 +423,7 @@ class Opus_Document_Type {
     /**
      * Get name of document type. 
      *
-     * @return void
+     * @return string Layout name.
      */
     public function getName() {
         return $this->_name;
