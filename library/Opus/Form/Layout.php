@@ -41,7 +41,12 @@
  */
 class Opus_Form_Layout {
 
-
+    /**
+     * Name of the registry key holding the array of all registered layouts.
+     *
+     */
+    const ZEND_REGISTRY_KEY = 'Opus_Form_Layout';
+    
     /**
      * Holds all page definitions that make up a form.
      *
@@ -53,6 +58,13 @@ class Opus_Form_Layout {
      */
     protected $_pages = array();
 
+    /**
+     * Name of the layout.
+     *
+     * @var string
+     */
+    protected $_name = '';
+    
     /**
      * Reads an arbitrary XML source, whether it is an string, path or DOMDocument and
      * provides the specified form layout in an Opus_Form_Layout instance.
@@ -119,6 +131,16 @@ class Opus_Form_Layout {
         try {
             $layout = new Opus_Form_Layout();
             $layout->_parse($document);
+            
+            // Register
+            $registry = Zend_Registry::getInstance();
+            if ($registry->isRegistered(self::ZEND_REGISTRY_KEY) === false) {
+                $registry->set(self::ZEND_REGISTRY_KEY, array());            
+            }
+            $registered = $registry->get(self::ZEND_REGISTRY_KEY);
+            $registered[$layout->_name] = $layout;
+            $registered = $registry->set(self::ZEND_REGISTRY_KEY, $registered);
+            
             return $layout;
         } catch (Exception $ex) {
             throw new Opus_Form_Exception('Failure while parsing the XML definition: ' . $ex->getMessage());
@@ -134,6 +156,9 @@ class Opus_Form_Layout {
      * 
      */
     protected function _parse(DOMDocument $dom) {
+        // Set name of layout
+        $root = $dom->getElementsByTagName('formlayout')->item(0);
+        $this->_name = $root->attributes->getNamedItem('name')->value;
         
         // Add pages.        
         $pages = $dom->getElementsByTagName('page');
@@ -160,6 +185,15 @@ class Opus_Form_Layout {
         
     }
 
+    /**
+     * Get name of this layout. 
+     *
+     * @return string Layout name.
+     */
+    public function getName() {
+        return $this->_name;
+    }
+    
     /**
      * Add a page layout element.
      *

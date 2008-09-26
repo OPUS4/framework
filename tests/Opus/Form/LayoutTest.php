@@ -349,4 +349,69 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         }
     }
     
+    /**
+     * Test if successfully creating a layout registers it in the Zend Registry. 
+     *
+     * @return void
+     */
+    public function testLayoutGetsRegisteredInZendRegistry() {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="publish">
+                    <field name="document_type" />
+                    <field name="licences_id" />
+                    <field name="language" />
+                </page>
+            </formlayout>';
+        
+        // Clear out the registry.
+        Zend_Registry::_unsetInstance();
+        
+        $layout = Opus_Form_Layout::fromXml($xml);
+        
+        // Check if the layout is registered.
+        $registry = Zend_Registry::getInstance();
+        $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
+        $this->assertArrayHasKey('general', $registered, 'Layout has not been registered.');
+    }
+    
+    /**
+     * Test if a layout specification gets overwritten when another one gets registered
+     * under the same name.  
+     *
+     * @return void
+     */
+    public function testLayoutOverrideInRegistry() {
+        // Clear out the registry.
+        Zend_Registry::_unsetInstance();
+
+        // Register layouts
+        $xml1 = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="publish">
+                    <field name="document_type" />
+                    <field name="licences_id" />
+                    <field name="language" />
+                </page>
+            </formlayout>';
+        $layout1 = Opus_Form_Layout::fromXml($xml1);
+        $xml2 = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="publish">
+                    <field name="document_type" />
+                </page>
+            </formlayout>';
+        $layout2 = Opus_Form_Layout::fromXml($xml2);
+        
+        // Check if the layout2 is registered.
+        $registry = Zend_Registry::getInstance();
+        $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
+        $result = $registered['general'];                
+        $this->assertNotSame($layout1, $result, 'Second attempt to register layout did not override the old type.');
+        $this->assertSame($layout2, $result, 'Second attempt to register layout did not override the old type.');
+    }
+    
 }
