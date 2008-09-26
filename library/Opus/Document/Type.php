@@ -290,6 +290,13 @@ class Opus_Document_Type {
     );
 
     /**
+     * Name of the document type.
+     *
+     * @var string
+     */
+    protected $_name = '';
+    
+    /**
      * Initialize an instance with an XML document type specification.
      *
      * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
@@ -369,6 +376,11 @@ class Opus_Document_Type {
      * @return void
      */
     protected function _parse(DOMDocument $dom) {
+        // Set name of document type
+        $root = $dom->getElementsByTagName('documenttype')->item(0);
+        $this->_name = $root->attributes->getNamedItem('name')->value;
+
+        // Parse fields.
         $fields=$dom->getElementsByTagName('field');
         $fieldsdef = &$this->_definition['fields'];
         foreach ($fields as $field) {
@@ -392,6 +404,15 @@ class Opus_Document_Type {
         }
     }
 
+    
+    /**
+     * Get name of document type. 
+     *
+     * @return void
+     */
+    public function getName() {
+        return $this->_name;
+    }
 
     /**
      * Retrieve the complete list of fields that are available within Opus.

@@ -413,4 +413,22 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         Opus_Document_Type::validate(array('novalidfieldname' => 'somevalue'));
     }
 
+    
+    /**
+     * Test if the name of the document type can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetName() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $this->assertEquals('doctoral_thesis', $type->getName(), 'Name returned is wrong.');         
+    }
+    
+    
 }
