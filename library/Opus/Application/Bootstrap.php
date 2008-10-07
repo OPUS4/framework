@@ -260,6 +260,9 @@ class Opus_Application_Bootstrap {
         $view = new Zend_View;
         $view->setEncoding('UTF-8');
 
+        // Set doctype to XHTML1 strict
+        $view->doctype('XHTML1_STRICT');
+
         // Set path to Zend extension view helpers to be accessible in other
         // modules too.
         $libRealPath = realpath(self::$applicationRootDirectory . '/../library');
