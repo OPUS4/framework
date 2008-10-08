@@ -462,6 +462,8 @@ class Opus_Document_Type {
      * Zend_Validate_Interface in correspondance to the defined datatype of the field.
      *
      * @param string|integer $par Name of the field or DT_* constant.
+     *                            A field name may contain '.' to select sub fields in complex 
+     *                            field types, like mycomplexfield.mysubfield.  
      * @throws InvalidArgumentException If the specified type or field name is invalid.
      *
      * @return Zend_Validate_Interface Validator instance. Null is returned if no
@@ -471,16 +473,29 @@ class Opus_Document_Type {
     public static function getValidatorFor($par) {
 
         if (is_integer($par) === true) {
+            // $par is an field type constant number.
             $type = $par;
-        } else if (is_string($par) === true) {
+        } else if ((empty($par) === false) and (is_string($par) === true)) {
+            // $par is an field name.
+            
+            // Decompose complex field names.
+            $nameparts = explode('.', $par);
+            
             // get field description
-            if (array_key_exists($par, self::$__fields) === false) {
+            if (array_key_exists($nameparts[0], self::$__fields) === false) {
                 throw new InvalidArgumentException($par . ' is not a valid field name.');
-            } 
-            $desc = self::$__fields[$par];
+            }
+            
+            $desc = self::$__fields[array_shift($nameparts)];
+            
+            // Get type of subfield if specified
+            foreach ($nameparts as $namepart) {
+               $desc = $desc['fields'][$namepart]; 
+            }
+                            
             $type = $desc['type'];
         } else {
-            throw new InvalidArgumentException($par . ' is not a valid field type.');
+            throw new InvalidArgumentException($par . ' is not a valid field type or field type name.');
         }
 
         switch ($type) {

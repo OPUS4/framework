@@ -112,6 +112,20 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
 
+    
+    /**
+     * Date provider for returning compound fieldnames and expected validator type names.
+     *
+     * @return array Array of field names and expected validator names.
+     * 
+     */
+    public function compoundFieldNameDataProvider() {
+        return array(
+            array('title_abstract.language', 'Opus_Validate_Locale'),
+            array('note.scope', 'Opus_Validate_NoteScope')
+        );
+    }
+    
     /**
      * Test if an InvalidArgumentException occurs.
      *
@@ -303,6 +317,22 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
     }
     
+    /**
+     * Test if the validator for a field contained within a complex field
+     * can be retrieved by referencing its name in a <complex>.<field> schema.
+     *
+     * @param string $exp_fieldname Compound fieldname.
+     * @param string $exp_validator Expected validator class name.
+     * @return void
+     * 
+     * @dataProvider compoundFieldNameDataProvider
+     */
+    public function testGetValidatorForCompoundFieldName($exp_fieldname, $exp_validator) {
+        $validator = Opus_Document_Type::getValidatorFor($exp_fieldname);
+        $this->assertNotNull($validator, 'No validator returned.');
+        $this->assertType($exp_validator, $validator, 'Returned object is not a ' . $exp_validator . ' instance.');
+    }
+
     /**
      * Test if attempt to retrieve an validator for an unknown fieldname throws an
      * InvalidArgumentException().
