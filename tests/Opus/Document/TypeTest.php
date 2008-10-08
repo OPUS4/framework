@@ -221,56 +221,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields = Opus_Document_Type::getAvailableFields();
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fname);
-
-            if (is_null($validator) === false) {
-                $this->assertTrue($validator instanceof Zend_Validate_Interface,
-                'Returned object does not implement Zend_Validate_Interface');
-
-                switch ($fdesc['type']) {
-                    case Opus_Document_Type::DT_NUMBER:
-                        $expected = 'Zend_Validate_Int';
-                        break;
-
-                    case Opus_Document_Type::DT_DATE:
-                        $expected = 'Opus_Validate_InstanceOf';
-                        break;
-
-                    case Opus_Document_Type::DT_LANGUAGE:
-                        $expected = 'Opus_Validate_Locale';
-                        break;
-
-                    case Opus_Document_Type::DT_ISBN_10:
-                        $expected = 'Opus_Validate_Isbn10';
-                        break;
-
-                    case Opus_Document_Type::DT_ISBN_13:
-                        $expected = 'Opus_Validate_Isbn13';
-                        break;
-
-                    case Opus_Document_Type::DT_DOCUMENTTYPE:
-                        $expected = 'Opus_Validate_DocumentType';
-                        break;
-
-                    case Opus_Document_Type::DT_REVIEWTYPE:
-                        $expected = 'Opus_Validate_ReviewType';
-                        break;
-
-                    case Opus_Document_Type::DT_NOTESCOPE:
-                        $expected = 'Opus_Validate_NoteScope';
-                        break;
-
-                    case Opus_Document_Type::DT_BOOLEAN:
-                        $expected = 'Opus_Validate_Boolean';
-                        break;
-
-                    default:
-                        $expected = 'Opus_Validate_ComplexType';
-                        break;
-                }
-
-                $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
-            }
-        }
+            $this->checkType($fdesc['type'], $validator);
+        }    
     }
 
     /**
@@ -284,58 +236,72 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields = Opus_Document_Type::getAvailableFields();
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fdesc['type']);
-
-            if (is_null($validator) === false) {
-                $this->assertTrue($validator instanceof Zend_Validate_Interface,
-                'Returned object does not implement Zend_Validate_Interface');
-
-                switch ($fdesc['type']) {
-                    case Opus_Document_Type::DT_NUMBER:
-                        $expected = 'Zend_Validate_Int';
-                        break;
-
-                    case Opus_Document_Type::DT_DATE:
-                        $expected = 'Opus_Validate_InstanceOf';
-                        break;
-
-                    case Opus_Document_Type::DT_LANGUAGE:
-                        $expected = 'Opus_Validate_Locale';
-                        break;
-
-                    case Opus_Document_Type::DT_ISBN_10:
-                        $expected = 'Opus_Validate_Isbn10';
-                        break;
-
-                    case Opus_Document_Type::DT_ISBN_13:
-                        $expected = 'Opus_Validate_Isbn13';
-                        break;
-
-                    case Opus_Document_Type::DT_DOCUMENTTYPE:
-                        $expected = 'Opus_Validate_DocumentType';
-                        break;
-
-                    case Opus_Document_Type::DT_REVIEWTYPE:
-                        $expected = 'Opus_Validate_ReviewType';
-                        break;
-
-                    case Opus_Document_Type::DT_NOTESCOPE:
-                        $expected = 'Opus_Validate_NoteScope';
-                        break;
-
-                    case Opus_Document_Type::DT_BOOLEAN:
-                        $expected = 'Opus_Validate_Boolean';
-                        break;
-
-                    default:
-                        $expected = 'Opus_Validate_ComplexType';
-                        break;
-                }
-
-                $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
-            }
+            $this->checkType($fdesc['type'], $validator);            
         }
     }
 
+    /**
+     * Helper function for testGetValidatorsByFieldType() and testGetValidatorsByFieldName().
+     * Checks field-type, validator pair.
+     *
+     * @param mixed $type Opus_Document_Type constant.
+     * @param mixed $validator Object to validate if it is a correct validator instance.
+     * @return void
+     */
+    private function checkType($type, $validator) {
+        if (is_null($validator) === false) {
+            $this->assertTrue($validator instanceof Zend_Validate_Interface,
+                'Returned object does not implement Zend_Validate_Interface');
+
+            switch ($type) {
+                case Opus_Document_Type::DT_NUMBER:
+                    $expected = 'Zend_Validate_Int';
+                    break;
+
+                case Opus_Document_Type::DT_DATE:
+                    $expected = 'Opus_Validate_InstanceOf';
+                    $expected_classname = 'Zend_Date';
+                    break;
+
+                case Opus_Document_Type::DT_LANGUAGE:
+                    $expected = 'Opus_Validate_Locale';
+                    break;
+
+                case Opus_Document_Type::DT_ISBN_10:
+                    $expected = 'Opus_Validate_Isbn10';
+                    break;
+
+                case Opus_Document_Type::DT_ISBN_13:
+                    $expected = 'Opus_Validate_Isbn13';
+                    break;
+
+                case Opus_Document_Type::DT_DOCUMENTTYPE:
+                    $expected = 'Opus_Validate_DocumentType';
+                    break;
+
+                case Opus_Document_Type::DT_REVIEWTYPE:
+                    $expected = 'Opus_Validate_ReviewType';
+                    break;
+
+                case Opus_Document_Type::DT_NOTESCOPE:
+                    $expected = 'Opus_Validate_NoteScope';
+                    break;
+
+                case Opus_Document_Type::DT_BOOLEAN:
+                    $expected = 'Opus_Validate_Boolean';
+                    break;
+
+                default:
+                    $expected = 'Opus_Validate_ComplexType';
+                    break;
+            }
+            $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
+            if (($expected === 'Opus_Validate_InstanceOf') and (isset($expected_classname) === true)) {
+                $this->assertEquals($expected_classname, $validator->getExpectedClassName(),
+                        'Returned class name is wrong.');
+            }
+        }
+    }
     
     /**
      * Test if attempt to retrieve an validator for an unknown fieldname throws an
