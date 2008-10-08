@@ -503,4 +503,102 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
     }
     
+    /**
+     * Test if the languageoption can be queried when initially specified in
+     * the types describing xml.
+     *
+     * @return void
+     */
+    public function testGetLanguageOptionWhenGivenByXml() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <mandatory type="one-at-least">
+                        <field name="completed_year" languageoption="off" />
+                        <field name="completed_date" languageoption="off" />
+                    </mandatory>
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        
+        $this->assertArrayHasKey('languageoption', $fields['language'], 'Languageoption attribute is missing.');
+        $this->assertEquals('off', $fields['language']['languageoption'], 'Languageoption attribute has wrong value.');
+    }
+
+    /**
+     * Test if the multiplicity attribute can be queried when initially specified in
+     * the types describing xml.
+     *
+     * @return void
+     */
+    public function testGetMultiplicityWhenGivenByXml() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <mandatory type="one-at-least">
+                        <field name="completed_year" languageoption="off" />
+                        <field name="completed_date" languageoption="off" />
+                    </mandatory>
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        
+        $this->assertArrayHasKey('multiplicity', $fields['language'], 'Multiplicity attribute is missing.');
+        $this->assertEquals('*', $fields['language']['multiplicity'], 'Multiplicity attribute has wrong value.');
+    }
+
+    
+    /**
+     * Test if the mandatory attribute can be queried when initially specified in
+     * the types describing xml.
+     *
+     * @return void
+     */
+    public function testGetMandatoryWhenGivenByXml() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" mandatory="yes" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        
+        $this->assertArrayHasKey('mandatory', $fields['language'], 'Mandatory attribute is missing.');
+        $this->assertEquals('yes', $fields['language']['mandatory'], 'Mandatory attribute has wrong value.');
+    }
+    
+    
+    /**
+     * Test if the languageoption and multiplicity can be queried when *not* initially 
+     * specified in the types describing xml.
+     *
+     * @return void
+     */
+    public function testGetOptionsWhenDefault() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="language" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+
+        // Languageoption default is "off".
+        $this->assertArrayHasKey('languageoption', $fields['language'], 'Languageoption attribute is missing.');
+        $this->assertEquals('off', $fields['language']['languageoption'], 'Languageoption attribute has wrong value.');
+
+        // Multiplicity default is "1".
+        $this->assertArrayHasKey('multiplicity', $fields['language'], 'Multiplicity attribute is missing.');
+        $this->assertEquals('1', $fields['language']['multiplicity'], 'Multiplicity attribute has wrong value.');
+        
+        // Mandatory default is "no".
+        $this->assertArrayHasKey('mandatory', $fields['language'], 'Mandatory attribute is missing.');
+        $this->assertEquals('no', $fields['language']['mandatory'], 'Mandatory attribute has wrong value.');
+    }
 }

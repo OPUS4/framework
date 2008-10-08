@@ -410,12 +410,33 @@ class Opus_Document_Type {
             }
             // and if so, put into this types fieldlist
             $fieldsdef[$fieldname] = array();
+            
+            // Check for attributes and set values or defaults respectivly.
+
             if (is_null($multiplicity) === false) {
-                $fieldsdef[$fieldname]['multiplicity'] = $multiplicity->value;
+                 $multiplicity = $multiplicity->value;
+            } else {
+                // Defined so in the schema.
+                $multiplicity = '1';
             }
+
             if (is_null($languageoption) === false) {
-                $fieldsdef[$fieldname]['languageoption'] = $languageoption->value;
+                 $languageoption = $languageoption->value;
+            } else {
+                // Defined so in the schema.
+                $languageoption = 'off';
             }
+            
+            if (is_null($mandatory) === false) {
+                 $mandatory = $mandatory->value;
+            } else {
+                // Defined so in the schema.
+                $mandatory = 'no';
+            }
+            
+            $fieldsdef[$fieldname]['multiplicity'] = $multiplicity;
+            $fieldsdef[$fieldname]['languageoption'] = $languageoption;
+            $fieldsdef[$fieldname]['mandatory'] = $mandatory;
         }
     }
 
