@@ -95,5 +95,15 @@ class Opus_Validate_InstanceOfTest extends PHPUnit_Framework_TestCase {
         $validator = new Opus_Validate_InstanceOf(self::CLASS_EXPECTED);
         $this->assertFalse($validator->isValid($arg), $msg);
     }
+    
+    /**
+     * Test if the name of the class the validator checks for can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetExpectedClassName() {
+        $validator = new Opus_Validate_InstanceOf(self::CLASS_EXPECTED);
+        $this->assertEquals(self::CLASS_EXPECTED, $validator->getExpectedClassName(), 'Returned class name is not correct.');
+    }
 
 }

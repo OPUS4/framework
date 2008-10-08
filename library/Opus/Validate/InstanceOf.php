@@ -84,6 +84,15 @@ class Opus_Validate_InstanceOf extends Zend_Validate_Abstract {
         }
         $this->_classname = $classname;
     }
+
+    /**
+     * Return the name of the class objects get validated against.
+     *
+     * @return string Classname.
+     */
+    public function getExpectedClassName() {
+        return $this->_classname;
+    }
     
     /**
      * Validate the given object instance.
