@@ -37,7 +37,7 @@
  *
  * @category Tests
  * @package  Opus_Form
- * 
+ *
  * @group    LayoutTest
  */
 class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
@@ -143,10 +143,10 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($elements, 'Null returned; expected array of page elements.');
         $this->assertArrayHasKey('MyGroup', $elements, 'Added group is not element of page.');
     }
-    
+
     /**
      * Test if attempt to add a group to a non-existent page throws an
-     * exception. 
+     * exception.
      *
      * @return void
      */
@@ -155,11 +155,11 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = new Opus_Form_Layout();
         $layout->addPage('MyPage')->addGroup('MyGroup', 'my_page');
     }
-    
+
     /**
      * Test if calling getPageElements() with non-existent page raises an
      * exception.
-     * 
+     *
      * @return void
      *
      */
@@ -168,14 +168,14 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = new Opus_Form_Layout();
         $layout->addPage('MyPage')
             ->addGroup('MyGroup', 'MyPage');
-        
+
         $layout->getPageElements('my_page');
     }
-    
+
     /**
      * Test if calling getPageElements() with no page raises an
      * exception.
-     * 
+     *
      * @return void
      *
      */
@@ -184,7 +184,6 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = new Opus_Form_Layout();
         $layout->getPageElements('');
     }
-    
 
     /**
      * Test adding a field.
@@ -199,8 +198,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($elements, 'Result should not be null.');
         $this->assertContains('MyField',$elements, 'Field has not been added.');
     }
-    
-    
+
     /**
      * Test adding a field.
      *
@@ -216,7 +214,6 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('MyField',$elements['MyGroup'], 'Field has not been added.');
     }
 
-    
     /**
      * Test adding a field to a group or page that not exist.
      *
@@ -229,8 +226,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
             ->addGroup('MyGroup', 'MyPage')
             ->addField('MyField', 'my_unknown_group');
     }
-    
-    
+
     /**
      * Test if adding a field without giving a caption raises an
      * InvalidArgumentException.
@@ -242,8 +238,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = new Opus_Form_Layout();
         $layout->addField('', '');
     }
-    
-    
+
     /**
      * Test initializing the layout by XML document.
      *
@@ -260,15 +255,15 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
                 </page>
             </formlayout>';
         $layout = Opus_Form_Layout::fromXml($xml);
-        
+
         // Check layout instance
         $this->assertNotNull($layout, 'No instance returned.');
         $this->assertTrue($layout instanceof Opus_Form_Layout, 'Returned object is not of type Opus_Form_Layout.');
-        
+
         // Check parsed page specificatio
         $pages = $layout->getPages();
         $this->assertContains('publish', $pages, 'Page specification is not present.');
-        
+
         // Check page elements
         $elements = $layout->getPageElements('publish');
         $this->assertFalse(empty($elements), 'No page elements returned.');
@@ -277,7 +272,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('licences_id', $elements, 'Missing second field.');
         $this->assertContains('language', $elements, 'Missing third field.');
     }
-    
+
     /**
      * Test loading invalid XML document throws exception.
      *
@@ -294,7 +289,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Form_Exception');
         $layout = Opus_Form_Layout::fromXml($xml);
     }
-    
+
     /**
      * Test loading and validating an XML file source.
      *
@@ -303,10 +298,10 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
     public function testLoadXmlFromFile() {
         $path = dirname(__FILE__) . '/LayoutTest.xml';
         $layout = Opus_Form_Layout::fromXml($path);
-        
+
         $this->__assertLayoutXmlPages($layout);
     }
-    
+
     /**
      * Test if attempt to read from an non-existing file throws an exception.
      *
@@ -317,7 +312,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $path = dirname(__FILE__) . '/WRONG.xml';
         $layout = Opus_Form_Layout::fromXml($path);
     }
-    
+
     /**
      * Test if passing a DOMDocument instance works.
      *
@@ -330,7 +325,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = Opus_Form_Layout::fromXml($dom);
         $this->__assertLayoutXmlPages($layout);
     }
-    
+
     /**
      * Check some assertions related to test XML file.
      *
@@ -341,16 +336,16 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         // Check if some pages where loaded.
         $pages = $layout->getPages();
         $this->assertEquals(4, count($pages), 'Too few pages returned.');
-        
+
         // Check that every page contains some elements.
         foreach ($pages as $page) {
             $elements = $layout->getPageElements($page);
             $this->assertFalse(empty($elements), 'No page elements returned.');
         }
     }
-    
+
     /**
-     * Test if successfully creating a layout registers it in the Zend Registry. 
+     * Test if successfully creating a layout registers it in the Zend Registry.
      *
      * @return void
      */
@@ -364,21 +359,21 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
                     <field name="language" />
                 </page>
             </formlayout>';
-        
+
         // Clear out the registry.
         Zend_Registry::_unsetInstance();
-        
+
         $layout = Opus_Form_Layout::fromXml($xml);
-        
+
         // Check if the layout is registered.
         $registry = Zend_Registry::getInstance();
         $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
         $this->assertArrayHasKey('general', $registered, 'Layout has not been registered.');
     }
-    
+
     /**
      * Test if a layout specification gets overwritten when another one gets registered
-     * under the same name.  
+     * under the same name.
      *
      * @return void
      */
@@ -405,13 +400,46 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
                 </page>
             </formlayout>';
         $layout2 = Opus_Form_Layout::fromXml($xml2);
-        
+
         // Check if the layout2 is registered.
         $registry = Zend_Registry::getInstance();
         $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
-        $result = $registered['general'];                
+        $result = $registered['general'];
         $this->assertNotSame($layout1, $result, 'Second attempt to register layout did not override the old type.');
         $this->assertSame($layout2, $result, 'Second attempt to register layout did not override the old type.');
     }
-    
+
+    /**
+     * Test if field elements belong to correct group. Should failed until fixed.
+     *
+     */
+    public function testFieldsBelonToCorrectGroup() {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="author">
+                    <group name="g1">
+                        <field name="person_author" />
+                        <field name="person_advisor" />
+                    </group>
+                </page>
+                <page name="publisher">
+                    <group name="g1">
+                        <field name="publisher_name" />
+                        <field name="publisher_university" />
+                    </group>
+                </page>
+            </formlayout>';
+        $layout = Opus_Form_Layout::fromXml($xml);
+        $author = $layout->getPageElements('author');
+        $publisher = $layout->getPageElements('publisher');
+        $this->assertArrayHasKey('g1', $author, 'Group g1 is not element from author.');
+        $this->assertArrayHasKey('g1', $publisher, 'Group g1 is not element from page author.');
+        $g1_author = $author['g1'];
+        $this->assertContains('person_author', $g1_author, 'Field person_author is not element from group g1 of page author.');
+        $this->assertContains('person_advisor', $g1_author, 'Field person_advisor is not element from group g1 of page author.');
+        $g1_publisher = $publisher['g1'];
+        $this->assertContains('publisher_name', $g1_publisher, 'Field publisher_name is not element from group g1 of page publisher.');
+        $this->assertContains('publisher_university', $g1_publisher, 'Field publisher_university is not element from group g1 of page publisher.');
+    }
 }
