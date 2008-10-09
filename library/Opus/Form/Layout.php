@@ -179,8 +179,20 @@ class Opus_Form_Layout {
         $fields = $dom->getElementsByTagName('field');
         foreach ($fields as $field) {
             $fieldname = $field->attributes->getNamedItem('name')->value;
-            $parentname = $field->parentNode->attributes->getNamedItem('name')->value;
-            $this->addField($fieldname, $parentname); 
+            
+            // Determine the path to the parent element.
+            $parent = $field->parentNode;
+            $parentparent = null;
+            if ($parent->localName === 'group') {
+                $parentparent = $parent->parentNode;
+            }
+            $targetname = $parent->attributes->getNamedItem('name')->value;
+            if (is_null($parentparent) === false) {
+                $targetname = $parentparent->attributes->getNamedItem('name')->value
+                    . '.' . $targetname;
+            }
+            
+            $this->addField($fieldname, $targetname); 
         }
         
     }
@@ -266,6 +278,8 @@ class Opus_Form_Layout {
      *
      * @param string $caption Name and caption of the field.
      * @param string $target  Name and caption of the element that shall hold the field.
+     *                        If the target element is a group element within a page, a path expression
+     *                        like <pagename>.<groupname> can be used to select it.
      * @throws InvalidArgumentException Thrown if caption is missing.
      * @throws Opus_Form_Exception      Thrown if a page or group with the given targetname does not exist.
      * @return Opus_Form_Layout Provides a fluent interface.
@@ -274,7 +288,22 @@ class Opus_Form_Layout {
         if (empty($caption) === true) {
             throw new InvalidArgumentException('Field caption has not been given.');
         }
-        $element =& $this->findElementByKey($target, &$this->_pages);
+        
+        // Select parent of the target element.
+        
+        // By default this is the root array of all pages.   
+        $parent_element =& $this->_pages;
+        
+        // Build path to $target
+        $targetpath = explode('.', $target);
+        $targetname = $targetpath[0];
+        if (empty($targetpath[1]) === false) {
+            // Find parent element
+            $parent_element =& $this->findElementByKey($targetpath[0], &$this->_pages);
+            $targetname = $targetpath[1];
+        }
+        
+        $element =& $this->findElementByKey($targetname, $parent_element);
         if (is_null($element) === true) {
             throw new Opus_Form_Exception('Element ' . $target . ' does not exist.');
         }

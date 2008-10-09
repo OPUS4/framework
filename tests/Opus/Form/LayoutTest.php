@@ -215,6 +215,22 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test adding a field by using a path expression for the target parameter.
+     *
+     * @return void
+     */
+    public function testAddFieldToGroupByPathExpression() {
+        $layout = new Opus_Form_Layout();
+        $layout->addPage('MyPage')
+            ->addGroup('MyGroup', 'MyPage')
+            ->addField('MyField', 'MyPage.MyGroup');
+        $elements = $layout->getPageElements('MyPage');
+        $this->assertNotNull($elements, 'Result should not be null.');
+        $this->assertContains('MyField',$elements['MyGroup'], 'Field has not been added.');
+    }
+    
+    
+    /**
      * Test adding a field to a group or page that not exist.
      *
      * @return void
@@ -410,10 +426,11 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if field elements belong to correct group. Should failed until fixed.
+     * Test if field elements belong to correct group.
      *
+     * @return void
      */
-    public function testFieldsBelonToCorrectGroup() {
+    public function testFieldsBelongToCorrectGroup() {
         $xml = '<?xml version="1.0" encoding="UTF-8"?>
             <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -433,13 +450,13 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $layout = Opus_Form_Layout::fromXml($xml);
         $author = $layout->getPageElements('author');
         $publisher = $layout->getPageElements('publisher');
-        $this->assertArrayHasKey('g1', $author, 'Group g1 is not element from author.');
-        $this->assertArrayHasKey('g1', $publisher, 'Group g1 is not element from page author.');
+        $this->assertArrayHasKey('g1', $author, 'Group g1 is not element of author.');
+        $this->assertArrayHasKey('g1', $publisher, 'Group g1 is not element of page author.');
         $g1_author = $author['g1'];
-        $this->assertContains('person_author', $g1_author, 'Field person_author is not element from group g1 of page author.');
-        $this->assertContains('person_advisor', $g1_author, 'Field person_advisor is not element from group g1 of page author.');
+        $this->assertContains('person_author', $g1_author, 'Field person_author is not element of group g1 (page author).');
+        $this->assertContains('person_advisor', $g1_author, 'Field person_advisor is not element of group g1 (page author).');
         $g1_publisher = $publisher['g1'];
-        $this->assertContains('publisher_name', $g1_publisher, 'Field publisher_name is not element from group g1 of page publisher.');
-        $this->assertContains('publisher_university', $g1_publisher, 'Field publisher_university is not element from group g1 of page publisher.');
+        $this->assertContains('publisher_name', $g1_publisher, 'Field publisher_name is not element of group g1 (page publisher).');
+        $this->assertContains('publisher_university', $g1_publisher, 'Field publisher_university is not element of group g1 (page publisher).');
     }
 }
