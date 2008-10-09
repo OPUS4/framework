@@ -39,7 +39,7 @@
  *
  * It also specifies the fields and datatypes that can be used with Opus_Document and provides
  * validation facilities for them.
- * 
+ *
  * @category Framework
  * @package  Opus_Document
  */
@@ -50,7 +50,7 @@ class Opus_Document_Type {
      *
      */
     const ZEND_REGISTRY_KEY = 'Opus_Document_Type';
-    
+
     /**
      * Datatype for textfields.
      *
@@ -263,22 +263,22 @@ class Opus_Document_Type {
                 'creator'   => array('type' => self::DT_TEXT),
                 'scope'     => array('type' => self::DT_NOTESCOPE))),
 
-        'person_advisor' => array('type' => self::DT_PERSON,
+        'person_advisor' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
 
-        'person_author' => array('type' => self::DT_PERSON,
+        'person_author' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
 
-        'person_other' => array('type' => self::DT_PERSON,
+        'person_other' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
 
-        'person_referee' => array('type' => self::DT_PERSON,
+        'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => array(
                 'first_name' => array('type' => self::DT_TEXT),
                 'last_name' => array('type' => self::DT_TEXT))),
@@ -301,7 +301,7 @@ class Opus_Document_Type {
      * @var string
      */
     protected $_name = '';
-    
+
     /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
@@ -371,11 +371,11 @@ class Opus_Document_Type {
         } catch (Exception $ex) {
             throw new Opus_Document_Exception('Failure while parsing the XML definition: ' . $ex->getMessage());
         }
-        
+
         // Register
         $registry = Zend_Registry::getInstance();
         if ($registry->isRegistered(self::ZEND_REGISTRY_KEY) === false) {
-            $registry->set(self::ZEND_REGISTRY_KEY, array());            
+            $registry->set(self::ZEND_REGISTRY_KEY, array());
         }
         $registered = $registry->get(self::ZEND_REGISTRY_KEY);
         $registered[$this->_name] = $this;
@@ -410,7 +410,7 @@ class Opus_Document_Type {
             }
             // and if so, put into this types fieldlist
             $fieldsdef[$fieldname] = array();
-            
+
             // Check for attributes and set values or defaults respectivly.
 
             if (is_null($multiplicity) === false) {
@@ -426,23 +426,23 @@ class Opus_Document_Type {
                 // Defined so in the schema.
                 $languageoption = 'off';
             }
-            
+
             if (is_null($mandatory) === false) {
                  $mandatory = $mandatory->value;
             } else {
                 // Defined so in the schema.
                 $mandatory = 'no';
             }
-            
+
             $fieldsdef[$fieldname]['multiplicity'] = $multiplicity;
             $fieldsdef[$fieldname]['languageoption'] = $languageoption;
             $fieldsdef[$fieldname]['mandatory'] = $mandatory;
         }
     }
 
-    
+
     /**
-     * Get name of document type. 
+     * Get name of document type.
      *
      * @return string Layout name.
      */
@@ -483,8 +483,8 @@ class Opus_Document_Type {
      * Zend_Validate_Interface in correspondance to the defined datatype of the field.
      *
      * @param string|integer $par Name of the field or DT_* constant.
-     *                            A field name may contain '.' to select sub fields in complex 
-     *                            field types, like mycomplexfield.mysubfield.  
+     *                            A field name may contain '.' to select sub fields in complex
+     *                            field types, like mycomplexfield.mysubfield.
      * @throws InvalidArgumentException If the specified type or field name is invalid.
      *
      * @return Zend_Validate_Interface Validator instance. Null is returned if no
@@ -498,22 +498,22 @@ class Opus_Document_Type {
             $type = $par;
         } else if ((empty($par) === false) and (is_string($par) === true)) {
             // $par is an field name.
-            
+
             // Decompose complex field names.
             $nameparts = explode('.', $par);
-            
+
             // get field description
             if (array_key_exists($nameparts[0], self::$__fields) === false) {
                 throw new InvalidArgumentException($par . ' is not a valid field name.');
             }
-            
+
             $desc = self::$__fields[array_shift($nameparts)];
-            
+
             // Get type of subfield if specified
             foreach ($nameparts as $namepart) {
-               $desc = $desc['fields'][$namepart]; 
+               $desc = $desc['fields'][$namepart];
             }
-                            
+
             $type = $desc['type'];
         } else {
             throw new InvalidArgumentException($par . ' is not a valid field type or field type name.');
