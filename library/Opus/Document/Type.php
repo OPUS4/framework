@@ -409,7 +409,7 @@ class Opus_Document_Type {
                 throw new Opus_Document_Exception('"' . $fieldname . '" is not a valid field name');
             }
             // and if so, put into this types fieldlist
-            $fieldsdef[$fieldname] = array();
+            $fieldsdef[$fieldname] = self::$__fields[$fieldname];
 
             // Check for attributes and set values or defaults respectivly.
 

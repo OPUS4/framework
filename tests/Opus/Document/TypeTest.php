@@ -369,7 +369,45 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->assertArrayHasKey($e_fieldname, $fields, 'Expected field ' . $e_fieldname . ' is missing.');
         }
     }
+    
+    
+    /**
+     * Test if the sub fields of a complex field can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetSubFieldsOfDefinedComplexField() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="person_author" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        $person_author = $fields['person_author'];
+        $this->assertArrayHasKey('fields', $person_author, 'Sub fields expected.');
+    }
 
+    /**
+     * Test if the type of a complex field can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetTypeOfDefinedComplexField() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="person_author" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        $person_author = $fields['person_author'];
+        $this->assertArrayHasKey('type', $person_author, 'Type definition expected.');
+    }
+    
+    
     /**
      * Test if correct field value passes validation.
      *
