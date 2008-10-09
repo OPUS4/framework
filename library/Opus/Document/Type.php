@@ -233,25 +233,25 @@ class Opus_Document_Type {
                 'value'     => array('type' => self::DT_TEXT),
                 'language'  => array('type' => self::DT_LANGUAGE))),
 
-        'subject_swd' => array('type' => self::DT_SUBJECT_SWD,
+        'subject_swd' => array('type' => self::DT_SUBJECT_SWD, 'multiplicity' => '*',
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
                 'external_key'  => array('type' => self::DT_TEXT))),
 
-        'subject_ddc' => array('type' => self::DT_SUBJECT_DDC,
+        'subject_ddc' => array('type' => self::DT_SUBJECT_DDC, 'multiplicity' => '*',
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
                 'external_key'  => array('type' => self::DT_TEXT))),
 
-        'subject_psyndex' => array('type' => self::DT_SUBJECT_PSYNDEX,
+        'subject_psyndex' => array('type' => self::DT_SUBJECT_PSYNDEX, 'multiplicity' => '*',
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
                 'external_key'  => array('type' => self::DT_TEXT))),
 
-        'subject_uncontrolled'  => array('type' => self::DT_SUBJECT_UNCONTROLLED,
+        'subject_uncontrolled'  => array('type' => self::DT_SUBJECT_UNCONTROLLED, 'multiplicity' => '*',
             'fields' => array(
                 'value'         => array('type' => self::DT_TEXT),
                 'language'      => array('type' => self::DT_LANGUAGE),
