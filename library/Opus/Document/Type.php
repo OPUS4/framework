@@ -161,7 +161,6 @@ class Opus_Document_Type {
     const DT_COLLECTION  = 190;
 
 
-
     /**
      * This array internally defines all available fields with their corresponding types
      * and other flags. It is used to return all available fields and to guide the
@@ -175,113 +174,106 @@ class Opus_Document_Type {
     // Simple types with single values.
     // For each field multiplicity is assumed to equal 1.
 
-        'licences_id'               => array('type' => self::DT_NUMBER),
-        'range_id'                  => array('type' => self::DT_NUMBER),
+        'licences_id'               => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'range_id'                  => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'completed_date'            => array('type' => self::DT_DATE),
-        'completed_year'            => array('type' => self::DT_NUMBER),
+        'completed_date'            => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'completed_year'            => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'contributing_corporation'  => array('type' => self::DT_TEXT),
-        'creating_corporation'      => array('type' => self::DT_TEXT),
-        'date_accepted'             => array('type' => self::DT_DATE),
-        'document_type'             => array('type' => self::DT_DOCUMENTTYPE),
-        'edition'                   => array('type' => self::DT_NUMBER),
-        'issue'                     => array('type' => self::DT_TEXT),
-        'language'                  => array('type' => self::DT_LANGUAGE),
-        'identifier_isbn'           => array('type' => self::DT_ISBN_13),
+        'contributing_corporation'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'creating_corporation'      => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'date_accepted'             => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'document_type'             => array('type' => self::DT_DOCUMENTTYPE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'edition'                   => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'issue'                     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'language'                  => array('type' => self::DT_LANGUAGE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'identifier_isbn'           => array('type' => self::DT_ISBN_13, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'page_first'                => array('type' => self::DT_NUMBER),
-        'page_last'                 => array('type' => self::DT_NUMBER),
-        'page_number'               => array('type' => self::DT_NUMBER),
+        'page_first'                => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'page_last'                 => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'page_number'               => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'publication_status'        => array('type' => self::DT_NUMBER),
-        'published_date'            => array('type' => self::DT_DATE),
-        'published_year'            => array('type' => self::DT_NUMBER),
-        'publisher_name'            => array('type' => self::DT_TEXT),
-        'publisher_place'           => array('type' => self::DT_TEXT),
-        'publisher_university'      => array('type' => self::DT_NUMBER),
+        'publication_status'        => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'published_date'            => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'published_year'            => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'publisher_name'            => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'publisher_place'           => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'publisher_university'      => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'reviewed'                  => array('type' => self::DT_REVIEWTYPE),
-        'server_date_modified'      => array('type' => self::DT_DATE),
-        'server_date_published'     => array('type' => self::DT_DATE),
-        'server_date_unlocking'     => array('type' => self::DT_DATE),
-        'server_date_valid'         => array('type' => self::DT_DATE),
-        'source'                    => array('type' => self::DT_TEXT),
-        'swb_id'                    => array('type' => self::DT_NUMBER),
-        'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
-        'volume'                    => array('type' => self::DT_NUMBER),
+        'reviewed'                  => array('type' => self::DT_REVIEWTYPE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'server_date_modified'      => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'server_date_published'     => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'server_date_unlocking'     => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'server_date_valid'         => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'source'                    => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'swb_id'                    => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'vg_wort_pixel_url'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'volume'                    => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*'),
-        'non_institute_affiliation' => array('type' => self::DT_TEXT),
+        'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*', 'languageoption' => 'off'),
+        'non_institute_affiliation' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
 
-        'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*'),
+        'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*', 'languageoption' => 'off'),
 
     // Complex types with subsequent fields and multiple occurences.
 
-        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*',
+        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT),
-                'language'  => array('type' => self::DT_LANGUAGE))),
+                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*',
+        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT),
-                'language'  => array('type' => self::DT_LANGUAGE))),
+                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'title_parent' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*',
+        'title_parent' => array('type' => self::DT_TITLE_PARENT, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT),
-                'language'  => array('type' => self::DT_LANGUAGE))),
+                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'subject_swd' => array('type' => self::DT_SUBJECT_SWD, 'multiplicity' => '*',
+        'subject_swd' => array('type' => self::DT_SUBJECT_SWD, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => array(
-                'value'         => array('type' => self::DT_TEXT),
-                'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_TEXT))),
+                'value'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'external_key'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'subject_ddc' => array('type' => self::DT_SUBJECT_DDC, 'multiplicity' => '*',
+        'subject_ddc' => array('type' => self::DT_SUBJECT_DDC, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => array(
-                'value'         => array('type' => self::DT_TEXT),
-                'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_TEXT))),
+                'value'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'external_key'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'subject_psyndex' => array('type' => self::DT_SUBJECT_PSYNDEX, 'multiplicity' => '*',
+        'subject_psyndex' => array('type' => self::DT_SUBJECT_PSYNDEX, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => array(
-                'value'         => array('type' => self::DT_TEXT),
-                'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_TEXT))),
+                'value'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'external_key'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'subject_uncontrolled'  => array('type' => self::DT_SUBJECT_UNCONTROLLED, 'multiplicity' => '*',
+        'subject_uncontrolled'  => array('type' => self::DT_SUBJECT_UNCONTROLLED, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => array(
-                'value'         => array('type' => self::DT_TEXT),
-                'language'      => array('type' => self::DT_LANGUAGE),
-                'external_key'  => array('type' => self::DT_TEXT))),
+                'value'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'external_key'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'note' => array('type' => self::DT_NOTE, 'multiplicity' => '*',
+        'note' => array('type' => self::DT_NOTE, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'message'   => array('type' => self::DT_TEXT),
-                'creator'   => array('type' => self::DT_TEXT),
-                'scope'     => array('type' => self::DT_NOTESCOPE))),
+                'message'   => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'creator'   => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'scope'     => array('type' => self::DT_NOTESCOPE, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'person_advisor' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
+        'person_advisor' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'first_name' => array('type' => self::DT_TEXT),
-                'last_name' => array('type' => self::DT_TEXT))),
+                'first_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'last_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'person_author' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
+        'person_author' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'first_name' => array('type' => self::DT_TEXT),
-                'last_name' => array('type' => self::DT_TEXT))),
+                'first_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'last_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'person_other' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
+        'person_other' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'first_name' => array('type' => self::DT_TEXT),
-                'last_name' => array('type' => self::DT_TEXT))),
+                'first_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'last_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
 
-        'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
+        'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'first_name' => array('type' => self::DT_TEXT),
-                'last_name' => array('type' => self::DT_TEXT))),
+                'first_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+                'last_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
     );
 
 
@@ -301,6 +293,7 @@ class Opus_Document_Type {
      * @var string
      */
     protected $_name = '';
+
 
     /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
@@ -411,35 +404,89 @@ class Opus_Document_Type {
             // and if so, put into this types fieldlist
             $fieldsdef[$fieldname] = self::$__fields[$fieldname];
 
+
             // Check for attributes and set values or defaults respectivly.
 
             if (is_null($multiplicity) === false) {
-                 $multiplicity = $multiplicity->value;
+                $multiplicity = $multiplicity->value;
             } else {
                 // Defined so in the schema.
                 $multiplicity = '1';
             }
 
             if (is_null($languageoption) === false) {
-                 $languageoption = $languageoption->value;
+                $languageoption = $languageoption->value;
             } else {
                 // Defined so in the schema.
                 $languageoption = 'off';
             }
 
             if (is_null($mandatory) === false) {
-                 $mandatory = $mandatory->value;
+                $mandatory = $mandatory->value;
             } else {
                 // Defined so in the schema.
                 $mandatory = 'no';
             }
 
-            $fieldsdef[$fieldname]['multiplicity'] = $multiplicity;
-            $fieldsdef[$fieldname]['languageoption'] = $languageoption;
             $fieldsdef[$fieldname]['mandatory'] = $mandatory;
+
+            $fieldsdef[$fieldname]['multiplicity'] =
+                $this->filterFieldOption($fieldname, 'multiplicity', $multiplicity);
+            $fieldsdef[$fieldname]['languageoption'] =
+                $this->filterFieldOption($fieldname, 'languageoption', $languageoption);
         }
     }
 
+    /**
+     * Given a field name, option name and option value, the value gets filered
+     * so that it not exceed the limits given by the field declation. E.g. if
+     * an option "languageoption" can only be set to "off", an option value "on"
+     * will not pass the filter and instead "off" is returned.
+     *
+     * @param string $fieldname Name of the field the option is to set for.
+     * @param string $option    Name of the option.
+     * @param string $value     Value of the option.
+     * @return mixed Filtered option value.
+     */
+    private function filterFieldOption($fieldname, $option, $value) {
+
+        // Prepare to return unfiltered value.
+        $filtered = $value;
+
+        // Try to obtain field definition and valid option value.
+        $field =& self::$__fields[$fieldname];
+        if (array_key_exists($option, $field)) {
+            $optiondef = $field[$option];
+             
+            // Filter the value.
+            switch ($option) {
+                case 'multiplicity':
+                    if (is_numeric($optiondef) === true) {
+                        // restrict $value to bounded multiplicity
+                        if (is_int($value) === true) {
+                            if ($value > $optiondef) {
+                                $filtered = $optiondef;
+                            }
+                        } else {
+                            $filtered = $optiondef;
+                        }
+                    }
+                    break;
+
+                case 'languageoption':
+                    if ($optiondef === 'off') {
+                        // override $value when option is "off"
+                        $filtered = $optiondef;
+                    }
+                    break;
+
+                default:
+                    $filtered = $value;
+                    break;
+            }
+        }
+        return $filtered;
+    }
 
     /**
      * Get name of document type.
@@ -511,7 +558,7 @@ class Opus_Document_Type {
 
             // Get type of subfield if specified
             foreach ($nameparts as $namepart) {
-               $desc = $desc['fields'][$namepart];
+                $desc = $desc['fields'][$namepart];
             }
 
             $type = $desc['type'];
@@ -604,7 +651,6 @@ class Opus_Document_Type {
     public function getFields() {
         return $this->_definition['fields'];
     }
-
 
     /**
      * Validates fieldname-value pairs.

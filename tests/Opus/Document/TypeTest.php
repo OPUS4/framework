@@ -105,8 +105,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             array('language', 'üöä'),
             array('identifier_isbn', '978-3-:)-7657-2780-1'),
             array('reviewed', '-> deer'),
-            array('title_abstract', array('value' => 'This document is all about...', 'language' => null)),
-            array('subject_swd', array('value' => 'ABC', 'language' => null, 'external_key' => 'FOO')),
             array('note', array('message' => 'This one is good.', 'creator' => 'Doe, John', 'scope' => '!internal!'))
         );
     }
@@ -121,8 +119,22 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      */
     public function compoundFieldNameDataProvider() {
         return array(
-            array('title_abstract.language', 'Opus_Validate_Locale'),
             array('note.scope', 'Opus_Validate_NoteScope')
+        );
+    }
+    
+    /**
+     * Data provider for field and option names and values.
+     *
+     * @return array Array of field and option names and associated values.
+     * 
+     */
+    public function optionConstraintDataProvider() {
+        return array(
+            array('source','multiplicity', '*', '1'),
+            array('source','multiplicity', '12', '1'),
+            array('institute','multiplicity', '12', '12'),
+            array('source','languageoption', 'on', 'off')
         );
     }
     
@@ -576,7 +588,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="institute" multiplicity="12" languageoption="off" mandatory="yes" />
                     <mandatory type="one-at-least">
                         <field name="completed_year" languageoption="off" />
                         <field name="completed_date" languageoption="off" />
@@ -585,8 +597,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
         
-        $this->assertArrayHasKey('multiplicity', $fields['language'], 'Multiplicity attribute is missing.');
-        $this->assertEquals('*', $fields['language']['multiplicity'], 'Multiplicity attribute has wrong value.');
+        $this->assertArrayHasKey('multiplicity', $fields['institute'], 'Multiplicity attribute is missing.');
+        $this->assertEquals('12', $fields['institute']['multiplicity'], 'Multiplicity attribute has wrong value.');
     }
 
     
@@ -639,4 +651,67 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->assertArrayHasKey('mandatory', $fields['language'], 'Mandatory attribute is missing.');
         $this->assertEquals('no', $fields['language']['mandatory'], 'Mandatory attribute has wrong value.');
     }
+    
+    
+    /**
+     * Test if field option values in document type specifications are restricted
+     * to the actual datatypes option limits. E.g. if a datatype is given a
+     * multiplicity of 1, it has to be ensured that no document type specification
+     * sets the multiplicity of that particular field to "*".  
+     *
+     * @return void
+     * 
+     * @dataProvider optionConstraintDataProvider
+     */
+    public function testContraintOptionsCannotGoBeyondDatatypeLimits($field, $option, $value, $expected) {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="' . $field . '" ' . $option . '="' . $value . '"/>
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        
+        $this->assertEquals($expected, $fields[$field][$option],
+            '"' . $option . '" attribute value exceeds the possibilities of the datatype.');
+        
+    }
+    
+    /**
+     * Test if all field definitions come with their default options set.
+     *
+     * @return void
+     */
+    public function testDefaultOptions() {
+        $fields = Opus_Document_Type::getAvailableFields();
+        $result = $this->optionCheckHelper($fields);
+        $this->assertTrue($result, 'Default option missing for: ' . $result);
+    }
+    
+    /**
+     * Check if every field has its option values set. 
+     *
+     * @param array $fields Array of field definitions.
+     * @return boolean|string If all options are set correctly true is returned.
+     *                        If not, the name of the field with a missing default option is returned.
+     */
+    private function optionCheckHelper(array $fields) {
+        foreach ($fields as $fieldname => $fielddef) {
+            $subresult = true;
+            if (array_key_exists('fields', $fielddef)) {
+                $subresult = $this->optionCheckHelper($fielddef['fields']);
+                if (is_string($subresult) === true) {
+                    return $subresult;
+                }
+            }
+            if ((array_key_exists('multiplicity', $fielddef) === false) 
+                or (array_key_exists('languageoption', $fielddef) === false)
+                or ($subresult === false)) {
+                    return $fieldname;
+                }
+        }
+        return true;
+    }
+    
 }
