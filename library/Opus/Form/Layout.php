@@ -249,8 +249,8 @@ class Opus_Form_Layout {
     /**
      * Find a given key in an array and provide a reference to the associated element.
      *
-     * @param string $key      Key name.
-     * @param array  $haystack Array reference to search through.
+     * @param string $key       Key name.
+     * @param array  &$haystack Array reference to search through.
      * @return Reference Reference to the associated value if the key has been found. Otherwise
      *                   it returns an reference to "null".
      * 
@@ -260,7 +260,7 @@ class Opus_Form_Layout {
             if ($a_key === $key) {
                 return $a_value;
             }
-            if (is_array($a_value)) {
+            if (is_array($a_value) === true) {
                 $ref =& $this->findElementByKey($key, $a_value);
                 if (is_null($ref) === false) {
                     return $ref;
@@ -331,6 +331,8 @@ class Opus_Form_Layout {
      *  'credentials' => array('account', 'password'));
      *
      * @param string $page Name of a page.
+     * @throws InvalidArgumentException If no page caption has been given.
+     * @throws Opus_Form_Exception      If a page with the given caption has not been added yet.
      * @return array Associative array containing field and group elements.
      */
     public function getPageElements($page) {

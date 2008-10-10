@@ -270,7 +270,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * Helper function for testGetValidatorsByFieldType() and testGetValidatorsByFieldName().
      * Checks field-type, validator pair.
      *
-     * @param mixed $type Opus_Document_Type constant.
+     * @param mixed $type      Opus_Document_Type constant.
      * @param mixed $validator Object to validate if it is a correct validator instance.
      * @return void
      */
@@ -659,6 +659,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * multiplicity of 1, it has to be ensured that no document type specification
      * sets the multiplicity of that particular field to "*".  
      *
+     * @param string $field    Name of a field.
+     * @param string $option   Name of an field option.
+     * @param string $value    Option value assigned in document type definition.
+     * @param string $expected Expected outcome for option value.
      * @return void
      * 
      * @dataProvider optionConstraintDataProvider
@@ -699,7 +703,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     private function optionCheckHelper(array $fields) {
         foreach ($fields as $fieldname => $fielddef) {
             $subresult = true;
-            if (array_key_exists('fields', $fielddef)) {
+            if (array_key_exists('fields', $fielddef) === true) {
                 $subresult = $this->optionCheckHelper($fielddef['fields']);
                 if (is_string($subresult) === true) {
                     return $subresult;

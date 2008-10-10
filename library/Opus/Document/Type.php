@@ -455,7 +455,7 @@ class Opus_Document_Type {
 
         // Try to obtain field definition and valid option value.
         $field =& self::$__fields[$fieldname];
-        if (array_key_exists($option, $field)) {
+        if (array_key_exists($option, $field) === true) {
             $optiondef = $field[$option];
              
             // Filter the value.
