@@ -113,7 +113,7 @@ class Opus_Validate_MateDecoratorTest extends PHPUnit_Framework_TestCase {
         // Let all but one in the middle decide for invalidity.
         $decision = $decorated[round($count/2)]->isValid('notempty'); 
         for ($i=0; $i<$count; $i++) {
-            $decision = $decorated[$i]->isValid('');
+            $decision = ($decision and $decorated[$i]->isValid(''));
         }
 
         $this->assertTrue($decision, 'Group of mates agreed to wrong validation result');
