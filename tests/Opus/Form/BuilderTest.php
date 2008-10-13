@@ -49,7 +49,107 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateForm() {
-        $this->markTestIncomplete('Not implemented');
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="institute" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="test">
+                    <field name="institute" />
+                </page>
+            </formlayout>';
+
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+        $this->assertType('Zend_Form', $form);
+
+    }
+
+    /**
+     * Test if a form contain correct elements.
+     *
+     * @return void
+     */
+    public function testFormContainsElements() {
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="institute" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="test">
+                    <field name="institute" />
+                </page>
+            </formlayout>';
+
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+        $expected = array('submit', 'form');
+        $this->assertEquals($expected, array_keys($form->getElements()));
+    }
+
+    /**
+     * Test if a form contain correct subform.
+     *
+     * @return void
+     */
+    public function testFormContainSubform() {
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="institute" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="test">
+                    <field name="institute" />
+                </page>
+            </formlayout>';
+
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+        $expected = array('test');
+        $this->assertEquals($expected, array_keys($form->getSubForms()));
+    }
+
+    /**
+     * Test if a subform contain correct elements.
+     *
+     * @return void
+     */
+    public function testSubFormContainsElements() {
+                $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="institute" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="test">
+                    <field name="institute" />
+                </page>
+            </formlayout>';
+
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+        $subform = $form->getSubForm('test');
+        $expected = array('institute');
+        $this->assertEquals($expected, array_keys($subform->getElements()));
     }
 
     /**
@@ -58,6 +158,27 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRecreateForm() {
-        $this->markTestIncomplete('Not implemented');
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="institute" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="test">
+                    <field name="institute" />
+                </page>
+            </formlayout>';
+
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+
+        $data = $form->getValues();
+        $new_form = Opus_Form_Builder::recreateForm($data);
+        $this->assertType('Zend_Form', $new_form);
     }
+
 }

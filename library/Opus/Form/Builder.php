@@ -41,17 +41,188 @@
  */
 class Opus_Form_Builder {
 
+    /**
+     * Switch to encrypt form data instead of plain transmitting
+     *
+     * @var boolean
+     */
+    private static $encrypted_form = false;
+
+    protected static function generateSingleElement($elementdata, array $typeinfo) {
+        if (empty($elementdata) === true) {
+            throw new Opus_Form_Exception('Elementdata is empty.');
+        }
+        if (is_string($elementdata) === false) {
+            throw new Opus_Form_Exception('Elementdata is not a string.');
+        }
+        if (is_array($typeinfo) === false) {
+            throw new Opus_Form_Exception('Typeinfo is not an array.');
+        }
+        $result = array();
+        if (array_key_exists('fields', $typeinfo) === true) {
+            foreach ($typeinfo['fields'] as $key => $field) {
+                // if parent are mandatory then should childs mandatory too
+                if (array_key_exists('mandatory', $typeinfo) === true) {
+                    $field['mandatory'] = $typeinfo['mandatory'];
+                }
+                $result[] = self::generateSingleElement($key, $field);
+            }
+        } else {
+            $result['name'] = $elementdata;
+            // TODO use correct element types instead text for all
+            $result['type'] = 'text';
+            $result['validator'] = $typeinfo['type'];
+            if (array_key_exists('mandatory', $typeinfo) === true) {
+                $result['mandatory'] = $typeinfo['mandatory'];
+            } else {
+                $result['mandatory'] = false;
+            }
+        }
+        return $result;
+    }
+
+    private static function generateSubElements(array $elements, array $typefields) {
+        if (is_array($typefields) === false) {
+            throw new Opus_Form_Exception('Typefields is not an array.');
+        }
+        $result = array();
+        foreach ($elements as $key => $element) {
+            $res = array();
+            if (is_array($element) === true) {
+                $res['name'] = $key;
+                $res['elements'] = self::generateSubElements($element, $typefields);
+            } else {
+                $typeinfo = $typefields[$element];
+                if (is_array($typeinfo) === false) {
+                    throw new Opus_Form_Exception('Typeinfo is not an array.');
+                }
+                if (($typeinfo['multiplicity'] === '*') or ($typeinfo['multiplicity'] > 1)) {
+                    $res['name'] = $element;
+                    $res['add'] = true;
+                    $res['seq'] = 1;
+                    $res['maxmulti'] = $typeinfo['multiplicity'];
+                    $subelements =  self::generateSingleElement($element, $typeinfo);
+                    $res['elements'] = array(array('name' => 1, 'elements' => array($subelements)));
+                } else if (array_key_exists('fields', $typeinfo)) {
+                    $res['name'] = $element;
+                    $res['elements'] = self::generateSingleElement($element, $typeinfo);
+                } else {
+                    $res = self::generateSingleElement($element, $typeinfo);
+                }
+            }
+            $result[] = $res;
+        }
+        return $result;
+    }
+
+    protected static function build(array &$par, Zend_Form $container) {
+        $partype = '';
+        if ((array_key_exists('name', $par) === true) and (array_key_exists('type', $par) === true))  {
+            $partype = 'simple';
+            $name = $par['name'];
+            $type = $par['type'];
+            $options = array('label' => $name);
+            $validator = null;
+            if (array_key_exists('validator', $par) === true) {
+                    $validator = Opus_Document_Type::getValidatorFor($par['validator']);
+            }
+            $mandatory = '';
+            if (array_key_exists('mandatory', $par) === true) {
+                $mandatory = $par['mandatory'];
+            }
+        } else
+        if ((array_key_exists('name', $par) === true)
+        and (array_key_exists('elements', $par) === true)
+        and (count($par['elements'] > 0))) {
+            $partype = 'elementset';
+            $name = $par['name'];
+            $elementset = $par['elements'];
+            $add = '';
+            if (array_key_exists('add', $par) === true) {
+                $add = $par['add'];
+            }
+            $remove = '';
+            if (array_key_exists('remove', $par) === true) {
+                $remove = $par['remove'];
+            }
+        }
+
+        switch ($partype) {
+            case 'simple' :
+                $s = new Zend_Form_Element_Text($name);
+                $s->setOptions($options);
+                if (is_null($validator) === false) {
+                    $s->addValidator($validator);
+                }
+                if ($mandatory === "yes") {
+                    $s->setRequired(true);
+                }
+                $container->addElement($s);
+                break;
+
+            case 'elementset' :
+                if (is_numeric($name) === true) {
+                    $legendname = $name . '. ' . $container->getName();
+                } else {
+                    $legendname = $name;
+                }
+                $subform = new Zend_Form_SubForm(array('name' => $name, 'legend' => $legendname));
+                foreach ($elementset as $element) {
+                    self::build($element, $subform);
+                }
+                if (empty($add) === false) {
+                    $subform->addElement('submit', 'add_' . $name, array('label' => '+'));
+                }
+                if (empty($remove) === false) {
+                    $subform->addElement('submit', 'remove_' . $container->getName() . '_' . $name, array('label' => '-'));
+                }
+                $container->addSubForm($subform, $name);
+                break;
+
+            default:
+                foreach ($par as $a) {
+                    if (is_array($a) === true) {
+                        self::build($a, $container);
+                    }
+                }
+        }
+        return $container;
+    }
+
+    protected static function create(array &$daten) {
+        $form = self::build($daten, new Zend_Form());
+        $form->addElement('submit', 'submit', array('label' => 'transmit'));
+        if (self::$encrypted_form === true) {
+            $form->addElement('hidden', 'form', array('value' => base64_encode(bzcompress(serialize($daten)))));
+        } else {
+            $form->addElement('hidden', 'form', array('value' => serialize($daten)));
+        }
+        $form->setMethod('post');
+
+        return $form;
+    }
 
     /**
      * Create a Zend form object.
      *
-     * @param Opus_Document_Type $type Describe document type
-     * @param Opus_Form_Layout $layout Describe field arrangement
+     * @param Opus_Document_Type     $type    Describe document type
+     * @param Opus_Form_Layout       $layout  Describe field arrangement
      * @param Zend_Translate_Adapter $adapter Holds necessary translation messages
      * @return Zend_Form
      */
-    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout, Zend_Translate_Adapter $adapter) {
-        return true;
+    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout, Zend_Translate_Adapter $adapter = null) {
+        $documentname = $type->getName();
+        $typefields = $type->getFields();
+        $pages = $layout->getPages();
+        $layout_group = array();
+        foreach ($pages as $page) {
+            $lp = array();
+            $lp['name'] = $page;
+            $subelements = $layout->getPageElements($page);
+            $lp['elements'] = self::generateSubElements($subelements, $typefields);
+            $layout_group[] = $lp;
+        }
+        return self::create($layout_group);
     }
 
     /**
@@ -60,7 +231,113 @@ class Opus_Form_Builder {
      * @param array $daten Contains submitted data including work action for recreating the form object
      * @return Zend_Form
      */
-    public static function recreateForm(array $daten) {
-        return true;
+    public static function recreateForm(array &$daten) {
+        if (self::$encrypted_form === true)  {
+            $form = unserialize(bzdecompress(base64_decode($daten['form'])));
+        } else {
+            $form = unserialize($daten['form']);
+        }
+
+        $action = '';
+
+        $remove_data = self::findPathToKey('remove_', $daten);
+        if (is_array($remove_data) === true) {
+            $action = 'remove';
+            $path = array_reverse($remove_data);
+        }
+
+        $add_data = self::findPathToKey('add_', $daten);
+        if (is_array($add_data) === true) {
+            $action = 'add';
+            $path = array_reverse($add_data);
+        }
+
+        switch ($action) {
+            case 'add':
+                $element =& self::findElementByPath($path, $form);
+                if (array_key_exists('seq', $element) === false) {
+                    $element['seq'] = 1;
+                }
+                if (($element['maxmulti'] === '*') or (count($element['elements']) < $element['maxmulti'])) {
+                    $element['seq']++;
+                    $new_element = $element['elements'][0];
+                    $new_element['name'] = $element['seq'];
+                    $new_element['remove'] = true;
+                    $element['elements'][] = $new_element;
+                }
+                if (($element['maxmulti'] !== '*') and (count($element['elements']) === (int) $element['maxmulti'])) {
+                    $element['add'] = false;
+                }
+
+                break;
+
+            case 'remove':
+                $remove_name = array_pop($path);
+                $element =& self::findElementByPath($path, $form);
+                $subelements =& $element['elements'];
+                foreach($subelements as $work_key => $work_element) {
+                    if ($work_element['name'] === $remove_name) {
+                        unset($subelements[$work_key]);
+                        break;
+                    }
+                }
+                if (($element['maxmulti'] !== '*') and (count($element['elements']) < $element['maxmulti'])) {
+                        $element['add'] = true;
+                }
+                break;
+
+            default:
+                break;
+        }
+        return self::create($form);
+    }
+
+    /**
+     * Find a element (last element on path array) on a giving path and returns
+     * a reference to this element or null if not found.
+     *
+     * @param array $path     Contains path to searching element
+     * @param array $haystack Where to search
+     * @return unknown
+     */
+    protected static function &findElementByPath(array $path, array &$haystack) {
+        $path_name = array_shift($path);
+        foreach ($haystack as &$element) {
+            if ($path_name === $element['name']) {
+                if (count($path) === 0) {
+                    $ref = &$element;
+                    return $ref;
+                } else {
+                    return self::findElementByPath($path , $element['elements']);
+                }
+            }
+        }
+        $result = null;
+        return $result;
+    }
+
+    /**
+     * Search for key name (regular expression) on array and returns a list
+     * of names to this key or null if not found.
+     *
+     * @param string $keypattern Search expression
+     * @param array  $haystack   Where to search
+     * @return unknown
+     */
+    protected static function findPathToKey($keypattern, array &$haystack) {
+        foreach ($haystack as $a_key => &$a_value) {
+            if (preg_match('/' . $keypattern . '/', $a_key) === 1) {
+                return array();
+            }
+            if (is_array($a_value)) {
+                $ref = self::findPathToKey($keypattern, $a_value);
+                if (is_array($ref) === true) {
+                    $ref[] = $a_key;
+                    return $ref;
+                }
+            }
+        }
+        $result = null;
+        return $result;
     }
 }
