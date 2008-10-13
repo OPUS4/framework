@@ -586,7 +586,7 @@ class Opus_Document_Type {
                 break;
 
             case self::DT_DATE:
-                return new Opus_Validate_InstanceOf('Zend_Date');
+                return new Zend_Validate_Date();
                 break;
 
             case self::DT_LANGUAGE:

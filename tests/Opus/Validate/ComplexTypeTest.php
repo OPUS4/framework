@@ -74,7 +74,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
             array(array('yesno' => true, 'integer' => 4711)),
             array(array('yesno' => false, 'integer' => -100)),
             array(array('text' => 'no validation')),
-            array(array('date' => new Zend_Date()))
+            array(array('date' => '1999-12-12'))
         );
     }
 

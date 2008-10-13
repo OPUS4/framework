@@ -80,7 +80,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     public function validFieldDataProvider() {
         return array(
             array('completed_year', '1965'),
-            array('completed_date', new Zend_Date()),
+            array('completed_date', '1999-12-12'),
             array('document_type', 'article'),
             array('language', 'en'),
             array('identifier_isbn', '978-3-7657-2780-1'),
@@ -285,8 +285,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     break;
 
                 case Opus_Document_Type::DT_DATE:
-                    $expected = 'Opus_Validate_InstanceOf';
-                    $expected_classname = 'Zend_Date';
+                    $expected = 'Zend_Validate_Date';
                     break;
 
                 case Opus_Document_Type::DT_LANGUAGE:
@@ -322,10 +321,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     break;
             }
             $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
-            if (($expected === 'Opus_Validate_InstanceOf') and (isset($expected_classname) === true)) {
-                $this->assertEquals($expected_classname, $validator->getExpectedClassName(),
-                        'Returned class name is wrong.');
-            }
         }
     }
     
