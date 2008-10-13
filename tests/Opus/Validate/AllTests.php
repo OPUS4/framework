@@ -73,7 +73,6 @@ class Opus_Validate_AllTests {
         $suite->addTestSuite('Opus_Validate_BooleanTest');
         $suite->addTestSuite('Opus_Validate_ComplexTypeTest');
         $suite->addTestSuite('Opus_Validate_DocumentTypeTest');
-        $suite->addTestSuite('Opus_Validate_InstanceOfTest');
         $suite->addTestSuite('Opus_Validate_Isbn10Test');
         $suite->addTestSuite('Opus_Validate_Isbn13Test');
         $suite->addTestSuite('Opus_Validate_LocaleTest');
