@@ -684,8 +684,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      */
     public function testDefaultOptions() {
         $fields = Opus_Document_Type::getAvailableFields();
-        $result = $this->optionCheckHelper($fields);
-        $this->assertTrue($result, 'Default option missing for: ' . $result);
+        $this->optionCheckHelper($fields);
     }
     
     /**
@@ -700,14 +699,11 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $subresult = true;
             if (array_key_exists('fields', $fielddef) === true) {
                 $subresult = $this->optionCheckHelper($fielddef['fields']);
-                if (is_string($subresult) === true) {
-                    return $subresult;
-                }
             }
             if ((array_key_exists('multiplicity', $fielddef) === false) 
                 or (array_key_exists('languageoption', $fielddef) === false)
-                or ($subresult === false)) {
-                    return $fieldname;
+                or ($subresult !== true)) {
+                    $this->fail('Default option missing for: ' . $fieldname);
                 }
         }
         return true;

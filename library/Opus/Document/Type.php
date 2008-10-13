@@ -203,73 +203,73 @@ class Opus_Document_Type {
         
         // Describing the fieldset for subject data types.
         $fields_subject = array(
-        'value'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'external_key'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'));
+        'value'         => array('type' => self::DT_TEXT),
+        'external_key'  => array('type' => self::DT_TEXT));
 
         // Describing the fieldset for person data types.
         $fields_person = array(
-        'first_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'last_name' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'));
+        'first_name' => array('type' => self::DT_TEXT),
+        'last_name' => array('type' => self::DT_TEXT));
 
         self::$_fields_cache = array(
 
         // Simple types with single values.
         // For each field multiplicity is assumed to equal 1.
 
-        'licences_id'               => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'range_id'                  => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'licences_id'               => array('type' => self::DT_NUMBER),
+        'range_id'                  => array('type' => self::DT_NUMBER),
 
-        'completed_date'            => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'completed_year'            => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'completed_date'            => array('type' => self::DT_DATE),
+        'completed_year'            => array('type' => self::DT_NUMBER),
 
-        'contributing_corporation'  => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'creating_corporation'      => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'date_accepted'             => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'document_type'             => array('type' => self::DT_DOCUMENTTYPE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'edition'                   => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'issue'                     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'language'                  => array('type' => self::DT_LANGUAGE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'identifier_isbn'           => array('type' => self::DT_ISBN_13, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'contributing_corporation'  => array('type' => self::DT_TEXT),
+        'creating_corporation'      => array('type' => self::DT_TEXT),
+        'date_accepted'             => array('type' => self::DT_DATE),
+        'document_type'             => array('type' => self::DT_DOCUMENTTYPE),
+        'edition'                   => array('type' => self::DT_NUMBER),
+        'issue'                     => array('type' => self::DT_TEXT),
+        'language'                  => array('type' => self::DT_LANGUAGE),
+        'identifier_isbn'           => array('type' => self::DT_ISBN_13),
 
-        'page_first'                => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'page_last'                 => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'page_number'               => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'page_first'                => array('type' => self::DT_NUMBER),
+        'page_last'                 => array('type' => self::DT_NUMBER),
+        'page_number'               => array('type' => self::DT_NUMBER),
 
-        'publication_status'        => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'published_date'            => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'published_year'            => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'publisher_name'            => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'publisher_place'           => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'publisher_university'      => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'publication_status'        => array('type' => self::DT_NUMBER),
+        'published_date'            => array('type' => self::DT_DATE),
+        'published_year'            => array('type' => self::DT_NUMBER),
+        'publisher_name'            => array('type' => self::DT_TEXT),
+        'publisher_place'           => array('type' => self::DT_TEXT),
+        'publisher_university'      => array('type' => self::DT_NUMBER),
 
-        'reviewed'                  => array('type' => self::DT_REVIEWTYPE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'server_date_modified'      => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'server_date_published'     => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'server_date_unlocking'     => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'server_date_valid'         => array('type' => self::DT_DATE, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'source'                    => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'swb_id'                    => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'vg_wort_pixel_url'         => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-        'volume'                    => array('type' => self::DT_NUMBER, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'reviewed'                  => array('type' => self::DT_REVIEWTYPE),
+        'server_date_modified'      => array('type' => self::DT_DATE),
+        'server_date_published'     => array('type' => self::DT_DATE),
+        'server_date_unlocking'     => array('type' => self::DT_DATE),
+        'server_date_valid'         => array('type' => self::DT_DATE),
+        'source'                    => array('type' => self::DT_TEXT),
+        'swb_id'                    => array('type' => self::DT_NUMBER),
+        'vg_wort_pixel_url'         => array('type' => self::DT_TEXT),
+        'volume'                    => array('type' => self::DT_NUMBER),
 
-        'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*', 'languageoption' => 'off'),
-        'non_institute_affiliation' => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
+        'institute'                 => array('type' => self::DT_INSTITUTE, 'multiplicity' => '*'),
+        'non_institute_affiliation' => array('type' => self::DT_TEXT),
 
-        'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*', 'languageoption' => 'off'),
+        'collection'                => array('type' => self::DT_COLLECTION, 'multiplicity' => '*'),
 
         // Complex types with subsequent fields and multiple occurences.
 
         'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
+                'value'     => array('type' => self::DT_TEXT))),
 
         'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
+                'value'     => array('type' => self::DT_TEXT))),
 
         'title_parent' => array('type' => self::DT_TITLE_PARENT, 'multiplicity' => '*', 'languageoption' => 'on', 
             'fields' => array(
-                'value'     => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'))),
+                'value'     => array('type' => self::DT_TEXT))),
 
         'subject_swd' => array('type' => self::DT_SUBJECT_SWD, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => $fields_subject),
@@ -285,26 +285,49 @@ class Opus_Document_Type {
 
         'note' => array('type' => self::DT_NOTE, 'multiplicity' => '*', 'languageoption' => 'off',
             'fields' => array(
-                'message'   => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-                'creator'   => array('type' => self::DT_TEXT, 'multiplicity' => '1', 'languageoption' => 'off'),
-                'scope'     => array('type' => self::DT_NOTESCOPE, 'multiplicity' => '1', 'languageoption' => 'off'))),
+                'message'   => array('type' => self::DT_TEXT),
+                'creator'   => array('type' => self::DT_TEXT),
+                'scope'     => array('type' => self::DT_NOTESCOPE))),
 
-        'person_advisor' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
+        'person_advisor' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => $fields_person),
 
-        'person_author' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
+        'person_author' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => $fields_person),
 
-        'person_other' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
+        'person_other' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => $fields_person),
 
-        'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*', 'languageoption' => 'off',
+        'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => $fields_person),
         );
+        
+        // Set defaults
+        self::setOptionsRecursive(self::$_fields_cache, array('multiplicity' => '1', 'languageoption' => 'off'));
         
         return self::$_fields_cache;
     }
 
+
+    /**
+     * Set field options recursivly.
+     *
+     * @param array $fields  Array of fields to set options for.
+     * @param array $options Array of options to set.
+     */
+    static private function setOptionsRecursive(array &$fields, array $options) {
+        foreach ($fields as $fieldname=>&$field) {
+            foreach ($options as $option=>$value) {
+                if (array_key_exists($option, $field) === false) {
+                    $field[$option] = $value;
+                }
+            }
+            if (array_key_exists('fields', $field) === true) {
+                self::setOptionsRecursive($field['fields'], $options);
+            }
+        }
+    }
+    
 
     /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
