@@ -718,4 +718,17 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         return true;
     }
     
+    /**
+     * Prove that the core field definitions can not be modified by using a reference.
+     *
+     * @return void
+     */
+    public function testFieldDefinitionsIsNotReference() {
+        $fields1 = Opus_Document_Type::getAvailableFields();
+        $fields1['WRITE'] = 'THROUGH';
+         
+        $fields2 = Opus_Document_Type::getAvailableFields();
+        $this->assertNotEquals($fields1, $fields2, 'Reference to internal field returned.');
+    }
+    
 }
