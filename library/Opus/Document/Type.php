@@ -184,7 +184,7 @@ class Opus_Document_Type {
      * @var array
      */
     static protected $_fields_cache = null;
-    
+
     /**
      * Returns an array reference that internally defines all available fields with their
      * corresponding types and other flags. It is used to return all available
@@ -200,16 +200,19 @@ class Opus_Document_Type {
         if (is_null(self::$_fields_cache) === false) {
             return self::$_fields_cache;
         }
-        
+
         // Describing the fieldset for subject data types.
         $fields_subject = array(
-        'value'         => array('type' => self::DT_TEXT),
-        'external_key'  => array('type' => self::DT_TEXT));
+            'value'         => array('type' => self::DT_TEXT),
+            'external_key'  => array('type' => self::DT_TEXT));
 
         // Describing the fieldset for person data types.
         $fields_person = array(
-        'first_name' => array('type' => self::DT_TEXT),
-        'last_name' => array('type' => self::DT_TEXT));
+            'first_name' => array('type' => self::DT_TEXT),
+            'last_name' => array('type' => self::DT_TEXT),
+            'title' => array('type' => self::DT_TEXT),
+            'day_of_birth' => array('type' => self::DT_DATE),
+            'place_of_birth' => array('type' => self::DT_DATE));
 
         self::$_fields_cache = array(
 
@@ -301,16 +304,16 @@ class Opus_Document_Type {
         'person_referee' => array('type' => self::DT_PERSON, 'multiplicity' => '*',
             'fields' => $fields_person),
         );
-        
+
         // Set defaults
         self::setOptionsRecursive(self::$_fields_cache, array('multiplicity' => '1', 'languageoption' => 'off'));
-        
+
         return self::$_fields_cache;
     }
 
 
     /**
-     * Set field options recursivly.
+     * Set field options recursivly if they not already set.
      *
      * @param array $fields  Array of fields to set options for.
      * @param array $options Array of options to set.
@@ -327,7 +330,7 @@ class Opus_Document_Type {
             }
         }
     }
-    
+
 
     /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
@@ -488,7 +491,7 @@ class Opus_Document_Type {
         $filtered = $value;
 
         // Try to obtain field definition and valid option value.
-        $_fields = self::_fields(); 
+        $_fields = self::_fields();
         $field =& $_fields[$fieldname];
         if (array_key_exists($option, $field) === true) {
             $optiondef = $field[$option];
@@ -576,7 +579,7 @@ class Opus_Document_Type {
     public static function getValidatorFor($par) {
 
         $_fields = self::_fields();
-        
+
         if (is_integer($par) === true) {
             // $par is an field type constant number.
             $type = $par;
