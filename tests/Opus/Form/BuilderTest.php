@@ -153,6 +153,71 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test to build a more complex form
+     *
+     * @return void
+     */
+    public function testCreateComplexForm() {
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="person_author" multiplicity="*" mandatory="yes" />
+                    <field name="person_advisor" />
+                    <field name="completed_date" />
+                    <field name="institute" multiplicity="2" />
+                    <field name="publisher_name" mandatory="yes" multiplicity="*" />
+                    <field name="publisher_university" mandatory="yes" />
+                </documenttype>';
+        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="author">
+                    <group name="g1">
+                        <field name="person_author" />
+                        <field name="person_advisor" />
+                    </group>
+                    <field name="institute" />
+                    <field name="completed_date" />
+                </page>
+                <page name="publisher">
+                    <group name="g2">
+                        <field name="publisher_name" />
+                        <field name="publisher_university" />
+                    </group>
+                </page>
+            </formlayout>';
+        $type = new Opus_Document_Type($xmltype);
+        $layout = Opus_Form_Layout::fromXml($xmllayout);
+        $form = Opus_Form_Builder::createForm($type, $layout);
+        // form check
+        $this->assertType('Zend_Form', $form);
+        $subforms = $form->getSubForms();
+        $expected = array('author', 'publisher');
+        $this->assertEquals($expected, array_keys($subforms));
+        $elements = $form->getElements();
+        $expected = array('submit', 'form');
+        $this->assertEquals($expected, array_keys($elements));
+        // check subform author
+        $nestedsubforms = $form->author->getSubForms();
+        $expected = array('g1', 'institute');
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+        $nestedsubforms = $form->author->g1->getSubForms();
+        $expected = array('person_author', 'person_advisor');
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+        $elements = $form->author->getElements();
+        $expected = array('completed_date');
+        $this->assertEquals($expected, array_keys($elements));
+        // check subform publisher
+        $nestedsubforms = $form->publisher->getSubForms();
+        $expected = array('g2');
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+        $elements = $form->publisher->g2->getElements();
+        $expected = array('publisher_name', 'publisher_university');
+        $this->assertEquals($expected, array_keys($elements));
+    }
+
+    /**
      * Tries to recreate a form.
      *
      * @return void
