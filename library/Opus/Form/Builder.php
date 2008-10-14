@@ -98,7 +98,7 @@ class Opus_Form_Builder {
      * @throws Opus_Form_Exception Thrown if type information are not correct
      * @return array Returns an empty array if no elements or created elements
      */
-    private static function generateSubElements(array $elements, array $typefields) {
+    protected static function generateSubElements(array $elements, array $typefields) {
         if (count($typefields) === 0) {
             throw new InvalidArgumentException('Typefields is an empty array.');
         }
