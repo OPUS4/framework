@@ -48,15 +48,23 @@ class Opus_Form_Builder {
      */
     private static $encrypted_form = false;
 
+    /**
+     * Builds a single Element depending on type.
+     *
+     * @param string $elementdata Used as element name
+     * @param array  $typeinfo    Contains type informations for creating element
+     * @throws InvalidArgumentException Thrown if data not in necessary format
+     * @return array Returns an array with one element or a structure array on complex element
+     */
     protected static function generateSingleElement($elementdata, array $typeinfo) {
         if (empty($elementdata) === true) {
-            throw new Opus_Form_Exception('Elementdata is empty.');
+            throw new InvalidArgumentException('Elementdata is empty.');
         }
         if (is_string($elementdata) === false) {
-            throw new Opus_Form_Exception('Elementdata is not a string.');
+            throw new InvalidArgumentException('Elementdata is not a string.');
         }
         if (is_array($typeinfo) === false) {
-            throw new Opus_Form_Exception('Typeinfo is not an array.');
+            throw new InvalidArgumentException('Typeinfo is not an array.');
         }
         $result = array();
         if (array_key_exists('fields', $typeinfo) === true) {
@@ -81,9 +89,18 @@ class Opus_Form_Builder {
         return $result;
     }
 
+    /**
+     * Build current element and all subelements recursively
+     *
+     * @param array $elements   Contains all elements to create
+     * @param array $typefields Holds type information for this elements
+     * @throws InvalidArgumentException Thrown if parameters not in correct format
+     * @throws Opus_Form_Exception Thrown if type information are not correct
+     * @return array Returns an empty array if no elements or created elements
+     */
     private static function generateSubElements(array $elements, array $typefields) {
         if (is_array($typefields) === false) {
-            throw new Opus_Form_Exception('Typefields is not an array.');
+            throw new InvalidArgumentException('Typefields is not an array.');
         }
         $result = array();
         foreach ($elements as $key => $element) {
@@ -103,7 +120,7 @@ class Opus_Form_Builder {
                     $res['maxmulti'] = $typeinfo['multiplicity'];
                     $subelements =  self::generateSingleElement($element, $typeinfo);
                     $res['elements'] = array(array('name' => 1, 'elements' => array($subelements)));
-                } else if (array_key_exists('fields', $typeinfo)) {
+                } else if (array_key_exists('fields', $typeinfo) === true) {
                     $res['name'] = $element;
                     $res['elements'] = self::generateSingleElement($element, $typeinfo);
                 } else {
@@ -115,9 +132,16 @@ class Opus_Form_Builder {
         return $result;
     }
 
+    /**
+     * Build a form with Zend_Form.
+     *
+     * @param array     &$par      Array structure for building elements
+     * @param Zend_Form $container Container format
+     * @return Zend_Form Returns builded Zend_Form object
+     */
     protected static function build(array &$par, Zend_Form $container) {
         $partype = '';
-        if ((array_key_exists('name', $par) === true) and (array_key_exists('type', $par) === true))  {
+        if ((array_key_exists('name', $par) === true) and (array_key_exists('type', $par) === true)) {
             $partype = 'simple';
             $name = $par['name'];
             $type = $par['type'];
@@ -130,8 +154,7 @@ class Opus_Form_Builder {
             if (array_key_exists('mandatory', $par) === true) {
                 $mandatory = $par['mandatory'];
             }
-        } else
-        if ((array_key_exists('name', $par) === true)
+        } else if ((array_key_exists('name', $par) === true)
         and (array_key_exists('elements', $par) === true)
         and (count($par['elements'] > 0))) {
             $partype = 'elementset';
@@ -148,19 +171,19 @@ class Opus_Form_Builder {
         }
 
         switch ($partype) {
-            case 'simple' :
+            case 'simple':
                 $s = new Zend_Form_Element_Text($name);
                 $s->setOptions($options);
                 if (is_null($validator) === false) {
                     $s->addValidator($validator);
                 }
-                if ($mandatory === "yes") {
+                if ($mandatory === 'yes') {
                     $s->setRequired(true);
                 }
                 $container->addElement($s);
                 break;
 
-            case 'elementset' :
+            case 'elementset':
                 if (is_numeric($name) === true) {
                     $legendname = $name . '. ' . $container->getName();
                 } else {
@@ -185,10 +208,17 @@ class Opus_Form_Builder {
                         self::build($a, $container);
                     }
                 }
+                break;
         }
         return $container;
     }
 
+    /**
+     * Little helper function for creating and recreating of forms. Added all "standard" elements
+     *
+     * @param array &$daten Array structure for building elements
+     * @return Zend_Form Returns a form (Zend_Form) with submit button and serialized form information
+     */
     protected static function create(array &$daten) {
         $form = self::build($daten, new Zend_Form());
         $form->addElement('submit', 'submit', array('label' => 'transmit'));
@@ -207,7 +237,7 @@ class Opus_Form_Builder {
      *
      * @param Opus_Document_Type     $type    Describe document type
      * @param Opus_Form_Layout       $layout  Describe field arrangement
-     * @param Zend_Translate_Adapter $adapter Holds necessary translation messages
+     * @param Zend_Translate_Adapter $adapter (Optional) Holds necessary translation messages (not used yet)
      * @return Zend_Form
      */
     public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout, Zend_Translate_Adapter $adapter = null) {
@@ -222,17 +252,21 @@ class Opus_Form_Builder {
             $lp['elements'] = self::generateSubElements($subelements, $typefields);
             $layout_group[] = $lp;
         }
-        return self::create($layout_group);
+        $form = self::create($layout_group);
+        if (empty($adapter) === false) {
+            $form->setDefaultTranslator($adapter);
+        }
+        return $form;
     }
 
     /**
      * Recreate a Zend form object depending on submitted data and action.
      *
-     * @param array $daten Contains submitted data including work action for recreating the form object
+     * @param array &$daten Contains submitted data including work action for recreating the form object
      * @return Zend_Form
      */
     public static function recreateForm(array &$daten) {
-        if (self::$encrypted_form === true)  {
+        if (self::$encrypted_form === true) {
             $form = unserialize(bzdecompress(base64_decode($daten['form'])));
         } else {
             $form = unserialize($daten['form']);
@@ -268,14 +302,13 @@ class Opus_Form_Builder {
                 if (($element['maxmulti'] !== '*') and (count($element['elements']) === (int) $element['maxmulti'])) {
                     $element['add'] = false;
                 }
-
                 break;
 
             case 'remove':
                 $remove_name = array_pop($path);
                 $element =& self::findElementByPath($path, $form);
                 $subelements =& $element['elements'];
-                foreach($subelements as $work_key => $work_element) {
+                foreach ($subelements as $work_key => $work_element) {
                     if ($work_element['name'] === $remove_name) {
                         unset($subelements[$work_key]);
                         break;
@@ -287,6 +320,7 @@ class Opus_Form_Builder {
                 break;
 
             default:
+                // No Action necessary
                 break;
         }
         return self::create($form);
@@ -296,8 +330,8 @@ class Opus_Form_Builder {
      * Find a element (last element on path array) on a giving path and returns
      * a reference to this element or null if not found.
      *
-     * @param array $path     Contains path to searching element
-     * @param array $haystack Where to search
+     * @param array $path      Contains path to searching element
+     * @param array &$haystack Where to search
      * @return unknown
      */
     protected static function &findElementByPath(array $path, array &$haystack) {
@@ -321,7 +355,7 @@ class Opus_Form_Builder {
      * of names to this key or null if not found.
      *
      * @param string $keypattern Search expression
-     * @param array  $haystack   Where to search
+     * @param array  &$haystack  Where to search
      * @return unknown
      */
     protected static function findPathToKey($keypattern, array &$haystack) {
@@ -329,7 +363,7 @@ class Opus_Form_Builder {
             if (preg_match('/' . $keypattern . '/', $a_key) === 1) {
                 return array();
             }
-            if (is_array($a_value)) {
+            if (is_array($a_value) === true) {
                 $ref = self::findPathToKey($keypattern, $a_value);
                 if (is_array($ref) === true) {
                     $ref[] = $a_key;
