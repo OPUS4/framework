@@ -130,7 +130,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSubFormContainsElements() {
-                $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -339,4 +339,76 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertType('Zend_Form', $new_form);
     }
 
+    /**
+     * Test if adding a field works as expected
+     *
+     * @return void
+     */
+    public function testAddAdditionalField() {
+        $daten = array(
+            'test'=> array(
+                'institute' => array(
+                    1 => array(
+                        'institute' => ''
+                    ),
+                    'add_institute' => '+'
+                )
+            ),
+            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:3:"seq";i:1;s:8:"maxmulti";s:1:"*";s:8:"elements";a:1:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}}}}}}'
+        );
+        $form = Opus_Form_Builder::recreateForm($daten);
+        // general form check
+        $this->assertType('Zend_Form', $form);
+        $subforms = $form->getSubForms();
+        $expected = array('test');
+        $this->assertEquals($expected, array_keys($subforms));
+        $elements = $form->getElements();
+        $expected = array('submit', 'form');
+        $this->assertEquals($expected, array_keys($elements));
+        // subform 'test' checks
+        $nestedsubforms = $form->test->getSubForms();
+        $expected = array('institute');
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+        $nestedsubforms = $form->test->institute->getSubForms();
+        $expected = array(1, 2);
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+    }
+
+    /**
+     * Test if removing a field works as expected
+     *
+     * @return void
+     */
+    public function testRemoveAdditionalField() {
+        $daten = array(
+            'test'=> array(
+                'institute' => array(
+                    1 => array(
+                        'institute' => ''
+                    ),
+                    2 => array(
+                        'institute' => '',
+                        'remove_institute_2' => '-'
+                    )
+                )
+            ),
+            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:3:"seq";i:2;s:8:"maxmulti";s:1:"*";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}s:6:"remove";b:1;}}}}}}'
+        );
+        $form = Opus_Form_Builder::recreateForm($daten);
+        // general form check
+        $this->assertType('Zend_Form', $form);
+        $subforms = $form->getSubForms();
+        $expected = array('test');
+        $this->assertEquals($expected, array_keys($subforms));
+        $elements = $form->getElements();
+        $expected = array('submit', 'form');
+        $this->assertEquals($expected, array_keys($elements));
+        // subform 'test' checks
+        $nestedsubforms = $form->test->getSubForms();
+        $expected = array('institute');
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+        $nestedsubforms = $form->test->institute->getSubForms();
+        $expected = array(1);
+        $this->assertEquals($expected, array_keys($nestedsubforms));
+    }
 }
