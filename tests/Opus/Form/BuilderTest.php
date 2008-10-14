@@ -218,6 +218,36 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if an empty value could be used as an element data
+     *
+     * @return void
+     */
+    public function testEmptyElementdataForSingleElement() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('', array());
+    }
+
+    /**
+     * Test if element data is a string
+     *
+     * @return void
+     */
+    public function testNonStringDataOnElementdataForSingleElement() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate(1, array());
+    }
+
+    /**
+     * Test if typeinfo could be an empty array
+     *
+     * @return void
+     */
+    public function testEmptyArrayOnTypeinfoForSingleElement() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('test', array());
+    }
+
+    /**
      * Tries to recreate a form.
      *
      * @return void
