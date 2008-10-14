@@ -411,4 +411,16 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $expected = array(1);
         $this->assertEquals($expected, array_keys($nestedsubforms));
     }
+
+    /**
+     * Test findElementByPath if null is returned if nothing is found
+     *
+     * @return void
+     */
+    public function testNothingToFoundWithFindElementByPath() {
+        $path = array('test');
+        $haystack = array('name' => 'notfound');
+        $result = Opus_Form_BuilderDelegateHelper::findElementByPathDelegate($path, $haystack);
+        $this->assertNull($result);
+    }
 }

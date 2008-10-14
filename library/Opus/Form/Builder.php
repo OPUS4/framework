@@ -336,7 +336,7 @@ class Opus_Form_Builder {
      *
      * @param array $path      Contains path to searching element
      * @param array &$haystack Where to search
-     * @return unknown
+     * @return reference|null Null is returned if nothing is found else a reference to element
      */
     protected static function &findElementByPath(array $path, array &$haystack) {
         $path_name = array_shift($path);
@@ -360,7 +360,7 @@ class Opus_Form_Builder {
      *
      * @param string $keypattern Search expression
      * @param array  &$haystack  Where to search
-     * @return unknown
+     * @return array|null Null is returned if nothing is found else a path list
      */
     protected static function findPathToKey($keypattern, array &$haystack) {
         foreach ($haystack as $a_key => &$a_value) {

@@ -72,9 +72,20 @@ class Opus_Form_BuilderDelegateHelper extends Opus_Form_Builder {
      *
      * @param string $keypattern Parameter for method findPathToKey()
      * @param array  &$haystack  Parameter for method findPathToKey()
-     * @return unknown Return value of findPathToKey()
+     * @return array|null Return value of findPathToKey()
      */
     public static function findPathToKeyDelegate($keypattern, array &$haystack) {
         return self::findPathToKey($keypattern, $haystack);
+    }
+
+    /**
+     * Enable call to static protected method findElementByPath()
+     *
+     * @param array $path      Parameter for method findElementByPath()
+     * @param array &$haystack Parameter for method findElementByPath()
+     * @return reference|null Return value of findElementByPath
+     */
+    public static function &findElementByPathDelegate(array $path, array &$haystack) {
+        return self::findElementByPath($path, $haystack);
     }
 }
