@@ -109,6 +109,10 @@ class Opus_Form_Builder {
                 $res['name'] = $key;
                 $res['elements'] = self::generateSubElements($element, $typefields);
             } else {
+                if (array_key_exists($element, $typefields) === false) {
+                    // TODO What should happen if a element is defined in document layout but not in document type
+                    throw new Opus_Form_Exception('There are no information available for element: ' . $element);
+                }
                 $typeinfo = $typefields[$element];
                 if (is_array($typeinfo) === false) {
                     throw new Opus_Form_Exception('Typeinfo is not an array.');

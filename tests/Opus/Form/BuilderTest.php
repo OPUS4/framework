@@ -278,6 +278,16 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Raise an exception if an element is not available in typefield definition
+     *
+     * @return void
+     */
+    public function testElementNotAvailableInTypefields() {
+        $this->setExpectedException('Opus_Form_Exception');
+        Opus_Form_BuilderDelegateHelper::generateSubElementsDelegate(array('test2'), array('test' => 'blub'));
+    }
+
+    /**
      * Test what happened if keypattern is not found
      *
      * @return void
