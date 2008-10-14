@@ -63,8 +63,8 @@ class Opus_Form_Builder {
         if (is_string($elementdata) === false) {
             throw new InvalidArgumentException('Elementdata is not a string.');
         }
-        if (is_array($typeinfo) === false) {
-            throw new InvalidArgumentException('Typeinfo is not an array.');
+        if (count($typeinfo) === 0) {
+            throw new InvalidArgumentException('Typeinfo is an empty array.');
         }
         $result = array();
         if (array_key_exists('fields', $typeinfo) === true) {
@@ -99,8 +99,8 @@ class Opus_Form_Builder {
      * @return array Returns an empty array if no elements or created elements
      */
     private static function generateSubElements(array $elements, array $typefields) {
-        if (is_array($typefields) === false) {
-            throw new InvalidArgumentException('Typefields is not an array.');
+        if (count($typefields) === 0) {
+            throw new InvalidArgumentException('Typefields is an empty array.');
         }
         $result = array();
         foreach ($elements as $key => $element) {
