@@ -248,6 +248,59 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test what happend if typeinfo does not have key value mandatory
+     *
+     * @return void
+     */
+    public function testEmptyMandatoryOnTypeInfo() {
+        $result = Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('testname', array('type' => 'test'));
+        $this->assertEquals(false, $result['mandatory']);
+    }
+
+    /**
+     * Test to ensure typefields is not an empty array.
+     *
+     * @return void
+     */
+    public function testEmptyArrayOnTypefieldsForSubElements() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Form_BuilderDelegateHelper::generateSubElementsDelegate(array('test'), array());
+    }
+
+    /**
+     * Test that typeinfo is an array.
+     *
+     * @return void
+     */
+    public function testEmptyArrayOnTypeinfoInsideSubElements() {
+        $this->setExpectedException('Opus_Form_Exception');
+        Opus_Form_BuilderDelegateHelper::generateSubElementsDelegate(array('test'), array('test' => 'blub'));
+    }
+
+    /**
+     * Test what happened if keypattern is not found
+     *
+     * @return void
+     */
+    public function testNothingFoundOnFindPathToKey() {
+        $haystack = array('key' => 'value');
+        $result = Opus_Form_BuilderDelegateHelper::findPathToKeyDelegate('test', $haystack);
+        $this->assertNull($result);
+    }
+
+    /**
+     * Test that a deep search on haystack works.
+     *
+     * @return void
+     */
+    public function testDeepSearchOnFindPathToKey() {
+        $haystack = array('key' => 'value', 'key2' => array('name' => 'test2', 'deeper' => array('test' => 'info')));
+        $result = Opus_Form_BuilderDelegateHelper::findPathToKeyDelegate('test', $haystack);
+        $expected = array('deeper', 'key2');
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
      * Tries to recreate a form.
      *
      * @return void
