@@ -33,7 +33,7 @@
  * @version     $Id$
  */
 
-/*
+/**
  * Builds a form.
  * @category    Framework
  * @package     Opus_Form
@@ -47,6 +47,13 @@ class Opus_Form_Builder {
      * @var boolean
      */
     private static $encrypted_form = false;
+
+    /**
+     * Holds used type fields
+     *
+     * @var array
+     */
+    private static $usedfields = array();
 
     /**
      * Builds a single Element depending on type.
@@ -117,6 +124,7 @@ class Opus_Form_Builder {
                 if (is_array($typeinfo) === false) {
                     throw new Opus_Form_Exception('Typeinfo is not an array.');
                 }
+                self::$usedfields[] = $element;
                 if (($typeinfo['multiplicity'] === '*') or ($typeinfo['multiplicity'] > 1)) {
                     $res['name'] = $element;
                     $res['add'] = true;
@@ -240,22 +248,27 @@ class Opus_Form_Builder {
      * Create a Zend form object.
      *
      * @param Opus_Document_Type     $type    Describe document type
-     * @param Opus_Form_Layout       $layout  Describe field arrangement
+     * @param Opus_Form_Layout       $layout  (Optional) Describe field arrangement
      * @param Zend_Translate_Adapter $adapter (Optional) Holds necessary translation messages (not used yet)
      * @return Zend_Form
      */
-    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout, Zend_Translate_Adapter $adapter = null) {
+    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout = null, Zend_Translate_Adapter $adapter = null) {
         $documentname = $type->getName();
         $typefields = $type->getFields();
-        $pages = $layout->getPages();
         $layout_group = array();
-        foreach ($pages as $page) {
-            $lp = array();
-            $lp['name'] = $page;
-            $subelements = $layout->getPageElements($page);
-            $lp['elements'] = self::generateSubElements($subelements, $typefields);
-            $layout_group[] = $lp;
+        if (empty($layout) === false) {
+            $pages = $layout->getPages();
+            foreach ($pages as $page) {
+                $lp = array();
+                $lp['name'] = $page;
+                $subelements = $layout->getPageElements($page);
+                $lp['elements'] = self::generateSubElements($subelements, $typefields);
+                $layout_group[] = $lp;
+            }
         }
+        // add missing type fields to layout
+        $diff_array = array_diff(array_keys($typefields), self::$usedfields);
+        $layout_group= array_merge($layout_group, self::generateSubElements($diff_array, $typefields));
         $form = self::create($layout_group);
         if (empty($adapter) === false) {
             $form->setDefaultTranslator($adapter);
