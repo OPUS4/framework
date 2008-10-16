@@ -445,4 +445,28 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $result = Opus_Form_BuilderDelegateHelper::findElementByPathDelegate($path, $haystack);
         $this->assertNull($result);
     }
+
+    /**
+     * Corrupted serialized data should throw an exception.
+     *
+     * @return void
+     */
+    public function testUnserializeCorruptedForm() {
+        $daten = array(
+            'test'=> array(
+                'institute' => array(
+                    1 => array(
+                        'institute' => ''
+                    ),
+                    2 => array(
+                        'institute' => '',
+                        'remove_institute_2' => '-'
+                    )
+                )
+            ),
+            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;;s:8:"maxmulti";s:1:"*";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}s:6:"remove";b:1;}}}}}}'
+        );
+        $this->setExpectedException('Opus_Form_Exception');
+        $form = Opus_Form_Builder::recreateForm($daten);
+    }
 }

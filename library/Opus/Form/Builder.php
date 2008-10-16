@@ -226,11 +226,11 @@ class Opus_Form_Builder {
     protected static function create(array &$daten) {
         $form = self::build($daten, new Zend_Form());
         $form->addElement('submit', 'submit', array('label' => 'transmit'));
+        $daten = serialize($daten);
         if (self::$encrypted_form === true) {
-            $form->addElement('hidden', 'form', array('value' => base64_encode(bzcompress(serialize($daten)))));
-        } else {
-            $form->addElement('hidden', 'form', array('value' => serialize($daten)));
+            $daten = base64_encode(bzcompress($daten));
         }
+        $form->addElement('hidden', 'form', array('value' => $daten));
         $form->setMethod('post');
 
         return $form;
@@ -267,13 +267,18 @@ class Opus_Form_Builder {
      * Recreate a Zend form object depending on submitted data and action.
      *
      * @param array &$daten Contains submitted data including work action for recreating the form object
+     * @throws Opus_Form_Exception Throws an exception if serialized data is corrupted
      * @return Zend_Form
      */
     public static function recreateForm(array &$daten) {
         if (self::$encrypted_form === true) {
-            $form = unserialize(bzdecompress(base64_decode($daten['form'])));
-        } else {
+            $daten['form'] = bzdecompress(base64_decode($daten['form']));
+        }
+
+        try {
             $form = unserialize($daten['form']);
+        } catch (Exception $e) {
+            throw new Opus_Form_Exception('Serialized data are corrupted! Aborting.');
         }
 
         $action = '';
