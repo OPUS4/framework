@@ -315,12 +315,13 @@ class Opus_Document_Type {
     /**
      * Set field options recursivly if they not already set.
      *
-     * @param array $fields  Array of fields to set options for.
+     * @param array &$fields Array of fields to set options for.
      * @param array $options Array of options to set.
+     * @return void
      */
     static private function setOptionsRecursive(array &$fields, array $options) {
-        foreach ($fields as $fieldname=>&$field) {
-            foreach ($options as $option=>$value) {
+        foreach ($fields as $fieldname => &$field) {
+            foreach ($options as $option => $value) {
                 if (array_key_exists($option, $field) === false) {
                     $field[$option] = $value;
                 }
@@ -500,12 +501,9 @@ class Opus_Document_Type {
             switch ($option) {
                 case 'multiplicity':
                     if (is_numeric($optiondef) === true) {
-                        // restrict $value to bounded multiplicity
-                        if (is_int($value) === true) {
-                            if ($value > $optiondef) {
-                                $filtered = $optiondef;
-                            }
-                        } else {
+                        // Restrict $value to bounded multiplicity.
+                        if ((is_int($value) === false) or ($value > $optiondef)) {
+                            // restrict
                             $filtered = $optiondef;
                         }
                     }
