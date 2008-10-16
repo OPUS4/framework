@@ -262,17 +262,11 @@ class Opus_Document_Type {
 
         // Complex types with subsequent fields and multiple occurences.
 
-        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 'languageoption' => 'on', 
-            'fields' => array(
-                'value'     => array('type' => self::DT_TEXT))),
+        'title_abstract' => array('type' => self::DT_TITLE_ABSTRACT, 'multiplicity' => '*', 'languageoption' => 'on'),
 
-        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*', 'languageoption' => 'on', 
-            'fields' => array(
-                'value'     => array('type' => self::DT_TEXT))),
+        'title_main' => array('type' => self::DT_TITLE_MAIN, 'multiplicity' => '*', 'languageoption' => 'on'),
 
-        'title_parent' => array('type' => self::DT_TITLE_PARENT, 'multiplicity' => '*', 'languageoption' => 'on', 
-            'fields' => array(
-                'value'     => array('type' => self::DT_TEXT))),
+        'title_parent' => array('type' => self::DT_TITLE_PARENT, 'multiplicity' => '*', 'languageoption' => 'on'),
 
         'subject_swd' => array('type' => self::DT_SUBJECT_SWD, 'multiplicity' => '*', 'languageoption' => 'on',
             'fields' => $fields_subject),
@@ -635,18 +629,6 @@ class Opus_Document_Type {
 
             case self::DT_NOTESCOPE:
                 return new Opus_Validate_NoteScope();
-                break;
-
-            case self::DT_TITLE_ABSTRACT:
-                return new Opus_Validate_ComplexType($_fields['title_abstract']['fields']);
-                break;
-
-            case self::DT_TITLE_MAIN:
-                return new Opus_Validate_ComplexType($_fields['title_main']['fields']);
-                break;
-
-            case self::DT_TITLE_PARENT:
-                return new Opus_Validate_ComplexType($_fields['title_parent']['fields']);
                 break;
 
             case self::DT_SUBJECT_DDC:
