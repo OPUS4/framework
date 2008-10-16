@@ -100,7 +100,12 @@ class Opus_Form_Builder {
             } else {
                 $result['mandatory'] = false;
             }
-            $result['languageoption'] = $typeinfo['languageoption'];
+
+            if (array_key_exists('languageoption', $typeinfo) === true) {
+                $result['languageoption'] = $typeinfo['languageoption'];
+            } else {
+                $result['languageoption'] = 'off';
+            }
         }
         return $result;
     }
@@ -173,7 +178,10 @@ class Opus_Form_Builder {
             if (array_key_exists('mandatory', $par) === true) {
                 $mandatory = $par['mandatory'];
             }
-            $language = $par['languageoption'];
+            $language = '';
+            if (array_key_exists('languageoption', $par) === true) {
+                $language = $par['languageoption'];
+            }
         } else if ((array_key_exists('name', $par) === true)
         and (array_key_exists('elements', $par) === true)
         and (count($par['elements'] > 0))) {

@@ -248,13 +248,23 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test what happend if typeinfo does not have key value mandatory
+     * Test what happend if typeinfo does not have key mandatory
      *
      * @return void
      */
     public function testEmptyMandatoryOnTypeInfo() {
         $result = Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('testname', array('type' => 'test'));
         $this->assertEquals(false, $result['mandatory']);
+    }
+
+    /**
+     * Test what happend if typeinfo does not have key languageoption
+     *
+     * @return void
+     */
+    public function testEmptyLanguageOnTypeInfo() {
+        $result = Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('testname', array('type' => 'test'));
+        $this->assertEquals('off', $result['languageoption']);
     }
 
     /**
