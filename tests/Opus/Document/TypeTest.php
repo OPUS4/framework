@@ -139,6 +139,28 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Return invalid XML descriptions.
+     * 
+     * @return array Array of invalid XML type descriptions.
+     */
+    public function invalidXmlDataProvider() {
+        return array(
+        array('<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <not_a_valid_tag/>
+                </documenttype>'),
+        array('<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="not_a_valid_fieldname"/>
+                </documenttype>')
+        );
+    }
+    
+    /**
      * Test if an InvalidArgumentException occurs.
      *
      * @param mixed  $arg Constructor parameter.
@@ -213,15 +235,12 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Expect an exception when passing an invalid XML source.
      *
+     * @param string $xml XML type description.
      * @return void
+     * 
+     * @dataProvider invalidXmlDataProvider
      */
-    public function testCreateWithValidationErrors() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <not_a_valid_tag/>
-                </documenttype>';
+    public function testCreateWithValidationErrors($xml) {
         $this->setExpectedException('Opus_Document_Exception');
         $type = new Opus_Document_Type($xml);
     }
@@ -457,11 +476,12 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
-     * Test if use of an invalid fieldname throws an exception.
+     * Test if use of an invalid fieldname throws an exception
+     * when validating data.
      *
      * @return void
      */
-    public function testInvalidFieldNameThrowsException() {
+    public function testValidationOfInvalidFieldNameThrowsException() {
         $this->setExpectedException('InvalidArgumentException');
         Opus_Document_Type::validate(array('novalidfieldname' => 'somevalue'));
     }
@@ -721,5 +741,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields2 = Opus_Document_Type::getAvailableFields();
         $this->assertNotEquals($fields1, $fields2, 'Reference to internal field returned.');
     }
+    
+    
     
 }
