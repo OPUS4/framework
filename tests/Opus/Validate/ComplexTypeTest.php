@@ -107,7 +107,8 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
             array(array('type' => Opus_Document_Type::DT_BOOLEAN),
                   array('type' => Opus_Document_Type::DT_NUMBER)),
             array('yesno'   => array('tipo' => Opus_Document_Type::DT_BOOLEAN),
-                  'integer' => array('type'))
+                  'integer' => array('type')),
+            array(12 => 'twelve')
         );
     }
 

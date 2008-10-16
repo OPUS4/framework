@@ -115,12 +115,13 @@ class Opus_Validate_ComplexType extends Zend_Validate_Abstract {
 
         $result = true;
         foreach ($this->__fielddescription as $name => $fdesc) {
+            // Look for present values by checking every known fieldname. 
             if (array_key_exists($name, $value) === true) {
                 $validator = $fdesc['validator'];
                 if (is_null($validator) === false) {
                     $result = ($result and $validator->isValid($value[$name]));
                 }
-            }
+            } 
         }
         if ($result === false) {
             $this->_error(self::MSG_INVALID);
