@@ -56,6 +56,13 @@ class Opus_Form_Builder {
     private static $usedfields = array();
 
     /**
+     * Holds translated language names
+     *
+     * @var array
+     */
+    private static $language_names = array();
+
+    /**
      * Builds a single Element depending on type.
      *
      * @param string $elementdata Used as element name
@@ -80,6 +87,7 @@ class Opus_Form_Builder {
                 if (array_key_exists('mandatory', $typeinfo) === true) {
                     $field['mandatory'] = $typeinfo['mandatory'];
                 }
+                $field['languageoption'] = $typeinfo['languageoption'];
                 $result[] = self::generateSingleElement($key, $field);
             }
         } else {
@@ -92,6 +100,7 @@ class Opus_Form_Builder {
             } else {
                 $result['mandatory'] = false;
             }
+            $result['languageoption'] = $typeinfo['languageoption'];
         }
         return $result;
     }
@@ -164,6 +173,7 @@ class Opus_Form_Builder {
             if (array_key_exists('mandatory', $par) === true) {
                 $mandatory = $par['mandatory'];
             }
+            $language = $par['languageoption'];
         } else if ((array_key_exists('name', $par) === true)
         and (array_key_exists('elements', $par) === true)
         and (count($par['elements'] > 0))) {
@@ -191,6 +201,16 @@ class Opus_Form_Builder {
                     $s->setRequired(true);
                 }
                 $container->addElement($s);
+                if ($language === 'on') {
+                    $l = new Zend_Form_Element_Select($name . '_lang');
+                    if (empty(self::$language_names) === true) {
+                        $locale = new Zend_Locale();
+                        self::$language_names = $locale->getLanguageTranslationList();
+                        asort(self::$language_names);
+                    }
+                    $l->setMultiOptions(self::$language_names);
+                    $container->addElement($l);
+                }
                 break;
 
             case 'elementset':
