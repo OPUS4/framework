@@ -469,4 +469,24 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Form_Exception');
         $form = Opus_Form_Builder::recreateForm($daten);
     }
+
+    /**
+     * Enter description here...
+     *
+     * @return void
+     */
+    public function testLanguageOption() {
+        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="title_abstract" languageoption="on" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xmltype);
+        $form = Opus_Form_Builder::createForm($type);
+
+        $elements = $form->getElements();
+        $expected = array('title_abstract', 'title_abstract_lang', 'submit', 'form');
+        $this->assertEquals($expected, array_keys($elements));
+    }
 }
