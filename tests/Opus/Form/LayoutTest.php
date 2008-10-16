@@ -186,6 +186,26 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if getName() returns name of the layout after parsing of layout XML.
+     *
+     * @return void
+     *
+     */
+    public function testGetNameAfterXmlParsing() {
+        $xml = '<?xml version="1.0" encoding="UTF-8"?>
+            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <page name="publish">
+                    <field name="document_type" />
+                    <field name="licences_id" />
+                    <field name="language" />
+                </page>
+            </formlayout>';
+        $layout = Opus_Form_Layout::fromXml($xml);
+        $this->assertEquals('general', $layout->getName(), 'Returned wrong name.');
+    }
+    
+    /**
      * Test adding a field.
      *
      * @return void
@@ -289,6 +309,7 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
         $this->assertContains('language', $elements, 'Missing third field.');
     }
 
+    
     /**
      * Test loading invalid XML document throws exception.
      *
