@@ -471,7 +471,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Enter description here...
+     * Test if a field has the language option on it shows a language list
      *
      * @return void
      */
@@ -488,5 +488,37 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $elements = $form->getElements();
         $expected = array('title_abstract', 'title_abstract_lang', 'submit', 'form');
         $this->assertEquals($expected, array_keys($elements));
+    }
+
+    /**
+     * If multiplicity is limited then should an add button not shown if this limit is reached.
+     *
+     * @return void
+     */
+    public function testRemovingAddButton() {
+        $daten = array(
+            'title_abstract' => array(
+                1 => array(
+                    'title_abstract' => '',
+                    'title_abstract_lang' => 'ab'),
+                'add_title_abstract' => '+'),
+            'form' => 'a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:3:"add";b:1;s:3:"seq";i:1;s:8:"maxmulti";s:1:"2";s:8:"elements";a:1:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:2:"on";}}}}}}');
+        $form = Opus_Form_Builder::recreateForm($daten);
+        $this->assertArrayNotHasKey('add_title_abstract', $form->title_abstract->getElements());
+    }
+
+    /**
+     * If multiplicity is limited then should an add button visible if this limited is lower especially after removing a field
+     *
+     * @return void
+     */
+    public function testAddingAddButton() {
+        $daten = array(
+            'title_abstract' => array(
+                1 => array('title_abstract' => ''),
+                2 => array('title_abstract' => '', 'remove_title_abstract_2' => '-')),
+            'form' => 'a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:3:"add";b:0;s:3:"seq";i:2;s:8:"maxmulti";s:1:"2";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:3:"off";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:3:"off";}}s:6:"remove";b:1;}}}}');
+        $form = Opus_Form_Builder::recreateForm($daten);
+        $this->assertArrayHasKey('add_title_abstract', $form->title_abstract->getElements());
     }
 }
