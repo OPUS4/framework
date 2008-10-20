@@ -212,7 +212,7 @@ class Opus_Document_Type {
             'last_name' => array('type' => self::DT_TEXT),
             'title' => array('type' => self::DT_TEXT),
             'day_of_birth' => array('type' => self::DT_DATE),
-            'place_of_birth' => array('type' => self::DT_DATE));
+            'place_of_birth' => array('type' => self::DT_TEXT));
 
         self::$_fields_cache = array(
 
