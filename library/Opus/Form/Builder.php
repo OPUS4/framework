@@ -155,6 +155,24 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Return a filled select element with all available language names.
+     * Language list will be cached.
+     *
+     * @param mixed &$name Name for select element. Get a postfix _lang for unique form names.
+     * @return Zend_Form_Element_Select
+     */
+    protected static function buildSelectLanguage(&$name) {
+        $l = new Zend_Form_Element_Select($name . '_lang');
+        if (empty(self::$language_names) === true) {
+            $locale = new Zend_Locale();
+            self::$language_names = $locale->getLanguageTranslationList();
+            asort(self::$language_names);
+        }
+        $l->setMultiOptions(self::$language_names);
+        return $l;
+    }
+
+    /**
      * Check for a key in an array and if found returns value of this key.
      *
      * @param mixed $key        Array key to check for
@@ -211,14 +229,7 @@ class Opus_Form_Builder {
                 }
                 $container->addElement($s);
                 if ($language === 'on') {
-                    $l = new Zend_Form_Element_Select($name . '_lang');
-                    if (empty(self::$language_names) === true) {
-                        $locale = new Zend_Locale();
-                        self::$language_names = $locale->getLanguageTranslationList();
-                        asort(self::$language_names);
-                    }
-                    $l->setMultiOptions(self::$language_names);
-                    $container->addElement($l);
+                    $container->addElement(self::buildSelectLanguage($name));
                 }
                 break;
 
