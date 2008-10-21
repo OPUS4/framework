@@ -157,6 +157,21 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Check for a key in an array and if found returns value of this key.
+     *
+     * @param mixed $key        Array key to check for
+     * @param array &$container Reference to array
+     * @return null|mixed Return Null if key not exists or value of key
+     */
+    protected static function getOption($key, array &$container) {
+        $result = null;
+        if (array_key_exists($key, $container) === true) {
+            $result = $container[$key];
+        }
+        return $result;
+    }
+
+    /**
      * Build a form with Zend_Form.
      *
      * @param array     &$par      Array structure for building elements
@@ -172,30 +187,18 @@ class Opus_Form_Builder {
             $options = array('label' => $name);
             $validator = null;
             if (array_key_exists('validator', $par) === true) {
-                    $validator = Opus_Document_Type::getValidatorFor($par['validator']);
+                $validator = Opus_Document_Type::getValidatorFor($par['validator']);
             }
-            $mandatory = '';
-            if (array_key_exists('mandatory', $par) === true) {
-                $mandatory = $par['mandatory'];
-            }
-            $language = '';
-            if (array_key_exists('languageoption', $par) === true) {
-                $language = $par['languageoption'];
-            }
+            $mandatory = self::getOption('mandatory', $par);
+            $language = self::getOption('languageoption', $par);
         } else if ((array_key_exists('name', $par) === true)
         and (array_key_exists('elements', $par) === true)
         and (count($par['elements'] > 0))) {
             $partype = 'elementset';
             $name = $par['name'];
             $elementset = $par['elements'];
-            $add = '';
-            if (array_key_exists('add', $par) === true) {
-                $add = $par['add'];
-            }
-            $remove = '';
-            if (array_key_exists('remove', $par) === true) {
-                $remove = $par['remove'];
-            }
+            $add = self::getOption('add', $par);
+            $remove = self::getOption('remove', $par);
         }
 
         switch ($partype) {
@@ -363,7 +366,7 @@ class Opus_Form_Builder {
                     }
                 }
                 if (($element['maxmulti'] !== '*') and (count($element['elements']) < $element['maxmulti'])) {
-                        $element['add'] = true;
+                    $element['add'] = true;
                 }
                 break;
 
