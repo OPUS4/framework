@@ -290,7 +290,7 @@ class Opus_Form_Builder {
      * @param Zend_Translate_Adapter $adapter (Optional) Holds necessary translation messages (not used yet)
      * @return Zend_Form
      */
-    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout = null, Zend_Translate_Adapter $adapter = null) {
+    public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout = null) {
         $documentname = $type->getName();
         $typefields = $type->getFields();
         $layout_group = array();
@@ -308,9 +308,6 @@ class Opus_Form_Builder {
         $diff_array = array_diff(array_keys($typefields), self::$usedfields);
         $layout_group= array_merge($layout_group, self::generateSubElements($diff_array, $typefields));
         $form = self::create($layout_group);
-        if (empty($adapter) === false) {
-            $form->setDefaultTranslator($adapter);
-        }
         return $form;
     }
 
