@@ -93,8 +93,8 @@ class Opus_Form_Builder {
         } else {
             $result['name'] = $elementdata;
             // TODO use correct element types instead text for all
-            $result['type'] = 'text';
-            $result['validator'] = $typeinfo['type'];
+            $result['html_type'] = 'text';
+            $result['data_type'] = $typeinfo['type'];
             if (array_key_exists('mandatory', $typeinfo) === true) {
                 $result['mandatory'] = $typeinfo['mandatory'];
             } else {
@@ -180,14 +180,14 @@ class Opus_Form_Builder {
      */
     protected static function build(array &$par, Zend_Form $container) {
         $partype = '';
-        if ((array_key_exists('name', $par) === true) and (array_key_exists('type', $par) === true)) {
+        if ((array_key_exists('name', $par) === true) and (array_key_exists('html_type', $par) === true)) {
             $partype = 'simple';
             $name = $par['name'];
-            $type = $par['type'];
+            $type = $par['html_type'];
             $options = array('label' => $name);
             $validator = null;
-            if (array_key_exists('validator', $par) === true) {
-                $validator = Opus_Document_Type::getValidatorFor($par['validator']);
+            if (array_key_exists('data_type', $par) === true) {
+                $validator = Opus_Document_Type::getValidatorFor($par['data_type']);
             }
             $mandatory = self::getOption('mandatory', $par);
             $language = self::getOption('languageoption', $par);
