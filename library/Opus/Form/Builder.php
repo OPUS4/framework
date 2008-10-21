@@ -129,26 +129,24 @@ class Opus_Form_Builder {
             if (is_array($element) === true) {
                 $res['name'] = $key;
                 $res['elements'] = self::generateSubElements($element, $typefields);
-            } else {
-                if (array_key_exists($element, $typefields) === true) {
-                    $typeinfo = $typefields[$element];
-                    if (is_array($typeinfo) === false) {
-                        throw new Opus_Form_Exception('Typeinfo is not an array.');
-                    }
-                    self::$usedfields[] = $element;
-                    if (($typeinfo['multiplicity'] === '*') or ($typeinfo['multiplicity'] > 1)) {
-                        $res['name'] = $element;
-                        $res['add'] = true;
-                        $res['seq'] = 1;
-                        $res['maxmulti'] = $typeinfo['multiplicity'];
-                        $subelements =  self::generateSingleElement($element, $typeinfo);
-                        $res['elements'] = array(array('name' => 1, 'elements' => array($subelements)));
-                    } else if (array_key_exists('fields', $typeinfo) === true) {
-                        $res['name'] = $element;
-                        $res['elements'] = self::generateSingleElement($element, $typeinfo);
-                    } else {
-                        $res = self::generateSingleElement($element, $typeinfo);
-                    }
+            } else if (array_key_exists($element, $typefields) === true) {
+                $typeinfo = $typefields[$element];
+                if (is_array($typeinfo) === false) {
+                    throw new Opus_Form_Exception('Typeinfo is not an array.');
+                }
+                self::$usedfields[] = $element;
+                if (($typeinfo['multiplicity'] === '*') or ($typeinfo['multiplicity'] > 1)) {
+                    $res['name'] = $element;
+                    $res['add'] = true;
+                    $res['seq'] = 1;
+                    $res['maxmulti'] = $typeinfo['multiplicity'];
+                    $subelements =  self::generateSingleElement($element, $typeinfo);
+                    $res['elements'] = array(array('name' => 1, 'elements' => array($subelements)));
+                } else if (array_key_exists('fields', $typeinfo) === true) {
+                    $res['name'] = $element;
+                    $res['elements'] = self::generateSingleElement($element, $typeinfo);
+                } else {
+                    $res = self::generateSingleElement($element, $typeinfo);
                 }
             }
             $result[] = $res;
