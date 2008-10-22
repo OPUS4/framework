@@ -265,7 +265,7 @@ class Opus_Application_Bootstrap {
 
         // Set path to Zend extension view helpers to be accessible in other
         // modules too.
-        $libRealPath = realpath(self::$applicationRootDirectory . '/../library');
+        $libRealPath = realpath(self::$applicationRootDirectory . '/library');
         $view->addHelperPath($libRealPath . '/Opus/View/Helper', 'Opus_View_Helper');
 
         $viewRenderer = new Zend_Controller_Action_Helper_ViewRenderer($view);
