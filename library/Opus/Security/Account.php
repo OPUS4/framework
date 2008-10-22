@@ -67,8 +67,8 @@ class Opus_Security_Account {
     /**
      * Initialize account with given credentials.
      *
-     * @param string $login         Login name.
-     * @param string $firstpassword Password.
+     * @param string $login    Login name.
+     * @param string $password Password.
      */
     protected function __construct($login, $password) {
         $this->_login = $login;
@@ -80,9 +80,7 @@ class Opus_Security_Account {
      *
      * @param string $login         Login name.
      * @param string $firstpassword Password for first login. Has to be changed later on.
-     * 
      * @throws Opus_Security_Exception Thrown if the account to create already exists. 
-     * 
      * @return Opus_Security_Account Account object. 
      */
     public static function create($login, $firstpassword) {
@@ -123,6 +121,7 @@ class Opus_Security_Account {
      * nothing happens. 
      *
      * @param string $login Login name.
+     * @return void
      */
     public static function remove($login) {
         $row = self::getRecord($login);
@@ -166,6 +165,8 @@ class Opus_Security_Account {
      *
      * @param string $old Old password.
      * @param string $new New password.
+     * @throws Opus_Security_Exception Thrown if the given password is not correct.
+     * @return void
      */
     public function setPassword($old, $new) {
         $this->_new_password_required = false;
@@ -188,6 +189,8 @@ class Opus_Security_Account {
      *
      * @param string $password Current account password.
      * @param string $login    New login name.
+     * @throws Opus_Security_Exception Thrown if the given password is not correct.
+     * @return void
      */
     public function setLogin($password, $login) {
         if ($this->isPasswordCorrect($password) === true) {

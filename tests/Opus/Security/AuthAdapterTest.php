@@ -88,6 +88,9 @@ class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if given invalid credentials failes.
      *
+     * @param string  $login    Login credentials.
+     * @param string  $password Password credentials.
+     * @param integer $code     Expected Zend_Auth_Result code.
      * @return void
      * 
      * @dataProvider invalidCredentialsDataProvider
