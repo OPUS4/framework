@@ -32,52 +32,43 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Security_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing database access and models.
+ * Test case for Opus_Security_AuthAdapter class.
  *
  * @category    Tests
  * @package     Opus_Security
  */
-class Opus_Security_AllTests {
-
+class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
+    
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Holds the authentication adapter instance.
+     *
+     * @var Opus_Security_AuthAdapter
+     */
+    protected $_auth_adapter = null;
+    
+    /**
+     * Set up test account.
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function setUp() {
+        TestHelper::clearTable('accounts');
+        Opus_Security_Account::create('bob', 'secret');
+        $this->_auth_adapter = new Opus_Security_AuthAdapter();
     }
-
+    
     /**
-     * Construct and return the test suite.
+     * Test if a successful authentication can be performed.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @return void
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Security');
-        $suite->addTestSuite('Opus_Security_AccountTest');
-        $suite->addTestSuite('Opus_Security_AuthAdapterTest');
-        return $suite;
+    public function testSuccessfulAuthentication() {
+        $this->_auth_adapter->setCredentials('bob', 'secret');
+        $result = $this->_auth_adapter->authenticate();
+        $this->assertNotNull($result, 'Authentication result should not be null.');
+        $this->assertType('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
+        $this->assertEquals($result->getCode(), Zend_Auth_Result::SUCCESS, 'Authentication should be successful.');
     }
-
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Security_AllTests::main') {
-    Opus_Security_AllTests::main();
+    
 }
