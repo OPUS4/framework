@@ -194,6 +194,12 @@ class Opus_Security_Account {
 
             // Get record
             $row = self::getRecord($this->_login);
+
+            // Check if a record with the same login name already exists.
+            $check = self::getRecord($login);
+            if (is_null($check) === false) {
+                throw new Opus_Security_Exception('Name ' . $login . ' is already in use.');
+            }
             
             // Change login
             $this->_login = $login;

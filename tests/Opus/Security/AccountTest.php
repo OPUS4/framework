@@ -218,5 +218,39 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
         $account->setLogin('xxWRONGxx','bobbob');
     }
     
+    /**
+     * Test if an exception is thrown when attempt to change a login name
+     * to a name that is already used by another account. 
+     *
+     * @return void
+     */
+    public function testChangeLoginNameToAlreadyExistingNameThrowsException() {
+        $this->setExpectedException('Opus_Security_Exception');
+        $bob = Opus_Security_Account::create('bob', 'pass1');
+        $bart = Opus_Security_Account::create('bart', 'pass2');
+        $bob->setLogin('pass1','bart');
+    }
+    
+    /**
+     * Test if quotes in login names get stored correct.
+     *
+     * @return void
+     */
+    public function testUsingLoginNameWithQuotes() {
+        $account = Opus_Security_Account::create('b"o\'b', 'pass1');
+        $this->assertEquals('b"o\'b', $account->getLogin(), 'Quotes not handled correctly in login name.');
+    }
 
+    /**
+     * Test if accounts that have quotes in login names get retrieved correct.
+     *
+     * @return void
+     */
+    public function testRetrievingLoginNameWithQuotes() {
+        Opus_Security_Account::create('b"o\'b', 'pass1');
+        $account = Opus_Security_Account::find('b"o\'b');
+        $this->assertEquals('b"o\'b', $account->getLogin(), 'Quotes not handled correctly in login name.');
+    }
+    
+    
 }
