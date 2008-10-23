@@ -99,7 +99,6 @@ class Opus_Form_Builder {
             } else {
                 $result['mandatory'] = false;
             }
-
             if (array_key_exists('languageoption', $typeinfo) === true) {
                 $result['languageoption'] = $typeinfo['languageoption'];
             } else {
@@ -287,15 +286,14 @@ class Opus_Form_Builder {
         }
         $form->addElement('hidden', 'form', array('value' => $daten));
         $form->setMethod('post');
-
         return $form;
     }
 
     /**
      * Create a Zend form object.
      *
-     * @param Opus_Document_Type     $type    Describe document type
-     * @param Opus_Form_Layout       $layout  (Optional) Describe field arrangement
+     * @param Opus_Document_Type $type   Describe document type
+     * @param Opus_Form_Layout   $layout (Optional) Describe field arrangement
      * @return Zend_Form
      */
     public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout = null) {
@@ -314,7 +312,7 @@ class Opus_Form_Builder {
         }
         // add missing type fields to layout
         $diff_array = array_diff(array_keys($typefields), self::$usedfields);
-        $layout_group= array_merge($layout_group, self::generateSubElements($diff_array, $typefields));
+        $layout_group = array_merge($layout_group, self::generateSubElements($diff_array, $typefields));
         $form = self::create($layout_group);
         return $form;
     }
