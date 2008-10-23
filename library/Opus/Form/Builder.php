@@ -296,7 +296,6 @@ class Opus_Form_Builder {
      *
      * @param Opus_Document_Type     $type    Describe document type
      * @param Opus_Form_Layout       $layout  (Optional) Describe field arrangement
-     * @param Zend_Translate_Adapter $adapter (Optional) Holds necessary translation messages (not used yet)
      * @return Zend_Form
      */
     public static function createForm(Opus_Document_Type $type, Opus_Form_Layout $layout = null) {
