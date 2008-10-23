@@ -87,7 +87,6 @@ class Opus_Form_Builder {
                 if (array_key_exists('mandatory', $typeinfo) === true) {
                     $field['mandatory'] = $typeinfo['mandatory'];
                 }
-                $field['languageoption'] = $typeinfo['languageoption'];
                 $result[] = self::generateSingleElement($key, $field);
             }
         } else {
@@ -141,7 +140,13 @@ class Opus_Form_Builder {
                     $res['seq'] = 1;
                     $res['maxmulti'] = $typeinfo['multiplicity'];
                     $subelements =  self::generateSingleElement($element, $typeinfo);
-                    $res['elements'] = array(array('name' => 1, 'elements' => array($subelements)));
+                    $subarray = array();
+                    $subarray['name'] = 1;
+                    if (array_key_exists('fields', $typeinfo) === true) {
+                        $subarray['languageoption'] = $typeinfo['languageoption'];
+                    }
+                    $subarray['elements'] = array($subelements);
+                    $res['elements'] = array($subarray);
                 } else if (array_key_exists('fields', $typeinfo) === true) {
                     $res['name'] = $element;
                     $res['elements'] = self::generateSingleElement($element, $typeinfo);
@@ -215,6 +220,7 @@ class Opus_Form_Builder {
             $elementset = $par['elements'];
             $add = self::getOption('add', $par);
             $remove = self::getOption('remove', $par);
+            $language = self::getOption('languageoption', $par);
         }
 
         switch ($partype) {
@@ -242,6 +248,9 @@ class Opus_Form_Builder {
                 $subform = new Zend_Form_SubForm(array('name' => $name, 'legend' => $legendname));
                 foreach ($elementset as $element) {
                     self::build($element, $subform);
+                }
+                if ($language === 'on') {
+                    $subform->addElement(self::buildSelectLanguage($name));
                 }
                 if (empty($add) === false) {
                     $subform->addElement('submit', 'add_' . $name, array('label' => '+'));
