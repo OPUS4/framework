@@ -239,7 +239,7 @@ class Opus_Application_Bootstrap {
          * include path to the form classes of modules.
          */
         $moduleprepare = new Opus_Controller_Plugin_ModulePrepare(self::$applicationRootDirectory . '/modules');
-        $moduleprepare->appendClassPath('models')->appendClassPath('views/forms');
+        $moduleprepare->appendClassPath('models')->appendClassPath('forms');
         self::$frontController->registerPlugin($moduleprepare);
     }
 
