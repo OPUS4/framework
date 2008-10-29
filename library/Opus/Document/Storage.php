@@ -87,7 +87,7 @@ class Opus_Document_Storage
      *      'title_abstract' => array(
      *          array(
      *              'value' => 'deutscher Abstract',
-     *              'language'  => 'de')
+     *              'language'  => 'de'),
      *          array(
      *              'value' => 'abstract in English',
      *              'language' => 'en')
@@ -114,6 +114,8 @@ class Opus_Document_Storage
             switch ($fieldName) {
                 case 'title_abstract':
                     foreach ($values as $value) {
+                        //TODO handle situation if $value['value'] or $value['language'] is not set
+                        //TODO or is data checked by a validator?
                         $storageData[$fieldName][] = array(
                             'title_abstract_value' => $value['value'],
                             'title_abstract_type' => 'abstract',
@@ -342,6 +344,7 @@ class Opus_Document_Storage
                             continue;
                         }
                         
+                        //check if the actual keys fit in table schema, using the intersection of actual keys and table keys
                         if (array_intersect(array_keys($val), array_values($table->info('cols'))) == array_keys($val))
                         {
                             $data[$tableName][]= $val;
@@ -361,7 +364,9 @@ class Opus_Document_Storage
         if ($this->documentsId == null)
         {
             $this->documentsId= (int) $tables['documents']->insert($data['documents']);
-            $this->_log("Document with document id $this->documentsId added, now trying to add additional data");
+            if ($this->documentId != null) {
+                $this->_log("Document with document id $this->documentsId added, now trying to add additional data");
+            }
             $noDocuments= true;
         }
         if (!is_int($this->documentsId))
