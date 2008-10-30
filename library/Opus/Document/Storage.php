@@ -26,9 +26,9 @@
  *
  * @category    Framework
  * @package     Opus_Document
- * @author      Tobias Leidinger (SULB: tobias.leidinger@googlemail.com) 
+ * @author      Tobias Leidinger (SULB: tobias.leidinger@googlemail.com)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License 
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
@@ -39,28 +39,28 @@
  */
 class Opus_Document_Storage
 {
-    
+
     /**
      * Reference to data that is going to be stored
      *
      * @var array
      */
     private $documentData;
-    
+
     /**
      * Id from database table documents, if the storage object is used for updating database
      *
      * @var int
      */
     private $documentsId;
-    
+
     /**
      * Reference to logging facility.
      *
      * @var Zend_Log
      */
     protected $_logger = null;
-    
+
     /**
      * log system messages
      *
@@ -71,19 +71,19 @@ class Opus_Document_Storage
         // The use of print statements is prohibited!!
         // It would break the output of the whole application.
         // print ($string);
-        
+
         // Use a logging component instead:
         $this->_logger->info('Opus_Document_Storage: ' . $string);
     }
-    
+
     /**
      * Set the document data to the storage object
-     * 
+     *
      * Data has to have a valid structure, single valued fields are mapped from field name to their value
      * and multivalued fields are mapped from field name to an array of arrays of name-value pairs
-     * 
+     *
      * E.g. 'document_type'  => 'article',
-     *      'licences_id'    => '5', 
+     *      'licences_id'    => '5',
      *      'title_abstract' => array(
      *          array(
      *              'value' => 'deutscher Abstract',
@@ -95,7 +95,7 @@ class Opus_Document_Storage
      * @param array $data Array associating fieldnames to values.
      * @throws InvalidArgumentException if data is not valid or there is a problem converting the labels
      * @return void
-     * 
+     *
      */
     private function _setData($data)
     {
@@ -108,7 +108,7 @@ class Opus_Document_Storage
         //if ($documentType->validate($data) === false) {
         //    throw new InvalidArgumentException("array not valid");
         //}
-        
+
         $storageData = array();
         foreach ($data as $fieldName => $values) {
             switch ($fieldName) {
@@ -119,7 +119,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'title_abstract_value' => $value['value'],
                             'title_abstract_type' => 'abstract',
-                            'title_abstract_language' => $value['language']); 
+                            'title_abstract_language' => $value['language']);
                     }
                     break;
                 case 'title_main':
@@ -127,7 +127,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'title_abstract_value' => $value['value'],
                             'title_abstract_type' => 'main',
-                            'title_abstract_language' => $value['language']); 
+                            'title_abstract_language' => $value['language']);
                     }
                     break;
                 case 'title_parent':
@@ -135,7 +135,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'title_abstract_value' => $value['value'],
                             'title_abstract_type' => 'parent',
-                            'title_abstract_language' => $value['language']); 
+                            'title_abstract_language' => $value['language']);
                     }
                     break;
                 case 'subject_swd':
@@ -150,8 +150,8 @@ class Opus_Document_Storage
                         if (isset($value['external_key'])) {
                             $data['external_subject_key'] = $value['external_key'];
                         }
-                        
-                        $storageData[$fieldName][] = $data; 
+
+                        $storageData[$fieldName][] = $data;
                     }
                     break;
                 case 'subject_ddc':
@@ -160,7 +160,7 @@ class Opus_Document_Storage
                             'subject_value' => $value['value'],
                             'subject_type' => 'ddc',
                             'subject_language' => $value['language'],
-                            'external_subject_key' => $value['external_key']); 
+                            'external_subject_key' => $value['external_key']);
                     }
                     break;
                 case 'subject_psyndex':
@@ -169,7 +169,7 @@ class Opus_Document_Storage
                             'subject_value' => $value['value'],
                             'subject_type' => 'psyndex',
                             'subject_language' => $value['language'],
-                            'external_subject_key' => $value['external_key']); 
+                            'external_subject_key' => $value['external_key']);
                     }
                     break;
                 case 'subject_msc2000':
@@ -178,7 +178,7 @@ class Opus_Document_Storage
                             'subject_value' => $value['value'],
                             'subject_type' => 'msc2000',
                             'subject_language' => $value['language'],
-                            'external_subject_key' => $value['external_key']); 
+                            'external_subject_key' => $value['external_key']);
                     }
                     break;
                 case 'subject_uncontrolled':
@@ -187,7 +187,7 @@ class Opus_Document_Storage
                             'subject_value' => $value['value'],
                             'subject_type' => 'uncontrolled',
                             'subject_language' => $value['language'],
-                            'external_subject_key' => $value['external_key']); 
+                            'external_subject_key' => $value['external_key']);
                     }
                     break;
                 case 'identifier_urn':
@@ -195,7 +195,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'identifier_value' => $value,
                             'identifier_type' => 'urn',
-                            'identifier_label' => 'URN'); 
+                            'identifier_label' => 'URN');
                     }
                     break;
                 case 'identifier_url':
@@ -203,7 +203,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'identifier_value' => $value,
                             'identifier_type' => 'url',
-                            'identifier_label' => 'Frontdoor-URL'); 
+                            'identifier_label' => 'Frontdoor-URL');
                     }
                     break;
                 case 'notes_private':
@@ -211,7 +211,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'message' => $value['value'],
                             'creator' => $value['creator'],
-                            'scope' => 'private'); 
+                            'scope' => 'private');
                     }
                     break;
                 case 'notes_public':
@@ -219,7 +219,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'message' => $value['value'],
                             'creator' => $value['creator'],
-                            'scope' => 'public'); 
+                            'scope' => 'public');
                     }
                     break;
                 case 'notes_reference':
@@ -227,7 +227,7 @@ class Opus_Document_Storage
                         $storageData[$fieldName][] = array(
                             'message' => $value['value'],
                             'creator' => $value['creator'],
-                            'scope' => 'reference'); 
+                            'scope' => 'reference');
                     }
                     break;
                 default:
@@ -235,13 +235,13 @@ class Opus_Document_Storage
                         throw new InvalidArgumentException('No multivalue definition found for '.$fieldName);
                     }
                     $storageData[$fieldName] = $values;
-                        
+
             }
         }
-        
+
         $this->documentData= $storageData;
     }
-    
+
     /**
      * set the id for the documents table, if needed
      *
@@ -252,10 +252,10 @@ class Opus_Document_Storage
     {
         $this->documentsId= $documentsId;
     }
-    
+
     /**
      * Initialize an instance of Opus_Document_Storage with the given data and an optional documents id
-     * 
+     *
      * structure of $data specified in comment for $this->_setData
      *
      * @param array $data array with data
@@ -273,18 +273,18 @@ class Opus_Document_Storage
             throw new InvalidArgumentException('there has to be an data array');
         }
         $this->_setDocumentsId($documentsId);
-        
+
         // Fetch logging class from the registry.
         $this->_logger = Zend_Registry::get('Zend_Log');
-    }    
-    
+    }
+
     /**
-     * check whether the array is associative or not 
+     * check whether the array is associative or not
      *
      * @param array $array
      * @return boolean
      */
-    
+
     private function _is_assoc($array)
     {
         foreach (array_keys($array) as $k => $v)
@@ -316,14 +316,14 @@ class Opus_Document_Storage
         //access to the databases
         //creates an array to loop over the databases
         $tables= array (
-        'documents' => new Opus_Db_Documents(), 
-        'document_enrichments' => new Opus_Db_DocumentEnrichments(), 
-        'document_files' => new Opus_Db_DocumentFiles(), 
-        'document_identifiers' => new Opus_Db_DocumentIdentifiers(), 
-        'document_notes' => new Opus_Db_DocumentNotes(), 
-        'document_patents' => new Opus_Db_DocumentPatents(), 
-        //'document_statistics' => new Opus_Db_DocumentStatistics(), 
-        'document_subjects' => new Opus_Db_DocumentSubjects(), 
+        'documents' => new Opus_Db_Documents(),
+        'document_enrichments' => new Opus_Db_DocumentEnrichments(),
+        'document_files' => new Opus_Db_DocumentFiles(),
+        'document_identifiers' => new Opus_Db_DocumentIdentifiers(),
+        'document_notes' => new Opus_Db_DocumentNotes(),
+        'document_patents' => new Opus_Db_DocumentPatents(),
+        //'document_statistics' => new Opus_Db_DocumentStatistics(),
+        'document_subjects' => new Opus_Db_DocumentSubjects(),
         'document_title_abstracts' => new Opus_Db_DocumentTitleAbstracts());
         //partition data to different tables
         foreach ($this->documentData as $key => $value)
@@ -335,7 +335,7 @@ class Opus_Document_Storage
                 } else {
                     throw new Opus_Document_Exception('single valued fields have to belong to documents table');
                 }
-            } else { 
+            } else {
                 foreach ($value as $val) {
                     $keyInSchema = false;
                     foreach ($tables as $tableName => $table)
@@ -343,7 +343,7 @@ class Opus_Document_Storage
                         if ($tableName == 'documents') {
                             continue;
                         }
-                        
+
                         //check if the actual keys fit in table schema, using the intersection of actual keys and table keys
                         if (array_intersect(array_keys($val), array_values($table->info('cols'))) == array_keys($val))
                         {
@@ -358,13 +358,13 @@ class Opus_Document_Storage
                     }
                 }
             }
-            
+
         }
         $noDocuments= false;
         if ($this->documentsId == null)
         {
             $this->documentsId= (int) $tables['documents']->insert($data['documents']);
-            if ($this->documentId != null) {
+            if ($this->documentsId != null) {
                 $this->_log("Document with document id $this->documentsId added, now trying to add additional data");
             }
             $noDocuments= true;
