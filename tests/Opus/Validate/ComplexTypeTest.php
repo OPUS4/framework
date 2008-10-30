@@ -74,7 +74,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
             array(array('yesno' => true, 'integer' => 4711)),
             array(array('yesno' => false, 'integer' => -100)),
             array(array('text' => 'no validation')),
-            array(array('date' => '1999-12-12'))
+            array(array('date' => '12.12.1999'))
         );
     }
 
@@ -93,7 +93,8 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
              * issue has been reported: http://framework.zend.com/issues/browse/ZF-4303
              */
             array(array('yesno' => 'true', 'integer' => false)),
-            array(array('date' => 'novaliddate'))
+            array(array('date' => 'novaliddate')),
+            array(array('date' => '1999-12-12'))
         );
     }
 
@@ -139,7 +140,7 @@ class Opus_Validate_ComplexTypeTest extends PHPUnit_Framework_TestCase {
      *
      * @param mixed $fielddef Malformed field definition.
      * @return void
-     * 
+     *
      * @dataProvider malformedTypeDataProvider
      */
     public function testCreationWithMalformedArgument($fielddef) {

@@ -44,7 +44,7 @@
  */
 class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
-    
+
     /**
      * Drop the Zend_Registry.
      *
@@ -53,9 +53,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         Zend_Registry::_unsetInstance();
     }
-    
-    
-    
+
+
+
     /**
      * Data provider for invalid creation arguments.
      *
@@ -80,7 +80,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     public function validFieldDataProvider() {
         return array(
             array('completed_year', '1965'),
-            array('completed_date', '1999-12-12'),
+            array('completed_date', '12.12.1999'),
             array('document_type', 'article'),
             array('language', 'en'),
             array('identifier_isbn', '978-3-7657-2780-1'),
@@ -101,6 +101,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         return array(
             array('completed_year', null),
             array('completed_date', new Exception()),
+            array('completed_date', '1999-12-12'),
             array('document_type', 'who cares!'),
             array('language', 'üöä'),
             array('identifier_isbn', '978-3-:)-7657-2780-1'),
@@ -110,24 +111,24 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
 
-    
+
     /**
      * Date provider for returning compound fieldnames and expected validator type names.
      *
      * @return array Array of field names and expected validator names.
-     * 
+     *
      */
     public function compoundFieldNameDataProvider() {
         return array(
             array('note.scope', 'Opus_Validate_NoteScope')
         );
     }
-    
+
     /**
      * Data provider for field and option names and values.
      *
      * @return array Array of field and option names and associated values.
-     * 
+     *
      */
     public function optionConstraintDataProvider() {
         return array(
@@ -137,10 +138,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             array('source','languageoption', 'on', 'off')
         );
     }
-    
+
     /**
      * Return invalid XML descriptions.
-     * 
+     *
      * @return array Array of invalid XML type descriptions.
      */
     public function invalidXmlDataProvider() {
@@ -159,7 +160,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>')
         );
     }
-    
+
     /**
      * Test if an InvalidArgumentException occurs.
      *
@@ -237,7 +238,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      *
      * @param string $xml XML type description.
      * @return void
-     * 
+     *
      * @dataProvider invalidXmlDataProvider
      */
     public function testCreateWithValidationErrors($xml) {
@@ -267,7 +268,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fname);
             $this->checkType($fdesc['type'], $validator);
-        }    
+        }
     }
 
     /**
@@ -281,7 +282,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields = Opus_Document_Type::getAvailableFields();
         foreach ($fields as $fname => $fdesc) {
             $validator = Opus_Document_Type::getValidatorFor($fdesc['type']);
-            $this->checkType($fdesc['type'], $validator);            
+            $this->checkType($fdesc['type'], $validator);
         }
     }
 
@@ -342,7 +343,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
         }
     }
-    
+
     /**
      * Test if the validator for a field contained within a complex field
      * can be retrieved by referencing its name in a <complex>.<field> schema.
@@ -350,7 +351,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @param string $exp_fieldname Compound fieldname.
      * @param string $exp_validator Expected validator class name.
      * @return void
-     * 
+     *
      * @dataProvider compoundFieldNameDataProvider
      */
     public function testGetValidatorForCompoundFieldName($exp_fieldname, $exp_validator) {
@@ -362,7 +363,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     /**
      * Test if attempt to retrieve an validator for an unknown fieldname throws an
      * InvalidArgumentException().
-     * 
+     *
      * @return void
      *
      */
@@ -370,7 +371,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException');
         Opus_Document_Type::getValidatorFor('Ernie&Bert');
     }
-    
+
     /**
      * Test if declared fields can be retrieved.
      *
@@ -395,8 +396,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->assertArrayHasKey($e_fieldname, $fields, 'Expected field ' . $e_fieldname . ' is missing.');
         }
     }
-    
-    
+
+
     /**
      * Test if the sub fields of a complex field can be retrieved.
      *
@@ -432,8 +433,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $person_author = $fields['person_author'];
         $this->assertArrayHasKey('type', $person_author, 'Type definition expected.');
     }
-    
-    
+
+
     /**
      * Test if correct field value passes validation.
      *
@@ -474,7 +475,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $msg = $fieldname . '=>' . $value . ' should be validated as wrong.';
         $this->assertFalse($result, $msg);
     }
-    
+
     /**
      * Test if use of an invalid fieldname throws an exception
      * when validating data.
@@ -486,7 +487,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         Opus_Document_Type::validate(array('novalidfieldname' => 'somevalue'));
     }
 
-    
+
     /**
      * Test if the name of the document type can be retrieved.
      *
@@ -500,10 +501,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $this->assertEquals('doctoral_thesis', $type->getName(), 'Name returned is wrong.');         
+        $this->assertEquals('doctoral_thesis', $type->getName(), 'Name returned is wrong.');
     }
-    
-    
+
+
     /**
      * Test if no type is registered initially.
      *
@@ -513,9 +514,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $registry = Zend_Registry::getInstance();
         $this->assertFalse($registry->isRegistered(Opus_Document_Type::ZEND_REGISTRY_KEY), 'Registry is not initially empty.');
     }
-    
+
     /**
-     * Test if successfully creating a type registers it in the Zend Registry. 
+     * Test if successfully creating a type registers it in the Zend Registry.
      *
      * @return void
      */
@@ -531,16 +532,16 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     </mandatory>
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
-        
+
         // Check if the type is registered.
         $registry = Zend_Registry::getInstance();
         $registered = $registry->get(Opus_Document_Type::ZEND_REGISTRY_KEY);
         $this->assertArrayHasKey('doctoral_thesis', $registered, 'Document type has not been registered.');
     }
-    
+
     /**
      * Test if a type specification gets overwritten when another one gets registered
-     * under the same name.  
+     * under the same name.
      *
      * @return void
      */
@@ -559,15 +560,15 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                     <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
                 </documenttype>';
         $type2 = new Opus_Document_Type($xml2);
-        
+
         // Check if the type2 is registered.
         $registry = Zend_Registry::getInstance();
         $registered = $registry->get(Opus_Document_Type::ZEND_REGISTRY_KEY);
-        $result = $registered['doctoral_thesis'];                
+        $result = $registered['doctoral_thesis'];
         $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
     }
-    
+
     /**
      * Test if the languageoption can be queried when initially specified in
      * the types describing xml.
@@ -587,7 +588,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
-        
+
         $this->assertArrayHasKey('languageoption', $fields['language'], 'Languageoption attribute is missing.');
         $this->assertEquals('off', $fields['language']['languageoption'], 'Languageoption attribute has wrong value.');
     }
@@ -611,12 +612,12 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
-        
+
         $this->assertArrayHasKey('multiplicity', $fields['institute'], 'Multiplicity attribute is missing.');
         $this->assertEquals('12', $fields['institute']['multiplicity'], 'Multiplicity attribute has wrong value.');
     }
 
-    
+
     /**
      * Test if the mandatory attribute can be queried when initially specified in
      * the types describing xml.
@@ -632,14 +633,14 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
-        
+
         $this->assertArrayHasKey('mandatory', $fields['language'], 'Mandatory attribute is missing.');
         $this->assertEquals('yes', $fields['language']['mandatory'], 'Mandatory attribute has wrong value.');
     }
-    
-    
+
+
     /**
-     * Test if the languageoption and multiplicity can be queried when *not* initially 
+     * Test if the languageoption and multiplicity can be queried when *not* initially
      * specified in the types describing xml.
      *
      * @return void
@@ -661,25 +662,25 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         // Multiplicity default is "1".
         $this->assertArrayHasKey('multiplicity', $fields['language'], 'Multiplicity attribute is missing.');
         $this->assertEquals('1', $fields['language']['multiplicity'], 'Multiplicity attribute has wrong value.');
-        
+
         // Mandatory default is "no".
         $this->assertArrayHasKey('mandatory', $fields['language'], 'Mandatory attribute is missing.');
         $this->assertEquals('no', $fields['language']['mandatory'], 'Mandatory attribute has wrong value.');
     }
-    
-    
+
+
     /**
      * Test if field option values in document type specifications are restricted
      * to the actual datatypes option limits. E.g. if a datatype is given a
      * multiplicity of 1, it has to be ensured that no document type specification
-     * sets the multiplicity of that particular field to "*".  
+     * sets the multiplicity of that particular field to "*".
      *
      * @param string $field    Name of a field.
      * @param string $option   Name of an field option.
      * @param string $value    Option value assigned in document type definition.
      * @param string $expected Expected outcome for option value.
      * @return void
-     * 
+     *
      * @dataProvider optionConstraintDataProvider
      */
     public function testContraintOptionsCannotGoBeyondDatatypeLimits($field, $option, $value, $expected) {
@@ -691,12 +692,12 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
-        
+
         $this->assertEquals($expected, $fields[$field][$option],
             '"' . $option . '" attribute value exceeds the possibilities of the datatype.');
-        
+
     }
-    
+
     /**
      * Test if all field definitions come with their default options set.
      *
@@ -706,9 +707,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields = Opus_Document_Type::getAvailableFields();
         $this->optionCheckHelper($fields);
     }
-    
+
     /**
-     * Check if every field has its option values set. 
+     * Check if every field has its option values set.
      *
      * @param array $fields Array of field definitions.
      * @return boolean|string If all options are set correctly true is returned.
@@ -720,7 +721,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             if (array_key_exists('fields', $fielddef) === true) {
                 $subresult = $this->optionCheckHelper($fielddef['fields']);
             }
-            if ((array_key_exists('multiplicity', $fielddef) === false) 
+            if ((array_key_exists('multiplicity', $fielddef) === false)
                 or (array_key_exists('languageoption', $fielddef) === false)
                 or ($subresult !== true)) {
                     $this->fail('Default option missing for: ' . $fieldname);
@@ -728,7 +729,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
         return true;
     }
-    
+
     /**
      * Prove that the core field definitions can not be modified by using a reference.
      *
@@ -737,11 +738,11 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     public function testFieldDefinitionsIsNotReference() {
         $fields1 = Opus_Document_Type::getAvailableFields();
         $fields1['WRITE'] = 'THROUGH';
-         
+
         $fields2 = Opus_Document_Type::getAvailableFields();
         $this->assertNotEquals($fields1, $fields2, 'Reference to internal field returned.');
     }
-    
-    
-    
+
+
+
 }

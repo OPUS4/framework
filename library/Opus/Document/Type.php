@@ -490,7 +490,7 @@ class Opus_Document_Type {
         $field =& $_fields[$fieldname];
         if (array_key_exists($option, $field) === true) {
             $optiondef = $field[$option];
-             
+
             // Filter the value.
             switch ($option) {
                 case 'multiplicity':
@@ -604,7 +604,11 @@ class Opus_Document_Type {
                 break;
 
             case self::DT_DATE:
-                return new Zend_Validate_Date();
+                $validator = new Zend_Validate_Date();
+                $locale = new Zend_Locale();
+                $validator->setLocale($locale);
+                $validator->setFormat(Zend_Locale_Format::getDateFormat($locale));
+                return $validator;
                 break;
 
             case self::DT_LANGUAGE:
