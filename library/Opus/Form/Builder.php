@@ -125,8 +125,12 @@ class Opus_Form_Builder {
         foreach ($elements as $key => $element) {
             $res = array();
             if (is_array($element) === true) {
-                $res['name'] = $key;
-                $res['elements'] = self::generateSubElements($element, $typefields);
+                $sub = self::generateSubElements($element, $typefields);
+                // add only subelements which are contain at least one element
+                if (count($sub) > 0) {
+                    $res['name'] = $key;
+                    $res['elements'] = $sub;
+                }
             } else if (array_key_exists($element, $typefields) === true) {
                 $typeinfo = $typefields[$element];
                 if (is_array($typeinfo) === false) {
@@ -153,7 +157,10 @@ class Opus_Form_Builder {
                     $res = self::generateSingleElement($element, $typeinfo);
                 }
             }
-            $result[] = $res;
+            // do not add empty interim results to final result
+            if (empty($res) === false) {
+                $result[] = $res;
+            }
         }
         return $result;
     }
