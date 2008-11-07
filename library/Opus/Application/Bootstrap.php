@@ -336,7 +336,10 @@ class Opus_Application_Bootstrap {
                 'cache_dir' => self::$applicationRootDirectory . '/tmp/'
                 );
 
-                self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
+        self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
+
+        // enable db metadata caching
+        Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
     }
 
     /**
