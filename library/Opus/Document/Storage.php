@@ -230,6 +230,14 @@ class Opus_Document_Storage
                             'scope' => 'reference');
                     }
                     break;
+				case 'author':
+		    		foreach ($values as $value) {
+						$storageData[$fieldName][] = array(
+			    			'personsId' => $value['personId'],
+			    			'institutesId' => $value['instituteId'],
+			    			'role' => 'author');
+		    		}
+		    		break;
                 default:
                     if (is_array($values) === true) {
                         throw new InvalidArgumentException('No multivalue definition found for '.$fieldName);
@@ -324,7 +332,8 @@ class Opus_Document_Storage
         'document_patents' => new Opus_Db_DocumentPatents(),
         //'document_statistics' => new Opus_Db_DocumentStatistics(),
         'document_subjects' => new Opus_Db_DocumentSubjects(),
-        'document_title_abstracts' => new Opus_Db_DocumentTitleAbstracts());
+        'document_title_abstracts' => new Opus_Db_DocumentTitleAbstracts(),
+        'link_documents_persons' => new Opus_Db_LinkDocumentsPersons());
         //partition data to different tables
         foreach ($this->documentData as $key => $value)
         {

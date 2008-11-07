@@ -165,21 +165,40 @@ class Opus_Person_Information {
             // Check for all integer values in the array
             // and treat them as identifiers to look for.
             $allint = array();
+            $allisint = true;
             foreach ($criteria as $c) {
                 if (is_int($c) === true) {
                     $allint[] = $c;
+                }
+                else
+                {
+                	$allisint = false;
                 }
             }
 
             // Fetching all records having an identifier included in the array.
             $persons = new Opus_Db_Persons();
-            $rows = $persons->fetchAll($allint);
-            $result = array();
-            foreach ($rows as $row) {
-                $result[] = self::map($row);
+            if ($allisint === true)
+            {
+            	$rows = $persons->fetchAll($allint);
+            	$result = array();
+            	foreach ($rows as $row) {
+	                $result[] = self::map($row);
+    	        }
             }
-
-            // TODO Getting person record by criteria
+            // Getting person record by criteria
+            else
+            {       
+            	$select = $persons->select();
+        		foreach ($criteria as $k => $c) {
+        			$select->where($k." = ?", $c);
+        		}
+        		$rows = $persons->fetchAll($select);
+	            $result = array();
+            	foreach ($rows as $row) {
+	                $result[] = self::map($row);
+            	}
+            }
             return $result;
         } else {
             // Invalid criteria has been passed.
