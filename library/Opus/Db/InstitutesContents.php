@@ -27,6 +27,7 @@
  * @category	Framework
  * @package	    Opus_Collections
  * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author     	Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright  	Copyright (c) 2008, OPUS 4 development team
  * @license    	http://www.gnu.org/licenses/gpl.html General Public License
  * @version    	$Id$
@@ -60,4 +61,16 @@ class Opus_Db_InstitutesContents extends Zend_Db_Table {
      * primary key values cannot be generated automatically.
      */
     protected $_sequence = false;
+
+    /**
+     * All dependant Tables,
+     * i.e. those that contain a licenses_id as a foreign key.
+     *
+     * @var array $_dependantTables
+     */
+    protected $_dependentTables = array(
+            'Opus_Db_LinkDocumentsPersons',
+            'Opus_Db_InstitutesStructure',
+            'Opus_Db_InstitutesReplacement',
+            );
 }

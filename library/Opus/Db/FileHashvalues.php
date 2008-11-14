@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -53,4 +54,18 @@ class Opus_Db_FileHashvalues extends Zend_Db_Table {
      * @var array
      */
     protected $_primary = array('file_hashvalues_id', 'document_files_id');
+
+    /**
+     * Map foreign keys in this table to the column in the table they originate
+     * from
+     *
+     * @var array $_referenceMap
+     */
+    protected $_referenceMap = array(
+            'DocumentFiles' => array(
+                'columns' => 'document_files_id',
+                'refTableClass' => 'Opus_Db_DocumentFiles',
+                'refColumns' => 'document_files_id',
+                ),
+            );
 }

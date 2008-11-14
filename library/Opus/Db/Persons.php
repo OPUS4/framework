@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -54,4 +55,15 @@ class Opus_Db_Persons extends Zend_Db_Table {
      * @var string
      */
     protected $_primary = 'persons_id';
+
+    /**
+     * All dependant Tables,
+     * i.e. those that contain a licenses_id as a foreign key.
+     *
+     * @var array $_dependantTables
+     */
+    protected $_dependentTables = array(
+            'Opus_Db_LinkDocumentsPersons',
+            'Opus_Db_PersonExternalKeys',
+            );
 }

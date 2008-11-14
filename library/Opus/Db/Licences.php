@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: DocumentSubjects.php 669 2008-09-02 08:40:39Z gerhardt $
@@ -54,4 +55,12 @@ class Opus_Db_Licences extends Zend_Db_Table {
      * @var string
      */
     protected $_primary = 'licences_id';
+
+    /**
+     * All dependant Tables,
+     * i.e. those that contain a licenses_id as a foreign key.
+     *
+     * @var array $_dependantTables
+     */
+    protected $_dependentTables = array('Opus_Db_Documents');
 }

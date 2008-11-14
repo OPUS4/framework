@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -55,4 +56,26 @@ class Opus_Db_DocumentFiles extends Zend_Db_Table {
      * @var string
      */
     protected $_primary = 'document_files_id';
+
+    /**
+     * All dependant Tables,
+     * i.e. those that contain a document_files_id as a foreign key.
+     *
+     * @var array $_dependantTables
+     */
+    protected $_dependentTables = array('Opus_Db_FileHashvalues');
+
+    /**
+     * Map foreign keys in this table to the column in the table they originate
+     * from
+     *
+     * @var array $_referenceMap
+     */
+    protected $_referenceMap = array(
+            'Documents' => array(
+                'columns' => 'documents_id',
+                'refTableClass' => 'Opus_Db_Documents',
+                'refColumns' => 'documents_id',
+                ),
+            );
 }

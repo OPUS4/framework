@@ -27,6 +27,7 @@
  * @category	Framework
  * @package		Opus_Collections
  * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author     	Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright  	Copyright (c) 2008, OPUS 4 development team
  * @license    	http://www.gnu.org/licenses/gpl.html General Public License
  * @version    	$Id$
@@ -54,4 +55,28 @@ class Opus_Db_LinkDocumentsPersons extends Zend_Db_Table {
      * @var string
      */
     protected $_primary = 'link_documents_persons_id';
+
+    /**
+     * Map foreign keys in this table to the column in the table they originate
+     * from (i.e. the referenced table)
+     *
+     * @var array $_referenceMap
+     */
+    protected $_referenceMap = array(
+            'Persons' => array(
+                'columns' => 'persons_id',
+                'refTableClass' => 'Opus_Db_Persons',
+                'refColumns' => 'persons_id',
+                ),
+            'Documents' => array(
+                'columns' => 'documents_id',
+                'refTableClass' => 'Opus_Db_Documents',
+                'refColumns' => 'documents_id',
+                ),
+            'InstitutesContents' => array(
+                'columns' => 'institutes_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id'
+                ),
+            );
 }

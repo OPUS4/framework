@@ -27,6 +27,7 @@
  * @category	Framework
  * @package		Opus_Collections
  * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author     	Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright  	Copyright (c) 2008, OPUS 4 development team
  * @license    	http://www.gnu.org/licenses/gpl.html General Public License
  * @version    	$Id$
@@ -54,4 +55,33 @@ class Opus_Db_InstitutesReplacement extends Zend_Db_Table {
      * @var string
      */
     protected $_primary = 'institutes_replacement_id';
+
+    /**
+     * Map foreign keys in this table to the column in the table they originate
+     * from
+     *
+     * @var array $_referenceMap
+     */
+    protected $_referenceMap = array(
+            'InstitutesContents' => array(
+                'columns' => 'institutes_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id'
+                ),
+            'ReplacementFor' => array(
+                'columns' => 'replacement_for_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id'
+                ),
+            'ReplacementBy' => array(
+                'columns' => 'replacement_by_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id'
+                ),
+            'CurrentReplacement' => array(
+                'columns' => 'current_replacement_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id'
+                ),
+            );
 }
