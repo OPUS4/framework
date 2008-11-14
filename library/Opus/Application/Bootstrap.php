@@ -100,6 +100,10 @@ class Opus_Application_Bootstrap {
         self::setupTranslation();
         self::prepare();
 
+        // start caching
+        self::$cache->start();
+        // if the cache is hit, the result is sent to the browser and the script stop here
+
         $response = self::$frontController->dispatch();
         self::sendResponse($response);
     }
@@ -327,14 +331,34 @@ class Opus_Application_Bootstrap {
     {
         // Set cache lifetime to 5 minutes
         $frontendOptions = array(
-                'lifetime' => 600,
-                'automatic_serialization' => true
+            'lifetime' => 600,
+            'debug_header' => false,
+            // turning on could slow down caching
+            'automatic_serialization' => false,
+            'default_options' => array(
+                // standard value false
+                'cache_with_get_variables' => true,
+                // standard value false
+                'cache_with_post_variables' => true,
+                // standard value false
+                'cache_with_session_variables' => true,
+                // standard value false
+                'cache_with_files_variables' => true,
+                // standard value false
+                'cache_with_cookie_variables' => true,
+                'make_id_with_get_variables' => true,
+                'make_id_with_post_variables' => true,
+                'make_id_with_session_variables' => true,
+                'make_id_with_files_variables' => true,
+                'make_id_with_cookie_variables' => true,
+                'cache' => true
+            )
         );
 
         $backendOptions = array(
-        // Directory where to put the cache files. Must be writeable for application server
-                'cache_dir' => self::$applicationRootDirectory . '/tmp/'
-                );
+            // Directory where to put the cache files. Must be writeable for application server
+            'cache_dir' => self::$applicationRootDirectory . '/tmp/'
+        );
 
         self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
 
