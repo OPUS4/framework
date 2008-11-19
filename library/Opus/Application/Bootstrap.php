@@ -238,6 +238,17 @@ class Opus_Application_Bootstrap {
         self::$frontController->returnResponse(true);
         self::$frontController->addModuleDirectory(self::$applicationRootDirectory . '/modules');
 
+        // Set the default route to point to the home module
+        self::$frontController->getRouter()->addRoute('default',
+                new Zend_Controller_Router_Route(':action',
+                    array(
+                        'module' => 'home',
+                        'controller' => 'index',
+                        'action' => 'index',
+                        )
+                    )
+                );
+
         /*
          * Add a custom front controller plugin for setting up an appropriate
          * include path to the form classes of modules.
