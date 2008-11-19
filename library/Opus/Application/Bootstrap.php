@@ -240,7 +240,7 @@ class Opus_Application_Bootstrap {
 
         // Set the default route to point to the home module
         self::$frontController->getRouter()->addRoute('default',
-                new Zend_Controller_Router_Route(':action',
+                new Zend_Controller_Router_Route(':module/:controller/:action/*',
                     array(
                         'module' => 'home',
                         'controller' => 'index',
