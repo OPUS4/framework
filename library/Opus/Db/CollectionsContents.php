@@ -33,7 +33,7 @@
  */
 
 /**
- * Table gateway class to table 'institutes_contents'.
+ * Table gateway class to table 'collections_contents_XYZ'.
  *
  * @category    Framework
  * @package     Opus_Db
@@ -58,6 +58,8 @@ class Opus_Db_CollectionsContents extends Zend_Db_Table {
     
     /**
      * primary key values cannot be generated automatically.
+     * 
+     * @var boolean
      */
     protected $_sequence = false;
     
