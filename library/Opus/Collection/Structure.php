@@ -161,38 +161,38 @@ class Opus_Collection_Structure {
         // For each node
         foreach ($this->collectionStructure as $index1 => $nested_set) {
             // If node is the desgnated parent
-            if ($parent === $this->collectionStructure[$index1][$this->collectionsIdentifier]) {
+            if ($parent === (int) $this->collectionStructure[$index1][$this->collectionsIdentifier]) {
                 // If parent has no child or new node shall be most left sibling
                 if (($this->collectionStructure[$index1]['right'] === $this->collectionStructure[$index1]['left']+1) or
                     ($leftSibling === 0)) {
                     // LEFT of new node is RIGHT of the parent
-                    $new_left = $this->collectionStructure[$index1]['right'];
+                    $new_left = (int) $this->collectionStructure[$index1]['right'];
                 } else {
                     // If parent has other children
                     // Find designated left sibling below designated parent
                     // This is the node with the correct collections_id which LEFT and RIGHT
                     // are between LEFT and RIGHT of the designated parent
                     foreach ($this->collectionStructure as $index2 => $nested_set2) {
-                        if (($this->collectionStructure[$index2][$this->collectionsIdentifier] === $leftSibling)
-                          and ($this->collectionStructure[$index2]['left']  > $this->collectionStructure[$index1]['left'])
-                          and ($this->collectionStructure[$index2]['right'] < $this->collectionStructure[$index1]['right'])) {
-                            $new_left = ($this->collectionStructure[$index2]['right'] + 1);
+                        if (((int) $this->collectionStructure[$index2][$this->collectionsIdentifier] === (int) $leftSibling)
+                          and ((int) $this->collectionStructure[$index2]['left']  > (int) $this->collectionStructure[$index1]['left'])
+                          and ((int) $this->collectionStructure[$index2]['right'] < (int) $this->collectionStructure[$index1]['right'])) {
+                            $new_left = ((int) $this->collectionStructure[$index2]['right']) + 1;
                         }
                     }
                 }
                 // Shift LEFTs and RIGHTs of nodes right of the new one
                 foreach ($this->collectionStructure as $index3 => $nested_set3) {
-                    if ($this->collectionStructure[$index3]['left'] >= $new_left) {
+                    if ((int) $this->collectionStructure[$index3]['left'] >= $new_left) {
                         $this->collectionStructure[$index3]['left'] += 2;
                     }
-                    if ($this->collectionStructure[$index3]['right'] >= $new_left) {
+                    if ((int) $this->collectionStructure[$index3]['right'] >= $new_left) {
                         $this->collectionStructure[$index3]['right'] += 2;
                     }
                 }
                 // Insert new node
                 $this->collectionStructure[] = array($this->collectionsIdentifier => $collections_id,
-                                                                        'left'    => $new_left,
-                                                                        'right'   => $new_left+1,
+                                                                        'left'    => (int) $new_left,
+                                                                        'right'   => (int) $new_left+1,
                                                                         'visible' => 1);
                 $parentNodeFound = true;
             }

@@ -77,7 +77,6 @@ class Opus_Collection_Roles {
         $this->collections_roles_info   = $this->collections_roles->info();
     }
     
-    
     /**
      * Creates a blank collection role array. 
      *
@@ -113,7 +112,6 @@ class Opus_Collection_Roles {
         $collectionRolesRecord[$this->collections_roles_info['primary'][1]] = $this->roles_id;
         $this->collectionRoles[$language] = $collectionRolesRecord;
     }
-    
     
     /**
      * Updating collection-role.
@@ -173,7 +171,7 @@ class Opus_Collection_Roles {
             $this->roles_id = $roles_id;
         }
     }
-    
+     
     /**
      * Save collection-role to database.
      *
@@ -211,7 +209,6 @@ class Opus_Collection_Roles {
         }
     }
     
-    
     /**
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
@@ -222,12 +219,29 @@ class Opus_Collection_Roles {
     public function createDatabaseTables() {
         // Fetch DB adapter
         $db = Zend_Registry::get('db_adapter');
+
+        $tabellenname = 'link_documents_collections_' . $this->roles_id;
+        $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
+            `link_documents_collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
+            PRIMARY KEY ( `link_documents_collections_id` ) 
+            ) ENGINE = MYISAM';
+        
+        try {
+            $db->query($query);
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
+        }
+        
         
         $tabellenname = 'collections_contents_' . $this->roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `collections_language` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT "ger",
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
+            `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             PRIMARY KEY ( `collections_id` , `collections_language` ) 
             ) ENGINE = MYISAM';
         

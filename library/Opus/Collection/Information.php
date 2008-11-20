@@ -24,12 +24,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category	Framework
- * @package		Opus_Collections
- * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @copyright  	Copyright (c) 2008, OPUS 4 development team
- * @license    	http://www.gnu.org/licenses/gpl.html General Public License
- * @version    	$Id$
+ * @category    Framework
+ * @package     Opus_Collections
+ * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
  */
 
 /**
@@ -39,8 +39,7 @@
  * @package  Opus_Collections
  */
 class Opus_Collection_Information {
-    
-    
+     
     /**
      * Create a complete new collection structure (role). 
      *
@@ -69,7 +68,6 @@ class Opus_Collection_Information {
         return $role->roles_id;
     }
     
-    
     /**
      * Create a new collection . 
      *
@@ -94,13 +92,12 @@ class Opus_Collection_Information {
         
         $ocs = new Opus_Collection_Structure($role_id);    
         $ocs->load();
-        $ocs->insert($collections_id, $parent_id, $leftSibling_id);
+        $ocs->insert((int) $collections_id, (int) $parent_id, (int) $leftSibling_id);
         $ocs->save();
         $db->commit();
         
         return $collections_id;
     }
-    
     
     /**
      * Create a new position in the tree for a given collection . 
@@ -168,4 +165,170 @@ class Opus_Collection_Information {
         $ocr->delete($collections_id);
         $db->commit();
     }
+
+    /**
+     * Fetch all collection roles from DB. 
+     *
+     * @param boolean $alsoHidden Decides whether or not hidden trees are regarded.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getAllCollectionRoles($alsoHidden = false) {
+        // DB table gateway for the collection roles
+        $collections_roles  = new Opus_Db_CollectionsRoles();
+        
+        // Fetch all or fetch only visible
+        if ($alsoHidden === true) {
+            $allCollectionRoles = $collections_roles
+                                        ->fetchAll($collections_roles->select())
+                                        ->toArray();
+        } else {
+            $allCollectionRoles = $collections_roles
+                                        ->fetchAll($collections_roles->select()
+                                        ->where('visible = ?', 1))
+                                        ->toArray();
+        }
+        
+        // Map into an ID- and language-indexed array 
+        foreach ($allCollectionRoles as $record) {
+            $allCollectionRolesOutput[$record['collections_roles_id']][$record['collections_language']] = $record;
+        }
+        
+        return $allCollectionRolesOutput;
+    }
+    
+    /**
+     * Fetch all child collections of a collection. 
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getSubCollections($roles_id, $collections_id = 0) {
+        // Container for the child collections
+        $children = array();
+        
+        // Load complete tree information 
+        $ocs = new Opus_Collection_Structure($roles_id);    
+        $ocs->load();
+        $tree = $ocs->collectionStructure;
+        
+        // Create collection content object
+        $occ = new Opus_Collection_Contents($roles_id);
+        
+        /*
+         * Find out left and right values of the given collection id.
+         * It should not matter which occurence of the collection in the tree we get 
+         * since every subtree should lead to the same subtree-collections_ids.
+         */
+        foreach ($tree as $node) {
+            if ((int) $node['collections_id'] === (int) $collections_id) {
+                $left  = $node['left'];
+                $right = $node['right'];
+            }
+        }    
+        
+        // Walk through the children and load the corresponding collection contents
+        while ($left < $right-1) {
+            $left++;
+            $occ->create();
+            $occ->load((int) $tree[$left]['collections_id']);
+            $children[] = array('content' => $occ->collectionContents, 'structure' => $tree[$left]);
+            $left = $tree[$left]['right'];
+        }
+        return $children;
+    }
+    
+    /**
+     * Fetch all document IDs belonging to a collection. 
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @param boolean $alsoSubCollections Decides if documents in the subcollections should be regarded.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getAllCollectionDocuments($roles_id, $collections_id, $alsoSubCollections = false) {
+        // DB table gateway for the linking table between collections and documents
+        $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
+        // Container array for the raw collection ID array and the reformatted collection ID array
+        $allCollectionDocumentsOut = array();
+        $allCollectionDocuments = array();
+        // Fetch all document IDs linked with the collection ID
+        $allCollectionDocuments = $linkDocColl
+                                        ->fetchAll($linkDocColl->select()
+                                        ->from($linkDocColl, array('documents_id'))
+                                        ->where('collections_id = ?', $collections_id))
+                                        ->toArray();
+        // Reformat array                                        
+        foreach ($allCollectionDocuments as $doc_id) {
+            $allCollectionDocumentsOut[] =  $doc_id['documents_id'];                                  
+        }
+        return $allCollectionDocumentsOut;                                        
+    }
+
+    /**
+     * Fetch role information to a given role ID. 
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getCollectionRole($roles_id) {
+        $ocr  = new Opus_Collection_Roles();
+        $ocr->load($roles_id);
+        return $ocr->collectionRoles;
+    }
+    
+    /**
+     * Fetch all collections on the pathes to the root node. 
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @param boolean $alsoSubCollections Decides if documents in the subcollections should be regarded.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getPathToRoot($roles_id, $collections_id) {
+        // Container for the array of pathes
+        $paths = array();
+        // Load collection tree
+        $ocs = new Opus_Collection_Structure($roles_id);    
+        $ocs->load();
+        $tree = $ocs->collectionStructure;
+        // Create collection content object
+        $occ = new Opus_Collection_Contents($roles_id);
+        
+        // Find every occurence of the collection ID in the tree
+        foreach ($tree as $node) {
+            if ((int) $node['collections_id'] === (int) $collections_id) {
+                // Container for this path
+                $path = array();
+                // First node in path is the given collection
+                $occ->create();
+                $occ->load((int) $collections_id);
+                $path[] = $occ->collectionContents;
+                // Search outwards the left/right-borders of the current node
+                $left  = $node['left'];
+                $right = $node['right'];
+                $currentCollID = $collections_id;
+                for ($l = $left-1; $l>1; $l--) {
+                    if (isset($tree[$l])) {
+                        $node = $tree[$l];
+                        if (($node['right'] > $right)) {
+                            $right = $node['right'];
+                            $occ->create();
+                            $occ->load((int) $node['collections_id']);
+                            $path[] = $occ->collectionContents;
+                        }
+                    }
+                }
+                $paths[$left] = $path;
+            }
+        }    
+        
+        return $paths;
+    }
+    
 }
