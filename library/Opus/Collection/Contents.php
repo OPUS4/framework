@@ -165,8 +165,6 @@ class Opus_Collection_Contents {
                 if (in_array($attribute, $this->collections_contents_info['primary']) === true) {
                     throw new InvalidArgumentException('Primary key attributes may not be updated.');
                 } else if (in_array($attribute, $this->collections_contents_info['cols']) === false) {
-                    /*echo "X";
-                    print_r($this->collections_contents_info['cols']);*/
                     throw new InvalidArgumentException("Unknown attribute '$attribute'.");
                 }
                 $this->collectionContents[$language][$attribute] = $content;

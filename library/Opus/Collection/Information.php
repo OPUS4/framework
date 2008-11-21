@@ -286,7 +286,6 @@ class Opus_Collection_Information {
      *
      * @param integer $roles_id Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
-     * @param boolean $alsoSubCollections Decides if documents in the subcollections should be regarded.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
