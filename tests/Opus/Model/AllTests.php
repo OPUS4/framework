@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus
+ * @package     Opus_Model
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -37,19 +37,19 @@
 // PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
 // AllTests:main() to run the suite.
 if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Opus_Model_AllTests::main');
 }
 
 // Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(__FILE__)) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
- * Main test suite for grouping and executing all subsequent test suites.
+ * Main test suite for testing database access and models.
  *
  * @category    Tests
- * @package     Opus
+ * @package     Opus_Model
  */
-class Opus_AllTests {
+class Opus_Model_AllTests {
 
     /**
      * If the test class is called directly via php command the test
@@ -64,32 +64,18 @@ class Opus_AllTests {
     /**
      * Construct and return the test suite.
      *
+     * WARNING: <b>This will drop and recreate the whole database.</b>
+     *
      * @return PHPUnit_Framework_TestSuite The suite.
      */
     public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus');
-        $suite->addTest(Opus_Application_AllTests::suite());
-        $suite->addTest(Opus_Client_AllTests::suite());
-        $suite->addTest(Opus_Collection_AllTests::suite());
-        $suite->addTest(Opus_Db_AllTests::suite());
-        $suite->addTest(Opus_Document_AllTests::suite());
-        $suite->addTest(Opus_File_AllTests::suite());
-        $suite->addTest(Opus_Form_AllTests::suite());
-        $suite->addTest(Opus_Identifier_AllTests::suite());
-        $suite->addTest(Opus_Licence_AllTests::suite());
-        $suite->addTest(Opus_Mail_AllTests::suite());
-        $suite->addTest(Opus_Model_AllTests::suite());
-        $suite->addTest(Opus_Person_AllTests::suite());
-        $suite->addTest(Opus_Search_AllTests::suite());
-        $suite->addTest(Opus_Security_AllTests::suite());
-        $suite->addTest(Opus_Validate_AllTests::suite());
-        $suite->addTest(Opus_Workflow_AllTests::suite());
+        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Model');
         return $suite;
     }
 
 }
 
 // Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_AllTests::main') {
-    Opus_AllTests::main();
+if (PHPUnit_MAIN_METHOD === 'Opus_Model_AllTests::main') {
+    Opus_Model_AllTests::main();
 }
