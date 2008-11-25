@@ -79,7 +79,6 @@ class Opus_AllTests {
         $suite->addTest(Opus_Licence_AllTests::suite());
         $suite->addTest(Opus_Mail_AllTests::suite());
         $suite->addTest(Opus_Model_AllTests::suite());
-        $suite->addTest(Opus_Person_AllTests::suite());
         $suite->addTest(Opus_Search_AllTests::suite());
         $suite->addTest(Opus_Security_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());

@@ -56,12 +56,12 @@ class Opus_Model_Person extends Opus_Model_Abstract
 
     /**
      * Initialize model with the following fields:
-     * - academicTitle
-     * - dateOfBirth
-     * - placeOfBirth
-     * - email
-     * - firstName
-     * - lastName
+     * - AcademicTitle
+     * - DateOfBirth
+     * - PlaceOfBirth
+     * - Email
+     * - FirstName
+     * - LastName
      * 
      * @return void
      */
@@ -74,7 +74,7 @@ class Opus_Model_Person extends Opus_Model_Abstract
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
-        //$email->setValidator(new Zend_Validate_Email());
+        $email->setValidator(new Zend_Validate_Email());
 
         $first_name = new Opus_Model_Field('FirstName');
 
@@ -88,6 +88,4 @@ class Opus_Model_Person extends Opus_Model_Abstract
             ->addField($last_name);
     }
     
-
-
 }
