@@ -71,23 +71,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
 
-
-
-    /**
-     * Data provider for field and option names and values.
-     *
-     * @return array Array of field and option names and associated values.
-     *
-     */
-    public function optionConstraintDataProvider() {
-        return array(
-        array('source','multiplicity', '*', '1'),
-        array('source','multiplicity', '12', '1'),
-        array('institute','multiplicity', '12', '12'),
-        array('source','languageoption', 'on', 'off')
-        );
-    }
-
     /**
      * Return invalid XML descriptions.
      *
@@ -153,10 +136,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
                     <mandatory type="one-at-least">
-                        <field name="completed_year" languageoption="off" />
-                        <field name="completed_date" languageoption="off" />
+                        <field name="CompletedYear" languageoption="off" />
+                        <field name="CompletedDate" languageoption="off" />
                     </mandatory>
                 </documenttype>';
         try {
@@ -227,10 +210,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
                     <mandatory type="one-at-least">
-                        <field name="completed_year" languageoption="off" />
-                        <field name="completed_date" languageoption="off" />
+                        <field name="CompletedYear" languageoption="off" />
+                        <field name="CompletedDate" languageoption="off" />
                     </mandatory>
                 </documenttype>';
         $type = new Opus_Document_Type($xml);

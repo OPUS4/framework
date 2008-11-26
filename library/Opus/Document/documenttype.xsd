@@ -84,7 +84,7 @@
 	</complexType>
 
 	<complexType name="FieldType">
-		<attribute name="name" type="opus:validname" use="required" />
+		<attribute name="name" type="opus:validfieldname" use="required" />
 		<attribute name="multiplicity" type="opus:multiplicity"
 			default="1" />
 		<attribute name="languageoption" type="opus:onoff"
@@ -122,6 +122,56 @@
 		<restriction base="string">
 			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*" />
 		</restriction>
+	</simpleType>
+	
+	<simpleType name="validfieldname">
+	   <restriction base="string">
+	       <enumeration value="Licence"/>
+	       <enumeration value="Range"/>
+	       <enumeration value="CompletedDate"/>
+	       <enumeration value="CompletedYear"/>
+	       <enumeration value="ContributingCooperation"/>
+	       <enumeration value="CreatingCooperation"/>
+	       <enumeration value="DateAccepted"/>
+	       <enumeration value="DocumentType"/>
+	       <enumeration value="Edition"/>
+	       <enumeration value="Issue"/>
+	       <enumeration value="Language"/>
+	       <enumeration value="Isbn"/>
+	       <enumeration value="PageFirst"/>
+	       <enumeration value="PageLast"/>
+	       <enumeration value="PageNumber"/>
+	       <enumeration value="PublicationStatus"/>
+	       <enumeration value="PublishedDate"/>
+	       <enumeration value="PublishedYear"/>
+	       <enumeration value="PublisherName"/>
+	       <enumeration value="PublisherPlace"/>
+	       <enumeration value="PublisherUniversity"/>
+	       <enumeration value="Reviewed"/>
+	       <enumeration value="ServerDateModified"/>
+	       <enumeration value="ServerDatePublished"/>
+	       <enumeration value="ServerDateUnlocking"/>
+	       <enumeration value="ServerDateValid"/>
+	       <enumeration value="Source"/>
+	       <enumeration value="SwbId"/>
+	       <enumeration value="VgWortPixelUrl"/>
+	       <enumeration value="Volume"/>
+	       <enumeration value="Institute"/>
+	       <enumeration value="NonInstituteAffiliation"/>
+	       <enumeration value="Collection"/>
+	       <enumeration value="TitleAbstract"/>
+	       <enumeration value="TitleMain"/>
+	       <enumeration value="TitleParent"/>
+	       <enumeration value="SubjectSwd"/>
+	       <enumeration value="SubjectPsyndex"/>
+	       <enumeration value="SubjectDdc"/>
+	       <enumeration value="SubjectUncontrolled"/>
+	       <enumeration value="Note"/>
+	       <enumeration value="PersonAdvisor"/>
+	       <enumeration value="PersonAuthor"/>
+	       <enumeration value="PersonOther"/>
+	       <enumeration value="PersonReferee"/>
+	   </restriction>
 	</simpleType>
 
 </schema>

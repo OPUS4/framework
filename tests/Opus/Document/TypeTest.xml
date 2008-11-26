@@ -38,47 +38,45 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
     <!-- general -->
-    <field name="licences_id" mandatory="yes" />
-    <field name="language" mandatory="yes" />
+    <field name="Licence" mandatory="yes" />
+    <field name="Language" mandatory="yes" />
 
 
     <!-- dates -->
-    <!-- either "completed_year" or "completed_date" must be mandatory -->
     <mandatory type="one-at-least">
-        <field name="completed_year" languageoption="off" />
-        <field name="completed_date" languageoption="off" />
+        <field name="CompletedYear" languageoption="off" />
+        <field name="CompletedDate" languageoption="off" />
     </mandatory>
 
-    <!-- either "published_year" or "published_date" must be mandatory -->
     <mandatory type="one-at-least">
-        <field name="published_year" languageoption="off" />
-        <field name="published_date" languageoption="off" />
+        <field name="PublishedYear" languageoption="off" />
+        <field name="PublishedDate" languageoption="off" />
     </mandatory>
 
-    <field name="date_accepted" languageoption="off" mandatory="yes" />
+    <field name="DateAccepted" languageoption="off" mandatory="yes" />
 
     <!-- identifiers -->
-    <field name="identifier_isbn" languageoption="off" />
+    <field name="Isbn" languageoption="off" />
 
     <!-- institutes -->
-    <field name="institute" multiplicity="*" languageoption="off" mandatory="yes" />
-    <field name="non_institute_affiliation" languageoption="off" />
+    <field name="Institute" multiplicity="*" languageoption="off" mandatory="yes" />
+    <field name="NonInstituteAffiliation" languageoption="off" />
 
     <!-- persons -->
-    <field name="person_advisor" languageoption="off" mandatory="yes" />
-    <field name="person_author" languageoption="off" mandatory="yes" />
-    <field name="person_other" languageoption="off" />
-    <field name="person_referee" languageoption="off" />
+    <field name="PersonAdvisor" languageoption="off" mandatory="yes" />
+    <field name="PersonAuthor" languageoption="off" mandatory="yes" />
+    <field name="PersonOther" languageoption="off" />
+    <field name="PersonReferee" languageoption="off" />
 
     <!-- titles  -->
-    <field name="title_abstract" multiplicity="*" mandatory="yes" />
-    <field name="title_main" multiplicity="*" mandatory="yes" />
-    <field name="title_parent" multiplicity="*" />
+    <field name="TitleAbstract" multiplicity="*" mandatory="yes" />
+    <field name="TitleMain" multiplicity="*" mandatory="yes" />
+    <field name="TitleParent" multiplicity="*" />
 
     <!-- subjects -->
-    <field name="subject_swd" languageoption="off" mandatory="yes" />
-    <field name="subject_ddc" languageoption="off" />
-    <field name="subject_uncontrolled" languageoption="off"
+    <field name="SubjectSwd" languageoption="off" mandatory="yes" />
+    <field name="SubjectDdc" languageoption="off" />
+    <field name="SubjectUncontrolled" languageoption="off"
         mandatory="yes" />
 
 </documenttype>
