@@ -69,13 +69,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Constructor. Pass an id to fetch from database.
      *
-     * @param Zend_Db_Table $tableGatewayModel  Opus_Db model to fetch table row from.
      * @param int $id   Optional id of existing database row.
-     * @throws Opus_Model_Exception Thrown if invalid passed id is invalid.
+     * @param Zend_Db_Table $tableGatewayModel  Opus_Db model to fetch table row from.
+     * @throws Opus_Model_Exception Thrown if passed id is invalid.
      * @return void
      */
-    public function __construct($tableGatewayModel, $id = null)
+    public function __construct($id = null, $tableGatewayModel = null)
     {
+        if ($tableGatewayModel === null) {
+            throw new Opus_Model_Exception("No table gateway model passed.");
+        }
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else {

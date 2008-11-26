@@ -49,9 +49,12 @@ class Opus_Model_Licence extends Opus_Model_Abstract
      * @param mixed $id (Optional) Primary key of a persisted model instance.
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null)
-    {
-        parent::__construct(new Opus_Db_Licences, $id);
+    public function __construct($id = null, $tableGatewayModel = null) {
+        if ($tableGatewayModel === null) {
+            parent::__construct($id, new Opus_Db_Licence);
+        } else {
+            parent::__construct($id, $tableGatewayModel);
+        }
     }
 
     /**

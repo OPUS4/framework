@@ -50,8 +50,12 @@ class Opus_Model_Person extends Opus_Model_Abstract
      * @param mixed $id (Optional) Primary key of a persisted model instance.
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null) {
-        parent::__construct(new Opus_Db_Persons, $id);
+    public function __construct($id = null, $tableGatewayModel = null) {
+        if ($tableGatewayModel === null) {
+            parent::__construct($id, new Opus_Db_Persons);
+        } else {
+            parent::__construct($id, $tableGatewayModel);
+        }
     }
 
     /**
@@ -69,12 +73,10 @@ class Opus_Model_Person extends Opus_Model_Abstract
         $academic_title = new Opus_Model_Field('AcademicTitle');
 
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setType(Opus_Model_Field::DT_DATE);
 
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
-        $email->setValidator(new Zend_Validate_Email());
 
         $first_name = new Opus_Model_Field('FirstName');
 

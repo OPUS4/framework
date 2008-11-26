@@ -72,12 +72,17 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @param Opus_Document_Builder $builder
      * @param int|string $id
+     * @param Zend_Db_Table $tableGatewayModel
      * @see Opus_Model_Abstract::__construct()
      * @see $_builder
      */
-    public function __construct(Opus_Document_Builder $builder, $id = null) {
+    public function __construct(Opus_Document_Builder $builder, $id = null, $tableGatewayModel = null) {
         $this->_builder = $builder;
-        parent::__construct(new Opus_Db_Documents, $id);
+        if ($tableGatewayModel === null) {
+            parent::__construct($id, new Opus_Db_Documents);
+        } else {
+            parent::__construct($id, $tableGatewayModel);
+        }
         if ($this->getId() !== null) {
             // Bestehende Zeile einlesen
             $this->_documentTitleAbstractTableRow =
