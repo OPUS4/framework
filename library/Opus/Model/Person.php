@@ -42,7 +42,7 @@
  */
 class Opus_Model_Person extends Opus_Model_Abstract
 {
-    
+
     /**
      * Create a new person model instance.
      *
@@ -87,5 +87,5 @@ class Opus_Model_Person extends Opus_Model_Abstract
             ->addField($first_name)
             ->addField($last_name);
     }
-    
+
 }

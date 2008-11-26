@@ -48,7 +48,7 @@ interface Opus_Model_Interface
      * @return void
      */
     public function store();
-    
+
     /**
      * Return the primary key that identifies the model instance in the database.
      * If called on a clean new instance, null is returned until a call to store(). 
@@ -56,14 +56,14 @@ interface Opus_Model_Interface
      * @return void
      */
     public function getId();
-    
+
     /**
      * Remove the model instance from the database.
      *
      * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
      */
     public function delete();
-    
+
     /**
      * Returns describing information about the model. This includes the list
      * of fields and field properties thus others components know the field

@@ -76,23 +76,23 @@ class Opus_Model_Field
      * @var Boolean
      */
     protected $_languageoption = false;
-    
-    
+
+
     /**
      * Holds the actual language for the field value.
      *
      * @var String
      */
     protected $_language = '';
-    
+
     /**
      * Hold the fields value.
      *
      * @var Mixed
      */
     protected $_value = null;
-    
-    
+
+
     /**
      * Holds the fields default values. For selection list fields this should
      * contain the list of options.
@@ -100,15 +100,15 @@ class Opus_Model_Field
      * @var Mixed
      */
     protected $_default = null;
-    
-    
+
+
     /**
      * Internal name of the field.
      *
      * @var String
      */
     protected $_name = '';
-    
+
     /**
      * Create an new field instance and set the given name.
      * 
@@ -123,7 +123,7 @@ class Opus_Model_Field
     public function __construct($name) {
         $this->_name = $name;
     }
-    
+
     /**
      * Get the internal name of the field.
      *
@@ -205,7 +205,7 @@ class Opus_Model_Field
         $this->_mandatory = $mandatory;
         return $this;
     }
-    
+
     /**
      * Get the mandatory flag.
      *
@@ -214,8 +214,8 @@ class Opus_Model_Field
     public function getMandatory() {
         return $this->_mandatory;
     }
-    
-    
+
+
     /**
      * Enable or disable optional specification of the fields language.
      *
@@ -226,7 +226,7 @@ class Opus_Model_Field
         $this->_languageoption = $languageoption;
         return $this;
     }
-    
+
     /**
      * Return the current language option.
      *
@@ -235,7 +235,7 @@ class Opus_Model_Field
     public function getLanguageOption() {
         return $this->_languageoption;
     }
-    
+
     /**
      * Set the field value language.
      *
@@ -246,7 +246,7 @@ class Opus_Model_Field
         $this->_language = $language;
         return $this;
     }
-    
+
     /**
      * Get the field value language.
      *
@@ -255,7 +255,7 @@ class Opus_Model_Field
     public function getLanguage() {
         return $this->_language;
     }
-    
+
     /**
      * Set the field value.
      *
@@ -266,8 +266,8 @@ class Opus_Model_Field
         $this->_value = $value;
         return $this;
     }
-    
-    
+
+
     /**
      * Get the fields value
      * 
@@ -276,7 +276,7 @@ class Opus_Model_Field
     public function getValue() {
         return $this->_value;
     }
-    
+
     /**
      * Set the fields default value.
      *
@@ -287,8 +287,8 @@ class Opus_Model_Field
         $this->_default = $value;
         return $this;
     }
-    
-    
+
+
     /**
      * Get the fields default value.
      * 
@@ -297,10 +297,10 @@ class Opus_Model_Field
     public function getDefault() {
         return $this->_default;
     }
-    
-    
-    
-    
+
+
+
+
     /**
      * Given a type this method returns an validator instance implementing
      * Zend_Validate_Interface in correspondance to the defined datatype of the field.

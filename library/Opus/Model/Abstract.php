@@ -43,29 +43,37 @@
 abstract class Opus_Model_Abstract implements Opus_Model_Interface
 {
     /**
-     * Holds the primary database table row.
+     * Holds the primary database table row. The concrete class is responsible
+     * for any additional table rows it might need.
      *
      * @var Zend_Db_Table_Row
      */
     protected $_primaryTableRow;
 
     /**
-     * Holds the individual fields of the domain model.
+     * Holds those fields of the domain model that map to the primary
+     * table row.
      *
      * @var array
      */
     protected $_fields = array();
 
-
-
+    /**
+     * Holds the name of those fields of the domain model that do not map to the
+     * primary table row. Concrete classes that use external fields must supply
+     * _fetch{fieldname} and _store{fieldname} functions that handle these fields.
+     *
+     * @var array
+     */
     protected $_externalFields = array();
 
-
     /**
-     * Constructor. Pass an id to fetch license from database.
+     * Constructor. Pass an id to fetch from database.
      *
-     * @param  Zend_Db_Table  $tableGatewayModel
-     * @param  int  $id
+     * @param Zend_Db_Table $tableGatewayModel  Opus_Db model to fetch table row from.
+     * @param int $id   Optional id of existing database row.
+     * @throws Opus_Model_Exception Thrown if invalid passed id is invalid.
+     * @return void
      */
     public function __construct($tableGatewayModel, $id = null)
     {
@@ -83,7 +91,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
     /**
-     * Setup fields.
+     * Overwrite to initialize fields.
      *
      * @return void
      */
@@ -117,7 +125,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      *
      * @see Opus_Model_Interface::store()
      * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
-     * @return void
+     * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
@@ -147,9 +155,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Magic method to access the models fields via virtual set/get methods.
      *
-     * @param String $name      Name of the method beeing called.
-     * @param Array  $arguments Arguments for function call.
-     * @return Mixed Might return a value if a getter method is called.
+     * @param string $name      Name of the method beeing called.
+     * @param array  $arguments Arguments for function call.
+     * @return mixed Might return a value if a getter method is called.
      * @throws Opus_Model_Exception If an unknown field or method is requested.
      */
     public function __call($name, array $arguments)
@@ -183,10 +191,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
     /**
      * Add an field to the model. If a field with the same name has already been added,
-     * it willl be replaced by the given field.
+     * it will be replaced by the given field.
      *
      * @param Opus_Model_Field $field                Field instance that gets appended to the models field collection.
-     * @param String           $external_model_class (Optional) Name of an external model class.
+     * @param string           $external_model_class (Optional) Name of an external model class.
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field) {
@@ -198,7 +206,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Return a reference to an actual field.
      *
-     * @param String $name Name of the requested field.
+     * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
@@ -243,7 +251,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
 
-
+    /**
+     * Get a list of all fields (internal & external) attached to the model.
+     *
+     * @return array    List of fields
+     */
     public function describe() {
         $fields = array_keys($this->_fields);
         $ex_fields = array_keys($this->_externalFields);

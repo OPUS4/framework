@@ -39,5 +39,5 @@
  * @package  Opus_Model
  */
 class Opus_Model_Exception extends Exception {
-    
+
 }
