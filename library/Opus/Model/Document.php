@@ -97,17 +97,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
      */
     protected function _init() {
         $this->_builder->addFieldsTo($this);
-        
-        foreach ($this->_fields as $fieldname => $field) {
-            switch ($fieldname) {
-                case 'DocumentType':
-                    $field->setValidator(new Opus_Validate_DocumentType());
-                    break;
-                //...
-                default : 
-                    break;
-            }
-        }
     }
 
 

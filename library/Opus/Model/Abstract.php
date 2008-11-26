@@ -86,6 +86,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             }
         }
         $this->_init();
+        $this->_addValidators();
         $this->_fetchValues();
     }
 
@@ -117,6 +118,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
     }
 
+    /**
+     * Add validators to the fields. Opus_Validate_{fieldname} classes are
+     * expected to exist.
+     *
+     * @return void
+     */
+    protected function _addValidators() {
+        foreach ($this->_fields as $fieldname => $field) {
+            $classname = 'Opus_Validate_' . $fieldname;
+            if (class_exists($classname)) {
+                $field->setValidator(new $classname);
+            }
+        }
+    }
 
 
     /**
