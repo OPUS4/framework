@@ -51,8 +51,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     protected $_primaryTableRow;
 
     /**
-     * Holds those fields of the domain model that map to the primary
-     * table row.
+     * Holds all fields of the domain model.
      *
      * @var array
      */
