@@ -215,17 +215,4 @@ class Opus_Document_Type {
     }
 
 
-    //    public function getFields() {
-    //        return array(
-    //            'DocumentType' => array('type' => Opus_Model_Field::DT_DOCUMENTTYPE, 'multiplicity' => 1,
-    //                'mandatory' => false, 'default' => 'article', 'languageoption' => false),
-    //            'Authors' => array('type' => Opus_Model_Field::DT_PERSON, 'multiplicity' => '*',
-    //                'mandatory' => false, 'default' => null, 'languageoption' => false),
-    //            'DateAccepted' => array('type' => Opus_Model_Field::DT_DATE, 'multiplicity' => 1,
-    //                'mandatory' => false, 'default' => null, 'languageoption' => false),
-    //            'TitleMain' => array('type' => Opus_Model_Field::DT_TITLE_MAIN, 'multiplicity' => 1,
-    //                'mandatory' => true, 'default' => null, 'languageoption' => true));
-    //    }
-
-
 }
