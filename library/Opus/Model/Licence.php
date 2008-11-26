@@ -41,34 +41,62 @@
  */
 class Opus_Model_Licence extends Opus_Model_Abstract
 {
-    /**
-     * TODO: short description.
-     * 
-     * @return TODO
-     */
-    public function store()
-    {
-    }
 
     /**
+     * Create a new licence model instance.
      *
-     *
-     * @return void
-     */
-    public function delete()
-    {
-        $this->_tableRow->delete();
-    }
-
-    /**
-     * Constructor. Pass an id to fetch license from database.
-     *
-     * @param  int  $id Optional, defaults to null.
+     * @see Opus_Model_Abstract::__construct()
+     * @param mixed $id (Optional) Primary key of a persisted model instance.
+     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
     public function __construct($id = null)
     {
-        //TODO: Setup fields
         parent::__construct(new Opus_Db_Licences, $id);
+    }
+
+    /**
+     * Initialize model with the following fields:
+     * - Active
+     * - CommentInternal
+     * - DescMarkup
+     * - DescText
+     * - LicenceLanguage
+     * - LinkLicence
+     * - LinkLogo
+     * - LinkSign
+     * - MimeType
+     * - NameLong
+     * - PodAllowed
+     * - SortOrder
+     *
+     * @return void
+     */
+    protected function _init() {
+        $active = new Opus_Model_Field('Active');
+        $comment_internal = new Opus_Model_Field('CommentInternal');
+        $desc_markup = new Opus_Model_Field('DescMarkup');
+        $desc_text = new Opus_Model_Field('DescText');
+        $licence_language = new Opus_Model_Field('LicenceLanguage');
+        $link_licence = new Opus_Model_Field('LinkLicence');
+        $link_logo = new Opus_Model_Field('LinkLogo');
+        $link_sign = new Opus_Model_Field('LinkSign');
+        $mime_type = new Opus_Model_Field('MimeType');
+        $name_long = new Opus_Model_Field('NameLong');
+        $sort_order = new Opus_Model_Field('SortOrder');
+        $pod_allowed = new Opus_Model_Field('PodAllowed');
+
+        $this->addField($active)
+            ->addField($comment_internal)
+            ->addField($desc_markup)
+            ->addField($desc_text)
+            ->addField($licence_language)
+            ->addField($link_licence)
+            ->addField($link_logo)
+            ->addField($link_sign)
+            ->addField($mime_type)
+            ->addField($name_long)
+            ->addField($sort_order)
+            ->addField($pod_allowed);
     }
 
 }
