@@ -70,7 +70,7 @@ class Opus_Form_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Form');
-        $suite->addTestSuite('Opus_Form_BuilderTest');
+        //$suite->addTestSuite('Opus_Form_BuilderTest');
         $suite->addTestSuite('Opus_Form_LayoutTest');
         return $suite;
     }
