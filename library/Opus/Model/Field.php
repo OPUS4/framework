@@ -43,122 +43,6 @@ class Opus_Model_Field
 {
 
     /**
-     * Datatype for textfields.
-     *
-     */
-    const DT_TEXT           = 1;
-
-    /**
-     * Datatype for textfields.
-     *
-     */
-    const DT_TEXTAREA       = 3;
-
-    /**
-     * Datatype for numeric values.
-     *
-     */
-    const DT_NUMBER         = 10;
-    /**
-     * Datatype for date values.
-     *
-     */
-    const DT_DATE           = 20;
-    /**
-     * Datatype for language specification.
-     *
-     */
-    const DT_LANGUAGE       = 30;
-    /**
-     * Datatype for ISBN-10 identifier.
-     *
-     */
-    const DT_ISBN_10        = 35;
-    /**
-     * Datatype for ISBN-13 identifier.
-     *
-     */
-    const DT_ISBN_13        = 40;
-    /**
-     * Datatype for boolean values.
-     *
-     */
-    const DT_BOOLEAN        = 50;
-    /**
-     * Datatype for document type enum.
-     *
-     */
-    const DT_DOCUMENTTYPE   = 60;
-    /**
-     * Datatype for review type enum.
-     *
-     */
-    const DT_REVIEWTYPE     = 70;
-    /**
-     * Datatype for document abstract.
-     *
-     */
-    const DT_TITLE_ABSTRACT = 80;
-    /**
-     * Datatype for main document title.
-     *
-     */
-    const DT_TITLE_MAIN     = 90;
-    /**
-     * Datatype for title of superordinate document, catalog or list etc.
-     *
-     */
-    const DT_TITLE_PARENT   = 100;
-    /**
-     * Datatype for subjects following SWD standard.
-     *
-     */
-    const DT_SUBJECT_SWD    = 110;
-    /**
-     * Datatype for subjects following DDC standard.
-     *
-     */
-    const DT_SUBJECT_DDC    = 120;
-    /**
-     * Datatype for subjects following PSYNDEX standard.
-     *
-     */
-    const DT_SUBJECT_PSYNDEX = 130;
-    /**
-     * Datatype for free form subjects.
-     *
-     */
-    const DT_SUBJECT_UNCONTROLLED = 140;
-    /**
-     * Datatype for notes on documents.
-     *
-     */
-    const DT_NOTE           = 150;
-    /**
-     * Datatype for publication scope of document notes.
-     *
-     */
-    const DT_NOTESCOPE  = 160;
-
-    /**
-     * Datatype for referring to a person.
-     *
-     */
-    const DT_PERSON     = 170;
-
-    /**
-     * Datatype for referring to an institute.
-     *
-     */
-    const DT_INSTITUTE  = 180;
-
-    /**
-     * Datatype for referring to a collection.
-     *
-     */
-    const DT_COLLECTION  = 190;
-
-    /**
      * Hold validator.
      *
      * @var Zend_Validate_Interface
@@ -178,13 +62,6 @@ class Opus_Model_Field
      * @var Integer
      */
     protected $_multiplicity = 1;
-
-    /**
-     * Specifies datatype.
-     *
-     * @var Integer
-     */
-    protected $_type = self::DT_TEXT;
 
     /**
      * Specifiy whether the field is required or not.
@@ -316,28 +193,6 @@ class Opus_Model_Field
     public function getMultiplicity() {
         return $this->_multiplicity;
     }
-
-    /**
-     * Set the field type. Automatically sets the validator associated with the given type. 
-     *
-     * @param Integer $type Integer value describing the field type. Use DT_* constants of Opus_Model_Field.
-     * @return Opus_Model_Field Provides fluent interface.
-     */
-    public function setType($type) {
-        $this->_type = $type;
-        $this->_validator = $this->getValidatorFor($type);
-        return $this;
-    }
-    
-    /**
-     * Get the type of the field.
-     *
-     * @return Integer Number representing the fields type. Types are representet by DT_* constants of Opus_Model_Field.
-     */
-    public function getType() {
-        return $this->_type;
-    }
-    
 
     /**
      * Set the mandatory flag for the field. This flag states out whether a field is required
