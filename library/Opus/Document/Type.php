@@ -105,7 +105,10 @@ class Opus_Document_Type {
 
                 case 'filename':
                     $document = new DOMDocument();
-                    $document->load($xml);
+                    if ($document->load($xml) === false) {
+                        // Trigger catch block
+                        throw new Exception();
+                    }
                     break;
 
                 case 'domdocument':

@@ -197,6 +197,18 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
 
     /**
+     * Test if loading an file that cannot be loaded as xml file for
+     * any reason leads to an exception. 
+     *
+     * @return void
+     */
+    public function testLoadInvalidFileThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');        
+        $xml = 'TypeTest.php';
+        $type = new Opus_Document_Type($xml);
+    }
+    
+    /**
      * Create a document type by providing a DOMDocument.
      *
      * @return void
@@ -238,118 +250,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    
+    
+     
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //
-    //    /**
-    //     * Loop through all declared fields and request their corresponding validators
-    //     * using the datatype specified.
-    //     * Check if returned validator class matches the datatype.
-    //     *
-    //     * @return void
-    //     */
-    //    public function testGetValidatorsByFieldType() {
-    //        $this->markTestSkipped('Method gone because of refactoring.');
-    //
-    //        $fields = Opus_Document_Type::getAvailableFields();
-    //        foreach ($fields as $fname => $fdesc) {
-    //            $validator = Opus_Document_Type::getValidatorFor($fdesc['type']);
-    //            $this->checkType($fdesc['type'], $validator);
-    //        }
-    //    }
-    //
-    //    /**
-    //     * Helper function for testGetValidatorsByFieldType() and testGetValidatorsByFieldName().
-    //     * Checks field-type, validator pair.
-    //     *
-    //     * @param mixed $type      Opus_Document_Type constant.
-    //     * @param mixed $validator Object to validate if it is a correct validator instance.
-    //     * @return void
-    //     */
-    //    private function checkType($type, $validator) {
-    //        if (is_null($validator) === false) {
-    //            $this->assertTrue($validator instanceof Zend_Validate_Interface,
-    //                'Returned object does not implement Zend_Validate_Interface');
-    //
-    //            switch ($type) {
-    //                case Opus_Document_Type::DT_NUMBER:
-    //                    $expected = 'Zend_Validate_Int';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_DATE:
-    //                    $expected = 'Zend_Validate_Date';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_LANGUAGE:
-    //                    $expected = 'Opus_Validate_Locale';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_ISBN_10:
-    //                    $expected = 'Opus_Validate_Isbn10';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_ISBN_13:
-    //                    $expected = 'Opus_Validate_Isbn13';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_DOCUMENTTYPE:
-    //                    $expected = 'Opus_Validate_DocumentType';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_REVIEWTYPE:
-    //                    $expected = 'Opus_Validate_ReviewType';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_NOTESCOPE:
-    //                    $expected = 'Opus_Validate_NoteScope';
-    //                    break;
-    //
-    //                case Opus_Document_Type::DT_BOOLEAN:
-    //                    $expected = 'Opus_Validate_Boolean';
-    //                    break;
-    //
-    //                default:
-    //                    $expected = 'Opus_Validate_ComplexType';
-    //                    break;
-    //            }
-    //            $this->assertType($expected, $validator, 'Returned object is not a ' . $expected . ' instance.');
-    //        }
-    //    }
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //
-    //    /**
-    //     * Prove that the core field definitions can not be modified by using a reference.
-    //     *
-    //     * @return void
-    //     */
-    //    public function testFieldDefinitionsIsNotReference() {
-    //        $this->markTestSkipped('Method gone because of refactoring.');
-    //
-    //        $fields1 = Opus_Document_Type::getAvailableFields();
-    //        $fields1['WRITE'] = 'THROUGH';
-    //
-    //        $fields2 = Opus_Document_Type::getAvailableFields();
-    //        $this->assertNotEquals($fields1, $fields2, 'Reference to internal field returned.');
-    //    }
 
 
 
