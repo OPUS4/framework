@@ -276,7 +276,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     public function describe() {
         $fields = array_keys($this->_fields);
-        $ex_fields = array_keys($this->_externalFields);
+        $ex_fields = array_values($this->_externalFields);
         return array_merge($fields, $ex_fields);
     }
 
