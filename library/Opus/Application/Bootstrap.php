@@ -101,7 +101,7 @@ class Opus_Application_Bootstrap {
         self::prepare();
 
         // start caching
-        self::$cache->start();
+        //self::$cache->start();
         // if the cache is hit, the result is sent to the browser and the script stop here
 
         $response = self::$frontController->dispatch();
