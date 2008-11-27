@@ -181,6 +181,19 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->fail('Creation failed: ' . $ex->getMessage());
         }
     }
+    
+    
+    /**
+     * Creating a type with an invalid filename throws exception that points
+     * to a file problem.
+     *
+     * @return void
+     */
+    public function testCreateWithWrongFilenameThrowsFileException() {
+        $this->setExpectedException('InvalidArgumentException');        
+        $xml = '../xml/nofile.xml';
+        $type = new Opus_Document_Type($xml);
+    }
 
 
     /**
