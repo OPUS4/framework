@@ -130,7 +130,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     protected function _addValidators() {
         foreach ($this->_fields as $fieldname => $field) {
             $classname = 'Opus_Validate_' . $fieldname;
-            if (class_exists($classname)) {
+            // suppress warnings about not existing classes
+            if (@class_exists($classname)) {
                 $field->setValidator(new $classname);
             }
         }
@@ -204,7 +205,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
 
     }
-     
+
 
     /**
      * Add an field to the model. If a field with the same name has already been added,
