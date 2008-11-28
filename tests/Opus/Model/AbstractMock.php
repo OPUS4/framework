@@ -26,57 +26,35 @@
  *
  * @category    Tests
  * @package     Opus_Model
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Model_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing database access and models.
+ * This class extends Opus_Model_Abstract to be able to test its code.
+ * Opus_Model_Abstract is an abstract class.
+ * This mock is needed to be able to instantiate Opus_Model_Abstract.
  *
- * @category    Tests
- * @package     Opus_Model
+ * @category Tests
+ * @package Opus_Model
+ * @group AbstractTest
  */
-class Opus_Model_AllTests {
-
-    /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+class AbstractMock extends Opus_Model_Abstract {
+/**
+     * Initialize model with the following fields:
+     * - AcademicTitle
+     * - DateOfBirth
+     * - PlaceOfBirth
+     * - Email
+     * - FirstName
+     * - LastName
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    protected function _init() {
+        $value = new Opus_Model_Field('value');
+        $this->addField($value);
     }
-
-    /**
-     * Construct and return the test suite.
-     *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
-     */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Model');
-        $suite->addTestSuite('Opus_Model_AbstractTest');
-        return $suite;
-    }
-
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Model_AllTests::main') {
-    Opus_Model_AllTests::main();
 }

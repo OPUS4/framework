@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataset>
+    <testtable id="1" value="raboof" />
+	<testtable id="3" value="foo" />
+	<testtable id="4" value="bar" />
+	<testtable id="5" value="bla" />
+	<testtable id="8" value="blub" />
+</dataset>
