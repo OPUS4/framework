@@ -146,21 +146,21 @@ class Opus_Document_Type {
                     break;
             }
         } catch (Exception $ex) {
-            throw new InvalidArgumentException('Argument should be a valid
-            document type name, an XML string, a filename or an DOMDocument object.');
+            throw new InvalidArgumentException('Argument should be a valid document type name, an XML string, a filename or an DOMDocument object.');
         }
 
         // Validate the XML definition.
         $schemapath = dirname(__FILE__) . '/documenttype.xsd';
+        libxml_use_internal_errors(true);
         if (@$document->schemaValidate($schemapath) === false) {
             $errors = libxml_get_errors();
             $errmsg = '';
             foreach ($errors as $error) {
                 // TODO Deliver more detailed error description.
-                $errmsg .= $error->message . "\n";
+                $errmsg .= "line:$error->line code:$error->code message:$error->message\n";
             }
             libxml_clear_errors();
-            throw new Opus_Document_Exception('XML definition has errors: ' . $errmsg);
+            throw new Opus_Document_Exception($errmsg);
         }
 
         // Parse the definition.
