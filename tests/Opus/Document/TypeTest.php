@@ -394,4 +394,16 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         }
     }
     
+    /**
+     * Test if a document type file can be loaded by inferencing the filename
+     * from the types name. 
+     *
+     * @return void
+     */
+    public function testGetDocumentTypeFileByTypeName() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $type = new Opus_Document_Type('TypeTest');
+        $this->assertNotNull($type);
+    }
+    
 }
