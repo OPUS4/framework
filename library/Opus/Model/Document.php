@@ -71,13 +71,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Constructor.
      *
-     * @param Opus_Document_Builder $builder
      * @param int|string $id
+     * @param string $type
      * @param Zend_Db_Table $tableGatewayModel
      * @see Opus_Model_Abstract::__construct()
      * @see $_builder
      */
-    public function __construct($id = null, Opus_Document_Type $type = null, $tableGatewayModel = null) {
+    public function __construct($id = null, $type = null, $tableGatewayModel = null) {
         if ($id === null and $type === null) {
             throw new Opus_Model_Exception('Either id or type must be passed.');
         }
