@@ -55,13 +55,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
               `left` int(10) UNSIGNED NOT NULL ,
               `right` int(10) UNSIGNED NOT NULL ,
               `visible` tinyint(1) NOT NULL default 1,
-              PRIMARY KEY (`collections_structure_id`) ,
-              INDEX fk_collections_structure_collections_contents_7081 (`collections_id` ASC) ,
-              CONSTRAINT `fk_collections_structure_collections_contents_7081`
-                FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents` (`collections_id` )
-                ON DELETE NO ACTION
-                ON UPDATE NO ACTION)
+              PRIMARY KEY (`collections_structure_id`) )
             ENGINE = InnoDB
             DEFAULT CHARACTER SET = utf8
             COLLATE = utf8_general_ci
