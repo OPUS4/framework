@@ -156,7 +156,6 @@ class Opus_Document_Type {
             $errors = libxml_get_errors();
             $errmsg = '';
             foreach ($errors as $error) {
-                // TODO Deliver more detailed error description.
                 $errmsg .= "line:$error->line code:$error->code message:$error->message\n";
             }
             libxml_clear_errors();
