@@ -41,7 +41,7 @@
  * @package Opus_Model
  * @group AbstractTest
  */
-class AbstractMock extends Opus_Model_Abstract {
+class Opus_Model_AbstractMock extends Opus_Model_Abstract {
 /**
      * Initialize model with the following fields:
      * - AcademicTitle

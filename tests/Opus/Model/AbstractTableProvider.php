@@ -39,22 +39,11 @@
  * @package Opus_Model
  * @group AbstractTest
  */
-class AbstractTableProvider extends Zend_Db_Table {
+class Opus_Model_AbstractTableProvider extends Zend_Db_Table {
 
     // Set tablename
-    protected $_name = 'testtable';
+    protected $_name = 'test_testtable';
     // Set name of primary key column
-    protected $_primary = 'id';
-    // we do not depent on any other tables
-    protected $_dependentTables = array();
-
-    // for some tasks we need to access the db directly
-    protected $db;
-
-    // overwrite __construct to creat the table
-    public function __construct() {
-        $this->db = Zend_Registry::get('db_adapter')->getConnection();
-        parent::__construct();;
-    }
+    protected $_primary = 'test_testtable_id';
 
 }

@@ -32,9 +32,6 @@
  * @version     $Id$
  */
 
-require_once dirname(__FILE__) . '/AbstractMock.php';
-require_once dirname(__FILE__) . '/AbstractTableProvider.php';
-
 /**
  * Test cases for class Opus_Model_Abstract.
  *
@@ -47,14 +44,19 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     protected $dbProvider;
 
     /**
-     * PHPUnit_Extensions_Datbase requires this one.
+     * Return the actual database connection.
+     * 
+     * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
     protected function getConnection() {
-        return $this->createDefaultDBConnection(Zend_Registry::get('db_adapter')->getConnection(), 'sqlite');
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        return $this->createDefaultDBConnection($dba->getConnection(), 'opus400');
     }
 
     /**
-     * PHPUnit_Extensions_Database use these informations to set up the Database before a test is started or after a test finished.
+     * Returns test data to set up the Database before a test is started or after a test finished.
+     * 
+     * @return PHPUnit_Extensions_Database_DataSet_IDataSet
      */
     protected function getDataSet() {
         return $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSet.xml');
@@ -68,51 +70,22 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function setUp() {
-        // unset registry
-        Zend_Registry::_unsetInstance();
 
-        // Create new Zend Config to setup the DB.
-        $config = new Zend_Config(
-            array(
-                'db' => array(
-                    'adapter' => 'Pdo_Sqlite',
-                    'params' => array(
-                        'dbname' => ':memory:',
-                        'options' => array(Zend_Db::CASE_FOLDING => Zend_Db::CASE_LOWER)
-                    )
-                )
-            ),
-            true
-        );
-
-        // Save the Config.
-        Zend_Registry::set('Zend_Config', $config);
-
-        // Use zend_Db factory to create a database adapter
-        // and make it the default for all tables.
-        $db = Zend_Db::factory($config->db);
-        Zend_Db_Table::setDefaultAdapter($db);
-        // Register the adapter within Zend_Registry.
-        Zend_Registry::getInstance()->set('db_adapter', $db);
-
-        // Create the model in the db
-        $db->getConnection()->exec(
-            'CREATE TABLE testtable (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                value varchar(23)
-            )'
-        );
-
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->deleteTable('testtable');
+        $dba->createTable('testtable');
+        $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
+        
         // load table data
         parent::setUp();
 
         // Instantiate the Zend_Db_Table
-        $this->dbProvider = new AbstractTableProvider();
+        $this->dbProvider = new Opus_Model_AbstractTableProvider();
     }
 
     public function testCreateWithoutArgumentsThrowsException() {
         try {
-            $obj = new AbstractMock();
+            $obj = new Opus_Model_AbstractMock();
         } catch (Opus_Model_Exception $ex) {
             return;
         }
@@ -120,12 +93,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     public function testValueAfterLoadById() {
-        $obj = new AbstractMock(1, $this->dbProvider);
+        $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $this->assertTrue("foobar" === $obj->getvalue(), "Expected value to be 'foobar', got '". $obj->getvalue() ."'.\n");
     }
 
     public function testChangeOfValueAndStore() {
-        $obj = new AbstractMock(1, $this->dbProvider);
+        $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $obj->setvalue('raboof');
         $obj->store();
         $xml_dataset = $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSetAfterChangedValue.xml');
