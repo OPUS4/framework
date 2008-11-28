@@ -70,8 +70,8 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         (3, 5, 6, 1),
         (4, 8, 9, 1)
         ;");
-        $adapter->query("TRUNCATE institutes_contents;");
         $adapter->query("TRUNCATE institutes_structure;");
+        $adapter->query("TRUNCATE institutes_contents;");
         $adapter->query("INSERT INTO `institutes_contents` 
         (`institutes_id`, `institutes_language`, `type`, `name`) 
         VALUES (0, 'ger', 'Fakultät', 'Fakultät A'),
