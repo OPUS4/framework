@@ -50,7 +50,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     protected function getConnection() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-        return $this->createDefaultDBConnection($dba->getConnection(), 'opus400');
+        return $this->createDefaultDBConnection($dba->getConnection(), NULL);
     }
 
     /**
@@ -75,7 +75,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $dba->deleteTable('testtable');
         $dba->createTable('testtable');
         $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
-        
+
         // load table data
         parent::setUp();
 
