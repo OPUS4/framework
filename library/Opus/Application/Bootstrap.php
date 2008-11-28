@@ -98,6 +98,7 @@ class Opus_Application_Bootstrap {
         self::setupLogging();
         self::setupCache();
         self::setupTranslation();
+        self::setupLucene();
         self::setupDocumentType();
         self::prepare();
 
@@ -320,6 +321,21 @@ class Opus_Application_Bootstrap {
         }
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Translate', $translate);
+    }
+
+    /**
+     * Setup Zend_Search_Lucene with Index
+     *
+     * It is assumed that the index is stored under lucene_index.
+     *
+     * @return void
+     *
+     */
+    protected static function setupLucene()
+    {
+        $index = new Zend_Search_Lucene(self::$applicationRootDirectory . '/lucene_index');
+        $registry = Zend_Registry::getInstance();
+        $registry->set('Zend_Luceneindex', $index);
     }
 
     /**
