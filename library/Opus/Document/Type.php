@@ -69,6 +69,25 @@ class Opus_Document_Type {
     protected $_name = '';
 
     /**
+     * Path to location of xml document type definitions.
+     *
+     * @var string
+     */
+    static protected $_xmlDocTypePath = '';
+
+    /**
+     * Set location of xml document type definitions.
+     *
+     * @param  string $path
+     */
+    static function setXmlDoctypePath($path) {
+        if (is_dir($path) === false) {
+            throw new InvalidArgumentException("Argument should be a valid path.");
+        }
+        self::$_xmlDocTypePath = $path;
+    }
+
+    /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
      * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
@@ -85,7 +104,13 @@ class Opus_Document_Type {
         $type = '';
         if (is_string($xml) === true) {
             $type = 'string';
-            if ( is_file($xml) === true ) {
+            foreach (glob(self::$_xmlDocTypePath . '/*.xml') as $filename) {
+                if (basename($filename, '.xml') === str_replace(' ', '_', $xml)) {
+                    $xml = $filename;
+                    break;
+                }
+            }
+            if (is_file($xml) === true ) {
                 $type = 'filename';
             }
         } else if ($xml instanceof DOMDocument) {
@@ -121,7 +146,8 @@ class Opus_Document_Type {
                     break;
             }
         } catch (Exception $ex) {
-            throw new InvalidArgumentException('Argument should be an XML string, a filename or an DOMDocument object.');
+            throw new InvalidArgumentException('Argument should be a valid
+            document type name, an XML string, a filename or an DOMDocument object.');
         }
 
         // Validate the XML definition.

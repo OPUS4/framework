@@ -85,10 +85,8 @@ class Opus_Document_Builder {
         $fieldlist = $this->_type->getFields();
         foreach($fieldlist as $fieldname => $fieldinfo) {
             $field = new Opus_Model_Field($fieldname);
-            $field->setType($fieldinfo['type']);
             $field->setMandatory($fieldinfo['mandatory']);
             $field->setMultiplicity($fieldinfo['multiplicity']);
-            $field->setDefault($fieldinfo['default']);
             $field->setLanguageOption($fieldinfo['languageoption']);
             $document->addField($field);
         }

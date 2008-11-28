@@ -163,6 +163,9 @@ class Opus_Application_Bootstrap {
         // This avoids an exception if the locale cannot determined automatically.
         Zend_Locale::setDefault('de');
 
+        // Set location of xml document type definitions
+        Opus_Document_Type::setXmlDoctypePath(self::$applicationRootDirectory .
+                '/config/xmldoctypes');
     }
 
     /**
