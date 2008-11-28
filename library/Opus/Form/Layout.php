@@ -93,12 +93,18 @@ class Opus_Form_Layout {
             switch ($type) {
                 case 'string':
                     $document = new DOMDocument();
-                    $document->loadXML($xml);
+                    if ($document->loadXML($xml) === false) {
+                        // Trigger catch block
+                        throw new Exception();
+                    }
                     break;
 
                 case 'filename':
                     $document = new DOMDocument();
-                    $document->load($xml);
+                    if ($document->load($xml) === false) {
+                        // Trigger catch block
+                        throw new Exception();
+                    }
                     break;
 
                 case 'domdocument':
