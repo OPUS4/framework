@@ -143,7 +143,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
     }
 
     /**
-     * Create a table with the table name with _ID added as primary key.
+     * Create a table with the table name with _id added as primary key.
      *
      * @param string $name Contains the name for table and primary key
      * @throws Exception Exception at invalid name or already existing table
