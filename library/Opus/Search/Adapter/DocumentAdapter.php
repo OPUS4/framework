@@ -75,11 +75,9 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 
 	private function mapDocument()
 	{
-		echo "mapping document". $this->documentData["id"];
-		#parent::__construct($this->documentData["id"], new Opus_Document_Type('doctoral_thesis'));
-		#$title = $this->_fetchTitleMain();
-		$this->documentData["title"] = "Testtitel";
-		#$this->documentData["title"] = $title['value'];
+		parent::__construct($this->documentData["id"]);
+		$title = $this->_fetchTitleMain();
+		$this->documentData["title"] = $title['value'];
 		$this->documentData["frontdoorUrl"] = array(
 										"module"=>"frontdoor", 
 										"controller" => "index", 
@@ -91,23 +89,25 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 										"action"=>"showfile", 
 										"id"=>$this->documentData["id"],
 										"filename"=>"testfile.pdf");
+		
 		$authorsList = DummyData::getDummyPersons();
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
-		#$authors = $this->_fetchAuthors();
-		#if (count($authors) > 0)
-		#{
-		#$this->documentData["author"] = new PersonsList();
-		#	foreach ($authors as $authorId)
-		#	{
-		#		$this->documentData["author"]->add(new Opus_Search_Adapter_PersonAdapter($authorId));
-		#	}
-		#}
-		#else
-		#{
+		$authors = $this->_fetchAuthors();
+		if (count($authors) > 0)
+		{
+			$this->documentData["author"] = new PersonsList();
+			foreach ($authors as $authorId)
+			{
+				$this->documentData["author"]->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId));
+			}
+		}
+		else
+		{
 			$this->documentData["author"] = $autlist1;
-		#} 
+		} 
+		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
 		/*
 		 * Fields that should be set by this method 
 		 * $this->documentData["author"] = PersonsList

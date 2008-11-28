@@ -50,7 +50,8 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
 	public function __construct($person = null)
 	{
   		if (is_int($person)) {
-  			$this->mapPerson($person);
+  			$this->personData["id"] = $person;
+  			$this->mapPerson();
   		}
   		else if (is_array($person)) {
   			$this->personData = $person;
@@ -77,7 +78,7 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
    * @return OpusPersonAdapter OpusPersonAdapter of the person with the given ID, if this ID does not exists, null will be returned
    * @param Integer id ID of the person
    */
-	public static function getPerson($id)
+	public static function getDummyPerson($id)
 	{
 		# Später die Werte anhand der ID aus der DB holen lassen
 		#$author = Opus_Person_Information::get($id);
@@ -97,12 +98,11 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
    * @return void
    * @param Integer id ID of the person
    */
-	private static function mapPerson($id)
+	private function mapPerson()
 	{
-		parent::__construct($id);
-		$firstName = $this->getFirstName();
-		$lastName = $this->getLastName();
-		$this->personData = array("id"=>$id, "lastName"=>$lastName, "firstName"=>$firstName);
+		parent::__construct($this->personData["id"]);
+		$this->personData["lastName"] = $this->getLastName();
+		$this->personData["firstName"] = $this->getFirstName();
 	}
 }
 
