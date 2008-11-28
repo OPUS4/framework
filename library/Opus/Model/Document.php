@@ -65,7 +65,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array('TitleMain', 'Authors');
+    protected $_externalFields = array('TitleMain', 'Authors', 'Licence', 'Isbn', 'Institute',
+            'PersonAuthor');
 
     /**
      * Constructor.
@@ -76,34 +77,68 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @see Opus_Model_Abstract::__construct()
      * @see $_builder
      */
-    public function __construct(Opus_Document_Builder $builder, $id = null, $tableGatewayModel = null) {
-        $this->_builder = $builder;
+    public function __construct($id = null, Opus_Document_Type $type = null, $tableGatewayModel = null) {
+        if ($id === null and $type === null) {
+            throw new Opus_Model_Exception('Either id or type must be passed.');
+        }
         if ($tableGatewayModel === null) {
             parent::__construct($id, new Opus_Db_Documents);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
+        if ($id === null) {
+            $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
+        } else if ($type === null) {
+            $this->_builder = new Opus_Document_Builder(new
+                    Opus_Document_Type($this->_primaryTableRow->document_type));
+        }
         if ($this->getId() !== null) {
-            // Bestehende Zeile einlesen
+            // TODO: Make this work as a 1:m relationship (i.e. handle rowset, not row)
             $this->_documentTitleAbstractTableRow =
                 $this->_primaryTableRow->findDependentRowset('Opus_Db_DocumentTitleAbstracts')->getRow(0);
         } else {
-            // Neue Zeile anlegen.
+            // TODO: Make this work as a 1:m relationship (i.e. handle rowset, not row)
             $titleAbstract = new Opus_Db_DocumentTitleAbstracts;
             $this->_documentTitleAbstractTableRow = $titleAbstract->createRow();
         }
+        $this->_builder->addFieldsTo($this);
         parent::_fetchValues();
     }
 
+
     /**
-     * Attach fields to document.
+     * TODO: short description.
      *
-     * @see $_builder
+     * @return TODO
      */
-    protected function _init() {
-        $this->_builder->addFieldsTo($this);
+    public function setBuilder() {
     }
 
+    /**
+     * TODO: short description.
+     * 
+     * @return TODO
+     */
+    public function getBuilder() {
+    }
+
+    /**
+     * TODO: short description.
+     *
+     * @return TODO
+     */
+    public function setType() {
+
+    }
+
+    /**
+     * TODO: short description.
+     *
+     * @return TODO
+     */
+    public function getType() {
+
+    }
 
     /**
      * Store values of external field TitleMain
@@ -126,6 +161,37 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected function _fetchTitleMain() {
         $result['value'] = $this->_documentTitleAbstractTableRow->title_abstract_value;
         $result['language'] = $this->_documentTitleAbstractTableRow->title_abstract_language;
+        return $result;
+    }
+
+    /**
+     * TODO: Implement mock up!
+     *
+     */
+    protected function _fetchLicence() {
+        $result['value'] = 'Licence';
+        $result['language'] = 'de';
+        return $result;
+    }
+
+
+    /**
+     * TODO: Implement mock up!
+     *
+     */
+    protected function _fetchIsbn() {
+        $result['value'] = '978-3-12-514906-9';
+        $result['language'] = 'de';
+        return $result;
+    }
+
+    /**
+     * TODO: Implement mock up!
+     *
+     */
+    protected function _fetchInstitute() {
+        $result['value'] = 'Institut für Dequalifizierung';
+        $result['language'] = 'de';
         return $result;
     }
 

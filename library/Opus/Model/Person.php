@@ -90,4 +90,22 @@ class Opus_Model_Person extends Opus_Model_Abstract
             ->addField($last_name);
     }
 
+    /**
+     * Fetches all documents associated to the person by a certain role.
+     *
+     * @param string $role
+     * @return array An array of Opus_Model_Document
+     */
+    public function getDocumentsByRole($role) {
+        $documentsLinkTable = new Opus_Db_LinkDocumentsPersons();
+        $documents = array();
+        $select = $documentsLinkTable->select();
+        $select->where('role=?', $role);
+        foreach ($this->_primaryTableRow->findManyToManyRowset('Opus_Db_Documents',
+                'Opus_Db_LinkDocumentsPersons', null, null, $select) as $document) {
+            $documents[] = new Opus_Model_Document($document->documents_id);
+        }
+        return $documents;
+    }
+
 }
