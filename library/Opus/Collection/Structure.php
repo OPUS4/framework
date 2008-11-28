@@ -89,7 +89,7 @@ class Opus_Collection_Structure {
             $this->collections_structure = new Opus_Db_InstitutesStructure();
         } else {
             $this->collectionsIdentifier = 'collections_id';
-            $this->collections_structure = new Opus_Db_CollectionsStructure($ID);
+            $this->collections_structure = new Opus_Db_CollectionsStructure((int) $ID);
         }
         $this->collectionStructure = array();
         $this->collections_structure_info = $this->collections_structure->info();
@@ -213,9 +213,11 @@ class Opus_Collection_Structure {
     public function delete($left) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($left);
+        $leftFound = false;
         foreach ($this->collectionStructure as $index => $nested_set) {
-            if ($this->collectionStructure[$index]['left'] === $left) {
+            if ((int) $this->collectionStructure[$index]['left'] === $left) {
                 unset($this->collectionStructure[$index]);
+                $leftFound = true;
             } else {
                 if ($this->collectionStructure[$index]['left'] >= $left) {
                     $this->collectionStructure[$index]['left'] -= 2;
@@ -225,9 +227,12 @@ class Opus_Collection_Structure {
                 }
             }
         }
+        if ($leftFound === false) {
+            throw new InvalidArgumentException('Left value '.$left.' not found in tree.');
+        }
         $this->leftOrder();
     }
-    
+        
     
     /**
      * Hide nodes with the given collections_id.

@@ -26,7 +26,7 @@
  *
  * @category    Tests
  * @package     Opus_Collection
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -65,12 +65,11 @@ class Opus_Collection_AllTests {
     /**
      * Construct and return the test suite.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
      * @return PHPUnit_Framework_TestSuite The suite.
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Collection');
+        $suite->addTestSuite('Opus_Collection_StructureTest');
         return $suite;
     }
 
