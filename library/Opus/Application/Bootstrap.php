@@ -98,6 +98,7 @@ class Opus_Application_Bootstrap {
         self::setupLogging();
         self::setupCache();
         self::setupTranslation();
+        self::setupDocumentType();
         self::prepare();
 
         // start caching
@@ -163,9 +164,6 @@ class Opus_Application_Bootstrap {
         // This avoids an exception if the locale cannot determined automatically.
         Zend_Locale::setDefault('de');
 
-        // Set location of xml document type definitions
-        Opus_Document_Type::setXmlDoctypePath(self::$applicationRootDirectory .
-                '/config/xmldoctypes');
     }
 
     /**
@@ -386,6 +384,17 @@ class Opus_Application_Bootstrap {
         $logger = new Zend_Log($writter);
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Log', $logger);
+    }
+    
+    /**
+     * Set up path pattern that is used to look for document type descriptions.
+     *
+     * @return void
+     */
+    protected static function setupDocumentType() {
+        // Set location of xml document type definitions
+        Opus_Document_Type::setXmlDoctypePath(self::$applicationRootDirectory .
+                '/config/xmldoctypes');
     }
 
 }
