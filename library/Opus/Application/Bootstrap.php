@@ -98,7 +98,8 @@ class Opus_Application_Bootstrap {
         self::setupLogging();
         self::setupCache();
         self::setupTranslation();
-        self::setupLucene();
+        // Don't setup Lucene as long as we have no index-data there
+        //self::setupLucene();
         self::setupDocumentType();
         self::prepare();
 
