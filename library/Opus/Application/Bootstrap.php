@@ -98,8 +98,7 @@ class Opus_Application_Bootstrap {
         self::setupLogging();
         self::setupCache();
         self::setupTranslation();
-        // Don't setup Lucene as long as we have no index-data there
-        //self::setupLucene();
+        self::setupLucene();
         self::setupDocumentType();
         self::prepare();
 
@@ -334,7 +333,16 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupLucene()
     {
-        $index = new Zend_Search_Lucene(self::$applicationRootDirectory . '/lucene_index');
+        $lucenePath = self::$applicationRootDirectory . '/lucene_index';
+        try {
+            $index = new Zend_Search_Lucene($lucenePath);
+        } catch (Exception $ex) {
+            try {
+                $index = Zend_Search_Lucene::create($lucenePath);           
+            } catch (Exception $ex) {
+                throw new Exception('Failed to initialize lucene index files.');
+            }
+        }
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Luceneindex', $index);
     }
