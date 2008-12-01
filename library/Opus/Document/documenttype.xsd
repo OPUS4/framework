@@ -130,8 +130,8 @@
 	       <enumeration value="Range"/>
 	       <enumeration value="CompletedDate"/>
 	       <enumeration value="CompletedYear"/>
-	       <enumeration value="ContributingCooperation"/>
-	       <enumeration value="CreatingCooperation"/>
+	       <enumeration value="ContributingCorporation"/>
+	       <enumeration value="CreatingCorporation"/>
 	       <enumeration value="DateAccepted"/>
 	       <enumeration value="DocumentType"/>
 	       <enumeration value="Edition"/>
