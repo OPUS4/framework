@@ -118,14 +118,12 @@ class Opus_Application_Bootstrap {
      *
      */
     protected static function setupDatabase() {
-        // use custom DB adapter and options
+        // use custom DB adapter
         $config = new Zend_Config(array(
             'db' => array(
                 'adapter' => 'Pdo_Mysqlutf8',
                 'params' => array(
-                    'adapterNamespace' => 'Opus_Db_Adapter',
-                    'options' => array(
-        Zend_Db::CASE_FOLDING => Zend_Db::CASE_LOWER)))), true);
+                    'adapterNamespace' => 'Opus_Db_Adapter'))), true);
 
         // Include the above made configuration changes in the application configuration.
         $config->merge(Zend_Registry::get('Zend_Config'));
