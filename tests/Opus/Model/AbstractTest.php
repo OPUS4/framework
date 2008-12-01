@@ -50,7 +50,9 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     protected function getConnection() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-        return $this->createDefaultDBConnection($dba->getConnection(), NULL);
+        $pdo = $dba->getConnection();
+        $connection = $this->createDefaultDBConnection($pdo, NULL);
+        return $connection;
     }
 
     /**
@@ -59,7 +61,8 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      * @return PHPUnit_Extensions_Database_DataSet_IDataSet
      */
     protected function getDataSet() {
-        return $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSet.xml');
+        $dataset = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSet.xml');
+        return $dataset;
     }
 
 
@@ -70,7 +73,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function setUp() {
-
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->deleteTable('testtable');
         $dba->createTable('testtable');
@@ -101,8 +103,9 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $obj->setvalue('raboof');
         $obj->store();
-        $xml_dataset = $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSetAfterChangedValue.xml');
-        $this->assertDataSetsEqual($xml_dataset, $this->getConnection()->createDataSet());
+        $expected = $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSetAfterChangedValue.xml')->getTable('test_testtable');
+        $result = $this->getConnection()->createDataSet()->getTable('test_testtable');
+        $this->assertTablesEqual($expected, $result);
     }
 
 }
