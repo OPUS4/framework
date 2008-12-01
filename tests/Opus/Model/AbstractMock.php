@@ -27,6 +27,7 @@
  * @category    Tests
  * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -42,14 +43,9 @@
  * @group AbstractTest
  */
 class Opus_Model_AbstractMock extends Opus_Model_Abstract {
-/**
-     * Initialize model with the following fields:
-     * - AcademicTitle
-     * - DateOfBirth
-     * - PlaceOfBirth
-     * - Email
-     * - FirstName
-     * - LastName
+
+    /**
+     * Initialize model with the a single field "value".
      *
      * @return void
      */
