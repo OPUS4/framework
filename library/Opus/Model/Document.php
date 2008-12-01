@@ -88,7 +88,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         if ($id === null) {
-            $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
+            if (is_string($type)) {
+                $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
+            } elseif ($type instanceof Opus_Document_Type) {
+                $this->_builder = new Opus_Document_Builder($type);
+            } else {
+                throw new Opus_Model_Exception('Unkown document type.');
+            }
         } else if ($type === null) {
             $this->_builder = new Opus_Document_Builder(new
                     Opus_Document_Type($this->_primaryTableRow->document_type));
