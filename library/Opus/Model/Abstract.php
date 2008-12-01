@@ -168,8 +168,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             }
             $id = $this->_primaryTableRow->save();
             foreach ($this->_externalFields as $fieldname) {
-                $callname = '_store' . $fieldname;
-                $this->$callname($this->_fields[$fieldname]->getValue());
+                if (in_array($fieldname, array_keys($this->_fields)) === true) {
+                    $callname = '_store' . $fieldname;
+                    $this->$callname($this->_fields[$fieldname]->getValue());
+                }
             }
             $dbadapter->commit();
         } catch (Exception $e) {
