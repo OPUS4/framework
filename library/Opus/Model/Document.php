@@ -99,6 +99,16 @@ class Opus_Model_Document extends Opus_Model_Abstract
     }
 
     /**
+     * Opus_Model_Document has extensive database initialization to do. Thus,
+     * _fetchValues() ist overwritten and parent::_fetchValue() is called at the
+     * right time.
+     *
+     * @see __construct()
+     */
+    protected function _fetchValues() {
+    }
+
+    /**
      * Set the type for the document.
      *
      * @param string $type
@@ -131,7 +141,19 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected function _fetchTitleMain() {
-        return $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts, 'title_abstract_type', 'main');
+        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
+                'title_abstract_type', 'main');
+        $result = array();
+        if (count($rows) === 1) {
+            $result['value'] = $rows[0]['title_abstract_value'];
+            $result['language'] = $rows[0]['title_abstract_language'];
+        } elseif (count($rows) > 1) {
+            foreach ($rows as $i => $row) {
+                $result[$i]['value'] = $row['title_abstract_value'];
+                $result[$i]['language'] = $row['title_abstract_language'];
+            }
+        }
+        return $result;
     }
 
     /**
@@ -148,8 +170,25 @@ class Opus_Model_Document extends Opus_Model_Abstract
         $this->_addDependentRowsToTable(new Opus_Db_DocumentTitleAbstracts, $data);
     }
 
+    /**
+     * Fetch values of external field TitleAbstract
+     *
+     * @see Opus_Model_Abstract::$_externalFields
+     */
     protected function _fetchTitleAbstract() {
-        return $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts, 'title_abstract_type', 'abstract');
+        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
+                'title_abstract_type', 'abstract');
+        $result = array();
+        if (count($rows) === 1) {
+            $result['value'] = $rows[0]['title_abstract_value'];
+            $result['language'] = $rows[0]['title_abstract_language'];
+        } elseif (count($rows) > 1) {
+            foreach ($rows as $i => $row) {
+                $result[$i]['value'] = $row['title_abstract_value'];
+                $result[$i]['language'] = $row['title_abstract_language'];
+            }
+        }
+        return $result;
     }
 
     /**
@@ -189,7 +228,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
             throw new Opus_Model_Exception('Document not persisted yet.');
         }
         foreach ($personIds as $personId) {
-            $this->addPersonByRole(new Opus_Model_Person($personId), 'author');
+            $this->addPersonByRole(new Opus_Model_Person($personId), 'advisor');
         }
     }
 
@@ -243,28 +282,18 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      */
     protected function _fetchIsbn() {
-        return $this->_getDependentRowsFromTable(new Opus_Db_DocumentIdentifiers, 'identifier_type', 'isbn');
-    }
-
-    /**
-     * TODO: Implement mock up!
-     *
-     */
-    protected function _fetchInstitute() {
-        $result['value'] = 'Institut für Dequalifizierung';
-        $result['language'] = 'de';
+        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentIdentifiers, 'identifier_type', 'isbn');
+        $result = array();
+        if (count($rows) === 1) {
+            $result['value'] = $rows[0]['identifier_value'];
+            $result['label'] = $rows[0]['identifier_label'];
+        } elseif (count($rows) > 1) {
+            foreach ($rows as $i => $row) {
+                $result[$i]['value'] = $row['identifier_value'];
+                $result[$i]['label'] = $row['identifier_label'];
+            }
+        }
         return $result;
-    }
-
-
-    /**
-     * Opus_Model_Document has extensive database initialization to do. Thus,
-     * _fetchValues() ist overwritten and parent::_fetchValue() is called at the
-     * right time.
-     *
-     * @see __construct()
-     */
-    protected function _fetchValues() {
     }
 
     /**
