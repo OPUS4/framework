@@ -34,25 +34,11 @@
  */
 
 /**
- * This class extends Opus_Model_Abstract to be able to test its code.
- * Opus_Model_Abstract is an abstract class.
- * This mock is needed to be able to instantiate Opus_Model_Abstract.
+ * Just a mockup validator class.
  *
  * @category Tests
  * @package Opus_Model
  * @group AbstractTest
  */
-class Opus_Model_AbstractMock extends Opus_Model_Abstract {
-
-    /**
-     * Initialize model with the a single field "value".
-     *
-     * @return void
-     */
-    protected function _init() {
-        $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
-        
-        $value = new Opus_Model_Field('Value');
-        $this->addField($value);
-    }
+class Opus_Model_ValidateTest_Value extends Zend_Validate_Alnum {
 }

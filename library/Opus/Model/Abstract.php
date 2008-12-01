@@ -56,6 +56,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var array
      */
     protected $_fields = array();
+    
+    
+    /**
+     * Array of validator prefixes used to instanciate validator classes for fields.
+     *
+     * @var array
+     */
+    protected $_validatorPrefix = array('Opus_Validate');
 
     /**
      * Holds the name of those fields of the domain model that do not map to the
@@ -123,16 +131,19 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
     /**
      * Add validators to the fields. Opus_Validate_{fieldname} classes are
-     * expected to exist.
+     * expected to exist. The base classname prefixes are defined in $_validatorPrefix.
      *
      * @return void
      */
     protected function _addValidators() {
         foreach ($this->_fields as $fieldname => $field) {
-            $classname = 'Opus_Validate_' . $fieldname;
-            // suppress warnings about not existing classes
-            if (@class_exists($classname)) {
-                $field->setValidator(new $classname);
+            foreach ($this->_validatorPrefix as $prefix) {
+                $classname = $prefix . '_' . $fieldname;
+                // suppress warnings about not existing classes
+                if (class_exists($classname) === true) {
+                    $field->setValidator(new $classname);
+                    break;
+                }
             }
         }
     }

@@ -135,8 +135,8 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testValueAfterLoadById($test_testtable_id, $value) {
         $obj = new Opus_Model_AbstractMock($test_testtable_id, $this->dbProvider);
-        $result = $obj->getvalue();
-        $this->assertEquals($value,$result, "Expected value to be $value, got '" . $result . "'");
+        $result = $obj->getValue();
+        $this->assertEquals($value,$result, "Expected Value to be $value, got '" . $result . "'");
     }
 
     /**
@@ -146,7 +146,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testChangeOfValueAndStore() {
         $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
-        $obj->setvalue('raboof');
+        $obj->setValue('raboof');
         $obj->store();
         $expected = $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSetAfterChangedValue.xml')->getTable('test_testtable');
         $result = $this->getConnection()->createDataSet()->getTable('test_testtable');
@@ -161,10 +161,36 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testDescribeReturnsAllFields() {
         $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
-        $mock->addField(new Opus_Model_Field('field1'))
-            ->addField(new Opus_Model_Field('field2'));
+        $mock->addField(new Opus_Model_Field('Field1'))
+            ->addField(new Opus_Model_Field('Field2'));
         $fields = $mock->describe();
-        $this->assertEquals(array('value', 'field1', 'field2'), $fields, 'Wrong set of field names returned.');
+        $this->assertEquals(array('Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
+    }
+    
+
+    /**
+     * Test if no validator is assigned to a field when the there is no
+     * Opus_Validate_<Fieldname> class.
+     *
+     * @return void
+     */
+    public function testNoDefaultValidatorForFields() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $mock->addField(new Opus_Model_Field('NoVal'));
+        $field = $mock->getField('NoVal');
+        $this->assertNull($field->getValidator(), 'No validator expected.');
+    }
+    
+    /**
+     * Test if custom validator instances can be added to fields.
+     *
+     * @return void
+     */
+    public function testAddingCustomValidators() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $field = $mock->getField('Value');
+        $this->assertNotNull($field->getValidator(), 'Validator instance missing.');
+        $this->assertType('Opus_Model_ValidateTest_Value', $field->getValidator(), 'Validator is of wrong type.');
     }
     
 
