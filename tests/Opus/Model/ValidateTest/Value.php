@@ -26,7 +26,6 @@
  *
  * @category    Tests
  * @package     Opus_Model
- * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -38,7 +37,7 @@
  *
  * @category Tests
  * @package Opus_Model
- * @group AbstractTest
+ * 
  */
 class Opus_Model_ValidateTest_Value extends Zend_Validate_Alnum {
 }
