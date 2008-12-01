@@ -74,7 +74,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function setUp() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-        $dba->deleteTable('testtable');
+        try {
+            $dba->deleteTable('testtable');
+        } catch (Exception $ex) {
+            // noop
+        }
         $dba->createTable('testtable');
         $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
 
