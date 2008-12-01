@@ -89,7 +89,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
 
 
     /**
-     * Drop the Zend_Registry.
      * Prepare the Database.
      *
      * @return void
