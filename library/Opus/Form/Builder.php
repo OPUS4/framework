@@ -93,7 +93,7 @@ class Opus_Form_Builder {
             $result['name'] = $elementdata;
             // TODO use correct element types instead text for all
             $result['html_type'] = 'text';
-            $result['data_type'] = $typeinfo['type'];
+            //$result['data_type'] = $typeinfo['type'];
             if (array_key_exists('mandatory', $typeinfo) === true) {
                 $result['mandatory'] = $typeinfo['mandatory'];
             } else {
