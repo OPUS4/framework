@@ -37,12 +37,33 @@
  *
  * @package Opus_Model
  * @category Tests
+ * 
  * @group AbstractTest
  */
 class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
 
-    protected $dbProvider;
-
+    /**
+     * Instance of the concrete table model for Opus_Model_AbstractMock.
+     *
+     * @var Opus_Model_AbstractTableProvider
+     */
+    protected $dbProvider = null;
+    
+    /**
+     * Provides test data as stored in AbstractDataSet.xml.
+     *
+     * @return array Array containing arrays of id and value pairs.
+     */
+    public function abstractDataSetDataProvider() {
+        return array(
+            array(1, 'foobar'),
+            array(3, 'foo'),
+            array(4, 'bar'),
+            array(5, 'bla'),
+            array(8, 'blub')
+        );
+    }
+    
     /**
      * Return the actual database connection.
      * 
@@ -89,6 +110,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->dbProvider = new Opus_Model_AbstractTableProvider();
     }
 
+    /**
+     * Test if creating a model instance without passing a database model
+     * fails with throwing an exception. 
+     *
+     * @return void
+     */
     public function testCreateWithoutArgumentsThrowsException() {
         try {
             $obj = new Opus_Model_AbstractMock();
@@ -98,11 +125,24 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->fail('It is possible to instantiate Opus_Model_Abstract without a table gateway.');
     }
 
-    public function testValueAfterLoadById() {
-        $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
-        $this->assertTrue("foobar" === $obj->getvalue(), "Expected value to be 'foobar', got '". $obj->getvalue() ."'.\n");
+    /**
+     * Test if loading a model instance from the database devlivers the expected value. 
+     *
+     * @return void
+     * 
+     * @dataProvider abstractDataSetDataProvider
+     */
+    public function testValueAfterLoadById($test_testtable_id, $value) {
+        $obj = new Opus_Model_AbstractMock($test_testtable_id, $this->dbProvider);
+        $result = $obj->getvalue();
+        $this->assertEquals($value,$result, "Expected value to be $value, got '" . $result . "'");
     }
 
+    /**
+     * Test if changing a models value and storing it is reflected in the database.
+     *
+     * @return void
+     */
     public function testChangeOfValueAndStore() {
         $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $obj->setvalue('raboof');
@@ -111,5 +151,8 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $result = $this->getConnection()->createDataSet()->getTable('test_testtable');
         $this->assertTablesEqual($expected, $result);
     }
+    
+    
+    
 
 }
