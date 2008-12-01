@@ -27,6 +27,7 @@
  * @category    Tests
  * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -153,6 +154,18 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
     
     
+    /**
+     * Test if describe() returns the fieldnames of all previosly added fields.
+     *
+     * @return void
+     */
+    public function testDescribeReturnsAllFields() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $mock->addField(new Opus_Model_Field('field1'))
+            ->addField(new Opus_Model_Field('field2'));
+        $fields = $mock->describe();
+        $this->assertEquals(array('value', 'field1', 'field2'), $fields, 'Wrong set of field names returned.');
+    }
     
 
 }
