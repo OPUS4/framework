@@ -110,6 +110,21 @@ class Opus_Model_Field
     protected $_name = '';
 
     /**
+     * Specify if a field can be displayed as a text box.
+     *
+     * @var Boolean
+     */
+    protected $_textarea = false;
+    
+    
+    /**
+     * Specify if a field can be displayed as a selection list.
+     *
+     * @var Boolean
+     */
+    protected $_selection = false;
+    
+    /**
      * Create an new field instance and set the given name.
      * 
      * Creating a new instance also sets some default values:
@@ -298,4 +313,42 @@ class Opus_Model_Field
         return $this->_default;
     }
 
+    /**
+     * Set the textarea property.
+     *
+     * @param Boolean $value True, if the field can be displayed as a text box.
+     */
+    public function setTextarea($value) {
+        $this->_textarea = $value;
+    }
+    
+    /**
+     * Return textarea property. 
+     *
+     * @return Boolean True, if the field can be displayed as a text box.
+     */
+    public function getTextarea() {
+        return $this->_textarea;
+    }
+
+    
+    /**
+     * Set the selection property.
+     *
+     * @param Boolean $value True, if the field can be displayed as a selection list.
+     */
+    public function setSelection($value) {
+        $this->_selection = $value;
+    }
+    
+    /**
+     * Return selection property. 
+     *
+     * @return Boolean True, if the field can be displayed as a selection list.
+     */
+    public function getSelection() {
+        return $this->_selection;
+    }
+
+    
 }
