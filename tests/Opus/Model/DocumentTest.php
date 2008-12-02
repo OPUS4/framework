@@ -138,6 +138,74 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc2 = unserialize($ser);
         $this->assertEquals($doc1, $doc2, 'Deserializing unsuccesful.');
     }
-    
-    
+
+    /**
+     * Valid document data.
+     *
+     * @var array  An array of arrays of arrays. Each 'inner' array must be an 
+     * associative array that represents valid document data.
+     */
+    protected static $_validDocumentData = array(
+            array(
+                array(
+                    'Language' => 'de',
+                    'Licence' => null,
+                    'ContributingCorporation' => 'Contributing, Inc.',
+                    'CreatingCorporation' => 'Creating, Inc.',
+                    'DateAccepted' => '1901-01-01',
+                    'PublishedYear' => '1901',
+                    'Edition' => 2,
+                    'Issue' => 3,
+                    'Volume' => 1,
+                    'NonInstituteAffiliation' => 'Wie bitte?',
+                    'PageFirst' => 1,
+                    'PageLast' => 297,
+                    'PageNumber' => 297,
+                    'PublicationStatus' => 1,
+                    'PublishedDate' => '1901-01-01',
+                    'CompletedYear' => 1960,
+                    'CompletedDate' => '1901-01-01',
+                    'PublisherName' => 'Some Publisher',
+                    'PublisherPlace' => 'Somewhere',
+                    'PublisherUniversity' => 1,
+                    'Reviewed' => 'peer',
+                    'ServerDateModified' => '2008-12-01 00:00:00',
+                    'ServerDatePublished' => '2008-12-01 00:00:00',
+                    'ServerDateUnlocking' => '2008-12-01',
+                    'ServerDateValid' => '2008-12-01',
+                    'Source' => 'BlaBla',
+                    'SwbId' => '1',
+                    'VgWortPixelUrl' => 'http://geht.doch.eh.nicht',
+                )
+            )
+        );
+
+    /**
+     * Valid document data provider
+     * @return array
+     */
+    public static function validDocumentDataProvider() {
+        return self::$_validDocumentData;
+    }
+
+
+    /**
+     * Test if a document's fields come out of the database as they went in.
+     *
+     * @dataProvider validDocumentDataProvider
+     */
+    public function testDocumentFieldsPersistDatabaseStorage($documentDataset) {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $document = new Opus_Model_Document(null, 'testdoc');
+        foreach ($documentDataset as $fieldname => $value) {
+            $callname = 'set' . $fieldname;
+            $document->$callname($value);
+        }
+        $document->setDocumentType('testdoc');
+        $document = new Opus_Model_Document($document->store());
+        foreach ($documentDataset as $fieldname => $value) {
+            $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
+        }
+    }
+
 }

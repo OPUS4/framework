@@ -119,6 +119,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @param string $type
      */
+    /* FIXME: Currently destroys all field values!
     public function setDocumentType($type) {
         $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
         $this->_fields['DocumentType'] = $type;
@@ -126,6 +127,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         $this->_builder->addFieldsTo($this);
         parent::_fetchValues();
     }
+    */
 
     /**
      * Store values of external field TitleMain
