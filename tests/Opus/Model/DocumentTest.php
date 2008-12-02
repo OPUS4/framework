@@ -29,6 +29,7 @@
  * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -196,12 +197,12 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function testDocumentFieldsPersistDatabaseStorage($documentDataset) {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Model_Document(null, 'testdoc');
+        $document = new Opus_Model_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
             $callname = 'set' . $fieldname;
             $document->$callname($value);
         }
-        $document->setDocumentType('testdoc');
+        $document->setDocumentType('article');
         $document = new Opus_Model_Document($document->store());
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
