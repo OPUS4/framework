@@ -56,8 +56,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var array
      */
     protected $_fields = array();
-    
-    
+
+    /**
+     * Whether db transaction should be used in store()
+     *
+     * @var boolean  Defaults to true.
+     */
+    protected $_transactional = true;
+
     /**
      * Array of validator prefixes used to instanciate validator classes for fields.
      *
@@ -82,8 +88,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @throws Opus_Model_Exception Thrown if passed id is invalid.
      * @return void
      */
-    public function __construct($id = null, $tableGatewayModel = null)
-    {
+    public function __construct($id = null, $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
             throw new Opus_Model_Exception("No table gateway model passed.");
         }
@@ -106,10 +111,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      *
      * @return void
      */
-    protected function _init()
-    {
+    protected function _init() {
     }
-
 
     /**
      * Fetch attribute values from the table row and set up all fields.
@@ -148,7 +151,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
     }
 
-
     /**
      * Persist all the models information to its database locations.
      *
@@ -157,8 +159,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
-        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
-        $dbadapter->beginTransaction();
+        if ($this->_transactional) {
+            $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+            $dbadapter->beginTransaction();
+        }
         try {
             foreach ($this->_fields as $fieldname => $field) {
                 if (in_array($fieldname, $this->_externalFields) === false) {
@@ -173,15 +177,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     $this->$callname($this->_fields[$fieldname]->getValue());
                 }
             }
-            $dbadapter->commit();
+            if ($this->_transactional) {
+                $dbadapter->commit();
+            }
         } catch (Exception $e) {
-            $dbadapter->rollback();
+            if ($this->_transactional) {
+                $dbadapter->rollback();
+            }
             throw new Opus_Model_Exception($e->getMessage());
         }
         return $id;
     }
-
-
 
     /**
      * Magic method to access the models fields via virtual set/get methods.
@@ -191,8 +197,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return mixed Might return a value if a getter method is called.
      * @throws Opus_Model_Exception If an unknown field or method is requested.
      */
-    public function __call($name, array $arguments)
-    {
+    public function __call($name, array $arguments) {
         $accessor = substr($name, 0, 3);
         $fieldname = substr($name, 3);
 
@@ -219,7 +224,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
     }
 
-
     /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
@@ -232,7 +236,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $this->_fields[$field->getName()] = $field;
         return $this;
     }
-
 
     /**
      * Return a reference to an actual field.
@@ -265,8 +268,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      *
      * @return mixed
      */
-    public function getId()
-    {
+    public function getId() {
         $tableInfo = $this->_primaryTableRow->getTable()->info();
         $result = array();
         foreach ($tableInfo['primary'] as $primary_key) {
@@ -280,7 +282,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             return null;
         }
     }
-
 
     /**
      * Get a list of all fields (internal & external) attached to the model.

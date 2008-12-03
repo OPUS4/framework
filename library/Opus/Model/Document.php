@@ -101,6 +101,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         $this->_builder->addFieldsTo($this);
+
         parent::_fetchValues();
     }
 
@@ -132,15 +133,21 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Store values of external field TitleMain
      *
-     * @param array $value Associative array containing 'value' and 'language'.
+     * @param array|Opus_Model_Dependent_Title $titles A title object or an
+     * array of title objects.
      *
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected function _storeTitleMain($value) {
-        $data['title_abstract_type'] = 'main';
-        $data['title_abstract_value'] = $value['value'];
-        $data['title_abstract_language'] = $value['language'];
-        $this->_addDependentRowsToTable(new Opus_Db_DocumentTitleAbstracts, $data);
+    protected function _storeTitleMain($titles) {
+        if (is_array($titles) === true) {
+            foreach($titles as $title) {
+                $title->setParentId($this->getId());
+                $title->store();
+            }
+        } else {
+            $titles->setParentId($this->getId());
+            $titles->store();
+        }
     }
 
     /**
@@ -151,15 +158,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected function _fetchTitleMain() {
         $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
                 'title_abstract_type', 'main');
-        $result = array();
-        if (count($rows) === 1) {
-            $result['value'] = $rows[0]['title_abstract_value'];
-            $result['language'] = $rows[0]['title_abstract_language'];
-        } elseif (count($rows) > 1) {
-            foreach ($rows as $i => $row) {
-                $result[$i]['value'] = $row['title_abstract_value'];
-                $result[$i]['language'] = $row['title_abstract_language'];
+        if (count($rows) > 0) {
+            foreach ($rows as $row) {
+                $result[] = new Opus_Model_Dependent_Title($row['document_title_abstracts_id']);
             }
+        } else {
+            $result = new Opus_Model_Dependent_Title(null, new
+                    Opus_Db_DocumentTitleAbstracts);
         }
         return $result;
     }
@@ -382,8 +387,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         $data['documents_id'] = $this->getId();
         $table->insert($data);
     }
-    
-    
+
     /**
      * Reconnect primary table row to database after unserializing.
      *
@@ -393,5 +397,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
         $tableclass = $this->_primaryTableRow->getTableClass();
         $this->_primaryTableRow->setTable(new $tableclass);
     }
+
 
 }
