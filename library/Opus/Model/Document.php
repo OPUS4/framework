@@ -70,15 +70,17 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Constructor.
      *
-     * @param int|string $id
-     * @param string $type
-     * @param Zend_Db_Table $tableGatewayModel
-     * @see Opus_Model_Abstract::__construct()
-     * @see $_builder
+     * @param integer|string $id                (Optional) Id an existing document.
+     * @param string         $type              (Optional) Type of a new document.
+     * @param Zend_Db_Table  $tableGatewayModel (Optional) Opus_Db class to use.
+     * @see    Opus_Model_Abstract::__construct()
+     * @see    $_builder
+     * @throws InvalidArgumentException         Thrown if id and type are passed.
+     * @throws Opus_Model_Exception             Thrown invalid type is passed.
      */
-    public function __construct($id = null, $type = null, $tableGatewayModel = null) {
+    public function __construct($id = null, $type = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($id === null and $type === null) {
-            throw new Opus_Model_Exception('Either id or type must be passed.');
+            throw new InvalidArgumentException('Either id or type must be passed.');
         }
 
         if ($tableGatewayModel === null) {
@@ -88,9 +90,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         if ($id === null) {
-            if (is_string($type)) {
+            if (is_string($type) === true) {
                 $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
-            } elseif ($type instanceof Opus_Document_Type) {
+            } else if ($type instanceof Opus_Document_Type) {
                 $this->_builder = new Opus_Document_Builder($type);
             } else {
                 throw new Opus_Model_Exception('Unkown document type.');
@@ -110,7 +112,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * _fetchValues() ist overwritten and parent::_fetchValue() is called at the
      * right time.
      *
-     * @see __construct()
+     * @see    __construct()
+     * @return void
      */
     protected function _fetchValues() {
     }
@@ -120,27 +123,25 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @param string $type
      */
-    /* FIXME: Currently destroys all field values!
-    public function setDocumentType($type) {
-        $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
-        $this->_fields['DocumentType'] = $type;
-        // TODO: Remove and restore old field values
-        $this->_builder->addFieldsTo($this);
-        parent::_fetchValues();
-    }
-    */
+    // FIXME: Currently destroys all field values!
+    //public function setDocumentType($type) {
+    //    $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
+    //    $this->_fields['DocumentType'] = $type;
+    //    // TODO: Remove and restore old field values
+    //    $this->_builder->addFieldsTo($this);
+    //    parent::_fetchValues();
+    //}
 
     /**
      * Store values of external field TitleMain
      *
-     * @param array|Opus_Model_Dependent_Title $titles A title object or an
-     * array of title objects.
-     *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @param array|Opus_Model_Dependent_Title $titles A title object or an array of title objects.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return void
      */
     protected function _storeTitleMain($titles) {
         if (is_array($titles) === true) {
-            foreach($titles as $title) {
+            foreach ($titles as $title) {
                 $title->setParentId($this->getId());
                 $title->store();
             }
@@ -153,7 +154,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetch values of external field TitleMain
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return Opus_Model_Abstract|array One or more Opus_Models
      */
     protected function _fetchTitleMain() {
         $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
@@ -173,10 +175,11 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * Store values of external field TitleAbstract
      *
      * @param array $value Associative array containing 'value' and 'language'.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return void
      *
-     * @see Opus_Model_Abstract::$_externalFields
      */
-    protected function _storeTitleAbstract($value) {
+    protected function _storeTitleAbstract(array $value) {
         $data['title_abstract_type'] = 'abstract';
         $data['title_abstract_value'] = $value['value'];
         $data['title_abstract_language'] = $value['language'];
@@ -186,7 +189,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetch values of external field TitleAbstract
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return array An associative array.
      */
     protected function _fetchTitleAbstract() {
         $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
@@ -195,7 +199,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         if (count($rows) === 1) {
             $result['value'] = $rows[0]['title_abstract_value'];
             $result['language'] = $rows[0]['title_abstract_language'];
-        } elseif (count($rows) > 1) {
+        } else if (count($rows) > 1) {
             foreach ($rows as $i => $row) {
                 $result[$i]['value'] = $row['title_abstract_value'];
                 $result[$i]['language'] = $row['title_abstract_language'];
@@ -207,7 +211,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Store values of external field Authors
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @param array $personIds An array of author ids.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @throws Opus_Model_Exception Thrown if trying to store an author before the document.
+     * @return void
      */
     protected function _storePersonAuthor(array $personIds) {
         if ($this->getId() === null) {
@@ -221,7 +228,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Store values of external field Authors
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return array An associative array of authors.
      */
     protected function _fetchPersonAuthor() {
         $authorIds = array();
@@ -234,7 +242,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Store values of external field Advisors
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @param array $personIds An array of advisor ids.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @throws Opus_Model_Exception Thrown if trying to store an advisor before the document.
+     * @return void
      */
     protected function _storePersonAdvisor(array $personIds) {
         if ($this->getId() === null) {
@@ -248,7 +259,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetch values of external field Authors
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return array An associative advisor of authors.
      */
     protected function _fetchPersonAdvisor() {
         $advisorIds = array();
@@ -261,7 +273,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Store values of external field Licence
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @param integer $value The id of the licence for this document
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return void
      */
     protected function _storeLicence($value) {
         $this->_primaryTableRow->licences_id = $value;
@@ -270,7 +284,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetch values of external field Licence
      *
-     * @see Opus_Model_Abstract::$_externalFields
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return integer The id of the licence for this document.
      */
     protected function _fetchLicence() {
         return $this->_primaryTableRow->licences_id;
@@ -280,9 +295,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * Fetch values of external field Isbn.
      *
      * @param array $value Associative array containing 'value' and 'label'.
-     *
+     * @return void
      */
-    protected function _storeIsbn($value) {
+    protected function _storeIsbn(array $value) {
         $row['documents_id'] = $this->getId();
         $row['identifier_type'] = 'isbn';
         $row['identifier_label'] = $value['label'];
@@ -293,6 +308,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetch values of external field Isbn.
      *
+     * @return array Associative array of Isbns.
      */
     protected function _fetchIsbn() {
         $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentIdentifiers, 'identifier_type', 'isbn');
@@ -300,7 +316,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         if (count($rows) === 1) {
             $result['value'] = $rows[0]['identifier_value'];
             $result['label'] = $rows[0]['identifier_label'];
-        } elseif (count($rows) > 1) {
+        } else if (count($rows) > 1) {
             foreach ($rows as $i => $row) {
                 $result[$i]['value'] = $row['identifier_value'];
                 $result[$i]['label'] = $row['identifier_label'];
@@ -312,7 +328,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Fetches all persons associated to the document by a certain role.
      *
-     * @param string $role
+     * @param string $role The role of the persons to fetch.
      * @return array An array of Opus_Model_Person
      */
     public function getPersonsByRole($role) {
@@ -330,11 +346,12 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Adds a person associated to the document by a certain role.
      *
-     * @param   string  $role
-     * @param Opus_Model_Person  $person
-     * @return  string  void
+     * @param  Opus_Model_Person $person An Opus_Model_Person
+     * @param  string            $role   The role of the person for this document.
+     * @throws Opus_Model_Exception Thrown if trying to add a person before the document is saved.
+     * @return void
      */
-    public function addPersonByRole($person, $role) {
+    public function addPersonByRole(Opus_Model_Person $person, $role) {
         if ($this->getId() === null) {
             throw new Opus_Model_Exception('Document not persisted yet.');
         }
@@ -352,11 +369,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Get dependent entries from another table.
      *
-     * @param Zend_Db_Table $table
-     * @param string $where A query in the form 'column=?'.
-     * @param string $value The value that the ? in $where will be replaced with.
-     *
-     * @returns array $rows The matching table rows as an associative array.
+     * @param Zend_Db_Table $table The table to query.
+     * @param string        $where (Optional) A query in the form 'column=?'.
+     * @param string        $value (Optional) The value that the ? in $where will be replaced with.
+     * @return array        $rows  The matching table rows as an associative array.
      */
     protected function _getDependentRowsFromTable(Zend_Db_Table $table, $where = null, $value = null) {
         if ($this->getId() === null) {
@@ -374,9 +390,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
 
     /** Update dependent entries in another table.
      *
-     * @param Zend_Db_Table $table
-     * @param array $data
-     *
+     * @param Zend_Db_Table $table The table to add a row to.
+     * @param array         $data  Associative array of data to write to the table.
+     * @throws Opus_Model_Exception Thrown if trying to add foreign data before the document is saved.
+     * @return void
      */
     protected function _addDependentRowsToTable(Zend_Db_Table $table, array $data) {
         if ($this->getId() === null) {

@@ -67,6 +67,8 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_Abstract
     /**
      * Setter for $_parentId.
      *
+     * @param integer $parentId The id of the parent Opus_Model
+     * @return void
      */
     public function setParentId($parentId) {
         $this->_parentId = $parentId;
@@ -75,6 +77,8 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_Abstract
     /**
      * Set up the foreign key of the parent before storing.
      *
+     * @throws Opus_Model_Exception Thrown if trying to store without parent.
+     * @return void
      */
     public function store() {
         if (is_null($this->_parentId) === true or is_null($this->_parentColumn)

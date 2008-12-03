@@ -61,6 +61,7 @@ interface Opus_Model_Interface
      * Remove the model instance from the database.
      *
      * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
+     * @return void
      */
     public function delete();
 

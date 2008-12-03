@@ -83,22 +83,21 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Constructor. Pass an id to fetch from database.
      *
-     * @param int $id   Optional id of existing database row.
-     * @param Zend_Db_Table $tableGatewayModel  Opus_Db model to fetch table row from.
-     * @throws Opus_Model_Exception Thrown if passed id is invalid.
-     * @return void
+     * @param integer       $id                (Optional) Id of existing database row.
+     * @param Zend_Db_Table $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
-    public function __construct($id = null, $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            throw new Opus_Model_Exception("No table gateway model passed.");
+            throw new Opus_Model_Exception('No table gateway model passed.');
         }
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else {
             $this->_primaryTableRow = $tableGatewayModel->find($id)->getRow(0);
             if ($this->_primaryTableRow === null) {
-                throw new Opus_Model_Exception("No ".
-                get_class($tableGatewayModel) ." with id $id in database.");
+                throw new Opus_Model_Exception('No ' .
+                get_class($tableGatewayModel) . ' with id $id in database.');
             }
         }
         $this->_init();
@@ -154,12 +153,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Persist all the models information to its database locations.
      *
-     * @see Opus_Model_Interface::store()
+     * @see    Opus_Model_Interface::store()
      * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
-        if ($this->_transactional) {
+        if ($this->_transactional === true) {
             $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
             $dbadapter->beginTransaction();
         }
@@ -167,7 +166,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             foreach ($this->_fields as $fieldname => $field) {
                 if (in_array($fieldname, $this->_externalFields) === false) {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                    $this->_primaryTableRow->$colname = $this->_fields[$fieldname]->getValue();
+                    $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
                 }
             }
             $id = $this->_primaryTableRow->save();
@@ -177,11 +176,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     $this->$callname($this->_fields[$fieldname]->getValue());
                 }
             }
-            if ($this->_transactional) {
+            if ($this->_transactional === true) {
                 $dbadapter->commit();
             }
         } catch (Exception $e) {
-            if ($this->_transactional) {
+            if ($this->_transactional === true) {
                 $dbadapter->rollback();
             }
             throw new Opus_Model_Exception($e->getMessage());
@@ -194,8 +193,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      *
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
-     * @return mixed Might return a value if a getter method is called.
      * @throws Opus_Model_Exception If an unknown field or method is requested.
+     * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments) {
         $accessor = substr($name, 0, 3);
@@ -228,8 +227,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
      *
-     * @param Opus_Model_Field $field                Field instance that gets appended to the models field collection.
-     * @param string           $external_model_class (Optional) Name of an external model class.
+     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field) {
@@ -244,7 +242,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
-        if (array_key_exists($name, $this->_fields) === true){
+        if (array_key_exists($name, $this->_fields) === true) {
             return $this->_fields[$name];
         } else {
             return null;
@@ -254,7 +252,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Remove the model instance from the database.
      *
-     * @see Opus_Model_Interface::delete()
+     * @see    Opus_Model_Interface::delete()
      * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
      * @return void
      */

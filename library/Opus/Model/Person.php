@@ -46,11 +46,12 @@ class Opus_Model_Person extends Opus_Model_Abstract
     /**
      * Create a new person model instance.
      *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted model instance.
+     * @param mixed         $id                (Optional) Primary key of a persisted model instance.
+     * @param Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
+     * @see    Opus_Model_Abstract::__construct()
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
             parent::__construct($id, new Opus_Db_Persons);
         } else {
@@ -93,7 +94,7 @@ class Opus_Model_Person extends Opus_Model_Abstract
     /**
      * Fetches all documents associated to the person by a certain role.
      *
-     * @param string $role
+     * @param string $role The role that the person has for the documents.
      * @return array An array of Opus_Model_Document
      */
     public function getDocumentsByRole($role) {

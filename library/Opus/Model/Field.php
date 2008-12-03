@@ -59,7 +59,7 @@ class Opus_Model_Field
     /**
      * Hold multiplicity constraint.
      *
-     * @var Integer
+     * @var integer
      */
     protected $_multiplicity = 1;
 
@@ -73,7 +73,7 @@ class Opus_Model_Field
     /**
      * Specify whether a language can be choosen for the field. 
      *
-     * @var Boolean
+     * @var boolean
      */
     protected $_languageoption = false;
 
@@ -81,14 +81,14 @@ class Opus_Model_Field
     /**
      * Holds the actual language for the field value.
      *
-     * @var String
+     * @var string
      */
     protected $_language = '';
 
     /**
      * Hold the fields value.
      *
-     * @var Mixed
+     * @var mixed
      */
     protected $_value = null;
 
@@ -97,7 +97,7 @@ class Opus_Model_Field
      * Holds the fields default values. For selection list fields this should
      * contain the list of options.
      *
-     * @var Mixed
+     * @var mixed
      */
     protected $_default = null;
 
@@ -105,14 +105,14 @@ class Opus_Model_Field
     /**
      * Internal name of the field.
      *
-     * @var String
+     * @var string
      */
     protected $_name = '';
 
     /**
      * Specify if a field can be displayed as a text box.
      *
-     * @var Boolean
+     * @var boolean
      */
     protected $_textarea = false;
     
@@ -120,7 +120,7 @@ class Opus_Model_Field
     /**
      * Specify if a field can be displayed as a selection list.
      *
-     * @var Boolean
+     * @var boolean
      */
     protected $_selection = false;
     
@@ -133,7 +133,7 @@ class Opus_Model_Field
      * - languageoption = false
      * - mandatory = false
      *
-     * @param String $name Internal name of the field.
+     * @param string $name Internal name of the field.
      */
     public function __construct($name) {
         $this->_name = $name;
@@ -192,7 +192,7 @@ class Opus_Model_Field
     /**
      * Set multiplicity constraint for multivalue fields.  
      *
-     * @param Integer $max Upper limit for multiple values.
+     * @param integer $max Upper limit for multiple values.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMultiplicity($max) {
@@ -213,7 +213,7 @@ class Opus_Model_Field
      * Set the mandatory flag for the field. This flag states out whether a field is required
      * to have a value or not.
      *
-     * @param Boolean $mandatory Set to true if the field shall be a required field.
+     * @param boolean $mandatory Set to true if the field shall be a required field.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMandatory($mandatory) {
@@ -234,7 +234,7 @@ class Opus_Model_Field
     /**
      * Enable or disable optional specification of the fields language.
      *
-     * @param Boolean $languageoption True, if a language can be defined for the fields value.
+     * @param boolean $languageoption True, if a language can be defined for the fields value.
      * @return Opus_Model_Fiel Provide fluent interface.
      */
     public function setLanguageOption($languageoption) {
@@ -254,7 +254,7 @@ class Opus_Model_Field
     /**
      * Set the field value language.
      *
-     * @param String $language Zend locale string specifying the fields language.
+     * @param string $language Zend locale string specifying the fields language.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setLanguage($language) {
@@ -274,7 +274,7 @@ class Opus_Model_Field
     /**
      * Set the field value.
      *
-     * @param Mixed $value The field value to be set.
+     * @param mixed $value The field value to be set.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setValue($value) {
@@ -295,7 +295,7 @@ class Opus_Model_Field
     /**
      * Set the fields default value.
      *
-     * @param Mixed $value The field default value to be set.
+     * @param mixed $value The field default value to be set.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setDefault($value) {
@@ -306,8 +306,8 @@ class Opus_Model_Field
 
     /**
      * Get the fields default value.
-     * 
-     * @return Mixed Whatever the default value of the field might be.
+     *
+     * @return mixed Whatever the default value of the field might be.
      */
     public function getDefault() {
         return $this->_default;
@@ -316,7 +316,8 @@ class Opus_Model_Field
     /**
      * Set the textarea property.
      *
-     * @param Boolean $value True, if the field can be displayed as a text box.
+     * @param boolean $value True, if the field can be displayed as a text box.
+     * @return void
      */
     public function setTextarea($value) {
         $this->_textarea = $value;
@@ -335,7 +336,8 @@ class Opus_Model_Field
     /**
      * Set the selection property.
      *
-     * @param Boolean $value True, if the field can be displayed as a selection list.
+     * @param boolean $value True, if the field can be displayed as a selection list.
+     * @return void
      */
     public function setSelection($value) {
         $this->_selection = $value;

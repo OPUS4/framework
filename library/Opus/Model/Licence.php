@@ -45,11 +45,12 @@ class Opus_Model_Licence extends Opus_Model_Abstract
     /**
      * Create a new licence model instance.
      *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted model instance.
+     * @param mixed         $id                (Optional) Primary key of a persisted model instance.
+     * @param Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
+     * @see    Opus_Model_Abstract::__construct()
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
             parent::__construct($id, new Opus_Db_Licence);
         } else {
