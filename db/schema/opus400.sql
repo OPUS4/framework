@@ -67,7 +67,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `vg_wort_pixel_url` TEXT NULL COMMENT 'URI to the VG Wort tracking pixel. / URI auf den VG-Wort-Zählpixel.' ,
   `volume` VARCHAR(25) NULL COMMENT 'Volume. / Jahrgang.' ,
   PRIMARY KEY (`documents_id`) ,
-  INDEX `fk_documents_licences` (`licences_id` ASC) ,
+  INDEX fk_documents_licences (`licences_id` ASC) ,
   CONSTRAINT `fk_documents_licences`
     FOREIGN KEY (`licences_id` )
     REFERENCES `opus400`.`licences` (`licences_id` )
@@ -91,7 +91,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
   `identifier_value` TEXT NOT NULL COMMENT 'Verweis' ,
   `identifier_label` TEXT NOT NULL COMMENT 'Anzeigetext für den Verweis' ,
   PRIMARY KEY (`document_identifiers_id`) ,
-  INDEX `has` (`documents_id` ASC) ,
+  INDEX has (`documents_id` ASC) ,
   CONSTRAINT `has`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -136,7 +136,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type der Datei' ,
   `file_language` VARCHAR(3) NULL COMMENT 'Sprache der Datei' ,
   PRIMARY KEY (`document_files_id`) ,
-  INDEX `fk_document_files_documents` (`documents_id` ASC) ,
+  INDEX fk_document_files_documents (`documents_id` ASC) ,
   CONSTRAINT `fk_document_files_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -158,7 +158,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
   `hash_type` VARCHAR(50) NOT NULL COMMENT 'Art des Hashes' ,
   `hash_value` TEXT NOT NULL COMMENT 'Hashwert ' ,
   PRIMARY KEY (`file_hashvalues_id`, `document_files_id`) ,
-  INDEX `fk_file_hashvalues_document_files` (`document_files_id` ASC) ,
+  INDEX fk_file_hashvalues_document_files (`document_files_id` ASC) ,
   CONSTRAINT `fk_file_hashvalues_document_files`
     FOREIGN KEY (`document_files_id` )
     REFERENCES `opus400`.`document_files` (`document_files_id` )
@@ -178,11 +178,11 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   `document_subjects_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primärschlüssel' ,
   `documents_id` INT UNSIGNED NULL ,
   `subject_language` VARCHAR(3) NULL COMMENT 'Sprache des Erschließungssystems' ,
-  `subject_type` ENUM('ddc', 'swd', 'psyndex', 'uncontrolled') NOT NULL COMMENT 'Art der Erschließung' ,
+  `subject_type` ENUM('swd', 'psyndex', 'uncontrolled') NOT NULL COMMENT 'Art der Erschließung' ,
   `subject_value` VARCHAR(255) NOT NULL COMMENT 'Wert zu subject_type (kontrolliertes/freies Schlagwort, Notation, etc)' ,
   `external_subject_key` VARCHAR(255) NULL COMMENT 'Identifikator zur Auflösung von Deskriptoren in Fremdsystemen' ,
   PRIMARY KEY (`document_subjects_id`) ,
-  INDEX `fk_document_subjects_documents` (`documents_id` ASC) ,
+  INDEX fk_document_subjects_documents (`documents_id` ASC) ,
   CONSTRAINT `fk_document_subjects_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -205,7 +205,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
   `title_abstract_value` TEXT NOT NULL COMMENT 'Value of title or abstract. / Wert des Titels oder Abstracts.' ,
   `title_abstract_language` VARCHAR(3) NOT NULL COMMENT 'Language of the title or abstract (triple-digit, ISO639-2/B). / Sprache des Titels oder Abstracts (dreistelligt, ISO639-2/B).' ,
   PRIMARY KEY (`document_title_abstracts_id`) ,
-  INDEX `fk_document_title_abstracts_documents` (`documents_id` ASC) ,
+  INDEX fk_document_title_abstracts_documents (`documents_id` ASC) ,
   CONSTRAINT `fk_document_title_abstracts_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -231,7 +231,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
   `last_name` VARCHAR(255) NOT NULL COMMENT 'Nachname' ,
   `place_of_birth` VARCHAR(255) NULL COMMENT 'Geburtsort' ,
   PRIMARY KEY (`persons_id`) ,
-  INDEX `last_name` (`last_name` ASC) )
+  INDEX last_name (`last_name` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
@@ -249,7 +249,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   `value` TEXT NOT NULL COMMENT 'Wert' ,
   `resolver` VARCHAR(255) NULL COMMENT 'URL zum Auflösungsmechanismus' ,
   PRIMARY KEY (`person_external_keys_Id`) ,
-  INDEX `fk_person_external_keys_persons` (`persons_id` ASC) ,
+  INDEX fk_person_external_keys_persons (`persons_id` ASC) ,
   CONSTRAINT `fk_person_external_keys_persons`
     FOREIGN KEY (`persons_id` )
     REFERENCES `opus400`.`persons` (`persons_id` )
@@ -273,9 +273,9 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_persons` (
   `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator') NOT NULL COMMENT 'Rolle der Person im aktuellen Dokument-Institut-Kontext' ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Reihenfolge der Autoren' ,
   PRIMARY KEY (`link_documents_persons_id`) ,
-  INDEX `fk_link_documents_persons_documents` (`documents_id` ASC) ,
-  INDEX `fk_link_documents_persons_persons` (`persons_id` ASC) ,
-  INDEX `fk_link_documents_persons_institutes_contents` (`institutes_id` ASC) ,
+  INDEX fk_link_documents_persons_documents (`documents_id` ASC) ,
+  INDEX fk_link_documents_persons_persons (`persons_id` ASC) ,
+  INDEX fk_link_documents_persons_institutes_contents (`institutes_id` ASC) ,
   CONSTRAINT `fk_link_documents_persons_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -311,7 +311,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
   `patent_year_applied` YEAR NOT NULL COMMENT 'Jahr der Antragsstellung' ,
   `patent_application` TEXT NOT NULL COMMENT 'Beschreibung der Anwendung/ des Patents' ,
   PRIMARY KEY (`document_patents_id`) ,
-  INDEX `fk_patent_information_document` (`documents_id` ASC) ,
+  INDEX fk_patent_information_document (`documents_id` ASC) ,
   CONSTRAINT `fk_patent_information_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -335,7 +335,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   `start_survey_period` DATETIME NOT NULL ,
   `end_survey_period` DATETIME NOT NULL ,
   PRIMARY KEY (`document_statistics_id`) ,
-  INDEX `fk_document_statistics_Document` (`documents_id` ASC) ,
+  INDEX fk_document_statistics_Document (`documents_id` ASC) ,
   CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -358,7 +358,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
   `creator` TEXT NOT NULL COMMENT 'Verfasser der Mitteilung' ,
   `scope` ENUM('private', 'public', 'reference') NOT NULL COMMENT 'Sichtbarkeit: intern, extern, Verweis auf andere Dokumentversion ' ,
   PRIMARY KEY (`document_notes_id`) ,
-  INDEX `fk_document_notes_document` (`documents_id` ASC) ,
+  INDEX fk_document_notes_document (`documents_id` ASC) ,
   CONSTRAINT `fk_document_notes_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -380,7 +380,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   `enrichment_type` VARCHAR(255) NOT NULL COMMENT 'Type of enrichment. / Art der Erweiterung.' ,
   `enrichment_value` TEXT NOT NULL COMMENT 'Value of the enrichment. / Wert der Erweiterung.' ,
   PRIMARY KEY (`document_enrichments_id`) ,
-  INDEX `fk_document_enrichment_document` (`documents_id` ASC) ,
+  INDEX fk_document_enrichment_document (`documents_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
@@ -404,7 +404,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
   `right` INT UNSIGNED NOT NULL ,
   `visible` TINYINT NOT NULL ,
   PRIMARY KEY (`institutes_structure_id`) ,
-  INDEX `fk_institutes_structure_institutes_contents` (`institutes_id` ASC) ,
+  INDEX fk_institutes_structure_institutes_contents (`institutes_id` ASC) ,
   CONSTRAINT `fk_institutes_structure_institutes_contents`
     FOREIGN KEY (`institutes_id` )
     REFERENCES `opus400`.`institutes_contents` (`institutes_id` )
@@ -428,10 +428,10 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   `replacement_by_id` INT UNSIGNED NULL COMMENT 'ersetzende Einrichtung' ,
   `current_replacement_id` INT UNSIGNED NULL COMMENT 'aktuell nachfolgende Einrichtung' ,
   PRIMARY KEY (`institutes_replacement_id`) ,
-  INDEX `fk_link_institute` (`institutes_id` ASC) ,
-  INDEX `fk_link_institute_replacement_for` (`replacement_for_id` ASC) ,
-  INDEX `fk_link_institute_replacement_by` (`replacement_by_id` ASC) ,
-  INDEX `fk_link_institute_current_replacement` (`current_replacement_id` ASC) ,
+  INDEX fk_link_institute (`institutes_id` ASC) ,
+  INDEX fk_link_institute_replacement_for (`replacement_for_id` ASC) ,
+  INDEX fk_link_institute_replacement_by (`replacement_by_id` ASC) ,
+  INDEX fk_link_institute_current_replacement (`current_replacement_id` ASC) ,
   CONSTRAINT `fk_link_institute`
     FOREIGN KEY (`institutes_id` )
     REFERENCES `opus400`.`institutes_contents` (`institutes_id` )
@@ -467,7 +467,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`accounts` (
   `login` VARCHAR(45) NOT NULL ,
   `password` VARCHAR(45) NOT NULL ,
   PRIMARY KEY (`account_id`) ,
-  UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC) )
+  UNIQUE INDEX UNIQUE_LOGIN (`login` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
