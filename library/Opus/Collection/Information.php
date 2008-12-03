@@ -47,10 +47,15 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer ID of the newely created Collection Tree
      */
-    static public function newCollectionTree(array $roleArray) {
+    static public function newCollectionTree(array $roleArray, $hidden = false) {
         $role = new Opus_Collection_Roles();
         $role->create();
         foreach ($roleArray as $language => $record) {
+            if ($hidden === true) {
+                $record['visible'] = 0;
+            } else {
+                $record['visible'] = 1;
+            }
             $role->addLanguage($language);
             $role->update(array($language => $record));   
         }
@@ -249,7 +254,10 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id, $alsoSubCollections = false) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 0, $alsoSubCollections = false) {
+        if (false === is_int($collections_id)) {
+            $collections_id = 0;
+        }
         // DB table gateway for the linking table between collections and documents
         $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
         // Container array for the raw collection ID array and the reformatted collection ID array
@@ -328,6 +336,41 @@ class Opus_Collection_Information {
         }    
         
         return $paths;
+    }
+    
+    
+    
+    /**
+     * Fetch collection information. 
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getCollection($roles_id, $collections_id) {
+        // Create collection content object and load information from DB
+        $occ = new Opus_Collection_Contents($roles_id);
+        $occ->create();
+        $occ->load((int) $collections_id);
+        return $occ->collectionContents;
+    }
+    
+    /**
+     * Assign a document to a collection. 
+     *
+     * @param integer $documents_id Identifies the document.
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function assignDocumentToCollection($documents_id, $roles_id, $collections_id) {
+        // DB table gateway for the documents-collections linking table
+        $link_documents_collections  = new Opus_Db_LinkDocumentsCollections($roles_id);
+        
+        $link_documents_collections->insert(array('collections_id' => $collections_id, 
+                                    'documents_id'   => $documents_id));
     }
     
 }
