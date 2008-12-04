@@ -62,6 +62,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected $_externalFields = array(
             'TitleMain',
             'TitleAbstract',
+            'TitleParent',
             'Licence',
             'Isbn',
             'PersonAuthor',
@@ -139,19 +140,20 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @return Opus_Model_Abstract|array One or more Opus_Models
      */
     protected function _fetchTitleMain() {
-        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
-                'title_abstract_type', 'main');
-        if (count($rows) > 0) {
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Dependent_Title($row['document_title_abstracts_id']);
-            }
-        } else {
-            $result = new Opus_Model_Dependent_Title(null, new
-                    Opus_Db_DocumentTitleAbstracts);
-        }
-        return $result;
+        return $this->_loadExternal('Opus_Model_Dependent_Title', new Opus_Db_DocumentTitleAbstracts,
+                array('title_abstract_type' => 'main'));
     }
 
+    /**
+     * Fetch values of external field TitleParent
+     *
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return Opus_Model_Abstract|array One or more Opus_Models
+     */
+    protected function _fetchTitleParent() {
+        return $this->_loadExternal('Opus_Model_Dependent_Parent', new Opus_Db_DocumentTitleAbstracts,
+                array('title_abstract_type' => 'parent'));
+    }
     /**
      * Fetch values of external field TitleAbstract
      *
@@ -159,17 +161,18 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @return array An associative array.
      */
     protected function _fetchTitleAbstract() {
-        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
-                'title_abstract_type', 'abstract');
-        if (count($rows) > 0) {
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Dependent_Title($row['document_title_abstracts_id']);
-            }
-        } else {
-            $result = new Opus_Model_Dependent_Title(null, new
-                    Opus_Db_DocumentTitleAbstracts);
-        }
-        return $result;
+        return $this->_loadExternal('Opus_Model_Dependent_Abstract', new Opus_Db_DocumentTitleAbstracts,
+                array('title_abstract_type' => 'parent'));
+    }
+
+    /**
+     * Fetch values of external field Isbn.
+     *
+     * @return array Associative array of Isbns.
+     */
+    protected function _fetchIsbn() {
+        return $this->_loadExternal('Opus_Model_Dependent_Isbn', new Opus_Db_DocumentIdentifiers,
+                array('identifier_type' => 'isbn'));
     }
 
     /**
@@ -256,40 +259,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
     }
 
     /**
-     * Fetch values of external field Isbn.
-     *
-     * @param array $value Associative array containing 'value' and 'label'.
-     * @return void
-     */
-    protected function _storeIsbn(array $value) {
-        $row['documents_id'] = $this->getId();
-        $row['identifier_type'] = 'isbn';
-        $row['identifier_label'] = $value['label'];
-        $row['identifier_value'] = $value['value'];
-        $this->_addDependentRowsToTable(new Opus_Db_DocumentIdentifiers, $row);
-    }
-
-    /**
-     * Fetch values of external field Isbn.
-     *
-     * @return array Associative array of Isbns.
-     */
-    protected function _fetchIsbn() {
-        $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentIdentifiers, 'identifier_type', 'isbn');
-        $result = array();
-        if (count($rows) === 1) {
-            $result['value'] = $rows[0]['identifier_value'];
-            $result['label'] = $rows[0]['identifier_label'];
-        } else if (count($rows) > 1) {
-            foreach ($rows as $i => $row) {
-                $result[$i]['value'] = $row['identifier_value'];
-                $result[$i]['label'] = $row['identifier_label'];
-            }
-        }
-        return $result;
-    }
-
-    /**
      * Fetches all persons associated to the document by a certain role.
      *
      * @param string $role The role of the persons to fetch.
@@ -328,45 +297,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
             $personLink->role = $role;
             $personLink->save();
         }
-    }
-
-    /**
-     * Get dependent entries from another table.
-     *
-     * @param Zend_Db_Table $table The table to query.
-     * @param string        $where (Optional) A query in the form 'column=?'.
-     * @param string        $value (Optional) The value that the ? in $where will be replaced with.
-     * @return array        $rows  The matching table rows as an associative array.
-     */
-    protected function _getDependentRowsFromTable(Zend_Db_Table $table, $where = null, $value = null) {
-        if ($this->getId() === null) {
-            return null;
-        }
-        if (is_null($where === false) and is_null($value === false)) {
-            $select = $table->select();
-            $select->where($where, $value);
-            $rows = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
-        } else {
-            $rows = $this->_primaryTableRow->findDependentRowset(get_class($table))->toArray();
-        }
-        return $rows;
-    }
-
-    /** Update dependent entries in another table.
-     *
-     * @param Zend_Db_Table $table The table to add a row to.
-     * @param array         $data  Associative array of data to write to the table.
-     * @throws Opus_Model_Exception Thrown if trying to add foreign data before the document is saved.
-     * @return void
-     */
-    protected function _addDependentRowsToTable(Zend_Db_Table $table, array $data) {
-        if ($this->getId() === null) {
-            throw new Opus_Model_Exception('Document not persisted yet.');
-        }
-        $where = $table->getAdapter()->quoteInto('documents_id=?', $this->getId());
-        $table->delete($where);
-        $data['documents_id'] = $this->getId();
-        $table->insert($data);
     }
 
     /**

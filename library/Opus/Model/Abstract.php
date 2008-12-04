@@ -173,7 +173,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             foreach ($this->_externalFields as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     $callname = '_store' . $fieldname;
-                    if (method_exists($this, $callname)) {
+                    if (method_exists($this, $callname) === true) {
                         $this->$callname($this->_fields[$fieldname]->getValue());
                     } else {
                         $this->_storeExternal($this->_fields[$fieldname]->getValue());
@@ -195,7 +195,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Save the values of external fields.
      *
-     * @param array|Opus_Model $values
+     * @param array|Opus_Model_DependentAbstract $values One or mor dependent opus models.
      * @throws Opus_Model_Exception Thrown when trying to save non Opus_Model_Dependent objects.
      * @return void
      */
@@ -205,12 +205,42 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $this->_storeExternal($value);
             }
         } else if (is_null($values) === false) {
-            if ($values instanceof Opus_Model_Dependent_Abstract === false) {
+            if ($values instanceof Opus_Model_DependentAbstract === false) {
                 throw new Opus_Model_Exception('External fields must be Opus_Model_Dependent.');
             }
             $values->setParentId($this->getId());
             $values->store();
         }
+    }
+
+    /**
+     * Load the values of external fields.
+     *
+     * @param  string        $targetModel Name of the Opus_Model_Dependent class to build.
+     * @param  Zend_Db_Table $table       Table to query.
+     * @param  array         $conditions  Conditions for the query.
+     * @return array
+     */
+    protected function _loadExternal($targetModel, Zend_Db_Table $table, array $conditions = null) {
+        // 1. Get name of id column in target table
+        // 2. Get Ids of dependent rows
+        // 3. create new model for each id
+        if ($this->getId() === null) {
+            return new $targetModel(null, $table);
+        }
+        $result = array();
+        $tableInfo = $table->info();
+        $primaryKey = $tableInfo['primary'][1];
+        $select = $table->select()->from($table, array($primaryKey));
+        foreach ($conditions as $column => $value) {
+            $select = $select->where("$column = ?", $value);
+        }
+        $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
+        foreach ($ids as $id) {
+            $result[] = new $targetModel($id[$primaryKey]);
+        }
+
+        return $result;
     }
 
     /**

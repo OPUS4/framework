@@ -34,53 +34,59 @@
  */
 
 /**
- * Domain model for titles in the Opus framework
+ * Abstract class for all dependent models in the Opus framework.
  *
  * @category    Framework
  * @package     Opus_Model
- * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
+
+abstract class Opus_Model_DependentAbstract extends Opus_Model_Abstract
 {
+    /**
+     * Whether db transaction should be used in store()
+     *
+     * @var boolean Defaults to false.
+     */
+    protected $_transactional = false;
+
     /**
      * Primary key of the parent model.
      *
-     * @var mixed $_parentId.
+     * @var mixed $_parentId Defaults to null.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentId = null;
 
     /**
-     * Create a new title model instance.
+     * Name of the column in the dependent model's primary table row that
+     * contains the parent model's primary key.
      *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted title model instance.
-     * @param mixed $parent_id (Optional) Primary key of the parent document.
-     * @param Zend_Db_Table $tableGatewayModel
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
+     * @var mixed $_parentColumn Defaults to null.
      */
-    public function __construct($id = null, $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_DocumentTitleAbstracts);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
-    }
+    protected $_parentColumn = null;
 
     /**
-     * Initialize model with the following fields:
-     * - Language
-     * - Title
+     * Setter for $_parentId.
      *
+     * @param integer $parentId The id of the parent Opus_Model
      * @return void
      */
-    protected function _init() {
-        $this->_primaryTableRow->title_abstract_type = 'main';
-        $language = new Opus_Model_Field('TitleAbstractLanguage');
-        $value = new Opus_Model_Field('TitleAbstractValue');
-
-        $this->addField($language)
-            ->addField($value);
+    public function setParentId($parentId) {
+        $this->_parentId = $parentId;
     }
 
-
+    /**
+     * Set up the foreign key of the parent before storing.
+     *
+     * @throws Opus_Model_Exception Thrown if trying to store without parent.
+     * @return void
+     */
+    public function store() {
+        if (is_null($this->_parentId) === true or is_null($this->_parentColumn)
+                === true) {
+            throw new Opus_Model_Exception('Dependent Model ' . get_class($this)
+                    . ' without parent cannot be persisted.');
+        }
+        $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
+        parent::store();
+    }
 }

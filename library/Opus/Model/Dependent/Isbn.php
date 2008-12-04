@@ -34,13 +34,13 @@
  */
 
 /**
- * Domain model for titles in the Opus framework
+ * Domain model for isbns in the Opus framework
  *
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
+class Opus_Model_Dependent_Isbn extends Opus_Model_DependentAbstract
 {
     /**
      * Primary key of the parent model.
@@ -50,7 +50,7 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
     protected $_parentColumn = 'documents_id';
 
     /**
-     * Create a new title model instance.
+     * Create a new parent title model instance.
      *
      * @see Opus_Model_Abstract::__construct()
      * @param mixed $id (Optional) Primary key of a persisted title model instance.
@@ -60,7 +60,7 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
      */
     public function __construct($id = null, $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_DocumentTitleAbstracts);
+            parent::__construct($id, new Opus_Db_DocumentIdentifiers);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
@@ -68,18 +68,18 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
 
     /**
      * Initialize model with the following fields:
-     * - Language
-     * - Title
+     * - Value
+     * - Label
      *
      * @return void
      */
     protected function _init() {
-        $this->_primaryTableRow->title_abstract_type = 'main';
-        $language = new Opus_Model_Field('TitleAbstractLanguage');
-        $value = new Opus_Model_Field('TitleAbstractValue');
+        $this->_primaryTableRow->identifier_type = 'isbn';
+        $value = new Opus_Model_Field('IdentifierValue');
+        $label = new Opus_Model_Field('IdentifierLabel');
 
-        $this->addField($language)
-            ->addField($value);
+        $this->addField($value)
+            ->addField($label);
     }
 
 
