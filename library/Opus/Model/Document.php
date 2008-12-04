@@ -133,25 +133,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
     //}
 
     /**
-     * Store values of external field TitleMain
-     *
-     * @param array|Opus_Model_Dependent_Title $titles A title object or an array of title objects.
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return void
-     */
-    protected function _storeTitleMain($titles) {
-        if (is_array($titles) === true) {
-            foreach ($titles as $title) {
-                $title->setParentId($this->getId());
-                $title->store();
-            }
-        } else {
-            $titles->setParentId($this->getId());
-            $titles->store();
-        }
-    }
-
-    /**
      * Fetch values of external field TitleMain
      *
      * @see    Opus_Model_Abstract::$_externalFields
@@ -172,21 +153,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
     }
 
     /**
-     * Store values of external field TitleAbstract
-     *
-     * @param array $value Associative array containing 'value' and 'language'.
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return void
-     *
-     */
-    protected function _storeTitleAbstract(array $value) {
-        $data['title_abstract_type'] = 'abstract';
-        $data['title_abstract_value'] = $value['value'];
-        $data['title_abstract_language'] = $value['language'];
-        $this->_addDependentRowsToTable(new Opus_Db_DocumentTitleAbstracts, $data);
-    }
-
-    /**
      * Fetch values of external field TitleAbstract
      *
      * @see    Opus_Model_Abstract::$_externalFields
@@ -195,15 +161,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected function _fetchTitleAbstract() {
         $rows = $this->_getDependentRowsFromTable(new Opus_Db_DocumentTitleAbstracts,
                 'title_abstract_type', 'abstract');
-        $result = array();
-        if (count($rows) === 1) {
-            $result['value'] = $rows[0]['title_abstract_value'];
-            $result['language'] = $rows[0]['title_abstract_language'];
-        } else if (count($rows) > 1) {
-            foreach ($rows as $i => $row) {
-                $result[$i]['value'] = $row['title_abstract_value'];
-                $result[$i]['language'] = $row['title_abstract_language'];
+        if (count($rows) > 0) {
+            foreach ($rows as $row) {
+                $result[] = new Opus_Model_Dependent_Title($row['document_title_abstracts_id']);
             }
+        } else {
+            $result = new Opus_Model_Dependent_Title(null, new
+                    Opus_Db_DocumentTitleAbstracts);
         }
         return $result;
     }

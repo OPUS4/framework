@@ -173,7 +173,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             foreach ($this->_externalFields as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     $callname = '_store' . $fieldname;
-                    $this->$callname($this->_fields[$fieldname]->getValue());
+                    if (method_exists($this, $callname)) {
+                        $this->$callname($this->_fields[$fieldname]->getValue());
+                    } else {
+                        $this->_storeExternal($this->_fields[$fieldname]->getValue());
+                    }
                 }
             }
             if ($this->_transactional === true) {
@@ -186,6 +190,27 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             throw new Opus_Model_Exception($e->getMessage());
         }
         return $id;
+    }
+
+    /**
+     * Save the values of external fields.
+     *
+     * @param array|Opus_Model $values
+     * @throws Opus_Model_Exception Thrown when trying to save non Opus_Model_Dependent objects.
+     * @return void
+     */
+    protected function _storeExternal($values) {
+        if (is_array($values) === true) {
+            foreach ($values as $value) {
+                $this->_storeExternal($value);
+            }
+        } else if (is_null($values) === false) {
+            if ($values instanceof Opus_Model_Dependent_Abstract === false) {
+                throw new Opus_Model_Exception('External fields must be Opus_Model_Dependent.');
+            }
+            $values->setParentId($this->getId());
+            $values->store();
+        }
     }
 
     /**
