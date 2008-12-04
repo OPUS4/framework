@@ -203,6 +203,15 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             $document->$callname($value);
         }
         $document->setDocumentType('article');
+        $document->getTitleMain()->setTitleAbstractValue('Title');
+        $document->getTitleMain()->setTitleAbstractLanguage('de');
+        $document->getTitleAbstract()->setTitleAbstractValue('Abstract');
+        $document->getTitleAbstract()->setTitleAbstractLanguage('fr');
+        $document->getTitleParent()->setTitleAbstractValue('Parent');
+        $document->getTitleParent()->setTitleAbstractLanguage('en');
+        $document->getIsbn()->setIdentifierValue('123-123-123');
+        $document->getIsbn()->setIdentifierLabel('label');
+
         $document = new Opus_Model_Document($document->store());
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");

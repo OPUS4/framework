@@ -90,5 +90,9 @@ value for "name". It must be declared.
     <field name="SwbId"/>
     <field name="VgWortPixelUrl"/>
     <field name="Volume"/>
+    <field name="TitleMain"/>
+    <field name="TitleParent"/>
+    <field name="TitleAbstract"/>
+    <field name="Isbn"/>
 
 </documenttype>
