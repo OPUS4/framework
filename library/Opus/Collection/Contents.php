@@ -66,7 +66,7 @@ class Opus_Collection_Contents {
      * 
      * @var array 
      */
-    private $collections_contents_info;
+    public $collections_contents_info;
 
     /**
      * Container for identifying attribute
@@ -103,7 +103,7 @@ class Opus_Collection_Contents {
             $this->collections_contents     = new Opus_Db_InstitutesContents();
         } else {
             $this->collectionsIdentifier    = 'collections_id';
-            $this->collections_contents     = new Opus_Db_CollectionsContents($ID);
+            $this->collections_contents     = new Opus_Db_CollectionsContents((int) $ID);
         }
         $this->collectionContents           = array();
         $this->collections_contents_info    = $this->collections_contents->info();
@@ -189,6 +189,9 @@ class Opus_Collection_Contents {
                                                     ->select()
                                                     ->where($this->collections_contents_info['primary'][1] . ' = ?', $collections_id))
                                     ->toArray();
+        if(empty($collectionContents)) {
+            throw new InvalidArgumentException("Collection with ID '$collections_id' not found.");                              
+        }
         // Replace numeric index by language codes
         foreach ($collectionContents as $numIndex => $record) {
             $this->collectionContents[$record[$this->collections_contents_info['primary'][2]]] = $record;

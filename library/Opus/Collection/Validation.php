@@ -98,7 +98,7 @@ class Opus_Collection_Validation {
         if (is_string($language) === false) {
             throw new InvalidArgumentException('Language code must be a string.');
         } else if (strlen($language) !== 3) {
-            throw new InvalidArgumentException($ID . ' is not a three letter language code.');
+            throw new InvalidArgumentException($language . ' is not a three letter language code.');
         }
     }
 }
