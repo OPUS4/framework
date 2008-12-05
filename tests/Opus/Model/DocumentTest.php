@@ -117,6 +117,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);    
     }
+
+    /**
+     * Tear down test fixture.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('document_identifiers');
+        TestHelper::clearTable('document_title_abstracts');
+        TestHelper::clearTable('documents');
+    }
+
     
     /**
      * Test if a Document instance can be serialized.
