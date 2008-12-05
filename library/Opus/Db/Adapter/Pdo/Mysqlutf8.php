@@ -42,7 +42,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
+class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements Opus_Db_Adapter_AlterSchemaInterface
 {
     /**
      * Contain table prefix
