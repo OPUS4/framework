@@ -47,15 +47,15 @@ class Opus_Form_Builder {
      * containes Zend_Form_Elements for each field of the document. If a
      * document field refers to another model instance then a sub form is
      * created.
-     * 
+     *
      * Additionally the given model object is serialized, compressed and base64
-     * encoded and stored in a hidden form field "__model". 
+     * encoded and stored in a hidden form field "__model".
      *
      * @param Opus_Model_Interface $model         Model to build a form for.
-     * @param Boolean              $createSubForm True, if a sub form should be 
+     * @param Boolean              $createSubForm True, if a sub form should be
      *                                            generated instead of a form.
-     * 
-     * @return Zend_Form The generated form object. 
+     *
+     * @return Zend_Form The generated form object.
      */
     public function build(Opus_Model_Interface $model, $createSubForm = false) {
         if ($createSubForm === true) {
@@ -90,6 +90,30 @@ class Opus_Form_Builder {
         return $form;
     }
 
+    public function buildFromPost(array $post) {
+        $model = unserialize(bzdecompress(base64_decode($post['__model'])));
+
+        foreach ($post as $key => $value) {
+            if (preg_match('/^add_/', $key) === 1) {
+                $fname = explode('_', $key);
+                $fname = $fname[1];
+                $post[$fname][] = '';
+            }
+            if (preg_match('/^remove_/', $key) === 1) {
+                $fname = explode('_', $key);
+                $index = (int)$fname[2];
+                $fname = $fname[1];
+                unset($post[$fname][$index]);
+            }
+        }
+
+        $this->_setFromPost($model, $post);
+
+        $form = $this->build($model);
+        $form->model->setValue(serialize($model));
+
+        return $form;
+    }
 
     protected function _makeElement($name, $value, Zend_Form $container) {
         if ($value instanceof Opus_Model_Interface) {
@@ -100,6 +124,40 @@ class Opus_Form_Builder {
             $element->setValue($value);
             $element->setLabel($name);
             $container->addElement($element);
+        }
+    }
+
+    protected function _setFieldModelValuesFromArray(Opus_Model_Field $field, array $values) {
+        $new_values = array();
+        // should never be null
+        $classname = $field->getValueModelClass();
+        foreach ($values as $postvalue) {
+            $model = new $classname;
+            $this->setFromPost($model, $postvalue);
+            $new_values[] = $model;
+        }
+        $field->setValue($new_values);
+    }
+
+    protected function _setFromPost(Opus_Model_Interface $model, array $post) {
+        foreach ($post as $fieldname => $value) {
+            $field = $model->getField($fieldname);
+            if ($field->getValue() instanceof Opus_Model_Interface) {
+                if ($field->isMulti($fieldname) === true) {
+                    $this->_setFieldModelValuesFromArray($field, $value);
+                } else {
+                    // should never be null
+                    $classname = $field->getValueModelClass();
+                    $model2 = new $classname;
+                    $this->setFromPost($model2, $value);
+                    $field->setValue($model2);
+                }
+            } else {
+                if (is_array($value) === true) {
+                    $value = array_values($value);
+                }
+                $field->setValue($value);
+            }
         }
     }
 
