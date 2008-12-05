@@ -210,6 +210,16 @@ class Opus_Model_Field
     }
 
     /**
+     * Return whether the field has a multiplicity greater 1.
+     *
+     * @return Boolean True, if field can have multiple values.
+     */
+    public function hasMultipleValues() {
+        $mult = $this->getMultiplicity();
+        return ($mult > 1 || $mult === '*');
+    }
+    
+    /**
      * Set the mandatory flag for the field. This flag states out whether a field is required
      * to have a value or not.
      *
