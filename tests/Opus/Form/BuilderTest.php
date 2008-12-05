@@ -44,34 +44,19 @@
 class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * Xml document type description for simple document type.
+     * Test fixture holding an instance of Opus_Form_BuilderTest_Model.
      *
-     * @var string
+     * @var Opus_Model_Abstract
      */
-    protected $_simpleXmlType =
-        '<?xml version="1.0" encoding="UTF-8" ?>
-         <documenttype name="simple"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" />
-         </documenttype>';
+    protected $_model = null;
     
     
     /**
-     * Test fixture holdig an instance of Opus_Document_Type.
+     * Test fixture holding an instance of the Opus_Form_BuilderTest_DbModel table gateway.
      *
-     * @var Opus_Document_Type
+     * @var Zend_Db_Table_Interface
      */
-    protected $_simpleType = null;
-
-    
-    /**
-     * Test fixture holding an instance of Opus_Model_Document.
-     * 
-     * @var Opus_Model_Document
-     */
-    protected $_simpleDocument = null;
-
+    protected $_table = null;
     
     /**
      * Instance of the class under test.
@@ -81,14 +66,20 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     protected $_builder = null;
     
     /**
-     * Set up test fixtures.
+     * Set up test fixtures and tables.
      *
      * @return void
      */
     public function setUp() {
-        $this->_simpleType = new Opus_Document_Type($this->_simpleXmlType);
-        $this->_simpleDocument = new Opus_Model_Document(null, $this->_simpleType);
-        $this->_builder = new Opus_Form_Builder(); 
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        if ($dba->isExistent('dbmodel') === true) {
+            $dba->deleteTable('dbmodel');
+        }
+        $dba->createTable('dbmodel');
+        $dba->addField('dbmodel', array('name' => 'simple_field', 'type' => 'varchar', 'length' => 50));
+
+        $this->_model = new Opus_Form_BuilderTest_Model(null, new Opus_Form_BuilderTest_DbModel);
+        $this->_builder = new Opus_Form_Builder();
     }
     
     /**
@@ -97,10 +88,10 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateFormFromDocument() {
-        $form = $this->_builder->build($this->_simpleDocument);
+        $form = $this->_builder->build($this->_model);
         $this->assertType('Zend_Form', $form);
         $elements = $form->getElements();
-        $this->assertArrayHasKey('Language', $elements, 'Language field is missing in form.');
+        $this->assertArrayHasKey('SimpleField', $elements, 'Field "SimpleField" is missing in form.');
     }
     
     /**
@@ -109,25 +100,23 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testModelIsSerializedCorrectly() {
-        $form = $this->_builder->build($this->_simpleDocument);
-        $serializedModel = base64_encode(bzcompress(serialize($this->_simpleDocument)));
+        $form = $this->_builder->build($this->_model);
+        $serializedModel = base64_encode(bzcompress(serialize($this->_model)));
         $serializedModelFromForm = $form->getElement('__model')->getValue(); 
         $this->assertEquals($serializedModel, $serializedModelFromForm, 'Model serialization has failures.');
     }
 
     /**
-     * Test if a subform is generated for the dependent field TitleMain.
-     *
+     * Test if the value of a field is set in the generated form.
+     * 
      * @return void
      */
-    public function testSubformIsGeneratedForDependentTitleField() {
-        $doc = $this->_simpleDocument;
-        $field = new Opus_Model_Field('TitleMain');
-        $field->setValue(new Opus_Model_Dependent_Title(null, new Opus_Db_DocumentTitleAbstracts()));
-        $doc->addField($field);
-        $form = $this->_builder->build($doc);
-        $subform = $form->getSubForm('TitleMain');
-        $this->assertNotNull($subform, 'No sub form with name "TitleMain" generated.');
+    public function testFieldValueIsSetInForm() {
+        $this->_model->setSimpleField('Testvalue!');
+        $form = $this->_builder->build($this->_model);
+        $value = $form->getElement('SimpleField')->getValue();
+        $this->assertEquals('Testvalue!', $value, 'Field value has not been set correctly.');
     }
+    
     
 }
