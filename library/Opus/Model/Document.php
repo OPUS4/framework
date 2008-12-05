@@ -68,7 +68,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'TitleAbstract' => array(
                 'model' => 'Opus_Model_Dependent_Abstract',
                 'table' => 'Opus_Db_DocumentTitleAbstracts',
-                'conditions' => array('title_abstract_type' => 'parent')
+                'conditions' => array('title_abstract_type' => 'abstract')
             ),
             'TitleParent' => array(
                 'model' => 'Opus_Model_Dependent_Parent',
