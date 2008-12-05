@@ -94,5 +94,7 @@ value for "name". It must be declared.
     <field name="TitleParent"/>
     <field name="TitleAbstract"/>
     <field name="Isbn"/>
+    <field name="Note"/>
+    <field name="Patent"/>
 
 </documenttype>

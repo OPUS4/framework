@@ -85,6 +85,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'model' => 'Opus_Model_Dependent_Note',
                 'table' => 'Opus_Db_DocumentNotes',
             ),
+            'Patent' => array(
+                'model' => 'Opus_Model_Dependent_Patent',
+                'table' => 'Opus_Db_DocumentPatents',
+            ),
             'PersonAuthor' => array(),
         );
 

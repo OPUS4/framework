@@ -167,6 +167,7 @@
 	       <enumeration value="SubjectDdc"/>
 	       <enumeration value="SubjectUncontrolled"/>
 	       <enumeration value="Note"/>
+	       <enumeration value="Patent"/>
 	       <enumeration value="PersonAdvisor"/>
 	       <enumeration value="PersonAuthor"/>
 	       <enumeration value="PersonOther"/>
