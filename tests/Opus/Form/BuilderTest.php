@@ -39,486 +39,95 @@
  * @category Tests
  * @package  Opus_Form
  *
- * @group    BuilderTest
+ * @group    FormBuilderTest
  */
 class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
+    /**
+     * Xml document type description for simple document type.
+     *
+     * @var string
+     */
+    protected $_simpleXmlType =
+        '<?xml version="1.0" encoding="UTF-8" ?>
+         <documenttype name="simple"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Language" />
+         </documenttype>';
+    
+    
+    /**
+     * Test fixture holdig an instance of Opus_Document_Type.
+     *
+     * @var Opus_Document_Type
+     */
+    protected $_simpleType = null;
+
+    
+    /**
+     * Test fixture holding an instance of Opus_Model_Document.
+     * 
+     * @var Opus_Model_Document
+     */
+    protected $_simpleDocument = null;
+
+    
+    /**
+     * Instance of the class under test.
+     *
+     * @var Opus_Form_Builder
+     */
+    protected $_builder = null;
+    
+    /**
+     * Set up test fixtures.
+     *
+     * @return void
+     */
+    public function setUp() {
+        $this->_simpleType = new Opus_Document_Type($this->_simpleXmlType);
+        $this->_simpleDocument = new Opus_Model_Document(null, $this->_simpleType);
+        $this->_builder = new Opus_Form_Builder(); 
+    }
+    
     /**
      * Test of creating a Zend Form.
      *
      * @return void
      */
-    public function testCreateForm() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="institute" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="test">
-                    <field name="institute" />
-                </page>
-            </formlayout>';
-
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
+    public function testCreateFormFromDocument() {
+        $form = $this->_builder->build($this->_simpleDocument);
         $this->assertType('Zend_Form', $form);
-
-    }
-
-    /**
-     * Test if a form contain correct elements.
-     *
-     * @return void
-     */
-    public function testFormContainsElements() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="institute" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="test">
-                    <field name="institute" />
-                </page>
-            </formlayout>';
-
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
-        $expected = array('submit', 'form');
-        $this->assertEquals($expected, array_keys($form->getElements()));
-    }
-
-    /**
-     * Test if a form contain correct subform.
-     *
-     * @return void
-     */
-    public function testFormContainSubform() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="institute" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="test">
-                    <field name="institute" />
-                </page>
-            </formlayout>';
-
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
-        $expected = array('test');
-        $this->assertEquals($expected, array_keys($form->getSubForms()));
-    }
-
-    /**
-     * Test if a subform contain correct elements.
-     *
-     * @return void
-     */
-    public function testSubFormContainsElements() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="institute" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="test">
-                    <field name="institute" />
-                </page>
-            </formlayout>';
-
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
-        $subform = $form->getSubForm('test');
-        $expected = array('institute');
-        $this->assertEquals($expected, array_keys($subform->getElements()));
-    }
-
-    /**
-     * Test to build a more complex form
-     *
-     * @return void
-     */
-    public function testCreateComplexForm() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="person_author" multiplicity="*" mandatory="yes" />
-                    <field name="person_advisor" />
-                    <field name="completed_date" />
-                    <field name="institute" multiplicity="2" />
-                    <field name="publisher_name" mandatory="yes" multiplicity="*" />
-                    <field name="publisher_university" mandatory="yes" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="author">
-                    <group name="g1">
-                        <field name="person_author" />
-                        <field name="person_advisor" />
-                    </group>
-                    <field name="institute" />
-                    <field name="completed_date" />
-                </page>
-                <page name="publisher">
-                    <group name="g2">
-                        <field name="publisher_name" />
-                        <field name="publisher_university" />
-                    </group>
-                </page>
-            </formlayout>';
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
-        // form check
-        $this->assertType('Zend_Form', $form);
-        $subforms = $form->getSubForms();
-        $expected = array('author', 'publisher');
-        $this->assertEquals($expected, array_keys($subforms));
         $elements = $form->getElements();
-        $expected = array('submit', 'form');
-        $this->assertEquals($expected, array_keys($elements));
-        // check subform author
-        $nestedsubforms = $form->author->getSubForms();
-        $expected = array('g1', 'institute');
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-        $nestedsubforms = $form->author->g1->getSubForms();
-        $expected = array('person_author', 'person_advisor');
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-        $elements = $form->author->getElements();
-        $expected = array('completed_date');
-        $this->assertEquals($expected, array_keys($elements));
-        // check subform publisher
-        $nestedsubforms = $form->publisher->getSubForms();
-        $expected = array('g2');
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-        $elements = $form->publisher->g2->getElements();
-        $expected = array('publisher_name', 'publisher_university');
-        $this->assertEquals($expected, array_keys($elements));
+        $this->assertArrayHasKey('Language', $elements, 'Language field is missing in form.');
     }
-
+    
     /**
-     * Test if an empty value could be used as an element data
+     * Test if the serialized model is correctly stored within the form.
      *
      * @return void
      */
-    public function testEmptyElementdataForSingleElement() {
-        $this->setExpectedException('InvalidArgumentException');
-        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('', array());
+    public function testModelIsSerializedCorrectly() {
+        $form = $this->_builder->build($this->_simpleDocument);
+        $serializedModel = base64_encode(bzcompress(serialize($this->_simpleDocument)));
+        $serializedModelFromForm = $form->getElement('__model')->getValue(); 
+        $this->assertEquals($serializedModel, $serializedModelFromForm, 'Model serialization has failures.');
     }
 
     /**
-     * Test if element data is a string
+     * Test if a subform is generated for the dependent field TitleMain.
      *
      * @return void
      */
-    public function testNonStringDataOnElementdataForSingleElement() {
-        $this->setExpectedException('InvalidArgumentException');
-        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate(1, array());
+    public function testSubformIsGeneratedForDependentTitleField() {
+        $doc = $this->_simpleDocument;
+        $field = new Opus_Model_Field('TitleMain');
+        $field->setValue(new Opus_Model_Dependent_Title(null, new Opus_Db_DocumentTitleAbstracts()));
+        $doc->addField($field);
+        $form = $this->_builder->build($doc);
+        $subform = $form->getSubForm('TitleMain');
+        $this->assertNotNull($subform, 'No sub form with name "TitleMain" generated.');
     }
-
-    /**
-     * Test if typeinfo could be an empty array
-     *
-     * @return void
-     */
-    public function testEmptyArrayOnTypeinfoForSingleElement() {
-        $this->setExpectedException('InvalidArgumentException');
-        Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('test', array());
-    }
-
-    /**
-     * Test what happend if typeinfo does not have key mandatory
-     *
-     * @return void
-     */
-    public function testEmptyMandatoryOnTypeInfo() {
-        $result = Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('testname', array('type' => 'test'));
-        $this->assertEquals(false, $result['mandatory']);
-    }
-
-    /**
-     * Test what happend if typeinfo does not have key languageoption
-     *
-     * @return void
-     */
-    public function testEmptyLanguageOnTypeInfo() {
-        $result = Opus_Form_BuilderDelegateHelper::generateSingleElementDelegate('testname', array('type' => 'test'));
-        $this->assertEquals('off', $result['languageoption']);
-    }
-
-    /**
-     * Test to ensure typefields is not an empty array.
-     *
-     * @return void
-     */
-    public function testEmptyArrayOnTypefieldsForSubElements() {
-        $this->setExpectedException('InvalidArgumentException');
-        Opus_Form_BuilderDelegateHelper::generateSubElementsDelegate(array('test'), array());
-    }
-
-    /**
-     * Test that typeinfo is an array.
-     *
-     * @return void
-     */
-    public function testEmptyArrayOnTypeinfoInsideSubElements() {
-        $this->setExpectedException('Opus_Form_Exception');
-        Opus_Form_BuilderDelegateHelper::generateSubElementsDelegate(array('test'), array('test' => 'blub'));
-    }
-
-    /**
-     * Test what happened if keypattern is not found
-     *
-     * @return void
-     */
-    public function testNothingFoundOnFindPathToKey() {
-        $haystack = array('key' => 'value');
-        $result = Opus_Form_BuilderDelegateHelper::findPathToKeyDelegate('test', $haystack);
-        $this->assertNull($result);
-    }
-
-    /**
-     * Test that a deep search on haystack works.
-     *
-     * @return void
-     */
-    public function testDeepSearchOnFindPathToKey() {
-        $haystack = array('key' => 'value', 'key2' => array('name' => 'test2', 'deeper' => array('test' => 'info')));
-        $result = Opus_Form_BuilderDelegateHelper::findPathToKeyDelegate('test', $haystack);
-        $expected = array('deeper', 'key2');
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
-     * Tries to recreate a form.
-     *
-     * @return void
-     */
-    public function testRecreateForm() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="institute" />
-                </documenttype>';
-        $xmllayout = '<?xml version="1.0" encoding="UTF-8"?>
-            <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                <page name="test">
-                    <field name="institute" />
-                </page>
-            </formlayout>';
-
-        $type = new Opus_Document_Type($xmltype);
-        $layout = Opus_Form_Layout::fromXml($xmllayout);
-        $form = Opus_Form_Builder::createForm($type, $layout);
-
-        $data = $form->getValues();
-        $new_form = Opus_Form_Builder::recreateForm($data);
-        $this->assertType('Zend_Form', $new_form);
-    }
-
-    /**
-     * Test if adding a field works as expected
-     *
-     * @return void
-     */
-    public function testAddAdditionalField() {
-        $daten = array(
-            'test'=> array(
-                'institute' => array(
-                    1 => array(
-                        'institute' => ''
-                    ),
-                    'add_institute' => '+'
-                )
-            ),
-            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:3:"seq";i:1;s:8:"maxmulti";s:1:"*";s:8:"elements";a:1:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}}}}}}'
-        );
-        $form = Opus_Form_Builder::recreateForm($daten);
-        // general form check
-        $this->assertType('Zend_Form', $form);
-        $subforms = $form->getSubForms();
-        $expected = array('test');
-        $this->assertEquals($expected, array_keys($subforms));
-        $elements = $form->getElements();
-        $expected = array('submit', 'form');
-        $this->assertEquals($expected, array_keys($elements));
-        // subform 'test' checks
-        $nestedsubforms = $form->test->getSubForms();
-        $expected = array('institute');
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-        $nestedsubforms = $form->test->institute->getSubForms();
-        $expected = array(1, 2);
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-    }
-
-    /**
-     * Test if a missing sequenz number is added if we add a new field
-     *
-     * @return void
-     */
-    public function testAddMissingSequenzNumber() {
-        $daten = array(
-            'test'=> array(
-                'institute' => array(
-                    1 => array(
-                        'institute' => ''
-                    ),
-                    'add_institute' => '+'
-                )
-            ),
-            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:8:"maxmulti";s:1:"*";s:8:"elements";a:1:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}}}}}}'
-        );
-        $expected = 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:8:"maxmulti";s:1:"*";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}s:6:"remove";b:1;}}s:3:"seq";i:2;}}}}';
-        $form = Opus_Form_Builder::recreateForm($daten);
-        $this->assertEquals($expected, $form->form->getValue());
-    }
-
-    /**
-     * Test if removing a field works as expected
-     *
-     * @return void
-     */
-    public function testRemoveAdditionalField() {
-        $daten = array(
-            'test'=> array(
-                'institute' => array(
-                    1 => array(
-                        'institute' => ''
-                    ),
-                    2 => array(
-                        'institute' => '',
-                        'remove_institute_2' => '-'
-                    )
-                )
-            ),
-            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;s:3:"seq";i:2;s:8:"maxmulti";s:1:"*";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}s:6:"remove";b:1;}}}}}}'
-        );
-        $form = Opus_Form_Builder::recreateForm($daten);
-        // general form check
-        $this->assertType('Zend_Form', $form);
-        $subforms = $form->getSubForms();
-        $expected = array('test');
-        $this->assertEquals($expected, array_keys($subforms));
-        $elements = $form->getElements();
-        $expected = array('submit', 'form');
-        $this->assertEquals($expected, array_keys($elements));
-        // subform 'test' checks
-        $nestedsubforms = $form->test->getSubForms();
-        $expected = array('institute');
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-        $nestedsubforms = $form->test->institute->getSubForms();
-        $expected = array(1);
-        $this->assertEquals($expected, array_keys($nestedsubforms));
-    }
-
-    /**
-     * Test findElementByPath if null is returned if nothing is found
-     *
-     * @return void
-     */
-    public function testNothingToFoundWithFindElementByPath() {
-        $path = array('test');
-        $haystack = array('name' => 'notfound');
-        $result = Opus_Form_BuilderDelegateHelper::findElementByPathDelegate($path, $haystack);
-        $this->assertNull($result);
-    }
-
-    /**
-     * Corrupted serialized data should throw an exception.
-     *
-     * @return void
-     */
-    public function testUnserializeCorruptedForm() {
-        $daten = array(
-            'test'=> array(
-                'institute' => array(
-                    1 => array(
-                        'institute' => ''
-                    ),
-                    2 => array(
-                        'institute' => '',
-                        'remove_institute_2' => '-'
-                    )
-                )
-            ),
-            'form' => 'a:1:{i:0;a:2:{s:4:"name";s:4:"test";s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:9:"institute";s:3:"add";b:1;;s:8:"maxmulti";s:1:"*";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:4:{s:4:"name";s:9:"institute";s:4:"type";s:4:"text";s:9:"validator";i:180;s:9:"mandatory";s:2:"no";}}s:6:"remove";b:1;}}}}}}'
-        );
-        $this->setExpectedException('Opus_Form_Exception');
-        $form = Opus_Form_Builder::recreateForm($daten);
-    }
-
-    /**
-     * Test if a field has the language option on it shows a language list
-     *
-     * @return void
-     */
-    public function testLanguageOption() {
-        $xmltype= '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="title_abstract" languageoption="on" />
-                </documenttype>';
-        $type = new Opus_Document_Type($xmltype);
-        $form = Opus_Form_Builder::createForm($type);
-
-        $elements = $form->getElements();
-        $expected = array('title_abstract', 'title_abstract_lang', 'submit', 'form');
-        $this->assertEquals($expected, array_keys($elements));
-    }
-
-    /**
-     * If multiplicity is limited then should an add button not shown if this limit is reached.
-     *
-     * @return void
-     */
-    public function testRemovingAddButton() {
-        $daten = array(
-            'title_abstract' => array(
-                1 => array(
-                    'title_abstract' => '',
-                    'title_abstract_lang' => 'ab'),
-                'add_title_abstract' => '+'),
-            'form' => 'a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:3:"add";b:1;s:3:"seq";i:1;s:8:"maxmulti";s:1:"2";s:8:"elements";a:1:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:2:"on";}}}}}}');
-        $form = Opus_Form_Builder::recreateForm($daten);
-        $this->assertArrayNotHasKey('add_title_abstract', $form->title_abstract->getElements());
-    }
-
-    /**
-     * If multiplicity is limited then should an add button visible if this limited is lower especially after removing a field
-     *
-     * @return void
-     */
-    public function testAddingAddButton() {
-        $daten = array(
-            'title_abstract' => array(
-                1 => array('title_abstract' => ''),
-                2 => array('title_abstract' => '', 'remove_title_abstract_2' => '-')),
-            'form' => 'a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:3:"add";b:0;s:3:"seq";i:2;s:8:"maxmulti";s:1:"2";s:8:"elements";a:2:{i:0;a:2:{s:4:"name";i:1;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:3:"off";}}}i:1;a:3:{s:4:"name";i:2;s:8:"elements";a:1:{i:0;a:5:{s:4:"name";s:14:"title_abstract";s:4:"type";s:4:"text";s:9:"validator";i:80;s:9:"mandatory";s:3:"yes";s:14:"languageoption";s:3:"off";}}s:6:"remove";b:1;}}}}');
-        $form = Opus_Form_Builder::recreateForm($daten);
-        $this->assertArrayHasKey('add_title_abstract', $form->title_abstract->getElements());
-    }
+    
 }
