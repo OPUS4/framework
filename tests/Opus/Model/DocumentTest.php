@@ -127,6 +127,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_identifiers');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
+        TestHelper::clearTable('document_patents');
+        TestHelper::clearTable('document_notes');
     }
 
     
