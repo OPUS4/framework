@@ -216,6 +216,14 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
         }
+        $this->assertEquals($document->getTitleMain()->getTitleAbstractValue(), 'Title');
+        $this->assertEquals($document->getTitleMain()->getTitleAbstractLanguage(), 'de');
+        $this->assertEquals($document->getTitleAbstract()->getTitleAbstractValue(), 'Abstract');
+        $this->assertEquals($document->getTitleAbstract()->getTitleAbstractLanguage(), 'fr');
+        $this->assertEquals($document->getTitleParent()->getTitleAbstractValue(), 'Parent');
+        $this->assertEquals($document->getTitleParent()->getTitleAbstractLanguage(), 'en');
+        $this->assertEquals($document->getIsbn()->getIdentifierValue(), '123-123-123');
+        $this->assertEquals($document->getIsbn()->getIdentifierLabel(), 'label');
     }
 
 }

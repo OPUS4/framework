@@ -247,8 +247,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         foreach ($ids as $id) {
             $result[] = new $targetModel($id[$primaryKey]);
         }
-
-        return $result;
+        if (count($ids) === 1) {
+            return $result[0];
+        } else if (count($ids) === 0) {
+            return null;
+        } else {
+            return $result;
+        }
     }
 
     /**
