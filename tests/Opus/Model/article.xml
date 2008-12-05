@@ -96,5 +96,6 @@ value for "name". It must be declared.
     <field name="Isbn"/>
     <field name="Note"/>
     <field name="Patent"/>
+    <field name="Enrichment"/>
 
 </documenttype>

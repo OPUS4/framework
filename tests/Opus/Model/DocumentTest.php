@@ -129,6 +129,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('documents');
         TestHelper::clearTable('document_patents');
         TestHelper::clearTable('document_notes');
+        TestHelper::clearTable('document_enrichments');
     }
 
     
@@ -233,6 +234,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $document->getPatent()->setPatentNumber('123456789');
         $document->getPatent()->setPatentYearApplied('2008');
         $document->getPatent()->setPatentApplication('Absolutely none.');
+        $document->getEnrichment()->setEnrichmentValue('Poor enrichment.');
+        $document->getEnrichment()->setEnrichmentType('nonesense');
 
         $document = new Opus_Model_Document($document->store());
         foreach ($documentDataset as $fieldname => $value) {
@@ -254,6 +257,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPatent()->getPatentNumber(), '123456789');
         $this->assertEquals($document->getPatent()->getPatentYearApplied(), '2008');
         $this->assertEquals($document->getPatent()->getPatentApplication(), 'Absolutely none.');
+        $this->assertEquals($document->getEnrichment()->getEnrichmentValue(), 'Poor enrichment.');
+        $this->assertEquals($document->getEnrichment()->getEnrichmentType(), 'nonesense');
     }
 
 }

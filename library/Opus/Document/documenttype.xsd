@@ -135,6 +135,7 @@
 	       <enumeration value="DateAccepted"/>
 	       <enumeration value="DocumentType"/>
 	       <enumeration value="Edition"/>
+	       <enumeration value="Enrichment"/>
 	       <enumeration value="Issue"/>
 	       <enumeration value="Language"/>
 	       <enumeration value="Isbn"/>
