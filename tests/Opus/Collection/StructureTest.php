@@ -78,15 +78,9 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         (1, 'ger', 'Fakultät', 'Fakultät A1'),
         (2, 'ger', 'Fakultät', 'Fakultät A2'),
         (3, 'ger', 'Fakultät', 'Fakultät A2a'),
-        (4, 'ger', 'Fakultät', 'Fakultät A3')
+        (4, 'ger', 'Fakultät', 'Fakultät A3'),
+        (7, 'ger', 'Fakultät', 'Fakultät X')
         ;");
-        /*institutes_language
-varchar(3)  utf8_general_ci  Nein   Zeige nur unterschiedliche Werte    Ändern    Löschen    Primärschlüssel    Unique    Index    Volltext 
-type   
-  type
-varchar(50)  utf8_general_ci  Nein   Zeige nur unterschiedliche Werte    Ändern    Löschen    Primärschlüssel    Unique    Index    Volltext 
-name   
-  name*/
         $adapter->query("INSERT INTO `institutes_structure` 
         (`institutes_id`, `left`, `right`, `visible`) 
         VALUES (0, 1, 10, 0),
@@ -97,7 +91,14 @@ name
         ;");
         
     }
-        
+
+    public function tearDown() {
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter->query("DROP TABLE IF EXISTS collections_structure_7081;");
+        $adapter->query("TRUNCATE institutes_structure;");
+        $adapter->query("TRUNCATE institutes_contents;");
+    }
+    
     public function validConstructorIDDataProvider() {
         return array(
             array('institute'),
