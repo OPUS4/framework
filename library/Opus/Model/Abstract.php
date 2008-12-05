@@ -127,7 +127,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 } else {
                     $model = $this->_externalFields[$fieldname]['model'];
                     $table = $this->_externalFields[$fieldname]['table'];
-                    $conditions = $this->_externalFields[$fieldname]['conditions'];
+                    if (isset($this->_externalFields[$fieldname]['conditions']) === true) {
+                        $conditions = $this->_externalFields[$fieldname]['conditions'];
+                    } else {
+                        $conditions = null;
+                    }
                     $this->_fields[$fieldname]->setValue($this->_loadExternal($model, $table, $conditions));
                 }
             } else {
@@ -240,8 +244,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $tableInfo = $table->info();
         $primaryKey = $tableInfo['primary'][1];
         $select = $table->select()->from($table, array($primaryKey));
-        foreach ($conditions as $column => $value) {
-            $select = $select->where("$column = ?", $value);
+        if (is_null($conditions) === false) {
+            foreach ($conditions as $column => $value) {
+                $select = $select->where("$column = ?", $value);
+            }
         }
         $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
         foreach ($ids as $id) {
