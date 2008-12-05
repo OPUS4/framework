@@ -223,6 +223,14 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $document->getTitleParent()->setTitleAbstractLanguage('en');
         $document->getIsbn()->setIdentifierValue('123-123-123');
         $document->getIsbn()->setIdentifierLabel('label');
+        $document->getNote()->setMessage('Ich bin eine öffentliche Notiz.');
+        $document->getNote()->setCreator('Jim Knopf');
+        $document->getNote()->setScope('public');
+        $document->getPatent()->setPatentCountries('Lummerland');
+        $document->getPatent()->setPatentDateGranted('2008-12-05');
+        $document->getPatent()->setPatentNumber('123456789');
+        $document->getPatent()->setPatentYearApplied('2008');
+        $document->getPatent()->setPatentApplication('Absolutely none.');
 
         $document = new Opus_Model_Document($document->store());
         foreach ($documentDataset as $fieldname => $value) {
@@ -236,6 +244,14 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getTitleParent()->getTitleAbstractLanguage(), 'en');
         $this->assertEquals($document->getIsbn()->getIdentifierValue(), '123-123-123');
         $this->assertEquals($document->getIsbn()->getIdentifierLabel(), 'label');
+        $this->assertEquals($document->getNote()->getMessage(), 'Ich bin eine öffentliche Notiz.');
+        $this->assertEquals($document->getNote()->getCreator(), 'Jim Knopf');
+        $this->assertEquals($document->getNote()->getScope(), 'public');
+        $this->assertEquals($document->getPatent()->getPatentCountries(), 'Lummerland');
+        $this->assertEquals($document->getPatent()->getPatentDateGranted(), '2008-12-05');
+        $this->assertEquals($document->getPatent()->getPatentNumber(), '123456789');
+        $this->assertEquals($document->getPatent()->getPatentYearApplied(), '2008');
+        $this->assertEquals($document->getPatent()->getPatentApplication(), 'Absolutely none.');
     }
 
 }
