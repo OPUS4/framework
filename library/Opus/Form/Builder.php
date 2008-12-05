@@ -43,6 +43,12 @@
 class Opus_Form_Builder {
 
     /**
+     * Name of the form element that contains the serialized model.
+     *
+     */
+    const HIDDEN_MODEL_ELEMENT_NAME = '__model';
+    
+    /**
      * Build an Zend_Form object from a given model. The generated form object
      * containes Zend_Form_Elements for each field of the document. If a
      * document field refers to another model instance then a sub form is
@@ -82,7 +88,7 @@ class Opus_Form_Builder {
         }
 
         if ($createSubForm === false) {
-            $element = new Zend_Form_Element_Hidden('__model');
+            $element = new Zend_Form_Element_Hidden(self::HIDDEN_MODEL_ELEMENT_NAME);
             $element->setValue(base64_encode(bzcompress(serialize($model))));
             $form->addElement($element);
         }
@@ -90,8 +96,14 @@ class Opus_Form_Builder {
         return $form;
     }
 
+    /**
+     * Use form post data to recreate the form and update the serialized model.
+     *
+     * @param array $post Form post data as sent back from the browser.
+     * @return Zend_Form The recreated and updated form object.
+     */
     public function buildFromPost(array $post) {
-        $model = unserialize(bzdecompress(base64_decode($post['__model'])));
+        $model = unserialize(bzdecompress(base64_decode($post[self::HIDDEN_MODEL_ELEMENT_NAME])));
 
         foreach ($post as $key => $value) {
             if (preg_match('/^add_/', $key) === 1) {
@@ -115,6 +127,16 @@ class Opus_Form_Builder {
         return $form;
     }
 
+    /**
+     * Map field name and value to an Zend_Form_Element and add it to
+     * the given container object. If the value is a model instance then
+     * a sub form is added.
+     *
+     * @param string    $name      Name of the field.
+     * @param Mixed     $value     Value of then field.
+     * @param Zend_Form $container Zend_Form object to add the created element to.
+     * @return void
+     */
     protected function _makeElement($name, $value, Zend_Form $container) {
         if ($value instanceof Opus_Model_Interface) {
             $subform = $this->build($value, true);
@@ -127,6 +149,13 @@ class Opus_Form_Builder {
         }
     }
 
+    /**
+     * Set up field values from post data array.
+     *
+     * @param Opus_Model_Field $field  Field object.
+     * @param array            $values Post data.
+     * @return void
+     */
     protected function _setFieldModelValuesFromArray(Opus_Model_Field $field, array $values) {
         $new_values = array();
         // should never be null
@@ -139,6 +168,13 @@ class Opus_Form_Builder {
         $field->setValue($new_values);
     }
 
+    /**
+     * Set all field values of a given model instance by using form post data.
+     *
+     * @param Opus_Model_Interface $model Model to be updated.
+     * @param array                $post  Post data.
+     * @return void
+     */
     protected function _setFromPost(Opus_Model_Interface $model, array $post) {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
