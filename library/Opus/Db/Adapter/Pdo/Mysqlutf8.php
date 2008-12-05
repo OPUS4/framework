@@ -93,7 +93,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      * @throws Exception Exception on empty table
      * @return boolean
      */
-    private function isExistent($tablename, $fieldname = null) {
+    public function isExistent($tablename, $fieldname = null) {
         if (self::isValidName($tablename) === false) {
             return false;
         }

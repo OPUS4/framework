@@ -615,7 +615,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function testRemovePrimaryField()
+    public function testRemovePrimaryFieldThrowsException()
     {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->createTable('timmy');
@@ -628,12 +628,11 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Check behavior of the private function isExistent() is an emtpy table description
-     * is returned by the database adapter.
+     * Check behavior of the private function removeField() on emtpy table.
      *
      * @return void
      */
-    public function testIsExistentOnEmptyTable() {
+    public function testRemoveFieldOnEmptyTable() {
         // Get the default adapter.
         $adapter = Zend_Db_Table::getDefaultAdapter();
         // Determine its real classname.
@@ -655,4 +654,30 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Exception');
         $dba->removeField('timmy', 'not_a_field');
     }
+    
+    /**
+     * Test is isExistent() returns true if the queried table exists in the schema.
+     *
+     * @return void
+     */
+    public function testIsExistentReturnsTrueIfTableExists() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->createTable('timmy');
+        $result = $dba->isExistent('timmy');
+        $this->assertTrue($result, 'Table should be reported as existent.');
+    }
+
+    /**
+     * Test is isExistent() returns false if the queried table does not
+     * exists in the schema.
+     *
+     * @return void
+     */
+    public function testIsExistentReturnsFalsIfTableDontExists() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $result = $dba->isExistent('not_a_valid_table_name');
+        $this->assertFalse($result, 'Table should be reported as existent.');
+    }
+    
+    
 }
