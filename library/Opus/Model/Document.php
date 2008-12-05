@@ -81,6 +81,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'table' => 'Opus_Db_DocumentIdentifiers',
                 'conditions' => array('identifier_type' => 'isbn')
             ),
+            'Note' => array(
+                'model' => 'Opus_Model_Dependent_Note',
+                'table' => 'Opus_Db_DocumentNotes',
+            ),
             'PersonAuthor' => array(),
         );
 
