@@ -120,9 +120,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
-            if (in_array($fieldname, $this->_externalFields) === true) {
+            if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
-                $this->_fields[$fieldname]->setValue($this->$callname());
+                if (method_exists($this, $callname) === true) {
+                    $this->_fields[$fieldname]->setValue($this->$callname());
+                } else {
+                    $model = $this->_externalFields[$fieldname]['model'];
+                    $table = $this->_externalFields[$fieldname]['table'];
+                    $conditions = $this->_externalFields[$fieldname]['conditions'];
+                    $this->_fields[$fieldname]->setValue($this->_loadExternal($model, $table, $conditions));
+                }
             } else {
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                 $this->_fields[$fieldname]->setValue($this->_primaryTableRow->$colname);
@@ -164,13 +171,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
         try {
             foreach ($this->_fields as $fieldname => $field) {
-                if (in_array($fieldname, $this->_externalFields) === false) {
+                if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                     $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
                 }
             }
             $id = $this->_primaryTableRow->save();
-            foreach ($this->_externalFields as $fieldname) {
+            foreach (array_keys($this->_externalFields) as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     $callname = '_store' . $fieldname;
                     if (method_exists($this, $callname) === true) {
@@ -217,14 +224,15 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Load the values of external fields.
      *
      * @param  string        $targetModel Name of the Opus_Model_Dependent class to build.
-     * @param  Zend_Db_Table $table       Table to query.
+     * @param  string        $tablename   Table to query.
      * @param  array         $conditions  Conditions for the query.
      * @return array
      */
-    protected function _loadExternal($targetModel, Zend_Db_Table $table, array $conditions = null) {
+    protected function _loadExternal($targetModel, $tablename, array $conditions = null) {
         // 1. Get name of id column in target table
         // 2. Get Ids of dependent rows
         // 3. create new model for each id
+        $table = new $tablename;
         if ($this->getId() === null) {
             return new $targetModel(null, $table);
         }

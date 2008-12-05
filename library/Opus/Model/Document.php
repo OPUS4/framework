@@ -60,12 +60,28 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            'TitleMain',
-            'TitleAbstract',
-            'TitleParent',
-            'Licence',
-            'Isbn',
-            'PersonAuthor',
+            'TitleMain' => array(
+                'model' => 'Opus_Model_Dependent_Title',
+                'table' => 'Opus_Db_DocumentTitleAbstracts',
+                'conditions' => array('title_abstract_type' => 'main')
+            ),
+            'TitleAbstract' => array(
+                'model' => 'Opus_Model_Dependent_Abstract',
+                'table' => 'Opus_Db_DocumentTitleAbstracts',
+                'conditions' => array('title_abstract_type' => 'parent')
+            ),
+            'TitleParent' => array(
+                'model' => 'Opus_Model_Dependent_Parent',
+                'table' => 'Opus_Db_DocumentTitleAbstracts',
+                'conditions' => array('title_abstract_type' => 'parent')
+            ),
+            'Licence' => array(),
+            'Isbn' => array(
+                'model' => 'Opus_Model_Dependent_Isbn',
+                'table' => 'Opus_Db_DocumentIdentifiers',
+                'conditions' => array('identifier_type' => 'isbn')
+            ),
+            'PersonAuthor' => array(),
         );
 
     /**
@@ -132,48 +148,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
     //    $this->_builder->addFieldsTo($this);
     //    parent::_fetchValues();
     //}
-
-    /**
-     * Fetch values of external field TitleMain
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return Opus_Model_Abstract|array One or more Opus_Models
-     */
-    protected function _fetchTitleMain() {
-        return $this->_loadExternal('Opus_Model_Dependent_Title', new Opus_Db_DocumentTitleAbstracts,
-                array('title_abstract_type' => 'main'));
-    }
-
-    /**
-     * Fetch values of external field TitleParent
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return Opus_Model_Abstract|array One or more Opus_Models
-     */
-    protected function _fetchTitleParent() {
-        return $this->_loadExternal('Opus_Model_Dependent_Parent', new Opus_Db_DocumentTitleAbstracts,
-                array('title_abstract_type' => 'parent'));
-    }
-    /**
-     * Fetch values of external field TitleAbstract
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return array An associative array.
-     */
-    protected function _fetchTitleAbstract() {
-        return $this->_loadExternal('Opus_Model_Dependent_Abstract', new Opus_Db_DocumentTitleAbstracts,
-                array('title_abstract_type' => 'parent'));
-    }
-
-    /**
-     * Fetch values of external field Isbn.
-     *
-     * @return array Associative array of Isbns.
-     */
-    protected function _fetchIsbn() {
-        return $this->_loadExternal('Opus_Model_Dependent_Isbn', new Opus_Db_DocumentIdentifiers,
-                array('identifier_type' => 'isbn'));
-    }
 
     /**
      * Store values of external field Authors
