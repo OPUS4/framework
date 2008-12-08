@@ -251,12 +251,20 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $enrichment->setEnrichmentValue('Poor enrichment.');
         $enrichment->setEnrichmentType('nonesense');
 
+        // Save document, modify, and save again.
         $document = new Opus_Model_Document($document->store());
+        $title = $document->addTitleMain();
+        $title->setTitleAbstractValue('Title Two');
+        $title->setTitleAbstractLanguage('en');
+        $document = new Opus_Model_Document($document->store());
+
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
         }
-        $this->assertEquals($document->getTitleMain()->getTitleAbstractValue(), 'Title');
-        $this->assertEquals($document->getTitleMain()->getTitleAbstractLanguage(), 'de');
+        $this->assertEquals($document->getTitleMain(0)->getTitleAbstractValue(), 'Title');
+        $this->assertEquals($document->getTitleMain(0)->getTitleAbstractLanguage(), 'de');
+        $this->assertEquals($document->getTitleMain(1)->getTitleAbstractValue(), 'Title Two');
+        $this->assertEquals($document->getTitleMain(1)->getTitleAbstractLanguage(), 'en');
         $this->assertEquals($document->getTitleAbstract()->getTitleAbstractValue(), 'Abstract');
         $this->assertEquals($document->getTitleAbstract()->getTitleAbstractLanguage(), 'fr');
         $this->assertEquals($document->getTitleParent()->getTitleAbstractValue(), 'Parent');

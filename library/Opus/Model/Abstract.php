@@ -345,14 +345,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     // Add instance to existing multiple values.
                     $this->_fields[$fieldname]->setValue(
                             array_merge(
-                                array($model),
-                                $this->_fields[$fieldname]->getValue()
+                                $this->_fields[$fieldname]->getValue(),
+                                array($model)
                                 )
                             );
                 } else if (is_null($this->_fields[$fieldname]->getValue()) === false) {
                     // Add instance to existing single value.
-                    $this->_fields[$fieldname]->setValue(array($model,
-                                $this->_fields[$fieldname]->getValue()));
+                    $this->_fields[$fieldname]->setValue(array(
+                                $this->_fields[$fieldname]->getValue(), $model));
                 } else {
                     // Add instance to empty field.
                     $this->_fields[$fieldname]->setValue($model);
