@@ -26,7 +26,6 @@
  *
  * @category    Tests
  * @package     Opus_Model
- * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,26 +33,12 @@
  */
 
 /**
- * This class extends Opus_Model_Abstract to be able to test its code.
- * Opus_Model_Abstract is an abstract class.
- * This mock is needed to be able to instantiate Opus_Model_Abstract.
+ * Just a mockup filter class.
  *
  * @category Tests
  * @package Opus_Model
- * @group AbstractTest
+ * 
  */
-class Opus_Model_AbstractMock extends Opus_Model_Abstract {
+class Opus_Model_FilterTest_Value extends Zend_Filter_StringToLower {
 
-    /**
-     * Initialize model with the a single field "value".
-     *
-     * @return void
-     */
-    protected function _init() {
-        $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
-        $this->_filterPrefix[] = 'Opus_Model_FilterTest';
-        
-        $value = new Opus_Model_Field('Value');
-        $this->addField($value);
-    }
 }

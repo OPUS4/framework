@@ -192,5 +192,42 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertType('Opus_Model_ValidateTest_Value', $field->getValidator(), 'Validator is of wrong type.');
     }
     
+    /**
+     * Test if no filter is assigned to a field when the there is no
+     * Opus_Filter_<Fieldname> class.
+     *
+     * @return void
+     */
+    public function testNoDefaultFilterForFields() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $mock->addField(new Opus_Model_Field('NoFil'));
+        $field = $mock->getField('NoFil');
+        $this->assertNull($field->getFilter(), 'No filter expected.');
+    }
+    
+    /**
+     * Test if custom filter instances can be added to fields.
+     *
+     * @return void
+     */
+    public function testAddingCustomFilters() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $field = $mock->getField('Value');
+        $this->assertNotNull($field->getFilter(), 'Filter instance missing.');
+    }
+    
+    /**
+     * Test if an added filter gets executed within it filter chain.
+     *
+     * @return void
+     */
+    public function testIfFilterIsExecuted() {
+        $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
+        $field = $mock->getField('Value');
+        $filterChain = $field->getFilter();
+        $result = $filterChain->filter('ABC');
+        $this->assertEquals('abc', $result, 'Filter has propably not been executed.');
+    }
+    
 
 }

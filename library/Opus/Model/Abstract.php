@@ -70,6 +70,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var array
      */
     protected $_validatorPrefix = array('Opus_Validate');
+    
+    /**
+     * Array of filter prefixes used to instanciate filter classes for fields.
+     *
+     * @var array
+     */
+    protected $_filterPrefix = array('Opus_Filter');
 
     /**
      * Holds the name of those fields of the domain model that do not map to the
@@ -102,6 +109,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
         $this->_init();
         $this->_addValidators();
+        $this->_addFilters();
         $this->_fetchValues();
     }
 
@@ -167,6 +175,32 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
     }
 
+    /**
+     * Add filters to the fields. Opus_Filter_{fieldname} classes are
+     * expected to exist. The base classname prefixes are defined in $_filterPrefix.
+     *
+     * @return void
+     */
+    protected function _addFilters() {
+        foreach ($this->_fields as $fieldname => $field) {
+            foreach ($this->_filterPrefix as $prefix) {
+                $classname = $prefix . '_' . $fieldname;
+                // suppress warnings about not existing classes
+                if (class_exists($classname) === true) {
+                    
+                    $filter = $field->getFilter();
+                    if (is_null($filter) === true) {
+                        $filter = new Zend_Filter();
+                        $field->setFilter($filter);    
+                    } 
+                    $filter->addFilter(new $classname);
+                    break;
+                }
+            }
+        }
+    }
+    
+    
     /**
      * Persist all the models information to its database locations.
      *
