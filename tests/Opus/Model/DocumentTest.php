@@ -218,24 +218,38 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             $document->$callname($value);
         }
         $document->setDocumentType('article');
-        $document->getTitleMain()->setTitleAbstractValue('Title');
-        $document->getTitleMain()->setTitleAbstractLanguage('de');
-        $document->getTitleAbstract()->setTitleAbstractValue('Abstract');
-        $document->getTitleAbstract()->setTitleAbstractLanguage('fr');
-        $document->getTitleParent()->setTitleAbstractValue('Parent');
-        $document->getTitleParent()->setTitleAbstractLanguage('en');
-        $document->getIsbn()->setIdentifierValue('123-123-123');
-        $document->getIsbn()->setIdentifierLabel('label');
-        $document->getNote()->setMessage('Ich bin eine öffentliche Notiz.');
-        $document->getNote()->setCreator('Jim Knopf');
-        $document->getNote()->setScope('public');
-        $document->getPatent()->setPatentCountries('Lummerland');
-        $document->getPatent()->setPatentDateGranted('2008-12-05');
-        $document->getPatent()->setPatentNumber('123456789');
-        $document->getPatent()->setPatentYearApplied('2008');
-        $document->getPatent()->setPatentApplication('Absolutely none.');
-        $document->getEnrichment()->setEnrichmentValue('Poor enrichment.');
-        $document->getEnrichment()->setEnrichmentType('nonesense');
+
+        $title = $document->addTitleMain();
+        $title->setTitleAbstractValue('Title');
+        $title->setTitleAbstractLanguage('de');
+
+        $abstract = $document->addTitleAbstract();
+        $abstract->setTitleAbstractValue('Abstract');
+        $abstract->setTitleAbstractLanguage('fr');
+
+        $parentTitle = $document->addTitleParent();
+        $parentTitle->setTitleAbstractValue('Parent');
+        $parentTitle->setTitleAbstractLanguage('en');
+
+        $isbn = $document->addIsbn();
+        $isbn->setIdentifierValue('123-123-123');
+        $isbn->setIdentifierLabel('label');
+
+        $note = $document->addNote();
+        $note->setMessage('Ich bin eine öffentliche Notiz.');
+        $note->setCreator('Jim Knopf');
+        $note->setScope('public');
+
+        $patent = $document->addPatent();
+        $patent->setPatentCountries('Lummerland');
+        $patent->setPatentDateGranted('2008-12-05');
+        $patent->setPatentNumber('123456789');
+        $patent->setPatentYearApplied('2008');
+        $patent->setPatentApplication('Absolutely none.');
+
+        $enrichment = $document->addEnrichment();
+        $enrichment->setEnrichmentValue('Poor enrichment.');
+        $enrichment->setEnrichmentType('nonesense');
 
         $document = new Opus_Model_Document($document->store());
         foreach ($documentDataset as $fieldname => $value) {
