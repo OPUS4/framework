@@ -104,7 +104,8 @@ class Opus_Form_Builder {
      * @return Zend_Form The recreated and updated form object.
      */
     public function buildFromPost(array $post) {
-        $model = unserialize(bzdecompress(base64_decode($post[self::HIDDEN_MODEL_ELEMENT_NAME])));
+        $modelelementname = self::HIDDEN_MODEL_ELEMENT_NAME;
+        $model = unserialize(bzdecompress(base64_decode($post[$modelelementname])));
 
         foreach ($post as $key => $value) {
             if (preg_match('/^add_/', $key) === 1) {
@@ -123,7 +124,7 @@ class Opus_Form_Builder {
         $this->_setFromPost($model, $post);
 
         $form = $this->build($model);
-        $form->model->setValue(serialize($model));
+        $form->$modelelementname->setValue(base64_encode(bzcompress(serialize($model))));
 
         return $form;
     }
@@ -194,13 +195,13 @@ class Opus_Form_Builder {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
             if ($field->getValue() instanceof Opus_Model_Interface) {
-                if ($field->isMulti($fieldname) === true) {
+                if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
                     // should never be null
                     $classname = $field->getValueModelClass();
                     $model2 = new $classname;
-                    $this->setFromPost($model2, $value);
+                    $this->_setFromPost($model2, $value);
                     $field->setValue($model2);
                 }
             } else {
