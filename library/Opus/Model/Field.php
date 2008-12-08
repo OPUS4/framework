@@ -59,7 +59,7 @@ class Opus_Model_Field
     /**
      * Hold multiplicity constraint.
      *
-     * @var integer
+     * @var Integer|String
      */
     protected $_multiplicity = 1;
 
@@ -199,7 +199,8 @@ class Opus_Model_Field
     /**
      * Set multiplicity constraint for multivalue fields.  
      *
-     * @param integer $max Upper limit for multiple values.
+     * @param Integer|String $max Upper limit for multiple values.
+     *                            Either a number or "*" for infinity.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMultiplicity($max) {
@@ -210,7 +211,8 @@ class Opus_Model_Field
     /**
      * Return the fields maximum number of values. 
      *
-     * @return Integer Upper limit for multiple values.
+     * @return Integer|String Upper limit for multiple values.
+     *                        Either a number or "*" for infinity.
      */
     public function getMultiplicity() {
         return $this->_multiplicity;
