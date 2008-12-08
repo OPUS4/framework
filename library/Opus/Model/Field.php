@@ -92,6 +92,13 @@ class Opus_Model_Field
      */
     protected $_value = null;
 
+    /**
+     * Holds the classname for external fields.
+     *
+     * @var string
+     */
+    protected $_valueModelClass = null;
+
 
     /**
      * Holds the fields default values. For selection list fields this should
@@ -368,10 +375,17 @@ class Opus_Model_Field
      * @return string Class name or null if the value is not a model.
      */
     public function getValueModelClass() {
-        if ($this->_value instanceof Opus_Model_Interface) {
-            return get_class($this->_value);
-        } else {
-            return null;
-        }
+        return $this->_valueModelClass;
     }
+
+    /**
+     * Set the name of model class if the field holds model instances.
+     *
+     * @param string Class name
+     * @return void
+     */
+    public function setValueModelClass($classname) {
+        $this->_valueModelClass = $classname;
+    }
+
 }

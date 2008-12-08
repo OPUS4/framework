@@ -133,6 +133,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                         $conditions = null;
                     }
                     $this->_fields[$fieldname]->setValue($this->_loadExternal($model, $table, $conditions));
+                    $this->_fields[$fieldname]->setValueModelClass($model);
                 }
             } else {
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
@@ -238,7 +239,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         // 3. create new model for each id
         $table = new $tablename;
         if ($this->getId() === null) {
-            return new $targetModel(null, $table);
+            return null;
         }
         $result = array();
         $tableInfo = $table->info();
