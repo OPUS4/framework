@@ -49,7 +49,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
      */
     public function testNameOfValueClassCanBeRetrieved() {
         $field = new Opus_Model_Field('MyField');
-        $field->setValue(new Opus_Model_AbstractMock(null, new Opus_Model_AbstractTableProvider()));
+        $field->setValueModelClass('Opus_Model_AbstractMock');
         $classname = $field->getValueModelClass();
         $this->assertEquals('Opus_Model_AbstractMock', $classname, 'Wrong class name returned.');
     }
