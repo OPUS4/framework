@@ -42,7 +42,7 @@
  * @package Opus_Model
  * @category Tests
  *
- * @group Document
+ * @group DocumentTest
  *
  */
 class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {

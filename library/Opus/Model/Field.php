@@ -225,7 +225,7 @@ class Opus_Model_Field
      */
     public function hasMultipleValues() {
         $mult = $this->getMultiplicity();
-        return ($mult > 1 || $mult === '*');
+        return (($mult > 1) or ($mult === '*'));
     }
     
     /**
@@ -316,6 +316,9 @@ class Opus_Model_Field
                 throw new InvalidArgumentException('Unvalid index: ' . $index);
             }
         } else {
+            if (($this->hasMultipleValues() === true) and (is_array($this->_value) === false)) {
+                return array($this->_value);
+            }
             return $this->_value;
         }
     }

@@ -56,7 +56,7 @@ value for "name". It must be declared.
 <documenttype name="testdoc"
     xmlns="http://schemas.opus.org/documenttype"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+    <field name="Language" languageoption="off" mandatory="yes" />
     <field name="Licence"/>
     <field name="ContributingCorporation"/>
     <field name="CreatingCorporation"/>
