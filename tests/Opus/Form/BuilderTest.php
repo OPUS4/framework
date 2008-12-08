@@ -102,7 +102,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     public function testModelIsSerializedCorrectly() {
         $form = $this->_builder->build($this->_model);
         $serializedModel = base64_encode(bzcompress(serialize($this->_model)));
-        $serializedModelFromForm = $form->getElement('__model')->getValue();
+        $serializedModelFromForm = $form->getElement(Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME)->getValue();
         $this->assertEquals($serializedModel, $serializedModelFromForm, 'Model serialization has failures.');
     }
 
@@ -128,6 +128,20 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $subForms = $form->getSubForms();
         $this->assertArrayHasKey('ReferenceField', $subForms, 'Sub form for field "ReferenceField" is missing in form.');
     }
+    /**
+     * Test if a generated sub form contains the expected field from
+     * the external field's referenced type.
+     *
+     * @return void
+     */
+    public function testReferenceModelSubFormHasCorrectField() {
+        $form = $this->_builder->build($this->_model);
+        $subForm = $form->getSubForm('ReferenceField');
+        $element = $subForm->getElement('Field1');
+        $this->assertNotNull($element, '"Field1" is missing in sub form.');
+    }
+    
+    
 
     /**
      * Test if a field has a validator
