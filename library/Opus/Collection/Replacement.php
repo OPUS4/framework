@@ -52,7 +52,7 @@ class Opus_Collection_Replacement {
      * 
      * @var string 
      */
-    private $collectionsIdentifier;
+    public $collectionsIdentifier;
     
     /**
      * Container for validation object
@@ -88,6 +88,8 @@ class Opus_Collection_Replacement {
      * @return void
      */
     public function delete($collections_id) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id);
         try {
             $this->collections_replacement
                  ->insert(array($this->collectionsIdentifier         => $collections_id,
@@ -112,6 +114,9 @@ class Opus_Collection_Replacement {
      * @return void
      */
     public function replace($collections_id_old, $collections_id_new) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id_old);
+        $this->validation->ID($collections_id_new);
         try {
             $this->collections_replacement
                  ->insert(array($this->collectionsIdentifier         => $collections_id_old,
@@ -143,6 +148,10 @@ class Opus_Collection_Replacement {
      * @return void
      */
     public function split($collections_id_old, $collections_id_new1, $collections_id_new2) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id_old);
+        $this->validation->ID($collections_id_new1);
+        $this->validation->ID($collections_id_new2);
         try {
             $this->replace($collections_id_old, $collections_id_new1);
             $this->replace($collections_id_old, $collections_id_new2);
@@ -164,6 +173,10 @@ class Opus_Collection_Replacement {
      * @return void
      */
     public function merge($collections_id_old1, $collections_id_old2, $collections_id_new) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id_old1);
+        $this->validation->ID($collections_id_old2);
+        $this->validation->ID($collections_id_new);
         try {
             $this->replace($collections_id_old1, $collections_id_new);
             $this->replace($collections_id_old2, $collections_id_new);
@@ -183,11 +196,16 @@ class Opus_Collection_Replacement {
      * @return array Replacement records
      */
     public function getReplacementRecords($collections_id) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id);
         $set = $this->collections_replacement
                     ->fetchAll($this->collections_replacement
                                 ->select()
                                 ->where($this->collectionsIdentifier . ' = ?', $collections_id))
                     ->toArray();
+        if (empty($set)) {
+            throw new InvalidArgumentException('Collection ID not found in getReplacementRecords.');                 
+        }
         return $set;
     }
     

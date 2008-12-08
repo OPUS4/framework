@@ -70,6 +70,8 @@ class Opus_Collection_AllTests {
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Collection');
         $suite->addTestSuite('Opus_Collection_StructureTest');
+        $suite->addTestSuite('Opus_Collection_ContentsTest');
+        $suite->addTestSuite('Opus_Collection_ReplacementTest');
         return $suite;
     }
 
