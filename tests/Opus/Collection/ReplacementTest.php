@@ -90,7 +90,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         (11, 'ger', 'Fakultät', 'Fakultät XI'),
         (12, 'ger', 'Fakultät', 'Fakultät XII'),
         (13, 'ger', 'Fakultät', 'Fakultät XIIV'),
-        (14, 'ger', 'Fakultät', 'Fakultät XIV')
+        (14, 'ger', 'Fakultät', 'Fakultät XIV'),
+        (15, 'ger', 'Fakultät', 'Fakultät XV'),
+        (16, 'ger', 'Fakultät', 'Fakultät XVI'),
+        (17, 'ger', 'Fakultät', 'Fakultät XVII'),
+        (18, 'ger', 'Fakultät', 'Fakultät IIXX')
         ;");
         $adapter->query("INSERT INTO `institutes_replacement` 
         (`institutes_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`) 
