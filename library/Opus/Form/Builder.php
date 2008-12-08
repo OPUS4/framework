@@ -79,7 +79,7 @@ class Opus_Form_Builder {
                     $this->_makeElement("$i", $fieldvalue, $subform);
                     $i++;
                 }
-                $form->addSubForm($subform, $field);
+                $form->addSubForm($subform, $fieldname);
             } else {
                 $this->_makeElement($fieldname, $field->getValue(), $form);
                 $this->_addValidator($field, $form);
