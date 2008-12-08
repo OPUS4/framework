@@ -47,7 +47,7 @@ class Opus_Form_Builder {
      *
      */
     const HIDDEN_MODEL_ELEMENT_NAME = '__model';
-    
+
     /**
      * Build an Zend_Form object from a given model. The generated form object
      * containes Zend_Form_Elements for each field of the document. If a
@@ -83,6 +83,7 @@ class Opus_Form_Builder {
                 $form->addSubForm($subform, $field);
             } else {
                 $this->_makeElement($fieldname, $field->getValue(), $form);
+                $this->_addValidator($field, $form);
             }
 
         }
@@ -125,6 +126,20 @@ class Opus_Form_Builder {
         $form->model->setValue(serialize($model));
 
         return $form;
+    }
+
+    /**
+     * Add a validator or a chain of validators to a Zend_Form field
+     *
+     * @param Opus_Model_Field $field Field object with necessary field informations
+     * @param Zend_Form        $form  Form object which validator should be added
+     */
+    protected function _addValidator(Opus_Model_Field $field, Zend_Form $form) {
+        $fieldname = $field->getName();
+        $validator = $field->getValidator();
+        if (is_string($validator) || $validator instanceOf Zend_Validate_Interface) {
+            $form->$fieldname->addValidator($validator);
+        }
     }
 
     /**

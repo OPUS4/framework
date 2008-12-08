@@ -49,22 +49,22 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @var Opus_Model_Abstract
      */
     protected $_model = null;
-    
-    
+
+
     /**
      * Test fixture holding an instance of the Opus_Form_BuilderTest_DbModel table gateway.
      *
      * @var Zend_Db_Table_Interface
      */
     protected $_table = null;
-    
+
     /**
      * Instance of the class under test.
      *
      * @var Opus_Form_Builder
      */
     protected $_builder = null;
-    
+
     /**
      * Set up test fixtures and tables.
      *
@@ -81,7 +81,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->_model = new Opus_Form_BuilderTest_Model(null, new Opus_Form_BuilderTest_DbModel);
         $this->_builder = new Opus_Form_Builder();
     }
-    
+
     /**
      * Test of creating a Zend Form.
      *
@@ -93,7 +93,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $elements = $form->getElements();
         $this->assertArrayHasKey('SimpleField', $elements, 'Field "SimpleField" is missing in form.');
     }
-    
+
     /**
      * Test if the serialized model is correctly stored within the form.
      *
@@ -102,13 +102,13 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     public function testModelIsSerializedCorrectly() {
         $form = $this->_builder->build($this->_model);
         $serializedModel = base64_encode(bzcompress(serialize($this->_model)));
-        $serializedModelFromForm = $form->getElement('__model')->getValue(); 
+        $serializedModelFromForm = $form->getElement('__model')->getValue();
         $this->assertEquals($serializedModel, $serializedModelFromForm, 'Model serialization has failures.');
     }
 
     /**
      * Test if the value of a field is set in the generated form.
-     * 
+     *
      * @return void
      */
     public function testFieldValueIsSetInForm() {
@@ -117,6 +117,41 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $value = $form->getElement('SimpleField')->getValue();
         $this->assertEquals('Testvalue!', $value, 'Field value has not been set correctly.');
     }
-    
-    
+
+    /**
+     * Test if a field has a validator
+     *
+     * @return void
+     */
+    public function testFieldHasAValidator() {
+        $this->_model->setSimpleField('ValidatorTestName');
+        $field = $this->_model->getField('SimpleField');
+
+        $field->setValidator(new Zend_Validate_Alnum());
+        $form = $this->_builder->build($this->_model);
+        $value = $form->getElement('SimpleField')->getValidator('Zend_Validate_Alnum');
+        $this->assertType('Zend_Validate_Alnum', $value, 'Field does not have correct validator');
+    }
+
+    /**
+     * Test, if a field could have more than one validator (validator chain!)
+     *
+     * @return void
+     */
+    public function testFieldHasCorrectValidators() {
+        $this->_model->setSimpleField('ValidatorTestName');
+        $field = $this->_model->getField('SimpleField');
+
+        $val1 = new Zend_Validate_Alnum();
+        $val2 = new Zend_Validate_Date();
+
+        $chain = new Zend_Validate();
+        $chain->addValidator($val1)->addValidator($val2);
+
+        $field->setValidator($chain);
+        $form = $this->_builder->build($this->_model);
+        $value = $form->getElement('SimpleField')->getValidator('Zend_Validate');
+        $this->assertEquals($chain, $value, 'Field does not have correct validators');
+    }
+
 }
