@@ -128,7 +128,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $subForms = $form->getSubForms();
         $this->assertArrayHasKey('ReferenceField', $subForms, 'Sub form for field "ReferenceField" is missing in form.');
     }
-    
 
     /**
      * Test if a field has a validator
@@ -136,7 +135,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testFieldHasAValidator() {
-        $this->_model->setSimpleField('ValidatorTestName');
         $field = $this->_model->getField('SimpleField');
 
         $field->setValidator(new Zend_Validate_Alnum());
@@ -151,7 +149,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testFieldHasCorrectValidators() {
-        $this->_model->setSimpleField('ValidatorTestName');
         $field = $this->_model->getField('SimpleField');
 
         $val1 = new Zend_Validate_Alnum();
@@ -165,5 +162,5 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $value = $form->getElement('SimpleField')->getValidator('Zend_Validate');
         $this->assertEquals($chain, $value, 'Field does not have correct validators');
     }
-    
+
 }
