@@ -128,6 +128,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $subForms = $form->getSubForms();
         $this->assertArrayHasKey('ReferenceField', $subForms, 'Sub form for field "ReferenceField" is missing in form.');
     }
+
     /**
      * Test if a generated sub form contains the expected field from
      * the external field's referenced type.
@@ -140,8 +141,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $element = $subForm->getElement('Field1');
         $this->assertNotNull($element, '"Field1" is missing in sub form.');
     }
-    
-    
 
     /**
      * Test if a field has a validator
@@ -154,7 +153,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $field->setValidator(new Zend_Validate_Alnum());
         $form = $this->_builder->build($this->_model);
         $value = $form->getElement('SimpleField')->getValidator('Zend_Validate_Alnum');
-        $this->assertType('Zend_Validate_Alnum', $value, 'Field does not have correct validator');
+        $this->assertType('Zend_Validate_Alnum', $value, 'Field does not have correct validator.');
     }
 
     /**
@@ -174,7 +173,52 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $field->setValidator($chain);
         $form = $this->_builder->build($this->_model);
         $value = $form->getElement('SimpleField')->getValidator('Zend_Validate');
-        $this->assertEquals($chain, $value, 'Field does not have correct validators');
+        $this->assertEquals($chain, $value, 'Field does not have correct validators.');
     }
 
+    /**
+     * Recreation of a form should be create the same form.
+     *
+     * @return void
+     */
+    public function testRecreateFormFromPostData() {
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'SimpleField' => $form->SimpleField->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            $modelname => $form->$modelname->getValue(),
+        );
+        $new_form = $this->_builder->buildFromPost($post);
+
+        $this->assertEquals($form, $new_form, 'Recreated form should be the same form.');
+    }
+
+    /**
+     * Test if more post data is skipped which are not values for Model_Document
+     *
+     * @return void
+     */
+    public function testSkippingOfPostData() {
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'AttackerCode' => 'Bad Value',
+            'SimpleField' => $form->SimpleField->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            $modelname => $form->$modelname->getValue(),
+            'MoreBadCode' => array(
+                'try_to' => 'exploid this form',
+            ),
+        );
+        $new_form = $this->_builder->buildFromPost($post);
+
+        $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document');
+    }
 }
