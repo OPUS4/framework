@@ -58,9 +58,8 @@ class Opus_Form_Builder {
      * encoded and stored in a hidden form field "__model".
      *
      * @param Opus_Model_Interface $model         Model to build a form for.
-     * @param Boolean              $createSubForm True, if a sub form should be
+     * @param boolean              $createSubForm (Optional) True, if a sub form should be
      *                                            generated instead of a form.
-     *
      * @return Zend_Form The generated form object.
      */
     public function build(Opus_Model_Interface $model, $createSubForm = false) {
@@ -115,7 +114,7 @@ class Opus_Form_Builder {
             }
             if (preg_match('/^remove_/', $key) === 1) {
                 $fname = explode('_', $key);
-                $index = (int)$fname[2];
+                $index = (int) $fname[2];
                 $fname = $fname[1];
                 unset($post[$fname][$index]);
             }
@@ -134,11 +133,12 @@ class Opus_Form_Builder {
      *
      * @param Opus_Model_Field $field Field object with necessary field informations
      * @param Zend_Form        $form  Form object which validator should be added
+     * @return void
      */
     protected function _addValidator(Opus_Model_Field $field, Zend_Form $form) {
         $fieldname = $field->getName();
         $validator = $field->getValidator();
-        if (is_string($validator) || $validator instanceOf Zend_Validate_Interface) {
+        if ((is_string($validator) === true) or ($validator instanceOf Zend_Validate_Interface)) {
             $form->$fieldname->addValidator($validator);
         }
     }
@@ -149,7 +149,7 @@ class Opus_Form_Builder {
      * a sub form is added.
      *
      * @param string    $name      Name of the field.
-     * @param Mixed     $value     Value of then field.
+     * @param mixed     $value     Value of then field.
      * @param Zend_Form $container Zend_Form object to add the created element to.
      * @return void
      */
