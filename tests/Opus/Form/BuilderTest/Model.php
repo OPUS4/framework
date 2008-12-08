@@ -41,13 +41,23 @@
  */
 class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
 
+    
+    /**
+     * Contains mock up data for MultiField.
+     *
+     * @var array
+     */
+    protected $_multiFieldValue = array();
+    
     /**
      * Mock external field "ReferenceField".
      *
      * @var array
      */
     protected $_externalFields = array(
-        'ReferenceField' => array('model' => 'Opus_Form_BuilderTest_DisconnectedModel'));
+        'ReferenceField' => array(
+            'model' => 'Opus_Form_BuilderTest_DisconnectedModel'),
+        'MultiField' => array());
 
     /**
      * Initialize model with the following fields:
@@ -58,8 +68,15 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      */
     protected function _init() {
         $simpleField = new Opus_Model_Field('SimpleField');
+        
+        $multiField = new Opus_Model_Field('MultiField');
+        $multiField->setMultiplicity('*');
+        
         $referenceField = new Opus_Model_Field('ReferenceField');
-        $this->addField($simpleField)->addField($referenceField);
+        $this->addField($simpleField)
+            ->addField($multiField)
+            ->addField($referenceField);
+            
     }
 
     /**
@@ -77,11 +94,33 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      * Set up "ReferenceField" with an instance of Opus_Form_BuilderTest_DisconnectedModel.
      *
      * @see    Opus_Model_Abstract::$_externalFields
-     * @return integer The mock id.
+     * @return Opus_Form_BuilderTest_DisconnectedModel A mock model.
      */
     protected function _fetchReferenceField() {
         $mockModel = new Opus_Form_BuilderTest_DisconnectedModel();
         return $mockModel;
     }
 
+    
+    /**
+     * Mock function. Nothing is stored anywhere.
+     *
+     * @param Mixed $value Whatever data.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return void
+     */
+    protected function _storeMultiField($value) {
+        $this->_multiFieldValue = $value;
+    }
+    
+    /**
+     * Return an array with mock field data.
+     *
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return array Mock up data.
+     */
+    protected function _fetchMultiField() {
+        return $this->_multiFieldValue;
+    }
+    
 }

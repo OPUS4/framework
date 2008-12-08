@@ -197,6 +197,52 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($form, $new_form, 'Recreated form should be the same form.');
     }
 
+    
+    /**
+     * Test if a multivalue field gets mapped to a sub form. 
+     *
+     * @return void
+     */
+    public function testMultivaluedFieldsAreMappedToSubform() {
+        $form = $this->_builder->build($this->_model);
+        $subForm = $form->getSubForm('MultiField');
+        $this->assertNotNull($subForm, 'Sub form for "MultiField" is missing.');
+    }
+    
+    /**
+     * Test if an initialized multi value field gets mapped to the correct number
+     * of form elements with one element maping to one value respectivly. 
+     *
+     * @return void
+     */
+    public function testMultivaluedFieldSubformHasRightCountOfFieldElements() {
+        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        
+        $form = $this->_builder->build($this->_model);
+        $subForm = $form->getSubForm('MultiField');
+        $elements = $subForm->getElements();
+        
+        $this->assertEquals(3, count($elements), 'Wrong number of elements generated.');
+    }
+    
+    /**
+     * Test if an initialized multi value field gets mapped to the correct number
+     * of form elements and all form elements have their correct value assigned. 
+     *
+     * @return void
+     */
+    public function testMultivaluedFieldSubformFieldElementsInitializedCorrectly() {
+        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        
+        $form = $this->_builder->build($this->_model);
+        $subForm = $form->getSubForm('MultiField');
+        $elements = $subForm->getElements();
+        
+        $this->assertEquals('hana', $elements[1]->getValue());
+        $this->assertEquals('dul', $elements[2]->getValue());
+        $this->assertEquals('set', $elements[3]->getValue());
+    }
+    
     /**
      * Test if more post data is skipped which are not values for Model_Document
      *
@@ -221,4 +267,5 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document');
     }
+
 }
