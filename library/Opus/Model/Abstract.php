@@ -122,10 +122,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         foreach ($this->_fields as $fieldname => $field) {
             if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
+
+                // set Modelclass if a model exists
+                if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
+                    $model = $this->_externalFields[$fieldname]['model'];
+                    $this->_fields[$fieldname]->setValueModelClass($model);
+                }
+
                 if (method_exists($this, $callname) === true) {
                     $this->_fields[$fieldname]->setValue($this->$callname());
                 } else {
-                    $model = $this->_externalFields[$fieldname]['model'];
                     $table = $this->_externalFields[$fieldname]['table'];
                     if (isset($this->_externalFields[$fieldname]['conditions']) === true) {
                         $conditions = $this->_externalFields[$fieldname]['conditions'];
@@ -133,7 +139,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                         $conditions = null;
                     }
                     $this->_fields[$fieldname]->setValue($this->_loadExternal($model, $table, $conditions));
-                    $this->_fields[$fieldname]->setValueModelClass($model);
                 }
             } else {
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
