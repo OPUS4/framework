@@ -194,6 +194,10 @@ class Opus_Form_Builder {
     protected function _setFromPost(Opus_Model_Interface $model, array $post) {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
+            // set only field which exists in model
+            if (is_null($field) === true) {
+                continue;
+            }
             if ($field->getValue() instanceof Opus_Model_Interface) {
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
