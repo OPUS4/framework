@@ -197,9 +197,9 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($form, $new_form, 'Recreated form should be the same form.');
     }
 
-    
+
     /**
-     * Test if a multivalue field gets mapped to a sub form. 
+     * Test if a multivalue field gets mapped to a sub form.
      *
      * @return void
      */
@@ -208,41 +208,41 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $subForm = $form->getSubForm('MultiField');
         $this->assertNotNull($subForm, 'Sub form for "MultiField" is missing.');
     }
-    
+
     /**
      * Test if an initialized multi value field gets mapped to the correct number
-     * of form elements with one element maping to one value respectivly. 
+     * of form elements with one element maping to one value respectivly.
      *
      * @return void
      */
     public function testMultivaluedFieldSubformHasRightCountOfFieldElements() {
         $this->_model->setMultiField(array('hana', 'dul', 'set'));
-        
+
         $form = $this->_builder->build($this->_model);
         $subForm = $form->getSubForm('MultiField');
         $elements = $subForm->getElements();
-        
+
         $this->assertEquals(3, count($elements), 'Wrong number of elements generated.');
     }
-    
+
     /**
      * Test if an initialized multi value field gets mapped to the correct number
-     * of form elements and all form elements have their correct value assigned. 
+     * of form elements and all form elements have their correct value assigned.
      *
      * @return void
      */
     public function testMultivaluedFieldSubformFieldElementsInitializedCorrectly() {
         $this->_model->setMultiField(array('hana', 'dul', 'set'));
-        
+
         $form = $this->_builder->build($this->_model);
         $subForm = $form->getSubForm('MultiField');
         $elements = $subForm->getElements();
-        
+
         $this->assertEquals('hana', $elements[1]->getValue());
         $this->assertEquals('dul', $elements[2]->getValue());
         $this->assertEquals('set', $elements[3]->getValue());
     }
-    
+
     /**
      * Test if more post data is skipped which are not values for Model_Document
      *
@@ -265,7 +265,76 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         );
         $new_form = $this->_builder->buildFromPost($post);
 
-        $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document');
+        $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document.');
+    }
+
+    /**
+     * Test if adding of a field works. Addtional field should not contain any value.
+     *
+     * @return void
+     */
+    public function testAddingAdditionalFieldToForm() {
+        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'SimpleField' => $form->SimpleField->getValue(),
+            $modelname => $form->$modelname->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            'MultiField' => array(
+                'hana',
+                'dul',
+                'set',
+            ),
+            'add_MultiField' => '+',
+        );
+
+        $new_form = $this->_builder->buildFromPost($post);
+        $elements = $new_form->MultiField->getElements();
+
+        $this->assertEquals(4, count($elements), 'Multifield should contain 4 elements.');
+
+        $this->assertEquals('hana', $elements[1]->getValue());
+        $this->assertEquals('dul', $elements[2]->getValue());
+        $this->assertEquals('set', $elements[3]->getValue());
+        $this->assertEquals('', $elements[4]->getValue(), 'A new field should not contain a value.');
+    }
+
+    /**
+     * Test if removing of a field works.
+     *
+     * @return void
+     */
+    public function testRemovingAFieldFromForm() {
+        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'SimpleField' => $form->SimpleField->getValue(),
+            $modelname => $form->$modelname->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            'MultiField' => array(
+                'hana',
+                'dul',
+                'set',
+            ),
+            'remove_MultiField_0' => '-',
+        );
+
+        $new_form = $this->_builder->buildFromPost($post);
+        $elements = $new_form->MultiField->getElements();
+
+        $this->assertEquals(2, count($elements), 'Multifield should contain after removing 2 elements.');
+
+        $this->assertEquals('dul', $elements[1]->getValue());
+        $this->assertEquals('set', $elements[2]->getValue());
+
     }
 
 }
