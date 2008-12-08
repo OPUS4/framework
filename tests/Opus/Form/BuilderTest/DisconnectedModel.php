@@ -29,59 +29,93 @@
  * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: Model.php 1167 2008-12-05 13:36:36Z claussnitzer $
  */
 
 /**
- * Domain model for Form_Builder test.
+ * Domain model for Form_Builder test that is not connected to a database row. It
+ * serves as a reference model used with fields.
  *
  * @category    Tests
  * @package     Opus_Form
- * @uses        Opus_Model_Abstract
+ * @uses        Opus_Model_Interface
  */
-class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
+class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
 
+    
     /**
-     * Mock external field "ReferenceField".
+     * Holds a simple field instance.
      *
-     * @var array
+     * @var Opus_Model_Field
      */
-    protected $_externalFields = array(
-        'ReferenceField' => array('model' => 'Opus_Form_BuilderTest_DisconnectedModel'));
-
+    protected $_field = null;
+    
     /**
-     * Initialize model with the following fields:
-     * - SimpleField
-     * - ReferenceField
+     * Set up simple field instance "field1";
      *
      * @return void
      */
-    protected function _init() {
-        $simpleField = new Opus_Model_Field('SimpleField');
-        $referenceField = new Opus_Model_Field('ReferenceField');
-        $this->addField($simpleField)->addField($referenceField);
+    public function __construct() {
+        $this->_field = new Opus_Model_Field('Field1');
     }
-
+    
     /**
-     * Mock function. Nothing is stored anywhere.
+     * Just a mock function.
      *
-     * @param Mixed $value Whatever data.
-     * @see    Opus_Model_Abstract::$_externalFields
+     * @see Opus_Model_Interface
      * @return void
      */
-    protected function _storeReferenceField($value) {
-
+    public function store() {
+        
     }
 
     /**
-     * Set up "ReferenceField" with an instance of Opus_Form_BuilderTest_DisconnectedModel.
+     * Always returns 4711.
      *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return integer The mock id.
+     * @see Opus_Model_Interface
+     * @return Integer 4711.
      */
-    protected function _fetchReferenceField() {
-        $mockModel = new Opus_Form_BuilderTest_DisconnectedModel();
-        return $mockModel;
+    public function getId() {
+        return 4711;
+    }
+
+    /**
+     * Just a mock function.
+     *
+     * @see Opus_Model_Interface
+     * @return void
+     */
+    public function delete() {
+        
+    }
+
+    /**
+     * Return a single field name.
+     *
+     * @return Mixed Model self description.
+     */
+    public function describe() {
+        return array('Field1');
+    }
+
+    /**
+     * Mock function.
+     *
+     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
+     * @return Opus_Model_Abstract Provide fluent interface.
+     */
+    public function addField(Opus_Model_Field $field) {
+        return $this;
+    }
+    
+    /**
+     * Return a field definition.
+     *
+     * @param string $name Name of the requested field.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    public function getField($name) {
+        return $this->_field;
     }
 
 }

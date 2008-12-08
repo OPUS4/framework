@@ -119,6 +119,18 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if an external field is mapped to a sub form.
+     *
+     * @return void
+     */
+    public function testReferenceModelMappedToSubForm() {
+        $form = $this->_builder->build($this->_model);
+        $subForms = $form->getSubForms();
+        $this->assertArrayHasKey('ReferenceField', $subForms, 'Sub form for field "ReferenceField" is missing in form.');
+    }
+    
+
+    /**
      * Test if a field has a validator
      *
      * @return void
@@ -153,5 +165,5 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $value = $form->getElement('SimpleField')->getValidator('Zend_Validate');
         $this->assertEquals($chain, $value, 'Field does not have correct validators');
     }
-
+    
 }
