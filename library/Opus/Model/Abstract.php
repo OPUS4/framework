@@ -286,7 +286,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         switch ($accessor) {
             case 'get':
-                return $this->_fields[$fieldname]->getValue();
+                if (empty($arguments) === false) {
+                    return $this->_fields[$fieldname]->getValue($arguments[0]);
+                } else {
+                    return $this->_fields[$fieldname]->getValue();
+                }
                 break;
 
             case 'set':
@@ -294,6 +298,32 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
                 $this->_fields[$fieldname]->setValue($arguments[0]);
+                return $this->_fields[$fieldname]->getValue();
+                break;
+
+            case 'add':
+                if (is_null($this->_fields[$fieldname]->getValueModelClass()) === true) {
+                    throw new Opus_Model_Exception('Add accessor currently only available for fields holding models.');
+                }
+                $modelclass = $this->_fields[$fieldname]->getValueModelClass();
+                $model = new $modelclass;
+                if (is_array($this->_fields[$fieldname]->getValue() === true)) {
+                    // Add instance to existing multiple values.
+                    $this->_fields[$fieldname]->setValue(
+                            array_merge(
+                                array($model),
+                                $this->_fields[$fieldname]->getValue()
+                                )
+                            );
+                } else if (is_null($this->_fields[$fieldname]->getValue()) === false) {
+                    // Add instance to existing single value.
+                    $this->_fields[$fieldname]->setValue(array($model,
+                                $this->_fields[$fieldname]->getValue()));
+                } else {
+                    // Add instance to empty field.
+                    $this->_fields[$fieldname]->setValue($model);
+                }
+                return $model;
                 break;
 
             default:

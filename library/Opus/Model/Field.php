@@ -305,10 +305,19 @@ class Opus_Model_Field
     /**
      * Get the fields value
      * 
+     * @param  int $index (Optional) The index of the value, if it's an array.
      * @return Mixed Whatever the value of the field might be.
      */
-    public function getValue() {
-        return $this->_value;
+    public function getValue($index = null) {
+        if (is_null($index) === false) {
+            if (is_array($this->_value) === true and isset($this->_value[$index]) === true) {
+                return $this->_value[$index];
+            } else {
+                throw new InvalidArgumentException('Unvalid index: ' . $index);
+            }
+        } else {
+            return $this->_value;
+        }
     }
 
     /**
