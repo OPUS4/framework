@@ -73,4 +73,22 @@ interface Opus_Model_Interface
      * @return Mixed Model self description.
      */
     public function describe();
+    
+    /**
+     * Add an field to the model. If a field with the same name has already been added,
+     * it will be replaced by the given field.
+     *
+     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
+     * @return Opus_Model_Abstract Provide fluent interface.
+     */
+    public function addField(Opus_Model_Field $field);
+    
+    /**
+     * Return a reference to an actual field.
+     *
+     * @param string $name Name of the requested field.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    public function getField($name);
+    
 }
