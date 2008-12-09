@@ -51,6 +51,9 @@ class Opus_Collection_Information {
         $role = new Opus_Collection_Roles();
         $role->create();
         foreach ($roleArray as $language => $record) {
+            if (false === is_array($record)) {
+                throw new InvalidArgumentException('Role Array not properly structured.');
+            }
             if ($hidden === true) {
                 $record['visible'] = 0;
             } else {
@@ -64,6 +67,11 @@ class Opus_Collection_Information {
         $db->beginTransaction();
         $role->save();
         $role->createDatabaseTables();
+        
+        $occ = new Opus_Collection_Contents($role->roles_id);
+        foreach ($roleArray as $language => $record) {
+            $occ->root($language);
+        }
         
         $ocs = new Opus_Collection_Structure($role->roles_id);
         $ocs->create();
@@ -211,6 +219,9 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getSubCollections($roles_id, $collections_id = 0) {
+        $validation = new Opus_Collection_Validation();
+        $validation->ID($roles_id);
+        $validation->ID($collections_id);
         // Container for the child collections
         $children = array();
         
@@ -234,6 +245,10 @@ class Opus_Collection_Information {
             }
         }    
         
+        if (false === isset($left)) {
+            throw new InvalidArgumentException("Collection ID $collections_id not found in Structure");
+        }
+        
         // Walk through the children and load the corresponding collection contents
         while ($left < $right-1) {
             $left++;
@@ -244,6 +259,7 @@ class Opus_Collection_Information {
         }
         return $children;
     }
+    
     
     /**
      * Fetch all document IDs belonging to a collection. 
@@ -275,6 +291,7 @@ class Opus_Collection_Information {
         }
         return $allCollectionDocumentsOut;                                        
     }
+    
 
     /**
      * Fetch role information to a given role ID. 
@@ -289,6 +306,7 @@ class Opus_Collection_Information {
         return $ocr->collectionRoles;
     }
     
+
     /**
      * Fetch all collections on the pathes to the root node. 
      *
@@ -298,11 +316,16 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getPathToRoot($roles_id, $collections_id) {
+        $validation = new Opus_Collection_Validation();
+        $validation->ID($roles_id);
+        self::getCollectionRole($roles_id);
+        $validation->ID($collections_id);
         // Container for the array of pathes
         $paths = array();
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);    
         $ocs->load();
+        
         $tree = $ocs->collectionStructure;
         // Create collection content object
         $occ = new Opus_Collection_Contents($roles_id);
@@ -334,11 +357,11 @@ class Opus_Collection_Information {
                 $paths[$left] = $path;
             }
         }    
-        
+        if (empty($paths)) {
+            throw new InvalidArgumentException("Collection ID $collections_id not found in Structure.");
+        }
         return $paths;
     }
-    
-    
     
     /**
      * Fetch collection information. 
@@ -349,6 +372,10 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getCollection($roles_id, $collections_id) {
+        $validation = new Opus_Collection_Validation();
+        $validation->ID($roles_id);
+        self::getCollectionRole($roles_id);
+        $validation->ID($collections_id);
         // Create collection content object and load information from DB
         $occ = new Opus_Collection_Contents($roles_id);
         $occ->create();

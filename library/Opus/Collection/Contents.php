@@ -207,6 +207,31 @@ class Opus_Collection_Contents {
             $this->collections_id = $collections_id;
         }
     }
+
+
+    
+    /**
+     * Save (pseudo)-content for root node to database.
+     *
+     * @throws Exception On failed database access.
+     * @return void
+     */
+    public function root($language) {
+        try {
+            $this->collections_contents
+                 ->insert(array('collections_id' => 0, 
+                                'collections_language' => $language, 
+                                'name' => 'root', 
+                                'number' => '000'));
+        } catch (Exception $e) {
+            $db = Zend_Registry::get('db_adapter');
+            $db->rollBack();
+            throw new Exception('Database error: ' . $e->getMessage());
+        }
+    }
+    
+    
+    
     
     /**
      * Save collection-content to database.

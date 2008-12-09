@@ -72,6 +72,7 @@ class Opus_Collection_AllTests {
         $suite->addTestSuite('Opus_Collection_StructureTest');
         $suite->addTestSuite('Opus_Collection_ContentsTest');
         $suite->addTestSuite('Opus_Collection_ReplacementTest');
+        $suite->addTestSuite('Opus_Collection_InformationTest');
         return $suite;
     }
 

@@ -156,6 +156,9 @@ class Opus_Collection_Roles {
                                                     ->select()
                                                     ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
                                     ->toArray();
+        if (empty($collectionRoles)) {
+            throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");                                   
+        }
         // Replace numeric index by language codes
         foreach ($collectionRoles as $numIndex => $record) {
             $this->collectionRoles[$record[$this->collections_roles_info['primary'][2]]] = $record;
@@ -222,11 +225,11 @@ class Opus_Collection_Roles {
 
         $tabellenname = 'link_documents_collections_' . $this->roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
-            `link_documents_collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `link_documents_collections_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
             PRIMARY KEY ( `link_documents_collections_id` ) 
-            ) ENGINE = MYISAM';
+            ) ENGINE = InnoDB';
         
         try {
             $db->query($query);
@@ -243,7 +246,7 @@ class Opus_Collection_Roles {
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             PRIMARY KEY ( `collections_id` , `collections_language` ) 
-            ) ENGINE = MYISAM';
+            ) ENGINE = InnoDB';
         
         try {
             $db->query($query);
@@ -307,7 +310,7 @@ class Opus_Collection_Roles {
               INDEX fk_collections_structure_collections_contents_' . $this->roles_id . ' (`collections_id` ASC) ,
               CONSTRAINT `fk_collections_structure_collections_contents_' . $this->roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
