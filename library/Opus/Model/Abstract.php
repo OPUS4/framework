@@ -168,7 +168,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             foreach ($this->_validatorPrefix as $prefix) {
                 $classname = $prefix . '_' . $fieldname;
                 // suppress warnings about not existing classes
-                if (class_exists($classname) === true) {
+                if (@class_exists($classname) === true) {
                     $field->setValidator(new $classname);
                     break;
                 }
@@ -187,7 +187,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             foreach ($this->_filterPrefix as $prefix) {
                 $classname = $prefix . '_' . $fieldname;
                 // suppress warnings about not existing classes
-                if (class_exists($classname) === true) {
+                if (@class_exists($classname) === true) {
                     
                     $filter = $field->getFilter();
                     if (is_null($filter) === true) {
