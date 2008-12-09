@@ -70,7 +70,7 @@ class Opus_Document_Builder {
         if (is_null($type) === true) {
             $type = $this->_type;
         }
-        $document = new Opus_Model_Document();
+        $document = new Opus_Model_Document(null, $type);
         return $this->addFieldsTo($document);
     }
 
