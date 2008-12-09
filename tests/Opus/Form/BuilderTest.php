@@ -182,7 +182,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRecreateFormFromPostDataRendersSameForm() {
-        $this->markTestIncomplete('Not working yet.');
         
         $this->_model->setMultiField(array(1,2,3));
         $this->_model->addMultiModel()->setField1('foo');
@@ -208,18 +207,10 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $form->setView($view);
         $new_form->setView($view);
         
-        $m1 = unserialize(bzdecompress(base64_decode($form->__model->getValue())));
-        $m2 = unserialize(bzdecompress(base64_decode($new_form->__model->getValue())));
+        $str_form = @$form->__toString();
+        $str_new_form = @$new_form->__toString();
         
-        Zend_Debug::dump($m1);
-        die();
-//        Zend_Debug::dump($m1->getFields());
-//        $str_form = @$form->__toString();
-//        die;
-//        $str_new_form = @$new_form->__toString();
-//        Zend_Debug::dump($str_new_form);
-        
-        //$this->assertEquals($str_form, $str_new_form, 'Recreated form should match the original form.');
+        $this->assertEquals($str_form, $str_new_form, 'Recreated form should match the original form.');
     }
 
     /**

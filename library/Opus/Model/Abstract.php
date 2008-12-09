@@ -342,7 +342,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 }
                 $modelclass = $this->_fields[$fieldname]->getValueModelClass();
                 $model = new $modelclass;
-                if (is_array($this->_fields[$fieldname]->getValue() === true)) {
+                if (is_array($this->_fields[$fieldname]->getValue()) === true) {
                     // Add instance to existing multiple values.
                     $this->_fields[$fieldname]->setValue(
                             array_merge(
