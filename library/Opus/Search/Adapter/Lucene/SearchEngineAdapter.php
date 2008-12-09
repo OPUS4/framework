@@ -38,43 +38,52 @@
 class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adapter_SearchEngineAdapterInterface
 {
 
-  public $boolean;
-
   /**
-   * Konstruktor
-   * @access public
+   * Standard Operator for queries (if not specified in combination of search terms)
+   * 
+   * @var string Operator
+   * @access private 
    */
-  public function __construct($boolean = "AND") {
-    $this->boolean = $boolean;
-  } // end of Konstruktor
+  private $boolean;
 
   /**
-   * Suchfunktion: Gibt die Anfrage an das Lucene-System weiter
-   * @param string query
-   * @return LuceneQueryHitAdapter
-   * @access public
+   * Constructor
+   * 
+   * @param string (Optional) $boolean Boolean operator used in the query by default; if not specified, AND will be used
+   */
+  public function __construct($boolean = 'AND') {
+    $this->boolean = $boolean;
+  }
+
+  /**
+   * Search function: Gives the query to Lucene
+   * 
+   * @param string $query complete query typed by the user, to be analysed in this function
+   * @return Opus_Search_Adapter_Lucene_SearchHitAdapter
    */
   public function find($query) {
-        // Fehler bei der Verarbeitung von quoted Strings: Quotes und Escapezeichen entfernen
-        $query = str_replace("\\", "", $query);
-        $query = str_replace("\"", "", $query);
-        // Das + am Ende des Suchstrings entfernen (Metager baut bei gequoteten Strings ein + ans Ende...)
-        $query = ereg_replace("[(\ )|\+|(%20)]$", "", $query);
-        try
-        {
+        // Bugfix for quoted strings: remove quotes and escapes
+        $query = str_replace('\\', '', $query);
+        $query = str_replace('\"', '', $query);
+        // remove + at the end of a query (given from metager for quoted strings) - its useless anyway
+        $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
+        try {
                 $index = Zend_Registry::get('Zend_Luceneindex');
-                // Eigene boole'sche Operatoren rausgreppen
+                // Get the boolean operators used in the query
                 #$query = ereg_replace("(\\x)", "%", $query);
                 $oquery = $query;
-                if (ereg("(\ and\ |\ or\ |\ not\ )", $query)) $this->boolean = "ignore";
+                if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) $this->boolean = 'ignore';
                 switch ($this->boolean)
                 {
-                    case "AND":
-                        $query = ereg_replace("[(\ )|\+|(%20)]", " AND ", $query);
+                    case 'AND':
+                        $query = ereg_replace('[(\ )|\+|(%20)]', ' AND ', $query);
                         //echo $query;
                         break;
-                    case "OR":
-                    case "ignore":
+                    case 'OR':
+                    	// Break intentionally omitted
+                    case 'ignore':
+                    	// Break intentionally omitted
+                    default:
                         $query = $oquery;
                         break;
                 }
@@ -82,28 +91,25 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         }
         catch (Zend_Search_Lucene_Exception $searchException)
         {
-                echo "Error: ".$searchException->getMessage()."<br/>";
+                echo 'Error: ' . $searchException->getMessage() . '<br/>';
         }
-        // Die Suchergebnisse sind jetzt im Lucene-Format
-        // Die Methode soll aber eine OPUS-konforme QueryHitList zur.ckgeben
+        // Query results are in Lucene format now
+        // We need an OPUS-compliant result list to return
         $hitlist = new HitList();
         $done = array();
         $hitlistarray = array();
-        if (count($hits) > 0)
-        {
-                foreach ($hits as $queryHit)
-                {
+        if (count($hits) > 0) {
+                foreach ($hits as $queryHit) {
                         $document = $queryHit->getDocument();
-                        $docid = str_replace("nr", "", $document->getFieldValue('docid'));
-                        if (!in_array($docid, $done))
-                        {
+                        $docid = str_replace('nr', '', $document->getFieldValue('docid'));
+                        if (in_array($docid, $done) === false) {
                                 array_push($done, $docid);
                                 $opusHit = new Opus_Search_Adapter_Lucene_SearchHitAdapter($queryHit);
                                 $curdoc = $opusHit->convertToSearchHit();
-                                if ($curdoc !== false) array_push($hitlistarray, $curdoc);
-                        }
-                        else
-                        {
+                                if ($curdoc !== false) {
+                                	array_push($hitlistarray, $curdoc);
+                                }
+                        } else {
                                 $key = array_search($docid, $done);
                                 #$opusfile = new OPUSDocumentFile($document->getFieldValue('source'), $docid);
                                 #$hitlistarray[$key]->addFile($opusfile);
@@ -112,12 +118,9 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         }
         #$hitlist->add($curdoc);
         $hitlist->query = $query;
-        foreach ($hitlistarray as $singlehit)
-        {
+        foreach ($hitlistarray as $singlehit) {
         	$hitlist->add($singlehit);
         }
     return $hitlist;
-  } // end of member function find
-
-
-} // end of LuceneAdapter
+  }
+}

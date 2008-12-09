@@ -47,7 +47,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Constructor
    * 
-   * @param integer|array|Opus_Search_Adapter_DocumentAdapter (Optional) $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
    */
 	public function __construct($opusDocument = null)
 	{
@@ -109,7 +109,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 		} 
 		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
 		/* 
-		 Fields that should be set by this method 
+		* Fields that should be set by this method 
 		 $this->documentData["author"] = PersonsList
 		 $this->documentData["frontdoorUrl"] = array (with elements for View::Url)
 		 $this->documentData["title"] = String
@@ -118,7 +118,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 		 $this->documentData["documentType"] = DocumentTypeAdapter
 		 */
 		 /* 
-		 sample datastructure
+		* Sample datastructure
 		 "author" => new OpusPersonAdapter(
 			array(
 				"id" => "1", 
