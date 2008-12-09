@@ -47,7 +47,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Constructor
    * 
-   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentAdapter (Optional) $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
    */
 	public function __construct($opusDocument = null)
 	{
@@ -57,8 +57,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   			$this->mapDocument();
   		} else if (is_array($opusDocument) === true) {
   			$this->documentData = $opusDocument;
-  		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter')
-  		{
+  		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
   			$this->documentData = $opusDocument->getDocument();
   		}
 	}
@@ -76,7 +75,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Maps the document data to array data usable in Module_Search
    * 
-   * @return array Array with document data usable in Module_Search 
+   * @return void
    */
 	private function mapDocument()
 	{
@@ -109,7 +108,8 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 			$this->documentData['author'] = $autlist1;
 		} 
 		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
-		/* Fields that should be set by this method 
+		/* 
+		 Fields that should be set by this method 
 		 $this->documentData["author"] = PersonsList
 		 $this->documentData["frontdoorUrl"] = array (with elements for View::Url)
 		 $this->documentData["title"] = String
@@ -117,7 +117,8 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 		 $this->documentData["fileUrl"] = array (with elements for View::Url)
 		 $this->documentData["documentType"] = DocumentTypeAdapter
 		 */
-		 /* sample datastructure
+		 /* 
+		 sample datastructure
 		 "author" => new OpusPersonAdapter(
 			array(
 				"id" => "1", 

@@ -47,7 +47,7 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Constructor
    * 
-   * @param integer|array|Opus_Search_Adapter_DocumentTypeAdapter|Opus_Document_Type $documentType Data for the new Opus_Search_Adapter_DocumentTypeAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentTypeAdapter|Opus_Document_Type (Optional) $documentType Data for the new Opus_Search_Adapter_DocumentTypeAdapter-Object 
    */
 	public function __construct($documentType = null)
 	{
@@ -75,8 +75,8 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Get a document type by its ID
    * 
-   * @return Opus_Search_Adapter_DocumentTypeAdapter Adapter object of the Document type with the given ID, if this ID does not exists, null will be returned
    * @param integer $id ID of the document type
+   * @return Opus_Search_Adapter_DocumentTypeAdapter Adapter object of the Document type with the given ID, if this ID does not exists, null will be returned
    */
 	public static function getDocType($id)
 	{
