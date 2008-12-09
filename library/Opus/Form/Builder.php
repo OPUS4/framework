@@ -91,6 +91,10 @@ class Opus_Form_Builder {
             $element = new Zend_Form_Element_Hidden(self::HIDDEN_MODEL_ELEMENT_NAME);
             $element->setValue(base64_encode(bzcompress(serialize($model))));
             $form->addElement($element);
+
+            $element = new Zend_Form_Element_Submit('submit');
+            $element->setLabel('transmit');
+            $form->addElement($element);
         }
 
         return $form;
@@ -201,9 +205,9 @@ class Opus_Form_Builder {
             if (is_null($field->getValueModelClass()) === false) {
                 if (is_null($field->getValue()) === true) {
                     $callname = 'add' . $fieldname;
-                    $model->$callname();                                    
+                    $model->$callname();
                 }
-                
+
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
@@ -213,7 +217,7 @@ class Opus_Form_Builder {
                     $this->_setFromPost($model2, $value);
                     $field->setValue($model2);
                 }
-                
+
             } else {
                 if (is_array($value) === true) {
                     $value = array_values($value);
