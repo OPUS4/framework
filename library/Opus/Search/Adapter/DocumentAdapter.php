@@ -47,7 +47,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Constructor
    * 
-   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
    */
 	public function __construct($opusDocument = null)
 	{
@@ -108,46 +108,42 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 			$this->documentData['author'] = $autlist1;
 		} 
 		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
-		/* 
-		* Fields that should be set by this method 
-		 $this->documentData["author"] = PersonsList
-		 $this->documentData["frontdoorUrl"] = array (with elements for View::Url)
-		 $this->documentData["title"] = String
-		 $this->documentData["abstract"] = String
-		 $this->documentData["fileUrl"] = array (with elements for View::Url)
-		 $this->documentData["documentType"] = DocumentTypeAdapter
-		 */
-		 /* 
-		* Sample datastructure
-		 "author" => new OpusPersonAdapter(
-			array(
-				"id" => "1", 
-				"lastName" => "Marahrens", 
-				"firstName" => "Oliver"
-			)
-		), 
-		"frontdoorUrl" => array(
-			"module"=>"frontdoor", 
-			"controller" => "index", 
-			"action"=>"index", 
-			"id"=>"82"
-		), 
-		"title" => "Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg", 
-		"abstract" => "Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.", 
-		"fileUrl" => array(
-			"module"=>"frontdoor", 
-			"controller" => "file", 
-			"action"=>"view", 
-			"id"=>"82",
-			"filename"=>"projektbericht.pdf"
-		), 
-		"documentType" => new DocumentTypeAdapter(
-			array(
-				"id" => "1", 
-				"name" => "Dissertation", 
-				"type" => "Thesis"
-			)
-		)
-	*/	
+		#Fields that should be set by this method 
+		#$this->documentData["author"] = PersonsList
+		#$this->documentData["frontdoorUrl"] = array (with elements for View::Url)
+		#$this->documentData["title"] = String
+		#$this->documentData["abstract"] = String
+		#$this->documentData["fileUrl"] = array (with elements for View::Url)
+		#$this->documentData["documentType"] = DocumentTypeAdapter
+		#Sample datastructure
+		#"author" => new OpusPersonAdapter(
+		#	array(
+		#		"id" => "1", 
+		#		"lastName" => "Marahrens", 
+		#		"firstName" => "Oliver"
+		#	)
+		#), 
+		#"frontdoorUrl" => array(
+		#	"module"=>"frontdoor", 
+		#	"controller" => "index", 
+		#	"action"=>"index", 
+		#	"id"=>"82"
+		#), 
+		#"title" => "Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg", 
+		#"abstract" => "Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.", 
+		#"fileUrl" => array(
+		#	"module"=>"frontdoor", 
+		#	"controller" => "file", 
+		#	"action"=>"view", 
+		#	"id"=>"82",
+		#	"filename"=>"projektbericht.pdf"
+		#), 
+		#"documentType" => new DocumentTypeAdapter(
+		#	array(
+		#		"id" => "1", 
+		#		"name" => "Dissertation", 
+		#		"type" => "Thesis"
+		#	)
+		#)
 	}
 }

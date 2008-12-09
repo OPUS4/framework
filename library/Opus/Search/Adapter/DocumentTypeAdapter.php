@@ -47,7 +47,7 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Constructor
    * 
-   * @param integer|array|Opus_Search_Adapter_DocumentTypeAdapter|Opus_Document_Type $documentType Data for the new Opus_Search_Adapter_DocumentTypeAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentTypeAdapter|Opus_Document_Type $documentType (Optional) Data for the new Opus_Search_Adapter_DocumentTypeAdapter-Object 
    */
 	public function __construct($documentType = null)
 	{

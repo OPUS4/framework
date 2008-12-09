@@ -49,7 +49,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
   /**
    * Constructor
    * 
-   * @param string (Optional) $boolean Boolean operator used in the query by default; if not specified, AND will be used
+   * @param string $boolean (Optional) Boolean operator used in the query by default; if not specified, AND will be used
    */
   public function __construct($boolean = 'AND') {
     $this->boolean = $boolean;
@@ -58,7 +58,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
   /**
    * Search function: Gives the query to Lucene
    * 
-   * @param string $query complete query typed by the user, to be analysed in this function
+   * @param string $query Complete query typed by the user, to be analysed in this function
    * @return Opus_Search_Adapter_Lucene_SearchHitAdapter
    */
   public function find($query) {
@@ -72,13 +72,16 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                 // Get the boolean operators used in the query
                 #$query = ereg_replace("(\\x)", "%", $query);
                 $oquery = $query;
-                if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) $this->boolean = 'ignore';
+                if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) {
+                	$this->boolean = 'ignore';
+                }
                 switch ($this->boolean)
                 {
                     case 'AND':
                         $query = ereg_replace('[(\ )|\+|(%20)]', ' AND ', $query);
                         //echo $query;
                         break;
+                        
                     case 'OR':
                     	// Break intentionally omitted
                     case 'ignore':
@@ -88,9 +91,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         break;
                 }
                 $hits = $index->find(utf8_encode(strtolower($query)));
-        }
-        catch (Zend_Search_Lucene_Exception $searchException)
-        {
+        } catch (Zend_Search_Lucene_Exception $searchException) {
                 echo 'Error: ' . $searchException->getMessage() . '<br/>';
         }
         // Query results are in Lucene format now
