@@ -206,7 +206,12 @@ class Opus_Document_Type {
 
             // Check for attributes and set values or defaults respectivly.
             if (is_null($multiplicity) === false) {
-                $fieldsdef[$fieldname]['multiplicity'] = $multiplicity->value;
+                if ($multiplicity->value !== '*') {
+                    $multval = (int) $multiplicity->value;  
+                } else {
+                    $multval = '*';
+                }
+                $fieldsdef[$fieldname]['multiplicity'] = $multval;
             } else {
                 $fieldsdef[$fieldname]['multiplicity'] = 1;
             }

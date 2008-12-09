@@ -412,7 +412,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testMultiplicityIsIntegerValue() {
-        $this->markTestSkipped('Expected to fail.');
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
