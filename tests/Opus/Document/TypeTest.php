@@ -268,8 +268,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
     }
-    
-    
+
+
     /**
      * Test if a type specification gets overwritten when another one gets registered
      * under the same name.
@@ -299,7 +299,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
     }
-    
+
 
     /**
      * Test if the languageoption can be queried when initially specified in
@@ -323,9 +323,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('languageoption', $fields['Language'], 'Languageoption attribute is missing.');
         $this->assertEquals('off', $fields['Language']['languageoption'], 'Languageoption attribute has wrong value.');
-    }    
+    }
 
-    
+
     /**
      * Test if the multiplicity attribute can be queried when initially specified in
      * the types describing xml.
@@ -348,9 +348,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('multiplicity', $fields['Institute'], 'Multiplicity attribute is missing.');
         $this->assertEquals('12', $fields['Institute']['multiplicity'], 'Multiplicity attribute has wrong value.');
-    }    
-    
-    
+    }
+
+
     /**
      * Test if the mandatory attribute can be queried when initially specified in
      * the types describing xml.
@@ -372,9 +372,9 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if the type parser error message is correct. 
+     * Test if the type parser error message is correct.
      *
-     * @return 
+     * @return
      */
     public function testAppropriateErrorMessageOnXmlSchemaViolations() {
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
@@ -393,10 +393,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
             $this->assertRegExp('/The value \'error1\' is not an element of the set/', $message);
         }
     }
-    
+
     /**
      * Test if a document type file can be loaded by inferencing the filename
-     * from the types name. 
+     * from the types name.
      *
      * @return void
      */
@@ -405,5 +405,25 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type('TypeTest');
         $this->assertNotNull($type);
     }
-    
+
+    /**
+     * Test if a multiplicity value is integer.
+     *
+     * @return void
+     */
+    public function testMultiplicityIsIntegerValue() {
+        $this->markTestSkipped('Expected to fail.');
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="TitleMain" multiplicity="15" />
+                </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        $multi = $fields['TitleMain']['multiplicity'];
+        $this->assertTrue(is_int($multi), 'Multiplicity should be an integer');
+
+    }
 }
