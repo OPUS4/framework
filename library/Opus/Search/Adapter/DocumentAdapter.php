@@ -38,6 +38,8 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 {
 	/**
 	 * Attribute to store the Document as an Array
+	 * 
+	 * @var array data of the document in form of an array
 	 * @access private
 	 */
 	private $documentData;
@@ -45,19 +47,17 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Constructor
    * 
-   * @param Integer|Array|OpusDocumentAdapter opusDocument data for the new OpusDocumentAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
    */
 	public function __construct($opusDocument = null)
 	{
   		$this->documentData = array();
-  		if (is_int($opusDocument)) {
-  			$this->documentData["id"] = $opusDocument;
+  		if (is_int($opusDocument) === true) {
+  			$this->documentData['id'] = $opusDocument;
   			$this->mapDocument();
-  		}
-  		else if (is_array($opusDocument)) {
+  		} else if (is_array($opusDocument) === true) {
   			$this->documentData = $opusDocument;
-  		}
-  		elseif (get_class($opusDocument) === "Opus_Search_Adapter_DocumentAdapter")
+  		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter')
   		{
   			$this->documentData = $opusDocument->getDocument();
   		}
@@ -66,91 +66,87 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
   /**
    * Returns the document data as an array
    * 
-   * @return Array Array with document data usable in Module_Search 
+   * @return array Array with document data usable in Module_Search 
    */
 	public function getDocument()
 	{
 		return $this->documentData;
 	} 
 
+  /**
+   * Maps the document data to array data usable in Module_Search
+   * 
+   * @return array Array with document data usable in Module_Search 
+   */
 	private function mapDocument()
 	{
-		parent::__construct($this->documentData["id"]);
+		parent::__construct($this->documentData['id']);
 		$title = $this->_fetchTitleMain();
-		$this->documentData["title"] = $title['value'];
-		$this->documentData["frontdoorUrl"] = array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"index", 
-										"id"=>$this->documentData["id"]);
-		$this->documentData["fileUrl"] = array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"showfile", 
-										"id"=>$this->documentData["id"],
-										"filename"=>"testfile.pdf");
+		$this->documentData['title'] = $title['value'];
+		$this->documentData['frontdoorUrl'] = array(
+										'module'=>'frontdoor', 
+										'controller' => 'index', 
+										'action'=>'index', 
+										'id'=>$this->documentData['id']);
+		$this->documentData['fileUrl'] = array(
+										'module'=>'frontdoor', 
+										'controller' => 'index', 
+										'action'=>'showfile', 
+										'id'=>$this->documentData['id'],
+										'filename'=>'testfile.pdf');
 		
 		$authorsList = DummyData::getDummyPersons();
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
 		$authors = $this->_fetchAuthors();
-		if (count($authors) > 0)
-		{
-			$this->documentData["author"] = new PersonsList();
-			foreach ($authors as $authorId)
-			{
-				$this->documentData["author"]->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId));
+		if (count($authors) > 0) {
+			$this->documentData['author'] = new PersonsList();
+			foreach ($authors as $authorId) {
+				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId));
 			}
-		}
-		else
-		{
-			$this->documentData["author"] = $autlist1;
+		} else {
+			$this->documentData['author'] = $autlist1;
 		} 
 		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
-		/*
-		 * Fields that should be set by this method 
-		 * $this->documentData["author"] = PersonsList
-		 * $this->documentData["frontdoorUrl"] = array (with elements for View::Url)
-		 * $this->documentData["title"] = String
-		 * $this->documentData["abstract"] = String
-		 * $this->documentData["fileUrl"] = array (with elements for View::Url)
-		 * $this->documentData["documentType"] = DocumentTypeAdapter
-		 * 
+		/* Fields that should be set by this method 
+		 $this->documentData["author"] = PersonsList
+		 $this->documentData["frontdoorUrl"] = array (with elements for View::Url)
+		 $this->documentData["title"] = String
+		 $this->documentData["abstract"] = String
+		 $this->documentData["fileUrl"] = array (with elements for View::Url)
+		 $this->documentData["documentType"] = DocumentTypeAdapter
 		 */
 		 /* sample datastructure
-		 								"author" => new OpusPersonAdapter(
-										array(
-											"id" => "1", 
-											"lastName" => "Marahrens", 
-											"firstName" => "Oliver"
-										)
-									), 
-									"frontdoorUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"index", 
-										"id"=>"82"
-									), 
-									"title" => "Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg", 
-									"abstract" => "Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.", 
-									"fileUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "file", 
-										"action"=>"view", 
-										"id"=>"82",
-										"filename"=>"projektbericht.pdf"
-									), 
-									"documentType" => new DocumentTypeAdapter(
-										array(
-											"id" => "1", 
-											"name" => "Dissertation", 
-											"type" => "Thesis"
-										)
-									)
+		 "author" => new OpusPersonAdapter(
+			array(
+				"id" => "1", 
+				"lastName" => "Marahrens", 
+				"firstName" => "Oliver"
+			)
+		), 
+		"frontdoorUrl" => array(
+			"module"=>"frontdoor", 
+			"controller" => "index", 
+			"action"=>"index", 
+			"id"=>"82"
+		), 
+		"title" => "Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg", 
+		"abstract" => "Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.", 
+		"fileUrl" => array(
+			"module"=>"frontdoor", 
+			"controller" => "file", 
+			"action"=>"view", 
+			"id"=>"82",
+			"filename"=>"projektbericht.pdf"
+		), 
+		"documentType" => new DocumentTypeAdapter(
+			array(
+				"id" => "1", 
+				"name" => "Dissertation", 
+				"type" => "Thesis"
+			)
+		)
 	*/	
 	}
-
 }
-
-?>
