@@ -38,6 +38,8 @@ class Opus_Search_Adapter_DocumentTypeAdapter
 {
 	/**
 	 * Attribute to store the DocumentType as an Array
+	 * 
+	 * @var array data of a document type in form of an array, usable in Module_Search
 	 * @access private
 	 */
 	private $documentType;
@@ -45,22 +47,17 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Constructor
    * 
-   * @param Integer|Array|DocumentTypeAdapter|Opus_Document_Type documentType data for the new DocumentTypeAdapter-Object 
+   * @param integer|array|Opus_Search_Adapter_DocumentTypeAdapter|Opus_Document_Type $documentType Data for the new Opus_Search_Adapter_DocumentTypeAdapter-Object 
    */
 	public function __construct($documentType = null)
 	{
-  		if (is_int($documentType)) {
+  		if (is_int($documentType) === true) {
   			$this->documentType = $this->mapDocumentType(new Opus_Document_Type($documentType));
-  		}
-  		else if (is_array($documentType)) {
+  		} else if (is_array($documentType) === true) {
   			$this->documentType = $documentType;
-  		}
-  		elseif (get_class($documentType) === "Opus_Search_Adapter_DocumentTypeAdapter")
-  		{
+  		} else if (get_class($documentType) === 'Opus_Search_Adapter_DocumentTypeAdapter') {
   			$this->documentType = $documentType->get();
-  		}
-  		elseif (get_class($documentType) === "Opus_Document_Type")
-  		{
+  		} else if (get_class($documentType) === 'Opus_Document_Type') {
   			$this->documentType = $this->mapDocumentType($documentType);
   		}
 	}
@@ -68,7 +65,7 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Returns the documenttype data as an array
    * 
-   * @return Array Array with documenttype data usable in Module_Search 
+   * @return array Array with documenttype data usable in Module_Search 
    */
 	public function get()
 	{
@@ -78,8 +75,8 @@ class Opus_Search_Adapter_DocumentTypeAdapter
   /**
    * Get a document type by its ID
    * 
-   * @return DocumentTypeAdapter DocumentTypeAdapter of the Document type with the given ID, if this ID does not exists, null will be returned
-   * @param Integer id ID of the document type
+   * @return Opus_Search_Adapter_DocumentTypeAdapter Adapter object of the Document type with the given ID, if this ID does not exists, null will be returned
+   * @param integer $id ID of the document type
    */
 	public static function getDocType($id)
 	{
@@ -87,10 +84,11 @@ class Opus_Search_Adapter_DocumentTypeAdapter
 		#$author = Opus_Person_Information::get($id);
 		# Jetzt noch statisch Person aus den Testdaten holen
 		$data = DummyData::getDummyDocumentTypes();
-		foreach ($data as $obj)
-		{
+		foreach ($data as $obj) {
 			$d = $obj->get();
-			if ($d["id"] == $id) return $obj;
+			if ($d['id'] === $id) {
+				return $obj;
+			}
 		}
 		return null;
 	}
