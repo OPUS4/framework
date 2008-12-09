@@ -135,5 +135,19 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity($value);
     }
-    
+
+    /**
+     * Test if a specific value can be obtained from a multivalued field by
+     * specifying an array index. 
+     *
+     * @return void
+     */
+    public function testGetSpecificIndexFromMultivalueField() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        $field->setValue(array(1,2,'Hallo'));
+        $this->assertEquals(1, $field->getValue(0), 'Wrong value on index 0.');
+        $this->assertEquals(2, $field->getValue(1), 'Wrong value on index 1.');
+        $this->assertEquals('Hallo', $field->getValue(2), 'Wrong value on index 2.');
+    }
 }
