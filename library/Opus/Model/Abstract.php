@@ -146,7 +146,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     } else {
                         $conditions = null;
                     }
-                    $this->_fields[$fieldname]->setValue($this->_loadExternal($model, $table, $conditions));
+                    $loadedValue = $this->_loadExternal($model, $table, $conditions);
+                    $this->_fields[$fieldname]->setValue($loadedValue);
                 }
             } else {
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));

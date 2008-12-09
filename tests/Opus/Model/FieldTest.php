@@ -43,6 +43,20 @@
 class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     
     /**
+     * Date provider for invalid setMultiplicity() arguments test.
+     * 
+     * @return array
+     */
+    public function invalidSetMultiplicityValuesDataProvider() {
+        return array(
+            array('0'),array('1'),array(0),array(-1),array('a'),
+            array('z'),array(''),array(' '),array(true),array(false),
+            array(565676.234),array(-0.0435),array(new InvalidArgumentException()),
+            array(array(1,2,3,4))
+        );
+    }
+    
+    /**
      * Test if the class name of a model can be retrieved from the field.
      *
      * @return void
@@ -66,4 +80,60 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $classname = $field->getValueModelClass();
         $this->assertNull($classname, 'Class name returned when no model instance is set as value.');
     }
+    
+    
+    /**
+     * Test if a field is set to have single value it never returns an array
+     * as its value.
+     *
+     * @return void
+     */
+    public function testSinglevaluedFieldOnlyHasSingleValue() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(1);
+        $result = $field->getValue();
+        $this->assertFalse(is_array($result), 'Returned value should not be an array.');
+    }
+    
+    
+    /**
+     * Test if a field is set to have multiple values it always returns an array
+     * as its value.
+     *
+     * @return void
+     */
+    public function testMultivaluedFieldOnlyHasArrayValue() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        $result = $field->getValue();
+        $this->assertTrue(is_array($result), 'Returned value is not an array.');
+    }
+    
+    /**
+     * Test if a field is set to have single value it does not accept an array as
+     * its input value.
+     *
+     * @return void
+     */
+    public function testSinglevaluedFieldTakesSingleValue() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(1);
+        $this->setExpectedException('InvalidArgumentException');
+        $field->setValue(array('single', 'sungle', 'sangle'));
+    }
+    
+    /**
+     * Test if only valid integer values greater zero or "*" can be set
+     * as multiplicity.
+     *
+     * @return void
+     * 
+     * @dataProvider invalidSetMultiplicityValuesDataProvider
+     */
+    public function testInputValuesForMultiplicityAreIntegerOrStar($value) {
+        $this->setExpectedException('InvalidArgumentException');
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity($value);
+    }
+    
 }

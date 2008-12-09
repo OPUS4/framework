@@ -118,4 +118,22 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
         return $this->_field;
     }
 
+    /**
+     * Mock setter function.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    public function setField1($value) {
+        $this->_field->setValue($value);
+    }
+    
+    /**
+     * Mock getter function.
+     *
+     * @return mixed
+     */
+    public function getField1() {
+        return $this->_field->getValue();
+    }
 }

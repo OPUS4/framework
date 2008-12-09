@@ -71,7 +71,7 @@ class Opus_Model_Field
     protected $_mandatory = false;
 
     /**
-     * Specify whether a language can be choosen for the field. 
+     * Specify whether a language can be choosen for the field.
      *
      * @var boolean
      */
@@ -122,18 +122,18 @@ class Opus_Model_Field
      * @var boolean
      */
     protected $_textarea = false;
-    
-    
+
+
     /**
      * Specify if a field can be displayed as a selection list.
      *
      * @var boolean
      */
     protected $_selection = false;
-    
+
     /**
      * Create an new field instance and set the given name.
-     * 
+     *
      * Creating a new instance also sets some default values:
      * - type = DT_TEXT
      * - multiplicity = 1
@@ -197,19 +197,24 @@ class Opus_Model_Field
     }
 
     /**
-     * Set multiplicity constraint for multivalue fields.  
+     * Set multiplicity constraint for multivalue fields.
      *
      * @param Integer|String $max Upper limit for multiple values.
      *                            Either a number or "*" for infinity.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMultiplicity($max) {
+        if ($max !== '*') {
+            if ((is_int($max) === false) or ($max < 1)) {
+                throw new InvalidArgumentException('Only integer values > 1 or "*" allowed.');
+            }
+        }
         $this->_multiplicity = $max;
         return $this;
     }
 
     /**
-     * Return the fields maximum number of values. 
+     * Return the fields maximum number of values.
      *
      * @return Integer|String Upper limit for multiple values.
      *                        Either a number or "*" for infinity.
@@ -227,7 +232,7 @@ class Opus_Model_Field
         $mult = $this->getMultiplicity();
         return (($mult > 1) or ($mult === '*'));
     }
-    
+
     /**
      * Set the mandatory flag for the field. This flag states out whether a field is required
      * to have a value or not.
@@ -291,12 +296,24 @@ class Opus_Model_Field
     }
 
     /**
-     * Set the field value.
+     * Set the field value. If multiplicity is set to values greater than one
+     * only array are valid input values.
      *
      * @param mixed $value The field value to be set.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setValue($value) {
+        $multiValueCondition = $this->hasMultipleValues();
+        $arrayCondition = is_array($value);
+
+        if (($multiValueCondition === false) and ($arrayCondition === true)) {
+            throw new InvalidArgumentException('Multivalue option and input argument do not match.');
+        }
+        
+        if (($multiValueCondition === true) and ($arrayCondition === false)) {
+            $value = array($value);
+        }
+
         $this->_value = $value;
         return $this;
     }
@@ -304,18 +321,21 @@ class Opus_Model_Field
 
     /**
      * Get the fields value
-     * 
+     *
      * @param  int $index (Optional) The index of the value, if it's an array.
      * @return Mixed Whatever the value of the field might be.
      */
     public function getValue($index = null) {
+        // Caller requested specific array index
         if (is_null($index) === false) {
             if (is_array($this->_value) === true and isset($this->_value[$index]) === true) {
                 return $this->_value[$index];
             } else {
                 throw new InvalidArgumentException('Unvalid index: ' . $index);
             }
+            // Return value
         } else {
+            // If multiple values are possible return an array in every case
             if (($this->hasMultipleValues() === true) and (is_array($this->_value) === false)) {
                 return array($this->_value);
             }
@@ -353,9 +373,9 @@ class Opus_Model_Field
     public function setTextarea($value) {
         $this->_textarea = $value;
     }
-    
+
     /**
-     * Return textarea property. 
+     * Return textarea property.
      *
      * @return Boolean True, if the field can be displayed as a text box.
      */
@@ -363,7 +383,7 @@ class Opus_Model_Field
         return $this->_textarea;
     }
 
-    
+
     /**
      * Set the selection property.
      *
@@ -373,9 +393,9 @@ class Opus_Model_Field
     public function setSelection($value) {
         $this->_selection = $value;
     }
-    
+
     /**
-     * Return selection property. 
+     * Return selection property.
      *
      * @return Boolean True, if the field can be displayed as a selection list.
      */

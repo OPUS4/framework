@@ -56,7 +56,7 @@ value for "name". It must be declared.
 <documenttype name="testdoc"
     xmlns="http://schemas.opus.org/documenttype"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <field name="Language" languageoption="off" mandatory="yes" />
+    <field name="Language" mandatory="yes" />
     <field name="Licence"/>
     <field name="ContributingCorporation"/>
     <field name="CreatingCorporation"/>
@@ -90,7 +90,7 @@ value for "name". It must be declared.
     <field name="SwbId"/>
     <field name="VgWortPixelUrl"/>
     <field name="Volume"/>
-    <field name="TitleMain"/>
+    <field name="TitleMain" multiplicity="*"/>
     <field name="TitleParent"/>
     <field name="TitleAbstract"/>
     <field name="Isbn"/>

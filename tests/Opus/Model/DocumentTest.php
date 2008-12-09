@@ -59,7 +59,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             xmlns="http://schemas.opus.org/documenttype"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             
-            <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+            <field name="Language" mandatory="yes" />
             <field name="Licence"/>
             <field name="ContributingCorporation"/>
             <field name="CreatingCorporation"/>

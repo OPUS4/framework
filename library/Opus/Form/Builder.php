@@ -178,7 +178,7 @@ class Opus_Form_Builder {
         $classname = $field->getValueModelClass();
         foreach ($values as $postvalue) {
             $model = new $classname;
-            $this->setFromPost($model, $postvalue);
+            $this->_setFromPost($model, $postvalue);
             $new_values[] = $model;
         }
         $field->setValue($new_values);
@@ -198,7 +198,12 @@ class Opus_Form_Builder {
             if (is_null($field) === true) {
                 continue;
             }
-            if ($field->getValue() instanceof Opus_Model_Interface) {
+            if (is_null($field->getValueModelClass()) === false) {
+                if (is_null($field->getValue()) === true) {
+                    $callname = 'add' . $fieldname;
+                    $model->$callname();                                    
+                }
+                
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
@@ -208,6 +213,7 @@ class Opus_Form_Builder {
                     $this->_setFromPost($model2, $value);
                     $field->setValue($model2);
                 }
+                
             } else {
                 if (is_array($value) === true) {
                     $value = array_values($value);

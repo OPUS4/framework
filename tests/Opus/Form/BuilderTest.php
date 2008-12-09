@@ -177,26 +177,50 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Recreation of a form should be create the same form.
+     * Recreation of a form should always create the same form.
      *
      * @return void
      */
-    public function testRecreateFormFromPostData() {
+    public function testRecreateFormFromPostDataRendersSameForm() {
+        $this->markTestIncomplete('Not working yet.');
+        
+        $this->_model->setMultiField(array(1,2,3));
+        $this->_model->addMultiModel()->setField1('foo');
+        $this->_model->addMultiModel()->setField1('bar');
+        
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
         $post = array(
             'SimpleField' => $form->SimpleField->getValue(),
+            'MultiField' => array(1,2,3),
+            'MultiModel' => array(
+                '0' => array( 'Field1' => 'foo' ),
+                '1' => array( 'Field1' => 'bar')),
             'ReferenceField' => array(
                 'Field1' => $form->ReferenceField->Field1->getValue(),
             ),
             $modelname => $form->$modelname->getValue(),
         );
         $new_form = $this->_builder->buildFromPost($post);
-
-        $this->assertEquals($form, $new_form, 'Recreated form should be the same form.');
+        
+        $view = new Zend_View();
+        $form->setView($view);
+        $new_form->setView($view);
+        
+        $m1 = unserialize(bzdecompress(base64_decode($form->__model->getValue())));
+        $m2 = unserialize(bzdecompress(base64_decode($new_form->__model->getValue())));
+        
+        Zend_Debug::dump($m1);
+        die();
+//        Zend_Debug::dump($m1->getFields());
+//        $str_form = @$form->__toString();
+//        die;
+//        $str_new_form = @$new_form->__toString();
+//        Zend_Debug::dump($str_new_form);
+        
+        //$this->assertEquals($str_form, $str_new_form, 'Recreated form should match the original form.');
     }
-
 
     /**
      * Test if a multivalue field gets mapped to a sub form.
@@ -264,7 +288,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
             ),
         );
         $new_form = $this->_builder->buildFromPost($post);
-
+        
         $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document.');
     }
 

@@ -50,6 +50,13 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
     protected $_multiFieldValue = array();
     
     /**
+     * Contains mock up data for MultiModel.
+     *
+     * @var array
+     */
+    protected $_multiModelValue = array();
+    
+    /**
      * Mock external field "ReferenceField".
      *
      * @var array
@@ -57,7 +64,9 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
     protected $_externalFields = array(
         'ReferenceField' => array(
             'model' => 'Opus_Form_BuilderTest_DisconnectedModel'),
-        'MultiField' => array());
+        'MultiField' => array(),
+        'MultiModel' => array(
+            'model' => 'Opus_Form_BuilderTest_DisconnectedModel'));
 
     /**
      * Initialize model with the following fields:
@@ -72,9 +81,15 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
         $multiField = new Opus_Model_Field('MultiField');
         $multiField->setMultiplicity('*');
         
+        $multiModel = new Opus_Model_Field('MultiModel');
+        $multiModel->setValueModelClass('Opus_Form_BuilderTest_DisconnectedModel');
+        $multiModel->setMultiplicity('*');
+        
         $referenceField = new Opus_Model_Field('ReferenceField');
+        
         $this->addField($simpleField)
             ->addField($multiField)
+            ->addField($multiModel)
             ->addField($referenceField);
             
     }
@@ -103,14 +118,13 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
 
     
     /**
-     * Mock function. Nothing is stored anywhere.
+     * Mock function.
      *
      * @param Mixed $value Whatever data.
      * @see    Opus_Model_Abstract::$_externalFields
      * @return void
      */
     protected function _storeMultiField($value) {
-        $this->_multiFieldValue = $value;
     }
     
     /**
@@ -122,5 +136,26 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
     protected function _fetchMultiField() {
         return $this->_multiFieldValue;
     }
+    
+    /**
+     * Mock function.
+     *
+     * @param Mixed $value Whatever data.
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return void
+     */
+    protected function _storeMultiModel($value) {
+    }
+    
+    /**
+     * Return an array with mock model identifiers.
+     *
+     * @see    Opus_Model_Abstract::$_externalFields
+     * @return array Mock up identifiers.
+     */
+    protected function _fetchMultiModel() {
+        return array();
+    }
+    
     
 }
