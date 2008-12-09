@@ -26,9 +26,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    FileFormatConverter
- * @package     Module_Search
- * @author      Oliver Marahrens (o.marahrens@tu-harburg.de)
+ * @category    Application
+ * @package     Opus_Search
+ * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -41,6 +41,8 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
    * @return String fulltext
    * @param String $filepath path to the file that should be converted to text
    * @access public
+   * 
+   * @todo check filepath on existance
    */
     function toText($filepath)
     {

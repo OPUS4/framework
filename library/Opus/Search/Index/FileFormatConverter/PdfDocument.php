@@ -26,9 +26,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    FileFormatConverter
- * @package     Module_Search
- * @author      Oliver Marahrens (o.marahrens@tu-harburg.de)
+ * @category    Application
+ * @package     Opus_Search
+ * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -41,10 +41,13 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    * @return String fulltext
    * @param String $filepath path to the file that should be converted to text
    * @access public
+   * 
+   * @todo replace pdftotext-system-call with native php functions (Zend_PDF?) or make path configurable
+   * @todo check filepath on existance
    */
-    function toText($filepath)
+    public static function toText($filepath)
     {
-        exec("/usr/local/bin/pdftotext ".$filepath." -", $return, $returnval);
+        #exec("/usr/local/bin/pdftotext ".$filepath." -", $return, $returnval);
         $volltext = implode (' ', $return);
         return $volltext;
     }
