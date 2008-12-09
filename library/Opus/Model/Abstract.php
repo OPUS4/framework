@@ -434,5 +434,15 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     public function describe() {
         return array_keys($this->_fields);
     }
+    
+    /**
+     * Reconnect primary table row to database after unserializing.
+     *
+     * @return void
+     */
+    public function __wakeup() {
+        $tableclass = $this->_primaryTableRow->getTableClass();
+        $this->_primaryTableRow->setTable(new $tableclass);
+    }
 
 }

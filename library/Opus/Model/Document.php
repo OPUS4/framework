@@ -285,15 +285,4 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
     }
 
-    /**
-     * Reconnect primary table row to database after unserializing.
-     *
-     * @return void
-     */
-    public function __wakeup() {
-        $tableclass = $this->_primaryTableRow->getTableClass();
-        $this->_primaryTableRow->setTable(new $tableclass);
-    }
-
-
 }
