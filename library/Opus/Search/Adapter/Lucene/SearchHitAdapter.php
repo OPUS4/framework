@@ -52,7 +52,7 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
    * 
    * @param Zend_Search_Lucene_Search_QueryHit $luceneHit QueryHit to be adapted into OPUS format
    */
-  public function __construct($luceneHit) {
+  public function __construct(Zend_Search_Lucene_Search_QueryHit $luceneHit) {
         $this->_parent = $luceneHit;
   }
 

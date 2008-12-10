@@ -47,7 +47,7 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
    		//TODO replace system-call ps2ascii with php functions if possible or make path configurable
    		//TODO check filepath on existance
         #exec("/usr/bin/ps2ascii ".$filepath, $return, $returnval);
-        $volltext = implode (' ', $return);
+        $volltext = implode(' ', $return);
         return $volltext;
     }
 }

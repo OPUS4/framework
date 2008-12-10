@@ -48,7 +48,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    		//TODO replace pdftotext-system-call with native php functions (Zend_PDF?) or make path configurable
    		//TODO check filepath on existance
         #exec("/usr/local/bin/pdftotext ".$filepath." -", $return, $returnval);
-        $volltext = implode (' ', $return);
+        $volltext = implode(' ', $return);
         return $volltext;
     }
 }

@@ -56,7 +56,7 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
   			$this->mapPerson();
   		} else if (is_array($person) === true) {
   			$this->personData = $person;
-  		} elseif (get_class($person) === 'Opus_Search_Adapter_PersonAdapter') {
+  		} else if (get_class($person) === 'Opus_Search_Adapter_PersonAdapter') {
   			$this->personData = $person->get();
   		}
 	}

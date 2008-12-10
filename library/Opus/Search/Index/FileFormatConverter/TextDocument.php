@@ -46,7 +46,7 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
     {
         //TODO check filepath on existance
         //TODO check charset of file and make it UTF8
-        $volltext = implode (' ', file($filepath));
+        $volltext = implode(' ', file($filepath));
         return $volltext;
     }	
 }
