@@ -115,7 +115,9 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        $this->_type = new Opus_Document_Type($this->_xmlDoctype);    
+        $this->_type = new Opus_Document_Type($this->_xmlDoctype);
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter->query("INSERT INTO institutes_contents (institutes_language, type, name) VALUES ('de', 'SomeType', 'Institut')");
     }
 
     /**
@@ -125,14 +127,17 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         TestHelper::clearTable('document_identifiers');
+        TestHelper::clearTable('link_documents_persons');
+        TestHelper::clearTable('link_documents_licences');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
         TestHelper::clearTable('document_patents');
         TestHelper::clearTable('document_notes');
         TestHelper::clearTable('document_enrichments');
+        TestHelper::clearTable('institutes_contents');
     }
 
-    
+
     /**
      * Test if a Document instance can be serialized.
      *
@@ -251,6 +256,12 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $enrichment->setEnrichmentValue('Poor enrichment.');
         $enrichment->setEnrichmentType('nonesense');
 
+        $author = $document->addPersonAuthor();
+        $author->setFirstName('Ludwig');
+        $author->setLastName('Wittgenstein');
+        $author->setDateOfBirth('1889-04-26 00:00:00');
+        $author->setPlaceOfBirth('Wien');
+
         // Save document, modify, and save again.
         $document = new Opus_Model_Document($document->store());
         $title = $document->addTitleMain();
@@ -281,6 +292,10 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPatent()->getPatentApplication(), 'Absolutely none.');
         $this->assertEquals($document->getEnrichment()->getEnrichmentValue(), 'Poor enrichment.');
         $this->assertEquals($document->getEnrichment()->getEnrichmentType(), 'nonesense');
+        $this->assertEquals($document->getPersonAuthor()->getFirstName(), 'Ludwig');
+        $this->assertEquals($document->getPersonAuthor()->getLastName(), 'Wittgenstein');
+        $this->assertEquals($document->getPersonAuthor()->getDateOfBirth(), '1889-04-26 00:00:00');
+        $this->assertEquals($document->getPersonAuthor()->getPlaceOfBirth(), 'Wien');
     }
 
 }
