@@ -34,7 +34,7 @@
  * @version     $Id$
  */
 
-class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
+class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 {
 	/**
 	 * Attribute to store the Document as an Array
@@ -53,6 +53,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 	{
   		$this->documentData = array();
   		if (is_int($opusDocument) === true) {
+  			//parent::__construct($opusDocument);
   			$this->documentData['id'] = $opusDocument;
   			$this->mapDocument();
   		} else if (is_array($opusDocument) === true) {
@@ -79,13 +80,12 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
    */
 	private function mapDocument()
 	{
-		parent::__construct($this->documentData['id']);
-		print_r($this->describe());
-		$title = $this->getTitleMain();
-		print_r($title);
-        #$abstract = $this->getTitleAbstract();
+		$document = new Opus_Model_Document($this->documentData['id']);
+		#$title = $document->getTitleMain(0);
+		#print_r($title);
+        #$abstract = $document->getTitleAbstract();
         #$abs = $abstract->getTitleAbstractValue();
-		$this->documentData['title'] = $title;
+		#$this->documentData['title'] = $title;
 		#$this->documentData['abstract'] = $abs;
 		$this->documentData['frontdoorUrl'] = array(
 										'module'=>'frontdoor', 
@@ -103,11 +103,11 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
-		$authors = $this->_fetchPersonAuthor();
+		$authors = $document->getPersonsByRole('author');
 		if (count($authors) > 0) {
 			$this->documentData['author'] = new PersonsList();
 			foreach ($authors as $authorId) {
-				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId));
+				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId->getId()));
 			}
 		} else {
 			$this->documentData['author'] = $autlist1;
