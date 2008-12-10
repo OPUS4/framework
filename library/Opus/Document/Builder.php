@@ -46,10 +46,16 @@ class Opus_Document_Builder {
     private $_type = null;
 
     /**
+     * Holds information of setting values
+     *
+     * @var boolean
+     */
+    private $_valueset = false;
+
+    /**
      * Contructor of class.
      *
-     * @param Opus_Document_Type $type
-     * @return void
+     * @param Opus_Document_Type $type (Optional) Set document type.
      */
     public function __construct(Opus_Document_Type $type = null) {
         if (is_null($type) === false) {
@@ -60,7 +66,8 @@ class Opus_Document_Builder {
     /**
      * Create a document from a proper document type
      *
-     * @param Opus_Document_Type $type
+     * @param Opus_Document_Type $type (Optional) Set document type.
+     * @throws Opus_Document_Exception Thrown if no document type is specified.
      * @return Opus_Model_Document
      */
     public function create(Opus_Document_Type $type = null) {
@@ -70,6 +77,9 @@ class Opus_Document_Builder {
         if (is_null($type) === true) {
             $type = $this->_type;
         }
+
+        $this->_valueset = true;
+
         $document = new Opus_Model_Document(null, $type);
         return $this->addFieldsTo($document);
     }
@@ -78,16 +88,22 @@ class Opus_Document_Builder {
     /**
      * Add fields to a document
      *
-     * @param Opus_Model_Document $document
+     * @param Opus_Model_Document $document Document where to add fields
      * @return Opus_Model_Document
      */
     public function addFieldsTo(Opus_Model_Document $document) {
         $fieldlist = $this->_type->getFields();
-        foreach($fieldlist as $fieldname => $fieldinfo) {
+        foreach ($fieldlist as $fieldname => $fieldinfo) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMandatory($fieldinfo['mandatory']);
             $field->setMultiplicity($fieldinfo['multiplicity']);
+            $classname = $field->getValueModelClass();
             $document->addField($field);
+            if (($this->_valueset === true) and (is_null($classname) === false)) {
+                $model = new $classname;
+                $field->setValue($model);
+            }
+
         }
         return $document;
     }
