@@ -45,7 +45,7 @@ class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_
    public static function toText($filepath)
     {
    		// TODO check filepath on existance
-        $volltext = html_entity_decode(strip_tags(implode(' ', file ($filepath))));
+        $volltext = html_entity_decode(strip_tags(implode(' ', file($filepath))));
         return $volltext;
     }
 }

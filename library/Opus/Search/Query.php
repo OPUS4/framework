@@ -65,9 +65,9 @@ class Opus_Search_Query
   /**
    * Constructor
    * 
-   * @param string $query			Querystring for this query
-   * @param string $defaultop		(Optional) Boolean operator to be used for query, by default any boolean operators are ignored
-   * @param string $searchengine	(Optional) Searchengine to be used for this query, if none is given, Lucene will be used by default
+   * @param string $query        Querystring for this query
+   * @param string $defaultop    (Optional) Boolean operator to be used for query, by default any boolean operators are ignored
+   * @param string $searchengine (Optional) Searchengine to be used for this query, if none is given, Lucene will be used by default
    * @throws Exception No adapter found when Parameter $searchengine is wrong
    */
   public function __construct($query, $defaultop = 'ignore', $searchengine = 'Lucene') {

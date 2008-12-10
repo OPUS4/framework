@@ -80,8 +80,10 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 	private function mapDocument()
 	{
 		parent::__construct($this->documentData['id']);
-		$title = $this->_fetchTitleMain();
-		$this->documentData['title'] = $title['value'];
+		$title = $this->getField('TitleMain');
+		$abstract = $this->getField('TitleAbstract');
+		$this->documentData['title'] = $title;
+		$this->documentData['abstract'] = $abstract;
 		$this->documentData['frontdoorUrl'] = array(
 										'module'=>'frontdoor', 
 										'controller' => 'index', 
@@ -98,7 +100,7 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
-		$authors = $this->_fetchAuthors();
+		$authors = $this->_fetchPersonAuthor();
 		if (count($authors) > 0) {
 			$this->documentData['author'] = new PersonsList();
 			foreach ($authors as $authorId) {
