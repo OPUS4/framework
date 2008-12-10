@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library -
- * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
+ * the Saarland University and State Library, the Saxon State Library - 
+ * Dresden State and University Library, the Bielefeld University Library and 
+ * the University Library of Hamburg University of Technology with funding from 
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,58 +20,56 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
+ * details. You should have received a copy of the GNU General Public License 
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
  * @package     Opus_Db
- * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Table gateway class to table 'documents'.
+ * Table gateway class for link table "link_documents_licences".
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_Documents extends Zend_Db_Table {
-
-    /**
-     * Real database name of the documents table.
+class Opus_Db_LinkDocumentsPersons extends Zend_Db_Table {
+/**
+     * DB table name.
      *
      * @var string
      */
-    protected $_name = 'documents';
+    protected $_name = 'link_documents_licences';
 
     /**
-     * Real database name of the primary key column.
+     * DB table primary key name.
      *
      * @var string
      */
-    protected $_primary = 'documents_id';
+    protected $_primary = array('documents_id', 'licences_id');
 
     /**
-     * All dependant Tables,
-     * i.e. those that contain a documents_id as a foreign key.
+     * Map foreign keys in this table to the column in the table they originate
+     * from (i.e. the referenced table)
      *
-     * @var array $_dependantTables
+     * @var array $_referenceMap
      */
-    protected $_dependentTables = array(
-            'Opus_Db_DocumentTitleAbstracts',
-            'Opus_Db_DocumentSubjects',
-            'Opus_Db_DocumentStatistics',
-            'Opus_Db_DocumentNotes',
-            'Opus_Db_DocumentPatents',
-            'Opus_Db_DocumentEnrichments',
-            'Opus_Db_DocumentFiles',
-            'Opus_Db_DocumentIdentifiers',
-            'Opus_Db_LinkDocumentsPersons',
-            'Opus_Db_LinkDocumentsLicences',
+    protected $_referenceMap = array(
+            'Documents' => array(
+                'columns' => 'documents_id',
+                'refTableClass' => 'Opus_Db_Documents',
+                'refColumns' => 'documents_id',
+                ),
+            'DocumentLicences' => array(
+                'columns' => 'licences_id',
+                'refTableClass' => 'Opus_Db_DocumentLicences',
+                'refColumns' => 'licences_id'
+                ),
             );
 }

@@ -40,14 +40,14 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Licences extends Zend_Db_Table {
+class Opus_Db_DocumentLicences extends Zend_Db_Table {
 
     /**
      * Real database name of the documents table.
      *
      * @var string
      */
-    protected $_name = 'licences';
+    protected $_name = 'document_licences';
 
     /**
      * Real database name of the primary key column.
@@ -62,5 +62,5 @@ class Opus_Db_Licences extends Zend_Db_Table {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_Documents');
+    protected $_dependentTables = array('Opus_Db_LinkDocumentsLicences');
 }

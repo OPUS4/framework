@@ -231,7 +231,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @return void
      */
     protected function _storeLicence($value) {
-        $this->_primaryTableRow->licences_id = $value;
+        //FIXME Implemented as n:m link
+        //$this->_primaryTableRow->licences_id = $value;
     }
 
     /**
@@ -241,7 +242,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @return integer The id of the licence for this document.
      */
     protected function _fetchLicence() {
-        return $this->_primaryTableRow->licences_id;
+        //FIXME Implemented as n:m link
+        //return $this->_primaryTableRow->licences_id;
     }
 
     /**
