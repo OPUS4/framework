@@ -94,6 +94,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'table' => 'Opus_Db_DocumentEnrichments',
             ),
             'PersonAuthor' => array(),
+            'Institute' => array(),
         );
 
     /**
@@ -285,6 +286,30 @@ class Opus_Model_Document extends Opus_Model_Abstract
             $personLink->role = $role;
             $personLink->save();
         }
+    }
+    
+    
+    /**
+     * Mock handling of institute field.
+     * 
+     * TODO Implement institute handling.
+     * 
+     * @return void
+     */
+    public function _fetchInstitute() {
+        
+    }
+    
+    /**
+     * Mock handling of institute field.
+     * 
+     * TODO Implement institute handling.
+     *
+     * @param mixed $value Dont bother. 
+     * @return void
+     */
+    public function _storeInstitute($value) {
+        
     }
 
 }
