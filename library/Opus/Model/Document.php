@@ -75,7 +75,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'table' => 'Opus_Db_DocumentTitleAbstracts',
                 'conditions' => array('title_abstract_type' => 'parent')
             ),
-            'Licence' => array(),
             'Isbn' => array(
                 'model' => 'Opus_Model_Dependent_Isbn',
                 'table' => 'Opus_Db_DocumentIdentifiers',
@@ -93,8 +92,16 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'model' => 'Opus_Model_Dependent_Enrichment',
                 'table' => 'Opus_Db_DocumentEnrichments',
             ),
-            'PersonAuthor' => array(),
             'Institute' => array(),
+            'PersonAuthor' => array(
+                'model' => 'Opus_Model_Dependent_Link_Author',
+                'table' => 'Opus_Db_LinkDocumentsPersons',
+                'conditions' => array('role' => 'author')
+            ),
+            'Licence' => array(
+                'model' => 'Opus_Model_Dependent_Link_Licence',
+                'table' => 'Opus_Db_LinkDocumentsLicences'
+            ),
         );
 
     /**
@@ -161,155 +168,4 @@ class Opus_Model_Document extends Opus_Model_Abstract
     //    $this->_builder->addFieldsTo($this);
     //    parent::_fetchValues();
     //}
-
-    /**
-     * Store values of external field Authors
-     *
-     * @param array $personIds An array of author ids.
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @throws Opus_Model_Exception Thrown if trying to store an author before the document.
-     * @return void
-     */
-    protected function _storePersonAuthor(array $personIds) {
-        if ($this->getId() === null) {
-            throw new Opus_Model_Exception('Document not persisted yet.');
-        }
-        foreach ($personIds as $personId) {
-            $this->addPersonByRole(new Opus_Model_Person($personId), 'author');
-        }
-    }
-
-    /**
-     * Store values of external field Authors
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return array An associative array of authors.
-     */
-    protected function _fetchPersonAuthor() {
-        $authorIds = array();
-        foreach ($this->getPersonsByRole('author') as $author) {
-            $authorIds[] = $author->getId();
-        }
-        return $authorIds;
-    }
-
-    /**
-     * Store values of external field Advisors
-     *
-     * @param array $personIds An array of advisor ids.
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @throws Opus_Model_Exception Thrown if trying to store an advisor before the document.
-     * @return void
-     */
-    protected function _storePersonAdvisor(array $personIds) {
-        if ($this->getId() === null) {
-            throw new Opus_Model_Exception('Document not persisted yet.');
-        }
-        foreach ($personIds as $personId) {
-            $this->addPersonByRole(new Opus_Model_Person($personId), 'advisor');
-        }
-    }
-
-    /**
-     * Fetch values of external field Authors
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return array An associative advisor of authors.
-     */
-    protected function _fetchPersonAdvisor() {
-        $advisorIds = array();
-        foreach ($this->getPersonsByRole('advisor') as $advisor) {
-            $advisorIds[] = $advisor->getId();
-        }
-        return $advisorIds;
-    }
-
-    /**
-     * Store values of external field Licence
-     *
-     * @param integer $value The id of the licence for this document
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return void
-     */
-    protected function _storeLicence($value) {
-        //FIXME Implemented as n:m link
-        //$this->_primaryTableRow->licences_id = $value;
-    }
-
-    /**
-     * Fetch values of external field Licence
-     *
-     * @see    Opus_Model_Abstract::$_externalFields
-     * @return integer The id of the licence for this document.
-     */
-    protected function _fetchLicence() {
-        //FIXME Implemented as n:m link
-        //return $this->_primaryTableRow->licences_id;
-    }
-
-    /**
-     * Fetches all persons associated to the document by a certain role.
-     *
-     * @param string $role The role of the persons to fetch.
-     * @return array An array of Opus_Model_Person
-     */
-    public function getPersonsByRole($role) {
-        $personsDb = new Opus_Db_Persons();
-        $persons = array();
-        $select = $personsDb->select();
-        $select->where('role=?', $role);
-        foreach ($this->_primaryTableRow->findManyToManyRowset('Opus_Db_Persons',
-                'Opus_Db_LinkDocumentsPersons', null, null, $select) as $person) {
-            $persons[] = new Opus_Model_Person($person->persons_id);
-        }
-        return $persons;
-    }
-
-    /**
-     * Adds a person associated to the document by a certain role.
-     *
-     * @param  Opus_Model_Person $person An Opus_Model_Person
-     * @param  string            $role   The role of the person for this document.
-     * @throws Opus_Model_Exception Thrown if trying to add a person before the document is saved.
-     * @return void
-     */
-    public function addPersonByRole(Opus_Model_Person $person, $role) {
-        if ($this->getId() === null) {
-            throw new Opus_Model_Exception('Document not persisted yet.');
-        }
-        if (in_array($person, $this->getPersonsByRole($role)) === false) {
-            $table = new Opus_Db_LinkDocumentsPersons();
-            $personLink = $table->createRow();
-            $personLink->documents_id = $this->getId();
-            $personLink->persons_id = $person->getId();
-            $personLink->institutes_id = 0;
-            $personLink->role = $role;
-            $personLink->save();
-        }
-    }
-    
-    
-    /**
-     * Mock handling of institute field.
-     * 
-     * TODO Implement institute handling.
-     * 
-     * @return void
-     */
-    public function _fetchInstitute() {
-        
-    }
-    
-    /**
-     * Mock handling of institute field.
-     * 
-     * TODO Implement institute handling.
-     *
-     * @param mixed $value Dont bother. 
-     * @return void
-     */
-    public function _storeInstitute($value) {
-        
-    }
-
 }
