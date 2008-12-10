@@ -84,21 +84,24 @@ class Opus_Document_Builder {
         return $this->addFieldsTo($document);
     }
 
-
     /**
      * Add fields to a document
      *
-     * @param Opus_Model_Document $document Document where to add fields
+     * @param Opus_Model_Document $document Document where to add fields.
+     * @throws Opus_Document_Exception Thrown if no document type is specified.
      * @return Opus_Model_Document
      */
     public function addFieldsTo(Opus_Model_Document $document) {
+        if (is_null($this->_type) === true) {
+            throw new Opus_Document_Exception('Document type not specified. Use correct __construct() method.');
+        }
         $fieldlist = $this->_type->getFields();
         foreach ($fieldlist as $fieldname => $fieldinfo) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMandatory($fieldinfo['mandatory']);
             $field->setMultiplicity($fieldinfo['multiplicity']);
-            $classname = $field->getValueModelClass();
             $document->addField($field);
+            $classname = $field->getValueModelClass();
             if (($this->_valueset === true) and (is_null($classname) === false)) {
                 $model = new $classname;
                 $field->setValue($model);
