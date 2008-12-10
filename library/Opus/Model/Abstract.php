@@ -131,27 +131,22 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
 
-                // set Modelclass if a model exists
-                if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
-                    $model = $this->_externalFields[$fieldname]['model'];
-                    $this->_fields[$fieldname]->setValueModelClass($model);
-                }
-
                 if (method_exists($this, $callname) === true) {
-                    $this->_fields[$fieldname]->setValue($this->$callname());
+                    $field->setValue($this->$callname());
                 } else {
                     $table = $this->_externalFields[$fieldname]['table'];
-                    if (isset($this->_externalFields[$fieldname]['conditions']) === true) {
+                    if (array_key_exists('conditions', $this->_externalFields[$fieldname]) === true) {
                         $conditions = $this->_externalFields[$fieldname]['conditions'];
                     } else {
                         $conditions = null;
                     }
+                    $model = $field->getValueModelClass();
                     $loadedValue = $this->_loadExternal($model, $table, $conditions);
-                    $this->_fields[$fieldname]->setValue($loadedValue);
+                    $field->setValue($loadedValue);
                 }
             } else {
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                $this->_fields[$fieldname]->setValue($this->_primaryTableRow->$colname);
+                $field->setValue($this->_primaryTableRow->$colname);
             }
 
         }
@@ -376,7 +371,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field) {
-        $this->_fields[$field->getName()] = $field;
+        $fieldname = $field->getName();
+        $this->_fields[$fieldname] = $field;
+
+        // set Modelclass if a model exists
+        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
+                $model = $this->_externalFields[$fieldname]['model'];
+                $field->setValueModelClass($model);
+            }
+        }
+
         return $this;
     }
 
