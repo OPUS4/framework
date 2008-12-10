@@ -182,6 +182,9 @@ class Opus_Form_Builder {
         $classname = $field->getValueModelClass();
         foreach ($values as $postvalue) {
             $model = new $classname;
+            if (is_array($postvalue) === false) {
+                $postvalue = array($postvalue);
+            }
             $this->_setFromPost($model, $postvalue);
             $new_values[] = $model;
         }
@@ -214,6 +217,9 @@ class Opus_Form_Builder {
                     // should never be null
                     $classname = $field->getValueModelClass();
                     $model2 = new $classname;
+                    if (is_array($value) === false) {
+                        $value = array($value);
+                    }
                     $this->_setFromPost($model2, $value);
                     $field->setValue($model2);
                 }
