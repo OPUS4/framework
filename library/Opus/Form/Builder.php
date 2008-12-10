@@ -143,7 +143,9 @@ class Opus_Form_Builder {
     protected function _addMandatory(Opus_Model_Field $field, Zend_Form $form) {
         $fieldname = $field->getName();
         $mandatory = $field->getMandatory();
-        $form->$fieldname->setRequired($mandatory);
+        if ($form->$fieldname instanceof Zend_Form_Element) {
+            $form->$fieldname->setRequired($mandatory);
+        }
     }
 
     /**
