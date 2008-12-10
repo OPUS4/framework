@@ -450,4 +450,15 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $this->_primaryTableRow->setTable(new $tableclass);
     }
 
+    /**
+     * Set whether storing this model opens a database transaction or not.
+     *
+     * @param  boolean  $transactional (Optional) Whether to use a transaction or not.
+     * @return void
+     */
+    protected function _setTransactional($transactional = true) {
+        $this->_transactional = $transactional;
+    }
+
+
 }
