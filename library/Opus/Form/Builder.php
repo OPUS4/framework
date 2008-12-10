@@ -83,6 +83,7 @@ class Opus_Form_Builder {
             } else {
                 $this->_makeElement($fieldname, $field->getValue(), $form);
                 $this->_addValidator($field, $form);
+                $this->_addMandatory($field, $form);
             }
 
         }
@@ -130,6 +131,19 @@ class Opus_Form_Builder {
         $form->$modelelementname->setValue(base64_encode(bzcompress(serialize($model))));
 
         return $form;
+    }
+
+    /**
+     * Add a required attribute to proper fields
+     *
+     * @param Opus_Model_Field $field Field object with necessary field informations
+     * @param Zend_Form        $form  Form object which validator should be added
+     * @return void
+     */
+    protected function _addMandatory(Opus_Model_Field $field, Zend_Form $form) {
+        $fieldname = $field->getName();
+        $mandatory = $field->getMandatory();
+        $form->$fieldname->setRequired($mandatory);
     }
 
     /**
