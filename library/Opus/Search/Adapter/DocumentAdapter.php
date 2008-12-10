@@ -80,10 +80,13 @@ class Opus_Search_Adapter_DocumentAdapter extends Opus_Model_Document
 	private function mapDocument()
 	{
 		parent::__construct($this->documentData['id']);
-		$title = $this->getField('TitleMain');
-		$abstract = $this->getField('TitleAbstract');
+		print_r($this->describe());
+		$title = $this->getTitleMain();
+		print_r($title);
+        #$abstract = $this->getTitleAbstract();
+        #$abs = $abstract->getTitleAbstractValue();
 		$this->documentData['title'] = $title;
-		$this->documentData['abstract'] = $abstract;
+		#$this->documentData['abstract'] = $abs;
 		$this->documentData['frontdoorUrl'] = array(
 										'module'=>'frontdoor', 
 										'controller' => 'index', 
