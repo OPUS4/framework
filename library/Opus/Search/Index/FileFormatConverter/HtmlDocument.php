@@ -37,15 +37,14 @@
 class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_Index_FileFormatConverter_FileFormatConverterInterface
 {
   /**
-   * converts a HTML file to plain text
-   * @return String fulltext
-   * @param String $filepath path to the file that should be converted to text
-   * @access public
-   *
-   * @todo check filepath on existance
+   * Converts a HTML file to plain text
+   * 
+   * @return string Fulltext
+   * @param string $filepath Path to the file that should be converted to text
    */
-    function toText($filepath)
+   public static function toText($filepath)
     {
+   		// TODO check filepath on existance
         $volltext = html_entity_decode(strip_tags(implode (' ', file ($filepath))));
         return $volltext;
     }

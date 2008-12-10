@@ -37,17 +37,16 @@
 class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_Index_FileFormatConverter_FileFormatConverterInterface
 {
   /**
-   * converts a PDF file to plain text
-   * @return String fulltext
-   * @param String $filepath path to the file that should be converted to text
-   * @access public
+   * Converts a PDF file to plain text
    * 
-   * @todo replace system-call ps2ascii with php functions if possible or make path configurable
-   * @todo check filepath on existance
+   * @param string $filepath Path to the file that should be converted to text
+   * @return string Fulltext
    */
     public static function toText($filepath)
     {
-        exec("/usr/bin/ps2ascii ".$filepath, $return, $returnval);
+   		//TODO replace system-call ps2ascii with php functions if possible or make path configurable
+   		//TODO check filepath on existance
+        #exec("/usr/bin/ps2ascii ".$filepath, $return, $returnval);
         $volltext = implode (' ', $return);
         return $volltext;
     }

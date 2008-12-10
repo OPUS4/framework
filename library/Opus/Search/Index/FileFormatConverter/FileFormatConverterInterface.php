@@ -37,10 +37,10 @@
 interface Opus_Search_Index_FileFormatConverter_FileFormatConverterInterface
 {
   /**
-   * converts a file to plain text
-   * @return String fulltext
-   * @param String $filepath path to the file that should be converted to text
-   * @access public
+   * Definition of the method to convert a file to text
+   * 
+   * @param string $filepath Path to the file that should be converted to text
+   * @return string fulltext
    */
 	public static function toText($filepath);
 }

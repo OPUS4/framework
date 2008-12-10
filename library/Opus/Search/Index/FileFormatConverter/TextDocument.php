@@ -37,15 +37,15 @@
 class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_Index_FileFormatConverter_FileFormatConverterInterface
 {
   /**
-   * converts a text file to UTF8 plain text
-   * @return String fulltext
-   * @param String $filepath path to the file that should be converted to text
-   * @access public
+   * Converts a text file to UTF8 plain text
    * 
-   * @todo check filepath on existance
+   * @param string $filepath Path to the file that should be converted to text
+   * @return string Fulltext
    */
-    function toText($filepath)
+    public static function toText($filepath)
     {
+        //TODO check filepath on existance
+        //TODO check charset of file and make it UTF8
         $volltext = implode (' ', file($filepath));
         return $volltext;
     }	

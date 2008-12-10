@@ -33,46 +33,44 @@
  */
 
 /**
- * class LuceneSearchHitAdapter
+ * class Opus_Search_Adapter_Lucene_LuceneSearchHitAdapter
  * adapts a search hit from Lucene to the Opus-compliant format
  */
 class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter_SearchHitAdapterInterface
 {
 
   /**
+   * Attribute holding the original query hit from Lucene
+   * 
+   * @var Zend_Search_Lucene_Search_QueryHit QueryHit in Lucene format
    * @access private
    */
   private $_parent = null;
 
   /**
    * Constructor
-   * @access public
+   * 
+   * @param Zend_Search_Lucene_Search_QueryHit $luceneHit QueryHit to be adapted into OPUS format
    */
   public function __construct($luceneHit) {
         $this->_parent = $luceneHit;
-  } // end of Constructor
+  }
 
   /**
-   * converts a Lucene search hit from the index to a Opus-compliant Hit to fit into the HitList
+   * Converts a Lucene search hit from the index to a Opus-compliant Hit to fit into the HitList
+   * 
    * @return SearchHit
-   * @access public
    */
   public function convertToSearchHit() {
-    // aus dem Lucene_Search_QueryHit einen QueryHit für OPUS machen
-    // Ranking und sonstige Eigenschaften werden aus der Lucene-Klasse übernommen
+    	// make the Zend_Lucene_Search_QueryHit to a Opus-SearchHit
+	    // Ranking and other attributes are taken from the Lucene class
         $document = $this->_parent->getDocument();
-        $docid = str_replace("nr", "", $document->getFieldValue('docid'));
+        $docid = str_replace('nr', '', $document->getFieldValue('docid'));
         $qhit = new SearchHit($docid);
         $qhit->setRelevance($this->_parent->score);
-        #$opusfile = new OPUSDocumentFile($document->getFieldValue('source'), $docid);
 
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter((int) $docid);
-        #$prove = $opusdoc->loadRecord();
         $qhit->setDocument($opusdoc);
-        #$qhit->addFile($opusfile);
         return $qhit;
-        #return false;
-  } 
-
-
-} // end of LuceneSearchHitAdapter
+  }
+}

@@ -38,6 +38,8 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
 {
 	/**
 	 * Attribute to store the Person as an Array
+	 * 
+	 * @var array Data from the person
 	 * @access private
 	 */
 	private $personData;
@@ -45,19 +47,16 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
   /**
    * Constructor
    * 
-   * @param Integer|Array|OpusPersonAdapter person data for the new OpusPersonAdapter-Object 
+   * @param [integer|array|Opus_Search_Adapter_PersonAdapter] $person (Optional) Data for the new OpusPersonAdapter-Object 
    */
 	public function __construct($person = null)
 	{
-  		if (is_int($person)) {
-  			$this->personData["id"] = $person;
+  		if (is_int($person) === true) {
+  			$this->personData['id'] = $person;
   			$this->mapPerson();
-  		}
-  		else if (is_array($person)) {
+  		} else if (is_array($person) === true) {
   			$this->personData = $person;
-  		}
-  		elseif (get_class($person) === "Opus_Search_Adapter_PersonAdapter")
-  		{
+  		} elseif (get_class($person) === 'Opus_Search_Adapter_PersonAdapter') {
   			$this->personData = $person->get();
   		}
 	}
@@ -65,7 +64,7 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
   /**
    * Returns the person data as an array
    * 
-   * @return Array Array with person data usable in Module_Search 
+   * @return array Array with person data usable in Module_Search 
    */
 	public function get()
 	{
@@ -75,19 +74,17 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
   /**
    * Get a person by its ID
    * 
-   * @return OpusPersonAdapter OpusPersonAdapter of the person with the given ID, if this ID does not exists, null will be returned
-   * @param Integer id ID of the person
+   * @param integer $id ID of the person
+   * @return Opus_Search_Adapter_PersonAdapter OpusPersonAdapter of the person with the given ID, if this ID does not exists, null will be returned
    */
 	public static function getDummyPerson($id)
 	{
-		# Später die Werte anhand der ID aus der DB holen lassen
-		#$author = Opus_Person_Information::get($id);
-		# Jetzt noch statisch Person aus den Testdaten holen
 		$data = DummyData::getDummyPersons();
-		foreach ($data as $obj)
-		{
+		foreach ($data as $obj) {
 			$d = $obj->get();
-			if ($d["id"] == $id) return $obj;
+			if ($d['id'] === $id) {
+				return $obj;
+			}
 		}
 		return null;
 	}
@@ -96,14 +93,11 @@ class Opus_Search_Adapter_PersonAdapter extends Opus_Model_Person
    * Maps a person from Opus_Model_Person to OpusPersonAdapter by its ID
    * 
    * @return void
-   * @param Integer id ID of the person
    */
 	private function mapPerson()
 	{
-		parent::__construct($this->personData["id"]);
-		$this->personData["lastName"] = $this->getLastName();
-		$this->personData["firstName"] = $this->getFirstName();
+		parent::__construct($this->personData['id']);
+		$this->personData['lastName'] = $this->getLastName();
+		$this->personData['firstName'] = $this->getFirstName();
 	}
 }
-
-?>

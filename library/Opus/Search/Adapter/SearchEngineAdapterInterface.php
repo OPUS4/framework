@@ -42,11 +42,11 @@ interface Opus_Search_Adapter_SearchEngineAdapterInterface
 {
 
   /**
+   * Definition for find method
    *
-   * @param string query
-   * @return QueryHitAdapter
-   * @access public
+   * @param string $query Querystring
+   * @return SearchHit
    */
-  public function find( $query );
+  public function find($query);
 
 }

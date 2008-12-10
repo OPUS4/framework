@@ -41,10 +41,10 @@ interface Opus_Search_Adapter_SearchHitAdapterInterface
 {
 
   /**
+   * Convert a query hit from a search engine to the OPUS-compliant format
    *
-   * @return OpusDocumentAdapter
-   * @access public
+   * @return SearchHit
    */
-  public function convertToSearchHit( );
+  public function convertToSearchHit();
 
 }

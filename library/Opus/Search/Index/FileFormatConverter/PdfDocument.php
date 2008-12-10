@@ -37,16 +37,16 @@
 class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_Index_FileFormatConverter_FileFormatConverterInterface
 {
   /**
-   * converts a PDF file to plain text
-   * @return String fulltext
-   * @param String $filepath path to the file that should be converted to text
-   * @access public
+   * Converts a PDF file to plain text
    * 
-   * @todo replace pdftotext-system-call with native php functions (Zend_PDF?) or make path configurable
-   * @todo check filepath on existance
+   * @param string $filepath Path to the file that should be converted to text
+   * @return string Fulltext
    */
     public static function toText($filepath)
     {
+   		
+   		//TODO replace pdftotext-system-call with native php functions (Zend_PDF?) or make path configurable
+   		//TODO check filepath on existance
         #exec("/usr/local/bin/pdftotext ".$filepath." -", $return, $returnval);
         $volltext = implode (' ', $return);
         return $volltext;

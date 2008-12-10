@@ -38,53 +38,54 @@
 class Opus_Search_Query
 {
 
-  /** Aggregations: */
-
-  /** Compositions: */
-
-   /*** Attributes: ***/
-
   /**
-   * @access public
+   * Querystring without any modification (as given from the user)
+   * 
+   * @var string Querystring
+   * @access private
    */
-  public $query;
+  private $query;
 
   /**
-   * @access public
+   * Characterset of the querystring
+   * 
+   * @var string Encoding charset of the querystring
+   * @access private
    */
-  public $encoding;
+  private $encoding;
 
   /**
+   * Searchengine for this query
+   * 
+   * @var string Search Engine backend to be used (there must be an Adapter for it)
    * @access private
    */
   private $searchEngine;
 
   /**
-   * Konstruktor
-   * @access public
+   * Constructor
+   * 
+   * @param string $query Querystring for this query
+   * @param string $defaultop (Optional) Boolean operator to be used for query, by default any boolean operators are ignored
+   * @param string $searchengine (Optional) Searchengine to be used for this query, if none is given, Lucene will be used by default
    */
   public function __construct($query, $defaultop = "ignore", $searchengine =  "Lucene") {
-    switch ($searchengine)
-    {
-                case "Lucene":
-                        $this->searchEngine = new Opus_Search_Adapter_Lucene_SearchEngineAdapter($defaultop);
-                        break;
-                default:
-                        $this->searchEngine = new Opus_Search_Adapter_Lucene_SearchEngineAdapter($defaultop);
+    $adapterclass = 'Opus_Search_Adapter_' . $searchengine . '_SearchEngineAdapter';
+    if (class_exists($adapterclass) === true) {
+    	$this->searchEngine = new $adapterclass($defaultop);
+    } else {
+    	throw new Exception("No adapter for search engine $searchengine!");
     }
-
     $this->query = $query;
-  } // end of Konstruktor
+  }
 
   /**
-   * Universalmethode zum Ausf.hren der Suche .ber eine implementierte Suchmaschine
-   * @return QueryHitList
-   * @access public
+   * Commit the query to the selected searchengine
+   * 
+   * @return SearchHitList
    */
   public function commit() {
-  	echo "Suche ".$this->query;
     $result = $this->searchEngine->find($this->query);
     return $result;
-  } // end of member function find
-
-} // end of Query
+  }
+}

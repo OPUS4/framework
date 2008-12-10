@@ -81,10 +81,10 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = ereg_replace('[(\ )|\+|(%20)]', ' AND ', $query);
                         //echo $query;
                         break;
-                        
-                    case 'OR':
+                    # we don't need other cases right now, OR is standard operator for Lucene
+                    #case 'OR':
                     	// Break intentionally omitted
-                    case 'ignore':
+                    #case 'ignore':
                     	// Break intentionally omitted
                     default:
                         $query = $oquery;
