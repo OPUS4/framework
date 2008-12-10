@@ -136,10 +136,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" mandatory="yes" />
                     <mandatory type="one-at-least">
-                        <field name="CompletedYear" languageoption="off" />
-                        <field name="CompletedDate" languageoption="off" />
+                        <field name="CompletedYear" />
+                        <field name="CompletedDate" />
                     </mandatory>
                 </documenttype>';
         try {
@@ -233,17 +233,16 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" mandatory="yes" />
                     <mandatory type="one-at-least">
-                        <field name="CompletedYear" languageoption="off" />
-                        <field name="CompletedDate" languageoption="off" />
+                        <field name="CompletedYear" />
+                        <field name="CompletedDate" />
                     </mandatory>
                 </documenttype>';
         $type = new Opus_Document_Type($xml);
         $fields = $type->getFields();
         foreach ($fields as $fieldname => $fielddef) {
             $this->assertArrayHasKey('multiplicity', $fielddef);
-            $this->assertArrayHasKey('languageoption', $fielddef);
             $this->assertArrayHasKey('mandatory', $fielddef);
         }
     }
@@ -281,14 +280,14 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" mandatory="yes" />
                 </documenttype>';
         $type1 = new Opus_Document_Type($xml1);
         $xml2 = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
+                    <field name="Language" multiplicity="*" mandatory="yes" />
                 </documenttype>';
         $type2 = new Opus_Document_Type($xml2);
 
@@ -298,31 +297,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $result = $registered['doctoral_thesis'];
         $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
-    }
-
-
-    /**
-     * Test if the languageoption can be queried when initially specified in
-     * the types describing xml.
-     *
-     * @return void
-     */
-    public function testGetLanguageOptionWhenGivenByXml() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="doctoral_thesis"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language" multiplicity="*" languageoption="off" mandatory="yes" />
-                    <mandatory type="one-at-least">
-                        <field name="CompletedYear" languageoption="off" />
-                        <field name="CompletedDate" languageoption="off" />
-                    </mandatory>
-                </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $fields = $type->getFields();
-
-        $this->assertArrayHasKey('languageoption', $fields['Language'], 'Languageoption attribute is missing.');
-        $this->assertEquals('off', $fields['Language']['languageoption'], 'Languageoption attribute has wrong value.');
     }
 
 
@@ -337,10 +311,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
                     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Institute" multiplicity="12" languageoption="off" mandatory="yes" />
+                    <field name="Institute" multiplicity="12" mandatory="yes" />
                     <mandatory type="one-at-least">
-                        <field name="CompletedYear" languageoption="off" />
-                        <field name="CompletedDate" languageoption="off" />
+                        <field name="CompletedYear" />
+                        <field name="CompletedDate" />
                     </mandatory>
                 </documenttype>';
         $type = new Opus_Document_Type($xml);

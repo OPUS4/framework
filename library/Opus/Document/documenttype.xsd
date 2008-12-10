@@ -87,8 +87,6 @@
 		<attribute name="name" type="opus:validfieldname" use="required" />
 		<attribute name="multiplicity" type="opus:multiplicity"
 			default="1" />
-		<attribute name="languageoption" type="opus:onoff"
-			default="off" />
 		<attribute name="mandatory" type="opus:yesno" default="no" />
 	</complexType>
 

@@ -44,29 +44,29 @@
 
     <!-- dates -->
     <mandatory type="one-at-least">
-        <field name="CompletedYear" languageoption="off" />
-        <field name="CompletedDate" languageoption="off" />
+        <field name="CompletedYear" />
+        <field name="CompletedDate" />
     </mandatory>
 
     <mandatory type="one-at-least">
-        <field name="PublishedYear" languageoption="off" />
-        <field name="PublishedDate" languageoption="off" />
+        <field name="PublishedYear" />
+        <field name="PublishedDate" />
     </mandatory>
 
-    <field name="DateAccepted" languageoption="off" mandatory="yes" />
+    <field name="DateAccepted" mandatory="yes" />
 
     <!-- identifiers -->
-    <field name="Isbn" languageoption="off" />
+    <field name="Isbn" />
 
     <!-- institutes -->
-    <field name="Institute" multiplicity="*" languageoption="off" mandatory="yes" />
-    <field name="NonInstituteAffiliation" languageoption="off" />
+    <field name="Institute" multiplicity="*" mandatory="yes" />
+    <field name="NonInstituteAffiliation" />
 
     <!-- persons -->
-    <field name="PersonAdvisor" languageoption="off" mandatory="yes" />
-    <field name="PersonAuthor" languageoption="off" mandatory="yes" />
-    <field name="PersonOther" languageoption="off" />
-    <field name="PersonReferee" languageoption="off" />
+    <field name="PersonAdvisor" mandatory="yes" />
+    <field name="PersonAuthor" mandatory="yes" />
+    <field name="PersonOther" />
+    <field name="PersonReferee" />
 
     <!-- titles  -->
     <field name="TitleAbstract" multiplicity="*" mandatory="yes" />
@@ -74,9 +74,8 @@
     <field name="TitleParent" multiplicity="*" />
 
     <!-- subjects -->
-    <field name="SubjectSwd" languageoption="off" mandatory="yes" />
-    <field name="SubjectDdc" languageoption="off" />
-    <field name="SubjectUncontrolled" languageoption="off"
-        mandatory="yes" />
+    <field name="SubjectSwd" mandatory="yes" />
+    <field name="SubjectDdc" />
+    <field name="SubjectUncontrolled" mandatory="yes" />
 
 </documenttype>

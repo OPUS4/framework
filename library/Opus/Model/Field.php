@@ -71,21 +71,6 @@ class Opus_Model_Field
     protected $_mandatory = false;
 
     /**
-     * Specify whether a language can be choosen for the field.
-     *
-     * @var boolean
-     */
-    protected $_languageoption = false;
-
-
-    /**
-     * Holds the actual language for the field value.
-     *
-     * @var string
-     */
-    protected $_language = '';
-
-    /**
      * Hold the fields value.
      *
      * @var mixed
@@ -252,47 +237,6 @@ class Opus_Model_Field
      */
     public function getMandatory() {
         return $this->_mandatory;
-    }
-
-
-    /**
-     * Enable or disable optional specification of the fields language.
-     *
-     * @param boolean $languageoption True, if a language can be defined for the fields value.
-     * @return Opus_Model_Fiel Provide fluent interface.
-     */
-    public function setLanguageOption($languageoption) {
-        $this->_languageoption = $languageoption;
-        return $this;
-    }
-
-    /**
-     * Return the current language option.
-     *
-     * @return Boolean True, if a language can be defined for the fields value.
-     */
-    public function getLanguageOption() {
-        return $this->_languageoption;
-    }
-
-    /**
-     * Set the field value language.
-     *
-     * @param string $language Zend locale string specifying the fields language.
-     * @return Opus_Model_Field Provide fluent interface.
-     */
-    public function setLanguage($language) {
-        $this->_language = $language;
-        return $this;
-    }
-
-    /**
-     * Get the field value language.
-     *
-     * @return String Zend locale string specifying the fields language.
-     */
-    public function getLanguage() {
-        return $this->_language;
     }
 
     /**

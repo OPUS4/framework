@@ -199,7 +199,6 @@ class Opus_Document_Type {
             $fieldname = $field->attributes->getNamedItem('name')->value;
             $mandatory =  $field->attributes->getNamedItem('mandatory');
             $multiplicity = $field->attributes->getNamedItem('multiplicity');
-            $languageoption = $field->attributes->getNamedItem('languageoption');
 
             // Add the field.
             $fieldsdef[$fieldname] = array();
@@ -214,12 +213,6 @@ class Opus_Document_Type {
                 $fieldsdef[$fieldname]['multiplicity'] = $multval;
             } else {
                 $fieldsdef[$fieldname]['multiplicity'] = 1;
-            }
-
-            if (is_null($languageoption) === false) {
-                $fieldsdef[$fieldname]['languageoption'] = $languageoption->value;
-            } else {
-                $fieldsdef[$fieldname]['languageoption'] = false;
             }
 
             if (is_null($mandatory) === false) {
