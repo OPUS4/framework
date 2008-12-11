@@ -70,6 +70,7 @@ class Opus_Document_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Document');
+        $suite->addTestSuite('Opus_Document_BuilderTest');
         $suite->addTestSuite('Opus_Document_TypeTest');
         return $suite;
     }
