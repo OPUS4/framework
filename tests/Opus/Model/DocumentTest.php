@@ -170,7 +170,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             array(
                 array(
                     'Language' => 'de',
-                    'Licence' => null,
                     'ContributingCorporation' => 'Contributing, Inc.',
                     'CreatingCorporation' => 'Creating, Inc.',
                     'DateAccepted' => '1901-01-01',
@@ -262,8 +261,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $author->setDateOfBirth('1889-04-26 00:00:00');
         $author->setPlaceOfBirth('Wien');
 
+        $licence = $document->addLicence();
+        $licence->setActive(1);
+        $licence->setLicenceLanguage('de');
+        $licence->setLinkLicence('http://creativecommons.org/');
+        $licence->setMimeType('text/pdf');
+        $licence->setNameLong('Creative Commons');
+        $licence->setPodAllowed(1);
+        $licence->setSortOrder(0);
+
         // Save document, modify, and save again.
-        $document = new Opus_Model_Document($document->store());
+        $id = $document->store();
+        $document = new Opus_Model_Document($id);
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title Two');
         $title->setTitleAbstractLanguage('en');
@@ -296,6 +305,13 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPersonAuthor()->getLastName(), 'Wittgenstein');
         $this->assertEquals($document->getPersonAuthor()->getDateOfBirth(), '1889-04-26 00:00:00');
         $this->assertEquals($document->getPersonAuthor()->getPlaceOfBirth(), 'Wien');
+        $this->assertEquals($document->getLicence()->getActive(), 1);
+        $this->assertEquals($document->getLicence()->getLicenceLanguage(), 'de');
+        $this->assertEquals($document->getLicence()->getLinkLicence(), 'http://creativecommons.org/');
+        $this->assertEquals($document->getLicence()->getMimeType(), 'text/pdf');
+        $this->assertEquals($document->getLicence()->getNameLong(), 'Creative Commons');
+        $this->assertEquals($document->getLicence()->getPodAllowed(), 1);
+        $this->assertEquals($document->getLicence()->getSortOrder(), 0);
     }
 
 }
