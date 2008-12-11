@@ -128,6 +128,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
+            // Field is declared as external and requires special handling
             if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
 
@@ -145,10 +146,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     $field->setValue($loadedValue);
                 }
             } else {
+                // Field is not external an gets handled by simply writing
+                // its value to the table row
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                 $field->setValue($this->_primaryTableRow->$colname);
             }
-
+            
+            // Clear the modified flag for the just loaded field
+            $field->clearModified();
         }
     }
 
@@ -210,13 +215,27 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             $dbadapter->beginTransaction();
         }
         try {
+            // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
+                // Skip non-modified field.
+                if ($field->isModified() === false) {
+                    continue;
+                }
+                
                 if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                     $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
                 }
+                
+                // Clear modification status of successfully stored field.
+                $field->clearModified(); 
             }
+            
+            // Save the row.
+            // This returnes the id needed to store external fields. 
             $id = $this->_primaryTableRow->save();
+            
+            // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     $callname = '_store' . $fieldname;
@@ -226,6 +245,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                         $this->_storeExternal($this->_fields[$fieldname]->getValue());
                     }
                 }
+                // Clear modification status of successfully stored field.
+                $field->clearModified();
             }
             if ($this->_transactional === true) {
                 $dbadapter->commit();

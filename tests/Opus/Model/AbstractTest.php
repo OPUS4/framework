@@ -228,6 +228,62 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $result = $filterChain->filter('ABC');
         $this->assertEquals('abc', $result, 'Filter has propably not been executed.');
     }
-    
 
+    
+    /**
+     * Test if a call to store() does not happen when it has not been modified.
+     *
+     * @return void
+     */
+    public function testIfFieldIsNotStoredWhenUnmodified() {
+        // A record with id 1 is created by setUp() using AbstractDataSet.xml
+        $mock = new Opus_Model_AbstractMock(1, $this->dbProvider);
+        $field = $mock->getField('Value');
+        $oldval = $mock->getValue();
+        
+        // Override the original field "Value" with a mocked version
+        // to detect calls to getValue()
+        $fieldClassName = get_class($field);
+        $mockField = $this->getMock($fieldClassName, array('getValue'), array('Value'));
+        $mock->addField($mockField);
+
+        // Clear modified flag just to be sure
+        $mockField->clearModified();
+        
+        // Expect getValue not to be called
+        $mockField->expects($this->never())->method('getValue');
+        
+        $mock->store();
+    }
+
+    /**
+     * Test if fields get their modified status set back to false after beeing
+     * filled with values from the database.
+     *
+     * @return void
+     */
+    public function testFieldsAreUnmodifiedWhenFreshFromDatabase() {
+        // A record with id 1 is created by setUp() using AbstractDataSet.xml
+        $mock = new Opus_Model_AbstractMock(1, $this->dbProvider);
+        $field = $mock->getField('Value');
+        $this->assertFalse($field->isModified(), 'Field should not be marked as modified when fetched from database.');
+    }
+    
+    /**
+     * Test if the modified status of fields gets cleared after the model
+     * stored them.
+     * 
+     * @return void
+     *
+     */
+    public function testFieldsModifiedStatusGetsClearedAfterStore() {
+        // A record with id 1 is created by setUp() using AbstractDataSet.xml
+        $mock = new Opus_Model_AbstractMock(1, $this->dbProvider);
+        $mock->setValue('Change has come to America!');
+        $mock->store();
+        
+        $field = $mock->getField('Value');
+        $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
+    }
+    
 }

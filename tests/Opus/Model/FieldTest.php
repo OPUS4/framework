@@ -287,4 +287,43 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($output, $result, 'Retrieved value considered wrong.');
     }
     
+    /**
+     * Test if setting object references uses a weaker comparison method
+     * to ensure that objects with same attribute values are treated as equal
+     * even if they are different instances. 
+     *
+     * @return void
+     */
+    public function testWeakComparisonForObjectReferences() {
+        $field = new Opus_Model_Field('MyField');
+        
+        $obj1 = new Opus_Model_Field('Message');
+        $obj2 = new Opus_Model_Field('Message'); 
+        
+        $field->setValue($obj1);
+        $field->clearModified();
+        
+        $field->setValue($obj2);
+        $this->assertFalse($field->isModified(), 'Assigning equal objects should not raise modified flag.');
+    }
+    
+    /**
+     * Test if setting a non-object value enforces strong comparision
+     * including type checking.
+     *
+     * @return void
+     */
+    public function testStrongComparisionForNonObjectsValues() {
+        $field = new Opus_Model_Field('MyField');
+        
+        $val1 = true;
+        $val2 = 'true'; 
+        
+        $field->setValue($val1);
+        $field->clearModified();
+        
+        $field->setValue($val2);
+        $this->assertTrue($field->isModified(), 'Assigning unequal types should raise modified flag.');
+    }
+    
 }

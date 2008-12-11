@@ -256,10 +256,17 @@ class Opus_Model_Field
      */
     public function setValue($value) {
         // If the fields value is not going to change, leave.
-        if ($value === $this->_value) {
-            return $this;
+        if (is_object($value)) {
+            // weak comparison for objects
+            if ($value == $this->_value) {
+                return $this;
+            }
+        } else {
+            // strong comparison for other values
+            if ($value === $this->_value) {
+                return $this;
+            }
         }
-        
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
