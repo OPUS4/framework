@@ -182,11 +182,11 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRecreateFormFromPostDataRendersSameForm() {
-        
+
         $this->_model->setMultiField(array(1,2,3));
         $this->_model->addMultiModel()->setField1('foo');
         $this->_model->addMultiModel()->setField1('bar');
-        
+
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
@@ -202,14 +202,14 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
             $modelname => $form->$modelname->getValue(),
         );
         $new_form = $this->_builder->buildFromPost($post);
-        
+
         $view = new Zend_View();
         $form->setView($view);
         $new_form->setView($view);
-        
+
         $str_form = @$form->__toString();
         $str_new_form = @$new_form->__toString();
-        
+
         $this->assertEquals($str_form, $str_new_form, 'Recreated form should match the original form.');
     }
 
@@ -279,7 +279,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
             ),
         );
         $new_form = $this->_builder->buildFromPost($post);
-        
+
         $this->assertEquals($form, $new_form, 'Post data should be skipped if not values of Model_Document.');
     }
 
@@ -350,6 +350,30 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('dul', $elements[1]->getValue());
         $this->assertEquals('set', $elements[2]->getValue());
 
+    }
+
+    /**
+     * Test if a corret model is returned from a given form.
+     *
+     * @return void
+     */
+    public function testGettingCorrectModelFromForm() {
+        $form = $this->_builder->build($this->_model);
+        $form_model = $this->_builder->getModelFromForm($form);
+        $this->assertEquals($this->_model, $form_model, 'Returned model should be the same as original model.');
+    }
+
+    /**
+     * Test if a form without a hidden model field return null.
+     *
+     * @return void
+     */
+    public function testGettingNullIfNoModelIsInForm() {
+        $form = $this->_builder->build($this->_model);
+        $modelelementname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+        unset($form->$modelelementname);
+        $form_model = $this->_builder->getModelFromForm($form);
+        $this->assertNull($form_model, 'A form without a hidden model field should not contain model informations.');
     }
 
 }
