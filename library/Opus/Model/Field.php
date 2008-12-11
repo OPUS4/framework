@@ -338,6 +338,14 @@ class Opus_Model_Field
             }
         }
         
+        // Check multiplicity constraint
+        if (is_int($this->_multiplicity) === true) {
+            if ((count($value) > $this->_multiplicity) 
+                or ((count($value) + count($this->_value)) > $this->_multiplicity)) {
+                throw new InvalidArgumentException('Cannot hold more then ' . $this->_multiplicity . ' values.');    
+            }
+        }
+        
         // Add the value to the array
         if (is_array($value) === true) {
             $this->_value = array_merge($this->_value, $value);

@@ -405,4 +405,16 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($field->isModified(), 'Adding values should raise "modified" flag.');
     }
     
+    /**
+     * Test if attempt to add more values than allowed throws an exception.
+     *
+     * @return void
+     */
+    public function testAddingMoreValuesThenAllowedThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(3);
+        $field->addValue(array(15,16,17, 18));
+    }
+    
 }
