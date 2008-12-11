@@ -38,7 +38,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_Author extends Opus_Model_Dependent_Link_Abstract
+class Opus_Model_Dependent_Link_DocumentAuthor extends Opus_Model_Dependent_Link_Abstract
 {
     /**
      * Primary key of the parent model.
@@ -73,8 +73,6 @@ class Opus_Model_Dependent_Link_Author extends Opus_Model_Dependent_Link_Abstrac
     protected function _init() {
         if (is_null($this->getId()) === false) {
             $this->_model = new Opus_Model_Person($this->_primaryTableRow->persons_id);
-        } else {
-            $this->_model = new Opus_Model_Person();
         }
         $this->_primaryTableRow->role = 'author';
     }
@@ -86,6 +84,7 @@ class Opus_Model_Dependent_Link_Author extends Opus_Model_Dependent_Link_Abstrac
      */
     public function store() {
         $this->_model->_setTransactional(false);
+        // TODO: Implement three-way link between documents, persons and institutes.
         $this->_primaryTableRow->institutes_id = 0;
         $this->_primaryTableRow->persons_id = $this->_model->store();
         parent::store();

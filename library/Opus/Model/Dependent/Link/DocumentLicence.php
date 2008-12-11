@@ -38,7 +38,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_Licence extends Opus_Model_Dependent_Link_Abstract
+class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Link_Abstract
 {
     /**
      * Primary key of the parent model.
@@ -73,8 +73,6 @@ class Opus_Model_Dependent_Link_Licence extends Opus_Model_Dependent_Link_Abstra
     protected function _init() {
         if (is_null($this->getId()) === false) {
             $this->_model = new Opus_Model_Licence($this->_primaryTableRow->licences_id);
-        } else {
-            $this->_model = new Opus_Model_Licence();
         }
     }
 
