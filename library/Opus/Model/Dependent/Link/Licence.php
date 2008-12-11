@@ -72,7 +72,7 @@ class Opus_Model_Dependent_Link_Licence extends Opus_Model_Dependent_Link_Abstra
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->_model = new Opus_Model_Licence($this->_primaryTableRow->persons_id);
+            $this->_model = new Opus_Model_Licence($this->_primaryTableRow->licences_id);
         } else {
             $this->_model = new Opus_Model_Licence();
         }

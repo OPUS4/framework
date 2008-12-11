@@ -52,7 +52,7 @@ class Opus_Model_Licence extends Opus_Model_Abstract
      */
     public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_Licence);
+            parent::__construct($id, new Opus_Db_DocumentLicences);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
