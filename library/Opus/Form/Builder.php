@@ -134,6 +134,24 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Returns model from given form.
+     *
+     * @param Zend_Form $form Form object with compact model information
+     * @return Opus_Model_Document|null Returns an Opus_Model_Document or
+     *                                  null if no model information are in form
+     */
+    public function getModelFromForm(Zend_Form $form) {
+        $model = null;
+        $modelelementname = self::HIDDEN_MODEL_ELEMENT_NAME;
+        $modelelement = $form->getElement($modelelementname);
+        if (is_null($modelelement) === false) {
+            $model_compact = $modelelement->getValue();
+            $model = unserialize(bzdecompress(base64_decode($model_compact)));
+        }
+        return $model;
+    }
+
+    /**
      * Set all field values of a given model instance by using form post data.
      *
      * @param Opus_Model_Interface $model Model to be updated.
