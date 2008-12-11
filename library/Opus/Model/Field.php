@@ -116,6 +116,14 @@ class Opus_Model_Field
      */
     protected $_selection = false;
 
+    
+    /**
+     * Set to true if the field value has been modified.
+     *
+     * @var Boolean
+     */
+    protected $_modified = false;
+    
     /**
      * Create an new field instance and set the given name.
      *
@@ -247,6 +255,11 @@ class Opus_Model_Field
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setValue($value) {
+        // If the fields value is not going to change, leave.
+        if ($value === $this->_value) {
+            return $this;
+        }
+        
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
@@ -259,6 +272,7 @@ class Opus_Model_Field
         }
 
         $this->_value = $value;
+        $this->_modified = true;
         return $this;
     }
 
@@ -309,13 +323,17 @@ class Opus_Model_Field
     }
 
     /**
-     * Set the textarea property.
+     * Set the textarea property. Override selection property if textarea is set
+     * to true.
      *
      * @param boolean $value True, if the field can be displayed as a text box.
      * @return void
      */
     public function setTextarea($value) {
         $this->_textarea = $value;
+        if ($value === true) {
+            $this->_selection = false;
+        }
     }
 
     /**
@@ -329,13 +347,18 @@ class Opus_Model_Field
 
 
     /**
-     * Set the selection property.
+     * Set the selection property. Override textarea property if selection is
+     * set to true.
      *
-     * @param boolean $value True, if the field can be displayed as a selection list.
+     * @param boolean $value True, if the field can be displayed as a selection
+     *                       list.
      * @return void
      */
     public function setSelection($value) {
         $this->_selection = $value;
+        if ($value === true) {
+            $this->_textarea = false;
+        }
     }
 
     /**
@@ -366,4 +389,21 @@ class Opus_Model_Field
         $this->_valueModelClass = $classname;
     }
 
+    /**
+     * Tell whether the fields value has been modified.
+     *
+     * @return Boolean
+     */
+    public function isModified() {
+        return $this->_modified;
+    }
+    
+    /**
+     * Set the modified flag back to false.
+     *
+     * @return void
+     */
+    public function clearModified() {
+        $this->_modified = false;
+    }
 }

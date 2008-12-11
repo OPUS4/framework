@@ -150,4 +150,98 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $field->getValue(1), 'Wrong value on index 1.');
         $this->assertEquals('Hallo', $field->getValue(2), 'Wrong value on index 2.');
     }
+    
+    /**
+     * Test if the modified flag of a field is set to false. 
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsNotSetInitially() {
+        $field = new Opus_Model_Field('MyField');
+        $result = $field->isModified();
+        $this->assertFalse($result, 'Modified flag is initially true.');
+    }
+    
+    /**
+     * Test if the modified falg is indeed set to true if a call to setValue()
+     * gives a new value to the field.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsSetAfterSettingNewValue () {
+        $field = new Opus_Model_Field('MyField');
+        $field->setValue('MyValue');
+        $after = $field->isModified();
+        $this->assertTrue($after, 'Modified flag has has not been set.');
+    }
+    
+    /**
+     * Test if the modified flag can be set back to false again.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsClearable() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setValue('MyValue');
+        $field->clearModified();
+        $after = $field->isModified();
+        $this->assertFalse($after, 'Modified flag has has not been cleared.');
+    }
+    
+    /**
+     * Test if the modified flag is set to true after a call to setValue()
+     * with the current value of the field.
+     *
+     * @return void
+     */
+    public function testModifiedFlagRemainsAfterSettingSameValueAgain() {
+        $field = new Opus_Model_Field('MyField');
+        $before = $field->isModified();
+        $field->setValue($field->getValue());
+        $after = $field->isModified();
+        $this->assertEquals($before, $after, 'Modified flag has changed.');
+    }
+    
+    /**
+     * Test setting of default values
+     *
+     * @return void
+     */
+    public function testSetDefault() {
+        $field = new Opus_Model_Field('MyField');
+        $array = array('my', 'default', 'values');
+        $field->setDefault($array);
+        $result = $field->getDefault();
+        $this->assertEquals($array, $result, 'Wrong default value returned');
+    }
+    
+    /**
+     * Test if setting the selection flag clear the textarea flag.
+     *
+     * @return void
+     */
+    public function testSelectionFlagClearsTextareaFlag() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setTextarea(true);
+        $field->setSelection(true);
+        
+        $this->assertTrue($field->getSelection(), 'Selection flag does not get set.');
+        $this->assertFalse($field->getTextarea(), 'Textarea flag does not get cleared when selection is set.');
+    }
+
+    /**
+     * Test if setting the textarea flag clear the selection flag.
+     *
+     * @return void
+     */
+    public function testTextareaFlagClearsSelectionFlag() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setSelection(true);
+        $field->setTextarea(true);
+        
+        $this->assertTrue($field->getTextarea(), 'Textarea flag does not get set.');
+        $this->assertFalse($field->getSelection(), 'Selection flag does not get cleared when selection is set.');
+    }
+    
+    
 }
