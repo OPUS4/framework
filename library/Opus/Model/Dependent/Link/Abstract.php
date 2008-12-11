@@ -49,6 +49,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     protected $_model;
 
     /**
+     * Set the model that is linked to.
+     *
+     * @param  Opus_Model_Abstract  $model
+     * @return void
+     */
+    protected function _setModel(Opus_Model_Abstract $model) {
+        $this->_model = $model;
+    }
+
+    /**
      * Tunnel get/set/add methods to the linked model.
      *
      * @param  mixed  $name      The name of the called method.

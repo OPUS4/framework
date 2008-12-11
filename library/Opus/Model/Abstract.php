@@ -360,22 +360,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 }
                 $modelclass = $this->_fields[$fieldname]->getValueModelClass();
                 $model = new $modelclass;
-                if (is_array($this->_fields[$fieldname]->getValue()) === true) {
-                    // Add instance to existing multiple values.
-                    $this->_fields[$fieldname]->setValue(
-                            array_merge(
-                                $this->_fields[$fieldname]->getValue(),
-                                array($model)
-                                )
-                            );
-                } else if (is_null($this->_fields[$fieldname]->getValue()) === false) {
-                    // Add instance to existing single value.
-                    $this->_fields[$fieldname]->setValue(array(
-                                $this->_fields[$fieldname]->getValue(), $model));
-                } else {
-                    // Add instance to empty field.
-                    $this->_fields[$fieldname]->setValue($model);
+
+                if (($model instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                    if ((array_key_exists(0, $arguments) === true)) {
+                        $model->_setModel($arguments[0]);
+                    } else {
+                        throw new InvalidArgumentException('Argument required when adding to a link field.');
+                    }
                 }
+
+                $this->_fields[$fieldname]->addValue($model);
+
                 return $model;
                 break;
 
