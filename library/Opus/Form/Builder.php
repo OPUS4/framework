@@ -75,9 +75,21 @@ class Opus_Form_Builder {
                 $i = 1;
                 $subform = new Zend_Form_SubForm();
                 $subform->setLegend($fieldname);
+                $counts = count($field->getValue());
                 foreach ($field->getValue() as $fieldvalue) {
                     $this->_makeElement("$i", $fieldvalue, $subform);
+                    if ($counts > 1) {
+                        $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
+                        $remove->setLabel('-');
+                        $subform->addElement($remove);
+                    }
                     $i++;
+                }
+                $mult = $field->getMultiplicity();
+                if (($mult === '*') or ($counts < $mult)) {
+                    $add = new Zend_Form_Element_Submit('add_' . $fieldname);
+                    $add->setLabel('+');
+                    $subform->addElement($add);
                 }
                 $form->addSubForm($subform, $fieldname);
             } else {
@@ -111,19 +123,7 @@ class Opus_Form_Builder {
         $modelelementname = self::HIDDEN_MODEL_ELEMENT_NAME;
         $model = unserialize(bzdecompress(base64_decode($post[$modelelementname])));
 
-        foreach ($post as $key => $value) {
-            if (preg_match('/^add_/', $key) === 1) {
-                $fname = explode('_', $key);
-                $fname = $fname[1];
-                $post[$fname][] = '';
-            }
-            if (preg_match('/^remove_/', $key) === 1) {
-                $fname = explode('_', $key);
-                $index = (int) $fname[2];
-                $fname = $fname[1];
-                unset($post[$fname][$index]);
-            }
-        }
+        $this->_addRemove($post);
 
         $this->setFromPost($model, $post);
 
@@ -206,6 +206,49 @@ class Opus_Form_Builder {
         if ($form->$fieldname instanceof Zend_Form_Element) {
             $form->$fieldname->setRequired($mandatory);
         }
+    }
+
+    /**
+     * Search for an action (add or remove) and do this action.
+     *
+     * @param array &$haystack Where to search
+     * @return array|null Null is returned if nothing is found else a path list
+     */
+    protected function _addRemove(array &$haystack) {
+        $result = null;
+        foreach ($haystack as $a_key => &$a_value) {
+            if (preg_match('/^(add|remove)_(.*)/', $a_key) === 1) {
+                $result = $a_key;
+            }
+            if (is_array($a_value) === true) {
+                $ref = $this->_addRemove($a_value);
+                if (is_null($ref) === false) {
+                    // split action command
+                    $fname = explode('_', $ref);
+                    // action to do
+                    $action = $fname[0];
+                    // remove action expression
+                    unset($a_value[$ref]);
+                    switch($action) {
+                        case 'add':
+                            // add a new field
+                            $a_value[] = '';
+                            break;
+
+                        case 'remove':
+                            // remove field at position
+                            $index = (int) $fname[2];
+                            unset($a_value[$index]);
+                            break;
+
+                        default:
+                            // No action taken
+                            break;
+                    }
+                }
+            }
+        }
+        return $result;
     }
 
     /**
