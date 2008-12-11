@@ -125,12 +125,54 @@ class Opus_Form_Builder {
             }
         }
 
-        $this->_setFromPost($model, $post);
+        $this->setFromPost($model, $post);
 
         $form = $this->build($model);
         $form->$modelelementname->setValue(base64_encode(bzcompress(serialize($model))));
 
         return $form;
+    }
+
+    /**
+     * Set all field values of a given model instance by using form post data.
+     *
+     * @param Opus_Model_Interface $model Model to be updated.
+     * @param array                $post  Post data.
+     * @return void
+     */
+    public function setFromPost(Opus_Model_Interface $model, array $post) {
+        foreach ($post as $fieldname => $value) {
+            $field = $model->getField($fieldname);
+            // set only field which exists in model
+            if (is_null($field) === true) {
+                continue;
+            }
+            if (is_null($field->getValueModelClass()) === false) {
+                if (is_null($field->getValue()) === true) {
+                    $callname = 'add' . $fieldname;
+                    $model->$callname();
+                }
+
+                if ($field->hasMultipleValues() === true) {
+                    $this->_setFieldModelValuesFromArray($field, $value);
+                } else {
+                    // should never be null
+                    $classname = $field->getValueModelClass();
+                    $model2 = new $classname;
+                    if (is_array($value) === false) {
+                        $value = array($value);
+                    }
+                    $this->setFromPost($model2, $value);
+                    $field->setValue($model2);
+                }
+
+            } else {
+                if (is_array($value) === true) {
+                    $value = array_values($value);
+                }
+                $field->setValue($value);
+            }
+        }
     }
 
     /**
@@ -201,52 +243,10 @@ class Opus_Form_Builder {
             if (is_array($postvalue) === false) {
                 $postvalue = array($postvalue);
             }
-            $this->_setFromPost($model, $postvalue);
+            $this->setFromPost($model, $postvalue);
             $new_values[] = $model;
         }
         $field->setValue($new_values);
-    }
-
-    /**
-     * Set all field values of a given model instance by using form post data.
-     *
-     * @param Opus_Model_Interface $model Model to be updated.
-     * @param array                $post  Post data.
-     * @return void
-     */
-    protected function _setFromPost(Opus_Model_Interface $model, array $post) {
-        foreach ($post as $fieldname => $value) {
-            $field = $model->getField($fieldname);
-            // set only field which exists in model
-            if (is_null($field) === true) {
-                continue;
-            }
-            if (is_null($field->getValueModelClass()) === false) {
-                if (is_null($field->getValue()) === true) {
-                    $callname = 'add' . $fieldname;
-                    $model->$callname();
-                }
-
-                if ($field->hasMultipleValues() === true) {
-                    $this->_setFieldModelValuesFromArray($field, $value);
-                } else {
-                    // should never be null
-                    $classname = $field->getValueModelClass();
-                    $model2 = new $classname;
-                    if (is_array($value) === false) {
-                        $value = array($value);
-                    }
-                    $this->_setFromPost($model2, $value);
-                    $field->setValue($model2);
-                }
-
-            } else {
-                if (is_array($value) === true) {
-                    $value = array_values($value);
-                }
-                $field->setValue($value);
-            }
-        }
     }
 
 }
