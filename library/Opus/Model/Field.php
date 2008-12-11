@@ -234,7 +234,7 @@ class Opus_Model_Field
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMandatory($mandatory) {
-        $this->_mandatory = $mandatory;
+        $this->_mandatory = (bool) $mandatory;
         return $this;
     }
 
@@ -330,8 +330,8 @@ class Opus_Model_Field
      * @return void
      */
     public function setTextarea($value) {
-        $this->_textarea = $value;
-        if ($value === true) {
+        $this->_textarea = (bool) $value;
+        if ($this->_textarea === true) {
             $this->_selection = false;
         }
     }
@@ -355,8 +355,8 @@ class Opus_Model_Field
      * @return void
      */
     public function setSelection($value) {
-        $this->_selection = $value;
-        if ($value === true) {
+        $this->_selection = (bool) $value;
+        if ($this->_selection === true) {
             $this->_textarea = false;
         }
     }

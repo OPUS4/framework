@@ -57,6 +57,30 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Data provider for function name and corresponding data that is ought
+     * to be interpreted as boolean.
+     *
+     * @return array
+     */
+    public function setterGetterCallDataProvider() {
+        return array(
+            array('Mandatory', 'true', true),
+            array('Mandatory', 0, false),
+            array('Mandatory', 'yes', true),
+            array('Mandatory', 'True', true),
+            array('Mandatory', false, false),
+            array('Textarea', 'true', true),
+            array('Textarea', 1, true),
+            array('Textarea', 'True', true),
+            array('Textarea', false, false),
+            array('Selection', 'true', true),
+            array('Selection', 1, true),
+            array('Selection', 'yes', true),
+            array('Selection', false, false),
+            );
+    }
+    
+    /**
      * Test if the class name of a model can be retrieved from the field.
      *
      * @return void
@@ -243,5 +267,24 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($field->getSelection(), 'Selection flag does not get cleared when selection is set.');
     }
     
+    
+    /**
+     * Test that only real boolean values can be passed to flag functions. 
+     *
+     * @return void
+     * 
+     * @dataProvider setterGetterCallDataProvider
+     */
+    public function testSetterGetterTypeCastingInputValues($func, $input, $output) {
+        $field = new Opus_Model_Field('MyField');
+        
+        $set_callname = 'set' . $func;
+        $get_callname = 'get' . $func;
+        
+        $field->$set_callname($input);
+        $result = $field->$get_callname();
+        
+        $this->assertEquals($output, $result, 'Retrieved value considered wrong.');
+    }
     
 }
