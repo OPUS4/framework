@@ -101,7 +101,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else {
-            $this->_primaryTableRow = $tableGatewayModel->find($id)->getRow(0);
+//            $this->_primaryTableRow = $tableGatewayModel->find($id)->getRow(0);
+            $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_Exception('No ' .
                 get_class($tableGatewayModel) . ' with id $id in database.');
@@ -299,16 +300,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
         $result = array();
         $tableInfo = $table->info();
-        $primaryKey = $tableInfo['primary'][1];
-        $select = $table->select()->from($table, array($primaryKey));
+        $primaryKey = $tableInfo['primary'];
+        $select = $table->select()->from($table, $primaryKey);
         if (is_null($conditions) === false) {
             foreach ($conditions as $column => $value) {
                 $select = $select->where("$column = ?", $value);
             }
         }
         $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
+
         foreach ($ids as $id) {
-            $result[] = new $targetModel($id[$primaryKey]);
+            $result[] = new $targetModel(array_values($id));
         }
         if (count($ids) === 1) {
             return $result[0];
