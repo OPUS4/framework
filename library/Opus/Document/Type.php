@@ -216,7 +216,8 @@ class Opus_Document_Type {
             }
 
             if (is_null($mandatory) === false) {
-                $fieldsdef[$fieldname]['mandatory'] = $mandatory->value;
+                $mandval = ($mandatory->value === 'yes'); 
+                $fieldsdef[$fieldname]['mandatory'] = $mandval; 
             } else {
                 $fieldsdef[$fieldname]['mandatory'] = false;
             }

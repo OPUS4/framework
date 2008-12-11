@@ -397,6 +397,26 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $fields = $type->getFields();
         $multi = $fields['TitleMain']['multiplicity'];
         $this->assertTrue(is_int($multi), 'Multiplicity should be an integer');
-
     }
+    
+    /**
+     * Test if the mandatory field description is of type boolean
+     * especially when mandatory="no" is given in the schema description. 
+     *
+     * @return void
+     */
+    public function testMandatoryIsBooleanValue() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="TitleMain" mandatory="no" />
+                </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $fields = $type->getFields();
+        $result = $fields['TitleMain']['mandatory'];
+        $this->assertTrue(is_bool($result), 'Mandatory option should be of type Boolean.');
+    }
+    
 }
