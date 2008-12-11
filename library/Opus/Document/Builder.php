@@ -77,6 +77,9 @@ class Opus_Document_Builder {
         if (is_null($type) === true) {
             $type = $this->_type;
         }
+        if (is_null($this->_type) === true) {
+            $this->_type = $type;
+        }
 
         $this->_valueset = true;
 
