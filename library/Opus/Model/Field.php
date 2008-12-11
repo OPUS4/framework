@@ -308,6 +308,47 @@ class Opus_Model_Field
         }
     }
 
+    
+    /**
+     * If the field can have multiple values, this method adds a new value
+     * to the already existing field values.
+     *
+     * @param mixed $value
+     * @return Opus_Model_Field Fluent interface.
+     */
+    public function addValue($value) {
+        
+        if ($this->hasMultipleValues() === false) {
+            // One cannot add an array of values to an single-multiplicity field
+            if (is_array($value)) {
+                throw new InvalidArgumentException('Cannot add multiple values to ' . $this->_name);
+            } else {
+                $this->setValue($value);
+                return $this;
+            }
+        }
+        
+        // No value set yet.
+        if (is_null($this->_value) === true) {
+           $this->_value = array();
+        } else {
+            // If the value is not an array, make one
+            if (is_array($this->_value) === false) {
+                $this->_value = array($this->_value);
+            }
+        }
+        
+        // Add the value to the array
+        if (is_array($value) === true) {
+            $this->_value = array_merge($this->_value, $value);
+        } else {
+            $this->_value[] = $value; 
+        }
+        
+        $this->_modified = true;
+        return $this;
+    }
+    
     /**
      * Set the fields default value.
      *

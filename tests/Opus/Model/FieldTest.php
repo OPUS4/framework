@@ -326,4 +326,83 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($field->isModified(), 'Assigning unequal types should raise modified flag.');
     }
     
+    /**
+     * Test if new values can be added to present values of a multivalued field.
+     *
+     * @return void
+     */
+    public function testAddingValueToMultivaluedFields() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        
+        $field->setValue(array(1,2,3,4));
+        $field->addValue(15);
+        
+        $this->assertEquals(array(1,2,3,4,15), $field->getValue(), 'Value has not been added.');
+    }
+    
+    /**
+     * Test if a whole array can be added to a multivalued field.
+     *
+     * @return void
+     */
+    public function testAddingArrayValuesToMultivaluedField() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        
+        $field->setValue(array(1,2,3,4));
+        $field->addValue(array(15,16,17));
+        
+        $this->assertEquals(array(1,2,3,4,15,16,17), $field->getValue(), 'Values have not been added.');
+    }
+    
+    /**
+     * Test if values can be added to an uninitialized field.
+     *
+     * @return void.
+     */
+    public function testAddingValuesToEmptyField() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        $field->addValue(array(15,16,17));
+        $this->assertEquals(array(15,16,17), $field->getValue(), 'Values have not been added.');
+    }
+    
+    /**
+     * Test if values can be added to an uninitialized non-multiple field.
+     *
+     * @return void.
+     */
+    public function testAddingValuesToNonMultipleField() {
+        $this->setExpectedException('InvalidArgumentException');
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('1');
+        $field->addValue(array(15,16,17));
+    }
+    
+    /**
+     * Test if single value can be added to an uninitialized non-multiple field.
+     *
+     * @return void.
+     */
+    public function testAddingSingleValueToNonMultipleField() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(1);
+        $field->addValue(15);
+        $this->assertEquals(15, $field->getValue(), 'Value has not been added.');
+    }
+    
+    /**
+     * Test if adding multiple values raises the modified flag.
+     *
+     * @return void
+     */
+    public function testAddingValuesSetsModifiedFlag() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity('*');
+        $field->clearModified();
+        $field->addValue(array(15,16,17));
+        $this->assertTrue($field->isModified(), 'Adding values should raise "modified" flag.');
+    }
+    
 }
