@@ -134,6 +134,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_patents');
         TestHelper::clearTable('document_notes');
         TestHelper::clearTable('document_enrichments');
+        TestHelper::clearTable('document_licences');
         TestHelper::clearTable('institutes_contents');
     }
 
@@ -255,13 +256,14 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $enrichment->setEnrichmentValue('Poor enrichment.');
         $enrichment->setEnrichmentType('nonesense');
 
-        $author = $document->addPersonAuthor();
+        $author = new Opus_Model_Person;
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1889-04-26 00:00:00');
         $author->setPlaceOfBirth('Wien');
+        $document->addPersonAuthor($author);
 
-        $licence = $document->addLicence();
+        $licence = new Opus_Model_Licence;
         $licence->setActive(1);
         $licence->setLicenceLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
@@ -269,6 +271,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $licence->setNameLong('Creative Commons');
         $licence->setPodAllowed(1);
         $licence->setSortOrder(0);
+        $document->addLicence($licence);
 
         // Save document, modify, and save again.
         $id = $document->store();
@@ -301,10 +304,10 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPatent()->getPatentApplication(), 'Absolutely none.');
         $this->assertEquals($document->getEnrichment()->getEnrichmentValue(), 'Poor enrichment.');
         $this->assertEquals($document->getEnrichment()->getEnrichmentType(), 'nonesense');
-        $this->assertEquals($document->getPersonAuthor()->getFirstName(), 'Ludwig');
-        $this->assertEquals($document->getPersonAuthor()->getLastName(), 'Wittgenstein');
-        $this->assertEquals($document->getPersonAuthor()->getDateOfBirth(), '1889-04-26 00:00:00');
-        $this->assertEquals($document->getPersonAuthor()->getPlaceOfBirth(), 'Wien');
+        $this->assertEquals($document->getPersonAuthor(0)->getFirstName(), 'Ludwig');
+        $this->assertEquals($document->getPersonAuthor(0)->getLastName(), 'Wittgenstein');
+        $this->assertEquals($document->getPersonAuthor(0)->getDateOfBirth(), '1889-04-26 00:00:00');
+        $this->assertEquals($document->getPersonAuthor(0)->getPlaceOfBirth(), 'Wien');
         $this->assertEquals($document->getLicence()->getActive(), 1);
         $this->assertEquals($document->getLicence()->getLicenceLanguage(), 'de');
         $this->assertEquals($document->getLicence()->getLinkLicence(), 'http://creativecommons.org/');
