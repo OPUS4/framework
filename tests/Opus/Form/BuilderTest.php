@@ -375,4 +375,64 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertNull($form_model, 'A form without a hidden model field should not contain model informations.');
     }
 
+    /**
+     * Test that it not should be possible to emptying multi field values
+     *
+     * @return void
+     */
+    public function testDoNotEmptyingMultiFields() {
+        $this->_model->setMultiField(array('hana'));
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'SimpleField' => $form->SimpleField->getValue(),
+            $modelname => $form->$modelname->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            'MultiField' => array(
+                'hana',
+                'remove_MultiField_0' => '-',
+            ),
+        );
+
+        $new_form = $this->_builder->buildFromPost($post);
+        $elements = $new_form->MultiField->getElements();
+
+        $this->assertEquals(2, count($elements), 'Multifield should contain after removing 2 elements.');
+        $this->assertEquals('hana', $elements[1]->getValue());
+    }
+
+    /**
+     * Test that a wrong remove index does not work.
+     *
+     * @return void
+     */
+    public function testDoNotRemovingElementWithNonWrongIndex() {
+        $this->_model->setMultiField(array('hana', 'dul'));
+        $form = $this->_builder->build($this->_model);
+        $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
+
+        $post = array(
+            'SimpleField' => $form->SimpleField->getValue(),
+            $modelname => $form->$modelname->getValue(),
+            'ReferenceField' => array(
+                'Field1' => $form->ReferenceField->Field1->getValue(),
+            ),
+            'MultiField' => array(
+                'hana',
+                'dul',
+                'remove_MultiField_5' => '-',
+            ),
+        );
+
+        $new_form = $this->_builder->buildFromPost($post);
+        $elements = $new_form->MultiField->getElements();
+
+        $this->assertEquals(5, count($elements), 'Multifield should contain after removing 5 elements.');
+        $this->assertEquals('hana', $elements[1]->getValue());
+        $this->assertEquals('dul', $elements[2]->getValue());
+    }
+
 }

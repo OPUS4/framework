@@ -238,7 +238,11 @@ class Opus_Form_Builder {
                         case 'remove':
                             // remove field at position
                             $index = (int) $fname[2];
-                            unset($a_value[$index]);
+                            // protect removing nonexisting fields or emptying structure
+                            if ((array_key_exists($index, $a_value) === true)
+                                and (count($a_value) > 1)) {
+                                unset($a_value[$index]);
+                            }
                             break;
 
                         default:
