@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library - 
- * Dresden State and University Library, the Bielefeld University Library and 
- * the University Library of Hamburg University of Technology with funding from 
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,8 +20,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Tests
@@ -41,7 +41,7 @@
 class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * SetUp database 
+     * SetUp database
      *
      * @return void
      */
@@ -62,8 +62,8 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             COLLATE = utf8_general_ci
             PACK_KEYS = 0
             ROW_FORMAT = DEFAULT;');
-        $adapter->query("INSERT INTO `collections_replacement_7081` 
-        (`collections_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`) 
+        $adapter->query("INSERT INTO `collections_replacement_7081`
+        (`collections_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`)
         VALUES (7, 3, 12, 12),
         (3, NULL, 7, 12),
         (12, 7, NULL, 12),
@@ -79,25 +79,25 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         ;");
         $adapter->query("TRUNCATE institutes_replacement;");
         $adapter->query("TRUNCATE institutes_contents;");
-        $adapter->query("INSERT INTO `institutes_contents` 
-        (`institutes_id`, `institutes_language`, `type`, `name`) 
-        VALUES (3, 'ger', 'Fakultät', 'Fakultät 3'),
-        (4, 'ger', 'Fakultät', 'Fakultät 4'),
-        (5, 'ger', 'Fakultät', 'Fakultät 5'),
-        (6, 'ger', 'Fakultät', 'Fakultät 6'),
-        (7, 'ger', 'Fakultät', 'Fakultät 7'),
-        (10, 'ger', 'Fakultät', 'Fakultät X'),
-        (11, 'ger', 'Fakultät', 'Fakultät XI'),
-        (12, 'ger', 'Fakultät', 'Fakultät XII'),
-        (13, 'ger', 'Fakultät', 'Fakultät XIIV'),
-        (14, 'ger', 'Fakultät', 'Fakultät XIV'),
-        (15, 'ger', 'Fakultät', 'Fakultät XV'),
-        (16, 'ger', 'Fakultät', 'Fakultät XVI'),
-        (17, 'ger', 'Fakultät', 'Fakultät XVII'),
-        (18, 'ger', 'Fakultät', 'Fakultät IIXX')
+        $adapter->query("INSERT INTO `institutes_contents`
+        (`institutes_id`, `type`, `name`)
+        VALUES (3, 'Fakultät', 'Fakultät 3'),
+        (4, 'Fakultät', 'Fakultät 4'),
+        (5, 'Fakultät', 'Fakultät 5'),
+        (6, 'Fakultät', 'Fakultät 6'),
+        (7, 'Fakultät', 'Fakultät 7'),
+        (10, 'Fakultät', 'Fakultät X'),
+        (11, 'Fakultät', 'Fakultät XI'),
+        (12, 'Fakultät', 'Fakultät XII'),
+        (13, 'Fakultät', 'Fakultät XIIV'),
+        (14, 'Fakultät', 'Fakultät XIV'),
+        (15, 'Fakultät', 'Fakultät XV'),
+        (16, 'Fakultät', 'Fakultät XVI'),
+        (17, 'Fakultät', 'Fakultät XVII'),
+        (18, 'Fakultät', 'Fakultät IIXX')
         ;");
-        $adapter->query("INSERT INTO `institutes_replacement` 
-        (`institutes_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`) 
+        $adapter->query("INSERT INTO `institutes_replacement`
+        (`institutes_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`)
         VALUES (7, 3, 12, 12),
         (3, NULL, 7, 12),
         (12, 7, NULL, 12),
@@ -111,7 +111,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         (13, 4, NULL, 13),
         (13, 6, NULL, 13)
         ;");
-        
+
     }
 
     public function tearDown() {
@@ -120,14 +120,14 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $adapter->query("TRUNCATE institutes_replacement;");
         $adapter->query("TRUNCATE institutes_contents;");
     }
-    
+
     public function validConstructorIDDataProvider() {
         return array(
             array('institute'),
             array(7081),
         );
     }
-    
+
     public function invalidConstructorIDDataProvider() {
         return array(
             array('institut'),
@@ -138,7 +138,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(array(7)),
         );
     }
-    
+
     /**
      *
      * @dataProvider validConstructorIDDataProvider
@@ -148,7 +148,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $this->assertTrue(isset($ocr->collectionsIdentifier), 'collectionsIdentifier not set by constructor.');
     }
-    
+
     /**
      *
      * @dataProvider invalidConstructorIDDataProvider
@@ -166,7 +166,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 4),
         );
     }
-    
+
     public function invalidGetIDDataProvider() {
         return array(
             array('institute', -2),
@@ -174,7 +174,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 'no'),
         );
     }
-    
+
     /**
      *
      * @dataProvider validGetIDDataProvider
@@ -186,7 +186,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($replacements), 'No array returned by getReplacementRecords.');
         $this->assertTrue(sizeof($replacements)>0, 'Empty array returned by getReplacementRecords.');
     }
-    
+
     /**
      *
      * @dataProvider validGetIDDataProvider
@@ -199,7 +199,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $post = sizeof($ocr->getReplacementRecords($collections_id));
         $this->assertTrue($post === $pre+1, 'Delete entry not created.');
     }
-    
+
     /**
      *
      * @dataProvider invalidGetIDDataProvider
@@ -210,7 +210,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $replacements = $ocr->getReplacementRecords($collections_id);
     }
-    
+
     /**
      *
      * @dataProvider invalidGetIDDataProvider
@@ -221,7 +221,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $ocr->delete($collections_id);
     }
-    
+
     /**
      *
      * @dataProvider validGetIDDataProvider
@@ -233,7 +233,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($replacements), 'No array returned by getCurrent.');
         $this->assertTrue(sizeof($replacements)>0, 'Empty array returned by getCurrent.');
     }
-    
+
     /**
      *
      * @dataProvider invalidGetIDDataProvider
@@ -244,7 +244,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $replacements = $ocr->getCurrent($collections_id);
     }
-    
+
     /**
      *
      * @dataProvider validGetIDDataProvider
@@ -256,7 +256,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($replacements), 'No array returned by getAncestor.');
         $this->assertTrue(sizeof($replacements)>0, 'Empty array returned by getAncestor.');
     }
-    
+
     /**
      *
      * @dataProvider invalidGetIDDataProvider
@@ -267,7 +267,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $replacements = $ocr->getAncestor($collections_id);
     }
-    
+
     /**
      *
      * @dataProvider validGetIDDataProvider
@@ -279,7 +279,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($replacements), 'No array returned by getReplacement.');
         $this->assertTrue(sizeof($replacements)>0, 'Empty array returned by getReplacement.');
     }
-    
+
     /**
      *
      * @dataProvider invalidGetIDDataProvider
@@ -290,8 +290,8 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $replacements = $ocr->getReplacement($collections_id);
     }
-    
-    
+
+
     public function validSplitDataProvider() {
         return array(
             array('institute', 11, 15, 16),
@@ -300,7 +300,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 13, 23, 24),
         );
     }
-    
+
     /**
      *
      * @dataProvider validSplitDataProvider
@@ -317,7 +317,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($post_new1 === 1, 'First replacement for splitted collection not properly written.');
         $this->assertTrue($post_new2 === 1, 'Second replacement for splitted collection not properly written.');
     }
-     
+
     public function invalidSplitDataProvider() {
         return array(
             array('institute', -2, 15, 16),
@@ -326,7 +326,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 11, 23, 3.2),
         );
     }
-    
+
     /**
      *
      * @dataProvider invalidSplitDataProvider
@@ -337,7 +337,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $ocr->split($collections_id_old, $collections_id_new1, $collections_id_new2);
     }
-    
+
 
     public function validMergeDataProvider() {
         return array(
@@ -347,7 +347,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 12, 13, 24),
         );
     }
-    
+
     /**
      *
      * @dataProvider validMergeDataProvider
@@ -365,7 +365,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($post_old2 === $pre_old2+1, 'Replacement of merged second collection not properly written.');
         $this->assertTrue($post_new === 2, 'Replacement for merged collections not properly written.');
     }
-    
+
     public function invalidMergeDataProvider() {
         return array(
             array('institute', -2, 14, 16),
@@ -374,7 +374,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 12, -89, 24),
         );
     }
-    
+
     /**
      *
      * @dataProvider invalidMergeDataProvider
@@ -385,5 +385,5 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $ocr->merge($collections_id_old1, $collections_id_old2, $collections_id_new);
     }
-    
+
 }

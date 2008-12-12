@@ -95,7 +95,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'Institute' => array(),
             'PersonAuthor' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentAuthor',
-                'table' => 'Opus_Db_LinkDocumentsPersons',
+                'table' => 'Opus_Db_LinkPersonsPublications',
                 'conditions' => array('role' => 'author')
             ),
             'Licence' => array(

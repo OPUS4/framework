@@ -25,36 +25,35 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Framework
- * @package		Opus_Collections
- * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @author     	Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @package		Opus_Db
+ * @author     	Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright  	Copyright (c) 2008, OPUS 4 development team
  * @license    	http://www.gnu.org/licenses/gpl.html General Public License
  * @version    	$Id$
  */
 
 /**
- * Table gateway class to table 'institutes_replacement'.
+ * Table gateway class to table 'link_persons_publications'.
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkDocumentsPersons extends Zend_Db_Table {
+class Opus_Db_LinkPersonsPublications extends Zend_Db_Table {
 
     /**
      * DB table name.
      *
      * @var string
      */
-    protected $_name = 'link_documents_persons';
+    protected $_name = 'link_persons_publications';
 
     /**
      * DB table primary key name.
      *
      * @var string
      */
-    protected $_primary = 'link_documents_persons_id';
+    protected $_primary = array('documents_id', 'document_publication_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -68,15 +67,10 @@ class Opus_Db_LinkDocumentsPersons extends Zend_Db_Table {
                 'refTableClass' => 'Opus_Db_Persons',
                 'refColumns' => 'persons_id',
                 ),
-            'Documents' => array(
-                'columns' => 'documents_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'documents_id',
-                ),
-            'InstitutesContents' => array(
-                'columns' => 'institutes_id',
-                'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+            'DocumentPublications' => array(
+                'columns' => 'document_publication_id',
+                'refTableClass' => 'Opus_Db_DocumentsPublications',
+                'refColumns' => 'document_publication_id'
                 ),
             );
 }

@@ -53,18 +53,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      *
      * @var String
      */
-    protected $_xmlDoctype = 
+    protected $_xmlDoctype =
         '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
             xmlns="http://schemas.opus.org/documenttype"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            
+
             <field name="Language" mandatory="yes" />
             <field name="Licence"/>
             <field name="ContributingCorporation"/>
             <field name="CreatingCorporation"/>
             <field name="ContributingCorporation"/>
-            
+
             <field name="DateAccepted"/>
             <field name="PublishedYear"/>
             <field name="DocumentType"/>
@@ -75,7 +75,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="PageLast"/>
             <field name="PageNumber"/>
             <field name="PublicationStatus"/>
-            
+
             <mandatory type="one-at-least">
                 <field name="PublishedDate"/>
                 <field name="PublishedYear"/>
@@ -84,7 +84,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                 <field name="CompletedYear"/>
                 <field name="CompletedDate"/>
             </mandatory>
-            
+
             <field name="PublisherName"/>
             <field name="PublisherPlace"/>
             <field name="PublisherUniversity"/>
@@ -97,18 +97,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="SwbId"/>
             <field name="VgWortPixelUrl"/>
             <field name="Volume"/>
-            
+
         </documenttype>';
 
-    
+
     /**
      * Test fixture document type.
      *
      * @var Opus_Document_Type
      */
     protected $_type = null;
-    
-    
+
+
     /**
      * Set up test fixture.
      *
@@ -117,7 +117,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query("INSERT INTO institutes_contents (institutes_language, type, name) VALUES ('de', 'SomeType', 'Institut')");
     }
 
     /**
@@ -164,7 +163,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     /**
      * Valid document data.
      *
-     * @var array  An array of arrays of arrays. Each 'inner' array must be an 
+     * @var array  An array of arrays of arrays. Each 'inner' array must be an
      * associative array that represents valid document data.
      */
     protected static $_validDocumentData = array(
@@ -174,7 +173,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                     'ContributingCorporation' => 'Contributing, Inc.',
                     'CreatingCorporation' => 'Creating, Inc.',
                     'DateAccepted' => '1901-01-01',
-                    'PublishedYear' => '1901',
                     'Edition' => 2,
                     'Issue' => 3,
                     'Volume' => 1,
@@ -182,12 +180,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                     'PageFirst' => 1,
                     'PageLast' => 297,
                     'PageNumber' => 297,
-                    'PublicationStatus' => 1,
-                    'PublishedDate' => '1901-01-01',
                     'CompletedYear' => 1960,
                     'CompletedDate' => '1901-01-01',
-                    'PublisherName' => 'Some Publisher',
-                    'PublisherPlace' => 'Somewhere',
                     'PublisherUniversity' => 1,
                     'Reviewed' => 'peer',
                     'ServerDateModified' => '2008-12-01 00:00:00',

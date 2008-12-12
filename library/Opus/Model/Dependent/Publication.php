@@ -33,70 +33,60 @@
  */
 
 /**
- * Abstract class for link author model in the Opus framework.
+ * Domain model for publications in the Opus framework
  *
  * @category    Framework
  * @package     Opus_Model
+ * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Link_PublicationAuthor extends Opus_Model_Dependent_Link_Abstract
+class Opus_Model_Dependent_Publication extends Opus_Model_DependentAbstract
 {
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'document_publication_id';
+    protected $_parentColumn = 'documents_id';
 
     /**
-     * Create a new parent title model instance.
+     * Create a new enrichment model instance.
      *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted title model instance.
-     * @param mixed $parent_id (Optional) Primary key of the parent document.
-     * @param Zend_Db_Table $tableGatewayModel
+     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
+     * @param  Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
+     * @see    Opus_Model_Abstract::__construct()
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_LinkPersonsPublications);
+            parent::__construct($id, new Opus_Db_DocumentPublications);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
     }
 
     /**
-     * Initialize model with the following values:
-     * - Institutes Id
-     * - Role
-     * - Sort order
+     * Initialize model with the following fields:
+     * - Type
+     * - Value
      *
      * @return void
      */
     protected function _init() {
-        if (is_null($this->getId()) === false) {
-            $this->_model = new Opus_Model_Person($this->_primaryTableRow->persons_id);
-        }
-        $this->_primaryTableRow->role = 'author';
-
         $institutesId = new Opus_Model_Field('InstitutesId');
-        $role = new Opus_Model_Field('Role');
-        $sortOrder = new Opus_Model_Field('SortOrder');
+        $status = new Opus_Model_Field('Status');
+        $publishedDate = new Opus_Model_Field('PublishedDate');
+        $publishedYear = new Opus_Model_Field('PublishedYear');
+        $publisherName = new Opus_Model_Field('PublisherName');
+        $publisherPlace = new Opus_Model_Field('PublisherPlace');
 
         $this->addField($institutesId)
-            ->addField($role)
-            ->addField($sortOrder);
+            ->addField($status)
+            ->addField($publishedDate)
+            ->addField($publishedYear)
+            ->addField($publisherName)
+            ->addField($publisherPlace);
     }
 
-    /**
-     * Persist foreign model & link.
-     *
-     * @return void
-     */
-    public function store() {
-        $this->_model->_setTransactional(false);
-        $this->_primaryTableRow->persons_id = $this->_model->store();
-        parent::store();
-    }
 
 }
 

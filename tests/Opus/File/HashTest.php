@@ -106,9 +106,6 @@ class Opus_File_HashTest extends PHPUnit_Framework_TestCase {
         $document_data = array(
             'completed_year' => 2008,
             'document_type' => 'article',
-            'publication_status' => 0,
-            'published_year' => 2008,
-            'publisher_university' => 1,
             'reviewed' => 'open',
             'server_date_published' => $server_date->getIso()
             );
