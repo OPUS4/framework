@@ -286,4 +286,17 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
     }
     
+    
+    /**
+     * Test if a field can be marked as hidden thus it gets not reported by
+     * describe().
+     *
+     * @return void
+     */
+    public function testFieldDescriptionHideable() {
+        $model = new Opus_Model_ModelWithHiddenField(null, $this->dbProvider);
+        $result = $model->describe();
+        $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');        
+    }
+    
 }

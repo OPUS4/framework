@@ -88,6 +88,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     protected $_externalFields = array();
 
     /**
+     * Fields to be not reported by describe().
+     *
+     * @var array
+     */
+    protected $_hiddenFields = array();
+    
+    
+    /**
      * Constructor. Pass an id to fetch from database.
      *
      * @param integer       $id                (Optional) Id of existing database row.
@@ -450,12 +458,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
     /**
-     * Get a list of all fields (internal & external) attached to the model.
+     * Get a list of all fields attached to the model. Filters all fieldnames
+     * that are defined to be hidden in $_hiddenFields.
      *
+     * @see Opus_Model_Abstract::_hiddenFields
      * @return array    List of fields
      */
     public function describe() {
-        return array_keys($this->_fields);
+        $result = array();
+        foreach (array_keys($this->_fields) as $fieldname) {
+            if (in_array($fieldname, $this->_hiddenFields) === false) {
+                $result[] = $fieldname;
+            }
+        }
+        return $result; 
     }
     
     /**
