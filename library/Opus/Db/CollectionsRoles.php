@@ -54,7 +54,7 @@ class Opus_Db_CollectionsRoles extends Zend_Db_Table {
      *
      * @var array <string, string>
      */
-    protected $_primary = array('collections_roles_id', 'collections_language');
+    protected $_primary = 'collections_roles_id';
     
     /**
      * primary key values cannot be generated automatically.

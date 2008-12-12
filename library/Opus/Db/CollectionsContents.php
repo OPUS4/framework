@@ -54,7 +54,7 @@ class Opus_Db_CollectionsContents extends Zend_Db_Table {
      *
      * @var array <string, string>
      */
-    protected $_primary = array('collections_id', 'collections_language');
+    protected $_primary = 'collections_id';
     
     /**
      * primary key values cannot be generated automatically.
