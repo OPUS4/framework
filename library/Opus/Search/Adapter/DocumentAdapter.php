@@ -51,18 +51,16 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	 * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
 	 */
 	public function __construct($opusDocument = null) {
-		$this->documentData = array ();
+		$this->documentData = array();
 		if (is_int($opusDocument) === true) {
 			//parent::__construct($opusDocument);
 			$this->documentData['id'] = $opusDocument;
 			$this->mapDocument();
-		} else
-			if (is_array($opusDocument) === true) {
-				$this->documentData = $opusDocument;
-			} else
-				if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
-					$this->documentData = $opusDocument->getDocument();
-				}
+		} else if (is_array($opusDocument) === true) {
+			$this->documentData = $opusDocument;
+		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
+			$this->documentData = $opusDocument->getDocument();
+		}
 	}
 
 	/**
@@ -81,26 +79,23 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	 */
 	private function mapDocument() {
 		$document = new Opus_Model_Document($this->documentData['id']);
-		try
-		{
+		try	{
 			$title = $document->getTitleMain(0);
-		}
-		catch (Exception $e)
-		{
-			$title = "No title specified!";
+			$this->documentData['title'] = $title->getTitleAbstractValue();
+		} catch (Exception $e) {
+			$this->documentData['title'] = 'No title specified!'; 
 		}
 		#print_r($title);
 		#$abstract = $document->getTitleAbstract();
 		#$abs = $abstract->getTitleAbstractValue();
-		$this->documentData['title'] = $title->getTitleAbstractValue();
 		#$this->documentData['abstract'] = $abs;
-		$this->documentData['frontdoorUrl'] = array (
+		$this->documentData['frontdoorUrl'] = array(
 			'module' => 'frontdoor',
 			'controller' => 'index',
 			'action' => 'index',
 			'id' => $this->documentData['id']
 		);
-		$this->documentData['fileUrl'] = array (
+		$this->documentData['fileUrl'] = array(
 			'module' => 'frontdoor',
 			'controller' => 'index',
 			'action' => 'showfile',
@@ -108,25 +103,21 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'filename' => 'testfile.pdf'
 		);
 
-		$authorsList = DummyData :: getDummyPersons();
+		$authorsList = DummyData::getDummyPersons();
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
 		unset($authors);
 		$authors = array();
-		try 
-		{
-			for ($n = 0; $n < count($document->getPersonAuthor()); $n++)
-			{
+		$c = count($document->getPersonAuthor());
+		try {
+			for ($n = 0; $n < $c; $n++) {
 				array_push($authors, $document->getPersonAuthor($n));
 			}
-		}
-		catch (Exception $e)
-		{
+		} catch (Exception $e) {
 			// do nothing, as there is the exception that no author is specified
-			if ($e->getCode() === 0)
-			{ 
-				$this->documentData['author'] = "No author specified";
+			if ($e->getCode() === 0) { 
+				$this->documentData['author'] = 'No author specified';
 			} else {
 				$this->documentData['author'] = $e->getMessage();
 			}
