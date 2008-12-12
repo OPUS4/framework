@@ -53,7 +53,7 @@ class Opus_Db_LinkPersonsPublications extends Zend_Db_Table {
      *
      * @var string
      */
-    protected $_primary = array('documents_id', 'document_publication_id');
+    protected $_primary = array('persons_id', 'document_publication_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate

@@ -66,7 +66,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="ContributingCorporation"/>
 
             <field name="DateAccepted"/>
-            <field name="PublishedYear"/>
             <field name="DocumentType"/>
             <field name="Edition"/>
             <field name="Issue"/>
@@ -74,20 +73,12 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="PageFirst"/>
             <field name="PageLast"/>
             <field name="PageNumber"/>
-            <field name="PublicationStatus"/>
 
-            <mandatory type="one-at-least">
-                <field name="PublishedDate"/>
-                <field name="PublishedYear"/>
-            </mandatory>
             <mandatory type="one-at-least">
                 <field name="CompletedYear"/>
                 <field name="CompletedDate"/>
             </mandatory>
 
-            <field name="PublisherName"/>
-            <field name="PublisherPlace"/>
-            <field name="PublisherUniversity"/>
             <field name="Reviewed"/>
             <field name="ServerDateModified"/>
             <field name="ServerDatePublished"/>
@@ -126,7 +117,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         TestHelper::clearTable('document_identifiers');
-        TestHelper::clearTable('link_documents_persons');
+        TestHelper::clearTable('link_persons_publications');
         TestHelper::clearTable('link_documents_licences');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
@@ -182,7 +173,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                     'PageNumber' => 297,
                     'CompletedYear' => 1960,
                     'CompletedDate' => '1901-01-01',
-                    'PublisherUniversity' => 1,
                     'Reviewed' => 'peer',
                     'ServerDateModified' => '2008-12-01 00:00:00',
                     'ServerDatePublished' => '2008-12-01 00:00:00',
