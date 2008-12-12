@@ -93,14 +93,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'table' => 'Opus_Db_DocumentEnrichments',
             ),
             'Institute' => array(),
-            'PersonAuthor' => array(
-                'model' => 'Opus_Model_Dependent_Link_PublicationAuthor',
-                'table' => 'Opus_Db_LinkPersonsPublications',
-                'conditions' => array('role' => 'author')
-            ),
             'Licence' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentLicence',
                 'table' => 'Opus_Db_LinkDocumentsLicences'
+            ),
+            'Publication' => array(
+                'model' => 'Opus_Model_Dependent_Publication',
+                'table' => 'Opus_Db_DocumentPublications'
             ),
         );
 

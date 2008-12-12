@@ -41,6 +41,14 @@
  */
 class Opus_Model_Dependent_Publication extends Opus_Model_DependentAbstract
 {
+    protected $_externalFields = array(
+            'PersonAuthor' => array(
+                'model' => 'Opus_Model_Dependent_Link_PublicationAuthor',
+                'table' => 'Opus_Db_LinkPersonsPublications',
+                'conditions' => array('role' => 'author')
+            ),
+        );
+
     /**
      * Primary key of the parent model.
      *

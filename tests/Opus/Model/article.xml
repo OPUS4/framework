@@ -86,6 +86,6 @@ value for "name". It must be declared.
     <field name="Note"/>
     <field name="Patent"/>
     <field name="Enrichment"/>
-    <field name="PersonAuthor" multiplicity="3"/>
+    <field name="Publication"/>
 
 </documenttype>
