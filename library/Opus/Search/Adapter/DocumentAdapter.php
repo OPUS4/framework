@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Adapter to use the Documents from the framework in Module_Search
  * 
@@ -43,75 +44,102 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	 * @access private
 	 */
 	private $documentData;
-	
-  /**
-   * Constructor
-   * 
-   * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
-   */
-	public function __construct($opusDocument = null)
-	{
-  		$this->documentData = array();
-  		if (is_int($opusDocument) === true) {
-  			//parent::__construct($opusDocument);
-  			$this->documentData['id'] = $opusDocument;
-  			$this->mapDocument();
-  		} else if (is_array($opusDocument) === true) {
-  			$this->documentData = $opusDocument;
-  		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
-  			$this->documentData = $opusDocument->getDocument();
-  		}
-	}
-	
-  /**
-   * Returns the document data as an array
-   * 
-   * @return array Array with document data usable in Module_Search 
-   */
-	public function getDocument()
-	{
-		return $this->documentData;
-	} 
 
-  /**
-   * Maps the document data to array data usable in Module_Search
-   * 
-   * @return void
-   */
-	private function mapDocument()
-	{
+	/**
+	 * Constructor
+	 * 
+	 * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
+	 */
+	public function __construct($opusDocument = null) {
+		$this->documentData = array ();
+		if (is_int($opusDocument) === true) {
+			//parent::__construct($opusDocument);
+			$this->documentData['id'] = $opusDocument;
+			$this->mapDocument();
+		} else
+			if (is_array($opusDocument) === true) {
+				$this->documentData = $opusDocument;
+			} else
+				if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
+					$this->documentData = $opusDocument->getDocument();
+				}
+	}
+
+	/**
+	 * Returns the document data as an array
+	 * 
+	 * @return array Array with document data usable in Module_Search 
+	 */
+	public function getDocument() {
+		return $this->documentData;
+	}
+
+	/**
+	 * Maps the document data to array data usable in Module_Search
+	 * 
+	 * @return void
+	 */
+	private function mapDocument() {
 		$document = new Opus_Model_Document($this->documentData['id']);
-		#$title = $document->getTitleMain(0);
+		try
+		{
+			$title = $document->getTitleMain(0);
+		}
+		catch (Exception $e)
+		{
+			$title = "No title specified!";
+		}
 		#print_r($title);
-        #$abstract = $document->getTitleAbstract();
-        #$abs = $abstract->getTitleAbstractValue();
-		#$this->documentData['title'] = $title;
+		#$abstract = $document->getTitleAbstract();
+		#$abs = $abstract->getTitleAbstractValue();
+		$this->documentData['title'] = $title->getTitleAbstractValue();
 		#$this->documentData['abstract'] = $abs;
-		$this->documentData['frontdoorUrl'] = array(
-										'module'=>'frontdoor', 
-										'controller' => 'index', 
-										'action'=>'index', 
-										'id'=>$this->documentData['id']);
-		$this->documentData['fileUrl'] = array(
-										'module'=>'frontdoor', 
-										'controller' => 'index', 
-										'action'=>'showfile', 
-										'id'=>$this->documentData['id'],
-										'filename'=>'testfile.pdf');
-		
-		$authorsList = DummyData::getDummyPersons();
+		$this->documentData['frontdoorUrl'] = array (
+			'module' => 'frontdoor',
+			'controller' => 'index',
+			'action' => 'index',
+			'id' => $this->documentData['id']
+		);
+		$this->documentData['fileUrl'] = array (
+			'module' => 'frontdoor',
+			'controller' => 'index',
+			'action' => 'showfile',
+			'id' => $this->documentData['id'],
+			'filename' => 'testfile.pdf'
+		);
+
+		$authorsList = DummyData :: getDummyPersons();
 		$autlist1 = new PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
-		$authors = $document->getPersonsByRole('author');
+		unset($authors);
+		$authors = array();
+		try 
+		{
+			for ($n = 0; $n < count($document->getPersonAuthor()); $n++)
+			{
+				array_push($authors, $document->getPersonAuthor($n));
+			}
+		}
+		catch (Exception $e)
+		{
+			// do nothing, as there is the exception that no author is specified
+			if ($e->getCode() === 0)
+			{ 
+				$this->documentData['author'] = "No author specified";
+			} else {
+				$this->documentData['author'] = $e->getMessage();
+			}
+		}
+		#print_r($authors);
 		if (count($authors) > 0) {
 			$this->documentData['author'] = new PersonsList();
 			foreach ($authors as $authorId) {
-				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter((int) $authorId->getId()));
+				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
 			}
 		} else {
 			$this->documentData['author'] = $autlist1;
-		} 
+		}
 		#$this->documentData["documentType"] = $this->getBuilder()->getDocumentType()->getName();
 		#Fields that should be set by this method 
 		#$this->documentData["author"] = PersonsList
