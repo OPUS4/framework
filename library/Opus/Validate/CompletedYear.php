@@ -41,10 +41,12 @@
 class Opus_Validate_CompletedYear extends Zend_Validate_GreaterThan  {
     
     /**
-     * The smallest valid year is 1900.
-     *
-     * @var Int
+     * Set the smallest valid year to 1900.
+     * 
      */
-    protected $_min = 1900;
+    public function __construct() {
+        parent::__construct(1900);
+    }
+    
     
 }
