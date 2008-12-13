@@ -509,7 +509,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @param  boolean  $transactional (Optional) Whether to use a transaction or not.
      * @return void
      */
-    protected function _setTransactional($transactional = true) {
+    public function setTransactional($transactional = true) {
         $this->_transactional = $transactional;
     }
     

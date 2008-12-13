@@ -33,7 +33,7 @@
  */
 
 /**
- * Abstract class for all dependent models in the Opus framework.
+ * Abstract class for all links to independent models in the Opus framework.
  *
  * @category    Framework
  * @package     Opus_Model
@@ -56,6 +56,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      */
     protected function _setModel(Opus_Model_Abstract $model) {
         $this->_model = $model;
+        $model->setTransactional(false);
     }
 
     /**

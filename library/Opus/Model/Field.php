@@ -270,10 +270,13 @@ class Opus_Model_Field
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
+        // Reject input if an array is required but not is given
         if (($multiValueCondition === false) and ($arrayCondition === true)) {
             throw new InvalidArgumentException('Multivalue option and input argument do not match.');
         }
         
+        // Embed passed value in an array if multivalue condition is given
+        // but value is not an array
         if (($multiValueCondition === true) and ($arrayCondition === false)) {
             $value = array($value);
         }
@@ -293,12 +296,11 @@ class Opus_Model_Field
     public function getValue($index = null) {
         // Caller requested specific array index
         if (is_null($index) === false) {
-            if (is_array($this->_value) === true and isset($this->_value[$index]) === true) {
+            if (is_array($this->_value) === true and array_key_exists($index, $this->_value) === true) {
                 return $this->_value[$index];
             } else {
                 throw new InvalidArgumentException('Unvalid index: ' . $index);
             }
-            // Return value
         } else {
             // If multiple values are possible return an array in every case
             if (($this->hasMultipleValues() === true) and (is_array($this->_value) === false)) {
