@@ -40,29 +40,20 @@
  */
 class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Link_Abstract
 {
+
+    /**
+     * Specify then table gateway.
+     *
+     */
+    protected $_tableGatewayClass = 'Opus_Db_LinkDocumentsLicences';
+    
+
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
-
-    /**
-     * Create a new parent title model instance.
-     *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted title model instance.
-     * @param mixed $parent_id (Optional) Primary key of the parent document.
-     * @param Zend_Db_Table $tableGatewayModel
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
-     */
-    public function __construct($id = null, $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_LinkDocumentsLicences);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
-    }
 
     /**
      * Initialize model with the following values:

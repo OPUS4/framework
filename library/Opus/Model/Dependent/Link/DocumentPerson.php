@@ -46,7 +46,13 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
-
+    
+    /**
+     * Specify then table gateway.
+     *
+     */
+    protected $_tableGatewayClass = 'Opus_Db_LinkPersonsDocuments';
+    
     
 //    /**
 //     * The models external fields, i.e. those not mapped directly to the
@@ -62,23 +68,6 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
 //            ),
 //    );
     
-    /**
-     * Create a new link model instance.
-     *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted title model instance.
-     * @param mixed $parent_id (Optional) Primary key of the parent document.
-     * @param Zend_Db_Table $tableGatewayModel
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
-     */
-    public function __construct($id = null, $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_LinkPersonsDocuments);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
-    }
-
     /**
      * Initialize model with the following values:
      * - Institute
@@ -111,6 +100,6 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $this->_primaryTableRow->persons_id = $this->_model->store();
         parent::store();
     }
-
+    
 }
 

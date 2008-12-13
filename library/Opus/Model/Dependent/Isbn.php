@@ -50,6 +50,14 @@ class Opus_Model_Dependent_Isbn extends Opus_Model_DependentAbstract
     protected $_parentColumn = 'documents_id';
 
     /**
+     * Specify then table gateway.
+     *
+     * @var string
+     */
+    protected $_tableGatewayClass = 'Opus_Db_DocumentIdentifiers';
+    
+
+    /**
      * Create a new parent title model instance.
      *
      * @see Opus_Model_Abstract::__construct()
@@ -81,6 +89,5 @@ class Opus_Model_Dependent_Isbn extends Opus_Model_DependentAbstract
         $this->addField($value)
             ->addField($label);
     }
-
 
 }

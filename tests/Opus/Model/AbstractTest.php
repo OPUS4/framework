@@ -111,21 +111,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
-     * Test if creating a model instance without passing a database model
-     * fails with throwing an exception. 
-     *
-     * @return void
-     */
-    public function testCreateWithoutArgumentsThrowsException() {
-        try {
-            $obj = new Opus_Model_AbstractMock();
-        } catch (Opus_Model_Exception $ex) {
-            return;
-        }
-        $this->fail('It is possible to instantiate Opus_Model_Abstract without a table gateway.');
-    }
-
-    /**
      * Test if loading a model instance from the database devlivers the expected value. 
      *
      * @return void

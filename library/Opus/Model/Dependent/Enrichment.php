@@ -47,23 +47,13 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
-
+    
     /**
-     * Create a new enrichment model instance.
+     * Specify then table gateway.
      *
-     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
-     * @param  Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
-     * @see    Opus_Model_Abstract::__construct()
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_DocumentEnrichments);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
-    }
-
+    protected $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
+    
     /**
      * Initialize model with the following fields:
      * - Type
@@ -78,6 +68,5 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
         $this->addField($type)
             ->addField($value);
     }
-
-
+    
 }

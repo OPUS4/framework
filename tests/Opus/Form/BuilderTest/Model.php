@@ -56,6 +56,9 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      */
     protected $_multiModelValue = array();
     
+    
+    protected $_tableGatewayClass = 'Opus_Form_BuilderTest_DbModel';
+    
     /**
      * Mock external field "ReferenceField".
      *

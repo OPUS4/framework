@@ -42,6 +42,13 @@
 class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
     
     /**
+     * Specify then table gateway.
+     *
+     * This model is not connected for testing purposes.
+     */
+    protected $_tableGatewayClass = '';
+    
+    /**
      * Fields to be not reported by describe().
      *
      * @var array

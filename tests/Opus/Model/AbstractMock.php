@@ -44,6 +44,13 @@
  */
 class Opus_Model_AbstractMock extends Opus_Model_Abstract {
 
+    
+    /**
+     * Specify then table gateway.
+     *
+     */
+    protected $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
+    
     /**
      * Initialize model with the a single field "value".
      *

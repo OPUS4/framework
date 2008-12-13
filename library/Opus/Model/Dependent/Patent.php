@@ -49,21 +49,11 @@ class Opus_Model_Dependent_Patent extends Opus_Model_DependentAbstract
     protected $_parentColumn = 'documents_id';
 
     /**
-     * Create a new patent model instance.
+     * Specify then table gateway.
      *
-     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
-     * @param  Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
-     * @see    Opus_Model_Abstract::__construct()
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_DocumentPatents);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
-    }
-
+    protected $_tableGatewayClass  = 'Opus_Db_DocumentPatents';
+    
     /**
      * Initialize model with the following fields:
      * - Language
@@ -84,6 +74,5 @@ class Opus_Model_Dependent_Patent extends Opus_Model_DependentAbstract
             ->addField($yearApplied)
             ->addField($application);
     }
-
-
+    
 }

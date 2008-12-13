@@ -48,6 +48,14 @@ class Opus_Model_Dependent_Abstract extends Opus_Model_DependentAbstract
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
+    
+    
+    
+    /**
+     * Holds the name of the models table gateway class.
+     *
+     */
+    protected $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
 
     /**
      * Create a new Abstract model instance.
@@ -81,6 +89,5 @@ class Opus_Model_Dependent_Abstract extends Opus_Model_DependentAbstract
         $this->addField($language)
             ->addField($value);
     }
-
 
 }

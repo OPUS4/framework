@@ -43,6 +43,13 @@
 class Opus_Model_Document extends Opus_Model_Abstract
 {
 
+    
+    /**
+     * Specify then table gateway.
+     *
+     */
+    protected $_tableGatewayClass = 'Opus_Db_Documents';
+    
     /**
      * The document is the most complex Opus_Model. An Opus_Document_Builder is
      * used in the _init() function to construct an Opus_Model_Document of a

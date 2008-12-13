@@ -41,5 +41,11 @@
  */
 class Opus_Model_File extends Opus_Model_Abstract
 {
-
+    
+    /**
+     * Specify then table gateway.
+     *
+     */
+    protected $_tableGatewayClass  = 'Opus_Db_DocumentFiles';
+    
 }

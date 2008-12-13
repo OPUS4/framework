@@ -49,7 +49,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var Zend_Db_Table_Row
      */
     protected $_primaryTableRow;
-
+    
+    
+    /**
+     * Holds the name of the models table gateway class.
+     *
+     */
+    protected $_tableGatewayClass = null;
+    
     /**
      * Holds all fields of the domain model.
      *
@@ -103,9 +110,18 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
     public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
-        if ($tableGatewayModel === null) {
-            throw new Opus_Model_Exception('No table gateway model passed.');
+        // Ensure that a default table gateway class is set 
+        if (is_null($this->_tableGatewayClass)) {
+            throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
+        
+        if ($tableGatewayModel === null) {
+            // Try to query table gateway from internal attribute
+            // Create an instance
+            $classname = $this->_tableGatewayClass;
+            $tableGatewayModel = new $classname;
+        }
+        
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else {
@@ -140,18 +156,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             // Field is declared as external and requires special handling
             if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
-
+                
                 if (method_exists($this, $callname) === true) {
                     $field->setValue($this->$callname());
                 } else {
-                    $table = $this->_externalFields[$fieldname]['table'];
                     if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
-                        $conditions = $this->_externalFields[$fieldname]['options'];
+                        $options = $this->_externalFields[$fieldname]['options'];
                     } else {
-                        $conditions = null;
+                        $options = null;
                     }
-                    $model = $field->getValueModelClass();
-                    $loadedValue = $this->_loadExternal($model, $table, $conditions);
+                    $modelclass = $this->_externalFields[$fieldname]['model'];
+                    $loadedValue = $this->_loadExternal($modelclass, $options);
                     $field->setValue($loadedValue);
                 }
             } else {
@@ -295,14 +310,17 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Load the values of external fields.
      *
      * @param  string        $targetModel Name of the Opus_Model_Dependent class to build.
-     * @param  string        $tablename   Table to query.
      * @param  array         $conditions  Conditions for the query.
      * @return array
      */
-    protected function _loadExternal($targetModel, $tablename, array $conditions = null) {
+    protected function _loadExternal($targetModel, array $conditions = null) {
         // 1. Get name of id column in target table
         // 2. Get Ids of dependent rows
         // 3. create new model for each id
+        
+        $dummymodel = new $targetModel;
+        $tablename = $dummymodel->getTableGatewayClass(); 
+        
         $table = new $tablename;
         if ($this->getId() === null) {
             return null;
@@ -494,6 +512,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     protected function _setTransactional($transactional = true) {
         $this->_transactional = $transactional;
     }
-
-
+    
+    /**
+     * Return this models table gateway class name.
+     *
+     * @return string Table gateway class name.
+     */
+    public function getTableGatewayClass() {
+        return $this->_tableGatewayClass;
+    }
+ 
 }
