@@ -82,7 +82,6 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      * @return void
      */
     public function store() {
-        $this->_model->_setTransactional(false);
         $this->_primaryTableRow->licences_id = $this->_model->store();
         parent::store();
     }

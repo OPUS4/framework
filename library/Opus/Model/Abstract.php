@@ -264,7 +264,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             if ($this->_transactional === true) {
                 $dbadapter->rollback();
             }
-            throw new Opus_Model_Exception($e->getMessage());
+            $msg = $e->getMessage() . 'Model: ' .get_class($this);
+            throw new Opus_Model_Exception($msg);
         }
         return $id;
     }

@@ -24,36 +24,35 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category	Framework
- * @package		Opus_Db
- * @author     	Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright  	Copyright (c) 2008, OPUS 4 development team
- * @license    	http://www.gnu.org/licenses/gpl.html General Public License
- * @version    	$Id$
+ * @category    Framework
+ * @package     Opus_Db
+ * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
  */
 
 /**
- * Table gateway class to table 'link_persons_publications'.
+ * Table gateway class for link table "link_persons_documents".
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkPersonsPublications extends Zend_Db_Table {
-
-    /**
+class Opus_Db_LinkPersonsDocuments extends Zend_Db_Table {
+/**
      * DB table name.
      *
      * @var string
      */
-    protected $_name = 'link_persons_publications';
+    protected $_name = 'link_persons_documents';
 
     /**
      * DB table primary key name.
      *
      * @var string
      */
-    protected $_primary = array('persons_id', 'document_publication_id');
+    protected $_primary = array('persons_id', 'documents_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -62,15 +61,20 @@ class Opus_Db_LinkPersonsPublications extends Zend_Db_Table {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
+            'Documents' => array(
+                'columns' => 'documents_id',
+                'refTableClass' => 'Opus_Db_Documents',
+                'refColumns' => 'documents_id',
+                ),
             'Persons' => array(
                 'columns' => 'persons_id',
                 'refTableClass' => 'Opus_Db_Persons',
-                'refColumns' => 'persons_id',
+                'refColumns' => 'persons_id'
                 ),
-            'DocumentPublications' => array(
-                'columns' => 'document_publication_id',
-                'refTableClass' => 'Opus_Db_DocumentsPublications',
-                'refColumns' => 'document_publication_id'
-                ),
+            'Institutes' => array(
+                'column' => 'institutes_id',
+                'refTableClass' => 'Opus_Db_InstitutesContents',
+                'refColumns' => 'institutes_id' 
+                )
             );
 }

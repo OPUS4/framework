@@ -26,29 +26,29 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Abstract class for link author model in the Opus framework.
+ * Abstract class for link institute model in the Opus framework.
  *
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_PublicationAuthor extends Opus_Model_Dependent_Link_Abstract
+class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_Link_Abstract
 {
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'document_publication_id';
+    protected $_parentColumn = 'documents_id';
 
     /**
-     * Create a new parent title model instance.
+     * Create a new link model instance.
      *
      * @see Opus_Model_Abstract::__construct()
      * @param mixed $id (Optional) Primary key of a persisted title model instance.
@@ -58,45 +58,37 @@ class Opus_Model_Dependent_Link_PublicationAuthor extends Opus_Model_Dependent_L
      */
     public function __construct($id = null, $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_LinkPersonsPublications);
+            parent::__construct($id, new Opus_Db_LinkInstitutesDocuments);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
     }
 
     /**
-     * Initialize model with the following values:
-     * - Institutes Id
+     * Initialize model with the following fields:
      * - Role
-     * - Sort order
      *
      * @return void
      */
     protected function _init() {
+        $this->addField(new Opus_Model_Field('Role'));
+
         if (is_null($this->getId()) === false) {
-            $this->_model = new Opus_Model_Person($this->_primaryTableRow->persons_id);
+            $this->_model = new Opus_Model_Institute($this->_primaryTableRow->institutes_id);
         }
-        $this->_primaryTableRow->role = 'author';
-
-        $institutesId = new Opus_Model_Field('InstitutesId');
-        $role = new Opus_Model_Field('Role');
-        $sortOrder = new Opus_Model_Field('SortOrder');
-
-        $this->addField($institutesId)
-            ->addField($role)
-            ->addField($sortOrder);
     }
 
     /**
      * Persist foreign model & link.
      *
+     * 
      * @return void
      */
     public function store() {
-        $this->_model->_setTransactional(false);
-        $this->_primaryTableRow->persons_id = $this->_model->store();
+        $this->_primaryTableRow->institutes_id = $this->_model->store();
         parent::store();
     }
 
 }
+
 

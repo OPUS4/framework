@@ -69,7 +69,8 @@ class Opus_Db_InstitutesContents extends Zend_Db_Table {
      * @var array $_dependantTables
      */
     protected $_dependentTables = array(
-            'Opus_Db_LinkDocumentsPersons',
+            'Opus_Db_LinkPersonsDocuments',
+            'Opus_Db_LinkInstitutesDocuments',
             'Opus_Db_InstitutesStructure',
             'Opus_Db_InstitutesReplacement',
             );

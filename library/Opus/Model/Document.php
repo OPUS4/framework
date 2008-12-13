@@ -92,14 +92,17 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'model' => 'Opus_Model_Dependent_Enrichment',
                 'table' => 'Opus_Db_DocumentEnrichments',
             ),
-            'Institute' => array(),
+            'Institute' => array(
+                'model' => 'Opus_Model_Link_DocumentInstitute',
+                'table' => 'Opus_Db_LinkInstitutesDocument'),
             'Licence' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentLicence',
                 'table' => 'Opus_Db_LinkDocumentsLicences'
             ),
-            'Publication' => array(
-                'model' => 'Opus_Model_Dependent_Publication',
-                'table' => 'Opus_Db_DocumentPublications'
+            'PersonAuthor' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'table' => 'Opus_Db_LinkPersonsDocuments',
+                'conditions'  => array('role' => 'author')
             ),
         );
 
@@ -154,17 +157,4 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected function _fetchValues() {
     }
 
-    /**
-     * Set the type for the document.
-     *
-     * @param string $type
-     */
-    // FIXME: Currently destroys all field values!
-    //public function setDocumentType($type) {
-    //    $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($type));
-    //    $this->_fields['DocumentType'] = $type;
-    //    // TODO: Remove and restore old field values
-    //    $this->_builder->addFieldsTo($this);
-    //    parent::_fetchValues();
-    //}
 }

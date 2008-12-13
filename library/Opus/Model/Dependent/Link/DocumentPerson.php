@@ -26,29 +26,20 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Domain model for publications in the Opus framework
+ * Abstract class for link Person model in the Opus framework.
  *
  * @category    Framework
  * @package     Opus_Model
- * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Publication extends Opus_Model_DependentAbstract
+class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link_Abstract
 {
-    protected $_externalFields = array(
-            'PersonAuthor' => array(
-                'model' => 'Opus_Model_Dependent_Link_PublicationAuthor',
-                'table' => 'Opus_Db_LinkPersonsPublications',
-                'conditions' => array('role' => 'author')
-            ),
-        );
-
     /**
      * Primary key of the parent model.
      *
@@ -56,45 +47,70 @@ class Opus_Model_Dependent_Publication extends Opus_Model_DependentAbstract
      */
     protected $_parentColumn = 'documents_id';
 
+    
+//    /**
+//     * The models external fields, i.e. those not mapped directly to the
+//     * table gateway.
+//     *
+//     * @var array
+//     * @see Opus_Model_Abstract::$_externalFields
+//     */
+//    protected $_externalFields = array(
+//            'Institute' => array(
+//                'model' => 'Opus_Model_Institute',
+//                'table' => 'Opus_Db_InstitutesContents'
+//            ),
+//    );
+    
     /**
-     * Create a new enrichment model instance.
+     * Create a new link model instance.
      *
-     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
-     * @param  Zend_Db_Table $tableGatewayModel (Optional) The table gateway model to use.
-     * @see    Opus_Model_Abstract::__construct()
+     * @see Opus_Model_Abstract::__construct()
+     * @param mixed $id (Optional) Primary key of a persisted title model instance.
+     * @param mixed $parent_id (Optional) Primary key of the parent document.
+     * @param Zend_Db_Table $tableGatewayModel
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
-    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
+    public function __construct($id = null, $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_DocumentPublications);
+            parent::__construct($id, new Opus_Db_LinkPersonsDocuments);
         } else {
             parent::__construct($id, $tableGatewayModel);
         }
     }
 
     /**
-     * Initialize model with the following fields:
-     * - Type
-     * - Value
+     * Initialize model with the following values:
+     * - Institute
+     * - Role
+     * - SortOrder
      *
      * @return void
      */
     protected function _init() {
-        $institutesId = new Opus_Model_Field('InstitutesId');
-        $status = new Opus_Model_Field('Status');
-        $publishedDate = new Opus_Model_Field('PublishedDate');
-        $publishedYear = new Opus_Model_Field('PublishedYear');
-        $publisherName = new Opus_Model_Field('PublisherName');
-        $publisherPlace = new Opus_Model_Field('PublisherPlace');
+        if (is_null($this->getId()) === false) {
+            $this->_model = new Opus_Model_Person($this->_primaryTableRow->persons_id);
+        }
+        $this->_primaryTableRow->role = 'author';
 
-        $this->addField($institutesId)
-            ->addField($status)
-            ->addField($publishedDate)
-            ->addField($publishedYear)
-            ->addField($publisherName)
-            ->addField($publisherPlace);
+        $institute = new Opus_Model_Field('Institute');
+        $role = new Opus_Model_Field('Role');
+        $sortOrder = new Opus_Model_Field('SortOrder');
+
+        $this->addField($role)
+            ->addField($sortOrder);
+            //->addField($institute)
     }
 
+    /**
+     * Persist foreign model & link.
+     *
+     * @return void
+     */
+    public function store() {
+        $this->_primaryTableRow->persons_id = $this->_model->store();
+        parent::store();
+    }
 
 }
 
