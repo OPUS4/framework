@@ -63,22 +63,22 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'TitleMain' => array(
                 'model' => 'Opus_Model_Dependent_Title',
                 'table' => 'Opus_Db_DocumentTitleAbstracts',
-                'conditions' => array('title_abstract_type' => 'main')
+                'options' => array('title_abstract_type' => 'main')
             ),
             'TitleAbstract' => array(
                 'model' => 'Opus_Model_Dependent_Abstract',
                 'table' => 'Opus_Db_DocumentTitleAbstracts',
-                'conditions' => array('title_abstract_type' => 'abstract')
+                'options' => array('title_abstract_type' => 'abstract')
             ),
             'TitleParent' => array(
                 'model' => 'Opus_Model_Dependent_Parent',
                 'table' => 'Opus_Db_DocumentTitleAbstracts',
-                'conditions' => array('title_abstract_type' => 'parent')
+                'options' => array('title_abstract_type' => 'parent')
             ),
             'Isbn' => array(
                 'model' => 'Opus_Model_Dependent_Isbn',
                 'table' => 'Opus_Db_DocumentIdentifiers',
-                'conditions' => array('identifier_type' => 'isbn')
+                'options' => array('identifier_type' => 'isbn')
             ),
             'Note' => array(
                 'model' => 'Opus_Model_Dependent_Note',
@@ -102,7 +102,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'PersonAuthor' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'table' => 'Opus_Db_LinkPersonsDocuments',
-                'conditions'  => array('role' => 'author')
+                'options'  => array('role' => 'author')
             ),
         );
 

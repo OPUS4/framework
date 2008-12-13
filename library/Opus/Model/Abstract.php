@@ -145,8 +145,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     $field->setValue($this->$callname());
                 } else {
                     $table = $this->_externalFields[$fieldname]['table'];
-                    if (array_key_exists('conditions', $this->_externalFields[$fieldname]) === true) {
-                        $conditions = $this->_externalFields[$fieldname]['conditions'];
+                    if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+                        $conditions = $this->_externalFields[$fieldname]['options'];
                     } else {
                         $conditions = null;
                     }
