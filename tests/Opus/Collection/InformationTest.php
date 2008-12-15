@@ -40,6 +40,11 @@
  */
 class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
+    /**
+     * SetUp database
+     *
+     * @return void
+     */
     public function setUp() {
         $adapter = Zend_Registry::get('db_adapter');
         
@@ -233,8 +238,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      * 
      * @param integer $roles_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetCollectionRoleInvArg($roles_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -263,8 +269,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * 
      * @param integer $collections_id No comment, use your brain.
      * @param integer $expected       No comment, use your brain.
-     * @dataProvider validgetSubCollectionsDataProvider
      * @return void
+     * 
+     * @dataProvider validgetSubCollectionsDataProvider
      */
     public function testgetSubCollections($collections_id, $expected) {
         $sc = Opus_Collection_Information::getSubCollections(7081, $collections_id);
@@ -276,8 +283,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      *
      * @param integer $roles_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetSubCollectionsInvRole($roles_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -288,8 +296,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      *
      * @param integer $collections_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetSubCollectionsInvArg($collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -318,8 +327,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @param integer $collections_id No comment, use your brain.
      * @param integer $expected       No comment, use your brain.
-     * @dataProvider validgetPathToRootDataProvider
      * @return void
+     * 
+     * @dataProvider validgetPathToRootDataProvider
      */
     public function testgetPathToRoot($collections_id, $expected) {
         $ptr = Opus_Collection_Information::getPathToRoot(7081, $collections_id);
@@ -332,8 +342,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      *
      * @param integer $roles_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetPathToRootInvRole($roles_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -344,8 +355,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      * 
      * @param integer $collections_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetPathToRootInvArg($collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -373,8 +385,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      * 
      * @param integer $collections_id No comment, use your brain.
-     * @dataProvider validgetCollectionDataProvider
      * @return void
+     * 
+     * @dataProvider validgetCollectionDataProvider
      */
     public function testgetCollection($collections_id) {
         $gc = Opus_Collection_Information::getCollection(7081, $collections_id);
@@ -386,8 +399,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      *
      * @param integer $roles_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetCollectionInvRole($roles_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -398,8 +412,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * Test function
      *
      * @param integer $collections_id No comment, use your brain.
-     * @dataProvider invalidgetCollectionRoleDataProvider
      * @return void
+     * 
+     * @dataProvider invalidgetCollectionRoleDataProvider
      */
     public function testgetCollectionInvArg($collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -428,8 +443,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @param integer $roleArray No comment, use your brain.
      * @param integer $hidden    No comment, use your brain.
      * @param integer $position  No comment, use your brain.
-     * @dataProvider validnewCollectionTreeDataProvider
      * @return void
+     * 
+     * @dataProvider validnewCollectionTreeDataProvider
      */
     public function testnewCollectionTree($roleArray, $hidden, $position) {
         $pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
@@ -466,8 +482,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @param integer $roleArray No comment, use your brain.
      * @param integer $hidden    No comment, use your brain.
      * @param integer $position  No comment, use your brain.
-     * @dataProvider invalidnewCollectionTreeDataProvider
      * @return void
+     * 
+     * @dataProvider invalidnewCollectionTreeDataProvider
      */
     public function testnewCollectionTreeInvArg($roleArray, $hidden, $position) {
         $this->setExpectedException('Exception');
