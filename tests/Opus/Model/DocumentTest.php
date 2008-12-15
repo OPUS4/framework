@@ -228,8 +228,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testAddingModelInManyToManyLink() {
-        $this->markTestIncomplete('Need a fix here!');
-        
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
             xmlns="http://schemas.opus.org/documenttype"
@@ -248,7 +246,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertType('Opus_Model_Licence', $value[0], 'Returned object is of wrong type.');
+        $this->assertType('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
     }
     
     
@@ -258,8 +256,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testAddingModelInOneToManyLink() {
-        $this->markTestIncomplete('Need a fix here!');
-        
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
             xmlns="http://schemas.opus.org/documenttype"
@@ -278,7 +274,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertType('Opus_Model_Licence', $value[0], 'Returned object is of wrong type.');
+        $this->assertType('Opus_Model_Dependent_Note', $value[0], 'Returned object is of wrong type.');
     }
     
     
