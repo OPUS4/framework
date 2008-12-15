@@ -38,9 +38,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    #public function setUp() {
     	// Insert data set number 37 into database if it does not exist
-        $adapter = Zend_Db_Table::getDefaultAdapter();
+        #$adapter = Zend_Db_Table::getDefaultAdapter();
         //$adapter->query("DELETE FROM `link_persons_documents` WHERE `documents_id` = 37");
         //$adapter->query("DELETE FROM `documents` WHERE `documents_id` = 37");
         //$adapter->query("DELETE FROM `document_title_abstracts` WHERE `documents_id` = 37");
@@ -55,7 +55,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 //(1, '', '2008-07-15 00:00:00', 'mustermann@domain.com', 'Thomas', 'Hapke', 'Musterstadt')");
         //$adapter->query("INSERT INTO `link_persons_documents` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
 //(1, 37, 1, 'author', 0)");
-    }
+    #}
 	
     /**
      *
