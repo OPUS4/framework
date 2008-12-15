@@ -303,16 +303,67 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         
         $doc->store();
     }
-    
-    
+
+    /**
+     * Test if adding more values to a multi-value field than it may hold throws
+     * an InvalidArgumentException.
+     *
+     * @return void
+     */
+    public function testAddingMoreValuesThanMultiplicityAllowsThrowsException() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="PersonAuthor" multiplicity="2"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $document = new Opus_Model_Document(null, $type);
+
+        $author = new Opus_Model_Person();
+        $author->setFirstName('Ludwig');
+        $author->setLastName('Wittgenstein');
+
+        $document->addPersonAuthor($author);
+        $document->addPersonAuthor($author);
+        $this->setExpectedException('InvalidArgumentException');
+        $document->addPersonAuthor($author);
+
+    }
+
+    /**
+     * Test if adding a value to a single-value field that is already populated
+     * throws an InvaludArgumentException.
+     *
+     * @return void
+     */
+    public function testAddingValuesToPopulatedSingleValueFieldThrowsException() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Enrichment"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $document = new Opus_Model_Document(null, $type);
+
+        $enrichment = new Opus_Model_Dependent_Enrichment;
+        $enrichment->setEnrichmentValue('Poor enrichment.');
+        $enrichment->setEnrichmentType('nonesense');
+
+        $document->addEnrichment($enrichment);
+        $this->setExpectedException('InvalidArgumentException');
+        $document->addEnrichment($enrichment);
+    }
+
     /**
      * Test if a document's fields come out of the database as they went in.
      *
      * @dataProvider validDocumentDataProvider
      */
     public function testDocumentFieldsPersistDatabaseStorage($documentDataset) {
-        $this->markTestIncomplete('Need a fix here!');
-        
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $document = new Opus_Model_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
@@ -353,12 +404,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $enrichment->setEnrichmentValue('Poor enrichment.');
         $enrichment->setEnrichmentType('nonesense');
 
-        
-        $author = new Opus_Model_Person(); 
+        $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1889-04-26 00:00:00');
         $author->setPlaceOfBirth('Wien');
+        $document->addPersonAuthor($author);
+
+        $author = new Opus_Model_Person();
+        $author->setFirstName('Ferdinand');
+        $author->setLastName('de Saussure');
+        $author->setDateOfBirth('1857-11-26 00:00:00');
+        $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
         $licence = new Opus_Model_Licence;
@@ -377,7 +434,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title Two');
         $title->setTitleAbstractLanguage('en');
-        $document = new Opus_Model_Document($document->store());
+        $id = $document->store();
+        $document = new Opus_Model_Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
@@ -406,13 +464,17 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPersonAuthor(0)->getLastName(), 'Wittgenstein');
         $this->assertEquals($document->getPersonAuthor(0)->getDateOfBirth(), '1889-04-26 00:00:00');
         $this->assertEquals($document->getPersonAuthor(0)->getPlaceOfBirth(), 'Wien');
-        $this->assertEquals($document->getLicence(0)->getActive(), 1);
-        $this->assertEquals($document->getLicence(0)->getLicenceLanguage(), 'de');
-        $this->assertEquals($document->getLicence(0)->getLinkLicence(), 'http://creativecommons.org/');
-        $this->assertEquals($document->getLicence(0)->getMimeType(), 'text/pdf');
-        $this->assertEquals($document->getLicence(0)->getNameLong(), 'Creative Commons');
-        $this->assertEquals($document->getLicence(0)->getPodAllowed(), 1);
-        $this->assertEquals($document->getLicence(0)->getSortOrder(), 0);
+        $this->assertEquals($document->getPersonAuthor(1)->getFirstName(), 'Ferdinand');
+        $this->assertEquals($document->getPersonAuthor(1)->getLastName(), 'de Saussure');
+        $this->assertEquals($document->getPersonAuthor(1)->getDateOfBirth(), '1857-11-26 00:00:00');
+        $this->assertEquals($document->getPersonAuthor(1)->getPlaceOfBirth(), 'Genf');
+        $this->assertEquals($document->getLicence()->getActive(), 1);
+        $this->assertEquals($document->getLicence()->getLicenceLanguage(), 'de');
+        $this->assertEquals($document->getLicence()->getLinkLicence(), 'http://creativecommons.org/');
+        $this->assertEquals($document->getLicence()->getMimeType(), 'text/pdf');
+        $this->assertEquals($document->getLicence()->getNameLong(), 'Creative Commons');
+        $this->assertEquals($document->getLicence()->getPodAllowed(), 1);
+        $this->assertEquals($document->getLicence()->getSortOrder(), 0);
     }
 
 }
