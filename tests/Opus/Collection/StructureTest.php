@@ -142,10 +142,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validConstructorIDDataProvider
      *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider validConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionStructureConstructor($ID) {
         $ocs = new Opus_Collection_Structure($ID);
@@ -155,10 +155,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidConstructorIDDataProvider
      *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider invalidConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionStructureConstructorInvalidArg($ID) {
         $this->setExpectedException('InvalidArgumentException');
@@ -167,10 +167,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         
     /**
      * Test function
-     * 
-     * @dataProvider validConstructorIDDataProvider
      *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider validConstructorIDDataProvider
+     * @return void
      */
     public function testCreateCollectionStructure($ID) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
@@ -185,10 +185,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         
     /**
      * Test function
-     * 
-     * @dataProvider validConstructorIDDataProvider
      *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider validConstructorIDDataProvider
+     * @return void
      */
     public function testLoadCollectionStructure($ID) {
         $ocs = new Opus_Collection_Structure($ID);
@@ -213,13 +213,13 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validStructureDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
      * @param integer $parent         No comment, use your brain.
      * @param integer $leftSibling    No comment, use your brain.
+     * @dataProvider validStructureDataProvider
+     * @return void
      */     
     public function testInsertCollectionStructure($ID, $collections_id, $parent, $leftSibling) {
         $ocs = new Opus_Collection_Structure($ID);
@@ -248,13 +248,13 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidStructureDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
      * @param integer $parent         No comment, use your brain.
      * @param integer $leftSibling    No comment, use your brain.
+     * @dataProvider invalidStructureDataProvider
+     * @return void
      */
     public function testInsertCollectionStructureInvArg($ID, $collections_id, $parent, $leftSibling) {
         $this->setExpectedException('InvalidArgumentException');
@@ -266,12 +266,12 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider validStructureDataProvider
-     *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
      * @param integer $parent         No comment, use your brain.
      * @param integer $leftSibling    No comment, use your brain.
+     * @dataProvider validStructureDataProvider
+     * @return void
      */     
     public function testSaveCollectionStructure($ID, $collections_id, $parent, $leftSibling) {
         $ocs = new Opus_Collection_Structure($ID);
@@ -302,10 +302,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validLeftDataProvider
      *
      * @param integer $left No comment, use your brain.
+     * @dataProvider validLeftDataProvider
+     * @return void
      */     
     public function testDeleteCollectionStructure($left) {
         $ocs = new Opus_Collection_Structure(7081);
@@ -334,10 +334,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidLeftDataProvider
      *
      * @param integer $left No comment, use your brain.
+     * @dataProvider invalidLeftDataProvider
+     * @return void
      */     
     public function testDeleteCollectionStructureInvArg($left) {
         $this->setExpectedException('InvalidArgumentException');

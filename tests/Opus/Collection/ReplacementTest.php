@@ -126,10 +126,10 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
-        $adapter->query("DROP TABLE IF EXISTS collections_replacement_7081;");
-        $adapter->query("TRUNCATE institutes_replacement;");
-        $adapter->query("TRUNCATE institutes_contents;");
+        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('DROP TABLE IF EXISTS collections_replacement_7081;');
+        $adapter->query('TRUNCATE institutes_replacement;');
+        $adapter->query('TRUNCATE institutes_contents;');
     }
     
     /**
@@ -163,9 +163,9 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider validConstructorIDDataProvider
-     * 
      * @param integer $ID No comment, use your brain.
+     * @dataProvider validConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionReplacementConstructor($ID) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -176,9 +176,9 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider invalidConstructorIDDataProvider
-     * 
      * @param integer $ID No comment, use your brain.
+     * @dataProvider invalidConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionReplacementConstructorInvalidArg($ID) {
         $this->setExpectedException('InvalidArgumentException');
@@ -213,11 +213,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider validGetIDDataProvider
+     * @return void
      */
     public function testgetReplacementRecords($ID, $collections_id) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -228,27 +228,27 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider validGetIDDataProvider
+     * @return void
      */
     public function testDelete($ID, $collections_id) {
         $ocr = new Opus_Collection_Replacement($ID);
         $pre = count($ocr->getReplacementRecords($collections_id));
         $ocr->delete($collections_id);
         $post = count($ocr->getReplacementRecords($collections_id));
-        $this->assertTrue($post === $pre+1, 'Delete entry not created.');
+        $this->assertTrue($post === ($pre+1), 'Delete entry not created.');
     }
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider invalidGetIDDataProvider
+     * @return void
      */
     public function testgetReplacementRecordsInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -258,11 +258,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider invalidGetIDDataProvider
+     * @return void
      */
     public function testDeleteInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -273,10 +273,10 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider validGetIDDataProvider
-     *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider validGetIDDataProvider
+     * @return void
      */
     public function testgetCurrent($ID, $collections_id) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -287,11 +287,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider invalidGetIDDataProvider
+     * @return void
      */
     public function testgetCurrentInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -302,10 +302,10 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider validGetIDDataProvider
-     *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider validGetIDDataProvider
+     * @return void
      */
     public function testgetAncestor($ID, $collections_id) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -316,11 +316,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider invalidGetIDDataProvider
+     * @return void
      */
     public function testgetAncestorInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -330,11 +330,11 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validGetIDDataProvider
      *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider validGetIDDataProvider
+     * @return void
      */
     public function testgetReplacement($ID, $collections_id) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -346,10 +346,10 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider invalidGetIDDataProvider
-     *
      * @param integer $ID             No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @dataProvider invalidGetIDDataProvider
+     * @return void
      */
     public function testgetReplacementInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -374,13 +374,13 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider validSplitDataProvider
      *
      * @param integer $ID                  No comment, use your brain.
      * @param integer $collections_id_old  No comment, use your brain.
      * @param integer $collections_id_new1 No comment, use your brain.
      * @param integer $collections_id_new2 No comment, use your brain.
+     * @dataProvider validSplitDataProvider
+     * @return void
      */
     public function testSplit($ID, $collections_id_old, $collections_id_new1, $collections_id_new2) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -410,13 +410,13 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     
     /**
      * Test function
-     * 
-     * @dataProvider invalidSplitDataProvider
      *
      * @param integer $ID                  No comment, use your brain.
      * @param integer $collections_id_old  No comment, use your brain.
      * @param integer $collections_id_new1 No comment, use your brain.
      * @param integer $collections_id_new2 No comment, use your brain.
+     * @dataProvider invalidSplitDataProvider
+     * @return void
      */
     public function testSplitInvArg($ID, $collections_id_old, $collections_id_new1, $collections_id_new2) {
         $this->setExpectedException('InvalidArgumentException');
@@ -442,12 +442,12 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider validMergeDataProvider
-     *
      * @param integer $ID                  No comment, use your brain.
      * @param integer $collections_id_old1 No comment, use your brain.
      * @param integer $collections_id_old2 No comment, use your brain.
      * @param integer $collections_id_new  No comment, use your brain.
+     * @dataProvider validMergeDataProvider
+     * @return void
      */
     public function testMerge($ID, $collections_id_old1, $collections_id_old2, $collections_id_new) {
         $ocr = new Opus_Collection_Replacement($ID);
@@ -457,8 +457,8 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $post_old1 = count($ocr->getReplacementRecords($collections_id_old1));
         $post_old2 = count($ocr->getReplacementRecords($collections_id_old2));
         $post_new = sizeof($ocr->getReplacementRecords($collections_id_new));
-        $this->assertTrue($post_old1 === $pre_old1+1, 'Replacement of merged first collection not properly written.');
-        $this->assertTrue($post_old2 === $pre_old2+1, 'Replacement of merged second collection not properly written.');
+        $this->assertTrue($post_old1 === ($pre_old1+1), 'Replacement of merged first collection not properly written.');
+        $this->assertTrue($post_old2 === ($pre_old2+1), 'Replacement of merged second collection not properly written.');
         $this->assertTrue($post_new === 2, 'Replacement for merged collections not properly written.');
     }
     
@@ -479,12 +479,12 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider invalidMergeDataProvider
-     *
      * @param integer $ID                  No comment, use your brain.
      * @param integer $collections_id_old1 No comment, use your brain.
      * @param integer $collections_id_old2 No comment, use your brain.
      * @param integer $collections_id_new  No comment, use your brain.
+     * @dataProvider invalidMergeDataProvider
+     * @return void
      */
     public function testMergeInvArg($ID, $collections_id_old1, $collections_id_old2, $collections_id_new) {
         $this->setExpectedException('InvalidArgumentException');

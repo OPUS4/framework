@@ -124,9 +124,9 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider validConstructorIDDataProvider
-     *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider validConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionContentsConstructor($ID) {
         $occ = new Opus_Collection_Contents($ID);
@@ -137,9 +137,9 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      * 
-     * @dataProvider invalidConstructorIDDataProvider
-     *
      * @param integer $ID No comment, use your brain.
+     * @dataProvider invalidConstructorIDDataProvider
+     * @return void
      */
     public function testCollectionContentsConstructorInvalidArg($ID) {
         $this->setExpectedException('InvalidArgumentException');
@@ -172,10 +172,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider validUpdateDataProvider
-     *
      * @param integer $ID           No comment, use your brain.
      * @param integer $contentArray No comment, use your brain.
+     * @dataProvider validUpdateDataProvider
+     * @return void
      */
     public function testCollectionContentsUpdate($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
@@ -234,10 +234,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider invalidUpdateDataProvider
-     *
      * @param integer $ID           No comment, use your brain.
      * @param integer $contentArray No comment, use your brain.
+     * @dataProvider invalidUpdateDataProvider
+     * @return void
      */
     public function testCollectionContentsUpdateInvArg($ID, $contentArray) {
         $this->setExpectedException('InvalidArgumentException');
@@ -269,10 +269,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider validLoadDataProvider
-     *
      * @param integer $ID      No comment, use your brain.
      * @param integer $coll_id No comment, use your brain.
+     * @dataProvider validLoadDataProvider
+     * @return void
      */
     public function testLoadCollectionContents($ID, $coll_id) {
         $occ = new Opus_Collection_Contents($ID);
@@ -297,11 +297,12 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
-     * @dataProvider invalidLoadDataProvider
+     * Test function
      *
      * @param integer $ID      No comment, use your brain.
      * @param integer $coll_id No comment, use your brain.
+     * @dataProvider invalidLoadDataProvider
+     * @return void
      */
     public function testLoadCollectionContentsInvArg($ID, $coll_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -312,10 +313,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider validUpdateDataProvider
-     *
      * @param integer $ID           No comment, use your brain.
      * @param integer $contentArray No comment, use your brain.
+     * @dataProvider validUpdateDataProvider
+     * @return void
      */
     public function testSaveCollectionContents($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
@@ -355,10 +356,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @dataProvider invalidSaveDataProvider
-     *
      * @param integer $ID           No comment, use your brain.
      * @param integer $contentArray No comment, use your brain.
+     * @dataProvider invalidSaveDataProvider
+     * @return void
      */
     public function testSaveCollectionContentsInvArg($ID, $contentArray) {
         $this->setExpectedException('Exception');
