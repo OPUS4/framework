@@ -435,4 +435,19 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('dul', $elements[2]->getValue());
     }
 
+    /**
+     * Test if adding of a given filter works.
+     *
+     * @return void
+     */
+    public function testSetFilterForElement() {
+        $field = $this->_model->getField('SimpleField');
+
+        $field->setFilter(new Zend_Filter_StringTrim());
+        $form = $this->_builder->build($this->_model);
+        $value = $form->getElement('SimpleField')->getFilter('Zend_Filter_StringTrim');
+        $this->assertType('Zend_Filter_StringTrim', $value, 'Field does not have correct filter.');
+
+    }
+
 }
