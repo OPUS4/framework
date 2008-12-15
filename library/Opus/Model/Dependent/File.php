@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -39,13 +40,34 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_File extends Opus_Model_Abstract
-{
-    
+class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
+
+    /**
+     * Primary key of the parent model.
+     *
+     * @var mixed $_parentId.
+     */
+    protected $_parentColumn = 'documents_id';
+
     /**
      * Specify then table gateway.
      *
      */
     protected $_tableGatewayClass  = 'Opus_Db_DocumentFiles';
-    
+
+    protected function _init() {
+        $filepathname = new Opus_Model_Field('FilePathName');
+        $filesortorder = new Opus_Model_Field('FileSortOrder');
+        $filelabel = new Opus_Model_Field('FileLabel');
+        $filetype = new Opus_Model_Field('FileType');
+        $mimetype = new Opus_Model_Field('MimeType');
+        $filelanguage = new Opus_Model_Field('FileLanguage');
+
+        $this->addField($filepathname)
+            ->addField($filesortorder)
+            ->addField($filelabel)
+            ->addField($fieltype)
+            ->addField($mimetype)
+            ->addField($filelanguage);
+    }
 }
