@@ -116,14 +116,14 @@ class Opus_Model_Field
      */
     protected $_selection = false;
 
-    
+
     /**
      * Set to true if the field value has been modified.
      *
      * @var Boolean
      */
     protected $_modified = false;
-    
+
     /**
      * Create an new field instance and set the given name.
      *
@@ -175,7 +175,7 @@ class Opus_Model_Field
      * @param Zend_Filter $filter A filter.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setFilter(Zend_Filter $filter) {
+    public function setFilter(Zend_Filter_Interface $filter) {
         $this->_filter = $filter;
         return $this;
     }
@@ -274,7 +274,7 @@ class Opus_Model_Field
         if (($multiValueCondition === false) and ($arrayCondition === true)) {
             throw new InvalidArgumentException('Multivalue option and input argument do not match.');
         }
-        
+
         // Embed passed value in an array if multivalue condition is given
         // but value is not an array
         if (($multiValueCondition === true) and ($arrayCondition === false)) {
@@ -314,7 +314,7 @@ class Opus_Model_Field
         }
     }
 
-    
+
     /**
      * If the field can have multiple values, this method adds a new value
      * to the already existing field values.
@@ -323,7 +323,7 @@ class Opus_Model_Field
      * @return Opus_Model_Field Fluent interface.
      */
     public function addValue($value) {
-        
+
         if ($this->hasMultipleValues() === false) {
             // One cannot add an array of values to an single-multiplicity field
             if (is_array($value)) {
@@ -333,7 +333,7 @@ class Opus_Model_Field
                 return $this;
             }
         }
-        
+
         // No value set yet.
         if (is_null($this->_value) === true) {
            $this->_value = array();
@@ -343,26 +343,26 @@ class Opus_Model_Field
                 $this->_value = array($this->_value);
             }
         }
-        
+
         // Check multiplicity constraint
         if (is_int($this->_multiplicity) === true) {
-            if ((count($value) > $this->_multiplicity) 
+            if ((count($value) > $this->_multiplicity)
                 or ((count($value) + count($this->_value)) > $this->_multiplicity)) {
-                throw new InvalidArgumentException('Cannot hold more then ' . $this->_multiplicity . ' values.');    
+                throw new InvalidArgumentException('Cannot hold more then ' . $this->_multiplicity . ' values.');
             }
         }
-        
+
         // Add the value to the array
         if (is_array($value) === true) {
             $this->_value = array_merge($this->_value, $value);
         } else {
-            $this->_value[] = $value; 
+            $this->_value[] = $value;
         }
-        
+
         $this->_modified = true;
         return $this;
     }
-    
+
     /**
      * Set the fields default value.
      *
@@ -459,7 +459,7 @@ class Opus_Model_Field
     public function isModified() {
         return $this->_modified;
     }
-    
+
     /**
      * Set the modified flag back to false.
      *
