@@ -172,7 +172,7 @@ class Opus_Model_Field
     /**
      * Set a filter for the field.
      *
-     * @param Zend_Filter $filter A filter.
+     * @param Zend_Filter_Interface $filter A filter.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setFilter(Zend_Filter_Interface $filter) {
