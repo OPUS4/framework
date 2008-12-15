@@ -326,7 +326,7 @@ class Opus_Model_Field
 
         if ($this->hasMultipleValues() === false) {
             // One cannot add an array of values to an single-multiplicity field
-            if (is_array($value)) {
+            if (is_array($value) or is_null($this->_value) === false) {
                 throw new InvalidArgumentException('Cannot add multiple values to ' . $this->_name);
             } else {
                 $this->setValue($value);
