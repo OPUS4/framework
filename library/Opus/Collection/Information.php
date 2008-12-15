@@ -44,45 +44,76 @@ class Opus_Collection_Information {
      * Create a complete new collection structure (role). 
      *
      * @param array(string => array(string => string)) $roleArray Array with collection_role database records.
+     * @param boolean                                  $hidden (Optional)True if tree should be hidden.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return integer ID of the newely created Collection Tree
      */
-    static public function newCollectionTree(array $roleArray, $hidden = false) {
-        $role = new Opus_Collection_Roles();
-        $role->create();
-        foreach ($roleArray as $language => $record) {
-            if (false === is_array($record)) {
-                throw new InvalidArgumentException('Role Array not properly structured.');
-            }
-            if ($hidden === true) {
-                $record['visible'] = 0;
-            } else {
-                $record['visible'] = 1;
-            }
-            $role->addLanguage($language);
-            $role->update(array($language => $record));   
+    static public function newCollectionTree(array $roleArray, $position = 0, $hidden = false) {
+        
+        // Argument validation
+        if ( (false === is_int($position)) or (0 > $position) ) {
+            throw new InvalidArgumentException('Position must be a non-negative integer.');
         }
         
+        if (false === is_bool($hidden)) {
+            throw new InvalidArgumentException('Hidden flag must be boolean.');
+        }
+        
+        if (false === is_array($roleArray)) {
+            throw new InvalidArgumentException('Role Array not properly structured.');
+        }
+        
+        // Create an empty role
+        $role = new Opus_Collection_Roles();
+        
+        // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
         $db->beginTransaction();
-        $role->save();
-        $role->createDatabaseTables();
         
-        $occ = new Opus_Collection_Contents($role->roles_id);
-        foreach ($roleArray as $language => $record) {
-            $occ->root($language);
+        try {
+            // If no position given take the next free one
+            if ((int) $position === 0) {
+                $position = $role->nextPosition();
+            }
+            
+            // Setting the visibility flag for the collection tree
+            if ($hidden === true) {
+                $roleArray['visible'] = 0;
+            } else {
+                $roleArray['visible'] = 1;
+            }
+            // Setting the position of the new collection tree
+            $roleArray['position'] = $position;
+            // Add a record for each language
+            $role->update($roleArray);   
+            
+            // Shift the role positions to make space for the new one
+            $role->shiftPositions((int) $position);
+            
+            // Write new role entry to DB table
+            $role->save();
+            
+            // Create collection tables for the newly created role
+            $role->createDatabaseTables();
+            
+            // Write pseudo content for the hidden root node to fullfill foreign key constraint
+            $occ = new Opus_Collection_Contents($role->getRolesID());
+            $occ->root();
+                
+            // Write hidden root node to nested sets structure
+            $ocs = new Opus_Collection_Structure($role->getRolesID());
+            $ocs->create();
+            $ocs->save();
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
         }
-        
-        $ocs = new Opus_Collection_Structure($role->roles_id);
-        $ocs->create();
-        $ocs->save();
-        $db->commit();
-        
-        return $role->roles_id;
+        return $role->getRolesID();
     }
     
     /**
-     * Create a new collection . 
+     * Create a new collection. 
      *
      * @param integer                                  $role_id        Identifies tree for new collection.
      * @param integer                                  $parent_id      Parent node of collection.
@@ -92,22 +123,55 @@ class Opus_Collection_Information {
      * @return integer $collections_id ID of the newely created Collection
      */
     static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
-        $occ = new Opus_Collection_Contents($role_id);
-        $occ->create();
-        foreach ($contentArray as $language => $record) {
-            $occ->addLanguage($language);
-            $occ->update(array($language => $record));   
+
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+        
+        if ( (false === is_int($parent_id)) or (0 > $parent_id) ) {
+            throw new InvalidArgumentException('Parent ID must be a non-negative integer.');
         }
+        
+        if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
+            throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
+        }
+
+        if (false === is_array($contentArray)) {
+            throw new InvalidArgumentException('Content Array not properly structured.');
+        }
+    
+        // Create a new collection content container
+        $occ = new Opus_Collection_Contents($role_id);
+        //$occ->create();
+        
+        // Fill the collection content with data
+        $occ->update($contentArray);  
+        
+        // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
         $db->beginTransaction();
-        $occ->save();        
-        $collections_id = $occ->collections_id;
         
-        $ocs = new Opus_Collection_Structure($role_id);    
-        $ocs->load();
-        $ocs->insert((int) $collections_id, (int) $parent_id, (int) $leftSibling_id);
-        $ocs->save();
-        $db->commit();
+        try {
+            // Save content to DB
+            $occ->save();    
+
+            // Fetch ID of the newely created collection
+            $collections_id = $occ->getCollectionsID();
+            
+            // Load nested sets structure from DB
+            $ocs = new Opus_Collection_Structure($role_id);    
+            $ocs->load();
+            
+            // Insert new collection underneath given parent to the right of the given left sibling
+            $ocs->insert($collections_id, (int) $parent_id, (int) $leftSibling_id);
+            
+            // Save updated structure to DB
+            $ocs->save();
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
         
         return $collections_id;
     }
@@ -123,13 +187,41 @@ class Opus_Collection_Information {
      * @return void
      */
     static public function newCollectionPosition($role_id, $collections_id, $parent_id, $leftSibling_id) {
-        $ocs = new Opus_Collection_Structure($role_id);  
+
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+        
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        
+        if ( (false === is_int($parent_id)) or (0 > $parent_id) ) {
+            throw new InvalidArgumentException('Parent ID must be a non-negative integer.');
+        }
+        
+        if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
+            throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
+        }
+        
+        // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');  
         $db->beginTransaction();
-        $ocs->load();
-        $ocs->insert($collections_id, $parent_id, $leftSibling_id);
-        $ocs->save();
-        $db->commit();
+        try {
+            // Load nested sets structure from DB
+            $ocs = new Opus_Collection_Structure($role_id);  
+            $ocs->load();
+            
+            // Insert given collection underneath given parent to the right of the given left sibling
+            $ocs->insert($collections_id, $parent_id, $leftSibling_id);
+            
+            // Save updated structure to DB
+            $ocs->save();
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
     }
     
     /**
@@ -141,20 +233,39 @@ class Opus_Collection_Information {
      * @return void
      */
     static public function deleteCollectionPosition($role_id, $left) {
-        $ocs = new Opus_Collection_Structure($role_id);
+        
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+        
+        if ( (false === is_int($left)) or (0 >= $left) ) {
+            throw new InvalidArgumentException('LEFT value must be a positive integer.');
+        }
+        
+        // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');  
         $db->beginTransaction();
-        $ocs->load();
-        $collections_id = (int) $ocs->collectionStructure[$left]['collections_id'];
-        if ($ocs->count($collections_id) < 2) {
-            // Last occurrence of collection => normal delete
+        try {
+            // Load nested sets structure from DB
+            $ocs = new Opus_Collection_Structure($role_id);
+            $ocs->load();
+            
+            // Fetch collection ID belonging with given LEFT
+            $collections_id = $ocs->leftToID($left);
+            
+            if ($ocs->count($collections_id) < 2) {
+                // Last occurrence of collection => normal delete
+                $db->rollBack();
+                self::deleteCollection($role_id, $collections_id);
+            } else {
+                $ocs->delete($left);
+                $ocs->save();
+                $db->commit();
+            }    
+        } catch (Exception $e) {
             $db->rollBack();
-            self::deleteCollection($role_id, $collections_id);
-        } else {
-            $ocs->delete($left);
-            $ocs->save();
-            $db->commit();
-        }    
+            throw new Exception($e->getMessage());
+        }
     }
     
     /**
@@ -166,45 +277,60 @@ class Opus_Collection_Information {
      * @return void
      */
     static public function deleteCollection($role_id, $collections_id) {
-        // Do not really kill from structure but hide
-        $ocs = new Opus_Collection_Structure($role_id);
+        
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+        
+        if ( (false === is_int($left)) or (0 > $left) ) {
+            throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
+        }
+        
+        // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');  
         $db->beginTransaction();
-        $ocs->load();
-        $ocs->hide($collections_id);
-        $ocs->save();
-        // Make history entry
-        $ocr = new Opus_Collection_Replacement($role_id);    
-        $ocr->delete($collections_id);
-        $db->commit();
+        try {
+            // Load nested sets structure from DB
+            $ocs = new Opus_Collection_Structure($role_id);
+            $ocs->load();
+            
+            // Hide given collection and save structure to DB
+            $ocs->hide($collections_id);
+            $ocs->save();
+            
+            // Make history entry in replacement table
+            $ocr = new Opus_Collection_Replacement($role_id);    
+            $ocr->delete($collections_id);
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
     }
 
     /**
      * Fetch all collection roles from DB. 
      *
-     * @param boolean $alsoHidden Decides whether or not hidden trees are regarded.
+     * @param boolean $alsoHidden (Optional) Decides whether or not hidden trees are regarded.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
     static public function getAllCollectionRoles($alsoHidden = false) {
-        // DB table gateway for the collection roles
-        $collections_roles  = new Opus_Db_CollectionsRoles();
         
-        // Fetch all or fetch only visible
-        if ($alsoHidden === true) {
-            $allCollectionRoles = $collections_roles
-                                        ->fetchAll($collections_roles->select())
-                                        ->toArray();
-        } else {
-            $allCollectionRoles = $collections_roles
-                                        ->fetchAll($collections_roles->select()
-                                        ->where('visible = ?', 1))
-                                        ->toArray();
+        // Argument validation
+        if (false === is_bool($alsoHidden)) {
+            throw new InvalidArgumentException('AlsoHidden flag must be boolean.');
         }
         
-        // Map into an ID- and language-indexed array 
+        $role = new Opus_Collection_Roles();
+        $allCollectionRolesOutput = array();
+        
+        // Fetch all or fetch only visible
+        $allCollectionRoles = $role->getAllRoles($alsoHidden);
+        
+        // Map into an ID-indexed array 
         foreach ($allCollectionRoles as $record) {
-            $allCollectionRolesOutput[$record['collections_roles_id']][$record['collections_language']] = $record;
+            $allCollectionRolesOutput[$record['collections_roles_id']] = $record;
         }
         
         return $allCollectionRolesOutput;
@@ -213,22 +339,28 @@ class Opus_Collection_Information {
     /**
      * Fetch all child collections of a collection. 
      *
-     * @param integer $roles_id Identifies tree for collection.
-     * @param integer $collections_id Identifies the collection.
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id (Optional) Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
     static public function getSubCollections($roles_id, $collections_id = 0) {
+        
+        // Argument validation
         $validation = new Opus_Collection_Validation();
-        $validation->ID($roles_id);
-        $validation->ID($collections_id);
+        $validation->constructorID($roles_id);
+        
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
+        }
+        
         // Container for the child collections
         $children = array();
         
         // Load complete tree information 
         $ocs = new Opus_Collection_Structure($roles_id);    
         $ocs->load();
-        $tree = $ocs->collectionStructure;
+        $tree = $ocs->getCollectionStructure();
         
         // Create collection content object
         $occ = new Opus_Collection_Contents($roles_id);
@@ -250,11 +382,10 @@ class Opus_Collection_Information {
         }
         
         // Walk through the children and load the corresponding collection contents
-        while ($left < $right-1) {
+        while ($left < ($right-1)) {
             $left++;
-            $occ->create();
             $occ->load((int) $tree[$left]['collections_id']);
-            $children[] = array('content' => $occ->collectionContents, 'structure' => $tree[$left]);
+            $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
             $left = $tree[$left]['right'];
         }
         return $children;
@@ -264,16 +395,30 @@ class Opus_Collection_Information {
     /**
      * Fetch all document IDs belonging to a collection. 
      *
-     * @param integer $roles_id Identifies tree for collection.
-     * @param integer $collections_id Identifies the collection.
-     * @param boolean $alsoSubCollections Decides if documents in the subcollections should be regarded.
+     * @param integer $roles_id           Identifies tree for collection.
+     * @param integer $collections_id     (Optional) Identifies the collection.
+     * @param boolean $alsoSubCollections (Optional) Decides if documents in the subcollections should be regarded.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id = 0, $alsoSubCollections = false) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 0) { //, $alsoSubCollections = false) {
+        
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+        
         if (false === is_int($collections_id)) {
             $collections_id = 0;
         }
+        
+        /*
+         * TODO: Documents in SubCollections
+         * Look for 'link_docs_path_to_root' attribute
+         * If !=0 fetch every ID on path to root
+         * For every such ID: fetch all related docs 
+         */
+        
+        // TODO: I'm not very happy with the following ...
         // DB table gateway for the linking table between collections and documents
         $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
         // Container array for the raw collection ID array and the reformatted collection ID array
@@ -303,30 +448,33 @@ class Opus_Collection_Information {
     static public function getCollectionRole($roles_id) {
         $ocr  = new Opus_Collection_Roles();
         $ocr->load($roles_id);
-        return $ocr->collectionRoles;
+        return $ocr->getCollectionRoles();
     }
     
 
     /**
      * Fetch all collections on the pathes to the root node. 
      *
-     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
     static public function getPathToRoot($roles_id, $collections_id) {
         $validation = new Opus_Collection_Validation();
-        $validation->ID($roles_id);
-        self::getCollectionRole($roles_id);
-        $validation->ID($collections_id);
+        $validation->constructorID($roles_id);
+        
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        
         // Container for the array of pathes
         $paths = array();
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);    
         $ocs->load();
         
-        $tree = $ocs->collectionStructure;
+        $tree = $ocs->getCollectionStructure();
         // Create collection content object
         $occ = new Opus_Collection_Contents($roles_id);
         
@@ -336,28 +484,27 @@ class Opus_Collection_Information {
                 // Container for this path
                 $path = array();
                 // First node in path is the given collection
-                $occ->create();
+                //$occ->create();
                 $occ->load((int) $collections_id);
-                $path[] = $occ->collectionContents;
+                $path[] = $occ->getCollectionContents();
                 // Search outwards the left/right-borders of the current node
                 $left  = $node['left'];
                 $right = $node['right'];
                 $currentCollID = $collections_id;
-                for ($l = $left-1; $l>1; $l--) {
-                    if (isset($tree[$l])) {
+                for ($l = ($left-1); $l>1; $l--) {
+                    if (true === isset($tree[$l])) {
                         $node = $tree[$l];
                         if (($node['right'] > $right)) {
                             $right = $node['right'];
-                            $occ->create();
                             $occ->load((int) $node['collections_id']);
-                            $path[] = $occ->collectionContents;
+                            $path[] = $occ->getCollectionContents();
                         }
                     }
                 }
                 $paths[$left] = $path;
             }
         }    
-        if (empty($paths)) {
+        if (true === empty($paths)) {
             throw new InvalidArgumentException("Collection ID $collections_id not found in Structure.");
         }
         return $paths;
@@ -366,33 +513,36 @@ class Opus_Collection_Information {
     /**
      * Fetch collection information. 
      *
-     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
     static public function getCollection($roles_id, $collections_id) {
         $validation = new Opus_Collection_Validation();
-        $validation->ID($roles_id);
-        self::getCollectionRole($roles_id);
-        $validation->ID($collections_id);
+        $validation->constructorID($roles_id);
+        
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
         // Create collection content object and load information from DB
         $occ = new Opus_Collection_Contents($roles_id);
-        $occ->create();
         $occ->load((int) $collections_id);
-        return $occ->collectionContents;
+        return $occ->getCollectionContents();
     }
     
     /**
      * Assign a document to a collection. 
      *
-     * @param integer $documents_id Identifies the document.
-     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $documents_id   Identifies the document.
+     * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
-     * @return array
+     * @return void
      */
     static public function assignDocumentToCollection($documents_id, $roles_id, $collections_id) {
+        //TODO: Validation e.g. 
         // DB table gateway for the documents-collections linking table
         $link_documents_collections  = new Opus_Db_LinkDocumentsCollections($roles_id);
         

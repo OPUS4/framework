@@ -45,14 +45,14 @@ class Opus_Collection_Contents {
      * 
      * @var array 
      */
-    public $collectionContents;
+    private $collectionContents;
 
     /**
      * ID for this collection-content
      * 
      * @var integer 
      */
-    public $collections_id;
+    private $collections_id;
 
     /**
      * Container for collections_contents table gateway
@@ -66,7 +66,7 @@ class Opus_Collection_Contents {
      * 
      * @var array 
      */
-    public $collections_contents_info;
+    private $collections_contents_info;
 
     /**
      * Container for identifying attribute
@@ -102,49 +102,36 @@ class Opus_Collection_Contents {
             $this->collectionsIdentifier    = 'institutes_id';
             $this->collections_contents     = new Opus_Db_InstitutesContents();
         } else {
+            // For throwing Inv Arg Exception on non existing roles IDs
+            $ocr  = new Opus_Collection_Roles();
+            $ocr->load($ID);
             $this->collectionsIdentifier    = 'collections_id';
             $this->collections_contents     = new Opus_Db_CollectionsContents((int) $ID);
         }
         $this->collectionContents           = array();
         $this->collections_contents_info    = $this->collections_contents->info();
         $this->role_id                      = $ID;
+        $this->collections_id               = 0;
     }
     
     /**
-     * Creates a collection-content array. 
+     * Getter ID. 
      *
-     * @param array(integer => string) $languages (Optional) Array of ISO-Code identifying the languages.
-     * @throws InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
+     * @return integer
      */
-    public function create(array $languages = array()) {
-        // Clear collection-content array
-        $this->collectionContents = array();
-        // New generated collection-content gets temporary ID 0
-        $this->collections_id = 0;
-        if (is_array($languages) === false) {
-            throw new InvalidArgumentException('Given languages parameter is not an array.');
-        }
-        foreach ($languages as $language) {
-            $this->addLanguage($language);
-        }
+    public function getCollectionsID() {
+        return (int) $this->collections_id;
     }
     
     /**
-     * Adds a new language to collection-content.
+     * Getter collectionContents. 
      *
-     * @param string $language ISO-Code identifying the language.
-     * @throws InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
+     * @return array
      */
-    public function addLanguage($language) {
-        $this->validation = new Opus_Collection_Validation();
-        $this->validation->language($language);
-        $collectionContentsRecord = array_fill_keys($this->collections_contents_info['cols'] , null);
-        $collectionContentsRecord[$this->collections_contents_info['primary'][2]] = $language;
-        $collectionContentsRecord[$this->collections_contents_info['primary'][1]] = $this->collections_id;
-        $this->collectionContents[$language] = $collectionContentsRecord;
+    public function getCollectionContents() {
+        return $this->collectionContents;
     }
+    
     
     /**
      * Updating collection-content.
@@ -154,24 +141,18 @@ class Opus_Collection_Contents {
      * @return void
      */
     public function update(array $collectionContentsRecords){
-        // For every given language
-        foreach ($collectionContentsRecords as $language => $collectionContentsRecord) {
-            // Is the language code valid for this record?
-            if (isset($this->collectionContents[$language]) === false) {
-                throw new InvalidArgumentException("Unknown language code '$language'.");
+
+        // For every given attribute
+        foreach ($collectionContentsRecords as $attribute => $content) {
+            if (in_array($attribute, $this->collections_contents_info['primary']) === true) {
+                throw new InvalidArgumentException('Primary key attributes may not be updated.');
+            } else if (in_array($attribute, $this->collections_contents_info['cols']) === false) {
+                throw new InvalidArgumentException("Unknown attribute '$attribute'.");
             }
-            // For every given attribute
-            foreach ($collectionContentsRecord as $attribute => $content) {
-                if (in_array($attribute, $this->collections_contents_info['primary']) === true) {
-                    throw new InvalidArgumentException('Primary key attributes may not be updated.');
-                } else if (in_array($attribute, $this->collections_contents_info['cols']) === false) {
-                    throw new InvalidArgumentException("Unknown attribute '$attribute'.");
-                }
-                $this->collectionContents[$language][$attribute] = $content;
-            }
-            // Setting the ID 
-            $this->collectionContents[$language][$this->collections_contents_info['primary'][1]] = $this->collections_id;
+            $this->collectionContents[$attribute] = $content;
         }
+        // Setting the ID 
+        $this->collectionContents[$this->collections_contents_info['primary'][1]] = $this->collections_id;
     }
     
     /**
@@ -184,24 +165,19 @@ class Opus_Collection_Contents {
     public function load($collections_id) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($collections_id);
-        $collectionContents = $this->collections_contents
+        $this->collectionContents = $this->collections_contents
                                     ->fetchAll($this->collections_contents
                                                     ->select()
                                                     ->where($this->collections_contents_info['primary'][1] . ' = ?', $collections_id))
                                     ->toArray();
-        if(empty($collectionContents)) {
+        if (true === empty($this->collectionContents)) {
             throw new InvalidArgumentException("Collection with ID '$collections_id' not found.");                              
         }
-        // Replace numeric index by language codes
-        foreach ($collectionContents as $numIndex => $record) {
-            $this->collectionContents[$record[$this->collections_contents_info['primary'][2]]] = $record;
-        }
+        
         // Has the collection-content already an ID?
         if ($this->collections_id > 0) {
             // Then overwrite the loaded data
-            foreach ($this->collectionContents as $index => $record) {
-                $this->collectionContents[$index][$this->collections_contents_info['primary'][1]] = $this->collections_id;
-            }
+            $this->collectionContents[$this->collections_contents_info['primary'][1]] = $this->collections_id;
         } else {
             // Otherwise take the ID of the loaded collection-content as the collection-content ID
             $this->collections_id = $collections_id;
@@ -213,19 +189,17 @@ class Opus_Collection_Contents {
     /**
      * Save (pseudo)-content for root node to database.
      *
+     * @param string $language ISO-Code identifying the language.
      * @throws Exception On failed database access.
      * @return void
      */
-    public function root($language) {
+    public function root() {
         try {
             $this->collections_contents
                  ->insert(array('collections_id' => 0, 
-                                'collections_language' => $language, 
                                 'name' => 'root', 
                                 'number' => '000'));
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -253,14 +227,10 @@ class Opus_Collection_Contents {
             // Delete outdated database records
             $this->collections_contents->delete($this->collections_contents_info['primary'][1] . ' = ' . $this->collections_id);
             // Insert updated database records
-            foreach ($this->collectionContents as $language => $record) {
-                $record[$this->collections_contents_info['primary'][1]] = $this->collections_id;
-                $this->collections_contents
-                     ->insert($record);
-            }
+            $this->collectionContents[$this->collections_contents_info['primary'][1]] = $this->collections_id;
+            $this->collections_contents
+                 ->insert($this->collectionContents);
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }

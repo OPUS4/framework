@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library -
- * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
+ * the Saarland University and State Library, the Saxon State Library - 
+ * Dresden State and University Library, the Bielefeld University Library and 
+ * the University Library of Hamburg University of Technology with funding from 
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,16 +20,16 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
+ * details. You should have received a copy of the GNU General Public License 
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category	Tests
- * @package		Opus_Collections
- * @author     	Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @copyright  	Copyright (c) 2008, OPUS 4 development team
- * @license    	http://www.gnu.org/licenses/gpl.html General Public License
- * @version    	$Id$
+ * @category    Tests
+ * @package     Opus_Collections
+ * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
  */
 
 /**
@@ -41,14 +41,21 @@
 class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * SetUp database
+     * SetUp database 
      *
      * @return void
      */
     public function setUp() {
 
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->setTablePrefix('test_');
+
+        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
+        $adapter->query("INSERT INTO `collections_roles` 
+        (`collections_roles_id`, `name`, `visible`) 
+        VALUES (7081, 'Just to shift test area', 1)
+        ;");
+        
+        
         $adapter->query("DROP TABLE IF EXISTS collections_structure_7081;");
         $adapter->query("CREATE TABLE IF NOT EXISTS collections_structure_7081 (
               `collections_structure_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -62,8 +69,8 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             COLLATE = utf8_general_ci
             PACK_KEYS = 0
             ROW_FORMAT = DEFAULT;");
-        $adapter->query("INSERT INTO `collections_structure_7081`
-        (`collections_id`, `left`, `right`, `visible`)
+        $adapter->query("INSERT INTO `collections_structure_7081` 
+        (`collections_id`, `left`, `right`, `visible`) 
         VALUES (0, 1, 10, 0),
         (1, 2, 3, 1),
         (2, 4, 7, 1),
@@ -72,8 +79,8 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         ;");
         $adapter->query("TRUNCATE institutes_structure;");
         $adapter->query("TRUNCATE institutes_contents;");
-        $adapter->query("INSERT INTO `institutes_contents`
-        (`institutes_id`, `type`, `name`)
+        $adapter->query("INSERT INTO `institutes_contents` 
+        (`institutes_id`, `type`, `name`) 
         VALUES (0, 'Fakultät', 'Fakultät A'),
         (1, 'Fakultät', 'Fakultät A1'),
         (2, 'Fakultät', 'Fakultät A2'),
@@ -81,31 +88,32 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         (4, 'Fakultät', 'Fakultät A3'),
         (7, 'Fakultät', 'Fakultät X')
         ;");
-        $adapter->query("INSERT INTO `institutes_structure`
-        (`institutes_id`, `left`, `right`, `visible`)
+        $adapter->query("INSERT INTO `institutes_structure` 
+        (`institutes_id`, `left`, `right`, `visible`) 
         VALUES (0, 1, 10, 0),
         (1, 2, 3, 1),
         (2, 4, 7, 1),
         (3, 5, 6, 1),
         (4, 8, 9, 1)
         ;");
-
+        
     }
 
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
         $adapter->query("DROP TABLE IF EXISTS collections_structure_7081;");
         $adapter->query("TRUNCATE institutes_structure;");
         $adapter->query("TRUNCATE institutes_contents;");
     }
-
+    
     public function validConstructorIDDataProvider() {
         return array(
             array('institute'),
             array(7081),
         );
     }
-
+    
     public function invalidConstructorIDDataProvider() {
         return array(
             array('institut'),
@@ -116,7 +124,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array(array(7)),
         );
     }
-
+    
     /**
      *
      * @dataProvider validConstructorIDDataProvider
@@ -124,10 +132,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
      */
     public function testCollectionStructureConstructor($ID) {
         $ocs = new Opus_Collection_Structure($ID);
-        $this->assertTrue(isset($ocs->collectionStructure), 'No collectionStructure array built by constructor.');
-        $this->assertTrue(isset($ocs->collections_structure_info), 'No collections_structure_info array built by constructor.');
+        $struc = $ocs->getCollectionStructure();
+        $this->assertTrue(is_array($struc), 'No collectionStructure array built by constructor.');
     }
-
+    
     /**
      *
      * @dataProvider invalidConstructorIDDataProvider
@@ -137,7 +145,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException');
         $ocs = new Opus_Collection_Structure($ID);
     }
-
+        
     /**
      *
      * @dataProvider validConstructorIDDataProvider
@@ -150,10 +158,10 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(array(1 => array($coll_id => 0,
                                             'left' => 1,
                                             'right' => 2,
-                                            'visible' => 0)),
-                            $ocs->collectionStructure, 'collectionStructure array not created properly');
+                                            'visible' => 0)), 
+                            $ocs->getCollectionStructure(), 'collectionStructure array not created properly');
     }
-
+        
     /**
      *
      * @dataProvider validConstructorIDDataProvider
@@ -161,14 +169,14 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
      */
     public function testLoadCollectionStructure($ID) {
         $ocs = new Opus_Collection_Structure($ID);
-        $pre = sizeof($ocs->collectionStructure);
+        $pre = sizeof($ocs->getCollectionStructure());
         $ocs->load();
-        $post = sizeof($ocs->collectionStructure);
+        $post = sizeof($ocs->getCollectionStructure());
         $this->assertGreaterThan($pre, $post, 'Nothing loaded.');
     }
 
     // ##########################################################################
-
+    
     public function validStructureDataProvider() {
         return array(
             array('institute', 7, 1, 0),
@@ -176,23 +184,23 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array(7081, 6, 0, 1),
             );
     }
-
+    
     /**
      *
      * @dataProvider validStructureDataProvider
      *
-     */
+     */     
     public function testInsertCollectionStructure($ID, $collections_id, $parent, $leftSibling) {
         $ocs = new Opus_Collection_Structure($ID);
         $ocs->load();
-        $pre = sizeof($ocs->collectionStructure);
-
+        $pre = sizeof($ocs->getCollectionStructure());
+        
         $ocs->insert($collections_id, $parent, $leftSibling);
-
-        $post = sizeof($ocs->collectionStructure);
+        
+        $post = sizeof($ocs->getCollectionStructure());
         $this->assertGreaterThan($pre, $post);
     }
-
+    
     public function invalidStructureDataProvider() {
         return array(
             array('institute', -7, 1, 2),
@@ -201,7 +209,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array(7081, 1, 7081, 0),
             );
     }
-
+    
     /**
      *
      * @dataProvider invalidStructureDataProvider
@@ -213,23 +221,23 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $ocs->load();
         $ocs->insert($collections_id, $parent, $leftSibling);
     }
-
+    
     /**
      *
      * @dataProvider validStructureDataProvider
      *
-     */
+     */     
     public function testSaveCollectionStructure($ID, $collections_id, $parent, $leftSibling) {
         $ocs = new Opus_Collection_Structure($ID);
         $ocs->load();
-        $pre = sizeof($ocs->collectionStructure);
+        $pre = sizeof($ocs->getCollectionStructure());
         $ocs->insert($collections_id, $parent, $leftSibling);
         $ocs->save();
         $ocs->load();
-        $post = sizeof($ocs->collectionStructure);
+        $post = sizeof($ocs->getCollectionStructure());
         $this->assertGreaterThan($pre, $post, 'Nothing saved.');
     }
-
+    
     public function validLeftDataProvider() {
         return array(
             array(1),
@@ -239,22 +247,22 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array(8),
         );
     }
-
-
+    
+    
     /**
      *
      * @dataProvider validLeftDataProvider
      *
-     */
+     */     
     public function testDeleteCollectionStructure($left) {
         $ocs = new Opus_Collection_Structure(7081);
         $ocs->load();
-        $pre = sizeof($ocs->collectionStructure);
+        $pre = sizeof($ocs->getCollectionStructure());
         $ocs->delete($left);
-        $post = sizeof($ocs->collectionStructure);
+        $post = sizeof($ocs->getCollectionStructure());
         $this->assertGreaterThan($post, $pre, 'Nothing deleted.');
     }
-
+    
     public function invalidLeftDataProvider() {
         return array(
             array(-11),
@@ -264,24 +272,24 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array('x'),
         );
     }
-
-
+    
+    
     /**
      *
      * @dataProvider invalidLeftDataProvider
      *
-     */
+     */     
     public function testDeleteCollectionStructureInvArg($left) {
         $this->setExpectedException('InvalidArgumentException');
         $ocs = new Opus_Collection_Structure(7081);
         $ocs->load();
         $ocs->delete($left);
     }
-
-
-
-
-
-
-
+    
+      
+    
+    
+    
+    
+    
 }

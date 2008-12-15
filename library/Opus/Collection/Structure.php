@@ -45,7 +45,7 @@ class Opus_Collection_Structure {
      * 
      * @var array 
      */
-    public $collectionStructure;
+    private $collectionStructure;
     
     /**
      * Container for collections_structure table gateway
@@ -59,7 +59,7 @@ class Opus_Collection_Structure {
      * 
      * @var array 
      */
-    public $collections_structure_info;
+    private $collections_structure_info;
     
     /**
      * Container for identifying attribute
@@ -88,6 +88,10 @@ class Opus_Collection_Structure {
             $this->collectionsIdentifier = 'institutes_id';
             $this->collections_structure = new Opus_Db_InstitutesStructure();
         } else {
+            // For throwing Inv Arg Exception on non existing roles IDs
+            $ocr  = new Opus_Collection_Roles();
+            $ocr->load($ID);
+            
             $this->collectionsIdentifier = 'collections_id';
             $this->collections_structure = new Opus_Db_CollectionsStructure((int) $ID);
         }
@@ -105,6 +109,36 @@ class Opus_Collection_Structure {
                                                 'left' => 1,
                                                 'right' => 2,
                                                 'visible' => 0);
+    }
+    
+    
+    /**
+     * Returns collections_id to the given LEFT attribute.
+     *
+     * @param integer $$left LEFT attribute.
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    public function leftToID($left) {
+        // Argument validation
+        if ( (false === is_int($left)) or (0 >= $left) ) {
+            throw new InvalidArgumentException('LEFT value must be a positive integer.');
+        }
+        if (false === isset($this->collectionStructure[$left])) {
+            throw new InvalidArgumentException('Given LEFT value not found in structure.');
+        }
+        return (int) $this->collectionStructure[$left]['collections_id'];
+    }
+    
+    
+    
+    /**
+     * Returns collection structure array.
+     *
+     * @return void
+     */
+    public function getCollectionStructure() {
+        return $this->collectionStructure;
     }
     
     /**
@@ -137,8 +171,6 @@ class Opus_Collection_Structure {
                      ->insert($record);
             }
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -176,7 +208,7 @@ class Opus_Collection_Structure {
                         if (((int) $this->collectionStructure[$index2][$this->collectionsIdentifier] === (int) $leftSibling)
                           and ((int) $this->collectionStructure[$index2]['left']  > (int) $this->collectionStructure[$index1]['left'])
                           and ((int) $this->collectionStructure[$index2]['right'] < (int) $this->collectionStructure[$index1]['right'])) {
-                            $new_left = ((int) $this->collectionStructure[$index2]['right']) + 1;
+                            $new_left = (((int) $this->collectionStructure[$index2]['right']) + 1);
                         }
                     }
                 }
@@ -228,7 +260,7 @@ class Opus_Collection_Structure {
             }
         }
         if ($leftFound === false) {
-            throw new InvalidArgumentException('Left value '.$left.' not found in tree.');
+            throw new InvalidArgumentException('Left value ' . $left . ' not found in tree.');
         }
         $this->leftOrder();
     }

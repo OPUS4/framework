@@ -52,7 +52,7 @@ class Opus_Collection_Replacement {
      * 
      * @var string 
      */
-    public $collectionsIdentifier;
+    private $collectionsIdentifier;
     
     /**
      * Container for validation object
@@ -74,6 +74,9 @@ class Opus_Collection_Replacement {
             $this->collectionsIdentifier    = 'institutes_id';
             $this->collections_replacement = new Opus_Db_InstitutesReplacement();
         } else {
+            // For throwing Inv Arg Exception on non existing roles IDs
+            $ocr  = new Opus_Collection_Roles();
+            $ocr->load($ID);
             $this->collectionsIdentifier    = 'collections_id';
             $this->collections_replacement = new Opus_Db_CollectionsReplacement($ID);
         }
@@ -98,12 +101,18 @@ class Opus_Collection_Replacement {
                                 'current_replacement_id'   => null,
                                 ));
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
+    /**
+     * Getter for $collectionsIdentifier. 
+     *
+     * @return void
+     */
+    public function getCollectionsIdentifier() {
+        return (string) $this->collectionsIdentifier;
+    }
     
     /**
      * Creates a database entry for a replaced collection. 
@@ -131,8 +140,6 @@ class Opus_Collection_Replacement {
                                 'current_replacement_id'   => $collections_id_new,
                                 ));
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -156,8 +163,6 @@ class Opus_Collection_Replacement {
             $this->replace($collections_id_old, $collections_id_new1);
             $this->replace($collections_id_old, $collections_id_new2);
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -181,8 +186,6 @@ class Opus_Collection_Replacement {
             $this->replace($collections_id_old1, $collections_id_new);
             $this->replace($collections_id_old2, $collections_id_new);
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -203,7 +206,7 @@ class Opus_Collection_Replacement {
                                 ->select()
                                 ->where($this->collectionsIdentifier . ' = ?', $collections_id))
                     ->toArray();
-        if (empty($set)) {
+        if (true === empty($set)) {
             throw new InvalidArgumentException('Collection ID not found in getReplacementRecords.');                 
         }
         return $set;

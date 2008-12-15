@@ -42,34 +42,42 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
     public function setUp() {
         $adapter = Zend_Registry::get('db_adapter');
+        
+        $adapter->query("DELETE FROM `collections_roles` WHERE collections_roles_id > 7080;");
+        for ($i=7081; $i<7111; $i++) {
+            $adapter->query("DROP TABLE IF EXISTS collections_replacement_$i;");
+            $adapter->query("DROP TABLE IF EXISTS collections_structure_$i;");
+            $adapter->query("DROP TABLE IF EXISTS link_documents_collections_$i;");
+            $adapter->query("DROP TABLE IF EXISTS collections_contents_$i;");
+        }
+        
         $adapter->query("INSERT INTO `collections_roles` 
-        (`collections_roles_id`, `collections_language`, `name`, `visible`) 
-        VALUES (7081, 'arb', 'Just to shift test area', 1)
+        (`collections_roles_id`,  `name`, `visible`) 
+        VALUES (7081,  'Just to shift test area', 1)
         ;");
 
         
         $adapter->query("DROP TABLE IF EXISTS collections_contents_7081;");
         $adapter->query('CREATE TABLE collections_contents_7081 (
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
-            `collections_language` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT "ger",
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-            PRIMARY KEY ( `collections_id` , `collections_language` ) 
+            PRIMARY KEY ( `collections_id`  ) 
             ) ENGINE = InnoDB');
         $adapter->query("INSERT INTO `collections_contents_7081` 
-        (`collections_id`, `collections_language`, `name`, `number`) 
-        VALUES  (0, 'arb', 'root', '000'),
-                (1, 'arb', 'A', '000'),
-                (2, 'arb', 'A2', '000'),
-                (3, 'arb', 'A2a', '000'),
-                (4, 'arb', 'A1', '000'),
-                (5, 'arb', 'B', '000'),
-                (6, 'arb', 'B1', '000'),
-                (7, 'arb', 'B3', '000'),
-                (8, 'arb', 'B2', '000'),
-                (9, 'arb', 'X', '000'),
-                (10, 'arb', 'Y', '000'),
-                (11, 'arb', 'Z', '000')
+        (`collections_id`, `name`, `number`) 
+        VALUES  (0,  'root', '000'),
+                (1,  'A', '000'),
+                (2,  'A2', '000'),
+                (3,  'A2a', '000'),
+                (4,  'A1', '000'),
+                (5,  'B', '000'),
+                (6, 'B1', '000'),
+                (7,  'B3', '000'),
+                (8,  'B2', '000'),
+                (9,  'X', '000'),
+                (10,  'Y', '000'),
+                (11,  'Z', '000')
         ;");
         
         
@@ -172,6 +180,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             $adapter->query("DROP TABLE IF EXISTS collections_contents_$i;");
         }
     }
+
+  
+    
+
     
     public function testgetAllCollectionRoles() {
         $acr = Opus_Collection_Information::getAllCollectionRoles();
@@ -193,9 +205,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     public function testgetCollectionRole() {
         $acr = Opus_Collection_Information::getAllCollectionRoles();
         foreach($acr as $roles_id => $record) {
-            $cr = Opus_Collection_Information::getCollectionRole($roles_id);   
+            $cr = Opus_Collection_Information::getCollectionRole($roles_id); 
             $this->assertTrue(is_array($cr), "getCollectionRole($roles_id) didnt return array");
-            $this->assertEquals(sizeof($cr), sizeof($record), "getCollectionRole($roles_id) didnt return expected amount of hits (".sizeof($record).")");
+            $this->assertEquals($cr, $record, "getCollectionRole($roles_id) didnt return expected record.");
         }
     }
 
@@ -353,25 +365,18 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     
     
     
-    
-    
-    
-    
-    
+            
     
     
     
     
     public function validnewCollectionTreeDataProvider() {
         return array(
-            array(array('ger' => array('name' => 'Testbaum 1'),
-                        'eng' => array('name' => 'Testtree 1'),
-                    ), false
+            array(array('name' => 'Testbaum')
+                    , false, 0
             ),
-            array(array('ger' => array('name' => 'Testbaum 2'),
-                        'eng' => array('name' => 'Testtree 2'),
-                        'fra' => array('name' => 'L`arbre du teste'),
-            ), true
+            array(array('name' => 'Testbaum 2')
+            , true, 0
             ),
         );
     }
@@ -381,9 +386,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validnewCollectionTreeDataProvider
      *
      */
-    public function testnewCollectionTree($roleArray, $hidden) {
+    public function testnewCollectionTree($roleArray, $hidden, $position) {
         $pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
-        Opus_Collection_Information::newCollectionTree($roleArray, $hidden);
+        Opus_Collection_Information::newCollectionTree($roleArray, $position, $hidden);
         $post = Opus_Collection_Information::getAllCollectionRoles($hidden);
         $this->assertGreaterThan(sizeof($pre), sizeof($post), "newCollectionTree didn't insert Role");
     }
@@ -392,13 +397,17 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         return array(
             array(array(1 => array('name' => 'Testbaum 1'),
                         2 => array('name' => 'Testtree 1'),
-                    ), false
+                    ), false, 7081
             ),
             array(array('ger' => 'Testbaum',
                         'eng' => 'Testbaum',
-                    ), false
+                    ), false, 7081
             ),
-        );
+            array(array('ger' => 'Testbaum',
+                        'eng' => 'Testbaum',
+                    ), false, 0
+            ),
+            );
     }
     
     /**
@@ -406,9 +415,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider invalidnewCollectionTreeDataProvider
      *
      */
-    public function testnewCollectionTreeInvArg($roleArray, $hidden) {
-        $this->setExpectedException('InvalidArgumentException');
-        Opus_Collection_Information::newCollectionTree($roleArray, $hidden);
+    public function testnewCollectionTreeInvArg($roleArray, $hidden, $position) {
+        $this->setExpectedException('Exception');
+        Opus_Collection_Information::newCollectionTree($roleArray, $position, $hidden);
     }
     
     

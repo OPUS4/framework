@@ -101,4 +101,13 @@ class Opus_Collection_Validation {
             throw new InvalidArgumentException($language . ' is not a three letter language code.');
         }
     }
+    
+    static public function nnInteger(string $varname, $value) {
+        if ( (false === is_int($value)) or (0 > $value) ) {
+            throw new InvalidArgumentException($varname. ' must be an non-negative integer.');
+        }
+        
+    }
+    
+    
 }

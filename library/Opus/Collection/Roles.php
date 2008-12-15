@@ -45,14 +45,14 @@ class Opus_Collection_Roles {
      * 
      * @var array 
      */
-    public $collectionRoles;
+    private $collectionRoles;
     
     /**
      * ID for this collections_roles. 
      * 
      * @var integer 
      */
-    public $roles_id;
+    private $roles_id;
     
     /**
      * Container for collections_roles table gateway. 
@@ -75,43 +75,27 @@ class Opus_Collection_Roles {
         $this->collectionRoles          = array();
         $this->collections_roles        = new Opus_Db_CollectionsRoles();
         $this->collections_roles_info   = $this->collections_roles->info();
+        $this->roles_id                 = 0;
     }
     
     /**
-     * Creates a blank collection role array. 
+     * Returns collection roles array.
      *
-     * @param array(integer => string) $languages (Optional) Array of ISO-Code identifying the languages.
-     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function create(array $languages = array()) {
-        // Clear collection-role array
-        $this->collectionRoles = array();
-        // New generated collection-role gets temporary ID 0
-        $this->roles_id = 0;
-        if (is_array($languages) === false) {
-            throw new InvalidArgumentException('Given languages parameter is not an array.');
-        }
-        foreach ($languages as $language) {
-            $this->addLanguage($language);
-        }
+    public function getCollectionRoles() {
+        return $this->collectionRoles;
     }
     
     /**
-     * Adds a new language to role.
+     * Returns roles_id.
      *
-     * @param string $language ISO-Code identifying the language.
-     * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
-    public function addLanguage($language) {
-        $this->validation = new Opus_Collection_Validation();
-        $this->validation->language($language);
-        $collectionRolesRecord = array_fill_keys($this->collections_roles_info['cols'] , null);
-        $collectionRolesRecord[$this->collections_roles_info['primary'][2]] = $language;
-        $collectionRolesRecord[$this->collections_roles_info['primary'][1]] = $this->roles_id;
-        $this->collectionRoles[$language] = $collectionRolesRecord;
+    public function getRolesID() {
+        return (int) $this->roles_id;
     }
+    
     
     /**
      * Updating collection-role.
@@ -121,24 +105,17 @@ class Opus_Collection_Roles {
      * @return void
      */
     public function update(array $collectionRolesRecords){
-        // For every given language
-        foreach ($collectionRolesRecords as $language => $collectionRolesRecord) {
-            // Is the language code valid for this record?
-            if (isset($this->collectionRoles[$language]) === false) {
-                throw new InvalidArgumentException("Unknown language code '$language'.");
+        // For every given attribute
+        foreach ($collectionRolesRecords as $attribute => $content) {
+            if (in_array($attribute, $this->collections_roles_info['primary']) === true) {
+                throw new InvalidArgumentException('Primary key attributes may not be updated.');
+            } else if (in_array($attribute, $this->collections_roles_info['cols']) === false) {
+                throw new InvalidArgumentException("Unknown attribute '$attribute'.");
             }
-            // For every given attribute
-            foreach ($collectionRolesRecord as $attribute => $content) {
-                if (in_array($attribute, $this->collections_roles_info['primary']) === true) {
-                    throw new InvalidArgumentException('Primary key attributes may not be updated.');
-                } else if (in_array($attribute, $this->collections_roles_info['cols']) === false) {
-                    throw new InvalidArgumentException("Unknown attribute '$attribute'.");
-                }
-                $this->collectionRoles[$language][$attribute] = $content;
-            }
-            // Setting the ID 
-            $this->collectionRoles[$language][$this->collections_roles_info['primary'][1]] = $this->roles_id;
+            $this->collectionRoles[$attribute] = $content;
         }
+        // Setting the ID 
+        $this->collectionRoles[$this->collections_roles_info['primary'][1]] = $this->roles_id;
     }
     
     /**
@@ -150,19 +127,17 @@ class Opus_Collection_Roles {
      */
     public function load($roles_id) {
         $this->validation = new Opus_Collection_Validation();
-        $this->validation->ID($roles_id);
-        $collectionRoles = $this->collections_roles
+        $this->validation->constructorID($roles_id);
+        $cr = $this->collections_roles
                                     ->fetchAll($this->collections_roles
                                                     ->select()
                                                     ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
                                     ->toArray();
-        if (empty($collectionRoles)) {
+        if (true === empty($cr)) {
             throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");                                   
         }
-        // Replace numeric index by language codes
-        foreach ($collectionRoles as $numIndex => $record) {
-            $this->collectionRoles[$record[$this->collections_roles_info['primary'][2]]] = $record;
-        }
+        $this->collectionRoles = $cr[0];                                    
+        
         // Has the collection-role already an ID?
         if ($this->roles_id > 0) {
             // Then overwrite the loaded data
@@ -173,8 +148,39 @@ class Opus_Collection_Roles {
             // Otherwise take the ID of the loaded collection-content as the collection-content ID
             $this->roles_id = $roles_id;
         }
+        
     }
      
+    
+    /**
+     * Fetch all collection-roles from database.
+     *
+     * @param   boolean $alsoHidden Flag: Fetch also hidden roles.
+     * @return array
+     */
+    public function getAllRoles($alsoHidden = false) {
+        
+        // Argument validation
+        if (false === is_bool($alsoHidden)) {
+            throw new InvalidArgumentException('AlsoHidden flag must be boolean.');
+        }
+        
+        if ($alsoHidden === true) {
+            $allCollectionRoles = $this ->collections_roles
+                                        ->fetchAll($this ->collections_roles->select()
+                                        ->order('position'))
+                                        ->toArray();
+        } else {
+            $allCollectionRoles = $this ->collections_roles
+                                        ->fetchAll($this ->collections_roles->select()
+                                        ->order('position')
+                                        ->where('visible = ?', 1))
+                                        ->toArray();
+        }
+        return $allCollectionRoles;
+    }
+    
+    
     /**
      * Save collection-role to database.
      *
@@ -195,19 +201,15 @@ class Opus_Collection_Roles {
             // Delete outdated database records
             $this->collections_roles->delete($this->collections_roles_info['primary'][1] . ' = ' . $this->roles_id);
             // Insert updated database records
-            foreach ($this->collectionRoles as $language => $record) {
-                foreach ($record as $index => $attribute) {
-                    if ($attribute === null) {
-                        unset ($record[$index]);
-                    }
+            foreach ($this->collectionRoles as $index => $attribute) {
+                if ($attribute === null) {
+                    unset ($this->collectionRoles[$index]);
                 }
-                $record[$this->collections_roles_info['primary'][1]] = $this->roles_id;
-                $this->collections_roles
-                     ->insert($record);
             }
+            $this->collectionRoles[$this->collections_roles_info['primary'][1]] = $this->roles_id;
+            $this->collections_roles
+                 ->insert($this->collectionRoles);
         } catch (Exception $e) {
-            $db = Zend_Registry::get('db_adapter');
-            $db->rollBack();
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
@@ -234,7 +236,6 @@ class Opus_Collection_Roles {
         try {
             $db->query($query);
         } catch (Exception $e) {
-            $db->rollBack();
             throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
         }
         
@@ -251,7 +252,6 @@ class Opus_Collection_Roles {
         try {
             $db->query($query);
         } catch (Exception $e) {
-            $db->rollBack();
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
         
@@ -295,7 +295,6 @@ class Opus_Collection_Roles {
         try {
             $db->query($query);
         } catch (Exception $e) {
-            $db->rollBack();
             throw new Exception('Error creating collection replacement table: ' . $e->getMessage());
         }
         
@@ -321,8 +320,51 @@ class Opus_Collection_Roles {
         try {
             $db->query($query);
         } catch (Exception $e) {
-            $db->rollBack();
             throw new Exception('Error creating collection structure table: ' . $e->getMessage());
         }
     }
+
+
+    /**
+     * Shift the positions of the roles for inserting/deleting
+     *
+     * @param   integer $from    Position from which should be shifted.
+     * @param   boolean $shiftup Incremental or decremental shifting.
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    public function shiftPositions($from, $shiftup = true) {
+        if (false === is_int($from)) {
+            throw new InvalidArgumentException("Shifting position must be integer");
+        } 
+        if ($from < 0) {
+            throw new InvalidArgumentException("Shifting position must be positive integer");
+        } 
+        $db = Zend_Registry::get('db_adapter');
+        if (true === $shiftup) {
+            $db->query('UPDATE collections_roles SET `position` = `position`+1 WHERE `position` >= ' . (int) $from);
+        } else {
+            $db->query('UPDATE collections_roles SET `position` = `position`-1 WHERE `position` >= ' . (int) $from);
+        }
+        
+    }
+
+    
+    /**
+     * Find out the lowest free position for a role
+     *
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @return integer First free position
+     */
+    public function nextPosition() {
+            $maxPosition = $this->collections_roles
+                                        ->fetchRow($this->collections_roles->select()
+                                        ->from($this->collections_roles, array('max' => 'max(position)'))
+                                        ->order('position'))
+                                        ->toArray();
+            return($maxPosition['max'] + 1);
+    }
+    
+    
+    
 }

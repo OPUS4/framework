@@ -48,21 +48,26 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
 
         $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
+        $adapter->query("INSERT INTO `collections_roles` 
+        (`collections_roles_id`, `name`, `visible`) 
+        VALUES (7081, 'Just to shift test area', 1)
+        ;");
+        
         $adapter->query("DROP TABLE IF EXISTS collections_contents_7081;");
         $adapter->query('CREATE TABLE collections_contents_7081 (
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
-            `collections_language` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT "ger",
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-            PRIMARY KEY ( `collections_id` , `collections_language` )
+            PRIMARY KEY ( `collections_id` )
             ) ENGINE = InnoDB');
         $adapter->query("INSERT INTO `collections_contents_7081`
-        (`collections_id`, `collections_language`, `name`, `number`)
-        VALUES (1, 'ger', 'Tiere', '000'),
-        (2, 'ger', 'Pflanzen', '000'),
-        (3, 'eng', 'dogs', '000'),
-        (4, 'ger', 'Insekten', '000'),
-        (5, 'fra', 'boef', '000')
+        (`collections_id`, `name`, `number`)
+        VALUES (1,  'Tiere', '000'),
+        (2,  'Pflanzen', '000'),
+        (3,  'dogs', '000'),
+        (4,  'Insekten', '000'),
+        (5,  'boef', '000')
         ;");
         $adapter->query("TRUNCATE institutes_contents;");
         $adapter->query("INSERT INTO `institutes_contents`
@@ -78,6 +83,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
 
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
+        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
         $adapter->query("DROP TABLE IF EXISTS collections_contents_7081;");
         $adapter->query("TRUNCATE institutes_contents;");
     }
@@ -107,8 +113,8 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function testCollectionContentsConstructor($ID) {
         $occ = new Opus_Collection_Contents($ID);
-        $this->assertTrue(isset($occ->collectionContents), 'No collectionContents array built by constructor.');
-        $this->assertTrue(isset($occ->collections_contents_info), 'No collections_contents_info array built by constructor.');
+        $cont = $occ->getCollectionContents();
+        $this->assertTrue(is_array($cont), 'No collectionContents array built by constructor.');
     }
 
     /**
@@ -121,75 +127,23 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $ocs = new Opus_Collection_Contents($ID);
     }
 
-    public function validCreateDataProvider() {
-        return array(
-            array('institute', array('ger', 'eng')),
-            array(7081, array('fra')),
-            array(7081, array('ger', 'eng', 'aar', 'abk')),
-            array(7081, array()),
-        );
-    }
 
-    /**
-     *
-     * @dataProvider validCreateDataProvider
-     *
-     */
-    public function testCollectionContentsCreate($ID, $languageArray) {
-        $this->markTestSkipped('Need to update for database changes.');
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
-        $occ = new Opus_Collection_Contents($ID);
-        $occ->create();
-        $this->assertType('array', $occ->collectionContents, 'collectionContents array not created properly');
-        $occ->create($languageArray);
-        foreach ($languageArray as $languageCode) {
-            $this->assertArrayHasKey($languageCode, $occ->collectionContents, 'collectionContents array does not contain expected language '.$languageCode);
-        }
-    }
-
-    public function invalidCreateDataProvider() {
-        return array(
-            array('institute', array('gr', 'en')),
-            array(7081, array(0, 2)),
-            array(7081, array('germ', 'engl', 'aard', 'abku')),
-        );
-    }
-
-    /**
-     *
-     * @dataProvider invalidCreateDataProvider
-     *
-     */
-    public function testCollectionContentsCreateInvArg($ID, $languageArray) {
-        $this->setExpectedException('InvalidArgumentException');
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
-        $occ = new Opus_Collection_Contents($ID);
-        $occ->create($languageArray);
-    }
 
     public function validUpdateDataProvider() {
         return array(
             array('institute',
-                    array('ger', 'eng'),
-                    array('eng' => array('type' => 'Schall und Rauch',
-                                            'name' => '000',
-                                            'postal_address' => 'asdf',
-                                            'site' => 'http://www.asdf.de'),
-                          'ger' => array('type' => 'Sound and Fog',
+                    array('type' => 'Schall und Rauch',
                                             'name' => '000',
                                             'postal_address' => 'asdf',
                                             'site' => 'http://www.asdf.de')
-                    )
+                    
             ),
-            array(7081, array('fra'),
-                    array('fra' => array('name' => 'Schall und Rauch', 'number' => '000')
-                          )),
-            array(7081, array('ger', 'eng', 'aar', 'abk'),
-                    array('aar' => array('name' => 'Schall und Rauch', 'number' => '000'),
-                          'ger' => array('name' => 'Schall und Rauch', 'number' => '000'),
-                          'abk' => array('name' => 'Schall und Rauch', 'number' => '000'),
-                          'eng' => array('name' => 'Schall und Rauch', 'number' => '000')
-                          )),
+            array(7081, 
+                    array('name' => 'Schall und Rauch', 'number' => '000')
+                          ),
+            array(7081, 
+                    array('name' => 'Schall und Rauch', 'number' => '000')
+                          ),
         );
     }
 
@@ -198,19 +152,13 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validUpdateDataProvider
      *
      */
-    public function testCollectionContentsUpdate($ID, $languageArray, $contentArray) {
-        $this->markTestSkipped('Need to update for database changes.');
+    public function testCollectionContentsUpdate($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
-        $occ->create($languageArray);
-        foreach ($contentArray as $language => $record) {
-            $occ->update(array($language => $record));
-        }
-        foreach ($contentArray as $languageCode => $contentRecord) {
-            $this->assertArrayHasKey($languageCode, $occ->collectionContents, 'collectionContents array does not contain expected language '.$languageCode);
-            foreach ($contentRecord as $contentType => $contentValue) {
-                $this->assertArrayHasKey($contentType, $occ->collectionContents[$languageCode], 'collectionContents array does not contain expected contentType '.$contentType);
-            }
+        $occ->update($contentArray);
+        foreach ($contentArray as $contentType => $contentValue) {
+            $cont = $occ->getCollectionContents();
+            $this->assertArrayHasKey($contentType, $cont, 'collectionContents array does not contain expected contentType '.$contentType);
         }
     }
 
@@ -262,11 +210,9 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testCollectionContentsUpdateInvArg($ID, $languageArray, $contentArray) {
-        $this->markTestSkipped('Need to update for database changes.');
         $this->setExpectedException('InvalidArgumentException');
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
-        $occ->create($languageArray);
         foreach ($contentArray as $language => $record) {
             $occ->update(array($language => $record));
         }
@@ -293,11 +239,10 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      *
      */
     public function testLoadCollectionContents($ID, $coll_id) {
-        $this->markTestSkipped('Need to update for database changes.');
         $occ = new Opus_Collection_Contents($ID);
-        $pre = sizeof($occ->collectionContents);
+        $pre = sizeof($occ->getCollectionContents());
         $occ->load($coll_id);
-        $post = sizeof($occ->collectionContents);
+        $post = sizeof($occ->getCollectionContents());
         $this->assertGreaterThan($pre, $post, 'Nothing loaded.');
     }
 
@@ -328,17 +273,13 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validUpdateDataProvider
      *
      */
-    public function testSaveCollectionContents($ID, $languageArray, $contentArray) {
-        $this->markTestSkipped('Need to update for database changes.');
+    public function testSaveCollectionContents($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
-        $occ->create($languageArray);
-        foreach ($contentArray as $language => $record) {
-            $occ->update(array($language => $record));
-        }
+        $occ->update($contentArray);
         $occ->save();
-        $this->assertNotEquals($occ->collections_id, 0);
-        $occ->load($occ->collections_id);
+        $this->assertNotEquals($occ->getCollectionsID(), 0);
+        $occ->load($occ->getCollectionsID());
     }
 
     public function invalidSaveDataProvider() {
@@ -372,7 +313,6 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Exception');
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
-        $occ->create($languageArray);
         foreach ($contentArray as $language => $record) {
             $occ->update(array($language => $record));
         }
