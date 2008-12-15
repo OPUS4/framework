@@ -57,12 +57,17 @@ class Opus_Db_CollectionsContents extends Zend_Db_Table {
     protected $_primary = 'collections_id';
     
     /**
-     * primary key values cannot be generated automatically.
+     * Primary key values cannot be generated automatically.
      * 
      * @var boolean
      */
     protected $_sequence = false;
     
+    /**
+     * Constructor. 
+     *
+     * @param integer $ID Number identifying the collection tree (role) 
+     */
     public function __construct($ID) {
         $this->_name = 'collections_contents_'.$ID;
         parent::__construct();

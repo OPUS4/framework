@@ -87,27 +87,6 @@ class Opus_Collection_Validation {
         }
     }
     
-    /**
-     * Verify if given argument is a valid language code). 
-     *
-     * @param   integer $language Argument to verify.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
-     */
-    static public function language($language) {
-        if (is_string($language) === false) {
-            throw new InvalidArgumentException('Language code must be a string.');
-        } else if (strlen($language) !== 3) {
-            throw new InvalidArgumentException($language . ' is not a three letter language code.');
-        }
-    }
-    
-    static public function nnInteger(string $varname, $value) {
-        if ( (false === is_int($value)) or (0 > $value) ) {
-            throw new InvalidArgumentException($varname. ' must be an non-negative integer.');
-        }
-        
-    }
-    
+
     
 }

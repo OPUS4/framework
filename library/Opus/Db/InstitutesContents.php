@@ -53,13 +53,15 @@ class Opus_Db_InstitutesContents extends Zend_Db_Table {
      * DB table primary key name.
      * Important: First element is the numeric part, second element is the language part of the key!
      *
-     * @var array <string, string>
+     * @var string
      */
     protected $_primary = 'institutes_id';
 
     /**
-     * primary key values cannot be generated automatically.
-     */
+     * Primary key values cannot be generated automatically.
+     * 
+     * @var boolean
+     *      */
     protected $_sequence = false;
 
     /**

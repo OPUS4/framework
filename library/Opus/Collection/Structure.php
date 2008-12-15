@@ -115,9 +115,9 @@ class Opus_Collection_Structure {
     /**
      * Returns collections_id to the given LEFT attribute.
      *
-     * @param integer $$left LEFT attribute.
+     * @param integer $left LEFT attribute.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
+     * @return integer
      */
     public function leftToID($left) {
         // Argument validation
@@ -135,7 +135,7 @@ class Opus_Collection_Structure {
     /**
      * Returns collection structure array.
      *
-     * @return void
+     * @return array
      */
     public function getCollectionStructure() {
         return $this->collectionStructure;

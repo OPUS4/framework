@@ -189,7 +189,6 @@ class Opus_Collection_Contents {
     /**
      * Save (pseudo)-content for root node to database.
      *
-     * @param string $language ISO-Code identifying the language.
      * @throws Exception On failed database access.
      * @return void
      */

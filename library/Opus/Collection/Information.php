@@ -44,8 +44,10 @@ class Opus_Collection_Information {
      * Create a complete new collection structure (role). 
      *
      * @param array(string => array(string => string)) $roleArray Array with collection_role database records.
-     * @param boolean                                  $hidden (Optional)True if tree should be hidden.
+     * @param integer                                  $position  (Optional) Position for the new role.
+     * @param boolean                                  $hidden    (Optional) True if tree should be hidden.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
      * @return integer ID of the newely created Collection Tree
      */
     static public function newCollectionTree(array $roleArray, $position = 0, $hidden = false) {
@@ -120,6 +122,7 @@ class Opus_Collection_Information {
      * @param integer                                  $leftSibling_id Left sibling node of collection.
      * @param array(string => array(string => string)) $contentArray   Array with collection_content database records.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
      * @return integer $collections_id ID of the newely created Collection
      */
     static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
@@ -142,7 +145,6 @@ class Opus_Collection_Information {
     
         // Create a new collection content container
         $occ = new Opus_Collection_Contents($role_id);
-        //$occ->create();
         
         // Fill the collection content with data
         $occ->update($contentArray);  
@@ -184,6 +186,7 @@ class Opus_Collection_Information {
      * @param integer $parent_id      Parent node of collection.
      * @param integer $leftSibling_id Left sibling node of collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
      * @return void
      */
     static public function newCollectionPosition($role_id, $collections_id, $parent_id, $leftSibling_id) {
@@ -230,6 +233,7 @@ class Opus_Collection_Information {
      * @param integer $role_id Identifies tree for collection.
      * @param integer $left    LEFT attribute of the tree position.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
      * @return void
      */
     static public function deleteCollectionPosition($role_id, $left) {
@@ -274,6 +278,7 @@ class Opus_Collection_Information {
      * @param integer $role_id        Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
      * @return void
      */
     static public function deleteCollection($role_id, $collections_id) {
@@ -397,11 +402,10 @@ class Opus_Collection_Information {
      *
      * @param integer $roles_id           Identifies tree for collection.
      * @param integer $collections_id     (Optional) Identifies the collection.
-     * @param boolean $alsoSubCollections (Optional) Decides if documents in the subcollections should be regarded.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id = 0) { //, $alsoSubCollections = false) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 0) {
         
         // Argument validation
         $validation = new Opus_Collection_Validation();
@@ -411,12 +415,10 @@ class Opus_Collection_Information {
             $collections_id = 0;
         }
         
-        /*
-         * TODO: Documents in SubCollections
-         * Look for 'link_docs_path_to_root' attribute
-         * If !=0 fetch every ID on path to root
-         * For every such ID: fetch all related docs 
-         */
+        // TODO: Documents in SubCollections
+        // Look for 'link_docs_path_to_root' attribute
+        // If !=0 fetch every ID on path to root
+        // For every such ID: fetch all related docs 
         
         // TODO: I'm not very happy with the following ...
         // DB table gateway for the linking table between collections and documents
@@ -484,7 +486,6 @@ class Opus_Collection_Information {
                 // Container for this path
                 $path = array();
                 // First node in path is the given collection
-                //$occ->create();
                 $occ->load((int) $collections_id);
                 $path[] = $occ->getCollectionContents();
                 // Search outwards the left/right-borders of the current node

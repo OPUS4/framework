@@ -55,8 +55,13 @@ class Opus_Db_CollectionsStructure extends Zend_Db_Table {
      */
     protected $_primary = 'collections_structure_id';
     
+    /**
+     * Constructor. 
+     *
+     * @param integer $ID Number identifying the collection tree (role) 
+     */
     public function __construct($ID) {
-        $this->_name = 'collections_structure_'.$ID;
+        $this->_name = 'collections_structure_' . $ID;
         parent::__construct();
     }
     

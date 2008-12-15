@@ -81,7 +81,7 @@ class Opus_Collection_Roles {
     /**
      * Returns collection roles array.
      *
-     * @return void
+     * @return array
      */
     public function getCollectionRoles() {
         return $this->collectionRoles;
@@ -90,7 +90,7 @@ class Opus_Collection_Roles {
     /**
      * Returns roles_id.
      *
-     * @return void
+     * @return integer
      */
     public function getRolesID() {
         return (int) $this->roles_id;
@@ -155,7 +155,8 @@ class Opus_Collection_Roles {
     /**
      * Fetch all collection-roles from database.
      *
-     * @param   boolean $alsoHidden Flag: Fetch also hidden roles.
+     * @param   boolean $alsoHidden (Optional) Flag: Fetch also hidden roles.
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
     public function getAllRoles($alsoHidden = false) {
@@ -329,16 +330,16 @@ class Opus_Collection_Roles {
      * Shift the positions of the roles for inserting/deleting
      *
      * @param   integer $from    Position from which should be shifted.
-     * @param   boolean $shiftup Incremental or decremental shifting.
+     * @param   boolean $shiftup (Optional) Incremental or decremental shifting.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
     public function shiftPositions($from, $shiftup = true) {
         if (false === is_int($from)) {
-            throw new InvalidArgumentException("Shifting position must be integer");
+            throw new InvalidArgumentException('Shifting position must be integer');
         } 
         if ($from < 0) {
-            throw new InvalidArgumentException("Shifting position must be positive integer");
+            throw new InvalidArgumentException('Shifting position must be positive integer');
         } 
         $db = Zend_Registry::get('db_adapter');
         if (true === $shiftup) {

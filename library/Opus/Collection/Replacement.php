@@ -108,7 +108,7 @@ class Opus_Collection_Replacement {
     /**
      * Getter for $collectionsIdentifier. 
      *
-     * @return void
+     * @return string
      */
     public function getCollectionsIdentifier() {
         return (string) $this->collectionsIdentifier;

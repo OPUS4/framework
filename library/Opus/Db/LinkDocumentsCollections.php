@@ -55,8 +55,13 @@ class Opus_Db_LinkDocumentsCollections extends Zend_Db_Table {
      */
     protected $_primary = 'link_documents_collections_id';
     
+    /**
+     * Constructor. 
+     *
+     * @param integer $ID Number identifying the collection tree (role) 
+     */
     public function __construct($ID) {
-        $this->_name = 'link_documents_collections_'.$ID;
+        $this->_name = 'link_documents_collections_' . $ID;
         parent::__construct();
     }
     
