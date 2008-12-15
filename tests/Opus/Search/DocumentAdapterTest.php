@@ -32,7 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_Search_DocumentAdapterTest extends PHPUnit_Extensions_Database_TestCase {
+class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 	/**
      * SetUp database 
      *
