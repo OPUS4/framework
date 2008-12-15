@@ -93,7 +93,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'module' => 'frontdoor',
 			'controller' => 'index',
 			'action' => 'index',
-			'id' => $this->documentData['id']
+			'docId' => $this->documentData['id']
 		);
 		$this->documentData['fileUrl'] = array(
 			'module' => 'frontdoor',
