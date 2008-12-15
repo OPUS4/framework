@@ -69,7 +69,7 @@ class Opus_Db_CollectionsContents extends Zend_Db_Table {
      * @param integer $ID Number identifying the collection tree (role) 
      */
     public function __construct($ID) {
-        $this->_name = 'collections_contents_'.$ID;
+        $this->_name = 'collections_contents_' . $ID;
         parent::__construct();
     }
     

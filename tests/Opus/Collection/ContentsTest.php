@@ -48,46 +48,56 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
 
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
-        $adapter->query("INSERT INTO `collections_roles` 
+        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('INSERT INTO `collections_roles` 
         (`collections_roles_id`, `name`, `visible`) 
-        VALUES (7081, 'Just to shift test area', 1)
-        ;");
+        VALUES (7081, "Just to shift test area", 1)
+        ;');
         
-        $adapter->query("DROP TABLE IF EXISTS collections_contents_7081;");
+        $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('CREATE TABLE collections_contents_7081 (
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             PRIMARY KEY ( `collections_id` )
             ) ENGINE = InnoDB');
-        $adapter->query("INSERT INTO `collections_contents_7081`
+        $adapter->query('INSERT INTO `collections_contents_7081`
         (`collections_id`, `name`, `number`)
-        VALUES (1,  'Tiere', '000'),
-        (2,  'Pflanzen', '000'),
-        (3,  'dogs', '000'),
-        (4,  'Insekten', '000'),
-        (5,  'boef', '000')
-        ;");
-        $adapter->query("TRUNCATE institutes_contents;");
-        $adapter->query("INSERT INTO `institutes_contents`
+        VALUES (1,  "Tiere", "000"),
+        (2,  "Pflanzen", "000"),
+        (3,  "dogs", "000"),
+        (4,  "Insekten", "000"),
+        (5,  "boef", "000")
+        ;');
+                $adapter->query('TRUNCATE institutes_contents;');
+        $adapter->query('INSERT INTO `institutes_contents`
         (`institutes_id`, `type`, `name`)
-        VALUES (0, 'Fakultät', 'Fakultät A'),
-        (1, 'Fakultät', 'Fakultät A1'),
-        (2, 'Fakultät', 'Fakultät A2'),
-        (3, 'Fakultät', 'Fakultät A2a'),
-        (4, 'Fakultät', 'Fakultät A3')
-        ;");
-
+        VALUES (0, "Fakultät", "Fakultät A"),
+        (1, "Fakultät", "Fakultät A1"),
+        (2, "Fakultät", "Fakultät A2"),
+        (3, "Fakultät", "Fakultät A2a"),
+        (4, "Fakultät", "Fakultät A3")
+        ;');
+        
     }
 
+    /**
+     * TearDown database
+     *
+     * @return void
+     */
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query("DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;");
-        $adapter->query("DROP TABLE IF EXISTS collections_contents_7081;");
-        $adapter->query("TRUNCATE institutes_contents;");
+        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
+        $adapter->query('TRUNCATE institutes_contents;');
     }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function validConstructorIDDataProvider() {
         return array(
             array('institute'),
@@ -95,6 +105,11 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         );
     }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function invalidConstructorIDDataProvider() {
         return array(
             array('institut'),
@@ -107,9 +122,11 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test function
      *
      * @dataProvider validConstructorIDDataProvider
      *
+     * @param integer $ID No comment, use your brain.
      */
     public function testCollectionContentsConstructor($ID) {
         $occ = new Opus_Collection_Contents($ID);
@@ -118,17 +135,22 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
+     * Test function
+     * 
      * @dataProvider invalidConstructorIDDataProvider
      *
+     * @param integer $ID No comment, use your brain.
      */
     public function testCollectionContentsConstructorInvalidArg($ID) {
         $this->setExpectedException('InvalidArgumentException');
         $ocs = new Opus_Collection_Contents($ID);
     }
 
-
-
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function validUpdateDataProvider() {
         return array(
             array('institute',
@@ -148,9 +170,12 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test function
      *
      * @dataProvider validUpdateDataProvider
      *
+     * @param integer $ID           No comment, use your brain.
+     * @param integer $contentArray No comment, use your brain.
      */
     public function testCollectionContentsUpdate($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
@@ -158,14 +183,18 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $occ->update($contentArray);
         foreach ($contentArray as $contentType => $contentValue) {
             $cont = $occ->getCollectionContents();
-            $this->assertArrayHasKey($contentType, $cont, 'collectionContents array does not contain expected contentType '.$contentType);
+            $this->assertArrayHasKey($contentType, $cont, 'collectionContents array does not contain expected contentType ' . $contentType);
         }
     }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function invalidUpdateDataProvider() {
         return array(
             array('institute',
-                    array('ger', 'eng'),
                     array('eng' => array('institutes_id' => 5,
                                             'name' => '000',
                                             'postal_address' => 'asdf',
@@ -173,7 +202,6 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
                     )
             ),
             array('institute',
-                    array('ger', 'eng'),
                     array('eng' => array('institutes_language' => 'ger',
                                             'name' => '000',
                                             'postal_address' => 'asdf',
@@ -181,7 +209,6 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
                     )
             ),
             array('institute',
-                    array('ger', 'eng'),
                     array('eng' => array('typ' => 'Schall und Rauch',
                                             'name' => '000',
                                             'postal_address' => 'asdf',
@@ -189,27 +216,30 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
                     )
             ),
 
-            array(7081, array('fra'),
+            array(7081, 
                     array('fra' => array('collections_id' => 4, 'number' => '000'))),
-            array(7081, array('fra'),
+            array(7081, 
                     array('fra' => array('collections_language' => 'eng', 'number' => '000'))),
-            array(7081, array('fra'),
+            array(7081, 
                     array('fra' => array('name' => 'Schall und Rauch', 'nummer' => '000'))),
 
-            array(7081, array('ger', 'eng', 'aar', 'abk'),
+            array(7081, 
                     array('fra' => array('name' => 'Schall und Rauch', 'number' => '000'))),
-            array(7081, array('ger', 'eng', 'aar', 'abk'),
+            array(7081, 
                     array('xyz' => array('name' => 'Schall und Rauch', 'number' => '000'))),
 
             );
     }
 
     /**
+     * Test function
      *
      * @dataProvider invalidUpdateDataProvider
      *
+     * @param integer $ID           No comment, use your brain.
+     * @param integer $contentArray No comment, use your brain.
      */
-    public function testCollectionContentsUpdateInvArg($ID, $languageArray, $contentArray) {
+    public function testCollectionContentsUpdateInvArg($ID, $contentArray) {
         $this->setExpectedException('InvalidArgumentException');
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
@@ -218,8 +248,11 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         }
     }
 
-
-
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function validLoadDataProvider() {
         return array(
             array('institute', 1),
@@ -234,18 +267,26 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test function
      *
      * @dataProvider validLoadDataProvider
      *
+     * @param integer $ID      No comment, use your brain.
+     * @param integer $coll_id No comment, use your brain.
      */
     public function testLoadCollectionContents($ID, $coll_id) {
         $occ = new Opus_Collection_Contents($ID);
-        $pre = sizeof($occ->getCollectionContents());
+        $pre = count($occ->getCollectionContents());
         $occ->load($coll_id);
-        $post = sizeof($occ->getCollectionContents());
+        $post = count($occ->getCollectionContents());
         $this->assertGreaterThan($pre, $post, 'Nothing loaded.');
     }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function invalidLoadDataProvider() {
         return array(
             array('institute', 5),
@@ -259,6 +300,8 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider invalidLoadDataProvider
      *
+     * @param integer $ID      No comment, use your brain.
+     * @param integer $coll_id No comment, use your brain.
      */
     public function testLoadCollectionContentsInvArg($ID, $coll_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -266,12 +309,13 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $occ->load($coll_id);
     }
 
-
-
     /**
+     * Test function
      *
      * @dataProvider validUpdateDataProvider
      *
+     * @param integer $ID           No comment, use your brain.
+     * @param integer $contentArray No comment, use your brain.
      */
     public function testSaveCollectionContents($ID, $contentArray) {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
@@ -282,20 +326,24 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $occ->load($occ->getCollectionsID());
     }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function invalidSaveDataProvider() {
         return array(
             array('institute',
-                    array('ger', 'eng'),
                     array('eng' => array('type' => 'Schall und Rauch',
                                             'name' => '000',
                                             'postal_address' => 'asdf',
                                             'site' => 'http://www.asdf.de')
                     )
             ),
-            array(7081, array('fra'),
+            array(7081, 
                     array('fra' => array('number' => '000')
                           )),
-            array(7081, array('ger', 'eng', 'aar', 'abk'),
+            array(7081, 
                     array('aar' => array('name' => 'Schall und Rauch', 'number' => '000'),
                           'gem' => array('name' => 'Schall und Rauch', 'number' => '000'),
                           'abk' => array('name' => 'Schall und Rauch', 'number' => '000'),
@@ -305,11 +353,14 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test function
      *
      * @dataProvider invalidSaveDataProvider
      *
+     * @param integer $ID           No comment, use your brain.
+     * @param integer $contentArray No comment, use your brain.
      */
-    public function testSaveCollectionContentsInvArg($ID, $languageArray, $contentArray) {
+    public function testSaveCollectionContentsInvArg($ID, $contentArray) {
         $this->setExpectedException('Exception');
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
@@ -318,17 +369,4 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         }
         $occ->save();
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
 }

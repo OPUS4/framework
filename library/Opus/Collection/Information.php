@@ -400,8 +400,8 @@ class Opus_Collection_Information {
     /**
      * Fetch all document IDs belonging to a collection. 
      *
-     * @param integer $roles_id           Identifies tree for collection.
-     * @param integer $collections_id     (Optional) Identifies the collection.
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id (Optional) Identifies the collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
