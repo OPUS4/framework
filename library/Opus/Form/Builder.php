@@ -197,8 +197,9 @@ class Opus_Form_Builder {
     /**
      * Add a given filter to form element.
      *
-     * @param Opus_Model_Field $field
-     * @param Zend_Form $form
+     * @param Opus_Model_Field $field Field object with necessary field informations
+     * @param Zend_Form        $form  Form object which filter should be added
+     * @return void
      */
     protected function _addFilter(Opus_Model_Field $field, Zend_Form $form) {
         $fieldname = $field->getName();
@@ -307,8 +308,9 @@ class Opus_Form_Builder {
     /**
      * Alter post data array with proper action.
      *
-     * @param unknown_type $ref
-     * @param array $value
+     * @param string $ref    Contains action to perform
+     * @param array  &$value Reference to post data array
+     * @return void
      */
     private function __addRemoveAction($ref, array &$value) {
         // split action command
