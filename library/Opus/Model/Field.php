@@ -304,7 +304,11 @@ class Opus_Model_Field
         } else {
             // If multiple values are possible return an array in every case
             if (($this->hasMultipleValues() === true) and (is_array($this->_value) === false)) {
-                return array($this->_value);
+                if (is_null($this->_value) === false) {
+                    return array($this->_value);
+                } else {
+                    return array();
+                }
             }
             return $this->_value;
         }
