@@ -94,8 +94,9 @@ class Opus_Form_Builder {
                 $form->addSubForm($subform, $fieldname);
             } else {
                 $this->_makeElement($fieldname, $field->getValue(), $form);
-                $this->_addValidator($field, $form);
+                $this->_addFilter($field, $form);
                 $this->_addMandatory($field, $form);
+                $this->_addValidator($field, $form);
             }
 
         }
@@ -190,6 +191,20 @@ class Opus_Form_Builder {
                 }
                 $field->setValue($value);
             }
+        }
+    }
+
+    /**
+     * Add a given filter to form element.
+     *
+     * @param Opus_Model_Field $field
+     * @param Zend_Form $form
+     */
+    protected function _addFilter(Opus_Model_Field $field, Zend_Form $form) {
+        $fieldname = $field->getName();
+        $filter = $field->getFilter();
+        if ((empty($filter) === false) and ($form->$fieldname instanceof Zend_Form_Element)) {
+            $form->$fieldname->addFilter($filter);
         }
     }
 
