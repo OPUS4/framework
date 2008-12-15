@@ -43,7 +43,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $adapter->query("DELETE FROM `documents` WHERE `documents_id` = 37");
         $adapter->query("DELETE FROM `document_title_abstracts` WHERE `documents_id` = 37");
-        $adapter->query("DELETE FROM `link_documents_persons` WHERE `documents_id` = 37");
+        $adapter->query("DELETE FROM `link_persons_documents` WHERE `documents_id` = 37");
         $adapter->query("DELETE FROM `persons` WHERE `persons_id` = 1");
         $adapter->query("INSERT INTO `documents` (`documents_id`, `range_id`, `completed_date`, `completed_year`, `contributing_corporation`, `creating_corporation`, `date_accepted`, `document_type`, `edition`, `issue`, `language`, `non_institute_affiliation`, `page_first`, `page_last`, `page_number`, `publication_status`, `published_date`, `published_year`, `publisher_name`, `publisher_place`, `publisher_university`, `reviewed`, `server_date_modified`, `server_date_published`, `server_date_unlocking`, `server_date_valid`, `source`, `swb_id`, `vg_wort_pixel_url`, `volume`) VALUES
 (37, NULL, NULL, 0000, NULL, NULL, NULL, 'monograph', NULL, NULL, 'ger', NULL, NULL, NULL, NULL, 0, NULL, 2002, 'Universitätsbibliothek der Technischen Universität Hamburg-Harburg', 'Hamburg-Harburg', 0, 'peer', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL)");
