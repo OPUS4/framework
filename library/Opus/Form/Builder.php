@@ -223,32 +223,7 @@ class Opus_Form_Builder {
             if (is_array($a_value) === true) {
                 $ref = $this->_addRemove($a_value);
                 if (is_null($ref) === false) {
-                    // split action command
-                    $fname = explode('_', $ref);
-                    // action to do
-                    $action = $fname[0];
-                    // remove action expression
-                    unset($a_value[$ref]);
-                    switch($action) {
-                        case 'add':
-                            // add a new field
-                            $a_value[] = '';
-                            break;
-
-                        case 'remove':
-                            // remove field at position
-                            $index = (int) $fname[2];
-                            // protect removing nonexisting fields or emptying structure
-                            if ((array_key_exists($index, $a_value) === true)
-                                and (count($a_value) > 1)) {
-                                unset($a_value[$index]);
-                            }
-                            break;
-
-                        default:
-                            // No action taken
-                            break;
-                    }
+                    $this->__addRemoveAction($ref, $a_value);
                 }
             }
         }
@@ -314,4 +289,38 @@ class Opus_Form_Builder {
         $field->setValue($new_values);
     }
 
+    /**
+     * Alter post data array with proper action.
+     *
+     * @param unknown_type $ref
+     * @param array $value
+     */
+    private function __addRemoveAction($ref, array &$value) {
+        // split action command
+        $fname = explode('_', $ref);
+        // action to do
+        $action = $fname[0];
+        // remove action expression
+        unset($value[$ref]);
+        switch($action) {
+            case 'add':
+                // add a new field
+                $value[] = '';
+                break;
+
+            case 'remove':
+                // remove field at position
+                $index = (int) $fname[2];
+                // protect removing nonexisting fields or emptying structure
+                if ((array_key_exists($index, $value) === true)
+                    and (count($value) > 1)) {
+                    unset($value[$index]);
+                }
+                break;
+
+            default:
+                // No action taken
+                break;
+        }
+    }
 }
