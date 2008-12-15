@@ -125,7 +125,7 @@ class Opus_Collection_Information {
      * @throws Exception Is thrown on DB errors.
      * @return integer $collections_id ID of the newely created Collection
      */
-    static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
+    static public function newCollection($role_id, $parent_id, $leftSibling_id, $contentArray) {
 
         // Argument validation
         $validation = new Opus_Collection_Validation();
@@ -175,7 +175,7 @@ class Opus_Collection_Information {
             throw new Exception($e->getMessage());
         }
         
-        return $collections_id;
+        return (int) $collections_id;
     }
     
     /**
@@ -335,6 +335,7 @@ class Opus_Collection_Information {
         
         // Map into an ID-indexed array 
         foreach ($allCollectionRoles as $record) {
+            $record['collections_roles_id'] = (int) $record['collections_roles_id'];
             $allCollectionRolesOutput[$record['collections_roles_id']] = $record;
         }
         
@@ -530,7 +531,8 @@ class Opus_Collection_Information {
         // Create collection content object and load information from DB
         $occ = new Opus_Collection_Contents($roles_id);
         $occ->load((int) $collections_id);
-        return $occ->getCollectionContents();
+        $content = $occ->getCollectionContents();
+        return $content[0];
     }
     
     /**
