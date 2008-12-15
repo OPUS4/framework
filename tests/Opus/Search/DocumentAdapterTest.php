@@ -51,7 +51,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 (1, 37, 'main', 'Informationskompetenz und studentisches Lernen im elektronischen Zeitalter', 'ger'),
 (2, 37, 'main', 'Information literacy and student learning in the electronic age', 'eng'),
 (3, 37, 'abstract', 'Die Integration der Vermittlung von allgemeiner und fachlicher\nInformationskompetenz in das Lernen und Lehren an unseren Universitäten ist\neine wichtige Voraussetzung für die zeitgemässe Qualifizierung von\nHochschulabsolventen. Der Beitrag gibt eine Übersicht zur Ausgangssituation, zu\nProblemen, Zielen, Inhalten und Methoden der Vermittlung von\nInformationskompetenz im Rahmen studentischen Lernens aus der Sicht der\nUniversitätsbibliothek einer Technischen Universität.', 'ger')");
-        $adapter->query("INSERT INTO `link_documents_persons` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
+        $adapter->query("INSERT INTO `link_persons_documents` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
 (1, 37, 1, 'author', 0)");
 		$adapter->query("INSERT INTO `persons` (`persons_id`, `academic_title`, `date_of_birth`, `email`, `first_name`, `last_name`, `place_of_birth`) VALUES
 (1, '', '2008-07-15 00:00:00', 'mustermann@domain.com', 'Thomas', 'Hapke', 'Musterstadt')");
