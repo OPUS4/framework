@@ -86,4 +86,14 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
         return $this->_model->describe();
     }
 
+    /**
+     * Return a reference to an actual field in the linked model.
+     *
+     * @param string $name Name of the requested field.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    public function getField($name) {
+        return $this->_model->getField($name);
+    }
+
 }
