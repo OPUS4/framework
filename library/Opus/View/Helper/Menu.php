@@ -74,7 +74,6 @@ class Opus_View_Helper_Menu
                 );
         $menus['secondary'] = array(
                 'Admin' => 'admin',
-                'Edit' => 'edit',
                 'Frontdoor' => 'frontdoor',
                 'Home' => 'home',
                 );
