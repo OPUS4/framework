@@ -183,6 +183,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+
     /**
      * Test function
      * 
@@ -229,7 +230,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         array(777), 
         array(-12), 
         array('x'), 
-        array(0), 
         array(3.25)
         );
     }
@@ -392,7 +392,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     public function testgetCollection($collections_id) {
         $gc = Opus_Collection_Information::getCollection(7081, $collections_id);
         $this->assertTrue(is_array($gc), "getCollection(7081, $collections_id) didnt return array");
-        $this->assertEquals(count($gc), 1, "getCollection(7081, $collections_id) didnt return expected amount of hits (1)");
+        $this->assertEquals($gc['collections_id'], $collections_id, "getCollection(7081, $collections_id) didnt return expected ID ($collections_id)");
     }
     
     /**
@@ -490,4 +490,300 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Exception');
         Opus_Collection_Information::newCollectionTree($roleArray, $position, $hidden);
     }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validnewCollectionDataProvider() {
+        return array(
+            array(6, 0,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5, 6,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider validnewCollectionDataProvider
+     */
+    public function testnewCollection($parent_id, $leftSibling_id, $contentArray) {
+        
+        $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
+        $coll_id = Opus_Collection_Information::newCollection(7081, $parent_id, $leftSibling_id, $contentArray);
+        $this->assertTrue(is_int($coll_id), "newCollection didn't return integer");
+        
+        $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
+        $this->assertGreaterThan(count($pre_subColls), count($post_subColls), "newCollection didn't insert Collection");
+        
+        $collectionRecord = Opus_Collection_Information::getCollection(7081, $coll_id);
+        $this->assertEquals($collectionRecord['collections_id'], $coll_id, "getCollection of newly created collection didnt return expected ID ($coll_id)");
+        unset($collectionRecord['collections_id']);
+        $this->assertEquals($contentArray, $collectionRecord, "getCollection of newly created collection didnt return expected content");
+        
+    }
+    
+    
+    
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidSiblingnewCollectionDataProvider() {
+        return array(
+            array(6, 2,  array('name' => 'Testinput 1',
+                               'number' =>  '777')
+            ),
+            array(3, 10,  array('name' => 'Testinput 2',
+                               'number' =>  '777')
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidSiblingnewCollectionDataProvider
+     */
+    public function testnewCollectionInvSibling($parent_id, $leftSibling_id, $contentArray) {
+        $this->setExpectedException('Exception');
+        $coll_id = Opus_Collection_Information::newCollection(7081, $parent_id, $leftSibling_id, $contentArray);
+    }
+    
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidparentnewCollectionDataProvider() {
+        return array(
+            array(10, 2,  array('name' => 'Testinput 1',
+                               'number' =>  '888')
+            ),
+            array(9, 10,  array('name' => 'Testinput 2',
+                               'number' =>  '888')
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidparentnewCollectionDataProvider
+     */
+    public function testnewCollectionInvParent($parent_id, $leftSibling_id, $contentArray) {
+        $this->setExpectedException('Exception');
+        $coll_id = Opus_Collection_Information::newCollection(7081, $parent_id, $leftSibling_id, $contentArray);
+    }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidArgumentnewCollectionDataProvider() {
+        return array(
+            array('x', 2,  array('name' => 'Testinput 1',
+                               'number' =>  '777')
+            ),
+            array(3.2, 10,  array('name' => 'Testinput 2',
+                               'number' =>  '777')
+            ),
+            array(6, 'v',  array('name' => 'Testinput 1',
+                               'number' =>  '777')
+            ),
+            array(3, 5.6,  array('name' => 'Testinput 2',
+                               'number' =>  '777')
+            ),
+            array(6, 2,  7
+            ),
+            array(3, 10,  'm'
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidArgumentnewCollectionDataProvider
+     */
+    public function testnewCollectionInvArgument($parent_id, $leftSibling_id, $contentArray) {
+        $this->setExpectedException('InvalidArgumentException');
+        $coll_id = Opus_Collection_Information::newCollection(7081, $parent_id, $leftSibling_id, $contentArray);
+    }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validnewCollectionPositionDataProvider() {
+        return array(
+            array(1, 6, 0
+            ),
+            array(5, 1, 4
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider validnewCollectionPositionDataProvider
+     */
+    public function testnewCollectionPosition($collections_id, $parent_id, $leftSibling_id) {
+        
+        $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
+        Opus_Collection_Information::newCollectionPosition(7081, $collections_id, $parent_id, $leftSibling_id);
+        $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
+        $this->assertGreaterThan(count($pre_subColls), count($post_subColls), "newCollectionPosition didn't insert Collection");
+    }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidStructurenewCollectionPositionDataProvider() {
+        return array(
+            array(12, 6, 0
+            ),
+            array(15, 1, 4
+            ),
+            array(1, 9, 0
+            ),
+            array(5, 12, 4
+            ),
+            array(1, 6, 4
+            ),
+            array(5, 1, 6
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidStructurenewCollectionPositionDataProvider
+     */
+    public function testnewCollectionPositionInvStructure($collections_id, $parent_id, $leftSibling_id) {
+        $this->setExpectedException('Exception');
+        $coll_id = Opus_Collection_Information::newCollectionPosition(7081, $collections_id, $parent_id, $leftSibling_id);
+    }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidArgumentnewCollectionPositionDataProvider() {
+        return array(
+            array('q', 6, 0
+            ),
+            array(15, 'r', 4
+            ),
+            array(1, 9, 's'
+            ),
+            array(-5, 12, 4
+            ),
+            array(1, 6.2, 4
+            ),
+            array(5, 1, -6
+            ),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidArgumentnewCollectionPositionDataProvider
+     */
+    public function testnewCollectionPositionInvArg($collections_id, $parent_id, $leftSibling_id) {
+        $this->setExpectedException('InvalidArgumentException');
+        $coll_id = Opus_Collection_Information::newCollectionPosition(7081, $collections_id, $parent_id, $leftSibling_id);
+    }
+        
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validDeleteCollectionPositionDataProvider() {
+        return array(
+            array(10, 0),
+            array(5, 1),
+            array(13, 5),
+            array(3, 1),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
+     * @param integer $contentArray   No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider validDeleteCollectionPositionDataProvider
+     */
+    public function testDeleteCollectionPosition($left, $parent) {
+        $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
+        Opus_Collection_Information::deleteCollectionPosition(7081, $left);
+        $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
+        $this->assertLessThan(count($pre_subColls), count($post_subColls), "deleteCollectionPosition deleted nothing");
+    }
+    
+    
+    
 }

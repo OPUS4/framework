@@ -249,27 +249,27 @@ class Opus_Collection_Information {
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');  
         $db->beginTransaction();
-        try {
-            // Load nested sets structure from DB
-            $ocs = new Opus_Collection_Structure($role_id);
-            $ocs->load();
-            
-            // Fetch collection ID belonging with given LEFT
-            $collections_id = $ocs->leftToID($left);
-            
-            if ($ocs->count($collections_id) < 2) {
-                // Last occurrence of collection => normal delete
-                $db->rollBack();
-                self::deleteCollection($role_id, $collections_id);
-            } else {
+
+        // Load nested sets structure from DB
+        $ocs = new Opus_Collection_Structure($role_id);
+        $ocs->load();
+        
+        // Fetch collection ID belonging with given LEFT
+        $collections_id = $ocs->leftToID($left);
+        if ($ocs->count($collections_id) < 2) {
+            // Last occurrence of collection => normal delete
+            $db->rollBack();
+            self::deleteCollection($role_id, $collections_id);
+        } else {
+            try {
                 $ocs->delete($left);
                 $ocs->save();
                 $db->commit();
-            }    
-        } catch (Exception $e) {
-            $db->rollBack();
-            throw new Exception($e->getMessage());
-        }
+            } catch (Exception $e) {
+                $db->rollBack();
+                throw new Exception($e->getMessage());
+            }
+        }    
     }
     
     /**
@@ -287,7 +287,7 @@ class Opus_Collection_Information {
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($role_id);
         
-        if ( (false === is_int($left)) or (0 > $left) ) {
+        if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
         }
         
@@ -350,13 +350,13 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getSubCollections($roles_id, $collections_id = 0) {
+    static public function getSubCollections($roles_id, $collections_id = 0, $alsoHidden = false) {
         
         // Argument validation
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);
         
-        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+        if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
         }
         
@@ -390,8 +390,10 @@ class Opus_Collection_Information {
         // Walk through the children and load the corresponding collection contents
         while ($left < ($right-1)) {
             $left++;
-            $occ->load((int) $tree[$left]['collections_id']);
-            $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
+            if ( (1 === (int) $tree[$left]['visible']) or (true === $alsoHidden) ) {
+                $occ->load((int) $tree[$left]['collections_id']);
+                $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
+            }
             $left = $tree[$left]['right'];
         }
         return $children;

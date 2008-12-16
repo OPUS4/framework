@@ -277,7 +277,7 @@ class Opus_Collection_Structure {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($collections_id);
         foreach ($this->collectionStructure as $index => $record) {
-            if ($record[$this->collectionsIdentifier] === $collections_id) {
+            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
                 $this->collectionStructure[$index]['visible'] = 0;
             }
         }
@@ -294,7 +294,7 @@ class Opus_Collection_Structure {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($collections_id);
         foreach ($this->collectionStructure as $index => $record) {
-            if ($record[$this->collectionsIdentifier] === $collections_id) {
+            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
                 $this->collectionStructure[$index]['visible'] = 1;
             }
         }
@@ -313,7 +313,7 @@ class Opus_Collection_Structure {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($collections_id);
         foreach ($this->collectionStructure as $index => $record) {
-            if ($record[$this->collectionsIdentifier] === $collections_id) {
+            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
                 $count++;
             }
         }
