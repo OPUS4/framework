@@ -166,6 +166,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                         $options = null;
                     }
                     $modelclass = $this->_externalFields[$fieldname]['model'];
+                    if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
+                        throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
+                                Define _fetch' . $fieldname . ' method in model class.');
+                    }
                     $loadedValue = $this->_loadExternal($modelclass, $options);
                     $field->setValue($loadedValue);
                 }
@@ -317,7 +321,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         // 1. Get name of id column in target table
         // 2. Get Ids of dependent rows
         // 3. create new model for each id
-        
+
+        // Currently there is no late static binding in PHP 5.2.x, thus we need an instance
+        // to access the tableGatewayClass
         $dummymodel = new $targetModel;
         $tablename = $dummymodel->getTableGatewayClass(); 
         

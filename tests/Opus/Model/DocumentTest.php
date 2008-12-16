@@ -359,6 +359,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if an exception is thrown when using a model in a field that does
+     * not extend Opus_Model_Abstract and for which no custom _fetch method
+     * is defined.
+     *
+     * @return void
+     */
+    public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException() {
+        $this->setExpectedException('Opus_Model_Exception');
+        $document = new Opus_Model_ModelWithNonAbstractExtendingClassField;
+    }
+
+    /**
      * Test if a document's fields come out of the database as they went in.
      *
      * @dataProvider validDocumentDataProvider
