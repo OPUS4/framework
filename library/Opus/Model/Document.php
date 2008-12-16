@@ -69,46 +69,37 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected $_externalFields = array(
             'TitleMain' => array(
                 'model' => 'Opus_Model_Dependent_Title',
-                'table' => 'Opus_Db_DocumentTitleAbstracts',
                 'options' => array('title_abstract_type' => 'main')
             ),
             'TitleAbstract' => array(
                 'model' => 'Opus_Model_Dependent_Abstract',
-                'table' => 'Opus_Db_DocumentTitleAbstracts',
                 'options' => array('title_abstract_type' => 'abstract')
             ),
             'TitleParent' => array(
                 'model' => 'Opus_Model_Dependent_Parent',
-                'table' => 'Opus_Db_DocumentTitleAbstracts',
                 'options' => array('title_abstract_type' => 'parent')
             ),
             'Isbn' => array(
                 'model' => 'Opus_Model_Dependent_Isbn',
-                'table' => 'Opus_Db_DocumentIdentifiers',
                 'options' => array('identifier_type' => 'isbn')
             ),
             'Note' => array(
                 'model' => 'Opus_Model_Dependent_Note',
-                'table' => 'Opus_Db_DocumentNotes',
             ),
             'Patent' => array(
                 'model' => 'Opus_Model_Dependent_Patent',
-                'table' => 'Opus_Db_DocumentPatents',
             ),
             'Enrichment' => array(
                 'model' => 'Opus_Model_Dependent_Enrichment',
-                'table' => 'Opus_Db_DocumentEnrichments',
             ),
             'Institute' => array(
                 'model' => 'Opus_Model_Link_DocumentInstitute',
-                'table' => 'Opus_Db_LinkInstitutesDocument'),
+            ),
             'Licence' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentLicence',
-                'table' => 'Opus_Db_LinkDocumentsLicences'
             ),
             'PersonAuthor' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'table' => 'Opus_Db_LinkPersonsDocuments',
                 'options'  => array('role' => 'author')
             ),
         );
@@ -118,22 +109,17 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @param integer|string $id                (Optional) Id an existing document.
      * @param string         $type              (Optional) Type of a new document.
-     * @param Zend_Db_Table  $tableGatewayModel (Optional) Opus_Db class to use.
      * @see    Opus_Model_Abstract::__construct()
      * @see    $_builder
      * @throws InvalidArgumentException         Thrown if id and type are passed.
      * @throws Opus_Model_Exception             Thrown invalid type is passed.
      */
-    public function __construct($id = null, $type = null, Zend_Db_Table $tableGatewayModel = null) {
+    public function __construct($id = null, $type = null) {
         if ($id === null and $type === null) {
             throw new InvalidArgumentException('Either id or type must be passed.');
         }
 
-        if ($tableGatewayModel === null) {
-            parent::__construct($id, new Opus_Db_Documents);
-        } else {
-            parent::__construct($id, $tableGatewayModel);
-        }
+        parent::__construct($id, new $this->_tableGatewayClass);
 
         if ($id === null) {
             if (is_string($type) === true) {
