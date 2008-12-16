@@ -101,7 +101,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      */
     public function testModelIsSerializedCorrectly() {
         $form = $this->_builder->build($this->_model);
-        $serializedModel = base64_encode(bzcompress(serialize($this->_model)));
+        $serializedModel = $this->_builder->compressModel($this->_model);
         $serializedModelFromForm = $form->getElement(Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME)->getValue();
         $this->assertEquals($serializedModel, $serializedModelFromForm, 'Model serialization has failures.');
     }

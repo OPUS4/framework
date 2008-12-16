@@ -103,7 +103,7 @@ class Opus_Form_Builder {
 
         if ($createSubForm === false) {
             $element = new Zend_Form_Element_Hidden(self::HIDDEN_MODEL_ELEMENT_NAME);
-            $element->setValue(base64_encode(bzcompress(serialize($model))));
+            $element->setValue($this->compressModel($model));
             $form->addElement($element);
 
             $element = new Zend_Form_Element_Submit('submit');
@@ -122,16 +122,26 @@ class Opus_Form_Builder {
      */
     public function buildFromPost(array $post) {
         $modelelementname = self::HIDDEN_MODEL_ELEMENT_NAME;
-        $model = unserialize(bzdecompress(base64_decode($post[$modelelementname])));
+        $model = $this->uncompressModel($post[$modelelementname]);
 
         $this->_addRemove($post);
 
         $this->setFromPost($model, $post);
 
         $form = $this->build($model);
-        $form->$modelelementname->setValue(base64_encode(bzcompress(serialize($model))));
+        $form->$modelelementname->setValue($this->compressModel($model));
 
         return $form;
+    }
+
+    /**
+     * Compress a model object for transfering in forms.
+     *
+     * @param Opus_Model_Interface $model Model object to compress
+     * @return string
+     */
+    public function compressModel(Opus_Model_Interface $model) {
+        return base64_encode(bzcompress(serialize($model)));
     }
 
     /**
@@ -146,8 +156,7 @@ class Opus_Form_Builder {
         $modelelementname = self::HIDDEN_MODEL_ELEMENT_NAME;
         $modelelement = $form->getElement($modelelementname);
         if (is_null($modelelement) === false) {
-            $model_compact = $modelelement->getValue();
-            $model = unserialize(bzdecompress(base64_decode($model_compact)));
+            $model = $this->uncompressModel($modelelement->getValue());
         }
         return $model;
     }
@@ -192,6 +201,22 @@ class Opus_Form_Builder {
                 $field->setValue($value);
             }
         }
+    }
+
+    /**
+     * Uncompress a compressed model object.
+     *
+     * @param string $model Compressed model object.
+     * @throws Opus_Form_Exception Thrown if compressed model data are invalid.
+     * @return Opus_Model_Interface
+     */
+    public function uncompressModel($model) {
+        try {
+            $result = unserialize(bzdecompress(base64_decode($model)));
+        } catch (Exception $e) {
+            throw new Opus_Form_Exception('Model data are not unserializable.');
+        }
+        return $result;
     }
 
     /**
