@@ -49,14 +49,15 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var Zend_Db_Table_Row
      */
     protected $_primaryTableRow;
-    
-    
+
+
     /**
      * Holds the name of the models table gateway class.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = null;
-    
+
     /**
      * Holds all fields of the domain model.
      *
@@ -77,7 +78,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var array
      */
     protected $_validatorPrefix = array('Opus_Validate');
-    
+
     /**
      * Array of filter prefixes used to instanciate filter classes for fields.
      *
@@ -100,8 +101,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @var array
      */
     protected $_hiddenFields = array();
-    
-    
+
+
     /**
      * Constructor. Pass an id to fetch from database.
      *
@@ -110,22 +111,21 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
     public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
-        // Ensure that a default table gateway class is set 
-        if (is_null($this->_tableGatewayClass)) {
+        // Ensure that a default table gateway class is set
+        if (is_null($this->_tableGatewayClass) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
-        
+
         if ($tableGatewayModel === null) {
             // Try to query table gateway from internal attribute
             // Create an instance
             $classname = $this->_tableGatewayClass;
             $tableGatewayModel = new $classname;
         }
-        
+
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else {
-//            $this->_primaryTableRow = $tableGatewayModel->find($id)->getRow(0);
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_Exception('No ' .
@@ -150,13 +150,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Fetch attribute values from the table row and set up all fields.
      *
      * @return void
+     * @throws Opus_Model_Exception If no _fetch-method is defined for an external field.
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
             // Field is declared as external and requires special handling
             if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                 $callname = '_fetch' . $fieldname;
-                
+
                 if (method_exists($this, $callname) === true) {
                     $field->setValue($this->$callname());
                 } else {
@@ -179,7 +180,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                 $field->setValue($this->_primaryTableRow->$colname);
             }
-            
+
             // Clear the modified flag for the just loaded field
             $field->clearModified();
         }
@@ -216,20 +217,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $classname = $prefix . '_' . $fieldname;
                 // suppress warnings about not existing classes
                 if (@class_exists($classname) === true) {
-                    
+
                     $filter = $field->getFilter();
                     if (is_null($filter) === true) {
                         $filter = new Zend_Filter();
-                        $field->setFilter($filter);    
-                    } 
+                        $field->setFilter($filter);
+                    }
                     $filter->addFilter(new $classname);
                     break;
                 }
             }
         }
     }
-    
-    
+
+
     /**
      * Persist all the models information to its database locations.
      *
@@ -249,20 +250,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 if ($field->isModified() === false) {
                     continue;
                 }
-                
+
                 if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                     $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
                 }
-                
+
                 // Clear modification status of successfully stored field.
-                $field->clearModified(); 
+                $field->clearModified();
             }
-            
+
             // Save the row.
-            // This returnes the id needed to store external fields. 
+            // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
-            
+
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
@@ -283,7 +284,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             if ($this->_transactional === true) {
                 $dbadapter->rollback();
             }
-            $msg = $e->getMessage() . 'Model: ' .get_class($this);
+            $msg = $e->getMessage() . 'Model: ' . get_class($this);
             throw new Opus_Model_Exception($msg);
         }
         return $id;
@@ -313,8 +314,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Load the values of external fields.
      *
-     * @param  string        $targetModel Name of the Opus_Model_Dependent class to build.
-     * @param  array         $conditions  Conditions for the query.
+     * @param  string $targetModel Name of the Opus_Model_Dependent class to build.
+     * @param  array  $conditions  Conditions for the query.
      * @return array
      */
     protected function _loadExternal($targetModel, array $conditions = null) {
@@ -325,8 +326,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         // Currently there is no late static binding in PHP 5.2.x, thus we need an instance
         // to access the tableGatewayClass
         $dummymodel = new $targetModel;
-        $tablename = $dummymodel->getTableGatewayClass(); 
-        
+        $tablename = $dummymodel->getTableGatewayClass();
+
         $table = new $tablename;
         if ($this->getId() === null) {
             return null;
@@ -360,6 +361,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
      * @throws Opus_Model_Exception If an unknown field or method is requested.
+     * @throws InvalidArgumentException When adding a link to a field without an argument.
      * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments) {
@@ -486,7 +488,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are defined to be hidden in $_hiddenFields.
      *
-     * @see Opus_Model_Abstract::_hiddenFields
+     * @see    Opus_Model_Abstract::_hiddenFields
      * @return array    List of fields
      */
     public function describe() {
@@ -496,9 +498,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $result[] = $fieldname;
             }
         }
-        return $result; 
+        return $result;
     }
-    
+
     /**
      * Reconnect primary table row to database after unserializing.
      *
@@ -512,13 +514,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Set whether storing this model opens a database transaction or not.
      *
-     * @param  boolean  $transactional (Optional) Whether to use a transaction or not.
+     * @param  boolean $transactional (Optional) Whether to use a transaction or not.
      * @return void
      */
     public function setTransactional($transactional = true) {
         $this->_transactional = $transactional;
     }
-    
+
     /**
      * Return this models table gateway class name.
      *
@@ -527,5 +529,5 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     public function getTableGatewayClass() {
         return $this->_tableGatewayClass;
     }
- 
+
 }
