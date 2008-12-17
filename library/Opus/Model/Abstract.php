@@ -149,8 +149,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Fetch attribute values from the table row and set up all fields.
      *
-     * @return void
      * @throws Opus_Model_Exception If no _fetch-method is defined for an external field.
+     * @return void
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
@@ -315,7 +315,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Load the values of external fields.
      *
      * @param  string $targetModel Name of the Opus_Model_Dependent class to build.
-     * @param  array  $conditions  Conditions for the query.
+     * @param  array  $conditions  (Optional) Conditions for the query.
      * @return array
      */
     protected function _loadExternal($targetModel, array $conditions = null) {
