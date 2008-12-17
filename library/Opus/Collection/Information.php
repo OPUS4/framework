@@ -125,7 +125,7 @@ class Opus_Collection_Information {
      * @throws Exception Is thrown on DB errors.
      * @return integer $collections_id ID of the newely created Collection
      */
-    static public function newCollection($role_id, $parent_id, $leftSibling_id, $contentArray) {
+    static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
 
         // Argument validation
         $validation = new Opus_Collection_Validation();
@@ -139,10 +139,6 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
         }
 
-        if (false === is_array($contentArray)) {
-            throw new InvalidArgumentException('Content Array not properly structured.');
-        }
-    
         // Create a new collection content container
         $occ = new Opus_Collection_Contents($role_id);
         
@@ -347,6 +343,7 @@ class Opus_Collection_Information {
      *
      * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id (Optional) Identifies the collection.
+     * @param boolean $alsoHidden     (Optional) Return also hidden collections?
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
@@ -418,17 +415,25 @@ class Opus_Collection_Information {
             $collections_id = 0;
         }
         
-        // TODO: Documents in SubCollections
-        // Look for 'link_docs_path_to_root' attribute
-        // If !=0 fetch every ID on path to root
-        // For every such ID: fetch all related docs 
-        
-        // TODO: I'm not very happy with the following ...
         // DB table gateway for the linking table between collections and documents
         $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
         // Container array for the raw collection ID array and the reformatted collection ID array
         $allCollectionDocumentsOut = array();
         $allCollectionDocuments = array();
+
+        // Look for 'link_docs_path_to_root' attribute
+        $ocr  = new Opus_Collection_Roles();
+        $ocr->load($roles_id);
+        $cr = $ocr->getCollectionRoles();
+        // If !=0 fetch every ID on path to root
+        if (0 !== (int) $cr['link_docs_path_to_root']) {
+            $sc = self::getSubCollections($roles_id, $collections_id, false);
+            // For every such ID: fetch all related docs recursively
+            foreach ($sc as $index => $record) {
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['structure']['collections_id']));
+            }
+        }
+        
         // Fetch all document IDs linked with the collection ID
         $allCollectionDocuments = $linkDocColl
                                         ->fetchAll($linkDocColl->select()
@@ -439,7 +444,7 @@ class Opus_Collection_Information {
         foreach ($allCollectionDocuments as $doc_id) {
             $allCollectionDocumentsOut[] =  $doc_id['documents_id'];                                  
         }
-        return $allCollectionDocumentsOut;                                        
+        return array_unique($allCollectionDocumentsOut);                                        
     }
     
 
