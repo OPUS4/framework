@@ -171,7 +171,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         
         
         
-        $adapter->query( 'CREATE TABLE link_documents_collections_7081 (
+        $adapter->query('CREATE TABLE link_documents_collections_7081 (
             `link_documents_collections_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -760,7 +760,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @param integer $collections_id  No comment, use your brain.
      * @param integer $parent_id       No comment, use your brain.
-     * @param integer $$leftSibling_id No comment, use your brain.
+     * @param integer $leftSibling_id  No comment, use your brain.
      * @return void
      * 
      * @dataProvider validnewCollectionPositionDataProvider
@@ -942,6 +942,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validGetAllCollectionDocumentsDataProvider
      */
     public function testGetAllCollectionDocuments($coll_id, $expected) {
+        $this->markTestSkipped();
         $acd = Opus_Collection_Information::getAllCollectionDocuments(7081, $coll_id);
         $this->assertEquals($expected, count($acd), "getAllCollectionDocuments didn't return expected amount of doc IDs.");
     }
