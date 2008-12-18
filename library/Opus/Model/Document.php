@@ -43,13 +43,14 @@
 class Opus_Model_Document extends Opus_Model_Abstract
 {
 
-    
+
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_Documents';
-    
+
     /**
      * The document is the most complex Opus_Model. An Opus_Document_Builder is
      * used in the _init() function to construct an Opus_Model_Document of a
@@ -107,8 +108,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * Constructor.
      *
-     * @param integer|string $id                (Optional) Id an existing document.
-     * @param string         $type              (Optional) Type of a new document.
+     * @param  integer|string $id   (Optional) Id an existing document.
+     * @param  string         $type (Optional) Type of a new document.
      * @see    Opus_Model_Abstract::__construct()
      * @see    $_builder
      * @throws InvalidArgumentException         Thrown if id and type are passed.
