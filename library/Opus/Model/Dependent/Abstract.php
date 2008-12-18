@@ -61,8 +61,8 @@ class Opus_Model_Dependent_Abstract extends Opus_Model_DependentAbstract
     /**
      * Create a new Abstract model instance.
      *
-     * @param  mixed         $id (Optional)     Primary key of a persisted title model instance.
-     * @param  Zend_Db_Table $tableGatewayModel
+     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
+     * @param  Zend_Db_Table $tableGatewayModel (Optional) Zend_Db_Table to use as model.
      * @see    Opus_Model_Abstract::__construct()
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
