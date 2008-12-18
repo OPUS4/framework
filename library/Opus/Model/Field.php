@@ -120,7 +120,7 @@ class Opus_Model_Field
     /**
      * Set to true if the field value has been modified.
      *
-     * @var Boolean
+     * @var boolean Saves the state of the field.
      */
     protected $_modified = false;
 
@@ -192,8 +192,8 @@ class Opus_Model_Field
     /**
      * Set multiplicity constraint for multivalue fields.
      *
-     * @param Integer|String $max Upper limit for multiple values.
-     *                            Either a number or "*" for infinity.
+     * @param integer|string $max Upper limit for multiple values, either a number or "*" for infinity.
+     * @throws InvalidArgumentException If $max is neither "*" nor an integer.
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setMultiplicity($max) {
@@ -209,8 +209,7 @@ class Opus_Model_Field
     /**
      * Return the fields maximum number of values.
      *
-     * @return Integer|String Upper limit for multiple values.
-     *                        Either a number or "*" for infinity.
+     * @return integer|string Upper limit for multiple values, either a number or "*" for infinity.
      */
     public function getMultiplicity() {
         return $this->_multiplicity;
@@ -252,11 +251,12 @@ class Opus_Model_Field
      * only array are valid input values.
      *
      * @param mixed $value The field value to be set.
+     * @throws InvalidArgumentException If Multivalue option and input argument do not match (an array is required but not given).
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setValue($value) {
         // If the fields value is not going to change, leave.
-        if (is_object($value)) {
+        if (is_object($value) === true) {
             // weak comparison for objects
             if ($value == $this->_value) {
                 return $this;
@@ -290,7 +290,8 @@ class Opus_Model_Field
     /**
      * Get the fields value
      *
-     * @param  int $index (Optional) The index of the value, if it's an array.
+     * @param  integer $index (Optional) The index of the value, if it's an array.
+     * @throws InvalidArgumentException If you try to access an index, that does not exists.
      * @return Mixed Whatever the value of the field might be.
      */
     public function getValue($index = null) {
@@ -319,7 +320,8 @@ class Opus_Model_Field
      * If the field can have multiple values, this method adds a new value
      * to the already existing field values.
      *
-     * @param mixed $value
+     * @param mixed $value The value to add.
+     * @throws InvalidArgumentException If no more values can be added to this value (f.e. multiplicity allows 2 values an both are set already).
      * @return Opus_Model_Field Fluent interface.
      */
     public function addValue($value) {
@@ -444,7 +446,7 @@ class Opus_Model_Field
     /**
      * Set the name of model class if the field holds model instances.
      *
-     * @param string Class name
+     * @param  string $classname The name of the class that is used as model for this field or null.
      * @return void
      */
     public function setValueModelClass($classname) {
