@@ -456,7 +456,7 @@ class Opus_Model_Field
     /**
      * Tell whether the fields value has been modified.
      *
-     * @return Boolean
+     * @return boolean
      */
     public function isModified() {
         return $this->_modified;
