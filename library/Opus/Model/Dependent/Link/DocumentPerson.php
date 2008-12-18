@@ -46,14 +46,15 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
-    
+
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_LinkPersonsDocuments';
-    
-    
+
+
 //    /**
 //     * The models external fields, i.e. those not mapped directly to the
 //     * table gateway.
@@ -67,7 +68,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
 //                'table' => 'Opus_Db_InstitutesContents'
 //            ),
 //    );
-    
+
     /**
      * Initialize model with the following values:
      * - Institute
@@ -100,6 +101,6 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $this->_primaryTableRow->persons_id = $this->_model->store();
         parent::store();
     }
-    
+
 }
 

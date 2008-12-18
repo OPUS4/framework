@@ -51,7 +51,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     /**
      * Set the model that is linked to.
      *
-     * @param  Opus_Model_Abstract  $model
+     * @param  Opus_Model_Abstract $model The new model to link to.
      * @return void
      */
     protected function _setModel(Opus_Model_Abstract $model) {
@@ -62,8 +62,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     /**
      * Tunnel get/set/add methods to the linked model.
      *
-     * @param  mixed  $name      The name of the called method.
-     * @param  array  $arguments The arguments passed in the method call.
+     * @param  mixed $name      The name of the called method.
+     * @param  array $arguments The arguments passed in the method call.
      * @return mixed
      */
     public function __call($name, array $arguments) {
@@ -79,7 +79,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      * Filters all fieldnames that are defined to be hidden
      * in $_hiddenFields.
      *
-     * @see Opus_Model_Abstract::_hiddenFields
+     * @see    Opus_Model_Abstract::_hiddenFields
      * @return array    List of fields
      */
     public function describe() {

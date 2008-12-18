@@ -44,9 +44,10 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_LinkDocumentsLicences';
-    
+
 
     /**
      * Primary key of the parent model.

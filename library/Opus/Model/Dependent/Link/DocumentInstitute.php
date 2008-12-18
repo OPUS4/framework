@@ -40,14 +40,15 @@
  */
 class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_Link_Abstract
 {
-    
+
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_LinkInstitutesDocuments';
-    
-    
+
+
     /**
      * Primary key of the parent model.
      *
@@ -72,14 +73,13 @@ class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_L
     /**
      * Persist foreign model & link.
      *
-     * 
      * @return void
      */
     public function store() {
         $this->_primaryTableRow->institutes_id = $this->_model->store();
         parent::store();
     }
-    
+
 }
 
 
