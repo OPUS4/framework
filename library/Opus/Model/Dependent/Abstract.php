@@ -53,6 +53,7 @@ class Opus_Model_Dependent_Abstract extends Opus_Model_DependentAbstract
 
     /**
      * Holds the name of the models table gateway class.
+     *
      * @var string Classname of Zend_DB_Table to use if not set in constructor, here Opus_Db_DocumentTitleAbstracts.
      */
     protected $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
@@ -60,11 +61,10 @@ class Opus_Model_Dependent_Abstract extends Opus_Model_DependentAbstract
     /**
      * Create a new Abstract model instance.
      *
-     * @param  mixed         $id (Optional)        Primary key of a persisted title model instance.
-     * @param  mixed         $parent_id (Optional) Primary key of the parent document.
+     * @param  mixed         $id (Optional)     Primary key of a persisted title model instance.
      * @param  Zend_Db_Table $tableGatewayModel
-     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      * @see    Opus_Model_Abstract::__construct()
+     * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
     public function __construct($id = null, $tableGatewayModel = null) {
         if ($tableGatewayModel === null) {
