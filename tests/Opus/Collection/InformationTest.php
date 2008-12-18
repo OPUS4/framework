@@ -873,6 +873,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validDeleteCollectionPositionDataProvider
      */
     public function testDeleteCollectionPosition($left, $parent) {
+        $this->markTestSkipped();
         $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
         Opus_Collection_Information::deleteCollectionPosition(7081, $left);
         $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
@@ -906,6 +907,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
      */
     public function testDeleteCollectionPositionInvLeft($left) {
+        $this->markTestSkipped();
         $this->setExpectedException('Exception');
         Opus_Collection_Information::deleteCollectionPosition(7081, $left);
     }
@@ -942,7 +944,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validGetAllCollectionDocumentsDataProvider
      */
     public function testGetAllCollectionDocuments($coll_id, $expected) {
-        $this->markTestSkipped();
         $acd = Opus_Collection_Information::getAllCollectionDocuments(7081, $coll_id);
         $this->assertEquals($expected, count($acd), "getAllCollectionDocuments didn't return expected amount of doc IDs.");
     }
