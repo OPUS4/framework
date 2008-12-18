@@ -52,6 +52,7 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
 
