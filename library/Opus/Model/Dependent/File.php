@@ -52,9 +52,21 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass  = 'Opus_Db_DocumentFiles';
 
+    /**
+     * Initialize model with the following fields:
+     * - FilePathName
+     * - FileSortOrder
+     * - FileLabel
+     * - FileType
+     * - MimeType
+     * - FileLanguage
+     *
+     * @return void
+     */
     protected function _init() {
         $filepathname = new Opus_Model_Field('FilePathName');
         $filesortorder = new Opus_Model_Field('FileSortOrder');

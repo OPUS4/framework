@@ -47,13 +47,13 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
-    
+
     /**
      * Specify then table gateway.
-     *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
-    
+
     /**
      * Initialize model with the following fields:
      * - Type
@@ -68,5 +68,5 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
         $this->addField($type)
             ->addField($value);
     }
-    
+
 }
