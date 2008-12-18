@@ -873,7 +873,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validDeleteCollectionPositionDataProvider
      */
     public function testDeleteCollectionPosition($left, $parent) {
-        $this->markTestSkipped();
         $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
         Opus_Collection_Information::deleteCollectionPosition(7081, $left);
         $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
@@ -907,7 +906,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
      */
     public function testDeleteCollectionPositionInvLeft($left) {
-        $this->markTestSkipped();
+        //$this->markTestSkipped();
         $this->setExpectedException('Exception');
         Opus_Collection_Information::deleteCollectionPosition(7081, $left);
     }

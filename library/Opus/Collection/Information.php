@@ -251,7 +251,12 @@ class Opus_Collection_Information {
         $ocs->load();
         
         // Fetch collection ID belonging with given LEFT
-        $collections_id = $ocs->leftToID($left);
+        try {
+            $collections_id = $ocs->leftToID($left);
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
         if ($ocs->count($collections_id) < 2) {
             // Last occurrence of collection => normal delete
             $db->rollBack();
