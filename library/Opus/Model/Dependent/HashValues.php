@@ -54,6 +54,13 @@ class Opus_Model_Dependent_HashValues extends Opus_Model_DependentAbstract {
      */
     protected $_tableGatewayClass  = 'Opus_Db_FileHashValues';
 
+    /**
+     * Initialize model with the following fields:
+     * - HashType
+     * - HashValue
+     *
+     * @return void
+     */
     protected function _init() {
         $hashtype = new Opus_Model_Field('HashType');
         $hashvalue = new Opus_Model_Field('HashValue');
