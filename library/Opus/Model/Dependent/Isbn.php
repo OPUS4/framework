@@ -55,15 +55,14 @@ class Opus_Model_Dependent_Isbn extends Opus_Model_DependentAbstract
      * @var string
      */
     protected $_tableGatewayClass = 'Opus_Db_DocumentIdentifiers';
-    
+
 
     /**
      * Create a new parent title model instance.
      *
-     * @see Opus_Model_Abstract::__construct()
-     * @param mixed $id (Optional) Primary key of a persisted title model instance.
-     * @param mixed $parent_id (Optional) Primary key of the parent document.
-     * @param Zend_Db_Table $tableGatewayModel
+     * @param  mixed         $id                (Optional) Primary key of a persisted title model instance.
+     * @param  Zend_Db_Table $tableGatewayModel (Optional) Zend_Db_Table to use as model.
+     * @see    Opus_Model_Abstract::__construct()
      * @throws Opus_Model_Exception Thrown if an instance with the given primary key could not be found.
      */
     public function __construct($id = null, $tableGatewayModel = null) {
