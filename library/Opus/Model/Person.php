@@ -42,10 +42,11 @@
  */
 class Opus_Model_Person extends Opus_Model_Abstract
 {
-    
+
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Db_Persons';
 
@@ -57,7 +58,7 @@ class Opus_Model_Person extends Opus_Model_Abstract
      * - Email
      * - FirstName
      * - LastName
-     * 
+     *
      * @return void
      */
     protected function _init() {
@@ -98,6 +99,6 @@ class Opus_Model_Person extends Opus_Model_Abstract
         }
         return $documents;
     }
-    
+
 
 }
