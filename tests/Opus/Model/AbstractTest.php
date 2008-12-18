@@ -38,7 +38,7 @@
  *
  * @package Opus_Model
  * @category Tests
- * 
+ *
  * @group AbstractTest
  */
 class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
@@ -49,7 +49,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      * @var Opus_Model_AbstractTableProvider
      */
     protected $dbProvider = null;
-    
+
     /**
      * Provides test data as stored in AbstractDataSet.xml.
      *
@@ -64,22 +64,22 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
             array(8, 'blub')
         );
     }
-    
+
     /**
      * Return the actual database connection.
-     * 
+     *
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
     protected function getConnection() {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $pdo = $dba->getConnection();
-        $connection = $this->createDefaultDBConnection($pdo, NULL);
+        $connection = $this->createDefaultDBConnection($pdo, null);
         return $connection;
     }
 
     /**
      * Returns test data to set up the Database before a test is started or after a test finished.
-     * 
+     *
      * @return PHPUnit_Extensions_Database_DataSet_IDataSet
      */
     protected function getDataSet() {
@@ -111,10 +111,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
-     * Test if loading a model instance from the database devlivers the expected value. 
-     *
+     * Test if loading a model instance from the database devlivers the expected value.
+     * @param integer $id Id of dataset to load.
+     * @param $value      Expected Value.
      * @return void
-     * 
+     *
      * @dataProvider abstractDataSetDataProvider
      */
     public function testValueAfterLoadById($test_testtable_id, $value) {
@@ -132,12 +133,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $obj->setValue('raboof');
         $obj->store();
-        $expected = $this->createFlatXMLDataSet(dirname(__FILE__).'/AbstractDataSetAfterChangedValue.xml')->getTable('test_testtable');
+        $expected = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSetAfterChangedValue.xml')->getTable('test_testtable');
         $result = $this->getConnection()->createDataSet()->getTable('test_testtable');
         $this->assertTablesEqual($expected, $result);
     }
-    
-    
+
+
     /**
      * Test if describe() returns the fieldnames of all previosly added fields.
      *
@@ -150,7 +151,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $fields = $mock->describe();
         $this->assertEquals(array('Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
     }
-    
+
 
     /**
      * Test if no validator is assigned to a field when the there is no
@@ -164,7 +165,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $mock->getField('NoVal');
         $this->assertNull($field->getValidator(), 'No validator expected.');
     }
-    
+
     /**
      * Test if custom validator instances can be added to fields.
      *
@@ -176,7 +177,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertNotNull($field->getValidator(), 'Validator instance missing.');
         $this->assertType('Opus_Model_ValidateTest_Value', $field->getValidator(), 'Validator is of wrong type.');
     }
-    
+
     /**
      * Test if no filter is assigned to a field when the there is no
      * Opus_Filter_<Fieldname> class.
@@ -189,7 +190,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $mock->getField('NoFil');
         $this->assertNull($field->getFilter(), 'No filter expected.');
     }
-    
+
     /**
      * Test if custom filter instances can be added to fields.
      *
@@ -200,7 +201,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $mock->getField('Value');
         $this->assertNotNull($field->getFilter(), 'Filter instance missing.');
     }
-    
+
     /**
      * Test if an added filter gets executed within it filter chain.
      *
@@ -214,7 +215,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertEquals('abc', $result, 'Filter has propably not been executed.');
     }
 
-    
+
     /**
      * Test if a call to store() does not happen when it has not been modified.
      *
@@ -225,7 +226,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $mock = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $field = $mock->getField('Value');
         $oldval = $mock->getValue();
-        
+
         // Override the original field "Value" with a mocked version
         // to detect calls to getValue()
         $fieldClassName = get_class($field);
@@ -234,10 +235,10 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
 
         // Clear modified flag just to be sure
         $mockField->clearModified();
-        
+
         // Expect getValue not to be called
         $mockField->expects($this->never())->method('getValue');
-        
+
         $mock->store();
     }
 
@@ -253,11 +254,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $mock->getField('Value');
         $this->assertFalse($field->isModified(), 'Field should not be marked as modified when fetched from database.');
     }
-    
+
     /**
      * Test if the modified status of fields gets cleared after the model
      * stored them.
-     * 
+     *
      * @return void
      *
      */
@@ -266,12 +267,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $mock = new Opus_Model_AbstractMock(1, $this->dbProvider);
         $mock->setValue('Change has come to America!');
         $mock->store();
-        
+
         $field = $mock->getField('Value');
         $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
     }
-    
-    
+
+
     /**
      * Test if a field can be marked as hidden thus it gets not reported by
      * describe().
@@ -281,7 +282,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     public function testFieldDescriptionHideable() {
         $model = new Opus_Model_ModelWithHiddenField(null, $this->dbProvider);
         $result = $model->describe();
-        $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');        
+        $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');
     }
-    
+
 }

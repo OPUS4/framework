@@ -44,13 +44,14 @@
  */
 class Opus_Model_AbstractMock extends Opus_Model_Abstract {
 
-    
+
     /**
      * Specify then table gateway.
      *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
-    
+
     /**
      * Initialize model with the a single field "value".
      *
@@ -59,7 +60,7 @@ class Opus_Model_AbstractMock extends Opus_Model_Abstract {
     protected function _init() {
         $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
         $this->_filterPrefix[] = 'Opus_Model_FilterTest';
-        
+
         $value = new Opus_Model_Field('Value');
         $this->addField($value);
     }

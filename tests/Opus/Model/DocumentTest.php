@@ -51,7 +51,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     /**
      * Test document type.
      *
-     * @var String
+     * @var string
      */
     protected $_xmlDoctype =
         '<?xml version="1.0" encoding="UTF-8" ?>
@@ -188,14 +188,15 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Valid document data provider
+     *
      * @return array
      */
     public static function validDocumentDataProvider() {
         return self::$_validDocumentData;
     }
 
-    
-    
+
+
     /**
      * Test if tunneling setter calls through a n:m link model reaches
      * the target model instance.
@@ -209,18 +210,18 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <field name="Licence" multiplicity="3"/>
         </documenttype>';
-        
+
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Model_Document(null, $type);
         $licence = new Opus_Model_Licence();
-        
+
         $doc->addLicence($licence);
         $doc->getLicence(0)->setSortOrder(47);
         $value = $doc->getLicence(0)->getSortOrder();
-        
+
         $this->assertEquals(47, $value, 'Wrong value returned from linked model.');
     }
-    
+
 
     /**
      * Test if adding an many-to-many models works.
@@ -234,22 +235,22 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <field name="Licence" multiplicity="3"/>
         </documenttype>';
-        
+
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Model_Document(null, $type);
-        
+
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
-        
+
         $doc->addLicence(new Opus_Model_Licence());
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
         $this->assertType('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
     }
-    
-    
+
+
     /**
      * Test if adding an one-to-many model works.
      *
@@ -262,26 +263,26 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <field name="Note" multiplicity="*"/>
         </documenttype>';
-        
+
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Model_Document(null, $type);
-                
+
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
-        
+
         $doc->addNote();
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
         $this->assertType('Opus_Model_Dependent_Note', $value[0], 'Returned object is of wrong type.');
     }
-    
-    
+
+
     /**
      * Test if storing a document wich has a linked model doesnt throw
      * an Opus_Model_Exception.
-     * 
+     *
      * @return void
      *
      */
@@ -292,15 +293,15 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <field name="PersonAuthor" multiplicity="*"/>
         </documenttype>';
-        
+
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Model_Document(null, $type);
-        
-        $author = new Opus_Model_Person(); 
+
+        $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $doc->addPersonAuthor($author);
-        
+
         $doc->store();
     }
 
@@ -372,6 +373,9 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test if a document's fields come out of the database as they went in.
+     *
+     * @param array $documentDataset Array with valid data of documents.
+     * @return void
      *
      * @dataProvider validDocumentDataProvider
      */
@@ -450,7 +454,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $document = new Opus_Model_Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
-            $this->assertEquals($value, $document->{'get'.$fieldname}(), "Field $fieldname was changed by database.");
+            $this->assertEquals($value, $document->{'get' . $fieldname}(), "Field $fieldname was changed by database.");
         }
         $this->assertEquals($document->getTitleMain(0)->getTitleAbstractValue(), 'Title');
         $this->assertEquals($document->getTitleMain(0)->getTitleAbstractLanguage(), 'de');

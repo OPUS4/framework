@@ -41,9 +41,18 @@
  */
 class Opus_Model_AbstractTableProvider extends Zend_Db_Table {
 
-    // Set tablename
+    /**
+     * Set tablename
+     *
+     * @var string
+     */
     protected $_name = 'test_testtable';
-    // Set name of primary key column
+
+    /**
+     * Set name of primary key column
+     *
+     * @var string
+     */
     protected $_primary = 'test_testtable_id';
 
 }

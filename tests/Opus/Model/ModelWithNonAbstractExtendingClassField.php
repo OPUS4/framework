@@ -46,6 +46,8 @@ class Opus_Model_ModelWithNonAbstractExtendingClassField extends Opus_Model_Abst
     /**
      * Define an external field with a model that does not extend
      * Opus_Model_Abstract.
+     *
+     * @var array
      */
     protected $_externalFields = array(
             'Dummy' => array(
