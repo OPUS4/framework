@@ -252,8 +252,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 }
 
                 if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
-                    $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                    $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
+                    // Check if the store mechanism for the field is overwritten in model.
+                    $callname = '_store' . $fieldname;
+                    if (method_exists($this, $callname) === true) {
+                        $this->$callname($this->_fields[$fieldname]->getValue());
+                    } else {
+                        $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
+                        $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
+                    }
                 }
 
                 // Clear modification status of successfully stored field.
@@ -267,6 +273,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
+                    // Check if the store mechanism for the field is overwritten in model.
                     $callname = '_store' . $fieldname;
                     if (method_exists($this, $callname) === true) {
                         $this->$callname($this->_fields[$fieldname]->getValue());
