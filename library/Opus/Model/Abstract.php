@@ -154,13 +154,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
-            // Field is declared as external and requires special handling
-            if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
-                $callname = '_fetch' . $fieldname;
-
-                if (method_exists($this, $callname) === true) {
-                    $field->setValue($this->$callname());
-                } else {
+            // Check if the fetch mechanism for the field is overwritten in model.
+            $callname = '_fetch' . $fieldname;
+            if (method_exists($this, $callname) === true) {
+                $field->setValue($this->$callname());
+            } else {
+                // Field is declared as external and requires special handling
+                if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
                     if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
                         $options = $this->_externalFields[$fieldname]['options'];
                     } else {
@@ -173,16 +173,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     }
                     $loadedValue = $this->_loadExternal($modelclass, $options);
                     $field->setValue($loadedValue);
+                } else {
+                    // Field is not external an gets handled by simply reading
+                    // its value from the table row
+                    $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
+                    $field->setValue($this->_primaryTableRow->$colname);
                 }
-            } else {
-                // Field is not external an gets handled by simply writing
-                // its value to the table row
-                $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                $field->setValue($this->_primaryTableRow->$colname);
-            }
 
-            // Clear the modified flag for the just loaded field
-            $field->clearModified();
+                // Clear the modified flag for the just loaded field
+                $field->clearModified();
+            }
         }
     }
 
