@@ -210,6 +210,12 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array('institute', -2),
             array(7081, 5.3),
             array(7081, 'no'),
+
+            array(7081, 2),
+            array(7081, 8),
+            array(7081, 18),
+            
+            
         );
     }
     
@@ -260,6 +266,23 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $ocr = new Opus_Collection_Replacement($ID);
         $replacements = $ocr->getReplacementRecords($collections_id);
     }
+
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidDeleteDataProvider() {
+        return array(
+            array('institute', -2),
+            array(7081, 5.3),
+            array(7081, 'no'),
+            
+            
+        );
+    }
+    
     
     /**
      * Test function
@@ -268,7 +291,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
      * @param integer $collections_id No comment, use your brain.
      * @return void
      * 
-     * @dataProvider invalidGetIDDataProvider
+     * @dataProvider invalidDeleteDataProvider
      */
     public function testDeleteInvArg($ID, $collections_id) {
         $this->setExpectedException('InvalidArgumentException');
