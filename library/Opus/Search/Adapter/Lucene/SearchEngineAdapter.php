@@ -70,7 +70,6 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         try {
                 $index = Zend_Registry::get('Zend_Luceneindex');
                 // Get the boolean operators used in the query
-                #$query = ereg_replace("(\\x)", "%", $query);
                 $oquery = $query;
                 if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) {
                 	$this->boolean = 'ignore';
@@ -83,10 +82,6 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         break;
                         
                     # we don't need other cases right now, OR is standard operator for Lucene
-                    #case 'OR':
-                    	// Break intentionally omitted
-                    #case 'ignore':
-                    	// Break intentionally omitted
                     default:
                         $query = $oquery;
                         break;
@@ -113,12 +108,9 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                                 }
                         } else {
                                 $key = array_search($docid, $done);
-                                #$opusfile = new OPUSDocumentFile($document->getFieldValue('source'), $docid);
-                                #$hitlistarray[$key]->addFile($opusfile);
                         }
                 }
         }
-        #$hitlist->add($curdoc);
         $hitlist->query = $query;
         foreach ($hitlistarray as $singlehit) {
         	$hitlist->add($singlehit);

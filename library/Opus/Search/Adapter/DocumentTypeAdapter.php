@@ -80,9 +80,7 @@ class Opus_Search_Adapter_DocumentTypeAdapter
    */
 	public static function getDocType($id)
 	{
-		# Später die Werte anhand der ID aus der DB holen lassen
-		#$author = Opus_Person_Information::get($id);
-		# Jetzt noch statisch Person aus den Testdaten holen
+		# Get dummy data
 		$data = DummyData::getDummyDocumentTypes();
 		foreach ($data as $obj) {
 			$d = $obj->get();
