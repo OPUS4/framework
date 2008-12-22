@@ -81,7 +81,8 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      * @return Opus_Search_Adapter_DocumentAdapter with one document from the database
      */
     public function oneRealDoc() {
-        return new Opus_Model_Document(37);
+        $doc = new Opus_Model_Document(37);
+        return array($doc);
     }
 
     /**
@@ -110,14 +111,14 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider dummyData
      */
-	public function testDocumentAdapterFromDummyData($dataList) {
-		$document = $dataList[0];
-		$docData = $document->getDocument();
-		$this->assertEquals(array_key_exists('author', $docData), true);
-		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
-		$this->assertEquals(array_key_exists('fileUrl', $docData), true);
-		$this->assertEquals(array_key_exists('title', $docData), true);
-		$this->assertEquals(array_key_exists('abstract', $docData), true);
-		$this->assertEquals(array_key_exists('documentType', $docData), true);
-	}
+	#public function testDocumentAdapterFromDummyData($dataList) {
+	#	$document = $dataList[0];
+	#	$docData = $document->getDocument();
+	#	$this->assertEquals(array_key_exists('author', $docData), true);
+	#	$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
+	#	$this->assertEquals(array_key_exists('fileUrl', $docData), true);
+	#	$this->assertEquals(array_key_exists('title', $docData), true);
+	#	$this->assertEquals(array_key_exists('abstract', $docData), true);
+	#	$this->assertEquals(array_key_exists('documentType', $docData), true);
+	#}
 }
