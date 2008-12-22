@@ -758,9 +758,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @param integer $collections_id  No comment, use your brain.
-     * @param integer $parent_id       No comment, use your brain.
-     * @param integer $leftSibling_id  No comment, use your brain.
+     * @param integer $collections_id No comment, use your brain.
+     * @param integer $parent_id      No comment, use your brain.
+     * @param integer $leftSibling_id No comment, use your brain.
      * @return void
      * 
      * @dataProvider validnewCollectionPositionDataProvider
@@ -906,13 +906,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
      */
     public function testDeleteCollectionPositionInvLeft($left) {
-        //$this->markTestSkipped();
         $this->setExpectedException('Exception');
         Opus_Collection_Information::deleteCollectionPosition(7081, $left);
     }
-    
-    
-        
     
     /**
      * Data Provider
@@ -946,5 +942,79 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $acd = Opus_Collection_Information::getAllCollectionDocuments(7081, $coll_id);
         $this->assertEquals($expected, count($acd), "getAllCollectionDocuments didn't return expected amount of doc IDs.");
     }
+
+    
+    
+    
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validAssignDocumentToCollectionDataProvider() {
+        return array(
+            array(1, 111),
+            array(2, 222),
+            array(3, 333),
+            array(4, 444),
+            array(5, 555),
+            array(6, 666),
+            array(7, 777),
+            array(8, 888),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $documents_id   No comment, use your brain.
+     * @param integer $collections_id No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider validAssignDocumentToCollectionDataProvider
+     */
+    public function testAssignDocumentToCollection($collections_id, $documents_id) {
+        $pre = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id);
+        Opus_Collection_Information::assignDocumentToCollection($documents_id, 7081, $collections_id);
+        $post = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id);
+        $this->assertGreaterThan(count($pre), count($post), "assignDocumentToCollection didn't insert assignment.");
+    }
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidAssignDocumentToCollectionDataProvider() {
+        return array(
+            array(1.5, 111),
+            array(-2, 222),
+            array(0, 333),
+            array('xyz', 444),
+            array(5, 1.5),
+            array(6, -2),
+            array(7, 0),
+            array(8, 'xyz'),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $documents_id   No comment, use your brain.
+     * @param integer $collections_id No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidAssignDocumentToCollectionDataProvider
+     */
+    public function testAssignDocumentToCollectionInvArg($collections_id, $documents_id) {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Collection_Information::assignDocumentToCollection($documents_id, 7081, $collections_id);
+    }
+    
+    
     
 }

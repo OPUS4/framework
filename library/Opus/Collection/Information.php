@@ -557,7 +557,17 @@ class Opus_Collection_Information {
      * @return void
      */
     static public function assignDocumentToCollection($documents_id, $roles_id, $collections_id) {
-        //TODO: Validation e.g. 
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+        
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
+        if ( (false === is_int($documents_id)) or (0 >= $documents_id) ) {
+            throw new InvalidArgumentException('Document ID must be a positive integer.');
+        }
+
         // DB table gateway for the documents-collections linking table
         $link_documents_collections  = new Opus_Db_LinkDocumentsCollections($roles_id);
         
