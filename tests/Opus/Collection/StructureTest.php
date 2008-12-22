@@ -248,6 +248,8 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
             array(7081, 6, -1, 4),
             array(7081, 0, 1, -2),
             array(7081, 1, 7081, 0),
+            array(7081, 0, '1', 2),
+            array(7081, 1, 1, 'x'),
             );
     }
     
