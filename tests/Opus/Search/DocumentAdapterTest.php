@@ -57,33 +57,24 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 //(1, 37, 1, 'author', 0)");
     #}
 	
-    /**
-     *
-     * @dataProvider DummyDataProvider
-     *
-     */
-    public function getDummyData() {
-        $dataList = BrowsingFilter::getAllDummyTitles();
-        return $dataList;
+    public function dummyData() {
+        return BrowsingFilter::getAllDummyTitles();
+    }
+
+    public function allRealData() {
+        return BrowsingFilter::getAllTitles();
+    }
+    
+    public function oneRealDoc() {
+        return new Opus_Model_Document(37);
     }
 
     /**
      *
-     * @dataProvider FrameworkClass
+     * @dataProvider oneRealDoc
      *
      */
-    public function getRealData() {
-        $dataList = BrowsingFilter::getAllTitles();
-        return $dataList;
-    }
-    
-    /**
-     *
-     * @dataProvider FrameworkClass
-     *
-     */
-	public function testDocumentAdapterFromDb() {
-		$document = new Opus_Model_Document(37);
+	public function testDocumentAdapterFromDb($document) {
 		$docData = $document->getDocument();
 		$this->assertEquals(array_key_exists('author', $docData), true);
 		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
@@ -95,11 +86,10 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
     /**
      *
-     * @dataProvider DummyDataProvider
+     * @dataProvider dummyData
      *
      */
-	public function testDocumentAdapterFromDummyData() {
-		$dataList = $this->getDummyData();
+	public function testDocumentAdapterFromDummyData($dataList) {
 		$document = $dataList[0];
 		$docData = $document->getDocument();
 		$this->assertEquals(array_key_exists('author', $docData), true);
