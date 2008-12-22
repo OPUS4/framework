@@ -57,22 +57,40 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 //(1, 37, 1, 'author', 0)");
     #}
 	
+    /**
+     * Valid document data provider
+     *
+     * @return array
+     */
     public function dummyData() {
         return BrowsingFilter::getAllDummyTitles();
     }
 
+    /**
+     * Real document data provider
+     *
+     * @return array Array containing all Opus_Search_Adapter_DocumentAdapters from the database
+     */
     public function allRealData() {
         return BrowsingFilter::getAllTitles();
     }
     
+    /**
+     * Real document data provider
+     *
+     * @return Opus_Search_Adapter_DocumentAdapter with one document from the database
+     */
     public function oneRealDoc() {
         return new Opus_Model_Document(37);
     }
 
     /**
+     * Test if the structure of Documentdata from the DB is valid for Opus_Search
+     * 
+     * @param Opus_Search_Adapter_DocumentAdapter $document Document from the database
+     * @return void 
      *
      * @dataProvider oneRealDoc
-     *
      */
 	public function testDocumentAdapterFromDb($document) {
 		$docData = $document->getDocument();
@@ -85,9 +103,12 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 	}
 
     /**
+     * Test if the structure of Dummydata is valid for Opus_Search
+     * 
+     * @param array $dataList Array with DummyData-Documents
+     * @return void
      *
      * @dataProvider dummyData
-     *
      */
 	public function testDocumentAdapterFromDummyData($dataList) {
 		$document = $dataList[0];
