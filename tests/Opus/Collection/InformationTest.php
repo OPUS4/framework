@@ -915,6 +915,70 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @return array
      */
+    public function invalidCollIDDeleteCollectionDataProvider() {
+        return array(
+            array(0),
+            array('l'),
+            array(3.1415926),
+            array(-32),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $collections_id No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidCollIDDeleteCollectionDataProvider
+     */
+    public function testDeleteCollectionInvCollID($collections_id) {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Collection_Information::deleteCollection(7081, $collections_id);
+    }
+    
+    
+    
+    
+   /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function nonExistingCollIDDeleteCollectionDataProvider() {
+        return array(
+            array(32),
+            array(50),
+            array(7081),
+            array(19),
+        );
+    }
+    
+    /**
+     * Test function
+     *
+     * @param integer $collections_id No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider nonExistingCollIDDeleteCollectionDataProvider
+     */
+    public function testDeleteCollectionnonExistCollID($collections_id) {
+        $this->setExpectedException('Exception');
+        Opus_Collection_Information::deleteCollection(7081, $collections_id);
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
     public function validGetAllCollectionDocumentsDataProvider() {
         return array(
             array('x', 27),

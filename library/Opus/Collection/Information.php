@@ -61,10 +61,6 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Hidden flag must be boolean.');
         }
         
-        if (false === is_array($roleArray)) {
-            throw new InvalidArgumentException('Role Array not properly structured.');
-        }
-        
         // Create an empty role
         $role = new Opus_Collection_Roles();
         
@@ -288,8 +284,8 @@ class Opus_Collection_Information {
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($role_id);
         
-        if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
-            throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
         
         // Following operations are atomic
