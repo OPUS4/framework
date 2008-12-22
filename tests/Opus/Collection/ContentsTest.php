@@ -198,38 +198,20 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     public function invalidUpdateDataProvider() {
         return array(
             array('institute',
-                    array('eng' => array('institutes_id' => 5,
+                    array('institutes_id' => 5,
                                             'name' => '000',
                                             'postal_address' => 'asdf',
                                             'site' => 'http://www.asdf.de')
-                    )
-            ),
-            array('institute',
-                    array('eng' => array('institutes_language' => 'ger',
-                                            'name' => '000',
-                                            'postal_address' => 'asdf',
-                                            'site' => 'http://www.asdf.de')
-                    )
-            ),
-            array('institute',
-                    array('eng' => array('typ' => 'Schall und Rauch',
-                                            'name' => '000',
-                                            'postal_address' => 'asdf',
-                                            'site' => 'http://www.asdf.de')
-                    )
+                    
             ),
 
             array(7081, 
-                    array('fra' => array('collections_id' => 4, 'number' => '000'))),
-            array(7081, 
-                    array('fra' => array('collections_language' => 'eng', 'number' => '000'))),
-            array(7081, 
-                    array('fra' => array('name' => 'Schall und Rauch', 'nummer' => '000'))),
+                    array('collections_id' => 4, 'number' => '000')),
 
             array(7081, 
-                    array('fra' => array('name' => 'Schall und Rauch', 'number' => '000'))),
+                    array('name' => 'Schall und Rauch', 'nummer' => '000')),
             array(7081, 
-                    array('xyz' => array('name' => 'Schall und Rauch', 'number' => '000'))),
+                    array('Name' => 'Schall und Rauch', 'number' => '000')),
 
             );
     }
@@ -247,9 +229,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException');
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $occ = new Opus_Collection_Contents($ID);
-        foreach ($contentArray as $language => $record) {
-            $occ->update(array($language => $record));
-        }
+        $occ->update($contentArray);
     }
 
     /**
