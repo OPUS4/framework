@@ -80,9 +80,9 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	private function mapDocument() {
 		$document = new Opus_Model_Document($this->documentData['id']);
 		try	{
-			$title = $document->getTitleMain(0);
-			$this->documentData['title'] = $title->getTitleAbstractValue();
-		} catch (Exception $e) {
+			$title = $document->getTitleMain(0); 
+			$this->documentData['title'] = $title->getTitleAbstractValue(); 
+		} catch (Exception $e) { 
 			$this->documentData['title'] = 'No title specified!'; 
 		}
 		#print_r($title);
@@ -99,7 +99,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'module' => 'frontdoor',
 			'controller' => 'index',
 			'action' => 'showfile',
-			'id' => $this->documentData['id'],
+			'docId' => $this->documentData['id'],
 			'filename' => 'testfile.pdf'
 		);
 
