@@ -355,4 +355,23 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $ocs->delete($left);
     }
     
+    /**
+     * Test function
+     *
+     * @param integer $left No comment, use your brain.
+     * @return void
+     * 
+     * @dataProvider invalidLeftDataProvider
+     */     
+    public function testLeftToIDInvArg($left) {
+        $this->setExpectedException('InvalidArgumentException');
+        $ocs = new Opus_Collection_Structure(7081);
+        $ocs->load();
+        $ocs->leftToID($left);
+    }
+    
+    
+    
+    
+    
 }

@@ -284,24 +284,6 @@ class Opus_Collection_Structure {
     }
     
     /**
-     * Show (un-hide) nodes with the given collections_id.
-     *
-     * @param   integer $collections_id Institute to show.
-     * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
-     */
-    public function show($collections_id) {
-        $this->validation = new Opus_Collection_Validation();
-        $this->validation->ID($collections_id);
-        foreach ($this->collectionStructure as $index => $record) {
-            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
-                $this->collectionStructure[$index]['visible'] = 1;
-            }
-        }
-    }
-    
-    
-    /**
      * Count occurrences of a collection in the tree.
      *
      * @param   integer $collections_id Institute to count.
