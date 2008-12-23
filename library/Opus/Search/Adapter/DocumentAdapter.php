@@ -98,10 +98,10 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'filename' => 'testfile.pdf'
 		);
 
-		$authorsList = DummyData::getDummyPersons();
-		$autlist1 = new PersonsList();
-		$autlist1->add($authorsList[0]);
-		$autlist1->add($authorsList[1]);
+		#$authorsList = DummyData::getDummyPersons();
+		#$autlist1 = new PersonsList();
+		#$autlist1->add($authorsList[0]);
+		#$autlist1->add($authorsList[1]);
 		unset($authors);
 		$authors = array();
 		$c = count($document->getPersonAuthor());
@@ -118,12 +118,12 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			}
 		}
 		if (count($authors) > 0) {
-			$this->documentData['author'] = new PersonsList();
+			$this->documentData['author'] = new Opus_Search_List_PersonsList();
 			foreach ($authors as $authorId) {
 				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
 			}
 		} else {
-			$this->documentData['author'] = $autlist1;
+			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));
 		}
 	}
 }
