@@ -117,8 +117,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 				$this->documentData['author'] = $e->getMessage();
 			}
 		}
+		$this->documentData['author'] = new Opus_Search_List_PersonsList();
 		if (count($authors) > 0) {
-			$this->documentData['author'] = new Opus_Search_List_PersonsList();
 			foreach ($authors as $authorId) {
 				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
 			}
