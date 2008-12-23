@@ -940,7 +940,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     
     
     
-   /**
+    /**
      * Data Provider
      *
      * @return array
@@ -1033,8 +1033,8 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @param integer $documents_id   No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @param integer $documents_id   No comment, use your brain.
      * @return void
      * 
      * @dataProvider validAssignDocumentToCollectionDataProvider
@@ -1068,8 +1068,8 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     /**
      * Test function
      *
-     * @param integer $documents_id   No comment, use your brain.
      * @param integer $collections_id No comment, use your brain.
+     * @param integer $documents_id   No comment, use your brain.
      * @return void
      * 
      * @dataProvider invalidAssignDocumentToCollectionDataProvider
