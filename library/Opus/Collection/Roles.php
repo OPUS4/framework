@@ -258,6 +258,7 @@ class Opus_Collection_Roles {
         
         try {
             $db->query($query);
+            $db->setTablePrefix('');
             foreach ($content_fields as $content_field) {
                 $db->addField($tabellenname, $content_field);
             }
