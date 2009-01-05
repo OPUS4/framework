@@ -501,27 +501,45 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     public function validnewCollectionTreeDataProvider() {
         return array(
             array(array('name' => 'Testbaum')
-                    , false, 0
+                    , false, 0 ,array(array(
+                                              'name' => 'name',
+                                              'type' => 'VARCHAR',
+                                              'length' => 255
+                                         ))
             ),
             array(array('name' => 'Testbaum 2')
-            , true, 0
+            , true, 0, array(array(
+                                              'name' => 'name',
+                                              'type' => 'VARCHAR',
+                                              'length' => 255
+                                         ), array(
+                                              'name' => 'number',
+                                              'type' => 'VARCHAR',
+                                              'length' => 3
+                                         ), array(
+                                              'name' => 'hausnummer',
+                                              'type' => 'INT',
+                                              'length' => 11
+                                         ))
             ),
         );
     }
     
+    
     /**
      * Test function
      *
-     * @param integer $roleArray No comment, use your brain.
-     * @param integer $hidden    No comment, use your brain.
-     * @param integer $position  No comment, use your brain.
+     * @param integer $roleArray       No comment, use your brain.
+     * @param integer $hidden          No comment, use your brain.
+     * @param integer $position        No comment, use your brain.
+     * @param integer $content_fields  No comment, use your brain.
      * @return void
      * 
      * @dataProvider validnewCollectionTreeDataProvider
      */
-    public function testnewCollectionTree($roleArray, $hidden, $position) {
+    public function testnewCollectionTree($roleArray, $hidden, $position, $content_fields) {
         $pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
-        Opus_Collection_Information::newCollectionTree($roleArray, $position, $hidden);
+        Opus_Collection_Information::newCollectionTree($roleArray, $content_fields, $position, $hidden);
         $post = Opus_Collection_Information::getAllCollectionRoles($hidden);
         $this->assertGreaterThan(count($pre), count($post), "newCollectionTree didn't insert Role");
     }

@@ -49,7 +49,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      *
      * @var string
      */
-    protected $_tableprefix = 'test_';
+    protected $_tableprefix = '';
 
     /**
      * Modifies standard connection behavior to use UTF-8.

@@ -43,14 +43,15 @@ class Opus_Collection_Information {
     /**
      * Create a complete new collection structure (role). 
      *
-     * @param array(string => array(string => string)) $roleArray Array with collection_role database records.
-     * @param integer                                  $position  (Optional) Position for the new role.
-     * @param boolean                                  $hidden    (Optional) True if tree should be hidden.
+     * @param array(string => array(string => string)) $roleArray      Array with collection_role database records.
+     * @param array(array)                             $content_fields Array with collection_role database records.
+     * @param integer                                  $position       (Optional) Position for the new role.
+     * @param boolean                                  $hidden         (Optional) True if tree should be hidden.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @throws Exception Is thrown on DB errors.
      * @return integer ID of the newely created Collection Tree
      */
-    static public function newCollectionTree(array $roleArray, $position = 0, $hidden = false) {
+    static public function newCollectionTree(array $roleArray, array $content_fields = array(), $position = 0, $hidden = false) {
         
         // Argument validation
         if ( (false === is_int($position)) or (0 > $position) ) {
@@ -92,7 +93,7 @@ class Opus_Collection_Information {
             $role->save();
             
             // Create collection tables for the newly created role
-            $role->createDatabaseTables();
+            $role->createDatabaseTables($content_fields);
             
             // Write pseudo content for the hidden root node to fullfill foreign key constraint
             $occ = new Opus_Collection_Contents($role->getRolesID());

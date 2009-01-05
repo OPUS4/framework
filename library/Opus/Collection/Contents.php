@@ -195,9 +195,7 @@ class Opus_Collection_Contents {
     public function root() {
         try {
             $this->collections_contents
-                 ->insert(array('collections_id' => 0, 
-                                'name' => 'root', 
-                                'number' => '000'));
+                 ->insert(array('collections_id' => 0));
         } catch (Exception $e) {
             throw new Exception('Database error: ' . $e->getMessage());
         }

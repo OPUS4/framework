@@ -219,10 +219,15 @@ class Opus_Collection_Roles {
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
      *
+     * @param array(array)                             $content_fields Array with collection_role database records.
      * @throws  Exception On failed database access.
      * @return void
      */
-    public function createDatabaseTables() {
+    public function createDatabaseTables(array $content_fields = array(array(
+                                              'name' => 'name',
+                                              'type' => 'VARCHAR',
+                                              'length' => 255
+                                         ))) {
         // Fetch DB adapter
         $db = Zend_Registry::get('db_adapter');
 
@@ -232,7 +237,8 @@ class Opus_Collection_Roles {
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
             PRIMARY KEY ( `link_documents_collections_id` ) 
-            ) ENGINE = InnoDB';
+            ) ENGINE = InnoDB'
+            ;
         
         try {
             $db->query($query);
@@ -244,14 +250,17 @@ class Opus_Collection_Roles {
         $tabellenname = 'collections_contents_' . $this->roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
-            `collections_language` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT "ger",
-            `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-            `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-            PRIMARY KEY ( `collections_id` , `collections_language` ) 
-            ) ENGINE = InnoDB';
+            PRIMARY KEY ( `collections_id` ) 
+            ) ENGINE = InnoDB
+            DEFAULT CHARACTER SET = utf8
+            COLLATE = utf8_general_ci'
+            ;
         
         try {
             $db->query($query);
+            foreach ($content_fields as $content_field) {
+                $db->addField($tabellenname, $content_field);
+            }
         } catch (Exception $e) {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
@@ -289,8 +298,6 @@ class Opus_Collection_Roles {
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
-            DEFAULT CHARACTER SET = utf8
-            COLLATE = utf8_general_ci
             PACK_KEYS = 0
             ROW_FORMAT = DEFAULT;';
         try {
@@ -314,8 +321,6 @@ class Opus_Collection_Roles {
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
-            DEFAULT CHARACTER SET = utf8
-            COLLATE = utf8_general_ci
             PACK_KEYS = 0
             ROW_FORMAT = DEFAULT;';
         try {
