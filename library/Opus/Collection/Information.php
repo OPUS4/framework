@@ -44,7 +44,7 @@ class Opus_Collection_Information {
      * Create a complete new collection structure (role). 
      *
      * @param array(string => array(string => string)) $roleArray      Array with collection_role database records.
-     * @param array(array)                             $content_fields Array with collection_role database records.
+     * @param array(array)                             $content_fields (Optional) Array with collection_role database records.
      * @param integer                                  $position       (Optional) Position for the new role.
      * @param boolean                                  $hidden         (Optional) True if tree should be hidden.
      * @throws InvalidArgumentException Is thrown on invalid arguments.

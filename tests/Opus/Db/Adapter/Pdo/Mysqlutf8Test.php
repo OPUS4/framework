@@ -652,7 +652,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
             ->will($this->returnValue(array()));
 
         $this->setExpectedException('Exception');
-        $dba->removeField('timmy', 'not_a_field');exit();
+        $dba->removeField('timmy', 'not_a_field');
     }
     
     /**

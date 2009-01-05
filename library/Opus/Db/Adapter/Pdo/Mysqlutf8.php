@@ -304,7 +304,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      */
     public function removeField($table, $name) {
         // check for a vaild table contains afterwards table name with table prefix!
-        if ($this->isExistent($table) === false) {//echo "($table, $name)";//exit();
+        if ($this->isExistent($table) === false) {
             throw new Exception('Table \'' . $table . '\' doesn\'t exists.');
         }
         // check for a valid field name

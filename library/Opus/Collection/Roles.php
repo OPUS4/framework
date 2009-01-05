@@ -219,7 +219,7 @@ class Opus_Collection_Roles {
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
      *
-     * @param array(array)                             $content_fields Array with collection_role database records.
+     * @param array(array) (Optional) $content_fields Array with collection_role database records.
      * @throws  Exception On failed database access.
      * @return void
      */
