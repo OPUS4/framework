@@ -59,7 +59,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
   CONSTRAINT `has`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE RESTRICT
+    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
@@ -103,7 +103,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   CONSTRAINT `fk_document_files_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE RESTRICT
+    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
@@ -241,7 +241,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
   CONSTRAINT `fk_link_documents_persons_persons`
     FOREIGN KEY (`persons_id` )
     REFERENCES `opus400`.`persons` (`persons_id` )
-    ON DELETE RESTRICT
+    ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_link_persons_publications_institutes_contents`
     FOREIGN KEY (`institutes_id` )
@@ -251,8 +251,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
   CONSTRAINT `fk_link_persons_documents_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
@@ -301,7 +301,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE RESTRICT
+    ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
@@ -490,13 +490,13 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_licences` (
   CONSTRAINT `fk_documents_has_document_licences_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_documents_has_document_licences_document_licences`
     FOREIGN KEY (`licences_id` )
     REFERENCES `opus400`.`document_licences` (`licences_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
@@ -515,13 +515,13 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_institutes_documents` (
   CONSTRAINT `fk_institutes_contents_has_documents_institutes_contents`
     FOREIGN KEY (`institutes_id` )
     REFERENCES `opus400`.`institutes_contents` (`institutes_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_institutes_contents_has_documents_documents`
     FOREIGN KEY (`documents_id` )
     REFERENCES `opus400`.`documents` (`documents_id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci;
