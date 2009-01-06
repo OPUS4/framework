@@ -103,6 +103,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'author')
             ),
+            'SubjectSwd' => array(
+                'model' => 'Opus_Model_Dependent_Subject',
+                'options' => array('subject_type' => 'swd')
+            )
         );
 
     /**
