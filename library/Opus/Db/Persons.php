@@ -63,7 +63,7 @@ class Opus_Db_Persons extends Zend_Db_Table {
      * @var array $_dependantTables
      */
     protected $_dependentTables = array(
-            'Opus_Db_LinkDocumentsPersons',
+            'Opus_Db_LinkPersonsDocuments',
             'Opus_Db_PersonExternalKeys',
             );
 }

@@ -71,7 +71,7 @@ class Opus_Db_Documents extends Zend_Db_Table {
             'Opus_Db_DocumentEnrichments',
             'Opus_Db_DocumentFiles',
             'Opus_Db_DocumentIdentifiers',
-            'Opus_Db_LinkDocumentsPersons',
+            'Opus_Db_LinkPersonsDocuments',
             'Opus_Db_LinkDocumentsLicences',
             );
 }
