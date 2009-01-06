@@ -493,4 +493,219 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getLicence()->getSortOrder(), 0);
     }
 
+    /**
+     * Test if corresponding links to persons are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesPersonLinks() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="PersonAuthor" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $author = new Opus_Model_Person();
+
+        $doc->addPersonAuthor($author);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getPersonAuthor()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $link = new Opus_Model_Dependent_Link_DocumentPerson($id);
+    }
+
+    /**
+     * Test if corresponding links to licences are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesLicenceLinks() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Licence" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $licence = new Opus_Model_Licence();
+
+        $doc->addLicence($licence);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getLicence()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $link = new Opus_Model_Dependent_Link_DocumentLicence($id);
+    }
+
+    /**
+     * Test if corresponding enrichments are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesEnrichments() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Enrichment" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $enrichment = new Opus_Model_Dependent_Enrichment();
+
+        $doc->addEnrichment($enrichment);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getEnrichment()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $enrichment = new Opus_Model_Dependent_Enrichment($id);
+    }
+
+    /**
+     * Test if corresponding identifiers are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesIdentifiers() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Isbn" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $isbn = new Opus_Model_Dependent_Isbn();
+
+        $doc->addIsbn($isbn);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getIsbn()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $isbn = new Opus_Model_Dependent_Isbn($id);
+    }
+
+    /**
+     * Test if corresponding patents are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesPatents() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Patent" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $patent = new Opus_Model_Dependent_Patent();
+
+        $doc->addPatent($patent);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getPatent()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $patent = new Opus_Model_Dependent_Patent($id);
+    }
+
+    /**
+     * Test if corresponding notes are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesNotes() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Note" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $note = new Opus_Model_Dependent_Note();
+
+        $doc->addNote($note);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getNote()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $note = new Opus_Model_Dependent_Note($id);
+    }
+
+    /**
+     * Test if corresponding subjects are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesSubjects() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="SubjectSwd" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $subject = new Opus_Model_Dependent_Subject();
+
+        $doc->addSubjectSwd($subject);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getSubjectSwd()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $subject = new Opus_Model_Dependent_Subject($id);
+    }
+
+    /**
+     * Test if corresponding titles are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesTitles() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="TitleMain" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $title = new Opus_Model_Dependent_Title();
+
+        $doc->addTitleMain($title);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getTitleMain()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $title = new Opus_Model_Dependent_Title($id);
+    }
+
+    /**
+     * Test if corresponding abstracts are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesAbstracts() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="TitleAbstract" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Model_Document(null, $type);
+        $abstract = new Opus_Model_Dependent_Abstract();
+
+        $doc->addTitleAbstract($abstract);
+        $doc->store();
+        $doc->delete();
+        $id = $doc->getTitleAbstract()->getId();
+        $this->setExpectedException('Opus_Model_Exception');
+        $abstract = new Opus_Model_Dependent_Abstract($id);
+    }
 }
