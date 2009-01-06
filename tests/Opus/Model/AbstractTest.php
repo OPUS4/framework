@@ -285,4 +285,17 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');
     }
 
+    /**
+     * Test if model deletion is reflected in database.
+     *
+     * @return void
+     */
+    public function testDeletion() {
+        $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
+        $preCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
+        $obj->delete();
+        $postCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
+        $this->assertEquals($postCount, $preCount - 1, 'Object persists allthough it was deleted.');
+    }
+
 }
