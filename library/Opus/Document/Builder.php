@@ -105,7 +105,9 @@ class Opus_Document_Builder {
             $field->setMultiplicity($fieldinfo['multiplicity']);
             $document->addField($field);
             $classname = $field->getValueModelClass();
-            if (($this->_valueset === true) and (is_null($classname) === false)) {
+            if (($this->_valueset === true)
+                    and (is_null($classname) === false)
+                    and (in_array($fieldname, $document->describe()) === true)) {
                 $model = new $classname;
                 $field->setValue($model);
             }
