@@ -113,6 +113,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
         );
 
     /**
+     * Fields that should not be displayed on a form.
+     *
+     * @var array  Defaults to array('File').
+     */
+    protected $_hiddenFields = array('File');
+
+    /**
      * Constructor.
      *
      * @param  integer|string $id   (Optional) Id an existing document.
@@ -143,9 +150,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         $this->_builder->addFieldsTo($this);
-        $file = new Opus_Model_Field('File');
-        $file->setMultiplicity('*');
-        $this->addField($file);
 
         parent::_fetchValues();
     }

@@ -172,6 +172,7 @@
 	       <enumeration value="PersonOther"/>
 	       <enumeration value="PersonReferee"/>
 	       <enumeration value="Publication"/>
+	       <enumeration value="File"/>
 	   </restriction>
 	</simpleType>
 
