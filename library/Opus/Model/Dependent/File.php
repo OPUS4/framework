@@ -62,8 +62,11 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @var mixed  Defaults to array(        'TempFile' => null        ). 
      */
     protected $_externalFields = array(
-        'TempFile' => array(null),
-    );
+            'TempFile' => array(null),
+            'HashValue' => array(
+                'model' => 'Opus_Model_Dependent_HashValues'
+            ),
+        );
 
     /**
      * Initialize model with the following fields:
@@ -85,6 +88,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
         $mimetype = new Opus_Model_Field('MimeType');
         $filelanguage = new Opus_Model_Field('FileLanguage');
         $tempfile = new Opus_Model_Field('TempFile');
+        $hashvalue = new Opus_Model_Field('HashValue');
 
         $this->addField($filepathname)
             ->addField($filesortorder)
@@ -93,7 +97,8 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
             ->addField($mimetype)
             ->addField($filelanguage)
             ->addField($tempfile)
-            ->addField($documentsid);
+            ->addField($documentsid)
+            ->addField($hashvalue);
     }
 
     /**
@@ -102,12 +107,13 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @return void
      */
     protected function _storeTempFile() {
-        //TODO: Move temp file to repository.
         $path = '../tmp/' . date('Y') . '/' . $this->getDocumentsId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
-        print_r($path);
+        $hash = $this->addHashValue();
+        $hash->setHashType('md5');
+        $hash->setHashValue(hash_file('md5', $this->getTempFile()));
         copy($this->getTempFile(), $path . '/' . $this->getFilePathName());
     }
 

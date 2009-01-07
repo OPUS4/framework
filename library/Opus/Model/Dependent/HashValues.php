@@ -53,7 +53,7 @@ class Opus_Model_Dependent_HashValues extends Opus_Model_DependentAbstract {
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected $_tableGatewayClass  = 'Opus_Db_FileHashValues';
+    protected $_tableGatewayClass  = 'Opus_Db_FileHashvalues';
 
     /**
      * Initialize model with the following fields:

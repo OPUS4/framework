@@ -117,7 +117,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @var array  Defaults to array('File').
      */
-    protected $_hiddenFields = array('File');
+    protected $_hiddenFields = array(
+            'File',
+        );
 
     /**
      * Constructor.
