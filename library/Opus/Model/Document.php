@@ -106,7 +106,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'SubjectSwd' => array(
                 'model' => 'Opus_Model_Dependent_Subject',
                 'options' => array('subject_type' => 'swd')
-            )
+            ),
+            'File' => array(
+                'model' => 'Opus_Model_Dependent_File',
+            ),
         );
 
     /**
@@ -140,6 +143,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         $this->_builder->addFieldsTo($this);
+        $file = new Opus_Model_Field('File');
+        $file->setMultiplicity('*');
+        $this->addField($file);
 
         parent::_fetchValues();
     }
