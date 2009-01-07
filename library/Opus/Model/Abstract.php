@@ -129,7 +129,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_Exception('No ' .
-                get_class($tableGatewayModel) . ' with id $id in database.');
+                get_class($tableGatewayModel) . " with id $id in database.");
             }
         }
         $this->_init();
