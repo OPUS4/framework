@@ -86,9 +86,11 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $institute = new Opus_Model_Field('Institute');
         $role = new Opus_Model_Field('Role');
         $sortOrder = new Opus_Model_Field('SortOrder');
+        $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
 
         $this->addField($role)
-            ->addField($sortOrder);
+            ->addField($sortOrder)
+            ->addField($allowEmailContact);
             //->addField($institute)
     }
 

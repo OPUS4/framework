@@ -53,7 +53,7 @@ class Opus_Db_FileHashvalues extends Zend_Db_Table {
      *
      * @var array
      */
-    protected $_primary = array('file_hashvalues_id', 'document_files_id');
+    protected $_primary = array('document_files_id', 'hash_type');
 
     /**
      * Map foreign keys in this table to the column in the table they originate

@@ -112,7 +112,6 @@ class Opus_File_Hash {
         // Generate hash values
         $hash_data = $this->generate_hash($filedata, $method);
         $hashdb_data = array(
-            'file_hashvalues_id' => $hash_data['hashvalue_id'],
             'document_files_id' => $fileId,
             'hash_type' => $method,
             'hash_value' => $hash_data['hashvalue']
@@ -160,7 +159,7 @@ class Opus_File_Hash {
         $hash_data = $this->generate_hash($filedata, $method);
         $hashdb = new Opus_Db_FileHashvalues();
         // Get hash information from database
-        $row = $hashdb->find($hash_data['hashvalue_id'], $fileId);
+        $row = $hashdb->find($fileId, $method);
         if ($row->count() === 0) {
             throw new Opus_File_Exception('Could not retrieve necessary meta data.');
         }
