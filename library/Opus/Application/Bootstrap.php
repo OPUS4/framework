@@ -319,6 +319,11 @@ class Opus_Application_Bootstrap {
         }
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Translate', $translate);
+
+        $locale = new Zend_Locale();
+        $availableLanguages = $locale->getLanguageTranslationList();
+        asort($availableLanguages);
+        $registry->set('Available_Languages', $availableLanguages);
     }
 
     /**
