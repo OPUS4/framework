@@ -110,7 +110,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      */
     public function oneRealDoc() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Model_Document(null, 'monograph');
+        $document = new Opus_Model_Document(null, 'article');
 
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title');
@@ -120,9 +120,29 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $abstract->setTitleAbstractValue('Abstract');
         $abstract->setTitleAbstractLanguage('fr');
 
+        $parentTitle = $document->addTitleParent();
+        $parentTitle->setTitleAbstractValue('Parent');
+        $parentTitle->setTitleAbstractLanguage('en');
+
         $isbn = $document->addIsbn();
         $isbn->setIdentifierValue('123-123-123');
         $isbn->setIdentifierLabel('label');
+
+        $note = $document->addNote();
+        $note->setMessage('Ich bin eine öffentliche Notiz.');
+        $note->setCreator('Jim Knopf');
+        $note->setScope('public');
+
+        $patent = $document->addPatent();
+        $patent->setPatentCountries('Lummerland');
+        $patent->setPatentDateGranted('2008-12-05');
+        $patent->setPatentNumber('123456789');
+        $patent->setPatentYearApplied('2008');
+        $patent->setPatentApplication('Absolutely none.');
+
+        $enrichment = $document->addEnrichment();
+        $enrichment->setEnrichmentValue('Poor enrichment.');
+        $enrichment->setEnrichmentType('nonesense');
 
         $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
@@ -137,6 +157,16 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $author->setDateOfBirth('1857-11-26 00:00:00');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
+
+        $licence = new Opus_Model_Licence;
+        $licence->setActive(1);
+        $licence->setLicenceLanguage('de');
+        $licence->setLinkLicence('http://creativecommons.org/');
+        $licence->setMimeType('text/pdf');
+        $licence->setNameLong('Creative Commons');
+        $licence->setPodAllowed(1);
+        $licence->setSortOrder(0);
+        $document->addLicence($licence);
 
         // Save document, modify, and save again.
         $id = $document->store();

@@ -44,7 +44,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Number of hits in this list
-   * @access pivate
+   * @access private
    */
   private $numberOfDocuments;
 

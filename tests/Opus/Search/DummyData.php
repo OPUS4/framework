@@ -40,11 +40,10 @@ class DummyData
 	 * Dummydata with Structure of Documents using the adapters
 	 * 
 	 * @return Array Array of OpusDocumentAdapters containing dummy data
-	 * @static
 	 */
 	public static function getDummyDocuments()
 	{
-		$authorsList = DummyData::getDummyPersons();
+		$authorsList = self::getDummyPersons();
 		$autlist1 = new Opus_Search_List_PersonsList();
 		$autlist1->add($authorsList[0]);
 		$autlist1->add($authorsList[1]);
@@ -55,81 +54,81 @@ class DummyData
 		$dummydata = 	array(
 							new Opus_Search_Adapter_DocumentAdapter(
 								array(
-									"author" => $autlist1, 
-									"frontdoorUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"index", 
-										"id"=>"82"
+									'author' => $autlist1, 
+									'frontdoorUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'index', 
+										'action'=>'index', 
+										'id'=>82
 									), 
-									"title" => "Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg", 
-									"abstract" => "Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.", 
-									"fileUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "file", 
-										"action"=>"view", 
-										"id"=>"82",
-										"filename"=>"projektbericht.pdf"
+									'title' => 'Prüfung und Erweiterung der technischen Grundlagen des Dokumentenservers OPUS zur Zertifizierung gegenüber der DINI anhand der Installation an der TU Hamburg-Harburg', 
+									'abstract' => 'Viele Hochschulen (bzw. die Hochschulbibliotheken) setzen heutzutage Dokumentenserver ein, um Dokumente online verfügbar zu machen und diese Online-Dokumente zu verwalten. In manchen Hochschulen ist es für die Studierenden sogar möglich, ihre Abschlussarbeit auf diesem Server zu veröffentlichen, was im Sinne der Promotionsordnung als ordnungsgemässe Veröffentlichung akzeptiert werden und so den Doktoranden eventuell hohe Kosten einer Verlagsveröffentlichung oder anderweitigen gedruckten Publikation ersparen kann. Ein solcher Dokumentenserver, der unter anderem in der Bibliothek der Technischen Universität Hamburg eingesetzt wird, ist OPUS. Um die Akzeptanz eines solchen Servers bei den Promovenden (aber auch den Studierenden, da OPUS nicht ausschliesslich Dissertationen und Habilitationen aufnimmt) zu erhöhen und sicherzustellen, dass der Server internationalen Standards folgt und so zum Beispiel auch von anderen Hochschulen oder Metasuchmaschinen etc. durchsucht werden kann, gibt es die Möglichkeit, einen Dokumentenserver zertifizieren zu lassen. Ein solches Zertifikat wird von der DINI (Deutsche Initiative für Netzwerkinformation) vergeben. In der vorliegenden Arbeit wird untersucht, inwiefern die Installation des Dokumentenservers OPUS an der TU Hamburg-Harburg die Zertifizierungsbedingungen der DINI erfüllt und wo ggf. Erweiterungsbedarf besteht.', 
+									'fileUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'file', 
+										'action'=>'view', 
+										'id'=>82,
+										'filename'=>'projektbericht.pdf'
 									), 
-									"documentType" => new Opus_Search_Adapter_DocumentTypeAdapter(
+									'documentType' => new Opus_Search_Adapter_DocumentTypeAdapter(
 										array(
-											"id" => "1", 
-											"name" => "Dissertation", 
-											"type" => "Thesis"
+											'id' => 1, 
+											'name' => 'Dissertation', 
+											'type' => 'Thesis'
 										)
 									)
 								)
 							),
 							new Opus_Search_Adapter_DocumentAdapter(
 								array(
-									"author" => $autlist2, 
-									"frontdoorUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"index", 
-										"id"=>"357"
+									'author' => $autlist2, 
+									'frontdoorUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'index', 
+										'action'=>'index', 
+										'id'=>357
 									), 
-									"title" => "Entwicklung einer Suchfunktion mit Information-Retrieval-Schnittstelle für den Dokumentenserver OPUS unter besonderer Berücksichtigung von Entwurfsmustern", 
-									"abstract" => "In der vorliegenden Abschlussarbeit wurde eine Suchfunktion für den Dokumentenserver TUBdok, der von der Universitätsbibliothek an der Technischen Universität Hamburg-Harburg betrieben wird, entwickelt. Für die Suche wurde eine in das Dokumentenserver-System eingepasste Oberfläche entwickelt. Außerdem steht eine per URL ansteuerbare Information-Retrieval-Schnittstelle zur Verfügung, die das layout-unabhängige XML-Format OpenSearch zurückgibt. Die Suchfunktion basiert auf Apache Lucene und wurde über eine im Zend-Framework vorhandene Implementierung in den PHP-basierten Dokumentenserver integriert. Auch das Indizierungssystem, mit dem die Inhalte des Dokumentenservers in den Datenbestand der Suchmaschine übertragen werden, wurde in PHP implementiert. Die Indexstruktur ist selbst erstellt und an die Dokumentenserver-Umgebung angepasst. Das System ist nach Abschluss der Arbeit grundsätzlich funktionsfähig.", 
-									"fileUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "file", 
-										"action"=>"view", 
-										"id"=>"357",
-										"filename"=>"marahrens.pdf"
+									'title' => 'Entwicklung einer Suchfunktion mit Information-Retrieval-Schnittstelle für den Dokumentenserver OPUS unter besonderer Berücksichtigung von Entwurfsmustern', 
+									'abstract' => 'In der vorliegenden Abschlussarbeit wurde eine Suchfunktion für den Dokumentenserver TUBdok, der von der Universitätsbibliothek an der Technischen Universität Hamburg-Harburg betrieben wird, entwickelt. Für die Suche wurde eine in das Dokumentenserver-System eingepasste Oberfläche entwickelt. Außerdem steht eine per URL ansteuerbare Information-Retrieval-Schnittstelle zur Verfügung, die das layout-unabhängige XML-Format OpenSearch zurückgibt. Die Suchfunktion basiert auf Apache Lucene und wurde über eine im Zend-Framework vorhandene Implementierung in den PHP-basierten Dokumentenserver integriert. Auch das Indizierungssystem, mit dem die Inhalte des Dokumentenservers in den Datenbestand der Suchmaschine übertragen werden, wurde in PHP implementiert. Die Indexstruktur ist selbst erstellt und an die Dokumentenserver-Umgebung angepasst. Das System ist nach Abschluss der Arbeit grundsätzlich funktionsfähig.', 
+									'fileUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'file', 
+										'action'=>'view', 
+										'id'=>357,
+										'filename'=>'marahrens.pdf'
 									), 
-									"documentType" => new Opus_Search_Adapter_DocumentTypeAdapter(
+									'documentType' => new Opus_Search_Adapter_DocumentTypeAdapter(
 										array(
-											"id" => "2", 
-											"name" => "Monographie", 
-											"type" => "book"
+											'id' => 2, 
+											'name' => 'Monographie', 
+											'type' => 'book'
 										)
 									)
 								)
 							),
 							new Opus_Search_Adapter_DocumentAdapter(
 								array(
-									"author" => $autlist3, 
-									"frontdoorUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "index", 
-										"action"=>"index", 
-										"id"=>"358"
+									'author' => $autlist3, 
+									'frontdoorUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'index', 
+										'action'=>'index', 
+										'id'=>358
 									), 
-									"title" => "Europa und die Informationsgesellschaft", 
-									"abstract" => "Bei dem Artikel handelt es sich um einen Bericht zum 3. SuMa-eV-Forum am 28.09.2006 in Berlin. Die Tagung stand unter dem Titel 'Suchmaschinen: In Technik, Wirtschaft und Medienkunst'. Dieses Dokument ist die Eigenarchivierung des Autors eines in der Ausgabe 1/2007 der Zeitschrift für Bibliothekswesen und Bibliographie (ZfBB, Klostermann Verlag, ISSN 0044-2380) erschienenen Artikels.", 
-									"fileUrl" => array(
-										"module"=>"frontdoor", 
-										"controller" => "file", 
-										"action"=>"view", 
-										"id"=>"358",
-										"filename"=>"zfbb_suma_marahrens_eigenarchivierung.pdf"
+									'title' => 'Europa und die Informationsgesellschaft', 
+									'abstract' => 'Bei dem Artikel handelt es sich um einen Bericht zum 3. SuMa-eV-Forum am 28.09.2006 in Berlin. Die Tagung stand unter dem Titel "Suchmaschinen: In Technik, Wirtschaft und Medienkunst". Dieses Dokument ist die Eigenarchivierung des Autors eines in der Ausgabe 1/2007 der Zeitschrift für Bibliothekswesen und Bibliographie (ZfBB, Klostermann Verlag, ISSN 0044-2380) erschienenen Artikels.', 
+									'fileUrl' => array(
+										'module'=>'frontdoor', 
+										'controller' => 'file', 
+										'action'=>'view', 
+										'id'=>358,
+										'filename'=>'zfbb_suma_marahrens_eigenarchivierung.pdf'
 									), 
-									"documentType" => new Opus_Search_Adapter_DocumentTypeAdapter(
+									'documentType' => new Opus_Search_Adapter_DocumentTypeAdapter(
 										array(
-											"id" => "2", 
-											"name" => "Monographie", 
-											"type" => "book"
+											'id' => 2, 
+											'name' => 'Monographie', 
+											'type' => 'book'
 										)
 									)
 								)
@@ -149,16 +148,16 @@ class DummyData
 		$dummydata = array( 
 						new Opus_Search_Adapter_PersonAdapter(
 							array(
-								"id" => "1", 
-								"lastName" => "Marahrens", 
-								"firstName" => "Oliver"
+								'id' => 1, 
+								'lastName' => 'Marahrens', 
+								'firstName' => 'Oliver'
 							)
 						),
 						new Opus_Search_Adapter_PersonAdapter(
 							array(
-								"id" => "2", 
-								"lastName" => "Dummy", 
-								"firstName" => "DummyVorname"
+								'id' => 2, 
+								'lastName' => 'Dummy', 
+								'firstName' => 'DummyVorname'
 							)
 						)
 					);
@@ -176,16 +175,16 @@ class DummyData
 		$dummydata = array( 
 						new Opus_Search_Adapter_DocumentTypeAdapter( 
 							array(
-								"id" => "1", 
-								"name" => "Dissertation", 
-								"type" => "Thesis"
+								'id' => 1, 
+								'name' => 'Dissertation', 
+								'type' => 'Thesis'
 							)
 						),
 						new Opus_Search_Adapter_DocumentTypeAdapter(
 							array(
-								"id" => "2", 
-								"name" => "Monographie", 
-								"type" => "book"
+								'id' => 2, 
+								'name' => 'Monographie', 
+								'type' => 'book'
 							)
 						)
 					);
@@ -202,31 +201,31 @@ class DummyData
 	{
 		$dummydata = array( 
 						array(
-							"eng" => array( 
-								"collections_roles_id" => 1, 
-								"collections_language" => "eng",
-								"name" => "Dewey Decimal Classification (DDC)",	
-								"visible" => 1
+							'eng' => array( 
+								'collections_roles_id' => 1, 
+								'collections_language' => 'eng',
+								'name' => 'Dewey Decimal Classification (DDC)',	
+								'visible' => 1
 							), 
-							"ger" => array( 
-								"collections_roles_id" => 1, 
-								"collections_language" => "ger", 
-								"name" => "Sachgruppen der Dewey Decimal Classification (DDC)", 
-								"visible" => 1
+							'ger' => array( 
+								'collections_roles_id' => 1, 
+								'collections_language' => 'ger', 
+								'name' => 'Sachgruppen der Dewey Decimal Classification (DDC)', 
+								'visible' => 1
 							)
 						),
 						array(
-							"eng" => array( 
-								"collections_roles_id" => 2, 
-								"collections_language" => "eng", 
-								"name" => "Collections", 
-								"visible" => 1 
+							'eng' => array( 
+								'collections_roles_id' => 2, 
+								'collections_language' => 'eng', 
+								'name' => 'Collections', 
+								'visible' => 1 
 							),
-							"ger" => array( 
-								"collections_roles_id" => 2, 
-								"collections_language" => "ger", 
-								"name" => "Schriftenreihen", 
-								"visible" => 1 
+							'ger' => array( 
+								'collections_roles_id' => 2, 
+								'collections_language' => 'ger', 
+								'name' => 'Schriftenreihen', 
+								'visible' => 1 
 							) 
 						) 
 					);
@@ -243,52 +242,50 @@ class DummyData
 	{
 		$dummydata = array( 
 						array(
-							"content" => array (
-								"eng" => array (
-									"collections_id" => 1, 
-									"collections_language" => "eng", 
-									"name" => "Computer science, information, and general works", 
-									"number" => "000" 
+							'content' => array (
+								'eng' => array (
+									'collections_id' => 1, 
+									'collections_language' => 'eng', 
+									'name' => 'Computer science, information, and general works', 
+									'number' => '000' 
 								), 
-								"ger" => array (
-									"collections_id" => 1, 
-									"collections_language" => "ger",
-									"name" => "Informatik, Informationswissenschaft, allgemeine Werke",
-									"number" => "000"
+								'ger' => array (
+									'collections_id' => 1, 
+									'collections_language' => 'ger',
+									'name' => 'Informatik, Informationswissenschaft, allgemeine Werke',
+									'number' => '000'
 								)
 							),
-							"structure" => array(
-								"collections_id" => 1,
-								"left" => 2,
-								"right" => 35,
-								"visible" => 1
+							'structure' => array(
+								'collections_id' => 1,
+								'left' => 2,
+								'right' => 35,
+								'visible' => 1
 							)
 						),
 						array(
-							"content" => array (
-								"eng" => array (
-									"collections_id" => 2,
-									"collections_language" => "eng",
-									"name" => "Philosophy and psychology",
-									"number" => "100"
+							'content' => array (
+								'eng' => array (
+									'collections_id' => 2,
+									'collections_language' => 'eng',
+									'name' => 'Philosophy and psychology',
+									'number' => '100'
 								),
-								"ger" => array (
-									"collections_id" => 2,
-									"collections_language" => "ger",
-									"name" => "Philosophie und Psychologie",
-									"number" => "100"
+								'ger' => array (
+									'collections_id' => 2,
+									'collections_language' => 'ger',
+									'name' => 'Philosophie und Psychologie',
+									'number' => '100'
 								)
 							),
-							"structure" => array (
-								"collections_id" => 2,
-								"left" => 36,
-								"right" => 57,
-								"visible" => 1
+							'structure' => array (
+								'collections_id' => 2,
+								'left' => 36,
+								'right' => 57,
+								'visible' => 1
 							) 
 						)
 					); 
 		return $dummydata;
 	}
 }
-
-?>
