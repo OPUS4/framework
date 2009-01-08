@@ -316,6 +316,7 @@ class Opus_Form_Builder {
     protected function _makeElement($name, $value, Zend_Form $container) {
         if ($value instanceof Opus_Model_Interface) {
             $subform = $this->build($value, true);
+            $subform->setLegend($name);
             $container->addSubForm($subform, $name);
         } else {
             $element = new Zend_Form_Element_Text($name);
