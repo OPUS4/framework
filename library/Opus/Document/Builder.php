@@ -46,13 +46,6 @@ class Opus_Document_Builder {
     private $_type = null;
 
     /**
-     * Holds information of setting values
-     *
-     * @var boolean
-     */
-    private $_valueset = false;
-
-    /**
      * Contructor of class.
      *
      * @param Opus_Document_Type $type (Optional) Set document type.
@@ -81,8 +74,6 @@ class Opus_Document_Builder {
             $this->_type = $type;
         }
 
-        $this->_valueset = true;
-
         $document = new Opus_Model_Document(null, $type);
         return $this->addFieldsTo($document);
     }
@@ -104,14 +95,6 @@ class Opus_Document_Builder {
             $field->setMandatory($fieldinfo['mandatory']);
             $field->setMultiplicity($fieldinfo['multiplicity']);
             $document->addField($field);
-            $classname = $field->getValueModelClass();
-            if (($this->_valueset === true)
-                    and (is_null($classname) === false)
-                    and (in_array($fieldname, $document->describe()) === true)) {
-                $model = new $classname;
-                $field->setValue($model);
-            }
-
         }
         return $document;
     }

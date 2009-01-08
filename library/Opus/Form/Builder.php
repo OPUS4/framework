@@ -71,20 +71,33 @@ class Opus_Form_Builder {
 
         foreach ($model->describe() as $fieldname) {
             $field = $model->getField($fieldname);
+            $counts = count($field->getValue());
+            $modelclass = $field->getValueModelClass();
+
             if ($field->hasMultipleValues() === true) {
                 $i = 1;
                 $subform = new Zend_Form_SubForm();
                 $subform->setLegend($fieldname);
-                $counts = count($field->getValue());
-                foreach ($field->getValue() as $fieldvalue) {
-                    $this->_makeElement("$i", $fieldvalue, $subform);
+
+                if (($counts === 0) and ($modelclass !== null)) {
+                    $this->_makeElement("$i", new $modelclass, $subform);
                     if ($counts > 1) {
                         $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
                         $remove->setLabel('-');
                         $subform->addElement($remove);
                     }
-                    $i++;
+                } else {
+                    foreach ($field->getValue() as $fieldvalue) {
+                        $this->_makeElement("$i", $fieldvalue, $subform);
+                        if ($counts > 1) {
+                            $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
+                            $remove->setLabel('-');
+                            $subform->addElement($remove);
+                        }
+                        $i++;
+                    }
                 }
+
                 $mult = $field->getMultiplicity();
                 if (($mult === '*') or ($counts < $mult)) {
                     $add = new Zend_Form_Element_Submit('add_' . $fieldname);
@@ -93,7 +106,11 @@ class Opus_Form_Builder {
                 }
                 $form->addSubForm($subform, $fieldname);
             } else {
-                $this->_makeElement($fieldname, $field->getValue(), $form);
+                if ($counts === 0 and is_null($modelclass) === false) {
+                    $this->_makeElement($fieldname, new $modelclass, $form);
+                } else {
+                    $this->_makeElement($fieldname, $field->getValue(), $form);
+                }
                 $this->_addFilter($field, $form);
                 $this->_addMandatory($field, $form);
                 $this->_addValidator($field, $form);
@@ -125,7 +142,6 @@ class Opus_Form_Builder {
         $model = $this->uncompressModel($post[$modelelementname]);
 
         $this->_addRemove($post);
-
         $this->setFromPost($model, $post);
 
         $form = $this->build($model);
@@ -177,8 +193,9 @@ class Opus_Form_Builder {
             }
             if (is_null($field->getValueModelClass()) === false) {
                 if (is_null($field->getValue()) === true) {
+                    $modelclass = $field->getValueModelClass();
                     $callname = 'add' . $fieldname;
-                    $model->$callname();
+                    $model->$callname(new $modelclass);
                 }
 
                 if ($field->hasMultipleValues() === true) {
@@ -320,6 +337,10 @@ class Opus_Form_Builder {
         // should never be null
         $classname = $field->getValueModelClass();
         foreach ($values as $postvalue) {
+            // Skip empty postvalues
+            if ($postvalue === null) {
+                continue;
+            }
             $model = new $classname;
             if (is_array($postvalue) === false) {
                 $postvalue = array($postvalue);

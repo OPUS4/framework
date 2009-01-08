@@ -119,6 +119,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
      */
     protected $_hiddenFields = array(
             'File',
+            'DocumentType',
         );
 
     /**
@@ -152,6 +153,8 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
 
         $this->_builder->addFieldsTo($this);
+        $type = new Opus_Model_Field('DocumentType');
+        $this->addField($type);
 
         parent::_fetchValues();
     }
