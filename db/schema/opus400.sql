@@ -116,11 +116,10 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`file_hashvalues`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
-  `file_hashvalues_id` TINYINT UNSIGNED NOT NULL COMMENT 'Primärschlüssel' ,
   `document_files_id` INT UNSIGNED NOT NULL COMMENT 'Fremdschlüssel zur Document_Files Tabelle' ,
   `hash_type` VARCHAR(50) NOT NULL COMMENT 'Art des Hashes' ,
   `hash_value` TEXT NOT NULL COMMENT 'Hashwert ' ,
-  PRIMARY KEY (`file_hashvalues_id`, `document_files_id`) ,
+  PRIMARY KEY (`document_files_id`, `hash_type`) ,
   INDEX `fk_file_hashvalues_document_files` (`document_files_id` ASC) ,
   CONSTRAINT `fk_file_hashvalues_document_files`
     FOREIGN KEY (`document_files_id` )
@@ -234,6 +233,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
   `institutes_id` INT UNSIGNED NULL ,
   `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator') NOT NULL COMMENT 'Rolle der Person im aktuellen Dokument-Institut-Kontext' ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Reihenfolge der Autoren' ,
+  `allow_email_contact` BOOLEAN NOT NULL DEFAULT 0 ,
   INDEX `fk_link_documents_persons_persons` (`persons_id` ASC) ,
   PRIMARY KEY (`persons_id`, `documents_id`) ,
   INDEX `fk_link_persons_publications_institutes_contents` (`institutes_id` ASC) ,
