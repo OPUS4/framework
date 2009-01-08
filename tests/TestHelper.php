@@ -64,6 +64,12 @@ class TestHelper extends Opus_Application_Bootstrap {
         self::configure(self::CONFIG_TEST, dirname(__FILE__));
         self::setupDatabase();
         self::setupLogging();
+
+        $registry = Zend_Registry::getInstance();
+        $locale = new Zend_Locale();
+        $availableLanguages = $locale->getLanguageTranslationList();
+        asort($availableLanguages);
+        $registry->set('Available_Languages', $availableLanguages);
     }
 
     /**

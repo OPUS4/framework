@@ -89,6 +89,8 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
         $filetype = new Opus_Model_Field('FileType');
         $mimetype = new Opus_Model_Field('MimeType');
         $filelanguage = new Opus_Model_Field('FileLanguage');
+        $filelanguage->setDefault(Zend_Registry::get('Available_Languages'))
+            ->setSelection(true);
         $tempfile = new Opus_Model_Field('TempFile');
         $hashvalue = new Opus_Model_Field('HashValue');
 

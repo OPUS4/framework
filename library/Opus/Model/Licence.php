@@ -72,6 +72,8 @@ class Opus_Model_Licence extends Opus_Model_Abstract
         $desc_markup = new Opus_Model_Field('DescMarkup');
         $desc_text = new Opus_Model_Field('DescText');
         $licence_language = new Opus_Model_Field('LicenceLanguage');
+        $licence_language->setDefault(Zend_Registry::get('Available_Languages'))
+            ->setSelection(true);
         $link_licence = new Opus_Model_Field('LinkLicence');
         $link_logo = new Opus_Model_Field('LinkLogo');
         $link_sign = new Opus_Model_Field('LinkSign');

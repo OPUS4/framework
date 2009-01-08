@@ -66,6 +66,8 @@ class Opus_Model_Dependent_Parent extends Opus_Model_DependentAbstract
     protected function _init() {
         $this->_primaryTableRow->title_abstract_type = 'parent';
         $language = new Opus_Model_Field('TitleAbstractLanguage');
+        $language->setDefault(Zend_Registry::get('Available_Languages'))
+            ->setSelection(true);
         $value = new Opus_Model_Field('TitleAbstractValue');
 
         $this->addField($language)
