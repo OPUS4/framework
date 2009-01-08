@@ -1,6 +1,6 @@
 <?php
 /**
- * List of persons
+ * Structure of search hits in Module_Search
  * 
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -35,93 +35,90 @@
  */
 
 /**
- * class PersonsList
- * List of persons
+ * class SearchHit
  */
-class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
+class Opus_Search_SearchHit 
+{
 
   /**
-   * Number of persons in this list
-   * 
-   * @var Integer number of persons
+   * Document of the search hit matching the query
    * @access private
    */
-  private $numberOfPersons;
+  private $document;
 
   /**
-   * Elements in this list
-   * 
-   * @var Array Array of persons in the list
+   * File of the search hit matching the query
    * @access private
    */
-  private $persons;
+  private $files;
+
+  /**
+   * Relevance of the search hit - get it from the search engine framework
+   * @access private
+   */
+  private $relevance;
+
+  /**
+   * Type of the Search hit - does the search term match the fulltext or metadata?
+   * @access private
+   */
+  private $type;
 
   /**
    * Constructor
+   * @access public
+   * @param Integer id ID of the document for this search hit - if not given or invalid, the Search hit wont have a document
    */
-  public function __construct() {
-    $this->persons = array();
+  public function __construct($id = null) {
+  	if ($id !== null) $this->getDocument($id);
+  	else $this->document = null;
   }
 
   /**
-   * Add a person to the list
-   * 
-   * @param OpusPersonAdapter pers person that should be added to this list
-   * @return void
+   * Get the document as a OpusDocumentAdapter by its ID
+   * @return OpusDocumentAdapter
+   * @param Integer id ID of the document
+   * @access private
    */
-  public function add($pers) {
-    array_push($this->persons, $pers);
-  } 
-
-  /**
-   * Returns the number of persons in this list
-   * 
-   * @return integer number of persons in this list
-   * @deprecated 17.11.2008 use count() instead
-   */
-  public function getNumberOfPersons() {
-    $this->numberOfPersons = count($this->persons);
-    return $this->numberOfPersons;
-  } 
-
-  /**
-   * Gets the number of persons in this list
-   * 
-   * @return integer number of persons in this list
-   */
-  public function count() {
-    return $this->getNumberOfPersons();
+  private function getDocument($id) {
+    $this->document = new Opus_Search_Adapter_DocumentAdapter($id);
+    return $this->document;
   }
 
   /**
-   * Deletes a person from the list
-   * 
-   * @param OpusPersonAdapter|Integer item element (or index of element) that should be removed from the list
-   * @return void
+   * Get the OpusDocumentAdapter from this search hit
+   * @return OpusDocumentAdapter
+   * @access public
    */
-  public function delete($item) {
-    
+  public function getSearchHit() {
+    return $this->document;
   }
 
   /**
-   * Gets an element from the list by its index
-   * 
-   * @param Integer index index number of the element
-   * @return OpusPersonAdapter
+   * Set the relevance from this search hit
+   * @return void
+   * @access public
    */
-  public function get($index) {
-    return $this->persons[$index];
-  }  
+  public function setRelevance($relevance) {
+    $this->relevance = $relevance;
+  }
 
   /**
-   * Sorts the list
-   * 
-   * @param String sortCriteria criteria the list should be sorted with
-   * @return void
-   * Possible sort criteria are:
-   * not defined yet
+   * Get the relevance from this search hit
+   * @return Float relevance
+   * @access public
    */
-  public function sort($criteria) {
-    
-  }  
+  public function getRelevance() {
+    return $this->relevance;
+  }
+
+  /**
+   * set the document as a OpusDocumentAdapter
+   * @param OpusDocumentAdapter Document
+   * @return void
+   * @access public
+   */
+  public function setDocument($doc) {
+    $this->document = $doc;
+  }
 }
