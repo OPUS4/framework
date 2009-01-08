@@ -38,24 +38,43 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    #public function setUp() {
+    public function setUp() {
     	// Insert data set number 37 into database if it does not exist
-        #$adapter = Zend_Db_Table::getDefaultAdapter();
-        //$adapter->query("DELETE FROM `link_persons_documents` WHERE `documents_id` = 37");
-        //$adapter->query("DELETE FROM `documents` WHERE `documents_id` = 37");
-        //$adapter->query("DELETE FROM `document_title_abstracts` WHERE `documents_id` = 37");
-        //$adapter->query("DELETE FROM `persons` WHERE `persons_id` = 1");
-        //$adapter->query("INSERT INTO `documents` (`documents_id`, `range_id`, `completed_date`, `completed_year`, `contributing_corporation`, `creating_corporation`, `date_accepted`, `document_type`, `edition`, `issue`, `language`, `non_institute_affiliation`, `page_first`, `page_last`, `page_number`, `publication_state`, `published_date`, `published_year`, `reviewed`, `server_date_modified`, `server_date_published`, `server_date_unlocking`, `server_date_valid`, `source`, `swb_id`, `vg_wort_pixel_url`, `volume`) VALUES
-//(37, NULL, NULL, 0000, NULL, NULL, NULL, 'monograph', NULL, NULL, 'ger', NULL, NULL, NULL, NULL, 0, NULL, 2002, 'peer', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL)");
-        //$adapter->query("INSERT INTO `document_title_abstracts` (`document_title_abstracts_id`, `documents_id`, `title_abstract_type`, `title_abstract_value`, `title_abstract_language`) VALUES
-//(1, 37, 'main', 'Informationskompetenz und studentisches Lernen im elektronischen Zeitalter', 'ger'),
-//(2, 37, 'main', 'Information literacy and student learning in the electronic age', 'eng'),
-//(3, 37, 'abstract', 'Die Integration der Vermittlung von allgemeiner und fachlicher\nInformationskompetenz in das Lernen und Lehren an unseren Universitäten ist\neine wichtige Voraussetzung für die zeitgemässe Qualifizierung von\nHochschulabsolventen. Der Beitrag gibt eine Übersicht zur Ausgangssituation, zu\nProblemen, Zielen, Inhalten und Methoden der Vermittlung von\nInformationskompetenz im Rahmen studentischen Lernens aus der Sicht der\nUniversitätsbibliothek einer Technischen Universität.', 'ger')");
-		//$adapter->query("INSERT INTO `persons` (`persons_id`, `academic_title`, `date_of_birth`, `email`, `first_name`, `last_name`, `place_of_birth`) VALUES
-//(1, '', '2008-07-15 00:00:00', 'mustermann@domain.com', 'Thomas', 'Hapke', 'Musterstadt')");
-        //$adapter->query("INSERT INTO `link_persons_documents` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
-//(1, 37, 1, 'author', 0)");
-    #}
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        #$adapter->query("DELETE FROM `link_persons_documents` WHERE `documents_id` = 37");
+        #$adapter->query("DELETE FROM `documents` WHERE `documents_id` = 37");
+        #$adapter->query("DELETE FROM `document_title_abstracts` WHERE `documents_id` = 37");
+        #$adapter->query("DELETE FROM `persons` WHERE `persons_id` = 1");
+        #$adapter->query("INSERT INTO `documents` (`documents_id`, `range_id`, `completed_date`, `completed_year`, `contributing_corporation`, `creating_corporation`, `date_accepted`, `document_type`, `edition`, `issue`, `language`, `non_institute_affiliation`, `page_first`, `page_last`, `page_number`, `publication_state`, `published_date`, `published_year`, `reviewed`, `server_date_modified`, `server_date_published`, `server_date_unlocking`, `server_date_valid`, `source`, `swb_id`, `vg_wort_pixel_url`, `volume`) VALUES
+#(37, NULL, NULL, 0000, NULL, NULL, NULL, 'monograph', NULL, NULL, 'ger', NULL, NULL, NULL, NULL, 0, NULL, 2002, 'peer', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL)");
+        #$adapter->query("INSERT INTO `document_title_abstracts` (`document_title_abstracts_id`, `documents_id`, `title_abstract_type`, `title_abstract_value`, `title_abstract_language`) VALUES
+#(1, 37, 'main', 'Informationskompetenz und studentisches Lernen im elektronischen Zeitalter', 'ger'),
+#(2, 37, 'main', 'Information literacy and student learning in the electronic age', 'eng'),
+#(3, 37, 'abstract', 'Die Integration der Vermittlung von allgemeiner und fachlicher\nInformationskompetenz in das Lernen und Lehren an unseren Universitäten ist\neine wichtige Voraussetzung für die zeitgemässe Qualifizierung von\nHochschulabsolventen. Der Beitrag gibt eine Übersicht zur Ausgangssituation, zu\nProblemen, Zielen, Inhalten und Methoden der Vermittlung von\nInformationskompetenz im Rahmen studentischen Lernens aus der Sicht der\nUniversitätsbibliothek einer Technischen Universität.', 'ger')");
+		#$adapter->query("INSERT INTO `persons` (`persons_id`, `academic_title`, `date_of_birth`, `email`, `first_name`, `last_name`, `place_of_birth`) VALUES
+#(1, '', '2008-07-15 00:00:00', 'mustermann@domain.com', 'Thomas', 'Hapke', 'Musterstadt')");
+        #$adapter->query("INSERT INTO `link_persons_documents` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
+#(1, 37, 1, 'author', 0)");
+    }
+
+    /**
+     * Tear down test fixture.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('document_identifiers');
+        TestHelper::clearTable('link_persons_documents');
+        TestHelper::clearTable('link_institutes_documents');
+        TestHelper::clearTable('link_documents_licences');
+        TestHelper::clearTable('document_title_abstracts');
+        TestHelper::clearTable('documents');
+        TestHelper::clearTable('document_patents');
+        TestHelper::clearTable('document_notes');
+        TestHelper::clearTable('document_enrichments');
+        TestHelper::clearTable('document_licences');
+        TestHelper::clearTable('institutes_contents');
+    }
 	
     /**
      * Valid document data provider
@@ -91,8 +110,43 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      */
     public function oneRealDoc() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $document = new Opus_Model_Document(null, 'monograph');
+
+        $title = $document->addTitleMain();
+        $title->setTitleAbstractValue('Title');
+        $title->setTitleAbstractLanguage('de');
+
+        $abstract = $document->addTitleAbstract();
+        $abstract->setTitleAbstractValue('Abstract');
+        $abstract->setTitleAbstractLanguage('fr');
+
+        $isbn = $document->addIsbn();
+        $isbn->setIdentifierValue('123-123-123');
+        $isbn->setIdentifierLabel('label');
+
+        $author = new Opus_Model_Person();
+        $author->setFirstName('Ludwig');
+        $author->setLastName('Wittgenstein');
+        $author->setDateOfBirth('1889-04-26 00:00:00');
+        $author->setPlaceOfBirth('Wien');
+        $document->addPersonAuthor($author);
+
+        $author = new Opus_Model_Person();
+        $author->setFirstName('Ferdinand');
+        $author->setLastName('de Saussure');
+        $author->setDateOfBirth('1857-11-26 00:00:00');
+        $author->setPlaceOfBirth('Genf');
+        $document->addPersonAuthor($author);
+
+        // Save document, modify, and save again.
+        $id = $document->store();
+        $document = new Opus_Model_Document($id);
+        $title = $document->addTitleMain();
+        $title->setTitleAbstractValue('Title Two');
+        $title->setTitleAbstractLanguage('en');
+        $id = $document->store();
         try {
-        	$doc = new Opus_Search_Adapter_DocumentAdapter(37);
+        	$doc = new Opus_Search_Adapter_DocumentAdapter((int) $id);
         } catch (Exception $e) {
         	throw $e;
         }
