@@ -114,7 +114,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
         $hash = $this->addHashValue();
         $hash->setHashType('md5');
         $hash->setHashValue(hash_file('md5', $this->getTempFile()));
-        copy($this->getTempFile(), $path . '/' . $this->getFilePathName());
+        move_uploaded_file($this->getTempFile(), $path . '/' . $this->getFilePathName());
     }
 
     /**
