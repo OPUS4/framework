@@ -81,11 +81,6 @@ class Opus_Form_Builder {
 
                 if (($counts === 0) and ($modelclass !== null)) {
                     $this->_makeElement("$i", new $modelclass, $subform);
-                    if ($counts > 1) {
-                        $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
-                        $remove->setLabel('-');
-                        $subform->addElement($remove);
-                    }
                 } else {
                     foreach ($field->getValue() as $fieldvalue) {
                         $this->_makeElement("$i", $fieldvalue, $subform);
