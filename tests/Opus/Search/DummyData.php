@@ -141,7 +141,6 @@ class DummyData
 	 * Dummydata with Structure of Persons using the adapters
 	 * 
 	 * @return Array Array of OpusPersonAdapters containing dummy data
-	 * @static
 	 */
 	public static function getDummyPersons()
 	{
@@ -168,7 +167,6 @@ class DummyData
 	 * Dummydata with Structure of DocumentTypes using the adapters
 	 * 
 	 * @return Array Array of DocumentTypeAdapters containing dummy data
-	 * @static
 	 */
 	public static function getDummyDocumentTypes()
 	{
@@ -195,7 +193,6 @@ class DummyData
 	 * Dummydata with Structure of CollectionRoles
 	 * 
 	 * @return Array Array of CollectionRoles-data (not an Object!) containing dummy data
-	 * @static
 	 */
 	public static function getDummyCollections()
 	{
@@ -236,20 +233,19 @@ class DummyData
 	 * Dummydata with Structure of a CollectionNode
 	 * 
 	 * @return Array Array of CollectionNode-data (not an Object!) containing dummy data
-	 * @static
 	 */
 	public static function getDummyCollectionNode()
 	{
-		$dummydata = array( 
+		$dummydata = array(
 						array(
-							'content' => array (
-								'eng' => array (
+							'content' => array(
+								'eng' => array(
 									'collections_id' => 1, 
 									'collections_language' => 'eng', 
 									'name' => 'Computer science, information, and general works', 
 									'number' => '000' 
 								), 
-								'ger' => array (
+								'ger' => array(
 									'collections_id' => 1, 
 									'collections_language' => 'ger',
 									'name' => 'Informatik, Informationswissenschaft, allgemeine Werke',
@@ -264,21 +260,21 @@ class DummyData
 							)
 						),
 						array(
-							'content' => array (
-								'eng' => array (
+							'content' => array(
+								'eng' => array(
 									'collections_id' => 2,
 									'collections_language' => 'eng',
 									'name' => 'Philosophy and psychology',
 									'number' => '100'
 								),
-								'ger' => array (
+								'ger' => array(
 									'collections_id' => 2,
 									'collections_language' => 'ger',
 									'name' => 'Philosophie und Psychologie',
 									'number' => '100'
 								)
 							),
-							'structure' => array (
+							'structure' => array(
 								'collections_id' => 2,
 								'left' => 36,
 								'right' => 57,
