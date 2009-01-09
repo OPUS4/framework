@@ -68,21 +68,45 @@ class Opus_View_Helper_Menu
      */
     protected function _buildMenu()
     {
+        $homedir = Zend_Controller_Front::getInstance()->getControllerDirectory('home');
+        foreach (glob($homedir . '/../views/scripts/index/*') as $filename) {
+            $filename = basename($filename, '.phtml');
+            $menus['home'][$filename] = array(
+                'module' => 'home',
+                'controller' => 'index',
+                'action' => $filename
+                );
+        }
         $menus['primary'] = array(
-                'Publish' => 'publish',
-                'Search' => 'search',
+                'Publish' => array(
+                    'module' => 'publish',
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ),
+                'Search' => array(
+                    'module' => 'search',
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ),
                 );
         $menus['secondary'] = array(
-                'Admin' => 'admin',
-                'Frontdoor' => 'frontdoor',
-                'Home' => 'home',
+                'Admin' => array(
+                    'module' => 'admin',
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ),
+                'Frontdoor' => array(
+                    'module' => 'frontdoor',
+                    'controller' => 'index',
+                    'action' => 'index'
+                    ),
                 );
         if (is_array($menus[$this->_type])) return $menus[$this->_type];
         else throw new Exception('Menu not found');
     }
 
     /**
-     * Recursively build an unordered list representing the menu.
+     * Build an unordered list representing the menu.
      *
      * TODO: I don't really like the idea of concatenating Html here. We should
      * consider using a view partial to render the menu. I just don't know how
@@ -94,16 +118,35 @@ class Opus_View_Helper_Menu
     {
         $fc = Zend_Controller_Front::getInstance();
         $activeModule = $fc->getRequest()->getModuleName();
+        $activeController = $fc->getRequest()->getControllerName();
+        $activeAction = $fc->getRequest()->getActionName();
         $html = '';
         if (is_array($menu)) {
             foreach ($menu as $label => $entry) {
                 // Beware! Hardcoding of expected translation string postfix.
-                $label = $this->_view->translate($entry . "_modulename");
-                $url = $this->_view->url(array('module' => $entry, 'controller' => 'index', 'action' => 'index'));
+                if ($this->_view->translate(
+                        $entry['module'] . '_' . $entry['controller'] . '_' . $entry['action'] . '_actionname') !==
+                        $entry['module'] . '_' . $entry['controller'] . '_' . $entry['action'] . '_actionname') {
+                    $label = $this->_view->translate($entry['module'] . '_' . $entry['controller'] . '_' . $entry['action'] . "_actionname");
+                } elseif ($this->_view->translate(
+                        $entry['module'] . '_' . $entry['controller'] . '_controllername') !==
+                        $entry['module'] . '_' . $entry['controller'] . '_controllername') {
+                    $label = $this->_view->translate($entry['module'] . '_' . $entry['controller'] . "_controllername");
+                } else if ($this->_view->translate(
+                        $entry['module'] . '_modulename') !==
+                        $entry['module'] . '_modulename') {
+                    $label = $this->_view->translate($entry['module'] . "_modulename");
+                }
+                $url = $this->_view->url(array(
+                        'module' => $entry['module'],
+                        'controller' => $entry['controller'],
+                        'action' => $entry['action'],
+                        )
+                    );
                 $link = '<a href="' . $url . '">' . $label . '</a>';
-                if (is_array($entry)) {
-                    $html .= '<li><ul>' . $link . $this->_generateHtmlMenu($entry) . '</ul></li>';
-                } elseif ($entry === $activeModule) {
+                if ($entry['action'] === $activeAction
+                    and $entry['controller'] === $activeController
+                    and $entry['module'] === $activeModule) {
                     $html .= '<li class="active">' . $label . '</li>';
                 } else {
                     $html .= '<li>' . $link . '</li>';
