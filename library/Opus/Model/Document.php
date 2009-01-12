@@ -106,9 +106,33 @@ class Opus_Model_Document extends Opus_Model_Abstract
             'Licence' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentLicence',
             ),
+            'PersonAdvisor' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'advisor')
+            ),
             'PersonAuthor' => array(
                 'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'author')
+            ),
+            'PersonContributor' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'contributor')
+            ),
+            'PersonEditor' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'editor')
+            ),
+            'PersonReferee' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'referee')
+            ),
+            'PersonOther' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'other')
+            ),
+            'PersonTranslator' => array(
+                'model' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'translator')
             ),
             'SubjectSwd' => array(
                 'model' => 'Opus_Model_Dependent_Subject',
