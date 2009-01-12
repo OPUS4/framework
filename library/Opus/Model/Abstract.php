@@ -278,7 +278,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     if (method_exists($this, $callname) === true) {
                         $this->$callname($this->_fields[$fieldname]->getValue());
                     } else {
-                        $this->_storeExternal($this->_fields[$fieldname]->getValue());
+                        if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+                            $options = $this->_externalFields[$fieldname]['options'];
+                        } else {
+                            $options = null;
+                        }
+                        $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
                     }
                 }
                 // Clear modification status of successfully stored field.
@@ -301,17 +306,23 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * Save the values of external fields.
      *
      * @param array|Opus_Model_DependentAbstract $values One or mor dependent opus models.
+     * @param array                              $conditions (Optional) fixed conditions for certain attributes.
      * @throws Opus_Model_Exception Thrown when trying to save non Opus_Model_Dependent objects.
      * @return void
      */
-    protected function _storeExternal($values) {
+    protected function _storeExternal($values, array $conditions = null) {
         if (is_array($values) === true) {
             foreach ($values as $value) {
-                $this->_storeExternal($value);
+                $this->_storeExternal($value, $conditions);
             }
         } else if (is_null($values) === false) {
             if ($values instanceof Opus_Model_DependentAbstract === false) {
                 throw new Opus_Model_Exception('External fields must be Opus_Model_Dependent.');
+            }
+            if (is_null($conditions) === false) {
+                foreach ($conditions as $column => $value) {
+                    $values->_primaryTableRow->$column = $value;
+                }
             }
             $values->setParentId($this->getId());
             $values->store();

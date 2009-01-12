@@ -81,7 +81,6 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         if (is_null($this->getId()) === false) {
             $this->_setModel(new Opus_Model_Person($this->_primaryTableRow->persons_id));
         }
-        $this->_primaryTableRow->role = 'author';
 
         $institute = new Opus_Model_Field('Institute');
         $role = new Opus_Model_Field('Role');
