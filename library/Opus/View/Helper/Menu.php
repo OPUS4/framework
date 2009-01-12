@@ -141,8 +141,8 @@ class Opus_View_Helper_Menu
                         'module' => $entry['module'],
                         'controller' => $entry['controller'],
                         'action' => $entry['action'],
-                        )
-                    );
+                        ),
+                    null, true);
                 $link = '<a href="' . $url . '">' . $label . '</a>';
                 if ($entry['action'] === $activeAction
                     and $entry['controller'] === $activeController
