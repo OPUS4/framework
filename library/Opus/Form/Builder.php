@@ -80,10 +80,14 @@ class Opus_Form_Builder {
                 $subform->setLegend($fieldname);
 
                 if (($counts === 0) and ($modelclass !== null)) {
-                    $this->_makeElement("$i", new $modelclass, $subform);
+                    // build a subform for multiple new depend model
+                    // should contain afterwards one empty element
+                    $this->_makeSubForm("$i", new $modelclass, $subform);
                 } else {
                     foreach ($field->getValue() as $fieldvalue) {
-                        $this->_makeElement("$i", $fieldvalue, $subform);
+                        // build each multi element
+                        $this->_makeElement("$i", $fieldvalue, $subform, $field);
+                        // Adding remove button if more than one element
                         if ($counts > 1) {
                             $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
                             $remove->setLabel('-');
@@ -94,18 +98,25 @@ class Opus_Form_Builder {
                 }
 
                 $mult = $field->getMultiplicity();
+                // Adding add button
                 if (($mult === '*') or ($counts < $mult)) {
                     $add = new Zend_Form_Element_Submit('add_' . $fieldname);
                     $add->setLabel('+');
                     $subform->addElement($add);
                 }
+                // add sub form to parent form
                 $form->addSubForm($subform, $fieldname);
             } else {
-                if ($counts === 0 and is_null($modelclass) === false) {
-                    $this->_makeElement($fieldname, new $modelclass, $form);
+                // non multiple values
+                if (($counts === 0) and (is_null($modelclass) === false)) {
+                    // build a subform for a new single depend model
+                    // should contain afterwards an empty element
+                    $this->_makeSubForm($fieldname, new $modelclass, $form);
                 } else {
-                    $this->_makeElement($fieldname, $field->getValue(), $form);
+                    // build a element
+                    $this->_makeElement($fieldname, $field->getValue(), $form, $field);
                 }
+                // set element attributes
                 $this->_addFilter($field, $form);
                 $this->_addMandatory($field, $form);
                 $this->_addValidator($field, $form);
@@ -303,22 +314,83 @@ class Opus_Form_Builder {
      * the given container object. If the value is a model instance then
      * a sub form is added.
      *
-     * @param string    $name      Name of the field.
-     * @param mixed     $value     Value of then field.
-     * @param Zend_Form $container Zend_Form object to add the created element to.
+     * @param string           $name      Name of the field.
+     * @param mixed            $value     Value of then field.
+     * @param Zend_Form        $container Zend_Form object to add the created element to.
+     * @param Opus_Model_Field $field     Field object containing more information.
      * @return void
      */
-    protected function _makeElement($name, $value, Zend_Form $container) {
+    protected function _makeElement($name, $value, Zend_Form $container, Opus_Model_Field $field) {
         if ($value instanceof Opus_Model_Interface) {
-            $subform = $this->build($value, true);
-            $subform->setLegend($name);
-            $container->addSubForm($subform, $name);
+            $this->_makeSubForm($name, $value, $container);
+        } else if ($field->getSelection() === true) {
+            $this->_makeSelectionElement($field, $container);
+        } else if ($field->getTextarea() === true) {
+            $this->_makeTextAreaElement($field, $container);
         } else {
-            $element = new Zend_Form_Element_Text($name);
-            $element->setValue($value);
-            $element->setLabel($name);
-            $container->addElement($element);
+            $this->_makeTextElement($field, $container);
         }
+    }
+
+    /**
+     * Build a selection form.
+     *
+     * @param Opus_Model_Field $field     Field object with building informations.
+     * @param Zend_Form        $container Zend_Form object to add created element to.
+     * @return void
+     */
+    protected function _makeSelectionElement(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $element = new Zend_Form_Element_Select($fieldname);
+        $element->setLabel($fieldname);
+        $element->setMultiOptions($field->getDefault());
+        $container->addElement($element);
+    }
+
+    /**
+     * Build a sub form.
+     *
+     * @param string               $name      Name of the subform.
+     * @param Opus_Model_Interface $model     Model object with building informations.
+     * @param Zend_Form            $container Zend_Form object to add created element to.
+     * @return void
+     */
+    protected function _makeSubForm($name, Opus_Model_Interface $model, Zend_Form $container) {
+        $subform = $this->build($model, true);
+        $subform->setLegend($name);
+        $container->addSubForm($subform, $name);
+    }
+
+    /**
+     * Build a textarea element.
+     *
+     * @param Opus_Model_Field $field     Field object with building informations.
+     * @param Zend_Form        $container Zend_Form object to add created element to.
+     * @return void
+     */
+    protected function _makeTextAreaElement(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $element = new Zend_Form_Element_Textarea($fieldname);
+        $element->setLabel($fieldname);
+        $element->setValue($field->getValue());
+        // TODO values should be configurable
+        $element->setAttribs(array('rows' => 10, 'cols' => 60));
+        $container->addElement($element);
+    }
+
+    /**
+     * Build a text element.
+     *
+     * @param Opus_Model_Field $field     Field object with building informations.
+     * @param Zend_Form        $container Zend_Form object to add created element to.
+     * @return void
+     */
+    protected function _makeTextElement(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $element = new Zend_Form_Element_Text($fieldname);
+        $element->setLabel($fieldname);
+        $element->setValue($field->getValue());
+        $container->addElement($element);
     }
 
     /**

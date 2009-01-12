@@ -236,7 +236,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $form = $this->_builder->build($this->_model);
         $subForm = $form->getSubForm('MultiField');
         $elements = $subForm->getElements();
-        $this->assertEquals(7, count($elements), 'Wrong number of elements generated.');
+        $this->assertEquals(5, count($elements), 'Wrong number of elements generated.');
     }
 
     /**
@@ -246,15 +246,14 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testMultivaluedFieldSubformFieldElementsInitializedCorrectly() {
-        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        $expected = array('hana', 'dul', 'set');
+        $this->_model->setMultiField($expected);
 
         $form = $this->_builder->build($this->_model);
         $subForm = $form->getSubForm('MultiField');
         $elements = $subForm->getElements();
 
-        $this->assertEquals('hana', $elements[1]->getValue());
-        $this->assertEquals('dul', $elements[2]->getValue());
-        $this->assertEquals('set', $elements[3]->getValue());
+        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values.');
     }
 
     /**
@@ -288,7 +287,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testAddingAdditionalFieldToForm() {
-        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        $start_values = array('hana', 'dul', 'set');
+        $this->_model->setMultiField($start_values);
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
@@ -309,12 +309,11 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $new_form = $this->_builder->buildFromPost($post);
         $elements = $new_form->MultiField->getElements();
 
-        $this->assertEquals(9, count($elements), 'Multifield should contain 9 elements.');
-
-        $this->assertEquals('hana', $elements[1]->getValue());
-        $this->assertEquals('dul', $elements[2]->getValue());
-        $this->assertEquals('set', $elements[3]->getValue());
-        $this->assertEquals('', $elements[4]->getValue(), 'A new field should not contain a value.');
+        $this->assertEquals(6, count($elements), 'Multifield should contain 6 elements.');
+        $expected = $start_values;
+        // new value should be empty
+        $expected[] = '';
+        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values');
     }
 
     /**
@@ -323,7 +322,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRemovingAFieldFromForm() {
-        $this->_model->setMultiField(array('hana', 'dul', 'set'));
+        $start_values = array('hana', 'dul', 'set');
+        $this->_model->setMultiField($start_values);
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
@@ -344,10 +344,10 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $new_form = $this->_builder->buildFromPost($post);
         $elements = $new_form->MultiField->getElements();
 
-        $this->assertEquals(5, count($elements), 'Multifield should contain after removing 5 elements.');
+        $this->assertEquals(4, count($elements), 'Multifield should contain after removing 4 elements.');
 
-        $this->assertEquals('dul', $elements[1]->getValue());
-        $this->assertEquals('set', $elements[2]->getValue());
+        $expected = array('dul', 'set');
+        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values after removing');
 
     }
 
@@ -381,7 +381,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testDoNotEmptyingMultiFields() {
-        $this->_model->setMultiField(array('hana'));
+        $expected = array('hana');
+        $this->_model->setMultiField($expected);
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
@@ -401,7 +402,7 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $elements = $new_form->MultiField->getElements();
 
         $this->assertEquals(2, count($elements), 'Multifield should contain after removing 2 elements.');
-        $this->assertEquals('hana', $elements[1]->getValue());
+        $this->assertEquals($expected, $elements['MultiField']->getValue());
     }
 
     /**
@@ -410,7 +411,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testDoNotRemovingElementWithNonWrongIndex() {
-        $this->_model->setMultiField(array('hana', 'dul'));
+        $expected = array('hana', 'dul');
+        $this->_model->setMultiField($expected);
         $form = $this->_builder->build($this->_model);
         $modelname = Opus_Form_Builder::HIDDEN_MODEL_ELEMENT_NAME;
 
@@ -430,9 +432,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $new_form = $this->_builder->buildFromPost($post);
         $elements = $new_form->MultiField->getElements();
 
-        $this->assertEquals(5, count($elements), 'Multifield should contain after removing 5 elements.');
-        $this->assertEquals('hana', $elements[1]->getValue());
-        $this->assertEquals('dul', $elements[2]->getValue());
+        $this->assertEquals(4, count($elements), 'Multifield should contain after removing 4 elements.');
+        $this->assertEquals($expected, $elements['MultiField']->getValue());
     }
 
     /**
