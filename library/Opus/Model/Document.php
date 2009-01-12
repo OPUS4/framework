@@ -202,6 +202,20 @@ class Opus_Model_Document extends Opus_Model_Abstract
             $this->getField('Language')->setDefault(Zend_Registry::get('Available_Languages'))
                 ->setSelection(true);
         }
+
+        // Initialize available licences
+        if ($this->getField('Licence') !== null) {
+            $licences = new Opus_Db_LinkDocumentsLicences;
+            $licences = $licences->fetchAll();
+            $licenceLinkModels = array();
+            foreach ($licences as $licence) {
+                $licenceLinkModels[] = new
+                    Opus_Model_Dependent_Link_DocumentLicence(array($licence->documents_id,
+                                $licence->licences_id));
+            }
+            $this->getField('Licence')->setDefault($licenceLinkModels)
+                ->setSelection(true);
+        }
     }
 
     /**

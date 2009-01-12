@@ -48,13 +48,19 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      */
     protected $_tableGatewayClass = 'Opus_Db_LinkDocumentsLicences';
 
-
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'documents_id';
+
+    /**
+     * The name of the field containing an identifying string.
+     *
+     * @var string
+     */
+    protected $_displayAttributeName = 'NameLong';
 
     /**
      * Initialize model with the following values:

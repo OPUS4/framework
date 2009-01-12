@@ -116,7 +116,6 @@ class Opus_Model_Field
      */
     protected $_selection = false;
 
-
     /**
      * Set to true if the field value has been modified.
      *
@@ -416,13 +415,14 @@ class Opus_Model_Field
      *
      * @param boolean $value True, if the field can be displayed as a selection
      *                       list.
-     * @return void
+     * @return Opus_Model_Field Provide fluent interface.
      */
     public function setSelection($value) {
         $this->_selection = (bool) $value;
         if ($this->_selection === true) {
             $this->_textarea = false;
         }
+        return $this;
     }
 
     /**

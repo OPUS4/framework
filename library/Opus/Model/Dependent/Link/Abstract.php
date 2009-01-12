@@ -49,6 +49,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     protected $_model;
 
     /**
+     * The name of the field containing an identifying string.
+     *
+     * @var string
+     */
+    protected $_displayAttributeName = '';
+
+    /**
      * Set the model that is linked to.
      *
      * @param  Opus_Model_Abstract $model The new model to link to.
@@ -57,6 +64,19 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     protected function _setModel(Opus_Model_Abstract $model) {
         $this->_model = $model;
         $model->setTransactional(false);
+    }
+
+    /**
+     * Returns the identifying string of the linked model.
+     *
+     * @return string
+     */
+    public function getLinkedModelDisplayName() {
+        if ($this->_model->getField($this->_displayName) !== null) {
+            return $this->_model->getField($this->_displayName)->getValue();
+        } else {
+            throw new Opus_Model_Exception("Field $this->_displayName does not exist.");
+        }
     }
 
     /**
