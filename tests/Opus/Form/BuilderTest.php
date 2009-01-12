@@ -451,4 +451,39 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * Test if a selection is build properly.
+     *
+     * @return void
+     */
+    public function testBuildingOfSelectionElement() {
+        $values = array('hana', 'dul');
+        $selection = new Opus_Model_Field('SelectionField');
+        $selection->setSelection(true);
+        $selection->setDefault($values);
+        $this->_model->addField($selection);
+        $form = $this->_builder->build($this->_model);
+        $element = $form->getElement('SelectionField');
+
+        $this->assertEquals('Zend_Form_Element_Select', $element->getType(), 'Builded element is not a selection.');
+        $this->assertEquals($values, $element->getMultiOptions(), 'Selection does not contain correct values.');
+    }
+
+    /**
+     * Test if a text area is build properly.
+     *
+     * @return void
+     */
+    public function testBuildingOfTextAreaElement() {
+        $value = 'Hello World';
+        $textarea = new Opus_Model_Field('TextAreaField');
+        $textarea->setTextarea(true);
+        $textarea->setValue($value);
+        $this->_model->addField($textarea);
+        $form = $this->_builder->build($this->_model);
+        $element = $form->getElement('TextAreaField');
+
+        $this->assertEquals('Zend_Form_Element_Textarea', $element->getType(), 'Builded element is not a text area.');
+        $this->assertEquals($value, $element->getValue(), 'TextArea does not contain correct value.');
+    }
 }
