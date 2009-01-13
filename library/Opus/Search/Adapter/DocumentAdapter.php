@@ -84,7 +84,11 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		} catch (Exception $e) {
 			$this->documentData['title'] = 'No title specified!';
 		}
-		$abstract = $this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+		if (is_array($document->getTitleAbstract()) === true ) {
+			$abstract = $this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+		} else {
+			$abstract = $this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
+		}
 		
 		$this->documentData['frontdoorUrl'] = array(
 			'module' => 'frontdoor',
