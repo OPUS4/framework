@@ -205,13 +205,13 @@ class Opus_Model_Document extends Opus_Model_Abstract
 
         // Initialize available licences
         if ($this->getField('Licence') !== null) {
-            $licences = new Opus_Db_LinkDocumentsLicences;
+            $licences = new Opus_Db_DocumentLicences;
             $licences = $licences->fetchAll();
             $licenceLinkModels = array();
             foreach ($licences as $licence) {
-                $licenceLinkModels[] = new
-                    Opus_Model_Dependent_Link_DocumentLicence(array($licence->documents_id,
-                                $licence->licences_id));
+                $licenceLinkModel = new Opus_Model_Dependent_Link_DocumentLicence;
+                $licenceLinkModel->setModel(new Opus_Model_Licence($licence->licences_id));
+                $licenceLinkModels[] = $licenceLinkModel;
             }
             $this->getField('Licence')->setDefault($licenceLinkModels)
                 ->setSelection(true);
