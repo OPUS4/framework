@@ -72,10 +72,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      * @return string
      */
     public function getLinkedModelDisplayName() {
-        if ($this->_model->getField($this->_displayName) !== null) {
-            return $this->_model->getField($this->_displayName)->getValue();
+        if ($this->_model->getField($this->_displayAttributeName) !== null) {
+            return $this->_model->getField($this->_displayAttributeName)->getValue();
         } else {
-            throw new Opus_Model_Exception("Field $this->_displayName does not exist.");
+            throw new Opus_Model_Exception("Field $this->_displayAttributeName does not exist.");
         }
     }
 
