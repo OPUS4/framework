@@ -71,6 +71,8 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
     protected function _init() {
         if (is_null($this->getId()) === false) {
             $this->setModel(new Opus_Model_Licence($this->_primaryTableRow->licences_id));
+        } else {
+            $this->setModel(new Opus_Model_Licence);
         }
     }
 

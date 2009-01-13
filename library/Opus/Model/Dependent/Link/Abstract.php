@@ -116,4 +116,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
         return $this->_model->getField($name);
     }
 
+    /**
+     * Get the primary key of the linked model instance.
+     *
+     * @return mixed The primary key of the linked model.
+     */
+    public function getLinkedModelId() {
+        return $this->_model->getId();
+    }
+
 }
