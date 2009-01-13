@@ -92,7 +92,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         }
         // Query results are in Lucene format now
         // We need an OPUS-compliant result list to return
-        $hitlist = new HitList();
+        $hitlist = new Opus_Search_List_HitList();
         $done = array();
         $hitlistarray = array();
         if (count($hits) > 0) {
