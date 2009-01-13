@@ -491,9 +491,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $tableInfo = $this->_primaryTableRow->getTable()->info();
         $result = array();
         foreach ($tableInfo['primary'] as $primary_key) {
-            if (is_null($this->_primaryTableRow->$primary_key) === false) {
-                $result[] = $this->_primaryTableRow->$primary_key;
-            }
+            $result[] = $this->_primaryTableRow->$primary_key;
         }
         if (count($result) > 1) {
             return $result;
