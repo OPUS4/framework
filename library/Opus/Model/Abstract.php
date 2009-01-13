@@ -416,7 +416,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
                 if (($model instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                     if ((array_key_exists(0, $arguments) === true)) {
-                        $model->_setModel($arguments[0]);
+                        $model->setModel($arguments[0]);
                     } else {
                         throw new InvalidArgumentException('Argument required when adding to a link field.');
                     }

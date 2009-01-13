@@ -66,7 +66,7 @@ class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_L
         $this->addField(new Opus_Model_Field('Role'));
 
         if (is_null($this->getId()) === false) {
-            $this->_setModel(new Opus_Model_Institute($this->_primaryTableRow->institutes_id));
+            $this->setModel(new Opus_Model_Institute($this->_primaryTableRow->institutes_id));
         }
     }
 

@@ -61,7 +61,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      * @param  Opus_Model_Abstract $model The new model to link to.
      * @return void
      */
-    protected function _setModel(Opus_Model_Abstract $model) {
+    public function setModel(Opus_Model_Abstract $model) {
         $this->_model = $model;
         $model->setTransactional(false);
     }
