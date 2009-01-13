@@ -34,7 +34,7 @@
  * @version     $Id: DummyData.php 1216 2008-12-09 15:10:07Z marahrens $
  */
 
-class DummyData
+class Opus_Search_DummyData
 {
 	/**
 	 * Dummydata with Structure of Documents using the adapters

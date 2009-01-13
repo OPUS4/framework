@@ -33,28 +33,14 @@
  */
 
 class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
+
 	/**
-     * SetUp database 
-     *
-     * @return void
-     */
+	 * SetUp database 
+	 *
+	 * @return void
+	*/
     public function setUp() {
-    	// Insert data set number 37 into database if it does not exist
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        #$adapter->query("DELETE FROM `link_persons_documents` WHERE `documents_id` = 37");
-        #$adapter->query("DELETE FROM `documents` WHERE `documents_id` = 37");
-        #$adapter->query("DELETE FROM `document_title_abstracts` WHERE `documents_id` = 37");
-        #$adapter->query("DELETE FROM `persons` WHERE `persons_id` = 1");
-        #$adapter->query("INSERT INTO `documents` (`documents_id`, `range_id`, `completed_date`, `completed_year`, `contributing_corporation`, `creating_corporation`, `date_accepted`, `document_type`, `edition`, `issue`, `language`, `non_institute_affiliation`, `page_first`, `page_last`, `page_number`, `publication_state`, `published_date`, `published_year`, `reviewed`, `server_date_modified`, `server_date_published`, `server_date_unlocking`, `server_date_valid`, `source`, `swb_id`, `vg_wort_pixel_url`, `volume`) VALUES
-#(37, NULL, NULL, 0000, NULL, NULL, NULL, 'monograph', NULL, NULL, 'ger', NULL, NULL, NULL, NULL, 0, NULL, 2002, 'peer', NULL, '0000-00-00 00:00:00', NULL, NULL, NULL, NULL, NULL, NULL)");
-        #$adapter->query("INSERT INTO `document_title_abstracts` (`document_title_abstracts_id`, `documents_id`, `title_abstract_type`, `title_abstract_value`, `title_abstract_language`) VALUES
-#(1, 37, 'main', 'Informationskompetenz und studentisches Lernen im elektronischen Zeitalter', 'ger'),
-#(2, 37, 'main', 'Information literacy and student learning in the electronic age', 'eng'),
-#(3, 37, 'abstract', 'Die Integration der Vermittlung von allgemeiner und fachlicher\nInformationskompetenz in das Lernen und Lehren an unseren Universitäten ist\neine wichtige Voraussetzung für die zeitgemässe Qualifizierung von\nHochschulabsolventen. Der Beitrag gibt eine Übersicht zur Ausgangssituation, zu\nProblemen, Zielen, Inhalten und Methoden der Vermittlung von\nInformationskompetenz im Rahmen studentischen Lernens aus der Sicht der\nUniversitätsbibliothek einer Technischen Universität.', 'ger')");
-		#$adapter->query("INSERT INTO `persons` (`persons_id`, `academic_title`, `date_of_birth`, `email`, `first_name`, `last_name`, `place_of_birth`) VALUES
-#(1, '', '2008-07-15 00:00:00', 'mustermann@domain.com', 'Thomas', 'Hapke', 'Musterstadt')");
-        #$adapter->query("INSERT INTO `link_persons_documents` (`persons_id`, `documents_id`, `institutes_id`, `role`, `sort_order`) VALUES
-#(1, 37, 1, 'author', 0)");
     }
 
     /**
@@ -74,6 +60,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_enrichments');
         TestHelper::clearTable('document_licences');
         TestHelper::clearTable('institutes_contents');
+        TestHelper::clearTable('persons');
     }
 	
     /**
@@ -82,22 +69,22 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function dummyData() {
-        $docresult = DummyData::getDummyDocuments();
+        $docresult = Opus_Search_DummyData::getDummyDocuments();
         
         $hitlist = new Opus_Search_List_HitList();
-        foreach ($docresult as $row)
-        {
-       		$searchhit = new SearchHit($row);
+        foreach ($docresult as $row) {
+       		$searchhit = new Opus_Search_SearchHit($row);
        		$hitlist->add($searchhit);
         }
         
-        return ($hitlist);		
+        return array($hitlist);		
     }
 
     /**
      * Real document data provider
      *
      * @return array Array containing all Opus_Search_Adapter_DocumentAdapters from the database
+     * @throws Exception Opus_Model_Exception
      */
     public function allRealData() {
         return BrowsingFilter::getAllTitles();
@@ -191,7 +178,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider oneRealDoc
      */
-	public function testDocumentAdapterFromDb($document) {
+	public function testDocumentAdapterFromDb(Opus_Search_Adapter_DocumentAdapter $document) {
 		$docData = $document->getDocument();
 		$this->assertEquals(array_key_exists('author', $docData), true);
 		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
