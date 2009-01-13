@@ -161,9 +161,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title Two');
         $title->setTitleAbstractLanguage('en');
-        #$abstract = $document->addTitleAbstract();
-        #$abstract->setTitleAbstractValue('Kurzfassung');
-        #$abstract->setTitleAbstractLanguage('de');
+        $abstract = $document->addTitleAbstract();
+        $abstract->setTitleAbstractValue('Kurzfassung');
+        $abstract->setTitleAbstractLanguage('de');
         $id = $document->store();
         try {
         	$doc = new Opus_Search_Adapter_DocumentAdapter((int) $id);

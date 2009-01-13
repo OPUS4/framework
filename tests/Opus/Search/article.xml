@@ -81,7 +81,7 @@ value for "name". It must be declared.
     <field name="Volume"/>
     <field name="TitleMain" multiplicity="*"/>
     <field name="TitleParent"/>
-    <field name="TitleAbstract"/>
+    <field name="TitleAbstract" multiplicity="*"/>
     <field name="Isbn"/>
     <field name="Note"/>
     <field name="Patent"/>
