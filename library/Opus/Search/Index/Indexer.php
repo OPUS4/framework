@@ -52,7 +52,7 @@ class Opus_Search_Index_Indexer {
 	/**
 	 * Constructor
 	 * 
-	 * @throws Zend_Search_Lucene_Exception
+	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
 	 */
 	public function __construct() {
 		try {
