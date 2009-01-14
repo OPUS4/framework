@@ -39,45 +39,44 @@
  * all lists should extend this class and implement the methods
  * @abstract
  */
-abstract class Opus_Search_List_BasicList
-{
+abstract class Opus_Search_List_BasicList {
+
   /**
    * Adds an element to the list
-   * @abstract
+   * 
+   * @param object $element Element that should be added to the list
    * @return void
-   * @param Object element element that should be added to the list
-   * @access public
    */
 	public abstract function add($element);
+
   /**
    * Removes an element from the list
-   * @abstract
+   * 
+   * @param object|integer $element Element (or index number of element) that should be removed from the list
    * @return void
-   * @param Object|Integer element element (or index number of element) that should be removed from the list
-   * @access public
    */
 	public abstract function delete($element);
+
   /**
    * Gets an element from the list by its index
-   * @abstract
-   * @return Object
-   * @param Integer offset index number of the element
-   * @access public
+   * 
+   * @param integer $offset Index number of the element
+   * @return object
    */
 	public abstract function get($offset);
+
   /**
    * Sorts the list
-   * @abstract
+   * 
+   * @param string $sortCriteria Criteria the list should be sorted with
    * @return void
-   * @param String sortCriteria criteria the list should be sorted with
-   * @access public
    */
 	public abstract function sort($sortCriteria);
+
   /**
    * Counts the elements in the list
-   * @abstract
-   * @return Integer number of elements in this list
-   * @access public
+   * 
+   * @return integer Number of elements in this list
    */
 	public abstract function count();
 }

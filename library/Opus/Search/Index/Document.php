@@ -37,19 +37,17 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
     /**
      * Constructor
      * 
-     * @param Opus_Search_Adapter_DocumentAdapter $document Document to index
-     * @param Opus_Search_Adapter_FileAdapter 	  $file 	File to index
+     * @param Opus_Search_Adapter_DocumentAdapter &$document Document to index
+     * @param Opus_Search_Adapter_FileAdapter 	  &$file 	 (Optional) File to index
      */
-    public function __construct(&$document, &$file = false)
+    public function __construct(Opus_Search_Adapter_DocumentAdapter &$document, Opus_Search_Adapter_FileAdapter &$file = false)
     {
         $doc = $document->getDocument();
         if ($file !== false) {
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $file->getURL()));
                 $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext()));
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path));
-        }
-        else
-        {
+        } else {
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $doc['frontdoorUrl']));
                 $this->addField(Zend_Search_Lucene_Field::UnStored('contents', ''));
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten'));
@@ -65,7 +63,9 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
 			$obj = $authoriterator->current();
 			$pers = $obj->get();
 			$aut .= $pers['lastName'] . ', ' . $pers['firstName'];
-			if ($authoriterator->hasNext() === true) $aut .= '; ';
+			if ($authoriterator->hasNext() === true) {
+				$aut .= '; ';
+			}
 			$authoriterator->next();
 		}
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut));

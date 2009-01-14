@@ -84,6 +84,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		} catch (Exception $e) {
 			$this->documentData['title'] = 'No title specified!';
 		}
+		
 		if (is_array($document->getTitleAbstract()) === true ) {
 			$abstract = $this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
 		} else {

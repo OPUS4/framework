@@ -40,42 +40,52 @@
  */
 class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 {
-   /*** Attributes: ***/
 
   /**
    * Number of hits in this list
+   * 
+   * @var integer Number of documents in this list
    * @access private
    */
   private $numberOfDocuments;
 
   /**
    * Documents belonging to this node
+   * 
+   * @var array Array of documents contained in this list
    * @access private
    */
   private $documents;
 
   /**
    * Name of this node
+   * 
+   * @var string Name of this node
    * @access private
    */
   private $name;
 
   /**
    * Role-ID of the CollectionRole of this Node
+   * 
+   * @var integer ID of the root node of this collection
    * @access private
    */
   private $roleId;
 
   /**
    * Collection-ID of the CollectionNode
+   * 
+   * @var integer ID of this node in the collection
    * @access private
    */
   private $collectionId;
 
   /**
    * Constructor
-   * @access public
-   * @return void
+   * 
+   * @param array|integer $coll ID of the root node of this collection or array containing the ID and the name of the root node
+   * @param array|integer $collnode ID of this node of this collection or array containing the ID and the name of this node
    */
   public function __construct($coll = null, $collnode = null) {
   		$this->documents = array();
@@ -91,48 +101,43 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 			$this->collectionId = (int) $collnode[0]["collections_id"];
   		}
   		$this->getDocuments();
-  } // end of Constructor
+  }
 
   /**
    * Add a Document to this node
    * 
-   * @access public
-   * @param OpusDocumentAdapter doc Document in this node
+   * @param OpusDocumentAdapter $doc Document in this node
    * @return void
    */
   public function add($doc) {
     array_push($this->documents, $doc);
-  } // end of member function add 
+  } 
 
   /**
    * Returns the number of documents in this node
    * 
-   * @access public
-   * @return integer number of hits in this list
+   * @return integer Number of hits in this list
    */
   public function count() {
   	$this->numberOfDocuments = count($this->documents);
     return $this->numberOfDocuments;
-  } // end of member function count
+  }
 
   /**
    * Deletes a Search hit from the list
    * 
+   * @param OpusDocumentAdapter|Integer $item Element (or index of element) that should be removed from the list
    * @return void
-   * @param OpusDocumentAdapter|Integer item element (or index of element) that should be removed from the list
-   * @access public
-   * 
-   * @todo implement method
    */
   public function delete($item) {
     
-  } // end of member function delete
+  }
 
   /**
    * Gets an element from the list by its index
-   * @return SearchHit
-   * @param Integer index index number of the element
-   * @access public
+   * 
+   * @param Integer $index Index number of the element
+   * @return Opus_Search_SearchHit Document with the given index number out of this list
    */
   public function get($index) {
     return $this->documents[$index];
@@ -140,14 +145,11 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Sorts the list
-   * @abstract
-   * @access public
-   * @return void
-   * @param String sortCriteria criteria the list should be sorted with
+   * 
+   * @param string $sortCriteria criteria the list should be sorted with
    * Possible sort criteria are:
    * not defined yet
-   * 
-   * @todo implement method
+   * @return void
    */
   public function sort($criteria) {
     
@@ -155,11 +157,9 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Gets the name of this node by its language
-   * @return String if the language does not exist, null will be returned
-   * @param String language desired language of the element, if null or not given the language will be detected using Zend_Locale
-   * @access public
    * 
-   * @todo if language does not exist, return default language from element!
+   * @param string $language (Optional) Desired language of the element, if null or not given the language will be detected using Zend_Locale
+   * @return string If the language does not exist, null will be returned
    */
   public function getName($language = null) {
   	#if ($language === null) 
@@ -183,8 +183,8 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Gets the ID of the CollectionRole containing this Node
-   * @return Integer RoleId
-   * @access public
+   * 
+   * @return integer RoleId
    */
   public function getRoleId() {
   	return $this->roleId;
@@ -192,8 +192,8 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Gets the ID of the CollectionNode
-   * @return Integer CollectionId
-   * @access public
+   * 
+   * @return integer CollectionId
    */
   public function getNodeId() {
   	return $this->collectionId;
@@ -201,10 +201,8 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Gets the SubNodes ID of this CollectionNode
-   * @return Integer CollectionId
-   * @access public
    * 
-   * @todo get the subnodes not only from Dummydata, but from real
+   * @return integer CollectionId
    */
   public function getSubNodes() {
   		$nodeData = Opus_Collection_Information::getSubCollections($this->roleId, $this->collectionId);
@@ -212,7 +210,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   		$doctypeList = new Opus_Search_List_CollectionNodeList();
 		foreach ($nodeData as $member)
 		{
-			$node = new Opus_Search_List_CollectionNode($this->roleId, $member["content"]);
+			$node = new Opus_Search_List_CollectionNode($this->roleId, $member['content']);
 			# Später: Nicht mehr $member uebergeben, sondern anhand der role_id die Collection aus der DB auslesen
 			#$node->getCollectionNode($this->roleId, $nodeData["collection_id"]);
 			$doctypeList->add($node);
@@ -222,19 +220,22 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Builds the CollectionNode-Object mapping the information from Opus_Collection
-   * @return void
-   * @access public
+   * 
+   * @return string Complete path to root. If this is root, null will be returned
    */
   public function getCollectionNode() {
-  		if ($this->collectionId > 0) $nodeInfo = Opus_Collection_Information::getPathToRoot($this->roleId, $this->collectionId);
-  		else $nodeInfo = null;
+  		if ($this->collectionId > 0) {
+  			$nodeInfo = Opus_Collection_Information::getPathToRoot($this->roleId, $this->collectionId);
+  		} else {
+  			$nodeInfo = null;
+  		}
 		return $nodeInfo;
   }  
 
   /**
    * Gets the documents from this Node from the database
-   * @return void
-   * @access public
+   * 
+   * @return array Documents in this node
    */
   public function getDocuments($alsoSubnodes = false) {
   		$docs = Opus_Collection_Information::getAllCollectionDocuments($this->roleId, $this->collectionId, $alsoSubnodes);

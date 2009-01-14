@@ -36,21 +36,23 @@ class Opus_Search_Index_Indexer {
 	/**
 	 * Index variable
 	 * 
-	 * @access private
 	 * @var Zend_Search_Lucene Index for the search engine
+	 * @access private
 	 */
 	private $entryindex;
 
 	/**
 	 * Index path
 	 * 
-	 * @access private
 	 * @var String Path to the index for the search engine
+	 * @access private
 	 */
 	private $indexPath;
 
 	/**
 	 * Constructor
+	 * 
+	 * @throws Zend_Search_Lucene_Exception
 	 */
 	public function __construct() {
 		try {
@@ -73,11 +75,11 @@ class Opus_Search_Index_Indexer {
 	 * @param Opus_Search_Adapter_DocumentAdapter $doc DocumentAdapter from the document that should be added to the index
 	 * @return void
 	 */
-	public function addDocumentToEntryIndex($doc) {
+	public function addDocumentToEntryIndex(Opus_Search_Adapter_DocumentAdapter $doc) {
     	try {
 			#if (count($doc->getAssociatedFiles()) == 0) {
 				$document = $doc->getDocument();
-				echo date("Y-m-d H:i:s").": Indexiere Metadaten f.r ".$document['id']."....\n";
+				echo date('Y-m-d H:i:s') . ': Indexing Metadata for ' . $document['id'] . '....<br/>\n';
 				$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
 			#} else {
 			#	$n = 0;
@@ -106,7 +108,7 @@ class Opus_Search_Index_Indexer {
 			#}
 			flush();
 		} catch (Exception $e) {
-			echo $e->getMessage()."\n";
+			echo $e->getMessage() . '<br/>\n';
         }
 	}
 }
