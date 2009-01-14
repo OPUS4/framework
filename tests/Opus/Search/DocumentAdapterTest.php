@@ -89,6 +89,52 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
     public function allRealData() {
         return BrowsingFilter::getAllTitles();
     }
+
+    /**
+     * Definition of document type article
+     *
+     * @return String XML-Definition
+     */
+	private function article() {
+		return '<documenttype name="testdoc"
+    xmlns="http://schemas.opus.org/documenttype"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <field name="Language" mandatory="yes" />
+    <field name="Licence"/>
+    <field name="ContributingCorporation"/>
+    <field name="CreatingCorporation"/>
+    <field name="DateAccepted"/>
+    <field name="DocumentType"/>
+    <field name="Edition"/>
+    <field name="Issue"/>
+    <field name="NonInstituteAffiliation"/>
+    <field name="PageFirst"/>
+    <field name="PageLast"/>
+    <field name="PageNumber"/>
+    <mandatory type="one-at-least">
+        <field name="CompletedYear"/>
+        <field name="CompletedDate"/>
+    </mandatory>
+    <field name="Reviewed"/>
+    <field name="ServerDateModified"/>
+    <field name="ServerDatePublished"/>
+    <field name="ServerDateUnlocking"/>
+    <field name="ServerDateValid"/>
+    <field name="Source"/>
+    <field name="SwbId"/>
+    <field name="VgWortPixelUrl"/>
+    <field name="Volume"/>
+    <field name="TitleMain" multiplicity="*"/>
+    <field name="TitleParent"/>
+    <field name="TitleAbstract" multiplicity="*"/>
+    <field name="Isbn"/>
+    <field name="Note"/>
+    <field name="Patent"/>
+    <field name="Enrichment"/>
+    <field name="PersonAuthor" multiplicity="3" />
+
+</documenttype>';
+	}
     
     /**
      * Real document data provider
@@ -96,8 +142,8 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      * @return Opus_Search_Adapter_DocumentAdapter with one document from the database
      */
     public function oneRealDoc() {
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Model_Document(null, 'article');
+        #Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $document = new Opus_Model_Document(null, $this->article());
 
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title');
@@ -155,15 +201,12 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $licence->setSortOrder(0);
         $document->addLicence($licence);
 
-        // Save document, modify, and save again.
-        $id = $document->store();
-        $document = new Opus_Model_Document($id);
-        $title = $document->addTitleMain();
-        $title->setTitleAbstractValue('Title Two');
-        $title->setTitleAbstractLanguage('en');
-        $abstract = $document->addTitleAbstract();
-        $abstract->setTitleAbstractValue('Kurzfassung');
-        $abstract->setTitleAbstractLanguage('de');
+        $title2 = $document->addTitleMain();
+        $title2->setTitleAbstractValue('Title Two');
+        $title2->setTitleAbstractLanguage('en');
+        $abstract2 = $document->addTitleAbstract();
+        $abstract2->setTitleAbstractValue('Kurzfassung');
+        $abstract2->setTitleAbstractLanguage('de');
         $id = $document->store();
         try {
         	$doc = new Opus_Search_Adapter_DocumentAdapter((int) $id);
@@ -187,7 +230,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
 		$this->assertEquals(array_key_exists('fileUrl', $docData), true);
 		$this->assertEquals(array_key_exists('title', $docData), true);
-		#$this->assertEquals(array_key_exists('abstract', $docData), true);
+		$this->assertEquals(array_key_exists('abstract', $docData), true);
 		#$this->assertEquals(array_key_exists('documentType', $docData), true);
 	}
 
