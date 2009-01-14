@@ -66,7 +66,7 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
 	    // Ranking and other attributes are taken from the Lucene class
         $document = $this->_parent->getDocument();
         $docid = str_replace('nr', '', $document->getFieldValue('docid'));
-        $qhit = new SearchHit($docid);
+        $qhit = new Opus_Search_SearchHit($docid);
         $qhit->setRelevance($this->_parent->score);
 
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter((int) $docid);
