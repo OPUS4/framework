@@ -561,8 +561,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $result = array();
         foreach ($this->_fields as $fieldname => $field) {
             if ($field->hasMultipleValues()) {
+                $fieldvalues = array();
                 foreach($field->getValue() as $value) {
-                    $fieldvalues = array();
                     if ($value instanceof Opus_Model_Abstract) {
                         $fieldvalues[] = $value->toArray();
                     } else {
