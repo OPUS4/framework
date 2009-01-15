@@ -125,4 +125,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
         return $this->_model->getId();
     }
 
+
+    /**
+     * Get a nested associative array representation of the linked model.
+     *
+     * @return array A (nested) array representation of the linked model.
+     */
+    public function toArray() {
+        return $this->_model->toArray();
+    }
 }

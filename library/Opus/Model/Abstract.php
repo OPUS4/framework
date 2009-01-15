@@ -552,4 +552,33 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         return $this->_tableGatewayClass;
     }
 
+    /**
+     * Get a nested associative array representation of the model.
+     *
+     * @return array A (nested) array representation of the model.
+     */
+    public function toArray() {
+        $result = array();
+        foreach ($this->_fields as $fieldname => $field) {
+            if ($field->hasMultipleValues()) {
+                foreach($field->getValue() as $value) {
+                    $fieldvalues = array();
+                    if ($value instanceof Opus_Model_Abstract) {
+                        $fieldvalues[] = $value->toArray();
+                    } else {
+                        $fieldvalues[] = $value;
+                    }
+                }
+                $result[$fieldname] = $fieldvalues;
+            } else {
+                if ($field->getValue() instanceof Opus_Model_Abstract) {
+                    $result[$fieldname] = $field->getValue()->toArray();
+                } else {
+                    $result[$fieldname] = $field->getValue();
+                }
+            }
+        }
+        return $result;
+    }
+
 }
