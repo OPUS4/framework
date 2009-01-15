@@ -333,7 +333,7 @@ class Opus_Form_Builder {
     }
 
     /**
-     * Build a selection form.
+     * Build a selection element.
      *
      * @param Opus_Model_Field $field     Field object with building informations.
      * @param Zend_Form        $container Zend_Form object to add created element to.
@@ -344,6 +344,7 @@ class Opus_Form_Builder {
         $element = new Zend_Form_Element_Select($fieldname);
         $element->setLabel($fieldname);
         $element->setMultiOptions($field->getDefault());
+        $element->setValue($field->getValue());
         $container->addElement($element);
     }
 
