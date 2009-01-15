@@ -107,7 +107,10 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'docId' => $this->documentData['id'],
 			'filename' => 'testfile.pdf'
 		);
-
+		
+		$this->documentData['year'] = $document->getPublishedYear();
+		$this->documentData['urn'] = 'urn:nbn:de:0830-123-3'; # $document->getUrn()->getIdentifierValue(); 
+		
 		#$authorsList = DummyData::getDummyPersons();
 		#$autlist1 = new PersonsList();
 		#$autlist1->add($authorsList[0]);

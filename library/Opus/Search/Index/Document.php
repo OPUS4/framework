@@ -53,8 +53,8 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten'));
         }
         $this->addField(Zend_Search_Lucene_Field::Keyword('docid', $doc['id']));
-        $this->addField(Zend_Search_Lucene_Field::UnIndexed('werkurl', $doc['frontdoorUrl']));
-        $this->addField(Zend_Search_Lucene_Field::UnIndexed('created', '2008-01-01'));
+        #$this->addField(Zend_Search_Lucene_Field::UnIndexed('werkurl', $doc['frontdoorUrl']));
+        $this->addField(Zend_Search_Lucene_Field::UnIndexed('year', $doc['year']));
         $this->addField(Zend_Search_Lucene_Field::Text('teaser', $doc['abstract']));
         $this->addField(Zend_Search_Lucene_Field::Text('title', $doc['title']));
 		$authoriterator = new Opus_Search_Iterator_PersonsListIterator($doc['author']);
@@ -69,6 +69,6 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
 			$authoriterator->next();
 		}
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut));
-        $this->addField(Zend_Search_Lucene_Field::Keyword('urn', '0830:0815-4711'));
+        $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $doc['urn']));
     }
 }
