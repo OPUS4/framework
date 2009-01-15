@@ -164,7 +164,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
      * @throws Opus_Model_Exception             Thrown invalid type is passed.
      */
     public function __construct($id = null, $type = null) {
-        if ($id === null and $type === null) {
+        if (($id === null and $type === null) or ($id !== null and $type !== null)) {
             throw new InvalidArgumentException('Either id or type must be passed.');
         }
         if ($id === null and $type !== null) {
@@ -184,8 +184,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
         if ($this->getId() === null) {
             if (is_string($this->_type) === true) {
                 $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($this->_type));
+                $this->_primaryTableRow->document_type = $this->_type;
             } else if ($this->_type instanceof Opus_Document_Type) {
                 $this->_builder = new Opus_Document_Builder($this->_type);
+                $this->_primaryTableRow->document_type = $this->_type->getName();
             } else {
                 throw new Opus_Model_Exception('Unkown document type.');
             }
