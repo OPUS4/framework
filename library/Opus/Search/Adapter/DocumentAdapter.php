@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Adapter to use the Documents from the framework in Module_Search
  * 
@@ -85,10 +84,14 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			$this->documentData['title'] = 'No title specified!';
 		}
 		
-		if (is_array($document->getTitleAbstract()) === true ) {
-			$abstract = $this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+		if (is_array($document->getTitleAbstract()) === true) {
+			if (count($document->getTitleAbstract()) > 0) {
+				$this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+			} else {
+				$this->documentData['abstract'] = 'No abstract'; 
+			}
 		} else {
-			$abstract = $this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
+			$this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
 		}
 		
 		$this->documentData['frontdoorUrl'] = array(

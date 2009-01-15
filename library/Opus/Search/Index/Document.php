@@ -40,10 +40,10 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
      * @param Opus_Search_Adapter_DocumentAdapter &$document Document to index
      * @param Opus_Search_Adapter_FileAdapter 	  &$file 	 (Optional) File to index
      */
-    public function __construct(Opus_Search_Adapter_DocumentAdapter &$document, Opus_Search_Adapter_FileAdapter &$file = false)
+    public function __construct(Opus_Search_Adapter_DocumentAdapter &$document, Opus_Search_Adapter_FileAdapter &$file = null)
     {
         $doc = $document->getDocument();
-        if ($file !== false) {
+        if ($file !== null) {
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $file->getURL()));
                 $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext()));
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path));
@@ -57,7 +57,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::UnIndexed('created', '2008-01-01'));
         $this->addField(Zend_Search_Lucene_Field::Text('teaser', $doc['abstract']));
         $this->addField(Zend_Search_Lucene_Field::Text('title', $doc['title']));
-		$authoriterator = new PersonsListIterator($doc['author']);
+		$authoriterator = new Opus_Search_Iterator_PersonsListIterator($doc['author']);
 		$aut = '';
 		while ($authoriterator->valid() === true) {
 			$obj = $authoriterator->current();

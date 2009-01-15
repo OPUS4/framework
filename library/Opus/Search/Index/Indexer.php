@@ -55,11 +55,9 @@ class Opus_Search_Index_Indexer {
 	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
 	 */
 	public function __construct() {
-		try {
-			$this->entryindex = $registry->get('Zend_Luceneindex');
-		} catch (Zend_Search_Lucene_Exception $searchException) {
-			throw $searchException;
-        }
+        $registry = Zend_Registry::getInstance();
+        $this->indexPath = $registry->get('Zend_LuceneIndexPath');
+        $this->entryindex = Zend_Search_Lucene::create($this->indexPath);           
 		// Queue starten
 		//IndexerQueue::getInstance();
 		// Registrieren bei den Events, die beobachtet werden sollen
@@ -79,7 +77,6 @@ class Opus_Search_Index_Indexer {
     	try {
 			#if (count($doc->getAssociatedFiles()) == 0) {
 				$document = $doc->getDocument();
-				echo date('Y-m-d H:i:s') . ': Indexing Metadata for ' . $document['id'] . '....<br/>\n';
 				$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
 			#} else {
 			#	$n = 0;
@@ -108,7 +105,8 @@ class Opus_Search_Index_Indexer {
 			#}
 			flush();
 		} catch (Exception $e) {
-			echo $e->getMessage() . '<br/>\n';
+			#echo $e->getMessage() . '<br/>\n';
+			throw $e;
         }
 	}
 }

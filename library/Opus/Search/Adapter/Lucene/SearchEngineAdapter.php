@@ -68,7 +68,8 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         // remove + at the end of a query (given from metager for quoted strings) - its useless anyway
         $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
         try {
-                $index = Zend_Registry::get('Zend_Luceneindex');
+        		$lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
+                $index = new Zend_Search_Lucene($lucenePath);
                 // Get the boolean operators used in the query
                 $oquery = $query;
                 if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) {
