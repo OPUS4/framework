@@ -79,7 +79,7 @@ class Opus_Form_Builder {
                 $subform = new Zend_Form_SubForm();
                 $subform->setLegend($fieldname);
 
-                if (($counts === 0) and ($modelclass !== null)) {
+                if (($counts === 0) and ($modelclass !== null) and ($field->getSelection() === false)) {
                     // build a subform for multiple new depend model
                     // should contain afterwards one empty element
                     $this->_makeSubForm("$i", new $modelclass, $subform);
@@ -108,7 +108,7 @@ class Opus_Form_Builder {
                 $form->addSubForm($subform, $fieldname);
             } else {
                 // non multiple values
-                if (($counts === 0) and (is_null($modelclass) === false)) {
+                if (($counts === 0) and (is_null($modelclass) === false) and ($field->getSelection() === false)) {
                     // build a subform for a new single depend model
                     // should contain afterwards an empty element
                     $this->_makeSubForm($fieldname, new $modelclass, $form);
@@ -321,12 +321,12 @@ class Opus_Form_Builder {
      * @return void
      */
     protected function _makeElement($name, $value, Zend_Form $container, Opus_Model_Field $field) {
-        if ($value instanceof Opus_Model_Interface) {
-            $this->_makeSubForm($name, $value, $container);
-        } else if ($field->getSelection() === true) {
+        if ($field->getSelection() === true) {
             $this->_makeSelectionElement($field, $container);
         } else if ($field->getTextarea() === true) {
             $this->_makeTextAreaElement($field, $container);
+        } else if ($value instanceof Opus_Model_Interface) {
+            $this->_makeSubForm($name, $value, $container);
         } else {
             $this->_makeTextElement($field, $container);
         }
@@ -343,7 +343,18 @@ class Opus_Form_Builder {
         $fieldname = $field->getName();
         $element = new Zend_Form_Element_Select($fieldname);
         $element->setLabel($fieldname);
-        $element->setMultiOptions($field->getDefault());
+        foreach ($field->getDefault() as $key => $value) {
+            if ($value instanceOf Opus_Model_Dependent_Link_Abstract) {
+                $new_value = $value->getLinkedModelDisplayName();
+                $new_key = $value->getLinkedModelId();
+                $element->addMultiOption($new_key, $new_value);
+            } else {
+                $element->addMultiOption($key, $value);
+            }
+
+        }
+        $element->setValue($field->getValue());
+
         $element->setValue($field->getValue());
         $container->addElement($element);
     }
