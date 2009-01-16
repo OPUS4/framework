@@ -166,7 +166,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     } else {
                         $options = null;
                     }
-                    $modelclass = $this->_externalFields[$fieldname]['model'];
+                    // If handling a link model, fetch modelclass from 'through' option.
+                    if (array_key_exists('through', $this->_externalFields[$fieldname])) {
+                        $modelclass = $this->_externalFields[$fieldname]['through'];
+                    } else {
+                        $modelclass = $this->_externalFields[$fieldname]['model'];
+                    }
                     if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
                         throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
                                 Define _fetch' . $fieldname . ' method in model class.');
@@ -411,24 +416,38 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 if (is_null($this->_fields[$fieldname]->getValueModelClass()) === true) {
                     throw new Opus_Model_Exception('Add accessor currently only available for fields holding models.');
                 }
-                $modelclass = $this->_fields[$fieldname]->getValueModelClass();
-                $model = new $modelclass;
 
-                if (($model instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                    if ((array_key_exists(0, $arguments) === true)) {
+                // get Modelclass if model is linked
+                if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+                    $linkmodel = new $linkmodelclass;
+                        // $model->addFoobar(new Foobar)
+                    if ((count($arguments) === 1)) {
                         if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                            $model->setModel($arguments[0]->_model);
+                            $linkmodel->setModel($arguments[0]->_model);
                         } else {
-                            $model->setModel($arguments[0]);
+                            $linkmodel->setModel($arguments[0]);
                         }
                     } else {
+                        // $model->addFoobar()
                         throw new InvalidArgumentException('Argument required when adding to a link field.');
+                    }
+                    $model = $linkmodel;
+                } else {
+                        // $model->addFoobar(new Foobar)
+                    if ((count($arguments) === 1)) {
+                        $model = $arguments[0];
+                    } else {
+                        // $model->addFoobar()
+                        $modelclass = $this->_fields[$fieldname]->getValueModelClass();
+                        $model = new $modelclass;
                     }
                 }
 
                 $this->_fields[$fieldname]->addValue($model);
 
                 return $model;
+
                 break;
 
             default:
