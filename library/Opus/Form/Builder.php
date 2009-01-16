@@ -116,10 +116,6 @@ class Opus_Form_Builder {
                     // build a element
                     $this->_makeElement($fieldname, $field->getValue(), $form, $field);
                 }
-                // set element attributes
-                $this->_addFilter($field, $form);
-                $this->_addMandatory($field, $form);
-                $this->_addValidator($field, $form);
             }
 
         }
@@ -357,6 +353,7 @@ class Opus_Form_Builder {
 
         $element->setValue($field->getValue());
         $container->addElement($element);
+        $this->_setFieldAttributes($field, $container);
     }
 
     /**
@@ -388,6 +385,7 @@ class Opus_Form_Builder {
         // TODO values should be configurable
         $element->setAttribs(array('rows' => 10, 'cols' => 60));
         $container->addElement($element);
+        $this->_setFieldAttributes($field, $container);
     }
 
     /**
@@ -403,6 +401,21 @@ class Opus_Form_Builder {
         $element->setLabel($fieldname);
         $element->setValue($field->getValue());
         $container->addElement($element);
+        $this->_setFieldAttributes($field, $container);
+    }
+
+    /**
+     * Set field attributes.
+     *
+     * @param Opus_Model_Field $field Field with necessary attribute information.
+     * @param Zend_Form $form         Form where field attributes are to be set.
+     * @return void
+     */
+    protected function _setFieldAttributes(Opus_Model_Field $field, Zend_Form $form) {
+        // set element attributes
+        $this->_addFilter($field, $form);
+        $this->_addMandatory($field, $form);
+        $this->_addValidator($field, $form);
     }
 
     /**
