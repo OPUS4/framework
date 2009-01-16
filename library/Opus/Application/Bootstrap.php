@@ -272,6 +272,9 @@ class Opus_Application_Bootstrap {
         $libRealPath = realpath(self::$applicationRootDirectory . '/library');
         $view->addHelperPath($libRealPath . '/Opus/View/Helper', 'Opus_View_Helper');
 
+        // Set path to shared view partials
+        $view->addScriptPath($libRealPath . '/Opus/View/Partials');
+
         $viewRenderer = new Zend_Controller_Action_Helper_ViewRenderer($view);
         Zend_Controller_Action_HelperBroker::addHelper($viewRenderer);
 
