@@ -349,7 +349,6 @@ class Opus_Form_Builder {
             }
 
         }
-        $element->setValue($field->getValue());
 
         $element->setValue($field->getValue());
         $container->addElement($element);
