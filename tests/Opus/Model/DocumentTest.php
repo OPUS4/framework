@@ -710,34 +710,4 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $abstract = new Opus_Model_Dependent_Abstract($id);
     }
 
-    /**
-     * TODO: short description.
-     *
-     * @return TODO
-     */
-    public function testLinkedModelNameReturnsCorrectValue() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" />
-        </documenttype>';
-
-        $licence = new Opus_Model_Licence;
-        $licence->setActive(1);
-        $licence->setLicenceLanguage('de');
-        $licence->setLinkLicence('http://creativecommons.org/');
-        $licence->setMimeType('text/pdf');
-        $licence->setNameLong('Creative Commons');
-        $licence->setPodAllowed(1);
-        $licence->setSortOrder(0);
-        $licence->store();
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
-
-        $defaults = $doc->getField('Licence')->getDefault();
-        $this->assertEquals($defaults[0]->getLinkedModelDisplayName(), 'Creative Commons', 'Erroneous linked model display string.');
-    }
-
 }
