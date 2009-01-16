@@ -194,12 +194,6 @@ class Opus_Form_Builder {
                 continue;
             }
             if (is_null($field->getValueModelClass()) === false) {
-                if (is_null($field->getValue()) === true) {
-                    $modelclass = $field->getValueModelClass();
-                    $callname = 'add' . $fieldname;
-                    $model->$callname(new $modelclass);
-                }
-
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
