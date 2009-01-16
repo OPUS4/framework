@@ -76,7 +76,13 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	 * @return void
 	 */
 	private function mapDocument() {
+	    
+	    // FIXME: The method makes a lot of assumptions on the
+	    // existence of fields that might not be declared in the
+	    // document type of the document.
+	    
 		$document = new Opus_Model_Document($this->documentData['id']);
+		
 		try	{
 			$title = $document->getTitleMain(0);
 			$this->documentData['title'] = $title->getTitleAbstractValue();

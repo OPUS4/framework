@@ -51,7 +51,7 @@ value for "name". It must be declared.
 
 -->
 
-<documenttype name="testdoc"
+<documenttype name="article"
     xmlns="http://schemas.opus.org/documenttype"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <field name="Language" mandatory="yes" />
@@ -87,5 +87,6 @@ value for "name". It must be declared.
     <field name="Patent"/>
     <field name="Enrichment"/>
     <field name="PersonAuthor" multiplicity="3" />
+    <field name="PublishedYear"/>
 
 </documenttype>
