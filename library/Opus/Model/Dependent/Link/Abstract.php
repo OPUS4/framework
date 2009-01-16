@@ -49,6 +49,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     protected $_model;
 
     /**
+     * The class of the model that is linked to.
+     *
+     * @var string
+     */
+    protected $_modelClass = '';
+
+    /**
      * The name of the field containing an identifying string.
      *
      * @var string
@@ -62,8 +69,12 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      * @return void
      */
     public function setModel(Opus_Model_Abstract $model) {
-        $this->_model = $model;
-        $model->setTransactional(false);
+        if ($model instanceof $this->_modelClass === false) {
+            throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target.');
+        } else {
+            $this->_model = $model;
+            $model->setTransactional(false);
+        }
     }
 
     /**

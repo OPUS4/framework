@@ -56,6 +56,13 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
     protected $_parentColumn = 'documents_id';
 
     /**
+     * The class of the model that is linked to.
+     *
+     * @var string
+     */
+    protected $_modelClass = 'Opus_Model_Licence';
+
+    /**
      * The name of the field containing an identifying string.
      *
      * @var string

@@ -48,6 +48,13 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
     protected $_parentColumn = 'documents_id';
 
     /**
+     * The class of the model that is linked to.
+     *
+     * @var string
+     */
+    protected $_modelClass = 'Opus_Model_Person';
+
+    /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
