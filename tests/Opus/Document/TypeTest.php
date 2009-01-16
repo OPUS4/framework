@@ -406,5 +406,15 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $result = $fields['TitleMain']['mandatory'];
         $this->assertTrue(is_bool($result), 'Mandatory option should be of type Boolean.');
     }
+
+    /**
+     * Test if setting an invalid document type path throws an exception.
+     * 
+     * @return void
+     */
+    public function testSetInvalidDocumentTypePathThrowsException() {
+        $this->setExpectedException('InvalidArgumentException');
+        Opus_Document_Type::setXmlDoctypePath('xxyyzz');
+    }
     
 }
