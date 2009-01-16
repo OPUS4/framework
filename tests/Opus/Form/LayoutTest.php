@@ -387,7 +387,6 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testLayoutGetsRegisteredInZendRegistry() {
-        $this->markTestSkipped('Test modifies registry, thus breaking following tests.');
         $xml = '<?xml version="1.0" encoding="UTF-8"?>
             <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -398,13 +397,13 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
                 </page>
             </formlayout>';
 
-        // Clear out the registry.
-        Zend_Registry::_unsetInstance();
-
+        $registry = Zend_Registry::getInstance();
+        $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
+        $this->assertNotContains('general', $registered, 'Layout has been registered before');
+        
         $layout = Opus_Form_Layout::fromXml($xml);
 
         // Check if the layout is registered.
-        $registry = Zend_Registry::getInstance();
         $registered = $registry->get(Opus_Form_Layout::ZEND_REGISTRY_KEY);
         $this->assertArrayHasKey('general', $registered, 'Layout has not been registered.');
     }
@@ -416,10 +415,6 @@ class Opus_Form_LayoutTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testLayoutOverrideInRegistry() {
-        $this->markTestSkipped('Test modifies registry, thus breaking following tests.');
-        // Clear out the registry.
-        Zend_Registry::_unsetInstance();
-
         // Register layouts
         $xml1 = '<?xml version="1.0" encoding="UTF-8"?>
             <formlayout name="general" xmlns="http://schemas.opus.org/formlayout"

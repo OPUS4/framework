@@ -95,20 +95,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
 
-
-    /**
-     * Test if no type is registered initially.
-     *
-     * @return void
-     */
-    public function testRegistryIsInitiallyEmpty() {
-        $this->markTestSkipped('Test modifies registry, thus breaking following tests.');
-        $registry = Zend_Registry::getInstance();
-        $this->assertFalse($registry->isRegistered(Opus_Document_Type::ZEND_REGISTRY_KEY), 'Registry is not initially empty.');
-    }
-
-
-
     /**
      * Test if an InvalidArgumentException occurs when instanciating with invalid arguments.
      *
