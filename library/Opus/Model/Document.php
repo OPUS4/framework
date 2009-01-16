@@ -217,13 +217,11 @@ class Opus_Model_Document extends Opus_Model_Abstract
         if ($this->getField('Licence') !== null) {
             $licences = new Opus_Db_DocumentLicences;
             $licences = $licences->fetchAll();
-            $licenceLinkModels = array();
+            $defaults = array();
             foreach ($licences as $licence) {
-                $licenceLinkModel = new Opus_Model_Dependent_Link_DocumentLicence;
-                $licenceLinkModel->setModel(new Opus_Model_Licence($licence->licences_id));
-                $licenceLinkModels[] = $licenceLinkModel;
+                $defaults[$licence->licences_id] = $licence->name_long;
             }
-            $this->getField('Licence')->setDefault($licenceLinkModels)
+            $this->getField('Licence')->setDefault($defaults)
                 ->setSelection(true);
         }
     }
