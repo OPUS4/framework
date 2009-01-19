@@ -52,11 +52,11 @@ class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Depende
     /**
      * Mockup for setting linked model.
      * 
-     * @param Opus_Model_Abstract $model Mock model.
+     * @param Opus_Model_Interface $model Mock model.
      * @see    library/Opus/Model/Dependent/Link/Opus_Model_Dependent_Link_Abstract#setModel()
      * @return void
      */
-    public function setModel(Opus_Model_Abstract $model) {
+    public function setModel(Opus_Model_Interface $model) {
         $this->_model = $model;
     }
     
