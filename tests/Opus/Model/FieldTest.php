@@ -249,8 +249,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->setTextarea(true);
         $field->setSelection(true);
         
-        $this->assertTrue($field->getSelection(), 'Selection flag does not get set.');
-        $this->assertFalse($field->getTextarea(), 'Textarea flag does not get cleared when selection is set.');
+        $this->assertTrue($field->isSelection(), 'Selection flag does not get set.');
+        $this->assertFalse($field->isTextarea(), 'Textarea flag does not get cleared when selection is set.');
     }
 
     /**
@@ -263,8 +263,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->setSelection(true);
         $field->setTextarea(true);
         
-        $this->assertTrue($field->getTextarea(), 'Textarea flag does not get set.');
-        $this->assertFalse($field->getSelection(), 'Selection flag does not get cleared when selection is set.');
+        $this->assertTrue($field->isTextarea(), 'Textarea flag does not get set.');
+        $this->assertFalse($field->isSelection(), 'Selection flag does not get cleared when selection is set.');
     }
     
     
@@ -279,7 +279,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field = new Opus_Model_Field('MyField');
         
         $set_callname = 'set' . $func;
-        $get_callname = 'get' . $func;
+        $get_callname = 'is' . $func;
         
         $field->$set_callname($input);
         $result = $field->$get_callname();

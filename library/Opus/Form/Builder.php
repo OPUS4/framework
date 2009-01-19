@@ -79,7 +79,7 @@ class Opus_Form_Builder {
                 $subform = new Zend_Form_SubForm();
                 $subform->setLegend($fieldname);
 
-                if (($counts === 0) and ($modelclass !== null) and ($field->getSelection() === false)) {
+                if (($counts === 0) and ($modelclass !== null) and ($field->isSelection() === false)) {
                     // build a subform for multiple new depend model
                     // should contain afterwards one empty element
                     $this->_makeSubForm("$i", new $modelclass, $subform);
@@ -198,7 +198,7 @@ class Opus_Form_Builder {
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
-                    if ($field->getSelection() === true) {
+                    if ($field->isSelection() === true) {
                         $model2 = new $modelclass($value);
                         $field->setValue($model2);
                     } else {
@@ -259,7 +259,7 @@ class Opus_Form_Builder {
      */
     protected function _addMandatory(Opus_Model_Field $field, Zend_Form $form) {
         $fieldname = $field->getName();
-        $mandatory = $field->getMandatory();
+        $mandatory = $field->isMandatory();
         if ($form->$fieldname instanceof Zend_Form_Element) {
             $form->$fieldname->setRequired($mandatory);
         }
@@ -314,9 +314,9 @@ class Opus_Form_Builder {
      * @return void
      */
     protected function _makeElement($name, $value, Zend_Form $container, Opus_Model_Field $field) {
-        if ($field->getSelection() === true) {
+        if ($field->isSelection() === true) {
             $this->_makeSelectionElement($field, $container);
-        } else if ($field->getTextarea() === true) {
+        } else if ($field->isTextarea() === true) {
             $this->_makeTextAreaElement($field, $container);
         } else if ($value instanceof Opus_Model_Interface) {
             $this->_makeSubForm($name, $value, $container);

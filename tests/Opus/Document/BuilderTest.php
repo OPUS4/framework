@@ -115,7 +115,7 @@ class Opus_Document_BuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new Opus_Document_Builder();
         $document = $builder->create($type);
         $this->assertEquals(array('Language', 'TitleMain'), $document->describe(), 'Document creating failed.');
-        $mandatory = $document->getField('Language')->getMandatory();
+        $mandatory = $document->getField('Language')->isMandatory();
         $this->assertTrue($mandatory, 'Language should be mandatory.');
         $mult = $document->getField('TitleMain')->getMultiplicity();
         $this->assertEquals(2, $mult, 'TitleMain should has a mulitplicity of 2.');

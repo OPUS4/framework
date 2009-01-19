@@ -241,7 +241,7 @@ class Opus_Model_Field
      *
      * @return Boolean True, if the field is marked tobe mandatory.
      */
-    public function getMandatory() {
+    public function isMandatory() {
         return $this->_mandatory;
     }
 
@@ -404,7 +404,7 @@ class Opus_Model_Field
      *
      * @return Boolean True, if the field can be displayed as a text box.
      */
-    public function getTextarea() {
+    public function isTextarea() {
         return $this->_textarea;
     }
 
@@ -430,7 +430,7 @@ class Opus_Model_Field
      *
      * @return Boolean True, if the field can be displayed as a selection list.
      */
-    public function getSelection() {
+    public function isSelection() {
         return $this->_selection;
     }
 
