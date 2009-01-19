@@ -36,40 +36,40 @@
  */
 
 /**
- * interface Iterator
- * already defined by PHP5
- */
-/**
- * Reference-Implementation of Iterator for Opus-Lists
+ * Interface Iterator already defined by PHP5
+ * 
+ * This is the reference implementation of Iterator for Opus-Lists
  */
 class Opus_Search_Iterator_ListIterator implements Iterator
 {
 	
-   /*** Attributes: ***/
-
   /**
+   * List, that can be iterated with this Iterator
+   * 
+   * @var BasicList List this Iterator should work on
    * @access private
    */
   protected $list;
 
   /**
+   * Internal index counter
+   * 
+   * @var integer Number of the internal index counter
    * @access private
    */
   protected $_currentIndex = 0;
 
-   /*** Methods: ***/
-
   /**
    * Constructor
    * 
-   * @param BasicList list List for this Iterator
+   * @param BasicList $list List for this Iterator
    */
-  public function __construct($list) {
+  public function __construct(BasicList $list) {
     $this->list = $list;
-  } // end of Constructor
+  }
 
   /**
-   * moves internal counter to the beginning of the list
+   * Moves internal counter to the beginning of the list
    * 
    * @return void
    */
@@ -81,17 +81,18 @@ class Opus_Search_Iterator_ListIterator implements Iterator
   /**
    * Checks if the list has more elements, returns false if current element is the last element of list (there are no more elements)
    * 
-   * @return boolean last element of the list?
+   * @throws ListOutOfBoundsException Is thrown when the current index is higher than the length of the list
+   * @return boolean Last element of the list?
    */
   public function valid() 
   {
-  	if (is_object($this->list) === false) return false;
-    if ($this->_currentIndex > $this->list->count())
-    {
-    	throw new ListOutOfBoundsException("Listenüberlauf!");
+  	if (is_object($this->list) === false) {
+  		return false;
+  	}
+    if ($this->_currentIndex > $this->list->count()) {
+    	throw new ListOutOfBoundsException('List out of bounds!');
     }
-    if ($this->_currentIndex == $this->list->count())
-    {
+    if ($this->_currentIndex === $this->list->count()) {
     	return false;
     }
     return true;
@@ -108,7 +109,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
   }
 
   /**
-   * increments internal counter
+   * Increments internal counter
    * 
    * @return void
    */ 
@@ -119,10 +120,12 @@ class Opus_Search_Iterator_ListIterator implements Iterator
   /**
    * checks if the list has a following element
    * 
-   * @return boolean if true, there is another element, otherwise its false
+   * @return boolean If true, there is another element, otherwise its false
    */ 
   public function hasNext() {
-    if ($this->_currentIndex < $this->list->count()-1) return true;
+    if ($this->_currentIndex < ($this->list->count()-1)) {
+    	 return true;
+    }
     return false;
   }
   
@@ -143,5 +146,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
    * 
    * @return Object the currently selected object of the list 
    */
-  public function current() { } // to be implemented in child classes
+  public function current() { 
+  	return null;
+  }
 }

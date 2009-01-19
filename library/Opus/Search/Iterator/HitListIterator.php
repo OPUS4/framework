@@ -38,21 +38,14 @@
  */
 class Opus_Search_Iterator_HitListIterator extends Opus_Search_Iterator_ListIterator
 {
-  // methods implemented for Iterator Interface
-  /**
-   * Konstruktor
-   */
-  public function __construct($list) {
-    parent::__construct($list);
-  } // end of Konstruktor
 
   /**
    * Returns the current element from the hitlist
    * 
-   * @return SearchHit currently selected Searchhit 
+   * @return SearchHit Currently selected Searchhit 
    */
   public function current() 
   {
   	return $this->list->get($this->_currentIndex);
   }
-} // end of HitListIterator
+}

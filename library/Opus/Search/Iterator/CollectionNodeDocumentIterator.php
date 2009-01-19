@@ -40,19 +40,12 @@
 class Opus_Search_Iterator_CollectionNodeDocumentIterator extends Opus_Search_Iterator_ListIterator
 {
   /**
-   * Constructor
-   */
-  public function __construct($list) {
-    parent::__construct($list);
-  } // end of Constructor
-
-  /**
-   * Returns the current element from the Documenttypelist
+   * Returns the current element from the Documentlist
    * 
-   * @return DocumentType currently selected Documenttype 
+   * @return DocumentType Currently selected Document 
    */
   public function current() 
   {
   	return $this->list->get($this->_currentIndex);
   }
-} // end of DocumentTypeListIterator
+}

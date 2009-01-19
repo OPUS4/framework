@@ -39,13 +39,6 @@
 class Opus_Search_Iterator_PersonsListIterator extends Opus_Search_Iterator_ListIterator
 {
   /**
-   * Constructor
-   */
-  public function __construct($list) {
-    parent::__construct($list);
-  } // end of Constructor
-
-  /**
    * Returns the current element from the personlist
    * 
    * @return Person currently selected person 
@@ -54,4 +47,4 @@ class Opus_Search_Iterator_PersonsListIterator extends Opus_Search_Iterator_List
   {
   	return $this->list->get($this->_currentIndex);
   }
-} // end of PersonsListIterator
+}
