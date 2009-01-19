@@ -69,7 +69,7 @@ class Opus_Search_List_DocumentTypeList extends Opus_Search_List_BasicList
    * @param Opus_Search_Adapter_DocumentTypeAdapter $doctype Document type that should be added to this list
    * @return void
    */
-  public function add($doctype) {
+  public function add(Opus_Search_Adapter_DocumentTypeAdapter $doctype) {
     array_push($this->documentTypes, $doctype);
   } 
 

@@ -71,6 +71,7 @@ class Opus_Search_Index_Indexer {
 	 * Stores a document in the Search Engine Index
 	 * 
 	 * @param Opus_Search_Adapter_DocumentAdapter $doc DocumentAdapter from the document that should be added to the index
+	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
 	 * @return void
 	 */
 	public function addDocumentToEntryIndex(Opus_Search_Adapter_DocumentAdapter $doc) {

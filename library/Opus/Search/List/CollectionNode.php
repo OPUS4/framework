@@ -84,7 +84,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Constructor
    * 
-   * @param array|integer $coll 	(Optional) ID of the root node of this collection or array containing the ID and the name of the root node
+   * @param array|integer $coll     (Optional) ID of the root node of this collection or array containing the ID and the name of the root node
    * @param array|integer $collnode (Optional) ID of this node of this collection or array containing the ID and the name of this node
    */
   public function __construct($coll = null, $collnode = null) {
@@ -148,7 +148,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
    * Possible sort criteria are:
    * not defined yet
    * 
-   * @param string $sortCriteria Criteria the list should be sorted with
+   * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {

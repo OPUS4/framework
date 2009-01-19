@@ -66,10 +66,10 @@ class Opus_Search_List_HitList extends Opus_Search_List_BasicList
   /**
    * Add a SearchHit to the list
    * 
-   * @param SearchHit $queryHit One search hit matching the query in some way
+   * @param Opus_Search_SearchHit $queryHit One search hit matching the query in some way
    * @return void
    */
-  public function add($queryHit) {
+  public function add(Opus_Search_SearchHit $queryHit) {
     array_push($this->hits, $queryHit);
   } 
 
@@ -117,7 +117,7 @@ class Opus_Search_List_HitList extends Opus_Search_List_BasicList
    * Possible sort criteria are:
    * not defined yet
    * 
-   * @param string $sortCriteria Criteria the list should be sorted with
+   * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {

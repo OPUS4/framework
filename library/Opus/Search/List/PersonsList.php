@@ -117,7 +117,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
    * Possible sort criteria are:
    * not defined yet
    * 
-   * @param string $sortCriteria Criteria the list should be sorted with
+   * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {
