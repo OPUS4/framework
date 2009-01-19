@@ -101,7 +101,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
   /**
    * Returns the current position in the hitlist
    * 
-   * @return integer current position of internal counter
+   * @return integer Current position of internal counter
    */
   public function key() 
   {
@@ -118,7 +118,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
   }
 
   /**
-   * checks if the list has a following element
+   * Checks if the list has a following element
    * 
    * @return boolean If true, there is another element, otherwise its false
    */ 

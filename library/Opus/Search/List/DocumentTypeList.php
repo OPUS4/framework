@@ -40,80 +40,73 @@
  */
 class Opus_Search_List_DocumentTypeList extends Opus_Search_List_BasicList
 {
-   /*** Attributes: ***/
-
   /**
    * Number of elements in this list
+   * 
+   * @var integer Number of document types in this list
    * @access private
    */
   private $numberOfItems;
 
   /**
    * Elements in this list
+   * 
+   * @var array Documenttypes hits for the query
    * @access private
    */
   private $documentTypes;
 
   /**
    * Constructor
-   * @access public
-   * @return void
    */
   public function __construct() {
     $this->documentTypes = array();
-  } // end of Constructor
+  }
 
   /**
    * Add a DocumentType to the list
    * 
-   * @access public
-   * @param DocumentTypeAdapter doctype document type that should be added to this list
+   * @param Opus_Search_Adapter_DocumentTypeAdapter $doctype Document type that should be added to this list
    * @return void
    */
   public function add($doctype) {
     array_push($this->documentTypes, $doctype);
-  } // end of member function add 
+  } 
 
   /**
    * Returns the number of items in this list
    * 
-   * @access public
-   * @return integer number of items in this list
-   * @deprecated 17.11.2008 use count() instead
+   * @return integer Number of items in this list
    */
   public function getNumberOfItems() {
     $this->numberOfItems = count($this->documentTypes);
     return $this->numberOfItems;
-  } // end of member function getNumberOfItems 
+  } 
 
   /**
    * Gets the number of items in this list
    * 
-   * @access public
-   * @return integer number of items in this list
+   * @return integer Number of items in this list
    */
   public function count() {
     return $this->getNumberOfItems();
-  } // end of member function count
+  }
 
   /**
    * Deletes a document type from the list
    * 
+   * @param Opus_Search_Adapter_DocumentTypeAdapter|integer $item Element (or index of element) that should be removed from the list
    * @return void
-   * @param DocumentTypeAdapter|Integer item element (or index of element) that should be removed from the list
-   * @access public
-   * 
-   * @todo implement method
    */
   public function delete($item) {
     
-  } // end of member function delete
+  }
 
   /**
    * Gets an element from the list by its index
-   * @return DocumentTypeAdapter
-   * @param Integer index index number of the element
-   * @access public
+   * 
+   * @param integer $index Index number of the element
+   * @return Opus_Search_Adapter_DocumentTypeAdapter DocumenttypeAdapter on the given index position of this list
    */
   public function get($index) {
     return $this->documentTypes[$index];
@@ -121,13 +114,11 @@ class Opus_Search_List_DocumentTypeList extends Opus_Search_List_BasicList
 
   /**
    * Sorts the list
-   * @access public
-   * @return void
-   * @param String sortCriteria criteria the list should be sorted with
    * Possible sort criteria are:
    * not defined yet
    * 
-   * @todo implement method
+   * @param string $criteria Criteria the list should be sorted with
+   * @return void
    */
   public function sort($criteria) {
     

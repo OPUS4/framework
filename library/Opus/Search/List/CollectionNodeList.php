@@ -40,69 +40,64 @@
  */
 class Opus_Search_List_CollectionNodeList extends Opus_Search_List_BasicList
 {
-   /*** Attributes: ***/
-
   /**
    * Number of elements in this list
+   * 
+   * @var integer Number of collection nodes in this list
    * @access private
    */
   private $numberOfNodes;
 
   /**
    * Elements in this list
+   * 
+   * @var array Collection nodes in this list
    * @access private
    */
   private $collectionNodes;
 
   /**
    * Constructor
-   * @access public
-   * @return void
    */
   public function __construct() {
     $this->collectionNodes = array();
-  } // end of Constructor
+  }
 
   /**
    * Add a CollectionNode to the list
    * 
-   * @access public
-   * @param CollectionNode collnode CollectionNode that should be added to this list
+   * @param Opus_Search_List_CollectionNode $collnode CollectionNode that should be added to this list
    * @return void
    */
   public function add($collnode) {
     array_push($this->collectionNodes, $collnode);
-  } // end of member function add 
+  }
 
   /**
    * Gets the number of items in this list
    * 
-   * @access public
-   * @return integer number of items in this list
+   * @return integer Number of items in this list
    */
   public function count() {
     $this->numberOfNodes = count($this->collectionNodes);
     return $this->numberOfNodes;
-  } // end of member function count
-
+  }
+  
   /**
    * Deletes a CollectionNode from the list
    * 
+   * @param Opus_Search_List_CollectionNode|integer $item Element (or index of element) that should be removed from the list
    * @return void
-   * @param CollectionNode|Integer item element (or index of element) that should be removed from the list
-   * @access public
-   * 
-   * @todo implement method
    */
   public function delete($item) {
     
-  } // end of member function delete
+  }
 
   /**
    * Gets an element from the list by its index
-   * @return CollectionNode
-   * @param Integer index index number of the element
-   * @access public
+   * 
+   * @param integer $index Index number of the element
+   * @return Opus_Search_List_CollectionNode Collection node out of this list on the given index position
    */
   public function get($index) {
     return $this->collectionNodes[$index];
@@ -110,13 +105,11 @@ class Opus_Search_List_CollectionNodeList extends Opus_Search_List_BasicList
 
   /**
    * Sorts the list
-   * @access public
-   * @return void
-   * @param String sortCriteria criteria the list should be sorted with
    * Possible sort criteria are:
    * not defined yet
-   * 
-   * @todo implement method
+   *
+   * @param string $criteria Criteria the list should be sorted with
+   * @return void
    */
   public function sort($criteria) {
     

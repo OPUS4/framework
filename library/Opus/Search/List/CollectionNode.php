@@ -84,21 +84,21 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Constructor
    * 
-   * @param array|integer $coll ID of the root node of this collection or array containing the ID and the name of the root node
-   * @param array|integer $collnode ID of this node of this collection or array containing the ID and the name of this node
+   * @param array|integer $coll 	(Optional) ID of the root node of this collection or array containing the ID and the name of the root node
+   * @param array|integer $collnode (Optional) ID of this node of this collection or array containing the ID and the name of this node
    */
   public function __construct($coll = null, $collnode = null) {
   		$this->documents = array();
   		#$this->name = array();
   		$this->roleId = $coll;
   		$this->collectionId = $collnode;
-  		if (is_array($coll)) {
-			$this->name = $coll["name"];
-			$this->roleId = (int) $coll["collections_roles_id"];
+  		if (is_array($coll) === true) {
+			$this->name = $coll['name'];
+			$this->roleId = (int) $coll['collections_roles_id'];
   		}
-  		if (is_array($collnode)) {
-			$this->name = $collnode[0]["name"];
-			$this->collectionId = (int) $collnode[0]["collections_id"];
+  		if (is_array($collnode) === true) {
+			$this->name = $collnode[0]['name'];
+			$this->collectionId = (int) $collnode[0]['collections_id'];
   		}
   		$this->getDocuments();
   }
@@ -106,10 +106,10 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Add a Document to this node
    * 
-   * @param OpusDocumentAdapter $doc Document in this node
+   * @param Opus_Search_Adapter_DocumentAdapter $doc Document in this node
    * @return void
    */
-  public function add($doc) {
+  public function add(Opus_Search_Adapter_DocumentAdapter $doc) {
     array_push($this->documents, $doc);
   } 
 
@@ -126,7 +126,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Deletes a Search hit from the list
    * 
-   * @param OpusDocumentAdapter|Integer $item Element (or index of element) that should be removed from the list
+   * @param Opus_Search_Adapter_DocumentAdapter|integer $item Element (or index of element) that should be removed from the list
    * @return void
    */
   public function delete($item) {
@@ -136,7 +136,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Gets an element from the list by its index
    * 
-   * @param Integer $index Index number of the element
+   * @param integer $index Index number of the element
    * @return Opus_Search_SearchHit Document with the given index number out of this list
    */
   public function get($index) {
@@ -145,10 +145,10 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Sorts the list
-   * 
-   * @param string $sortCriteria criteria the list should be sorted with
    * Possible sort criteria are:
    * not defined yet
+   * 
+   * @param string $sortCriteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {
@@ -206,13 +206,9 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
    */
   public function getSubNodes() {
   		$nodeData = Opus_Collection_Information::getSubCollections($this->roleId, $this->collectionId);
-  		#$nodeData = DummyData::getDummyCollectionNode();
   		$doctypeList = new Opus_Search_List_CollectionNodeList();
-		foreach ($nodeData as $member)
-		{
+		foreach ($nodeData as $member) {
 			$node = new Opus_Search_List_CollectionNode($this->roleId, $member['content']);
-			# Später: Nicht mehr $member uebergeben, sondern anhand der role_id die Collection aus der DB auslesen
-			#$node->getCollectionNode($this->roleId, $nodeData["collection_id"]);
 			$doctypeList->add($node);
 		}
   	return $doctypeList;
@@ -235,14 +231,14 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   /**
    * Gets the documents from this Node from the database
    * 
+   * @param boolean $alsoSubnodes (Optional) Put the Subnodes also in the CollectionNode
    * @return array Documents in this node
    */
   public function getDocuments($alsoSubnodes = false) {
   		$docs = Opus_Collection_Information::getAllCollectionDocuments($this->roleId, $this->collectionId, $alsoSubnodes);
 		unset ($this->documents);
 		$this->documents = array();
-		foreach ($docs as $member)
-		{
+		foreach ($docs as $member) {
 			$doc = new Opus_Search_Adapter_DocumentAdapter( (int) $member);
 			$this->add($doc);
 		}

@@ -40,80 +40,73 @@
  */
 class Opus_Search_List_HitList extends Opus_Search_List_BasicList
 {
-   /*** Attributes: ***/
-
   /**
    * Number of hits in this list
+   * 
+   * @var integer Number of hits in this list
    * @access private
    */
   private $numberOfHits;
 
   /**
    * Elements in this List
+   * 
+   * @var array Search hits for the query
    * @access private
    */
   private $hits;
 
   /**
    * Constructor
-   * @access public
-   * @return void
    */
   public function __construct() {
     $this->hits = array();
-  } // end of Constructor
+  }
 
   /**
    * Add a SearchHit to the list
    * 
-   * @access public
-   * @param SearchHit queryHit One search hit matching the query in some way
+   * @param SearchHit $queryHit One search hit matching the query in some way
    * @return void
    */
   public function add($queryHit) {
     array_push($this->hits, $queryHit);
-  } // end of member function add 
+  } 
 
   /**
    * Returns the number of hits in this list
    * 
-   * @access public
-   * @return integer number of hits in this list
-   * @deprecated 17.11.2008 use count() instead
+   * @return integer Number of hits in this list
    */
   public function getNumberOfHits() {
     $this->numberOfHits = count($this->hits);
     return $this->numberOfHits;
-  } // end of member function getNumberOfHits 
+  } 
 
   /**
    * Returns the number of hits in this list
    * 
-   * @access public
-   * @return integer number of hits in this list
+   * @return integer Number of hits in this list
    */
   public function count() {
     return $this->getNumberOfHits();
-  } // end of member function count
+  }
 
   /**
    * Deletes a Search hit from the list
    * 
+   * @param Opus_Search_SearchHit|integer $item Element (or index of element) that should be removed from the list
    * @return void
-   * @param SearchHit|Integer item element (or index of element) that should be removed from the list
-   * @access public
-   * 
-   * @todo implement method
    */
   public function delete($item) {
     
-  } // end of member function delete
+  }
 
   /**
    * Gets an element from the list by its index
-   * @return SearchHit
-   * @param Integer index index number of the element
-   * @access public
+   * 
+   * @param integer $index Index number of the element
+   * @return Opus_Search_SearchHit SearchHit on the position of the given index number
    */
   public function get($index) {
     return $this->hits[$index];
@@ -121,14 +114,11 @@ class Opus_Search_List_HitList extends Opus_Search_List_BasicList
 
   /**
    * Sorts the list
-   * @abstract
-   * @access public
-   * @return void
-   * @param String sortCriteria criteria the list should be sorted with
    * Possible sort criteria are:
    * not defined yet
    * 
-   * @todo implement method
+   * @param string $sortCriteria Criteria the list should be sorted with
+   * @return void
    */
   public function sort($criteria) {
     

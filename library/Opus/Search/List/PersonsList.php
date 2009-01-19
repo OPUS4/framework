@@ -43,7 +43,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Number of persons in this list
    * 
-   * @var Integer number of persons
+   * @var integer number of persons
    * @access private
    */
   private $numberOfPersons;
@@ -51,7 +51,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Elements in this list
    * 
-   * @var Array Array of persons in the list
+   * @var array Array of persons in the list
    * @access private
    */
   private $persons;
@@ -66,18 +66,17 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Add a person to the list
    * 
-   * @param OpusPersonAdapter pers person that should be added to this list
+   * @param Opus_Search_Adapter_PersonAdapter $pers Person that should be added to this list
    * @return void
    */
-  public function add($pers) {
+  public function add(Opus_Search_Adapter_PersonAdapter $pers) {
     array_push($this->persons, $pers);
   } 
 
   /**
    * Returns the number of persons in this list
    * 
-   * @return integer number of persons in this list
-   * @deprecated 17.11.2008 use count() instead
+   * @return integer Number of persons in this list
    */
   public function getNumberOfPersons() {
     $this->numberOfPersons = count($this->persons);
@@ -87,7 +86,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Gets the number of persons in this list
    * 
-   * @return integer number of persons in this list
+   * @return integer Number of persons in this list
    */
   public function count() {
     return $this->getNumberOfPersons();
@@ -96,7 +95,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Deletes a person from the list
    * 
-   * @param OpusPersonAdapter|Integer item element (or index of element) that should be removed from the list
+   * @param Opus_Search_Adapter_PersonAdapter|integer $item Element (or index of element) that should be removed from the list
    * @return void
    */
   public function delete($item) {
@@ -106,8 +105,8 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   /**
    * Gets an element from the list by its index
    * 
-   * @param Integer index index number of the element
-   * @return OpusPersonAdapter
+   * @param integer $index Index number of the element
+   * @return Opus_Search_Adapter_PersonAdapter Person on the given index position
    */
   public function get($index) {
     return $this->persons[$index];
@@ -115,11 +114,11 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
 
   /**
    * Sorts the list
-   * 
-   * @param String sortCriteria criteria the list should be sorted with
-   * @return void
    * Possible sort criteria are:
    * not defined yet
+   * 
+   * @param string $sortCriteria Criteria the list should be sorted with
+   * @return void
    */
   public function sort($criteria) {
     

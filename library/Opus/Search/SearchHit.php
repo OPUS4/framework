@@ -42,43 +42,54 @@ class Opus_Search_SearchHit
 
   /**
    * Document of the search hit matching the query
+   * 
+   * @var Opus_Search_Adapter_DocumentAdapter Document of this search hit
    * @access private
    */
   private $document;
 
   /**
    * File of the search hit matching the query
+   * 
+   * @var Opus_Search_Adapter_DocumentAdapter File of this search hit 
    * @access private
    */
-  private $files;
+  private $file;
 
   /**
    * Relevance of the search hit - get it from the search engine framework
+   * 
+   * @var float Relevance of this match concerning the query
    * @access private
    */
   private $relevance;
 
   /**
    * Type of the Search hit - does the search term match the fulltext or metadata?
+   * 
+   * @var integer Type of the search hit as an integer representation (0=metadata, 1=fulltext)
    * @access private
    */
   private $type;
 
   /**
    * Constructor
-   * @access public
-   * @param Integer id ID of the document for this search hit - if not given or invalid, the Search hit wont have a document
+   * 
+   * @param integer $id (Optional) ID of the document for this search hit - if not given or invalid, the Search hit wont have a document
    */
   public function __construct($id = null) {
-  	if ($id !== null) $this->getDocument($id);
-  	else $this->document = null;
+  	if ($id !== null) {
+  		$this->getDocument($id);
+  	} else {
+  		$this->document = null;
+  	}
   }
 
   /**
-   * Get the document as a OpusDocumentAdapter by its ID
-   * @return OpusDocumentAdapter
-   * @param Integer id ID of the document
-   * @access private
+   * Get the document as a Opus_Search_Adapter_DocumentAdapter by its ID
+   * 
+   * @param integer $id ID of the document
+   * @return Opus_Search_Adapter_DocumentAdapter Document assigned to this search hit
    */
   private function getDocument($id) {
     $this->document = new Opus_Search_Adapter_DocumentAdapter($id);
@@ -86,9 +97,9 @@ class Opus_Search_SearchHit
   }
 
   /**
-   * Get the OpusDocumentAdapter from this search hit
-   * @return OpusDocumentAdapter
-   * @access public
+   * Get the Opus_Search_Adapter_DocumentAdapter from this search hit
+   * 
+   * @return Opus_Search_Adapter_DocumentAdapter Document assigned to this search hit
    */
   public function getSearchHit() {
     return $this->document;
@@ -96,8 +107,9 @@ class Opus_Search_SearchHit
 
   /**
    * Set the relevance from this search hit
+   *
+   * @param float $relevance Relevance of this search hit concerning the query 
    * @return void
-   * @access public
    */
   public function setRelevance($relevance) {
     $this->relevance = $relevance;
@@ -105,20 +117,20 @@ class Opus_Search_SearchHit
 
   /**
    * Get the relevance from this search hit
-   * @return Float relevance
-   * @access public
+   * 
+   * @return float Relevance
    */
   public function getRelevance() {
     return $this->relevance;
   }
 
   /**
-   * set the document as a OpusDocumentAdapter
-   * @param OpusDocumentAdapter Document
+   * Assign a Opus-Document to this search hit  
+   * 
+   * @param Opus_Search_Adapter_DocumentAdapter $doc Document that should be set as a search hit
    * @return void
-   * @access public
    */
-  public function setDocument($doc) {
+  public function setDocument(Opus_Search_Adapter_DocumentAdapter $doc) {
     $this->document = $doc;
   }
 }
