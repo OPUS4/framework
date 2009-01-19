@@ -109,7 +109,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
    * @param Opus_Search_Adapter_DocumentAdapter $doc Document in this node
    * @return void
    */
-  public function add(Opus_Search_Adapter_DocumentAdapter $doc) {
+  public function add($doc) {
     array_push($this->documents, $doc);
   } 
 

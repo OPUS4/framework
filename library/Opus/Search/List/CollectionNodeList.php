@@ -69,7 +69,7 @@ class Opus_Search_List_CollectionNodeList extends Opus_Search_List_BasicList
    * @param Opus_Search_List_CollectionNode $collnode CollectionNode that should be added to this list
    * @return void
    */
-  public function add(Opus_Search_List_CollectionNode $collnode) {
+  public function add($collnode) {
     array_push($this->collectionNodes, $collnode);
   }
 

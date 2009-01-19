@@ -69,7 +69,7 @@ class Opus_Search_List_HitList extends Opus_Search_List_BasicList
    * @param Opus_Search_SearchHit $queryHit One search hit matching the query in some way
    * @return void
    */
-  public function add(Opus_Search_SearchHit $queryHit) {
+  public function add($queryHit) {
     array_push($this->hits, $queryHit);
   } 
 

@@ -69,7 +69,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
    * @param Opus_Search_Adapter_PersonAdapter $pers Person that should be added to this list
    * @return void
    */
-  public function add(Opus_Search_Adapter_PersonAdapter $pers) {
+  public function add($pers) {
     array_push($this->persons, $pers);
   } 
 

@@ -64,7 +64,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
    * 
    * @param BasicList $list List for this Iterator
    */
-  public function __construct(BasicList $list) {
+  public function __construct($list) {
     $this->list = $list;
   }
 
