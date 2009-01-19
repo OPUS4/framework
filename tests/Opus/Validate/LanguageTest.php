@@ -1,4 +1,4 @@
-<?php
+<?php 
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,14 +34,16 @@
 
 
 /**
- * Test cases for class Opus_Validate_Locale.
+ * Test cases for class Opus_Validate_Language.
  *
  * @category    Tests
  * @package     Opus_Validate
- *
+ * 
+ * @group       LanguageTest
+ * 
  */
-class Opus_Validate_LocaleTest extends PHPUnit_Framework_TestCase {
-
+class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
+    
     /**
      * Data provider for valid arguments.
      *
@@ -49,10 +51,10 @@ class Opus_Validate_LocaleTest extends PHPUnit_Framework_TestCase {
      */
     public function validDataProvider() {
         return array(
-            array('es'),
-            array('en'),
             array('de'),
-            array('fr')
+            array('fr'),
+            array('az'),
+            array('es'),
         );
     }
 
@@ -75,27 +77,28 @@ class Opus_Validate_LocaleTest extends PHPUnit_Framework_TestCase {
     /**
      * Test validation of correct arguments.
      *
-     * @param mixed $arg Argument value for validation.
+     * @param string $arg Name of a locale type to validate.
      * @return void
      *
      * @dataProvider validDataProvider
      */
     public function testValidArguments($arg) {
-        $validator = new Opus_Validate_Locale();
+        $validator = new Opus_Validate_Language();
         $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
 
     /**
      * Test validation of incorrect arguments.
-     * 
-     * @param mixed $arg Argument value for validation.
+     *
+     * @param string $arg Name of a locale type to validate.
      * @return void
      *
      * @dataProvider invalidDataProvider
      */
     public function testInvalidArguments($arg) {
-        $validator = new Opus_Validate_Locale();
+        $validator = new Opus_Validate_Language();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
-
+    
+    
 }

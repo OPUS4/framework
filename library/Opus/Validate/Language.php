@@ -33,11 +33,48 @@
  */
 
 /**
- * Validator for Language field.
+ * Validator for Language field. Only accept standard Zend_Locale locale names.
  *
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_Language extends Opus_Validate_Locale {
+class Opus_Validate_Language extends Zend_Validate_Abstract {
+    /**
+     * Error message key.
+     *
+     */
+    const MSG_LANGUAGE = 'language';
+
+    /**
+     * Error message templates.
+     *
+     * @var array
+     */
+    protected $_messageTemplates = array(
+        self::MSG_LANGUAGE => "'%value%' is not a valid language shortcut."
+    );
+    
+    /**
+     * Validate the given value.
+     *
+     * @param string $value An enum string.
+     * @return boolean True if the given enum string is known.
+     */
+    public function isValid($value)
+    {
+        $this->_setValue($value);
+
+        if (is_string($value) === false) {
+            return false;
+        }
+        
+        $locale = Zend_Locale::getLocaleList();
+        if (array_key_exists($value, $locale) === false) {
+            $this->_error();
+            return false;
+        }
+
+        return true;
+    }
     
 }
