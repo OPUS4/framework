@@ -71,18 +71,26 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	}
 
 	/**
+	 * Loads a document into the adapter, so that no new adapter has to get initialized
+	 * 
+	 * @param integer $id Id of the document to be loaded
+	 * @return void
+	 */
+	public function loadDocument($id) {
+		$this->documentData['id'] = $id;
+		$this->mapDocument();
+	}
+	
+	/**
 	 * Maps the document data to array data usable in Module_Search
 	 * 
 	 * @return void
 	 */
 	private function mapDocument() {
 	    
-	    // FIXME: The method makes a lot of assumptions on the
-	    // existence of fields that might not be declared in the
-	    // document type of the document.
-	    
 		$document = new Opus_Model_Document($this->documentData['id']);
 		
+		// transfer the title of this document into the adapter class
 		try	{
 			$title = $document->getTitleMain(0);
 			$this->documentData['title'] = $title->getTitleAbstractValue();
@@ -90,16 +98,63 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			$this->documentData['title'] = 'No title specified!';
 		}
 		
-		if (is_array($document->getTitleAbstract()) === true) {
-			if (count($document->getTitleAbstract()) > 0) {
-				$this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+		// transfer the abstract of this document into the adapter class
+		try {
+			if (is_array($document->getTitleAbstract()) === true) {
+				if (count($document->getTitleAbstract()) > 0) {
+					$this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+				} else {
+					$this->documentData['abstract'] = 'No abstract specified!'; 
+				}
 			} else {
-				$this->documentData['abstract'] = 'No abstract'; 
+				$this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
 			}
-		} else {
-			$this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
+		} catch (Exception $e) {
+			$this->documentData['abstract'] = 'No abstract specified!';
+		}
+
+		// transfer the year of publication of this document into the adapter class
+		try {
+			$this->documentData['year'] = $document->getPublishedYear();
+		} catch (Exception $e) {
+			$this->documentData['year'] = 'No publishing year specified';
 		}
 		
+		// transfer the URN of this document into the adapter class
+		try {
+			$this->documentData['urn'] = 'urn:nbn:de:0830-123-3'; # $document->getUrn()->getIdentifierValue();
+		} catch (Exception $e) {
+			$this->documentData['urn'] = 'No URN specified.';
+		}
+		
+		// get authors of this document
+		$authors = array();
+		try {
+			$c = count($document->getPersonAuthor());
+			for ($n = 0; $n < $c; $n++) {
+				array_push($authors, $document->getPersonAuthor($n));
+			}
+		} catch (Exception $e) {
+			// do nothing, as there is the exception that no author is specified
+			if ($e->getCode() === 0) { 
+				$this->documentData['author'] = 'No author specified';
+			} else {
+				$this->documentData['author'] = $e->getMessage();
+			}
+		}
+		// make a persons list out of the authors
+		$this->documentData['author'] = new Opus_Search_List_PersonsList();
+		if (count($authors) > 0) {
+			foreach ($authors as $authorId) {
+				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
+			}
+		} else {
+			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));
+		}
+		
+		// set the URLs for this document
+		// is this to be done here?
+		// for compatibility reasons left here at the moment
 		$this->documentData['frontdoorUrl'] = array(
 			'module' => 'frontdoor',
 			'controller' => 'index',
@@ -114,35 +169,5 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			'filename' => 'testfile.pdf'
 		);
 		
-		$this->documentData['year'] = $document->getPublishedYear();
-		$this->documentData['urn'] = 'urn:nbn:de:0830-123-3'; # $document->getUrn()->getIdentifierValue(); 
-		
-		#$authorsList = DummyData::getDummyPersons();
-		#$autlist1 = new PersonsList();
-		#$autlist1->add($authorsList[0]);
-		#$autlist1->add($authorsList[1]);
-		unset($authors);
-		$authors = array();
-		$c = count($document->getPersonAuthor());
-		try {
-			for ($n = 0; $n < $c; $n++) {
-				array_push($authors, $document->getPersonAuthor($n));
-			}
-		} catch (Exception $e) {
-			// do nothing, as there is the exception that no author is specified
-			if ($e->getCode() === 0) { 
-				$this->documentData['author'] = 'No author specified';
-			} else {
-				$this->documentData['author'] = $e->getMessage();
-			}
-		}
-		$this->documentData['author'] = new Opus_Search_List_PersonsList();
-		if (count($authors) > 0) {
-			foreach ($authors as $authorId) {
-				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
-			}
-		} else {
-			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));
-		}
 	}
 }
