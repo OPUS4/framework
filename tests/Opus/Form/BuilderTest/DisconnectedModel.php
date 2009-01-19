@@ -136,4 +136,13 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
     public function getField1() {
         return $this->_field->getValue();
     }
+    
+    /**
+     * Mock getter function.
+     * 
+     * @see library/Opus/Model/Opus_Model_Interface#getDisplayName()
+     */
+    public function getDisplayName() {
+        return get_class($this); 
+    }
 }

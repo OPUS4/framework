@@ -297,5 +297,16 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $postCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
         $this->assertEquals($postCount, $preCount - 1, 'Object persists allthough it was deleted.');
     }
+    
+    /**
+     * Test if the default display name of a model is returned.
+     * 
+     * @return void
+     */
+    public function testDefaultDisplayNameIsReturned() {
+        $obj = new Opus_Model_AbstractMock(1, $this->dbProvider);
+        $result = $obj->getDisplayName();
+        $this->assertEquals('Opus_Model_AbstractMock#1', $result, 'Default display name not properly formed.');
+    }
 
 }

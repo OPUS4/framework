@@ -24,9 +24,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,20 +33,22 @@
  */
 
 /**
- * Interface for all domain models in the Opus framework
+ * Mock model.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus_Model
  */
-interface Opus_Model_Interface
-{
+class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interface {
+    
     /**
      * Persist all the models information to its database locations.
      *
      * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
      * @return void
      */
-    public function store();
+    public function store() {
+        
+    }
 
     /**
      * Return the primary key that identifies the model instance in the database.
@@ -55,7 +56,9 @@ interface Opus_Model_Interface
      *
      * @return void
      */
-    public function getId();
+    public function getId() {
+        
+    }
 
     /**
      * Remove the model instance from the database.
@@ -63,7 +66,9 @@ interface Opus_Model_Interface
      * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
      * @return void
      */
-    public function delete();
+    public function delete() {
+        
+    }
 
     /**
      * Returns describing information about the model. This includes the list
@@ -72,7 +77,19 @@ interface Opus_Model_Interface
      *
      * @return Mixed Model self description.
      */
-    public function describe();
+    public function describe() {
+        return array();
+    }
+    
+    /**
+     * Setter for mock display name to be returned.
+     * 
+     * @param string $displayName Mock display name.
+     * @return void
+     */
+    public function setDisplayName($displayName) {
+        $this->_mockDisplayName = $displayName;
+    }
     
     /**
      * Returns a string representing the informational entity
@@ -80,7 +97,9 @@ interface Opus_Model_Interface
      * 
      * @return string Textual representation by name.
      */
-    public function getDisplayName();
+    public function getDisplayName() {
+        return $this->_mockDisplayName;
+    }
     
     /**
      * Add an field to the model. If a field with the same name has already been added,
@@ -89,7 +108,11 @@ interface Opus_Model_Interface
      * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
      * @return Opus_Model_Abstract Provide fluent interface.
      */
-    public function addField(Opus_Model_Field $field);
+    public function addField(Opus_Model_Field $field) {
+        // Make codesniffer happy.
+        $myfield = $field;
+        return $this;
+    }
     
     /**
      * Return a reference to an actual field.
@@ -97,6 +120,10 @@ interface Opus_Model_Interface
      * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name);
+    public function getField($name) {
+        // Make codesniffer happy.
+        $myname = $name;
+        return null;
+    }
     
 }

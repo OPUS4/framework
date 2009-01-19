@@ -38,7 +38,6 @@
  * @category    Framework
  * @package     Opus_Model
  */
-
 abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAbstract
 {
     /**
@@ -54,13 +53,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
      * @var string
      */
     protected $_modelClass = '';
-
-    /**
-     * The name of the field containing an identifying string.
-     *
-     * @var string
-     */
-    protected $_displayAttributeName = '';
 
     /**
      * Set the model that is linked to.
@@ -104,6 +96,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
         return $this->_model->describe();
     }
 
+    
+    /**
+     * Pass the getDisplayname() calls to linked model.
+     * 
+     * @return string Model class name and identifier (e.g. Opus_Model_Document#4711).
+     */
+    public function getDisplayName() {
+        return $this->_model->getDisplayName();
+    }
+    
     /**
      * Return a reference to an actual field in the linked model.
      *
