@@ -193,20 +193,23 @@ class Opus_Form_Builder {
             if (is_null($field) === true) {
                 continue;
             }
-            if (is_null($field->getValueModelClass()) === false) {
+            $modelclass = $field->getValueModelClass();
+            if (is_null($modelclass) === false) {
                 if ($field->hasMultipleValues() === true) {
                     $this->_setFieldModelValuesFromArray($field, $value);
                 } else {
-                    // should never be null
-                    $classname = $field->getValueModelClass();
-                    $model2 = new $classname;
-                    if (is_array($value) === false) {
-                        $value = array($value);
+                    if ($field->getSelection() === true) {
+                        $model2 = new $modelclass($value);
+                        $field->setValue($model2);
+                    } else {
+                        $model2 = new $modelclass;
+                        if (is_array($value) === false) {
+                            $value = array($value);
+                        }
+                        $this->setFromPost($model2, $value);
+                        $field->setValue($model2);
                     }
-                    $this->setFromPost($model2, $value);
-                    $field->setValue($model2);
                 }
-
             } else {
                 if (is_array($value) === true) {
                     $value = array_values($value);
@@ -333,18 +336,22 @@ class Opus_Form_Builder {
         $fieldname = $field->getName();
         $element = new Zend_Form_Element_Select($fieldname);
         $element->setLabel($fieldname);
-        foreach ($field->getDefault() as $key => $value) {
-            if ($value instanceOf Opus_Model_Dependent_Link_Abstract) {
-                $new_value = $value->getLinkedModelDisplayName();
-                $new_key = $value->getLinkedModelId();
-                $element->addMultiOption($new_key, $new_value);
-            } else {
+        $defaults = $field->getDefault();
+        foreach ($defaults as $key => $default) {
+            if ($default instanceOf Opus_Model_Interface) {
+                $key = $default->getLinkedModelId();
+                $value = $default->getLinkedModelDisplayName();
                 $element->addMultiOption($key, $value);
+            } else {
+                $element->addMultiOption($key, $default);
             }
-
         }
-
-        $element->setValue($field->getValue());
+        $value = $field->getValue();
+        if ($value instanceOf Opus_Model_Interface) {
+            $element->setValue($value->getId());
+        } else {
+            $element->setValue($value);
+        }
         $container->addElement($element);
         $this->_setFieldAttributes($field, $container);
     }
