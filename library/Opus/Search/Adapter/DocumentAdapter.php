@@ -56,8 +56,6 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			$this->mapDocument();
 		} else if (is_array($opusDocument) === true) {
 			$this->documentData = $opusDocument;
-		} else if (get_class($opusDocument) === 'Opus_Search_Adapter_DocumentAdapter') {
-			$this->documentData = $opusDocument->getDocument();
 		}
 	}
 
@@ -146,7 +144,9 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		$this->documentData['author'] = new Opus_Search_List_PersonsList();
 		if (count($authors) > 0) {
 			foreach ($authors as $authorId) {
-				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $authorId->getId(), 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
+				$autIdArray = $authorId->getId();
+				$autId = $autIdArray[0];
+				$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => $autId, 'firstName' => $authorId->getFirstName(), 'lastName' => $authorId->getLastName())));
 			}
 		} else {
 			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));

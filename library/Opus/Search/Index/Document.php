@@ -59,14 +59,12 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::Text('title', $doc['title']));
 		$authoriterator = new Opus_Search_Iterator_PersonsListIterator($doc['author']);
 		$aut = '';
-		while ($authoriterator->valid() === true) {
-			$obj = $authoriterator->current();
+		foreach ($authoriterator as $obj) {
 			$pers = $obj->get();
 			$aut .= $pers['lastName'] . ', ' . $pers['firstName'];
 			if ($authoriterator->hasNext() === true) {
 				$aut .= '; ';
 			}
-			$authoriterator->next();
 		}
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut));
         $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $doc['urn']));
