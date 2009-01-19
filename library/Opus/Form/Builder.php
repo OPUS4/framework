@@ -108,7 +108,7 @@ class Opus_Form_Builder {
                 $form->addSubForm($subform, $fieldname);
             } else {
                 // non multiple values
-                if (($counts === 0) and (is_null($modelclass) === false) and ($field->getSelection() === false)) {
+                if (($counts === 0) and (is_null($modelclass) === false) and ($field->isSelection() === false)) {
                     // build a subform for a new single depend model
                     // should contain afterwards an empty element
                     $this->_makeSubForm($fieldname, new $modelclass, $form);
