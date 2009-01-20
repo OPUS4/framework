@@ -309,4 +309,36 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertEquals('Opus_Model_AbstractMock#1', $result, 'Default display name not properly formed.');
     }
 
+    /**
+     * Test if zero model entities would be retrieved by static getAll()
+     * on an empty database.
+     * 
+     * @return void
+     */
+    public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase() {
+        TestHelper::clearTable('test_testtable');
+        $result = Opus_Model_AbstractMock::getAllFrom('Opus_Model_AbstractMock', 'Opus_Model_AbstractTableProvider');
+        $this->assertTrue(empty($result), 'Empty table should not deliver any objects.');        
+    }
+    
+    /**
+     * Test if all model instances can be retrieved.
+     * 
+     * @return void
+     */
+    public function testGetAllEntities() {
+        TestHelper::clearTable('test_testtable');
+        $entities[] = new Opus_Model_AbstractMock();
+        $entities[] = new Opus_Model_AbstractMock();
+        $entities[] = new Opus_Model_AbstractMock();
+        
+        foreach ($entities as $entity) {
+            $entity->store();
+        }
+        
+        $result = Opus_Model_AbstractMock::getAllFrom('Opus_Model_AbstractMock', 'Opus_Model_AbstractTableProvider');
+        $this->assertEquals(count($entities), count($result), 'Incorrect number of instances delivered.');
+        $this->assertEquals($entities, $result, 'Entities fetched differ from entities stored.');
+    }
+
 }

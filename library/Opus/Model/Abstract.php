@@ -610,5 +610,45 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
         return $result;
     }
+    
+    /**
+     * Retrieve all instances of a particular Opus_Model that are known
+     * to the database.
+     * 
+     * @param string $modelClassName        Name of the model class.
+     * @param string $tableGatewayClassName Name of the table gateway class
+     *                                      to determine the table entities shall
+     *                                      be fetched from.
+     * @return array List of all known model entities.
+     * @throws InvalidArgumentException When not passing class names.
+     */
+    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null) {
+        
+        // As we are in static context, we have no chance to retrieve
+        // those class names.
+        if ((is_null($modelClassName) === true) or (is_null($tableGatewayClassName))) {
+            throw new InvalidArgumentException('Both model class and table gateway class must be given.');
+        }
+        
+        // As this is calling from static context we cannot
+        // use the instance variable $_tableGateway here.
+        $table = new $tableGatewayClassName;
+        $tableInfo = $table->info();
+        // FIXME: Assuming that there is no compound primary key. 
+        $primaryKeyName = $tableInfo['primary'][1];
+        
+        // Fetch all present primary keys.
+        $select = $table->select()->from($table)->columns($primaryKeyName);
+        $rows = $table->fetchAll($select)->toArray();
+        
+        // Turn the list of primary keys in a list of objects.
+        $result = array();
+        
+        foreach ($rows as $row) {
+            $result[] = new $modelClassName($row[$primaryKeyName]);
+        }
+        return $result;
+    }
+     
 
 }
