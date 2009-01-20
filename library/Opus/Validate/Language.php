@@ -55,7 +55,10 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
     );
     
     /**
-     * Validate the given value.
+     * Validate the given value. Looks for the language translation list 
+     * in the registry (key 'Available_Languages'). If this key is not registered
+     * the language list is obtained through a call to getLanguageTranslationList()
+     * of Zend_Locale.  
      *
      * @param string $value An enum string.
      * @return boolean True if the given enum string is known.
@@ -67,9 +70,15 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
         if (is_string($value) === false) {
             return false;
         }
-        
-        $locale = Zend_Locale::getLocaleList();
-        if (array_key_exists($value, $locale) === false) {
+
+        $registry = Zend_Registry::getInstance();
+        if ($registry->isRegistered('Available_Languages')) {
+            $translationList = $registry->get('Available_Languages');
+        } else {
+            $locale = new Zend_Locale();
+            $translationList = $locale->getLanguageTranslationList();
+        }        
+        if (array_key_exists($value, $translationList) === false) {
             $this->_error();
             return false;
         }

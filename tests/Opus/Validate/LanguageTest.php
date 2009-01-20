@@ -55,6 +55,8 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
             array('fr'),
             array('az'),
             array('es'),
+            array('ab'),
+            array('zza')
         );
     }
 
