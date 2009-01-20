@@ -215,11 +215,10 @@ class Opus_Model_Document extends Opus_Model_Abstract
 
         // Initialize available licences
         if ($this->getField('Licence') !== null) {
-            $licences = new Opus_Db_DocumentLicences;
-            $licences = $licences->fetchAll();
+            $licences = Opus_Model_Licence::getAll();
             $defaults = array();
             foreach ($licences as $licence) {
-                $defaults[$licence->licences_id] = $licence->name_long;
+                $defaults[] = $licence;
             }
             $this->getField('Licence')->setDefault($defaults)
                 ->setSelection(true);

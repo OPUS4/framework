@@ -339,8 +339,8 @@ class Opus_Form_Builder {
         $defaults = $field->getDefault();
         foreach ($defaults as $key => $default) {
             if ($default instanceOf Opus_Model_Interface) {
-                $key = $default->getLinkedModelId();
-                $value = $default->getLinkedModelDisplayName();
+                $key = $default->getModelId();
+                $value = $default->getModelDisplayName();
                 $element->addMultiOption($key, $value);
             } else {
                 $element->addMultiOption($key, $default);

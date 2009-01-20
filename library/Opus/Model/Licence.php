@@ -50,6 +50,15 @@ class Opus_Model_Licence extends Opus_Model_Abstract
     protected $_tableGatewayClass = 'Opus_Db_DocumentLicences';
 
     /**
+     * Retrieve all Opus_Model_Licence instances from the database.
+     * 
+     * @return array Array of Opus_Model_Licence objects.
+     */
+    public static function getAll() {
+        return self::getAllFrom('Opus_Model_Licence', 'Opus_Db_DocumentLicences');
+    }
+    
+    /**
      * Initialize model with the following fields:
      * - Active
      * - CommentInternal
