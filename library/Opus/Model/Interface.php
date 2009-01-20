@@ -51,7 +51,7 @@ interface Opus_Model_Interface
 
     /**
      * Return the primary key that identifies the model instance in the database.
-     * If called on a clean new instance, null is returned until a call to store(). 
+     * If called on a clean new instance, null is returned until a call to store().
      *
      * @return void
      */
@@ -73,15 +73,15 @@ interface Opus_Model_Interface
      * @return Mixed Model self description.
      */
     public function describe();
-    
+
     /**
      * Returns a string representing the informational entity
      * covered by the model.
-     * 
+     *
      * @return string Textual representation by name.
      */
     public function getDisplayName();
-    
+
     /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
@@ -90,7 +90,7 @@ interface Opus_Model_Interface
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field);
-    
+
     /**
      * Return a reference to an actual field.
      *
@@ -98,5 +98,12 @@ interface Opus_Model_Interface
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name);
-    
+
+    /**
+     * Get a nested associative array representation of the model.
+     *
+     * @return array A (nested) array representation of the model.
+     */
+    public function toArray();
+
 }

@@ -42,37 +42,36 @@
  */
 class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
 
-    
+
     /**
      * Holds a simple field instance.
      *
      * @var Opus_Model_Field
      */
     protected $_field = null;
-    
+
     /**
      * Set up simple field instance "field1";
      *
-     * @return void
      */
     public function __construct() {
         $this->_field = new Opus_Model_Field('Field1');
     }
-    
+
     /**
      * Just a mock function.
      *
-     * @see Opus_Model_Interface
+     * @see    Opus_Model_Interface
      * @return void
      */
     public function store() {
-        
+
     }
 
     /**
      * Always returns 4711.
      *
-     * @see Opus_Model_Interface
+     * @see    Opus_Model_Interface
      * @return Integer 4711.
      */
     public function getId() {
@@ -82,11 +81,11 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
     /**
      * Just a mock function.
      *
-     * @see Opus_Model_Interface
+     * @see    Opus_Model_Interface
      * @return void
      */
     public function delete() {
-        
+
     }
 
     /**
@@ -105,9 +104,11 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field) {
+        // Make codesniffer happy.
+        $my_field = $field;
         return $this;
     }
-    
+
     /**
      * Return a field definition.
      *
@@ -115,19 +116,21 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
+        // Make codesniffer happy.
+        $my_name = $name;
         return $this->_field;
     }
 
     /**
      * Mock setter function.
      *
-     * @param mixed $value
+     * @param mixed $value Value to set.
      * @return void
      */
     public function setField1($value) {
         $this->_field->setValue($value);
     }
-    
+
     /**
      * Mock getter function.
      *
@@ -136,13 +139,24 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
     public function getField1() {
         return $this->_field->getValue();
     }
-    
+
     /**
      * Mock getter function.
-     * 
-     * @see library/Opus/Model/Opus_Model_Interface#getDisplayName()
+     *
+     * @see    library/Opus/Model/Opus_Model_Interface#getDisplayName()
+     * @return string
      */
     public function getDisplayName() {
-        return get_class($this); 
+        return get_class($this);
+    }
+
+    /**
+     * Mock toArray function.
+     *
+     * @see    library/Opus/Model/Opus_Model_Interface#toArray()
+     * @return array
+     */
+    public function toArray() {
+        return array();
     }
 }

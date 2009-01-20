@@ -39,7 +39,7 @@
  * @package     Opus_Model
  */
 class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interface {
-    
+
     /**
      * Persist all the models information to its database locations.
      *
@@ -47,17 +47,17 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
      * @return void
      */
     public function store() {
-        
+
     }
 
     /**
      * Return the primary key that identifies the model instance in the database.
-     * If called on a clean new instance, null is returned until a call to store(). 
+     * If called on a clean new instance, null is returned until a call to store().
      *
      * @return void
      */
     public function getId() {
-        
+
     }
 
     /**
@@ -67,7 +67,7 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
      * @return void
      */
     public function delete() {
-        
+
     }
 
     /**
@@ -80,27 +80,27 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
     public function describe() {
         return array();
     }
-    
+
     /**
      * Setter for mock display name to be returned.
-     * 
+     *
      * @param string $displayName Mock display name.
      * @return void
      */
     public function setDisplayName($displayName) {
         $this->_mockDisplayName = $displayName;
     }
-    
+
     /**
      * Returns a string representing the informational entity
      * covered by the model.
-     * 
+     *
      * @return string Textual representation by name.
      */
     public function getDisplayName() {
         return $this->_mockDisplayName;
     }
-    
+
     /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
@@ -113,7 +113,7 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
         $myfield = $field;
         return $this;
     }
-    
+
     /**
      * Return a reference to an actual field.
      *
@@ -125,5 +125,15 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
         $myname = $name;
         return null;
     }
-    
+
+    /**
+     * Get a nested associative array representation of the model. Dummy function!
+     *
+     * @see    library/Opus/Model/Opus_Model_Interface#toArray()
+     * @return array
+     */
+    public function toArray() {
+        return array();
+    }
+
 }
