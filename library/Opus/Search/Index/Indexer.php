@@ -58,13 +58,6 @@ class Opus_Search_Index_Indexer {
         $registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
         $this->entryindex = Zend_Search_Lucene::create($this->indexPath);           
-		// Queue starten
-		//IndexerQueue::getInstance();
-		// Registrieren bei den Events, die beobachtet werden sollen
-		//$EnabledDocument = EnabledDocument::getInstance();
-		//$DeletedDocument = DeletedDocument::getInstance();
-		//$EnabledDocument->register(new IndexEventListener("NewDocumentWatcher"));
-		//$DeletedDocument->register(new IndexEventListener("DeleteWatcher"));
 	}
 
 	/**
@@ -76,38 +69,12 @@ class Opus_Search_Index_Indexer {
 	 */
 	public function addDocumentToEntryIndex(Opus_Search_Adapter_DocumentAdapter $doc) {
     	try {
-			#if (count($doc->getAssociatedFiles()) == 0) {
-				$document = $doc->getDocument();
-				$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
-			#} else {
-			#	$n = 0;
-			#	$i = 0;
-			#	foreach ($doc->getAssociatedFiles() as $docfile) {
-			#		$i++;
-			#		// Das indexierte Dokument dem Index hinzufuegen
-			#		echo date("Y-m-d H:i:s").": Indexiere ".$docfile->_path."....\n";
-			#		try {
-			#			$docfile->loadFulltext();
-			#			$this->entryindex->addDocument(new OPUSIndexEntry($doc, $docfile));
-			#		} catch (FileFormatException $e) {
-			#			$n++;
-			#			echo $e->getMessage()."\n";
-			#			// $n gibt die Anzahl der Exceptions an, die f.r dieses Werk schon geworfen wurden
-			#			// Die Metadaten m.ssen nur indexiert werden, wenn genau so viele Exceptions
-			#			// aufgetreten sind wie die Anzahl der zu indexierenden Dateien betr.gt
-			#			// (d.h. wenn bislang keine Datei f.r das Dokument indexiert
-			#			// werden konnte und das Ende der Liste erreicht ist)
-			#			if ($i === (count($doc->getAssociatedFiles())) && $n === (count($doc->getAssociatedFiles()))) {
-			#				echo date("Y-m-d H:i:s").": Konnte keine Daten f.r Eintrag ".$doc->getProperty('id')." finden! Indexiere Metadaten f.r ".$doc->getProperty('id')."....\n";
-			#				$this->entryindex->addDocument(new OPUSIndexEntry($doc));
-			#			}
-			#		}
-			#	}
-			#}
+			$document = $doc->getDocument();
+			$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
 			flush();
 		} catch (Exception $e) {
-			#echo $e->getMessage() . '<br/>\n';
-			throw $e;
+			echo $e->getMessage();
+			#throw $e;
         }
 	}
 }
