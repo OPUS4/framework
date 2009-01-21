@@ -69,7 +69,7 @@ class Opus_Search_Index_Indexer {
 	 */
 	public function addDocumentToEntryIndex(Opus_Search_Adapter_DocumentAdapter $doc) {
     	try {
-			$document = $doc->getDocument();
+			#print_r($doc->getDocument());
 			$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
 			flush();
 		} catch (Exception $e) {

@@ -48,7 +48,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
                 $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext()));
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path));
         } else {
-                $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $doc['frontdoorUrl']));
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', join("/", $doc['frontdoorUrl'])));
                 $this->addField(Zend_Search_Lucene_Field::UnStored('contents', ''));
                 $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten'));
         }
@@ -61,9 +61,9 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
 		$aut = '';
 		foreach ($authoriterator as $obj) {
 			$pers = $obj->get();
-			$aut .= $pers['lastName'] . ' ' . $pers['firstName'];
+			$aut .= $pers['lastName'] . ', ' . $pers['firstName'];
 			if ($authoriterator->hasNext() === true) {
-				$aut .= ' ';
+				$aut .= '; ';
 			}
 		}
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut));
