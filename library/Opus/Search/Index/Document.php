@@ -61,9 +61,9 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
 		$aut = '';
 		foreach ($authoriterator as $obj) {
 			$pers = $obj->get();
-			$aut .= $pers['lastName'] . ', ' . $pers['firstName'];
+			$aut .= $pers['lastName'] . ' ' . $pers['firstName'];
 			if ($authoriterator->hasNext() === true) {
-				$aut .= '; ';
+				$aut .= ' ';
 			}
 		}
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut));
