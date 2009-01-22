@@ -486,4 +486,43 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Zend_Form_Element_Textarea', $element->getType(), 'Builded element is not a text area.');
         $this->assertEquals($value, $element->getValue(), 'TextArea does not contain correct value.');
     }
+
+    /**
+     * Test if a selection element contains proper descriptions and model ids
+     * when building from linked Opus_Model classes.
+     *
+     * @return void
+     */
+    public function testBuildingSelectionFromLinkedModels() {
+        // Set up test licences in the database.
+        // It's crucial to call store() to provide an id to each licence model.
+        $lica = new Opus_Model_Licence();
+        $lica->setNameLong('Long Licence 1');
+        $lica->store();
+        $licb = new Opus_Model_Licence();
+        $licb->setNameLong('Short Licence 2');
+        $licb->store();
+
+        // Create a selection field holding licences.
+        $field = new Opus_Model_Field('Licence');
+        $field->setValueModelClass('Opus_Model_Licence');
+        $field->setSelection(true);
+        $field->setDefault(array($lica, $licb));
+
+        // At the created field to the test fixture model an build a form from it
+        $this->_model->addField($field);
+        $form = $this->_builder->build($this->_model);
+
+        // Test the created form element.
+        $element = $form->getElement('Licence');
+
+        $this->assertEquals('Zend_Form_Element_Select', $element->getType(), 'Builded element is not a selection.');
+
+        $values = array(
+            $lica->getId() => $lica->getDisplayName(),
+            $licb->getId() => $licb->getDisplayName());
+
+        $this->assertEquals($values, $element->getMultiOptions(), 'Selection does not contain correct values.');
+    }
+
 }

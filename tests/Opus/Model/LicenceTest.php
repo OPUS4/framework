@@ -44,16 +44,16 @@ class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Clear out licences table.
-     * 
+     *
      * @return void
      */
     public function setUp() {
         TestHelper::clearTable('document_licences');
     }
-    
+
     /**
      * Test if a set of licences can be retrieved by getAll().
-     * 
+     *
      * @return void
      */
     public function testRetrieveNoAllLicences() {
@@ -62,9 +62,20 @@ class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
         $lics[] = new Opus_Model_Licence();
         foreach ($lics as $lic) {
             $lic->store();
-        } 
+        }
         $result = Opus_Model_Licence::getAll();
         $this->assertEquals(count($lics), count($result), 'Wrong number of objects retrieved.');
     }
-    
+
+    /**
+     * Test if the licences display name matches its long name.
+     *
+     * @return void
+     */
+    public function testDisplayNameMatchesLongName() {
+        $lic = new Opus_Model_Licence();
+        $lic->setNameLong('MyLongName');
+        $this->assertEquals($lic->getNameLong(), $lic->getDisplayName(), 'Displayname does not match long name.');
+    }
+
 }

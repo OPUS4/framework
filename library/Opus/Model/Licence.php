@@ -51,13 +51,13 @@ class Opus_Model_Licence extends Opus_Model_Abstract
 
     /**
      * Retrieve all Opus_Model_Licence instances from the database.
-     * 
+     *
      * @return array Array of Opus_Model_Licence objects.
      */
     public static function getAll() {
         return self::getAllFrom('Opus_Model_Licence', 'Opus_Db_DocumentLicences');
     }
-    
+
     /**
      * Initialize model with the following fields:
      * - Active
@@ -103,6 +103,15 @@ class Opus_Model_Licence extends Opus_Model_Abstract
             ->addField($name_long)
             ->addField($sort_order)
             ->addField($pod_allowed);
+    }
+
+    /**
+     * Returns long name.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     */
+    public function getDisplayName() {
+       return $this->getNameLong();
     }
 
 }
