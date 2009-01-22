@@ -115,7 +115,6 @@ class Opus_Mail_SendMail {
 
     /**
      * Set the e-mail address of the recipient
-     *
      * @param string $to Recipient's e-mail address
      */
     public function setTo($to) {
@@ -321,13 +320,9 @@ class Opus_Mail_SendMail {
      * @param string $fromName Sender name - if not set, the administator's name is taken
      */
     public function sendMailToAuthor($to, $toName, $subject, $bodyText, $from = '', $fromName = '') {
-        if (!$from) {
-            /*
-             * @todo Get the administrator's e-mail address and name from the configuration file
-             * $from = '';
-             * $fromName = '';
-             */
-            // Only for test purposes, will be deleted later:
+        if ($from === FALSE) {
+            //@todo Get the administrator's e-mail address and name from the configuration file
+            //Only for test purposes, will be deleted later:
             //$config->Zend_Registry->get('Zend_Config');
             //$from = $config->mail->mail.opus.address;
             //$fromName = $config->mail->mail.opus.name;
@@ -342,9 +337,11 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the administrator.
      * The author of the secified document will be set as sender.
      *
-     * @param int $documentId Document ID
+     * @param integer $documentId Document ID
      * @param string $subject Subject
      * @param string $bodyText Text
+     *
+     * @throws Opus_Mail_Exception Thrown if the author / the document cannot be found
      *
      * @todo Finish the implementation, i.e. the database queries
      */
@@ -356,7 +353,8 @@ class Opus_Mail_SendMail {
             $from = '';
             $fromName = '';
         }
-        else {
+        else
+        {
             throw new Opus_Mail_Exception('The author could not be found.');
         }
 
