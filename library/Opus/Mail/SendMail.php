@@ -115,7 +115,9 @@ class Opus_Mail_SendMail {
 
     /**
      * Set the e-mail address of the recipient
+     *
      * @param string $to Recipient's e-mail address
+     * @return void
      */
     public function setTo($to) {
         $this->validateAddress($to);
@@ -135,6 +137,7 @@ class Opus_Mail_SendMail {
      * Set the name of the recipient
      *
      * @param string $toName Recipient's name
+     * @return void
      */
     public function setToName($toName) {
         $this->$_toName = $toName;
@@ -153,6 +156,7 @@ class Opus_Mail_SendMail {
      * Set the e-mail addresses of the recipients
      *
      * @param string $multipleTo Recipients' e-mail addresses
+     * @return void
      */
     public function setMultipleTo($multipleTo) {
         foreach ($multipleTo as $to) {
@@ -174,6 +178,7 @@ class Opus_Mail_SendMail {
      * Set the names of the recipients
      *
      * @param string $multipleToName Recipients' names
+     * @return void
      */
     public function setMultipleToName($multipleToName) {
         $this->$_multipleTo = $multipleToName;
@@ -192,6 +197,7 @@ class Opus_Mail_SendMail {
      * Set the e-mail address of the sender
      *
      * @param string $from Sender's e-mail address
+     * @return void
      */
     public function setFrom($from) {
         $this->validateAddress($from);
@@ -211,6 +217,7 @@ class Opus_Mail_SendMail {
      * Set the name of the sender
      *
      * @param string $fromName Sender's name
+     * @return void
      */
     public function setFromName($fromName) {
         $this->$_fromName = $fromName;
@@ -229,6 +236,7 @@ class Opus_Mail_SendMail {
      * Set the subject of the e-mail
      *
      * @param string $subject Subject
+     * @return void
      */
     public function setSubject($subject) {
         $this->$_subject = $subject;
@@ -247,6 +255,7 @@ class Opus_Mail_SendMail {
      * Set the text of the e-mail
      *
      * @param string $bodyText Text
+     * @return void
      */
     public function setBodyText($bodyText) {
         $this->$_bodyText = strip_tags($bodyText);
@@ -264,6 +273,8 @@ class Opus_Mail_SendMail {
    /**
     * Creates and registers the SMTP transport.
     * The SMTP server address should be sourced out to a configuration file.
+    *
+    * @return void
     */
     private function createSmtpTransport() {
         $transport = new Zend_Mail_Transport_Smtp('mail.example.com');
@@ -274,6 +285,8 @@ class Opus_Mail_SendMail {
      * Validates an e-mail address
      *
      * @param string $address Address
+     * @throws Opus_Mail_Exception Thrown if the e-mail address is not valid
+     * @return void
      */
     private function validateAddress($address) {
         $validator = new Zend_Validate_EmailAddress();
@@ -296,6 +309,7 @@ class Opus_Mail_SendMail {
      * @param string $bodyText Text
      * @param string $to Recipient address
      * @param string $toName Recipient name
+     * @return void
      */
     public function sendMail($from, $fromName, $subject, $bodyText, $to, $toName) {
         $this->setFrom($from);
@@ -318,6 +332,7 @@ class Opus_Mail_SendMail {
      * @param string $bodyText Text
      * @param string $from Sender address - if not set, the administrator's address is taken
      * @param string $fromName Sender name - if not set, the administator's name is taken
+     * @return void
      */
     public function sendMailToAuthor($to, $toName, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === FALSE) {
@@ -340,8 +355,8 @@ class Opus_Mail_SendMail {
      * @param integer $documentId Document ID
      * @param string $subject Subject
      * @param string $bodyText Text
-     *
      * @throws Opus_Mail_Exception Thrown if the author / the document cannot be found
+     * @return void
      *
      * @todo Finish the implementation, i.e. the database queries
      */
@@ -373,6 +388,7 @@ class Opus_Mail_SendMail {
      * @param string $bodyText Text
      * @param string $from If not set, the standard sender address is taken
      * @param string $fromName If not set, the standard sender name is taken
+     * @return void
      *
      * @todo Method must be implemented.
      */
@@ -386,6 +402,7 @@ class Opus_Mail_SendMail {
      * @param mixed $collectionId Collection ID
      * @param string $subject Subject
      * @param string $bodyText Text
+     * @return void
      *
      * @todo Method must be implemented.
      */
@@ -395,6 +412,8 @@ class Opus_Mail_SendMail {
 
     /**
      * Composes the e-mail from the specified components.
+     *
+     * @return void
      */
     private function composeMail() {
         $this->$_mail->addTo($this->getTo(), $this->getToName());
@@ -421,6 +440,8 @@ class Opus_Mail_SendMail {
 
     /**
      * Finally sends the e-mail with the specified properties.
+     *
+     * @return void
      */
     private function send() {
         try {
