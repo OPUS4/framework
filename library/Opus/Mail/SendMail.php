@@ -290,7 +290,7 @@ class Opus_Mail_SendMail {
      */
     private function validateAddress($address) {
         $validator = new Zend_Validate_EmailAddress();
-        if ($validator->isValid($address) === FALSE) {
+        if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
                 throw new Opus_Mail_Exception($message);
             }
@@ -335,7 +335,7 @@ class Opus_Mail_SendMail {
      * @return void
      */
     public function sendMailToAuthor($to, $toName, $subject, $bodyText, $from = '', $fromName = '') {
-        if ($from === FALSE) {
+        if ($from === false) {
             //@todo Get the administrator's e-mail address and name from the configuration file
             //Only for test purposes, will be deleted later:
             //$config->Zend_Registry->get('Zend_Config');
@@ -425,6 +425,7 @@ class Opus_Mail_SendMail {
     /**
      * Composes the e-mail for multiple recipients from the specified components.
      *
+     * @throws Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
      * @todo Method must be implemented.
      */
     private function composeMultipleMail() {
@@ -441,6 +442,7 @@ class Opus_Mail_SendMail {
     /**
      * Finally sends the e-mail with the specified properties.
      *
+     * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
      * @return void
      */
     private function send() {
