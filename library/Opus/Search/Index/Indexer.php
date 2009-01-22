@@ -71,10 +71,12 @@ class Opus_Search_Index_Indexer {
     	try {
 			#print_r($doc->getDocument());
 			$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
-			flush();
+			# Do not flush, it will work without it
+			# Flush sends some return value that Zend interprets as header information
+			#flush();
 		} catch (Exception $e) {
-			echo $e->getMessage();
-			#throw $e;
+			#echo $e->getMessage();
+			throw $e;
         }
 	}
 }
