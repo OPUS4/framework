@@ -93,22 +93,4 @@ class Opus_Search_Adapter_PersonAdapter
 		return $this->personData;
 	}
 
-  /**
-   * Get a person by its ID
-   *
-   * @param integer $id ID of the person
-   * @return Opus_Search_Adapter_PersonAdapter OpusPersonAdapter of the person with the given ID, if this ID does not exists, null will be returned
-   */
-	public static function getDummyPerson($id)
-	{
-		$data = DummyData::getDummyPersons();
-		foreach ($data as $obj) {
-			$d = $obj->get();
-			if ($d['id'] === $id) {
-				return $obj;
-			}
-		}
-		return null;
-	}
-
 }
