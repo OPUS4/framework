@@ -53,7 +53,7 @@ class Opus_Db_PersonExternalKeys extends Zend_Db_Table {
      *
      * @var string
      */
-    protected $_primary = 'person_external_keys_id';
+    protected $_primary = 'person_external_keys_Id';
 
     /**
      * Map foreign keys in this table to the column in the table they originate
