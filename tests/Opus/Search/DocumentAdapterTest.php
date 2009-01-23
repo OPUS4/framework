@@ -34,117 +34,23 @@
 
 class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
-	/**
-	 * SetUp database 
-	 *
-	 * @return void
-	*/
-    public function setUp() {
-        $adapter = Zend_Db_Table::getDefaultAdapter();
-    }
 
     /**
-     * Tear down test fixture.
+     * Test fixture document instance.
+     *
+     * @var Opus_Model_Document
+     */
+    protected $_document = null;
+
+    /**
+     * Set up a persistent document instance.
      *
      * @return void
      */
-    public function tearDown() {
-        TestHelper::clearTable('document_identifiers');
-        TestHelper::clearTable('link_persons_documents');
-        TestHelper::clearTable('link_institutes_documents');
-        TestHelper::clearTable('link_documents_licences');
-        TestHelper::clearTable('document_title_abstracts');
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('document_patents');
-        TestHelper::clearTable('document_notes');
-        TestHelper::clearTable('document_enrichments');
-        TestHelper::clearTable('document_licences');
-        TestHelper::clearTable('institutes_contents');
-        TestHelper::clearTable('persons');
-    }
-	
-    /**
-     * Valid document data provider
-     *
-     * @return array
-     */
-    public function dummyData() {
-        $docresult = Opus_Search_DummyData::getDummyDocuments();
-        
-        $hitlist = new Opus_Search_List_HitList();
-        foreach ($docresult as $row) {
-       		$searchhit = new Opus_Search_SearchHit($row);
-       		$hitlist->add($searchhit);
-        }
-        
-        return array($hitlist);		
-    }
-
-    /**
-     * Real document data provider
-     *
-     * @return array Array containing all Opus_Search_Adapter_DocumentAdapters from the database
-     * @throws Exception Opus_Model_Exception
-     */
-    public function allRealData() {
-        return BrowsingFilter::getAllTitles();
-    }
-
-    /**
-     * Definition of document type article
-     *
-     * @return String XML-Definition
-     */
-    private function article() {
-        $xml = '<documenttype name="article"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" mandatory="yes" />
-            <field name="Licence"/>
-            <field name="ContributingCorporation"/>
-            <field name="CreatingCorporation"/>
-            <field name="DateAccepted"/>
-            <field name="DocumentType"/>
-            <field name="Edition"/>
-            <field name="Issue"/>
-            <field name="NonInstituteAffiliation"/>
-            <field name="PageFirst"/>
-            <field name="PageLast"/>
-            <field name="PageNumber"/>
-            <mandatory type="one-at-least">
-                <field name="CompletedYear"/>
-                <field name="CompletedDate"/>
-            </mandatory>
-            <field name="Reviewed"/>
-            <field name="ServerDateModified"/>
-            <field name="ServerDatePublished"/>
-            <field name="ServerDateUnlocking"/>
-            <field name="ServerDateValid"/>
-            <field name="Source"/>
-            <field name="SwbId"/>
-            <field name="VgWortPixelUrl"/>
-            <field name="Volume"/>
-            <field name="TitleMain" multiplicity="*"/>
-            <field name="TitleParent"/>
-            <field name="TitleAbstract" multiplicity="*"/>
-            <field name="Isbn"/>
-            <field name="Note"/>
-            <field name="Patent"/>
-            <field name="Enrichment"/>
-            <field name="PersonAuthor" multiplicity="3" />
-        </documenttype>';
-        return new Opus_Document_Type($xml);
-    }
-
-    /**
-     * Real document data provider
-     *
-     * @return Opus_Search_Adapter_DocumentAdapter with one document from the database
-     */
-    public function oneRealDoc() {
+    public function setUp() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $document = new Opus_Model_Document(null, 'article');
-        
+
         $title = $document->addTitleMain();
         $title->setTitleAbstractValue('Title');
         $title->setTitleAbstractLanguage('de');
@@ -207,49 +113,38 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $abstract2 = $document->addTitleAbstract();
         $abstract2->setTitleAbstractValue('Kurzfassung');
         $abstract2->setTitleAbstractLanguage('de');
-        $id = $document->store();
-        
-        try {
-        	$doc = new Opus_Search_Adapter_DocumentAdapter((int) $id);
-        } catch (Exception $e) {
-        	throw $e;
-        }
-        return array(array($doc));
+        $document->store();
+
+        $this->_document = $document;
+    }
+
+    /**
+     * Remove the created document instance.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        $this->_document->delete();
     }
 
     /**
      * Test if the structure of Documentdata from the DB is valid for Opus_Search
-     * 
+     *
      * @param Opus_Search_Adapter_DocumentAdapter $document Document from the database
-     * @return void 
+     * @return void
      *
      * @dataProvider oneRealDoc
      */
-	public function testDocumentAdapterFromDb(Opus_Search_Adapter_DocumentAdapter $document) {
-		$docData = $document->getDocument();
-		$this->assertEquals(array_key_exists('author', $docData), true);
-		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
-		$this->assertEquals(array_key_exists('fileUrl', $docData), true);
-		$this->assertEquals(array_key_exists('title', $docData), true);
-		$this->assertEquals(array_key_exists('abstract', $docData), true);
+	public function testDocumentAdapterFromDb() {
+	    $adapter = new Opus_Search_Adapter_DocumentAdapter((int)$this->_document->getId());
+		$docData = $adapter->getDocument();
+
+        $this->assertFalse(empty($docData), 'No document information returned.');
+		$this->assertArrayHasKey('author', $docData, 'Author information is missing.');
+		$this->assertArrayHasKey('frontdoorUrl', $docData, 'Frontdoor URL information is missing.');
+		$this->assertArrayHasKey('fileUrl', $docData, 'File URL information is missing.');
+		$this->assertArrayHasKey('title', $docData, 'Title information is missing.');
+		$this->assertArrayHasKey('abstract', $docData, 'Abstract information is missing.');
 	}
 
-//    /**
-//     * Test if the structure of Dummydata is valid for Opus_Search
-//     * 
-//     * @param array $dataList Array with DummyData-Documents
-//     * @return void
-//     *
-//     * @dataProvider dummyData
-//     */
-//	public function testDocumentAdapterFromDummyData($dataList) {
-//		$document = $dataList;
-//		$docData = $document->getDocument();
-//		$this->assertEquals(array_key_exists('author', $docData), true);
-//		$this->assertEquals(array_key_exists('frontdoorUrl', $docData), true);
-//		$this->assertEquals(array_key_exists('fileUrl', $docData), true);
-//		$this->assertEquals(array_key_exists('title', $docData), true);
-//		$this->assertEquals(array_key_exists('abstract', $docData), true);
-//		$this->assertEquals(array_key_exists('documentType', $docData), true);
-//	}
 }
