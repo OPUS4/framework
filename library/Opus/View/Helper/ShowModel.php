@@ -41,6 +41,14 @@
  */
 class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
 
+    /**
+     * Helper method to create a proper array
+     *
+     * @param string $name  Name of element
+     * @param string $value Value of element
+     * @param string $label (Optional) Label of element
+     * @return array
+     */
     private function __skeleton($name, $value, $label = null) {
         $result = array();
         $result['divclass'] = $name;
@@ -55,7 +63,15 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $result;
     }
 
-    private function __personHelper($field, &$value, $label = null) {
+    /**
+     * Helper method for person data
+     *
+     * @param string $field  Field to display
+     * @param array  &$value Value of field
+     * @param string $label  (Optional) Label for display field
+     * @return string
+     */
+    private function __personHelper($field, array &$value, $label = null) {
         $data = array();
         foreach ($value as $fieldname => $internal_value) {
             $data[] = $this->__skeleton($fieldname, $internal_value);
@@ -65,6 +81,13 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->view->partial('_model.phtml', $outer);
     }
 
+    /**
+     * General method for person fields
+     *
+     * @param string $field   Field to display
+     * @param mixed  &$values Values of a field
+     * @return string
+     */
     private function __personDisplay($field, &$values) {
         // silence decision about multi values or not
         $result = '';
@@ -74,14 +97,22 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
-                $label = ++$number . '. ' . $field;
+                $label = (++$number) . '. ' . $field;
                 $result .= $this->__personHelper($field, $value, $label);
             }
         }
         return $result;
     }
 
-    private function __titleHelper($field, &$value, $label = null) {
+    /**
+     * Helper method for displaying titles or abstracts
+     *
+     * @param string $field  Field for displaying
+     * @param array  &$value Value of field
+     * @param string $label  (Optional) Label for displaying field
+     * @return string
+     */
+    private function __titleHelper($field, array &$value, $label = null) {
         $data = array();
         // title language
         $language_list = Zend_Registry::get('Available_Languages');
@@ -97,7 +128,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->view->partial('_model.phtml', $outer);
     }
 
-    private function __titleDisplay($field, $values) {
+    /**
+     * General method for displaying titles or abstracts
+     *
+     * @param string $field   Field to display
+     * @param mixed  &$values Value of field
+     * @return string
+     */
+    private function __titleDisplay($field, &$values) {
         $result = '';
         if (@is_array($values[0]) === false) {
             // only one element to display
@@ -105,18 +143,32 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
-                $label = ++$number . '. '. $field;
+                $label = (++$number) . '. ' . $field;
                 $result .= $this->__titleHelper($field, $value, $label);
             }
         }
         return $result;
     }
 
+    /**
+     * General method for displaying a field
+     *
+     * @param string $name  Field to display
+     * @param string $value Value of field
+     * @return string
+     */
     protected function _displayGeneralElement($name, $value) {
         $data = $this->__skeleton($name, $value);
         return $this->view->partial('_model.phtml', $data);
     }
 
+    /**
+     *  Method for displaying licences.
+     *
+     * @param string $field Licence field for displaying
+     * @param string $value Value of licence field
+     * @return string
+     */
     protected function _displayLicence($field, $value) {
         // we "know" that the licence name is in NameLong
         $iterim_value = $value['NameLong'];
@@ -124,6 +176,13 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->view->partial('_model.phtml', $data);
     }
 
+    /**
+     * Method for displaying language field
+     *
+     * @param string $field Lanugage field to display
+     * @param string $value Value of language field
+     * @return string
+     */
     protected function _displayLanguage($field, $value) {
         $language_list = Zend_Registry::get('Available_Languages');
         $iterim_value = $language_list[$value];
@@ -131,44 +190,116 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->view->partial('_model.phtml', $data);
     }
 
+    /**
+     * Method for displaying files of a document
+     *
+     * @param string $field Files field for displaying
+     * @param string $value Value of files field
+     * @return void
+     */
     protected function _displayFile($field, $value) {
         // TODO need more information for displaying
+        // makes code sniffer happy
+        $my_field = $field;
+        $my_value = $value;
         return;
     }
 
+    /**
+     * Wrapper method for person advisor
+     *
+     * @param string $field Person field for displaying
+     * @param mixed  $value Value of person field
+     * @return string
+     */
     protected function _displayPersonAdvisor($field, $value) {
         return $this->__personDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for person author
+     *
+     * @param string $field Person field for displaying
+     * @param mixed  $value Value of person field
+     * @return string
+     */
     protected function _displayPersonAuthor($field, $value) {
         return $this->__personDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for person referee
+     *
+     * @param string $field Person field for displaying
+     * @param mixed  $value Value of person field
+     * @return string
+     */
     protected function _displayPersonReferee($field, $value) {
         return $this->__personDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for person other
+     *
+     * @param string $field Person field for displaying
+     * @param mixed  $value Value of person field
+     * @return string
+     */
     protected function _displayPersonOther($field, $value) {
         return $this->__personDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for isbn
+     *
+     * @param string $field Isbn field for displaying
+     * @param mixed  $value Value of isbn field
+     * @return string
+     */
     protected function _displayIsbn($field, $value) {
         return $this->__personDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for title abstract
+     *
+     * @param string $field Title field for displaying
+     * @param mixed  $value Value of title field
+     * @return string
+     */
     protected function _displayTitleAbstract($field, $value) {
         return $this->__titleDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for title main
+     *
+     * @param string $field Title field for displaying
+     * @param mixed  $value Value of title field
+     * @return string
+     */
     protected function _displayTitleMain($field, $value) {
         return $this->__titleDisplay($field, $value);
     }
 
+    /**
+     * Wrapper method for title parent
+     *
+     * @param string $field Title field for displaying
+     * @param mixed  $value Value of title field
+     * @return string
+     */
     protected function _displayTitleParent($field, $value) {
         return $this->__titleDisplay($field, $value);
     }
 
-    public function showModel(array $modeldata) {
+    /**
+     * View helper for displaying a model
+     *
+     * @param array &$modeldata Contains model data
+     * @return string
+     */
+    public function showModel(array &$modeldata) {
         $result = '';
         foreach ($modeldata as $field => $value) {
             $method_name = '_display' . $field;
