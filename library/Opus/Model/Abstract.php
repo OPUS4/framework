@@ -610,6 +610,35 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         }
         return $result;
     }
+
+    /**
+     * Returns an Xml-string representation of the model.
+     *
+     * @return string A plain Xml-string representation of the model.
+     */
+    public function toXml() {
+        $result = '';
+        foreach ($this->_fields as $fieldname => $field) {
+            if ($field->hasMultipleValues()) {
+                $fieldvalues = '';
+                foreach($field->getValue() as $value) {
+                    if ($value instanceof Opus_Model_Abstract) {
+                        $fieldvalues .= $value->toXml();
+                    } else {
+                        $fieldvalues .= $value;
+                    }
+                }
+                $result .= '<' . $fieldname . '>' . $fieldvalues . '</' . $fieldname . '>';
+            } else {
+                if ($field->getValue() instanceof Opus_Model_Abstract) {
+                    $result .= '<' . $fieldname . '>' . $value->getValue()->toXml() . '</' . $fieldname . '>';
+                } else {
+                    $result .= '<' . $fieldname . '>' . $field->getValue() . '</' . $fieldname . '>';
+                }
+            }
+        }
+        return $result;
+    }
     
     /**
      * Retrieve all instances of a particular Opus_Model that are known

@@ -134,4 +134,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     public function toArray() {
         return $this->_model->toArray();
     }
+
+    /**
+     * Get an Xml-string representation of the linked model.
+     *
+     * @return array An Xml-string representation of the linked model.
+     */
+    public function toXml() {
+        return $this->_model->toXml();
+    }
 }
