@@ -417,4 +417,17 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->addValue(array(15,16,17, 18));
     }
     
+    /**
+     * Test if setting multi-value fields to null clears field properly.
+     *
+     * @return void
+     */
+    public function testSetMultivalueFieldToNull() {
+        $field = new Opus_Model_Field('MultiValField');
+        $field->setMultiplicity('*');
+        $field->setValue(array('a', 'b', 'c'));
+        $field->setValue(null);
+        $value = $field->getValue();
+        $this->assertTrue(empty($value), 'Multivalue field not cleared after setting to null.');
+    }
 }
