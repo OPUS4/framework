@@ -105,6 +105,58 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     }
 
     /**
+     * Helper method for person data
+     *
+     * @param string $field  Specific field
+     * @param array  &$value Value of field
+     * @param string $label  (Optional) Label for field
+     * @return string
+     */
+    private function __personHelper($field, &$value, $label = null) {
+        $data = array();
+        // merge academic title, lastname and firstname
+        $title = $value['AcademicTitle'];
+        $lastname = $value['LastName'];
+        $firstname = $value['FirstName'];
+        $merged = $title . $lastname;
+        if (empty($firstname) === false) {
+            $merged .=  ', ' . $firstname;
+        }
+        $fieldname = 'PersonName';
+        $data[] = $this->__skeleton($fieldname, $merged);
+        // other fields
+        $other_fields = array('DateOfBirth', 'PlaceOfBirth', 'Email');
+        foreach ($other_fields as $fieldname) {
+            $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+        }
+        $iterim_data = $this->view->partialLoop('_model.phtml', $data);
+        $outer = $this->__skeleton($field, $iterim_data, $label);
+        return $this->view->partial('_model.phtml', $outer);
+    }
+
+    /**
+     * General method for displaying person data
+     *
+     * @param string $field   Field to display
+     * @param array  &$values Value of field
+     * @return string
+     */
+    private function __personDisplay($field, &$values) {
+        $result = '';
+        if (@is_array($values[0]) === false) {
+            // only one element to display
+            $result = $this->__personHelper($field, $values);
+        } else {
+            // more than one element to display
+            foreach ($values as $number => $value) {
+                $label = (++$number) . '. ' . $field;
+                $result .= $this->__personHelper($field, $value, $label);
+            }
+        }
+        return $result;
+    }
+
+    /**
      * Helper method for displaying titles or abstracts
      *
      * @param string $field  Field for displaying
@@ -213,7 +265,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonAdvisor($field, $value) {
-        return $this->__complexDisplay($field, $value);
+        return $this->__personDisplay($field, $value);
     }
 
     /**
@@ -224,7 +276,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonAuthor($field, $value) {
-        return $this->__complexDisplay($field, $value);
+        return $this->__personDisplay($field, $value);
     }
 
     /**
@@ -235,7 +287,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonReferee($field, $value) {
-        return $this->__complexDisplay($field, $value);
+        return $this->__personDisplay($field, $value);
     }
 
     /**
@@ -246,7 +298,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonOther($field, $value) {
-        return $this->__complexDisplay($field, $value);
+        return $this->__personDisplay($field, $value);
     }
 
     /**
