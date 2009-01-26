@@ -408,7 +408,19 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
-                $this->_fields[$fieldname]->setValue($arguments[0]);
+                if (in_array($fieldname, array_keys($this->_externalFields)) === true and array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+                    $linkmodel = new $linkmodelclass;
+                    if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                        $linkmodel->setModel($arguments[0]->_model);
+                    } else {
+                        $linkmodel->setModel($arguments[0]);
+                    }
+                    $model = $linkmodel;
+                } else {
+                        $model = $arguments[0];
+                }
+                $this->_fields[$fieldname]->setValue($model);
                 return $this->_fields[$fieldname]->getValue();
                 break;
 
