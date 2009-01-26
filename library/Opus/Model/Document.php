@@ -63,7 +63,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
     /**
      * The type of the document.
      *
-     * @var string
+     * @var string|Opus_Document_Type
      */
     protected $_type = null;
 
@@ -242,6 +242,11 @@ class Opus_Model_Document extends Opus_Model_Abstract
      */
     public function setDocumentType($type) {
         $this->_type = $type;
+        if ($type instanceof Opus_Document_Type) {
+            $this->_primaryTableRow->document_type = $type->getName();
+        } else {
+            $this->_primaryTableRow->document_type = $type;
+        }
         // TODO: Recreate Document on type change.
     }
 
