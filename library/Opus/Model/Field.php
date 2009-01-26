@@ -275,8 +275,8 @@ class Opus_Model_Field
         }
 
         // Embed passed value in an array if multivalue condition is given
-        // but value is not an array
-        if (($multiValueCondition === true) and ($arrayCondition === false)) {
+        // but value is not an array and value is not null.
+        if (($multiValueCondition === true) and ($arrayCondition === false) and is_null($value) === false) {
             $value = array($value);
         }
 
