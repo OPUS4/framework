@@ -189,6 +189,8 @@ class Opus_Form_Builder {
     public function setFromPost(Opus_Model_Interface $model, array $post) {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
+            $setCallName = 'set' . $fieldname;
+            $addCallName = 'add' . $fieldname;
             // set only field which exists in model
             if (is_null($field) === true) {
                 continue;
@@ -196,25 +198,38 @@ class Opus_Form_Builder {
             $modelclass = $field->getValueModelClass();
             if (is_null($modelclass) === false) {
                 if ($field->hasMultipleValues() === true) {
-                    $this->_setFieldModelValuesFromArray($field, $value);
+                    $model->$setCallName(null);
+                    foreach ($value as $postvalue) {
+                        // Skip empty postvalues
+                        if ($postvalue === null) {
+                            continue;
+                        }
+                        $submodel = new $modelclass;
+                        if (is_array($postvalue) === false) {
+                            $postvalue = array($postvalue);
+                        }
+                        $this->setFromPost($submodel, $postvalue);
+                        $model->$addCallName($submodel);
+                    }
+
                 } else {
                     if ($field->isSelection() === true) {
-                        $model2 = new $modelclass($value);
-                        $field->setValue($model2);
+                        $value = new $modelclass($value);
+                        $model->$setCallName($value);
                     } else {
-                        $model2 = new $modelclass;
+                        $submodel = new $modelclass;
                         if (is_array($value) === false) {
                             $value = array($value);
                         }
-                        $this->setFromPost($model2, $value);
-                        $field->setValue($model2);
+                        $this->setFromPost($submodel, $value);
+                        $model->$setCallName($submodel);
                     }
                 }
             } else {
                 if (is_array($value) === true) {
                     $value = array_values($value);
                 }
-                $field->setValue($value);
+                $model->$setCallName($value);
             }
         }
     }
