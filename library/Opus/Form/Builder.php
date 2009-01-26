@@ -434,32 +434,6 @@ class Opus_Form_Builder {
     }
 
     /**
-     * Set up field values from post data array.
-     *
-     * @param Opus_Model_Field $field  Field object.
-     * @param array            $values Post data.
-     * @return void
-     */
-    protected function _setFieldModelValuesFromArray(Opus_Model_Field $field, array $values) {
-        $new_values = array();
-        // should never be null
-        $classname = $field->getValueModelClass();
-        foreach ($values as $postvalue) {
-            // Skip empty postvalues
-            if ($postvalue === null) {
-                continue;
-            }
-            $model = new $classname;
-            if (is_array($postvalue) === false) {
-                $postvalue = array($postvalue);
-            }
-            $this->setFromPost($model, $postvalue);
-            $new_values[] = $model;
-        }
-        $field->setValue($new_values);
-    }
-
-    /**
      * Alter post data array with proper action.
      *
      * @param string $ref    Contains action to perform
