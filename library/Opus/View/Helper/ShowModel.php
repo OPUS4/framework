@@ -64,14 +64,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     }
 
     /**
-     * Helper method for person data
+     * Helper method for complex data
      *
      * @param string $field  Field to display
      * @param array  &$value Value of field
      * @param string $label  (Optional) Label for display field
      * @return string
      */
-    private function __personHelper($field, array &$value, $label = null) {
+    private function __complexHelper($field, array &$value, $label = null) {
         $data = array();
         foreach ($value as $fieldname => $internal_value) {
             $data[] = $this->__skeleton($fieldname, $internal_value);
@@ -82,23 +82,23 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     }
 
     /**
-     * General method for person fields
+     * General method for complex fields
      *
      * @param string $field   Field to display
      * @param mixed  &$values Values of a field
      * @return string
      */
-    private function __personDisplay($field, &$values) {
+    private function __complexDisplay($field, &$values) {
         // silence decision about multi values or not
         $result = '';
         if (@is_array($values[0]) === false) {
             // only one element to display
-            $result = $this->__personHelper($field, $values);
+            $result = $this->__complexHelper($field, $values);
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
                 $label = (++$number) . '. ' . $field;
-                $result .= $this->__personHelper($field, $value, $label);
+                $result .= $this->__complexHelper($field, $value, $label);
             }
         }
         return $result;
@@ -213,7 +213,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonAdvisor($field, $value) {
-        return $this->__personDisplay($field, $value);
+        return $this->__complexDisplay($field, $value);
     }
 
     /**
@@ -224,7 +224,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonAuthor($field, $value) {
-        return $this->__personDisplay($field, $value);
+        return $this->__complexDisplay($field, $value);
     }
 
     /**
@@ -235,7 +235,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonReferee($field, $value) {
-        return $this->__personDisplay($field, $value);
+        return $this->__complexDisplay($field, $value);
     }
 
     /**
@@ -246,7 +246,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayPersonOther($field, $value) {
-        return $this->__personDisplay($field, $value);
+        return $this->__complexDisplay($field, $value);
     }
 
     /**
@@ -257,7 +257,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayIsbn($field, $value) {
-        return $this->__personDisplay($field, $value);
+        return $this->__complexDisplay($field, $value);
     }
 
     /**
