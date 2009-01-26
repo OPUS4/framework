@@ -478,7 +478,7 @@ COMMENT = 'Table for system user accounts.';
 CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
   `collections_roles_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key.' ,
   `name` VARCHAR(255) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
-  `position` INT(11) UNSIGNED NOT NULL COMMENT '???' ,
+  `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
   `link_docs_path_to_root` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If not 0: Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree.' ,
   `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Is the collection visible? (1=yes, 0=no).' ,
   PRIMARY KEY (`collections_roles_id`) )
