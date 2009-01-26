@@ -56,7 +56,7 @@ class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function testRetrieveNoAllLicences() {
+    public function testRetrieveAllLicences() {
         $lics[] = new Opus_Model_Licence();
         $lics[] = new Opus_Model_Licence();
         $lics[] = new Opus_Model_Licence();
