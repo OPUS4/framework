@@ -380,7 +380,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider validDocumentDataProvider
      */
-    public function testDocumentFieldsPersistDatabaseStorage($documentDataset) {
+    public function testDocumentFieldsPersistDatabaseStorage(array $documentDataset) {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $document = new Opus_Model_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
@@ -708,6 +708,79 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $id = $doc->getTitleAbstract()->getId();
         $this->setExpectedException('Opus_Model_Exception');
         $abstract = new Opus_Model_Dependent_Abstract($id);
+    }
+
+    /**
+     * Test if adding a model to a field that is defined as a link sets the
+     * field value to the corresponding dependent link model.
+     *
+     * TODO: This test should be moved to AbstractTest.
+     *
+     * @return void
+     */
+    public function testAddLinkModel() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Licence" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $document = new Opus_Model_Document(null, $type);
+        $licence = new Opus_Model_Licence;
+        $document->addLicence($licence);
+
+        $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
+                'Adding to a field containing a link model failed.');
+    }
+
+    /**
+     * Test if setting a model's field that is defined as a link sets the
+     * field value to the corresponding dependent link model.
+     *
+     * TODO: This test should be moved to AbstractTest.
+     *
+     * @return void
+     */
+    public function testSetLinkModel() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Licence" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $document = new Opus_Model_Document(null, $type);
+        $licence = new Opus_Model_Licence;
+        $document->setLicence($licence);
+
+        $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
+                'Setting a field containing a link model failed.');
+    }
+
+    /**
+     * Test if getting a model's field value  that is defined as a link sets the
+     * field value to the corresponding dependent link model.
+     *
+     * TODO: This test should be moved to AbstractTest.
+     *
+     * @return void
+     */
+    public function testGetLinkModel() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="doctoral_thesis"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Licence" />
+        </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $document = new Opus_Model_Document(null, $type);
+        $licence = new Opus_Model_Licence;
+        $document->setLicence($licence);
+        $licence = $document->getLicence();
+
+        $this->assertTrue($licence instanceof Opus_Model_Dependent_Link_Abstract,
+                'Getting a field value containing a link model failed.');
     }
 
 }
