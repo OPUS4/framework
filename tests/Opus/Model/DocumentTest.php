@@ -711,6 +711,85 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if a set of documents can be retrieved by getAll().
+     *
+     * @return void
+     */
+    public function testRetrieveAllDocuments() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $docs[] = new Opus_Model_Document(null, 'article');
+        $docs[] = new Opus_Model_Document(null, 'article');
+        $docs[] = new Opus_Model_Document(null, 'article');
+        foreach ($docs as $doc) {
+            $doc->store();
+        }
+        $result = Opus_Model_Document::getAll();
+        $this->assertEquals(count($docs), count($result), 'Wrong number of objects retrieved.');
+    }
+
+    /**
+     * Test if an empty title list can be retrieved from an empty database.
+     *
+     * @return void
+     */
+    public function testRetrieveEmptyTitleListFromEmptyDatabase() {
+        $result = Opus_Model_Document::getAllDocumentTitles();
+        $this->assertTrue(empty($result), 'Title list contains phantom results.');
+    }
+
+    /**
+     * Test if a correct title list can be retrieved.
+     *
+     * @return void
+     */
+    public function testRetrieveAllTitles() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+
+        $doc1 = new Opus_Model_Document(null, 'article');
+        $title1 = $doc1->addTitleMain();
+        $title1->setTitleAbstractLanguage('de');
+        $title1->setTitleAbstractValue('Ein deutscher Titel');
+        $doc1->store();
+
+        $doc2 = new Opus_Model_Document(null, 'article');
+        $title2 = $doc2->addTitleMain();
+        $title2->setTitleAbstractLanguage('en');
+        $title2->setTitleAbstractValue('An english titel');
+        $doc2->store();
+
+        $result = Opus_Model_Document::getAllDocumentTitles();
+        $this->assertEquals(2, count($result), 'Wrong number of title entries.');
+        $this->assertArrayHasKey($title1->getTitleAbstractValue(), $result, 'Expected title is not in the list.');
+        $this->assertArrayHasKey($title2->getTitleAbstractValue(), $result, 'Expected title is not in the list.');
+    }
+
+    /**
+     * Test if the corresponding document id is set for each titile in the tile list.
+     *
+     * @return void
+     */
+    public function testRetrieveDocumentIdPerTitle() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+
+        $doc1 = new Opus_Model_Document(null, 'article');
+        $title1 = $doc1->addTitleMain();
+        $title1->setTitleAbstractLanguage('de');
+        $title1->setTitleAbstractValue('Ein deutscher Titel');
+        $id1 = $doc1->store();
+
+        $doc2 = new Opus_Model_Document(null, 'article');
+        $title2 = $doc2->addTitleMain();
+        $title2->setTitleAbstractLanguage('en');
+        $title2->setTitleAbstractValue('An english titel');
+        $id2 = $doc2->store();
+
+        $result = Opus_Model_Document::getAllDocumentTitles();
+
+        $this->assertEquals($id1, $result[$title1->getTitleAbstractValue()], 'Wrong document id for title.');
+        $this->assertEquals($id2, $result[$title2->getTitleAbstractValue()], 'Wrong document id for title.');
+    }
+
+    /**
      * Test if adding a model to a field that is defined as a link sets the
      * field value to the corresponding dependent link model.
      *

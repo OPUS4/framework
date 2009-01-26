@@ -250,4 +250,34 @@ class Opus_Model_Document extends Opus_Model_Abstract
         // TODO: Recreate Document on type change.
     }
 
+    /**
+     * Retrieve all Opus_Model_Document instances from the database.
+     *
+     * @return array Array of Opus_Model_Document objects.
+     */
+    public static function getAll() {
+        return self::getAllFrom('Opus_Model_Document', 'Opus_Db_Documents');
+    }
+
+
+    /**
+     * Retrieve an array of all document titles associated with the corresponding
+     * document id.
+     *
+     * @return array Associative array with title=>id entries.
+     */
+    public static function getAllDocumentTitles() {
+        $table = new Opus_Db_DocumentTitleAbstracts();
+        $select = $table->select()
+            ->from($table, array('title_abstract_value', 'documents_id'))
+            ->where('title_abstract_type = ?', 'main');
+        $rows = $table->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row->title_abstract_value] = $row->documents_id;
+        }
+        return $result;
+    }
+
 }
