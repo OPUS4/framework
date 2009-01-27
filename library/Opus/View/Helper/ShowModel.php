@@ -106,7 +106,9 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
-            $result = $this->__complexHelper($field, $values);
+            if (($this->__saef === false) or (empty($values) === false)) {
+                $result = $this->__complexHelper($field, $values);
+            }
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
@@ -171,7 +173,9 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
-            $result = $this->__personHelper($field, $values);
+            if (($this->__saef === false) or (empty($values) === false)) {
+                $result = $this->__personHelper($field, $values);
+            }
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
@@ -220,7 +224,9 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
-            $result = $this->__titleHelper($field, $values);
+            if (($this->__saef === false) or (empty($values) === false)) {
+                $result = $this->__titleHelper($field, $values);
+            }
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
