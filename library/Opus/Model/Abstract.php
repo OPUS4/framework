@@ -110,7 +110,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @param Zend_Db_Table $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
-    public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
+    public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
         // Ensure that a default table gateway class is set
         if (is_null($this->getTableGatewayClass()) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
@@ -120,7 +120,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             // Try to query table gateway from internal attribute
             // Create an instance
             $classname = $this->getTableGatewayClass();
-            $tableGatewayModel = new $classname;
+            $tableGatewayModel = Opus_Db_TableGateway::getInstance($classname);
         }
 
         if ($id === null) {
@@ -350,7 +350,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         // Workaround for missing late static binding.
         // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
         eval('$tablename = ' . $targetModel . '::$_tableGatewayClass;');
-        $table = new $tablename;
+        $table = Opus_Db_TableGateway::getInstance($tablename);
         $result = array();
 
         // Get name of id column in target table
@@ -575,7 +575,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     public function __wakeup() {
         $tableclass = $this->_primaryTableRow->getTableClass();
-        $this->_primaryTableRow->setTable(new $tableclass);
+        $table = Opus_Db_TableGateway::getInstance($tableclass);
+        $this->_primaryTableRow->setTable($table);
     }
 
     /**
@@ -679,7 +680,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         // As this is calling from static context we cannot
         // use the instance variable $_tableGateway here.
-        $table = new $tableGatewayClassName;
+        $table = Opus_Db_TableGateway::getInstance($tableGatewayClassName);
         $tableInfo = $table->info();
         // FIXME: Assuming that there is no compound primary key.
         $primaryKeyName = $tableInfo['primary'][1];

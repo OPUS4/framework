@@ -40,7 +40,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Persons extends Zend_Db_Table {
+class Opus_Db_Persons extends Opus_Db_TableGateway {
 
     /**
      * Table schema name.

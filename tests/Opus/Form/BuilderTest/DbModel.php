@@ -38,7 +38,7 @@
  * @category    Tests
  * @package     Opus_Form
  */
-class Opus_Form_BuilderTest_DbModel extends Zend_Db_Table {
+class Opus_Form_BuilderTest_DbModel extends Opus_Db_TableGateway {
     
     
     /**

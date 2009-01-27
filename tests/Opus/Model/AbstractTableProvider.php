@@ -39,7 +39,7 @@
  * @package Opus_Model
  * @group AbstractTest
  */
-class Opus_Model_AbstractTableProvider extends Zend_Db_Table {
+class Opus_Model_AbstractTableProvider extends Opus_Db_TableGateway {
 
     /**
      * Set tablename

@@ -39,7 +39,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Accounts extends Zend_Db_Table {
+class Opus_Db_Accounts extends Opus_Db_TableGateway {
     /**
      * Table schema name.
      *

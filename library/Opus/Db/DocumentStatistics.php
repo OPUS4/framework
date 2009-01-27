@@ -40,7 +40,7 @@
  *
  */
 
-class Opus_Db_DocumentStatistics extends Zend_Db_Table {
+class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway {
 
     /**
      * Real database name of the documents table.

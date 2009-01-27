@@ -41,7 +41,7 @@
  *
  */
 
-class Opus_Db_DocumentEnrichments extends Zend_Db_Table {
+class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
 
     /**
      * Real database name of the documents table.

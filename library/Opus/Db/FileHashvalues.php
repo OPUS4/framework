@@ -40,7 +40,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_FileHashvalues extends Zend_Db_Table {
+class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
     /**
      * Contains table name
      *

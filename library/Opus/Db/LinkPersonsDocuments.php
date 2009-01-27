@@ -39,7 +39,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkPersonsDocuments extends Zend_Db_Table {
+class Opus_Db_LinkPersonsDocuments extends Opus_Db_TableGateway {
 /**
      * DB table name.
      *

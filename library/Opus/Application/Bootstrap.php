@@ -311,7 +311,7 @@ class Opus_Application_Bootstrap {
     protected static function setupTranslation()
     {
 
-        Zend_Translate::setCache(self::$cache);
+//        Zend_Translate::setCache(self::$cache);
         $sessiondata = new Zend_Session_Namespace();
         $translate = new Zend_Translate(Zend_Translate::AN_TMX, self::$applicationRootDirectory . '/modules/');
         if (empty($sessiondata->language) === false) {

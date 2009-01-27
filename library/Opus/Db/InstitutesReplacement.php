@@ -40,7 +40,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_InstitutesReplacement extends Zend_Db_Table {
+class Opus_Db_InstitutesReplacement extends Opus_Db_TableGateway {
 
     /**
      * DB table name.
