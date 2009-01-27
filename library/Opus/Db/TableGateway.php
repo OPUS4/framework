@@ -34,15 +34,28 @@
  */
 
 /**
- * TODO: short description.
- * 
- * TODO: long description.
- * 
+ * Implements the singleton pattern for table gateway classes.
+ *
+ * @category    Framework
+ * @package     Opus_Db
+ *
  */
 abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
 {
+    /**
+     * Holds all table gateway instances.
+     *
+     * @var array  Defaults to array().
+     */
     private static $instances = array();
 
+    /**
+     * Delivers the singleton instances.
+     *
+     * @param  mixed  $class The class name of the instance to get.
+     *
+     * @return Opus_Db_TableGateway
+     */
     final public static function getInstance($class) {
         if (!isset(self::$instances[$class])) {
             $object = new $class();
@@ -52,11 +65,35 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         }
     }
 
-    final public static function getAllInstances()
-    {
+    /**
+     * Delivers all currently available singleton instances.
+     *
+     * @return array
+     */
+    final public static function getAllInstances() {
         return self::$instances;
     }
 
-    final private function __clone() {/* do not clone me */}
-    final private function __sleep() {/* restless class */}
+
+    /**
+     * FIXME: Constructor should be private due to singleton pattern. This
+     * conflicts with the signature of the Zend_Db_Table_Abstract contructor.
+     * private function __construct() {}
+     */
+
+    /**
+     * Singleton classes cannot be cloned!
+     *
+     * @return void
+     */
+    final private function __clone() {
+    }
+
+    /**
+     * Singleton classes should not be put to sleep!
+     *
+     * @return void
+     */
+    final private function __sleep() {
+    }
 }
