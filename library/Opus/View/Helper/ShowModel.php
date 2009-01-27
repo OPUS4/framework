@@ -42,6 +42,13 @@
 class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
 
     /**
+     * Supress all empty fields
+     *
+     * @var boolean
+     */
+    private $__saef = false;
+
+    /**
      * Helper method to create a proper array
      *
      * @param string $name  Name of element
@@ -72,13 +79,19 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     private function __complexHelper($field, array &$value, $label = null) {
+        $result = '';
         $data = array();
         foreach ($value as $fieldname => $internal_value) {
-            $data[] = $this->__skeleton($fieldname, $internal_value);
+            if (($this->__saef === false) or (empty($internal_value) === false)) {
+                $data[] = $this->__skeleton($fieldname, $internal_value);
+            }
         }
-        $iterim_data = $this->view->partialLoop('_model.phtml', $data);
-        $outer = $this->__skeleton($field, $iterim_data, $label);
-        return $this->view->partial('_model.phtml', $outer);
+        if (($this->__saef === false) or (empty($data) === false)) {
+            $iterim_data = $this->view->partialLoop('_model.phtml', $data);
+            $outer = $this->__skeleton($field, $iterim_data, $label);
+            $result = $this->view->partial('_model.phtml', $outer);
+        }
+        return $result;
     }
 
     /**
@@ -89,16 +102,18 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     private function __complexDisplay($field, &$values) {
-        // silence decision about multi values or not
         $result = '';
+        // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
             $result = $this->__complexHelper($field, $values);
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
-                $label = (++$number) . '. ' . $field;
-                $result .= $this->__complexHelper($field, $value, $label);
+                if (($this->__saef === false) or (empty($value) === false)) {
+                    $label = (++$number) . '. ' . $field;
+                    $result .= $this->__complexHelper($field, $value, $label);
+                }
             }
         }
         return $result;
@@ -112,7 +127,8 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @param string $label  (Optional) Label for field
      * @return string
      */
-    private function __personHelper($field, &$value, $label = null) {
+    private function __personHelper($field, array &$value, $label = null) {
+        $result = '';
         $data = array();
         // merge academic title, lastname and firstname
         $title = $value['AcademicTitle'];
@@ -123,17 +139,24 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
             $merged .=  ', ' . $firstname;
         }
         $fieldname = 'PersonName';
-        $data[] = $this->__skeleton($fieldname, $merged);
+        if (($this->__saef === false) or (empty($merged) === false)) {
+            $data[] = $this->__skeleton($fieldname, $merged);
+        }
         // other fields
         $other_fields = array('DateOfBirth', 'PlaceOfBirth', 'Email');
         foreach ($other_fields as $fieldname) {
             if (array_key_exists($fieldname, $value) === true) {
-                $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+                if (($this->__saef === false) or (empty($value[$fieldname]) === false)) {
+                    $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+                }
             }
         }
-        $iterim_data = $this->view->partialLoop('_model.phtml', $data);
-        $outer = $this->__skeleton($field, $iterim_data, $label);
-        return $this->view->partial('_model.phtml', $outer);
+        if (($this->__saef === false) or (empty($data) === false)) {
+            $iterim_data = $this->view->partialLoop('_model.phtml', $data);
+            $outer = $this->__skeleton($field, $iterim_data, $label);
+            $result = $this->view->partial('_model.phtml', $outer);
+        }
+        return $result;
     }
 
     /**
@@ -143,16 +166,19 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @param array  &$values Value of field
      * @return string
      */
-    private function __personDisplay($field, &$values) {
+    private function __personDisplay($field, array &$values) {
         $result = '';
+        // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
             $result = $this->__personHelper($field, $values);
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
-                $label = (++$number) . '. ' . $field;
-                $result .= $this->__personHelper($field, $value, $label);
+                if (($this->__saef === false) or (empty($value) === false)) {
+                    $label = (++$number) . '. ' . $field;
+                    $result .= $this->__personHelper($field, $value, $label);
+                }
             }
         }
         return $result;
@@ -191,14 +217,17 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      */
     private function __titleDisplay($field, &$values) {
         $result = '';
+        // silence decision about multi values or not
         if (@is_array($values[0]) === false) {
             // only one element to display
             $result = $this->__titleHelper($field, $values);
         } else {
             // more than one element to display
             foreach ($values as $number => $value) {
-                $label = (++$number) . '. ' . $field;
-                $result .= $this->__titleHelper($field, $value, $label);
+                if (($this->__saef === false) or (empty($value) === false)) {
+                    $label = (++$number) . '. ' . $field;
+                    $result .= $this->__titleHelper($field, $value, $label);
+                }
             }
         }
         return $result;
@@ -212,8 +241,12 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayGeneralElement($name, $value) {
-        $data = $this->__skeleton($name, $value);
-        return $this->view->partial('_model.phtml', $data);
+        $result = '';
+        if (($this->__saef === false) or (empty($value) === false)) {
+            $data = $this->__skeleton($name, $value);
+            $result = $this->view->partial('_model.phtml', $data);
+        }
+        return $result;
     }
 
     /**
@@ -224,10 +257,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayLicence($field, $value) {
+        $result = '';
         // we "know" that the licence name is in NameLong
-        $iterim_value = $value['NameLong'];
-        $data = $this->__skeleton($field, $iterim_value);
-        return $this->view->partial('_model.phtml', $data);
+        $iterim_value = @$value['NameLong'];
+        if (($this->__saef === false) or (empty($iterim_value) === false)) {
+            $data = $this->__skeleton($field, $iterim_value);
+            $result = $this->view->partial('_model.phtml', $data);
+        }
+        return $result;
     }
 
     /**
@@ -238,10 +275,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      * @return string
      */
     protected function _displayLanguage($field, $value) {
+        $result = '';
         $language_list = Zend_Registry::get('Available_Languages');
-        $iterim_value = $language_list[$value];
-        $data = $this->__skeleton($field, $iterim_value);
-        return $this->view->partial('_model.phtml', $data);
+        $iterim_value = @$language_list[$value];
+        if (($this->__saef === false) or (empty($iterim_value) === false)) {
+            $data = $this->__skeleton($field, $iterim_value);
+            $result = $this->view->partial('_model.phtml', $data);
+        }
+        return $result;
     }
 
     /**
@@ -350,10 +391,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     /**
      * View helper for displaying a model
      *
-     * @param array &$modeldata Contains model data
+     * @param array   &$modeldata Contains model data
+     * @param boolean $saef       (Optional) Supress all empty fields.
      * @return string
      */
-    public function showModel(array &$modeldata) {
+    public function showModel(array &$modeldata, $saef = false) {
+        if (is_bool($saef) === true) {
+            $this->__saef = $saef;
+        }
         $result = '';
         foreach ($modeldata as $field => $value) {
             $method_name = '_display' . $field;
