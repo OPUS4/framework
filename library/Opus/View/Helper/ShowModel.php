@@ -127,7 +127,9 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         // other fields
         $other_fields = array('DateOfBirth', 'PlaceOfBirth', 'Email');
         foreach ($other_fields as $fieldname) {
-            $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+            if (array_key_exists($fieldname, $value) === true) {
+                $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+            }
         }
         $iterim_data = $this->view->partialLoop('_model.phtml', $data);
         $outer = $this->__skeleton($field, $iterim_data, $label);
