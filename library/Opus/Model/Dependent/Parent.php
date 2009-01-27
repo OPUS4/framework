@@ -54,7 +54,7 @@ class Opus_Model_Dependent_Parent extends Opus_Model_DependentAbstract
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
 
     /**
      * Initialize model with the following fields:

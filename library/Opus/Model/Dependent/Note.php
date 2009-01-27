@@ -53,7 +53,7 @@ class Opus_Model_Dependent_Note extends Opus_Model_DependentAbstract
      *
      * @var string
      */
-    protected $_tableGatewayClass = 'Opus_Db_DocumentNotes';
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentNotes';
     
     /**
      * Initialize model with the following fields:

@@ -53,7 +53,7 @@ class Opus_Model_Dependent_Subject extends Opus_Model_DependentAbstract
      *
      * @var string
      */
-    protected $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
 
     /**
      * Initialize model with the following fields:

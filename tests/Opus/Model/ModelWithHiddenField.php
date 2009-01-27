@@ -47,7 +47,7 @@ class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor, empty for testing purpose.
      */
-    protected $_tableGatewayClass = '';
+    protected static $_tableGatewayClass = '';
 
     /**
      * Fields to be not reported by describe().

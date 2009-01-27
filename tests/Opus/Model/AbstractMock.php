@@ -50,7 +50,7 @@ class Opus_Model_AbstractMock extends Opus_Model_Abstract {
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
+    protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
 
     /**
      * Initialize model with the a single field "value".

@@ -56,7 +56,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected $_tableGatewayClass = null;
+    protected static $_tableGatewayClass = null;
 
     /**
      * Holds all fields of the domain model.
@@ -112,14 +112,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     public function __construct($id = null, Zend_Db_Table $tableGatewayModel = null) {
         // Ensure that a default table gateway class is set
-        if (is_null($this->_tableGatewayClass) === true) {
+        if (is_null($this->getTableGatewayClass()) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
 
         if ($tableGatewayModel === null) {
             // Try to query table gateway from internal attribute
             // Create an instance
-            $classname = $this->_tableGatewayClass;
+            $classname = $this->getTableGatewayClass();
             $tableGatewayModel = new $classname;
         }
 
@@ -342,20 +342,18 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return array
      */
     protected function _loadExternal($targetModel, array $conditions = null) {
-        // 1. Get name of id column in target table
-        // 2. Get Ids of dependent rows
-        // 3. create new model for each id
-
-        // Currently there is no late static binding in PHP 5.2.x, thus we need an instance
-        // to access the tableGatewayClass
-        $dummymodel = new $targetModel;
-        $tablename = $dummymodel->getTableGatewayClass();
-
-        $table = new $tablename;
         if ($this->getId() === null) {
             return null;
         }
+
+        // Get the table gateway class
+        // Workaround for missing late static binding.
+        // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
+        eval('$tablename = ' . $targetModel . '::$_tableGatewayClass;');
+        $table = new $tablename;
         $result = array();
+
+        // Get name of id column in target table
         $tableInfo = $table->info();
         $primaryKey = $tableInfo['primary'];
         $select = $table->select()->from($table, $primaryKey);
@@ -364,8 +362,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $select = $select->where("$column = ?", $value);
             }
         }
+
+        // Get Ids of dependent rows
         $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
 
+        // Create new model for each id
         foreach ($ids as $id) {
             $result[] = new $targetModel(array_values($id));
         }
@@ -593,7 +594,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return string Table gateway class name.
      */
     public function getTableGatewayClass() {
-        return $this->_tableGatewayClass;
+        // Use get_class as a workaround for late static binding.
+        $modelClass = get_class($this);
+        eval('$tableGatewayClass = ' . $modelClass . '::$_tableGatewayClass;');
+        return $tableGatewayClass;
     }
 
     /**

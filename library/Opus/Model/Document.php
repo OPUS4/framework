@@ -49,7 +49,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected $_tableGatewayClass = 'Opus_Db_Documents';
+    protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
     /**
      * The document is the most complex Opus_Model. An Opus_Document_Builder is
@@ -178,7 +178,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         if ($id === null and $type !== null) {
             $this->_type = $type;
         }
-        parent::__construct($id, new $this->_tableGatewayClass);
+        parent::__construct($id, new self::$_tableGatewayClass);
     }
 
     /**
