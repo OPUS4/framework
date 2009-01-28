@@ -71,6 +71,7 @@ class Opus_Db_AllTests {
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Db');
         $suite->addTest(Opus_Db_Adapter_AllTests::suite());
+        $suite->addTestSuite('Opus_Db_InstanciateGatewayTest');
         return $suite;
     }
 
