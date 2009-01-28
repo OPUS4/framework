@@ -468,8 +468,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
                 if (($fieldIsExternal === true)
-                    and ($fieldHasThroughOption === true)
-                    and ($argumentModelGiven === true)) {
+                and ($fieldHasThroughOption === true)
+                and ($argumentModelGiven === true)) {
 
                     $linkmodelclass = $this->_externalFields[$fieldname]['through'];
                     $linkmodel = new $linkmodelclass;
@@ -573,6 +573,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 // Ensure that _loadExternal is called only on external fields
                 if (array_key_exists($name, $this->_externalFields)) {
                     $this->_loadExternal($name);
+                    // Workaround for: unset($this->_pending[$name]);
+                    $result = array();
+                    foreach ($this->_pending as $fieldname) {
+                        if ($fieldname !== $name) {
+                            $result[] = $fieldname;
+                        }
+                    }
+                    $this->_pending = $result;
                 }
             }
             return $this->_fields[$name];

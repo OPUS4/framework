@@ -512,8 +512,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addPersonAuthor($author);
         $doc->store();
-        $doc->delete();
         $id = $doc->getPersonAuthor()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $link = new Opus_Model_Dependent_Link_DocumentPerson($id);
     }
@@ -536,8 +536,9 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addLicence($licence);
         $doc->store();
-        $doc->delete();
         $id = $doc->getLicence()->getId();
+        $doc->delete();
+
         $this->setExpectedException('Opus_Model_Exception');
         $link = new Opus_Model_Dependent_Link_DocumentLicence($id);
     }
@@ -560,8 +561,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addEnrichment($enrichment);
         $doc->store();
-        $doc->delete();
         $id = $doc->getEnrichment()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $enrichment = new Opus_Model_Dependent_Enrichment($id);
     }
@@ -584,8 +585,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addIsbn($isbn);
         $doc->store();
-        $doc->delete();
         $id = $doc->getIsbn()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $isbn = new Opus_Model_Dependent_Identifier($id);
     }
@@ -608,8 +609,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addPatent($patent);
         $doc->store();
-        $doc->delete();
         $id = $doc->getPatent()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $patent = new Opus_Model_Dependent_Patent($id);
     }
@@ -632,8 +633,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addNote($note);
         $doc->store();
-        $doc->delete();
         $id = $doc->getNote()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $note = new Opus_Model_Dependent_Note($id);
     }
@@ -656,8 +657,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addSubjectSwd($subject);
         $doc->store();
-        $doc->delete();
         $id = $doc->getSubjectSwd()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $subject = new Opus_Model_Dependent_Subject($id);
     }
@@ -680,8 +681,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addTitleMain($title);
         $doc->store();
-        $doc->delete();
         $id = $doc->getTitleMain()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $title = new Opus_Model_Dependent_Title($id);
     }
@@ -704,8 +705,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
-        $doc->delete();
         $id = $doc->getTitleAbstract()->getId();
+        $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $abstract = new Opus_Model_Dependent_Abstract($id);
     }

@@ -390,6 +390,29 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
+     * Test that lazy fetching does not happen more than once.
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingByGetFieldCallHappensOnlyOnce() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        // First call to get.
+        $field = $mockup->getField('LazyExternalModel');
+
+        // Clear out mock up status
+        $mockup->loadExternalHasBeenCalledOn = array();
+
+        // Second call to get should not call _loadExternal again.
+        $field = $mockup->getField('LazyExternalModel');
+
+
+        // Check that _loadExternal has not yet been called
+        $this->assertNotContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is called more than once.');
+    }
+
+    /**
      * Test if suspended loading of external models gets triggered by
      * a call to get...().
      *

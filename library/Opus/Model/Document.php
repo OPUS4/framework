@@ -77,19 +77,23 @@ class Opus_Model_Document extends Opus_Model_Abstract
     protected $_externalFields = array(
             'TitleMain' => array(
                 'model' => 'Opus_Model_Dependent_Title',
-                'options' => array('title_abstract_type' => 'main')
+                'options' => array('title_abstract_type' => 'main'),
+                'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
                 'model' => 'Opus_Model_Dependent_Abstract',
-                'options' => array('title_abstract_type' => 'abstract')
+                'options' => array('title_abstract_type' => 'abstract'),
+                'fetch' => 'lazy'
             ),
             'TitleParent' => array(
                 'model' => 'Opus_Model_Dependent_Parent',
-                'options' => array('title_abstract_type' => 'parent')
+                'options' => array('title_abstract_type' => 'parent'),
+                'fetch' => 'lazy'
             ),
             'Isbn' => array(
                 'model' => 'Opus_Model_Dependent_Identifier',
-                'options' => array('identifier_type' => 'isbn')
+                'options' => array('identifier_type' => 'isbn'),
+                'fetch' => 'lazy'
             ),
             'Urn' => array(
                 'model' => 'Opus_Model_Dependent_Identifier',
@@ -97,61 +101,75 @@ class Opus_Model_Document extends Opus_Model_Abstract
             ),
             'Note' => array(
                 'model' => 'Opus_Model_Dependent_Note',
+                'fetch' => 'lazy'
             ),
             'Patent' => array(
                 'model' => 'Opus_Model_Dependent_Patent',
+                'fetch' => 'lazy'
             ),
             'Enrichment' => array(
                 'model' => 'Opus_Model_Dependent_Enrichment',
+                'fetch' => 'lazy'
             ),
             'Institute' => array(
                 'model' => 'Opus_Model_Link_DocumentInstitute',
+                'fetch' => 'lazy'
             ),
             'Licence' => array(
                 'model' => 'Opus_Model_Licence',
                 'through' => 'Opus_Model_Dependent_Link_DocumentLicence',
+                'fetch' => 'lazy'
             ),
             'PersonAdvisor' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'advisor')
+                'options'  => array('role' => 'advisor'),
+                'fetch' => 'lazy'
             ),
             'PersonAuthor' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'author')
+                'options'  => array('role' => 'author'),
+                'fetch' => 'lazy'
             ),
             'PersonContributor' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'contributor')
+                'options'  => array('role' => 'contributor'),
+                'fetch' => 'lazy'
             ),
             'PersonEditor' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'editor')
+                'options'  => array('role' => 'editor'),
+                'fetch' => 'lazy'
             ),
             'PersonReferee' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'referee')
+                'options'  => array('role' => 'referee'),
+                'fetch' => 'lazy'
             ),
             'PersonOther' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'other')
+                'options'  => array('role' => 'other'),
+                'fetch' => 'lazy'
             ),
             'PersonTranslator' => array(
                 'model' => 'Opus_Model_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                'options'  => array('role' => 'translator')
+                'options'  => array('role' => 'translator'),
+                'fetch' => 'lazy'
             ),
             'SubjectSwd' => array(
                 'model' => 'Opus_Model_Dependent_Subject',
-                'options' => array('subject_type' => 'swd')
+                'options' => array('subject_type' => 'swd'),
+                'fetch' => 'lazy'
             ),
             'File' => array(
                 'model' => 'Opus_Model_Dependent_File',
+                'fetch' => 'lazy'
             ),
         );
 
