@@ -49,6 +49,13 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     private $__saef = false;
 
     /**
+     * Supress personal informations
+     *
+     * @var boolean
+     */
+    private $__spi = false;
+
+    /**
      * Helper method to create a proper array
      *
      * @param string $name  Name of element
@@ -144,12 +151,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         if (($this->__saef === false) or (empty($merged) === false)) {
             $data[] = $this->__skeleton($fieldname, $merged);
         }
-        // other fields
-        $other_fields = array('DateOfBirth', 'PlaceOfBirth', 'Email');
-        foreach ($other_fields as $fieldname) {
-            if (array_key_exists($fieldname, $value) === true) {
-                if (($this->__saef === false) or (empty($value[$fieldname]) === false)) {
-                    $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+        if ($this->__spi === false) {
+            // other fields
+            $other_fields = array('DateOfBirth', 'PlaceOfBirth', 'Email');
+            foreach ($other_fields as $fieldname) {
+                if (array_key_exists($fieldname, $value) === true) {
+                    if (($this->__saef === false) or (empty($value[$fieldname]) === false)) {
+                        $data[] = $this->__skeleton($fieldname, $value[$fieldname]);
+                    }
                 }
             }
         }
@@ -399,11 +408,15 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      *
      * @param array   &$modeldata Contains model data
      * @param boolean $saef       (Optional) Supress all empty fields.
+     * @param boolean $spi        (Optional) Supress personal informations.
      * @return string
      */
-    public function showModel(array &$modeldata, $saef = false) {
+    public function showModel(array &$modeldata, $saef = false, $spi = false) {
         if (is_bool($saef) === true) {
             $this->__saef = $saef;
+        }
+        if (is_bool($spi) === true) {
+            $this->__spi = $spi;
         }
         $result = '';
         foreach ($modeldata as $field => $value) {
