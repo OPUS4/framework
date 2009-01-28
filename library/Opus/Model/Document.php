@@ -216,11 +216,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
         // Initialize available licences
         if ($this->getField('Licence') !== null) {
             $licences = Opus_Model_Licence::getAll();
-            $defaults = array();
-            foreach ($licences as $licence) {
-                $defaults[] = $licence;
-            }
-            $this->getField('Licence')->setDefault($defaults)
+            $this->getField('Licence')->setDefault($licences)
                 ->setSelection(true);
         }
     }
@@ -243,9 +239,9 @@ class Opus_Model_Document extends Opus_Model_Abstract
     public function setDocumentType($type) {
         $this->_type = $type;
         if ($type instanceof Opus_Document_Type) {
-            $this->_primaryTableRow->document_type = $type->getName();
+            $this->_primaryTableRow->document_type = str_replace('_', ' ', $type->getName());
         } else {
-            $this->_primaryTableRow->document_type = $type;
+            $this->_primaryTableRow->document_type = str_replace('_', ' ', $type);
         }
         // TODO: Recreate Document on type change.
     }
