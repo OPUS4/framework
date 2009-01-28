@@ -863,15 +863,4 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                 'Getting a field value containing a link model failed.');
     }
 
-    /**
-     * Test if setting a field containing a link model to null removes link
-     * model.
-     *
-     * @return void
-     */
-    public function testSetLinkModelFieldToNullRemovesLinkModel() {
-        $this->markTestIncomplete();
-        // TODO: Implement.
-    }
-
 }

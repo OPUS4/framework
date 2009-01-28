@@ -33,66 +33,27 @@
  */
 
 /**
- * This class extends Opus_Model_Abstract to be able to test its code.
- * Opus_Model_Abstract is an abstract class.
- * This mock is needed to be able to instantiate Opus_Model_Abstract.
+ * Mock link model.
  *
- * @category Tests
- * @package Opus_Model
- *
+ * @category    Tests
+ * @package     Opus_Model
  */
-class Opus_Model_ModelDefiningExternalField extends Opus_Model_Abstract {
-
-    /**
-     * Array of field names for wich _loadExternal has been called.
-     *
-     * @var array Array of field names.
-     */
-    public $loadExternalHasBeenCalledOn = array();
+class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
 
 
     /**
-     * Specify then table gateway.
+     * The class of the model that is linked to.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
+    protected $_modelClass = 'Opus_Model_AbstractMock';
 
     /**
-     * Provide a mockup external fields declaration.
+     * Clear out constructor code for this mockup.
      *
-     * @var array
      */
-    protected $_externalFields = array(
-        'ExternalModel' => array(
-            'model' => 'Opus_Model_AbstractMock',
-            'through' => 'Opus_Model_LinkToAbstractMock',
-            'options' => ''),
-        'LazyExternalModel' => array(
-            'model' => '',
-            'through' => '',
-            'options' => '',
-            'fetch' => 'lazy')
-    );
+    public function __construct() {
 
-    /**
-     * Initialize model with the a single field "ExternalModel".
-     *
-     * @return void
-     */
-    protected function _init() {
-        $this->addField(new Opus_Model_Field('ExternalModel'));
-        $this->addField(new Opus_Model_Field('LazyExternalModel'));
     }
 
-    /**
-     * Mock up function to detect calls to loadExternal.
-     *
-     * @param string $fieldname A fieldname.
-     * @see    library/Opus/Model/Opus_Model_Abstract#_loadExternal()
-     * @return void
-     */
-    protected function _loadExternal($fieldname) {
-        $this->loadExternalHasBeenCalledOn[] = $fieldname;
-    }
 }

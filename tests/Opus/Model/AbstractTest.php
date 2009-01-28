@@ -479,4 +479,39 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $mockup->addLazyExternalModel();
     }
 
+    /**
+     * Test if setting a field containing a link model to null removes link
+     * model.
+     *
+     * @return void
+     */
+    public function testSetLinkModelFieldToNullRemovesLinkModel() {
+        $model = new Opus_Model_ModelDefiningExternalField();
+
+        $abstractMock = new Opus_Model_AbstractMock();
+        $external = $model->setExternalModel($abstractMock);
+        $model->setExternalModel(null);
+
+        $field = $model->getField('ExternalModel');
+        $this->assertNull($field->getValue(), 'Link model field value is not null.');
+    }
+
+    /**
+     * Test if a link model is the field value of an external field that uses
+     * the 'through' option.
+     *
+     * @return void
+     */
+    public function testLinkModelIsFieldValueWhenUsingThroughOption() {
+        $model = new Opus_Model_ModelDefiningExternalField();
+
+        $abstractMock = new Opus_Model_AbstractMock();
+        $external = $model->setExternalModel($abstractMock);
+        $field = $model->getField('ExternalModel');
+        $fieldvalue = $field->getValue();
+        $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
+    }
+
+
+
 }
