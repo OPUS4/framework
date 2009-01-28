@@ -257,8 +257,8 @@ class Opus_Application_Bootstrap {
     protected static function setupView()
     {
         Zend_Layout::startMvc(array(
-			'layoutPath'=>self::$applicationRootDirectory . '/layouts',
-			'layout'=>'common'));
+                'layoutPath'=>self::$applicationRootDirectory . '/layouts',
+                'layout'=>'common'));
 
         // Initialize view with custom encoding and global view helpers.
         $view = new Zend_View;
@@ -289,7 +289,6 @@ class Opus_Application_Bootstrap {
      */
     protected static function sendResponse(Zend_Controller_Response_Http $response)
     {
-        $response->setHeader('Content-Type', 'text/html; charset=UTF-8', true);
         $response->sendResponse();
     }
 
