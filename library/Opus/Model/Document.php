@@ -88,8 +88,12 @@ class Opus_Model_Document extends Opus_Model_Abstract
                 'options' => array('title_abstract_type' => 'parent')
             ),
             'Isbn' => array(
-                'model' => 'Opus_Model_Dependent_Isbn',
+                'model' => 'Opus_Model_Dependent_Identifier',
                 'options' => array('identifier_type' => 'isbn')
+            ),
+            'Urn' => array(
+                'model' => 'Opus_Model_Dependent_Identifier',
+                'options' => array('identifier_type' => 'urn')
             ),
             'Note' => array(
                 'model' => 'Opus_Model_Dependent_Note',

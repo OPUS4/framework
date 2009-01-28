@@ -580,14 +580,14 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Model_Document(null, $type);
-        $isbn = new Opus_Model_Dependent_Isbn();
+        $isbn = new Opus_Model_Dependent_Identifier();
 
         $doc->addIsbn($isbn);
         $doc->store();
         $doc->delete();
         $id = $doc->getIsbn()->getId();
         $this->setExpectedException('Opus_Model_Exception');
-        $isbn = new Opus_Model_Dependent_Isbn($id);
+        $isbn = new Opus_Model_Dependent_Identifier($id);
     }
 
     /**

@@ -137,6 +137,7 @@
 	       <enumeration value="Issue"/>
 	       <enumeration value="Language"/>
 	       <enumeration value="Isbn"/>
+	       <enumeration value="Urn"/>
 	       <enumeration value="PageFirst"/>
 	       <enumeration value="PageLast"/>
 	       <enumeration value="PageNumber"/>
