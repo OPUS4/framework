@@ -57,11 +57,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function abstractDataSetDataProvider() {
         return array(
-            array(1, 'foobar'),
-            array(3, 'foo'),
-            array(4, 'bar'),
-            array(5, 'bla'),
-            array(8, 'blub')
+        array(1, 'foobar'),
+        array(3, 'foo'),
+        array(4, 'bar'),
+        array(5, 'bla'),
+        array(8, 'blub')
         );
     }
 
@@ -98,7 +98,8 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         try {
             $dba->deleteTable('testtable');
         } catch (Exception $ex) {
-            // noop
+            // CodeSniffer dope
+            $noop = 12;
         }
         $dba->createTable('testtable');
         $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
@@ -112,8 +113,9 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
 
     /**
      * Test if loading a model instance from the database devlivers the expected value.
-     * @param integer $id Id of dataset to load.
-     * @param $value      Expected Value.
+     *
+     * @param integer $test_testtable_id Id of dataset to load.
+     * @param mixed   $value             Expected Value.
      * @return void
      *
      * @dataProvider abstractDataSetDataProvider
@@ -147,7 +149,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     public function testDescribeReturnsAllFields() {
         $mock = new Opus_Model_AbstractMock(null, $this->dbProvider);
         $mock->addField(new Opus_Model_Field('Field1'))
-            ->addField(new Opus_Model_Field('Field2'));
+        ->addField(new Opus_Model_Field('Field2'));
         $fields = $mock->describe();
         $this->assertEquals(array('Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
     }
@@ -295,12 +297,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $preCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
         $obj->delete();
         $postCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
-        $this->assertEquals($postCount, $preCount - 1, 'Object persists allthough it was deleted.');
+        $this->assertEquals($postCount, ($preCount - 1), 'Object persists allthough it was deleted.');
     }
-    
+
     /**
      * Test if the default display name of a model is returned.
-     * 
+     *
      * @return void
      */
     public function testDefaultDisplayNameIsReturned() {
@@ -312,18 +314,18 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     /**
      * Test if zero model entities would be retrieved by static getAll()
      * on an empty database.
-     * 
+     *
      * @return void
      */
     public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase() {
         TestHelper::clearTable('test_testtable');
         $result = Opus_Model_AbstractMock::getAllFrom('Opus_Model_AbstractMock', 'Opus_Model_AbstractTableProvider');
-        $this->assertTrue(empty($result), 'Empty table should not deliver any objects.');        
+        $this->assertTrue(empty($result), 'Empty table should not deliver any objects.');
     }
-    
+
     /**
      * Test if all model instances can be retrieved.
-     * 
+     *
      * @return void
      */
     public function testGetAllEntities() {
@@ -331,14 +333,127 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $entities[] = new Opus_Model_AbstractMock();
         $entities[] = new Opus_Model_AbstractMock();
         $entities[] = new Opus_Model_AbstractMock();
-        
+
         foreach ($entities as $entity) {
             $entity->store();
         }
-        
+
         $result = Opus_Model_AbstractMock::getAllFrom('Opus_Model_AbstractMock', 'Opus_Model_AbstractTableProvider');
         $this->assertEquals(count($entities), count($result), 'Incorrect number of instances delivered.');
         $this->assertEquals($entities, $result, 'Entities fetched differ from entities stored.');
+    }
+
+    /**
+     * Test if the model of a field specified as external gets loaded on
+     * initialization.
+     *
+     * @return void
+     */
+    public function testExternalModelGetsLoadedOnInitialization() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        // Query the mock
+        $this->assertContains('ExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The external field does not get loaded.');
+    }
+
+    /**
+     * Test if the loading of an external model is not executed before
+     * an explicit call to get...() when the external field's fetching
+     * mode has been set to 'lazy'.
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingIsSuspendedUntilGetCall() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        // Check that _loadExternal has not yet been called
+        $this->assertNotContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field does get loaded initially.');
+    }
+
+    /**
+     * Test if suspended loading of external models gets triggered by
+     * a call to getField().
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingTiggeredByGetFieldCall() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        $field = $mockup->getField('LazyExternalModel');
+
+        // Check that _loadExternal has not yet been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after getField().');
+        $this->assertNotNull($field, 'No field object returned.');
+    }
+
+    /**
+     * Test if suspended loading of external models gets triggered by
+     * a call to get...().
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingTiggeredByGetCall() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        $mockup->getLazyExternalModel();
+
+        // Check that _loadExternal has been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after get call.');
+    }
+
+    /**
+     * Test if suspended loading of external models gets triggered by
+     * a call to set...().
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingTiggeredBySetCall() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        $mockup->setLazyExternalModel(null);
+
+        // Check that _loadExternal has been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after set call.');
+    }
+
+    /**
+     * Test if suspended loading of external models gets triggered by
+     * a call to add...().
+     *
+     * @return void
+     */
+    public function testExternalModelLoadingTiggeredByAddCall() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        try {
+            $mockup->addLazyExternalModel();
+        } catch (Exception $ex) {
+            // Expect exception because of missing link model class
+            $noop = 42;
+        }
+
+        // Check that _loadExternal has been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after add call.');
+    }
+
+
+    /**
+     * Test if an call to add...() throws an exception if the 'through' definition for
+     * external fields holding models is invalid.
+     *
+     * @return void
+     */
+    public function testAddWithoutPropertLinkModelClassThrowsException() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+        $this->setExpectedException('Opus_Model_Exception');
+        $mockup->addLazyExternalModel();
     }
 
 }

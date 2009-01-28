@@ -104,6 +104,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
 
     /**
+     * Names of the fields that are in suspended fetch state.
+     *
+     * @var array
+     */
+    protected $_pending = array();
+
+
+    /**
      * Constructor. Pass an id to fetch from database.
      *
      * @param integer       $id                (Optional) Id of existing database row.
@@ -147,9 +155,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
     /**
-     * Fetch attribute values from the table row and set up all fields.
+     * Fetch attribute values from the table row and set up all fields. If fields containing
+     * dependent models or link models those got fetched too.
      *
-     * @throws Opus_Model_Exception If no _fetch-method is defined for an external field.
      * @return void
      */
     protected function _fetchValues() {
@@ -159,25 +167,27 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             if (method_exists($this, $callname) === true) {
                 $field->setValue($this->$callname());
             } else {
+
                 // Field is declared as external and requires special handling
                 if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
-                    if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
-                        $options = $this->_externalFields[$fieldname]['options'];
+
+                    // Determine the fields fetching mode
+                    if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
+                        $fetchmode = $this->_externalFields[$fieldname];
+
+                        // Remember the field to be fetched later.
+                        $this->_pending[] = $fieldname;
                     } else {
-                        $options = null;
+                        $fetchmode = 'eager';
                     }
-                    // If handling a link model, fetch modelclass from 'through' option.
-                    if (array_key_exists('through', $this->_externalFields[$fieldname])) {
-                        $modelclass = $this->_externalFields[$fieldname]['through'];
-                    } else {
-                        $modelclass = $this->_externalFields[$fieldname]['model'];
+
+                    // Immediately load external field if fetching mode is set to 'eager'
+                    if ($fetchmode === 'eager') {
+                        // Load the model instance from the database and
+                        // take the resulting object as value for the field
+                        $this->_loadExternal($fieldname);
                     }
-                    if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
-                        throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
-                                Define _fetch' . $fieldname . ' method in model class.');
-                    }
-                    $loadedValue = $this->_loadExternal($modelclass, $options);
-                    $field->setValue($loadedValue);
+
                 } else {
                     // Field is not external an gets handled by simply reading
                     // its value from the table row
@@ -335,30 +345,60 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
     /**
-     * Load the values of external fields.
+     * Load the value of an external field. Sets an model instance or an array of
+     * model instances depending on whether the field has multiple linked models or not.
      *
-     * @param  string $targetModel Name of the Opus_Model_Dependent class to build.
-     * @param  array  $conditions  (Optional) Conditions for the query.
-     * @return array
+     * @param  string $fieldname Name of the external field.
+     * @throws Opus_Model_Exception If no _fetch-method is defined for an external field.
+     * @return void
      */
-    protected function _loadExternal($targetModel, array $conditions = null) {
+    protected function _loadExternal($fieldname) {
+
+        // Get declared options if any
+        if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+            $options = $this->_externalFields[$fieldname]['options'];
+        } else {
+            $options = null;
+        }
+
+        // Determine the class of the field values model
+        if (array_key_exists('through', $this->_externalFields[$fieldname])) {
+            // If handling a link model, fetch modelclass from 'through' option.
+            $modelclass = $this->_externalFields[$fieldname]['through'];
+        } else {
+            // Otherwise just use the 'model' option.
+            $modelclass = $this->_externalFields[$fieldname]['model'];
+        }
+
+        // Make sure that a field's value model is inherited from Opus_Model_Abstract
+        if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
+            throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
+                                Define _fetch' . $fieldname . ' method in model class.');
+        }
+
+        // Prepare field value
+        $result = array();
+
+        // Do nothing if the current model has not been persisted
+        // (if no identifier given)
         if ($this->getId() === null) {
-            return null;
+            $result = null;
+            return;
         }
 
         // Get the table gateway class
         // Workaround for missing late static binding.
         // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
-        eval('$tablename = ' . $targetModel . '::$_tableGatewayClass;');
+        eval('$tablename = ' . $modelclass . '::$_tableGatewayClass;');
         $table = Opus_Db_TableGateway::getInstance($tablename);
-        $result = array();
+
 
         // Get name of id column in target table
         $tableInfo = $table->info();
         $primaryKey = $tableInfo['primary'];
         $select = $table->select()->from($table, $primaryKey);
-        if (is_null($conditions) === false) {
-            foreach ($conditions as $column => $value) {
+        if (is_null($options) === false) {
+            foreach ($options as $column => $value) {
                 $select = $select->where("$column = ?", $value);
             }
         }
@@ -368,15 +408,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         // Create new model for each id
         foreach ($ids as $id) {
-            $result[] = new $targetModel(array_values($id));
+            $result[] = new $modelclass(array_values($id));
         }
+
+        // Form return value
         if (count($ids) === 1) {
-            return $result[0];
+            // Return a single object if threre is only one model in the result
+            $result = $result[0];
         } else if (count($ids) === 0) {
-            return null;
-        } else {
-            return $result;
+            // Return explicitly null if no results have been found.
+            $result = null;
         }
+
+        // Set the field value
+        $this->_fields[$fieldname]->setValue($result);
     }
 
     /**
@@ -392,16 +437,29 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
         $accessor = substr($name, 0, 3);
         $fieldname = substr($name, 3);
 
+        $argumentModelGiven = false;
+        if (empty($arguments) === false) {
+            if (is_null($arguments[0]) === false) {
+                $argumentModelGiven = true;
+            }
+        };
+
         if (array_key_exists($fieldname, $this->_fields) === false) {
             throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
         }
 
+        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
+        if ($fieldIsExternal === true) {
+            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
+        }
+        $field = $this->getField($fieldname);
+
         switch ($accessor) {
             case 'get':
                 if (empty($arguments) === false) {
-                    return $this->_fields[$fieldname]->getValue($arguments[0]);
+                    return $field->getValue($arguments[0]);
                 } else {
-                    return $this->_fields[$fieldname]->getValue();
+                    return $field->getValue();
                 }
                 break;
 
@@ -409,34 +467,44 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
-                if (in_array($fieldname, array_keys($this->_externalFields)) === true
-                        and array_key_exists('through', $this->_externalFields[$fieldname]) === true
-                        and is_null($arguments[0]) === false) {
+                if (($fieldIsExternal === true)
+                    and ($fieldHasThroughOption === true)
+                    and ($argumentModelGiven === true)) {
+
                     $linkmodelclass = $this->_externalFields[$fieldname]['through'];
                     $linkmodel = new $linkmodelclass;
+
                     if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                         $linkmodel->setModel($arguments[0]->_model);
                     } else {
                         $linkmodel->setModel($arguments[0]);
                     }
                     $model = $linkmodel;
+
                 } else {
                     $model = $arguments[0];
                 }
-                $this->_fields[$fieldname]->setValue($model);
-                return $this->_fields[$fieldname]->getValue();
+
+                $field->setValue($model);
+                return $field->getValue();
                 break;
 
             case 'add':
-                if (is_null($this->_fields[$fieldname]->getValueModelClass()) === true) {
+                if (is_null($field->getValueModelClass()) === true) {
                     throw new Opus_Model_Exception('Add accessor currently only available for fields holding models.');
                 }
 
                 // get Modelclass if model is linked
-                if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                if ($fieldHasThroughOption === true) {
+
                     $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+
+                    // Check if $linkmodelclass is a known class name
+                    if (class_exists($linkmodelclass) === false) {
+                        throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
+                    }
                     $linkmodel = new $linkmodelclass;
-                        // $model->addFoobar(new Foobar)
+
                     if ((count($arguments) === 1)) {
                         if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                             $linkmodel->setModel($arguments[0]->_model);
@@ -444,25 +512,21 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                             $linkmodel->setModel($arguments[0]);
                         }
                     } else {
-                        // $model->addFoobar()
                         throw new InvalidArgumentException('Argument required when adding to a link field.');
                     }
                     $model = $linkmodel;
+
                 } else {
-                        // $model->addFoobar(new Foobar)
                     if ((count($arguments) === 1)) {
                         $model = $arguments[0];
                     } else {
-                        // $model->addFoobar()
-                        $modelclass = $this->_fields[$fieldname]->getValueModelClass();
+                        $modelclass = $field->getValueModelClass();
                         $model = new $modelclass;
                     }
                 }
 
-                $this->_fields[$fieldname]->addValue($model);
-
+                $field->addValue($model);
                 return $model;
-
                 break;
 
             default:
@@ -495,14 +559,24 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     }
 
     /**
-     * Return a reference to an actual field.
+     * Return a reference to an actual field. If an external field yet has to be fetched
+     * _loadExternal is called.
      *
      * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
         if (array_key_exists($name, $this->_fields) === true) {
+
+            // Check if the field is in suspended fetch state
+            if (in_array($name, $this->_pending) === true) {
+                // Ensure that _loadExternal is called only on external fields
+                if (array_key_exists($name, $this->_externalFields)) {
+                    $this->_loadExternal($name);
+                }
+            }
             return $this->_fields[$name];
+
         } else {
             return null;
         }
