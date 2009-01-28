@@ -716,15 +716,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 $fieldvalues = '';
                 foreach($field->getValue() as $value) {
                     if ($value instanceof Opus_Model_Abstract) {
-                        $fieldvalues .= $value->toXml();
+                        $result .= '<' . $fieldname . '>' . $value->toXml() . '</' . $fieldname . '>';
                     } else {
-                        $fieldvalues .= $value;
+                        $result .= '<' . $fieldname . '>' . $value . '</' . $fieldname . '>';
                     }
                 }
-                $result .= '<' . $fieldname . '>' . $fieldvalues . '</' . $fieldname . '>';
             } else {
                 if ($field->getValue() instanceof Opus_Model_Abstract) {
-                    $result .= '<' . $fieldname . '>' . $value->getValue()->toXml() . '</' . $fieldname . '>';
+                    $result .= '<' . $fieldname . '>' . $field->getValue()->toXml() . '</' . $fieldname . '>';
                 } else {
                     $result .= '<' . $fieldname . '>' . $field->getValue() . '</' . $fieldname . '>';
                 }
