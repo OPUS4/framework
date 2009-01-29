@@ -299,7 +299,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidgetCollectionRoleDataProvider() {
         return array(
-        array(777), 
         array(-12), 
         array('x'), 
         array(3.25)
@@ -663,10 +662,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidSiblingnewCollectionDataProvider() {
         return array(
-            array(6, 2,  array('name' => 'Testinput 1',
+            array(6, -2,  array('name' => 'Testinput 1',
                                'number' =>  '777')
             ),
-            array(3, 10,  array('name' => 'Testinput 2',
+            array(3, 3.14,  array('name' => 'Testinput 2',
                                'number' =>  '777')
             ),
         );
@@ -806,10 +805,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             array(1, 9, 0
             ),
             array(5, 12, 4
-            ),
-            array(1, 6, 4
-            ),
-            array(5, 1, 6
             ),
         );
     }

@@ -217,10 +217,6 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
             array(7081, 5.3),
             array(7081, 'no'),
 
-            array(7081, 2),
-            array(7081, 8),
-            array(7081, 18),
-
 
         );
     }

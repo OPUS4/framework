@@ -150,7 +150,6 @@ class Opus_Collection_Roles {
         }
         
     }
-     
     
     /**
      * Fetch all collection-roles from database.
@@ -180,7 +179,6 @@ class Opus_Collection_Roles {
         }
         return $allCollectionRoles;
     }
-    
     
     /**
      * Save collection-role to database.
@@ -219,7 +217,7 @@ class Opus_Collection_Roles {
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
      *
-     * @param array(array) (Optional) $content_fields Array with collection_role database records.
+     * @param array(array) $content_fields (Optional) Array with collection_role database records.
      * @throws  Exception On failed database access.
      * @return void
      */
@@ -331,7 +329,6 @@ class Opus_Collection_Roles {
         }
     }
 
-
     /**
      * Shift the positions of the roles for inserting/deleting
      *
@@ -355,7 +352,6 @@ class Opus_Collection_Roles {
         }
         
     }
-
     
     /**
      * Find out the lowest free position for a role
@@ -371,7 +367,5 @@ class Opus_Collection_Roles {
                                         ->toArray();
             return($maxPosition['max'] + 1);
     }
-    
-    
     
 }

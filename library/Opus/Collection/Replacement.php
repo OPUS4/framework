@@ -82,7 +82,6 @@ class Opus_Collection_Replacement {
         }
     }
     
-    
     /**
      * Creates a database entry for a deleted collection. 
      *
@@ -144,7 +143,6 @@ class Opus_Collection_Replacement {
         }
     }
     
-    
     /**
      * Creates a database entry for a collection divided into two new collections. 
      *
@@ -166,7 +164,6 @@ class Opus_Collection_Replacement {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
     
     /**
      * Creates a database entry for two collections merged together into a new collection. 
@@ -190,7 +187,6 @@ class Opus_Collection_Replacement {
         }
     }
     
-    
     /**
      * Fetch the replacement records for a collection. 
      *
@@ -199,19 +195,16 @@ class Opus_Collection_Replacement {
      * @return array Replacement records
      */
     public function getReplacementRecords($collections_id) {
-        $this->validation = new Opus_Collection_Validation();
-        $this->validation->ID($collections_id);
+        if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
+            throw new InvalidArgumentException($collections_id . ' is not a positive integer.');
+        }
         $set = $this->collections_replacement
                     ->fetchAll($this->collections_replacement
                                 ->select()
                                 ->where($this->collectionsIdentifier . ' = ?', $collections_id))
                     ->toArray();
-        if (true === empty($set)) {
-            throw new InvalidArgumentException('Collection ID not found in getReplacementRecords.');                 
-        }
         return $set;
     }
-    
     
     /**
      * Fetch the actual (last) replacement for a collection. 
@@ -221,6 +214,7 @@ class Opus_Collection_Replacement {
      * @return integer ID of current replacing collection 
      */
     public function getCurrent($collections_id) {
+        $current = array();
         $set = $this->getReplacementRecords($collections_id);
         foreach ($set as $row) {
             $current[] = $row['current_replacement_id'];
@@ -228,7 +222,6 @@ class Opus_Collection_Replacement {
         return array_unique($current);
 
     }
-    
     
     /**
      * Fetch the direct ancestor of a collection. 
@@ -245,7 +238,6 @@ class Opus_Collection_Replacement {
         }
         return array_unique($ancestor);
     }
-    
     
     /**
      * Fetch the direct replacement for a collection. 

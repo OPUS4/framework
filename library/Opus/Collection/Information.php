@@ -129,7 +129,7 @@ class Opus_Collection_Information {
         $validation->constructorID($role_id);
         
         if ( (false === is_int($parent_id)) or (0 > $parent_id) ) {
-            throw new InvalidArgumentException('Parent ID must be a non-negative integer.');
+            throw new InvalidArgumentException("Parent ID must be a non-negative integer but is $parent_id");
         }
         
         if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
@@ -159,9 +159,10 @@ class Opus_Collection_Information {
             
             // Insert new collection underneath given parent to the right of the given left sibling
             $ocs->insert($collections_id, (int) $parent_id, (int) $leftSibling_id);
-            
+
             // Save updated structure to DB
             $ocs->save();
+            
             $db->commit();
         } catch (Exception $e) {
             $db->rollBack();
@@ -382,10 +383,11 @@ class Opus_Collection_Information {
             }
         }    
         
-        if (false === isset($left)) {
+        /*if (false === isset($left)) {
             throw new InvalidArgumentException("Collection ID $collections_id not found in Structure");
-        }
+        }*/
         
+        if (true === isset($left)) {
         // Walk through the children and load the corresponding collection contents
         while ($left < ($right-1)) {
             $left++;
@@ -395,9 +397,9 @@ class Opus_Collection_Information {
             }
             $left = $tree[$left]['right'];
         }
+        }
         return $children;
     }
-    
     
     /**
      * Fetch all document IDs belonging to a collection. 
@@ -436,6 +438,14 @@ class Opus_Collection_Information {
             }
         }
         
+        $ocr  = new Opus_Collection_Replacement($roles_id);
+        $ancestors = $ocr->getAncestor($collections_id);
+        foreach ($ancestors as $ancestor) {
+            if (false === empty($ancestor)) {
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $ancestor));
+            }
+        }
+        
         // Fetch all document IDs linked with the collection ID
         $allCollectionDocuments = $linkDocColl
                                         ->fetchAll($linkDocColl->select()
@@ -448,7 +458,6 @@ class Opus_Collection_Information {
         }
         return array_unique($allCollectionDocumentsOut);                                        
     }
-    
 
     /**
      * Fetch role information to a given role ID. 
@@ -463,7 +472,6 @@ class Opus_Collection_Information {
         return $ocr->getCollectionRoles();
     }
     
-
     /**
      * Fetch all collections on the pathes to the root node. 
      *
@@ -570,6 +578,185 @@ class Opus_Collection_Information {
         
         $link_documents_collections->insert(array('collections_id' => $collections_id, 
                                     'documents_id'   => $documents_id));
+    }
+    
+    /*
+     * 
+     */
+    static public function replace($roles_id, $collections_id, array $contentArray) {
+        // TODO: Verification, Comments, $ocs->load();
+        $new_collections_id = 0;
+        // Load collection tree
+        $ocs = new Opus_Collection_Structure($roles_id);    
+        $ocs->load();
+        
+        $parents_ids = $ocs->getAllParents($collections_id);
+        
+        // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
+        foreach ($parents_ids as $parents_id) {
+            // First a complete new collection is created, then the copies (positions) follow
+            if (0 === $new_collections_id) {
+                $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray);
+                $ocs->load(); 
+                
+                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $leftSibling = 0;
+                foreach ($subColls as $subColl) {
+                    self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);
+                    $ocs->load(); 
+                    $leftSibling = (int) $subColl['structure']['collections_id'];
+                }
+            } else {
+                self::newCollectionPosition($roles_id, $new_collections_id, (int) $parents_id, $collections_id);
+                $ocs->load(); 
+            }
+            
+            $ocs->hide($collections_id);
+            $ocs->save();
+        }
+        // Entry in the replacement table
+        $ocr = new Opus_Collection_Replacement($roles_id);
+        $ocr->replace($collections_id, $new_collections_id);
+        
+        return $new_collections_id;
+    }
+    
+    /*
+     * 
+     */
+    static public function merge($roles_id, $collections_id1, $collections_id2, array $contentArray) {
+        // TODO: Verification, Comments, $ocs->load();
+        $new_collections_id = 0;
+        // Load collection tree
+        $ocs = new Opus_Collection_Structure($roles_id);    
+        $ocs->load();
+        
+        $parents_ids = $ocs->getAllParents($collections_id1);
+        
+        // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
+        foreach ($parents_ids as $parents_id) {
+            // First a complete new collection is created, then the copies (positions) follow
+            if (0 === $new_collections_id) {
+                $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id1, $contentArray);
+                $ocs->load(); 
+                
+                $subColls = self::getSubCollections($roles_id, $collections_id1, true);
+                $leftSibling = 0;
+                foreach ($subColls as $subColl) {
+                    self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);
+                    $ocs->load(); 
+                    $leftSibling = (int) $subColl['structure']['collections_id'];
+                }
+            } else {
+                self::newCollectionPosition($roles_id, $new_collections_id, (int) $parents_id, $collections_id1);
+                $ocs->load(); 
+            }
+            
+            $ocs->hide($collections_id1);
+            $ocs->save();
+        }
+        
+        // Und der zweite Streich
+        $ocs->load();
+        
+        $parents_ids = $ocs->getAllParents($collections_id2);
+        
+        // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
+        foreach ($parents_ids as $parents_id) {
+            // First a complete new collection is created, then the copies (positions) follow
+            if (0 === $new_collections_id) {
+                $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id2, $contentArray);
+                $ocs->load(); 
+                
+                $subColls = self::getSubCollections($roles_id, $collections_id2, true);
+                $leftSibling = 0;
+                foreach ($subColls as $subColl) {
+                    self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);
+                    $ocs->load(); 
+                    $leftSibling = (int) $subColl['structure']['collections_id'];
+                }
+            } else {
+                self::newCollectionPosition($roles_id, $new_collections_id, (int) $parents_id, $collections_id2);
+                $ocs->load(); 
+            }
+            
+            $ocs->hide($collections_id2);
+            $ocs->save();
+        }
+        
+        $ocs->load();
+        // Entry in the replacement table
+        $ocr = new Opus_Collection_Replacement($roles_id);
+        $ocr->merge($collections_id1, $collections_id2, $new_collections_id);
+        
+        return $new_collections_id;
+    }
+    
+    /*
+     * 
+     */
+    static public function split($roles_id, $collections_id, array $contentArray1, array $contentArray2) {
+        // TODO: Verification, Comments, $ocs->load();
+        
+        // Load collection tree
+        $ocs = new Opus_Collection_Structure($roles_id);    
+        $ocs->load();
+        
+        $parents_ids = $ocs->getAllParents($collections_id);
+        
+        $new_collections_id1 = 0;
+        // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
+        foreach ($parents_ids as $parents_id) {
+            // First a complete new collection is created, then the copies (positions) follow
+            if (0 === $new_collections_id1) {
+                $new_collections_id1 = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray2);
+                $ocs->load(); 
+                
+                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $leftSibling = 0;
+                foreach ($subColls as $subColl) {
+                    self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id1, $leftSibling);
+                    $ocs->load(); 
+                    $leftSibling = (int) $subColl['structure']['collections_id'];
+                }
+            } else {
+                self::newCollectionPosition($roles_id, $new_collections_id1, (int) $parents_id, $collections_id);
+                $ocs->load(); 
+            }
+        }
+        
+        
+        $new_collections_id2 = 0;
+        // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
+        foreach ($parents_ids as $parents_id) {
+            // First a complete new collection is created, then the copies (positions) follow
+            if (0 === $new_collections_id2) {
+                $new_collections_id2 = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray1);
+                $ocs->load(); 
+                
+                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $leftSibling = 0;
+                foreach ($subColls as $subColl) {
+                    self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id2, $leftSibling);
+                    $ocs->load(); 
+                    $leftSibling = (int) $subColl['structure']['collections_id'];
+                }
+            } else {
+                self::newCollectionPosition($roles_id, $new_collections_id2, (int) $parents_id, $collections_id);
+                $ocs->load(); 
+            }
+            
+            $ocs->hide($collections_id);
+            $ocs->save();
+        }
+        
+        
+        
+        // Entry in the replacement table
+        $ocr = new Opus_Collection_Replacement($roles_id);
+        $ocr->split($collections_id, $new_collections_id1, $new_collections_id2);
+        
+        return array($new_collections_id1, $new_collections_id2);
     }
     
 }
