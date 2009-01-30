@@ -465,6 +465,36 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after add call.');
     }
 
+    /**
+     * Test if a call to toArray() triggers lazy fetching mechanism.
+     *
+     * @return void
+     */
+    public function testToArrayCallTriggersLazyFetching() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        $mockup->toArray();
+
+        // Check that _loadExternal has been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toArray() call.');
+    }
+
+    /**
+     * Test if a call to toXml() triggers lazy fetching mechanism.
+     *
+     * @return void
+     */
+    public function testToXmlCallTriggersLazyFetching() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+
+        $mockup->toXml();
+
+        // Check that _loadExternal has been called
+        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
+    }
+
 
     /**
      * Test if an call to add...() throws an exception if the 'through' definition for
@@ -511,6 +541,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $fieldvalue = $field->getValue();
         $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
     }
+
 
 
 

@@ -691,6 +691,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     public function toArray() {
         $result = array();
         foreach ($this->_fields as $fieldname => $field) {
+
+            // Call to getField() to ensure fetching of pending fields.
+            if (in_array($fieldname, $this->_pending) === true) {
+                $field = $this->getField($fieldname);
+            }
+
             if ($field->hasMultipleValues()) {
                 $fieldvalues = array();
                 foreach($field->getValue() as $value) {
@@ -720,6 +726,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     public function toXml() {
         $result = '';
         foreach ($this->_fields as $fieldname => $field) {
+
+            // Call to getField() to ensure fetching of pending fields.
+            if (in_array($fieldname, $this->_pending) === true) {
+                $field = $this->getField($fieldname);
+            }
+
             if ($field->hasMultipleValues()) {
                 $fieldvalues = '';
                 foreach($field->getValue() as $value) {
