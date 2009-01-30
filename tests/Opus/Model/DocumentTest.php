@@ -863,4 +863,28 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
                 'Getting a field value containing a link model failed.');
     }
 
+    /**
+     * Test if title informations delivered back properly with toArray().
+     *
+     * @return void
+     */
+    public function testToArrayReturnsCorrectValuesForTitleMain(){
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+
+        $doc = new Opus_Model_Document(null, 'article');
+        $title = $doc->addTitleMain();
+        $title->setTitleAbstractLanguage('de');
+        $title->setTitleAbstractValue('Ein deutscher Titel');
+        $id = $doc->store();
+
+        $loaded_document = new Opus_Model_Document($id);
+        $iterim_result = $loaded_document->toArray();
+        $result = $iterim_result['TitleMain'][0];
+        $expected = array(
+            'TitleAbstractLanguage' => 'de',
+            'TitleAbstractValue' => 'Ein deutscher Titel'
+            );
+        $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
+    }
+
 }
