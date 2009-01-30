@@ -58,9 +58,9 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     /**
      * Helper method to create a proper array
      *
-     * @param string $name  Name of element
-     * @param string $value Value of element
-     * @param string $label (Optional) Label of element
+     * @param string $name   Name of element
+     * @param string $value  Value of element
+     * @param string $prefix (Optional) Label of element
      * @return array
      */
     private function __skeleton($name, $value, $prefix = null) {
@@ -400,13 +400,20 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->__titleDisplay($field, $value);
     }
 
-    protected function _displayUrn($field, $value) {
+    /**
+     * An urn field need a special handling for display.
+     *
+     * @param string $field  Urn field for displaying
+     * @param array  &$value Value of urn field
+     * @return string
+     */
+    protected function _displayUrn($field, array &$value) {
         $result = '';
         $urn_value = $value['IdentifierValue'];
         if (($this->__saef === false) or (empty($urn_value) === false)) {
             // TODO resolving URI should configurable
             $output_string = 'http://nbn-resolving.de/urn/resolver.pl?' . $urn_value;
-            $iterim_value = '<a href="' . $output_string. '">' . $output_string . '</a>';
+            $iterim_value = '<a href="' . $output_string . '">' . $output_string . '</a>';
             $data = $this->__skeleton($field, $iterim_value);
             $result = $this->view->partial('_model.phtml', $data);
         }
