@@ -400,6 +400,19 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         return $this->__titleDisplay($field, $value);
     }
 
+    protected function _displayUrn($field, $value) {
+        $result = '';
+        $urn_value = $value['IdentifierValue'];
+        if (($this->__saef === false) or (empty($urn_value) === false)) {
+            // TODO resolving URI should configurable
+            $output_string = 'http://nbn-resolving.de/urn/resolver.pl?' . $urn_value;
+            $iterim_value = '<a href="' . $output_string. '">' . $output_string . '</a>';
+            $data = $this->__skeleton($field, $iterim_value);
+            $result = $this->view->partial('_model.phtml', $data);
+        }
+        return $result;
+    }
+
     /**
      * View helper for displaying a model
      *
