@@ -396,7 +396,7 @@ class Opus_Application_Bootstrap {
 
         $backendOptions = array(
             // Directory where to put the cache files. Must be writeable for application server
-            'cache_dir' => self::$applicationWorkspaceDirectory . '/tmp/'
+            'cache_dir' => self::$applicationWorkspaceDirectory . '/cache/'
         );
 
         self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
