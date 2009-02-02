@@ -35,7 +35,7 @@
 class Opus_Search_Index_Indexer {
 	/**
 	 * Index variable
-	 * 
+	 *
 	 * @var Zend_Search_Lucene Index for the search engine
 	 * @access private
 	 */
@@ -43,7 +43,7 @@ class Opus_Search_Index_Indexer {
 
 	/**
 	 * Index path
-	 * 
+	 *
 	 * @var String Path to the index for the search engine
 	 * @access private
 	 */
@@ -51,18 +51,18 @@ class Opus_Search_Index_Indexer {
 
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
 	 */
 	public function __construct() {
         $registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
-        $this->entryindex = Zend_Search_Lucene::create($this->indexPath);           
+        $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
 	}
 
 	/**
 	 * Stores a document in the Search Engine Index
-	 * 
+	 *
 	 * @param Opus_Search_Adapter_DocumentAdapter $doc DocumentAdapter from the document that should be added to the index
 	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
 	 * @return void

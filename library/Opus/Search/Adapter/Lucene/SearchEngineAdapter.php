@@ -40,15 +40,15 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
 
   /**
    * Standard Operator for queries (if not specified in combination of search terms)
-   * 
+   *
    * @var string Operator
-   * @access private 
+   * @access private
    */
   private $boolean;
 
   /**
    * Constructor
-   * 
+   *
    * @param string $boolean (Optional) Boolean operator used in the query by default; if not specified, AND will be used
    */
   public function __construct($boolean = 'AND') {
@@ -57,7 +57,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
 
   /**
    * Search function: Gives the query to Lucene
-   * 
+   *
    * @param string $query Complete query typed by the user, to be analysed in this function
    * @return Opus_Search_Adapter_Lucene_SearchHitAdapter
    */
@@ -69,7 +69,9 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
         try {
         		$lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
-                $index = new Zend_Search_Lucene($lucenePath);
+                Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+                Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
+        		$index = new Zend_Search_Lucene($lucenePath);
                 // Get the boolean operators used in the query
                 $oquery = $query;
                 if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) {
@@ -81,7 +83,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = ereg_replace('[(\ )|\+|(%20)]', ' AND ', $query);
                         //echo $query;
                         break;
-                        
+
                     # we don't need other cases right now, OR is standard operator for Lucene
                     default:
                         $query = $oquery;
