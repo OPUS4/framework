@@ -312,7 +312,17 @@ class Opus_Application_Bootstrap {
 
         Zend_Translate::setCache(self::$cache);
         $sessiondata = new Zend_Session_Namespace();
-        $translate = new Zend_Translate(Zend_Translate::AN_TMX, self::$applicationRootDirectory . '/modules/');
+        $options = array(
+            'clear' => false,
+            'scan' => Zend_Translate::LOCALE_FILENAME,
+            'ignore' => '.'
+            );
+        $translate = new Zend_Translate(
+            Zend_Translate::AN_TMX,
+            self::$applicationRootDirectory . '/modules/',
+            'auto',
+            $options
+            );
         if (empty($sessiondata->language) === false) {
             // Example for logging something
             $logger = Zend_Registry::get('Zend_Log');
@@ -406,7 +416,7 @@ class Opus_Application_Bootstrap {
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Log', $logger);
     }
-    
+
     /**
      * Set up path pattern that is used to look for document type descriptions.
      *
