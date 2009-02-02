@@ -111,7 +111,8 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @return void
      */
     protected function _storeTempFile() {
-        $path = '../tmp/' . date('Y') . '/' . $this->getDocumentsId();
+        //FIXME: Hard coded path!
+        $path = '../workspace/tmp/' . date('Y') . '/' . $this->getDocumentsId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }

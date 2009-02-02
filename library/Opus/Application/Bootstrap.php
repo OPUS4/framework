@@ -56,6 +56,12 @@ class Opus_Application_Bootstrap {
      */
     protected static $applicationRootDirectory = '';
 
+    /**
+    * Path to workspace directory.
+    *
+    * @var string
+    */
+    protected static $applicationWorkspaceDirectory = ''; 
 
     /**
      * Stores a reference to the cache component.
@@ -91,6 +97,7 @@ class Opus_Application_Bootstrap {
             throw new Exception('Configuration error. No application base path given.');
         }
         self::$applicationRootDirectory = $applicationRootDirectory;
+        self::$applicationWorkspaceDirectory = self::$applicationRootDirectory . '/workspace';
 
         self::setupEnvironment();
         self::configure($configLevel, $configPath);
@@ -348,7 +355,7 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupLucene()
     {
-        $lucenePath = self::$applicationRootDirectory . '/lucene_index';
+        $lucenePath = self::$applicationWorkspaceDirectory . '/lucene_index';
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_LuceneIndexPath', $lucenePath);
     }
@@ -389,7 +396,7 @@ class Opus_Application_Bootstrap {
 
         $backendOptions = array(
             // Directory where to put the cache files. Must be writeable for application server
-            'cache_dir' => self::$applicationRootDirectory . '/tmp/'
+            'cache_dir' => self::$applicationWorkspaceDirectory . '/tmp/'
         );
 
         self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
@@ -407,7 +414,7 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupLogging()
     {
-        $logfile = @fopen(self::$applicationRootDirectory . '/log/opus.log', 'a', false);
+        $logfile = @fopen(self::$applicationWorkspaceDirectory . '/log/opus.log', 'a', false);
         if ( $logfile === false ) {
             throw new Exception('Failed to open logging file.');
         }
