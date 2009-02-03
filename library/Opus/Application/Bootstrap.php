@@ -64,13 +64,6 @@ class Opus_Application_Bootstrap {
     protected static $applicationWorkspaceDirectory = '';
 
     /**
-     * Stores a reference to the cache component.
-     *
-     * @var Zend_Cache
-     */
-    protected static $pagecache = null;
-
-    /**
      * Declare the use of production state configuration.
      *
      */
@@ -118,6 +111,11 @@ class Opus_Application_Bootstrap {
         self::sendResponse($response);
     }
 
+    /**
+     * Setup database cache.
+     *
+     * @return void
+     */
     protected static function setupDatabaseCache() {
         $cache = null;
         $frontendOptions = array(
@@ -319,6 +317,11 @@ class Opus_Application_Bootstrap {
         $response->sendResponse();
     }
 
+    /**
+     * Setup translation cache.
+     *
+     * @return void
+     */
     protected static function setupTranslationCache() {
         $cache = null;
         $frontendOptions = array(
