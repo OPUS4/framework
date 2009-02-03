@@ -61,14 +61,14 @@ class Opus_Application_Bootstrap {
     *
     * @var string
     */
-    protected static $applicationWorkspaceDirectory = ''; 
+    protected static $applicationWorkspaceDirectory = '';
 
     /**
      * Stores a reference to the cache component.
      *
      * @var Zend_Cache
      */
-    protected static $cache = null;
+    protected static $pagecache = null;
 
     /**
      * Declare the use of production state configuration.
@@ -101,20 +101,40 @@ class Opus_Application_Bootstrap {
 
         self::setupEnvironment();
         self::configure($configLevel, $configPath);
+        self::setupDatabaseCache();
         self::setupDatabase();
         self::setupLogging();
-        self::setupCache();
+        self::setupTranslationCache();
         self::setupTranslation();
         self::setupLucene();
         self::setupDocumentType();
         self::prepare();
 
-        // start caching
-        //self::$cache->start();
+        // start page caching
+        self::setupPageCache();
         // if the cache is hit, the result is sent to the browser and the script stop here
 
         $response = self::$frontController->dispatch();
         self::sendResponse($response);
+    }
+
+    protected static function setupDatabaseCache() {
+        $cache = null;
+        $frontendOptions = array(
+            // Set cache lifetime to 5 minutes (in seconds)
+            'lifetime' => 600,
+            'automatic_serialization' => true,
+        );
+
+        $backendOptions = array(
+            // Directory where to put the cache files. Must be writeable for application server
+            'cache_dir' => self::$applicationWorkspaceDirectory . '/cache/'
+        );
+
+        $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+
+        // enable db metadata caching
+        Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
     }
 
 
@@ -299,6 +319,23 @@ class Opus_Application_Bootstrap {
         $response->sendResponse();
     }
 
+    protected static function setupTranslationCache() {
+        $cache = null;
+        $frontendOptions = array(
+            // Set cache lifetime to 5 minutes (in seconds)
+            'lifetime' => 600,
+            'automatic_serialization' => true,
+        );
+
+        $backendOptions = array(
+            // Directory where to put the cache files. Must be writeable for application server
+            'cache_dir' => self::$applicationWorkspaceDirectory . '/cache/'
+        );
+
+        $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+        Zend_Translate::setCache($cache);
+    }
+
     /**
      * Setup Zend_Translate with language resources of all existent modules.
      *
@@ -316,8 +353,6 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupTranslation()
     {
-
-        Zend_Translate::setCache(self::$cache);
         $sessiondata = new Zend_Session_Namespace();
         $options = array(
             'clear' => false,
@@ -368,10 +403,11 @@ class Opus_Application_Bootstrap {
      * @return void
      *
      */
-    protected static function setupCache()
+    protected static function setupPageCache()
     {
-        // Set cache lifetime to 5 minutes
+        $pagecache = null;
         $frontendOptions = array(
+            // Set cache lifetime to 5 minutes (in seconds)
             'lifetime' => 600,
             'debug_header' => false,
             // turning on could slow down caching
@@ -401,10 +437,9 @@ class Opus_Application_Bootstrap {
             'cache_dir' => self::$applicationWorkspaceDirectory . '/cache/'
         );
 
-        self::$cache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
+        $pagecache = Zend_Cache::factory('Page', 'File', $frontendOptions, $backendOptions);
+        $pagecache->start();
 
-        // enable db metadata caching
-        // Zend_Db_Table_Abstract::setDefaultMetadataCache(self::$cache);
     }
 
     /**
