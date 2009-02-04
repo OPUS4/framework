@@ -70,7 +70,10 @@ class Opus_Search_Index_Indexer {
 	public function addDocumentToEntryIndex(Opus_Model_Document $doc) {
     	try {
 			#print_r($doc->getDocument());
-    	    $this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
+    	    $analyzedDocs = $this->analyzeDocument($doc);
+            foreach ($analyzedDocs as $analyzedDoc) {
+			 $this->entryindex->addDocument(new Opus_Search_Index_Document($analyzedDoc));
+            }
 			# Do not flush, it will work without it
 			# Flush sends some return value that Zend interprets as header information
 			#flush();
@@ -81,6 +84,73 @@ class Opus_Search_Index_Indexer {
 	}
 
 	private function analyzeDocument(Opus_Model_Document $doc) {
+        #print_r($doc->toArray());
+        $docarray = array();
+        $document['docid'] = $doc->getId();
+        $document['year'] = $doc->getField('PublishedYear')->getValue();
+        $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
+        $document['urn'] = $doc->getUrn()->getIdentifierValue();
+        $titles = $doc->getField('TitleMain')->getValue();
+        $title_count = count($titles);
+        $abstracts = $doc->getField('TitleAbstract')->getValue();
+        $returnarray = array();
+        $langarray = array();
+        // Look at all titles of the document
+        foreach ($titles as $title)
+        {
+            $document['title'] = $title->getTitleAbstractValue();
+            $lang = $title->getTitleAbstractLanguage();
+            $document['abstract'] = $this->getAbstract($abstracts, $lang);
+            array_push($langarray, $lang);
+            array_push($returnarray, $document);
+        }
+        // Get abstract with the corresponding language of title
+        // if that does not exist, get first title
+        #foreach ($abstracts as $abstract)
+        #{
 
+        #}
+        // Look if there are non-indexed abstracts left
+        $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
+        $document['title'] = $doc->getTitleMain(0)->getTitleAbstractValue();
+        foreach ($not_processed_abstracts as $abstract) {
+            $document['abstract'] = $abstract;
+            array_push($returnarray, $document);
+        }
+        // return array of documents to index
+        return $returnarray;
+	}
+
+	private function getAbstract($abstracts, $language) {
+        foreach ($abstracts as $abstract)
+        {
+            if ($abstract->getTitleAbstractLanguage() === $language) {
+                return $abstract->getTitleAbstractValue();
+            }
+        }
+        return null;
+	}
+
+	private function checkAbstractLanguage($abstracts, array $languages) {
+        $not_processed = array();
+	    foreach ($abstracts as $abstract)
+        {
+            if (false === in_array($abstract->getTitleAbstractLanguage(), $languages)) {
+                array_push($not_processed, $abstract->getTitleAbstractValue());
+            }
+        }
+        return $not_processed;
+	}
+
+	private function getAuthors($authors) {
+	    $aut = array();
+	    foreach ($authors as $author)
+	    {
+	        array_push($aut, $author->getLastName() . ', ' . $author->getFirstName());
+	    }
+	    if (count($aut) > 0) {
+	       return implode('; ', $aut);
+	    }
+	    return null;
 	}
 }
