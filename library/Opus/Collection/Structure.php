@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library - 
- * Dresden State and University Library, the Bielefeld University Library and 
- * the University Library of Hamburg University of Technology with funding from 
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,8 +20,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Framework
@@ -42,43 +42,43 @@ class Opus_Collection_Structure {
 
     /**
      * The collection-structure (tree) array
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $collectionStructure;
-    
+
     /**
      * Container for collections_structure table gateway
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $collections_structure;
-    
+
     /**
      * Container for collections_structure table metadata
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $collections_structure_info;
-    
+
     /**
      * Container for identifying attribute
-     * 
-     * @var string 
+     *
+     * @var string
      */
     private $collectionsIdentifier;
-    
+
     /**
      * Container for validation object
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $validation;
-    
+
     /**
-     * Constructor. 
+     * Constructor.
      *
-     * @param string|integer $ID Number identifying the collection tree (role) 
+     * @param string|integer $ID Number identifying the collection tree (role)
      *                           or 'institute' for the institutes tree.
      */
     public function __construct($ID) {
@@ -91,17 +91,17 @@ class Opus_Collection_Structure {
             // For throwing Inv Arg Exception on non existing roles IDs
             $ocr  = new Opus_Collection_Roles();
             $ocr->load($ID);
-            
+
             $this->collectionsIdentifier = 'collections_id';
             $this->collections_structure = new Opus_Db_CollectionsStructure((int) $ID);
         }
         $this->collectionStructure = array();
         $this->collections_structure_info = $this->collections_structure->info();
     }
-    
+
     /**
      * Creates an collection-structure array. A standard hidden root node simplifies manipulating methods.
-     * 
+     *
      * @return void
      */
     public function create() {
@@ -110,7 +110,7 @@ class Opus_Collection_Structure {
                                                 'right' => 2,
                                                 'visible' => 0);
     }
-    
+
     /**
      * Returns collections_id to the given LEFT attribute.
      *
@@ -129,7 +129,7 @@ class Opus_Collection_Structure {
         $this->leftOrder();
         return (int) $this->collectionStructure[$left]['collections_id'];
     }
-    
+
     /**
      * Returns collection structure array.
      *
@@ -138,10 +138,10 @@ class Opus_Collection_Structure {
     public function getCollectionStructure() {
         return $this->collectionStructure;
     }
-    
+
     /**
      * Load structure from database.
-     * 
+     *
      * @return void
      */
     public function load() {
@@ -152,7 +152,7 @@ class Opus_Collection_Structure {
         }
         $this->leftOrder();
     }
-    
+
     /**
      * Save structure to database.
      *
@@ -172,13 +172,13 @@ class Opus_Collection_Structure {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Insert a new node below the given parent and right of the given sibling.
      *
      * @param integer $collections_id Number identifying the specific collection.
      * @param integer $parent         Designated parent node.
-     * @param integer $leftSibling    (Optional) Designated left sibling node or 0 for no sibling. 
+     * @param integer $leftSibling    (Optional) Designated left sibling node or 0 for no sibling.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -192,7 +192,7 @@ class Opus_Collection_Structure {
         $new_left = 0;
         // For each node
         foreach ($this->collectionStructure as $index1 => $nested_set) {
-            
+
             // If node is the designated parent
             if ($parent === (int) $this->collectionStructure[$index1][$this->collectionsIdentifier]) {
                 // Ensure that collection isn't already child node of designated parent node
@@ -210,13 +210,13 @@ class Opus_Collection_Structure {
                     }
                     $left = $this->collectionStructure[$left]['right'];
                 }
-                
+
                 if (false === $leftSiblingFound) {
                     $leftSibling = 0;
                 }
-            
+
                 if (false === $collectionAlreadyChild) {
-                
+
                     // If parent has no child or new node shall be most left sibling
                     if (($this->collectionStructure[$index1]['right'] === $this->collectionStructure[$index1]['left']+1) or
                         ($leftSibling === 0)) {
@@ -240,12 +240,12 @@ class Opus_Collection_Structure {
                         }
                     }
                     $insertionLeft[] = $new_left;
-                    
-                }   
-                $parentNodeFound = true;             
+
+                }
+                $parentNodeFound = true;
             }
         }
-        
+
         if (isset($insertionLeft)) {
             rsort($insertionLeft);
             foreach ($insertionLeft as $new_left) {
@@ -262,15 +262,15 @@ class Opus_Collection_Structure {
                                                                             'right'   => (int) $new_left+1,
                                                                             'visible' => 1);
             }
-            
+
             $subTreeFound = false;
             // Rekursives Subtree-kopieren
             foreach ($this->collectionStructure as $index => $nested_set) {
                 // If subtree not found yet AND node is the right collection AND node is not a leaf
                 if ((false === $subTreeFound) AND
-                    ($collections_id === (int) $nested_set[$this->collectionsIdentifier]) AND 
+                    ($collections_id === (int) $nested_set[$this->collectionsIdentifier]) AND
                     ((int) $nested_set['right'] > ((int) $nested_set['left']) + 1)) {
-                    
+
                     $subTreeFound = true;
                     $left = (int) $nested_set['left'];
                     $right = (int) $nested_set['right'];
@@ -283,20 +283,63 @@ class Opus_Collection_Structure {
                         $leftSibling = $subcollection_id;
                         $left = $this->collectionStructure[$left]['right'];
                     }
-                   
+
                     foreach ($insertionArray as $record) {
                         $this->insert($record[0], $record[1], $record[2]);
                     }
                 }
             }
         }
-        
+
         $this->leftOrder();
         if ($parentNodeFound === false) {
             throw new InvalidArgumentException("Parent node $parent not found for insertion.");
         }
     }
-    
+
+
+
+
+        /*
+     *
+     */
+    public function parent($left) {
+        // TODO: Validation, Commenting
+        $this->leftOrder();
+        $tree = $this->collectionStructure;
+        for ($leftValue = 1; $leftValue < $left; $leftValue++) {
+            if ((isset($tree[$leftValue])) AND ($tree[$leftValue]['right'] > $tree[$left]['right'])) {
+                $parent = $tree[$leftValue];
+            }
+        }
+        if (isset($parent)) {
+            return $parent;
+        } else {
+            return false;
+        }
+    }
+
+
+    /*
+     *
+     */
+    public function IDToleft($collection_id, $parent_id) {
+        // TODO: Validation, Commenting
+        $this->leftOrder();
+        foreach ($this->collectionStructure as $index => $nested_set) {
+            $parent_set = $this->parent($index);
+            if (((int) $nested_set[$this->collectionsIdentifier] === (int) $collection_id)
+                AND ((int) $parent_set[$this->collectionsIdentifier] === (int) $parent_id)) {
+                $left_array[] = $nested_set['left'];
+            }
+        }
+        if (isset($left_array)) {
+            return $left_array;
+        } else {
+            return false;
+        }
+    }
+
     /**
      * Delete the node with the given LEFT attribute.
      *
@@ -309,13 +352,13 @@ class Opus_Collection_Structure {
         $this->validation->ID($left);
         $collections_id = $this->leftToID($left);
         $this->leftOrder();
-        
+
         if (false === isset($this->collectionStructure[$left])) {
             throw new InvalidArgumentException('Left value ' . $left . ' not found in tree.');
         }
-        
+
         $right = $left+1;
-        
+
         while ((int) $this->collectionStructure[$left]['right'] !== ($right)) {
             $this->delete($right);
         }
@@ -328,13 +371,13 @@ class Opus_Collection_Structure {
                 if ($this->collectionStructure[$index]['right'] >= $left) {
                     $this->collectionStructure[$index]['right'] -= 2;
                 }
-            
+
         }
-        
+
         $this->leftOrder();
     }
-        
-    
+
+
     /**
      * Hide nodes with the given collections_id.
      *
@@ -351,7 +394,7 @@ class Opus_Collection_Structure {
             }
         }
     }
-    
+
     /**
      * Count occurrences of a collection in the tree.
      *
@@ -370,9 +413,9 @@ class Opus_Collection_Structure {
         }
         return $count;
     }
-    
+
     /*
-     * 
+     *
      */
     public function getAllParents($collections_id) {
         $this->validation = new Opus_Collection_Validation();
@@ -393,10 +436,10 @@ class Opus_Collection_Structure {
         }
         return array_unique($parents);
     }
-    
+
     /**
      * Set collectionStructure indizes to LEFT attribute for easier access
-     * 
+     *
      * @return void
      */
     public function leftOrder() {
