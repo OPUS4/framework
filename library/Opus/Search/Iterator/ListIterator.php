@@ -2,7 +2,7 @@
 /**
  * Implementation of PHP5 Iterator interface
  * Parent Class of all Iterators used in OPUS Module_Search
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -37,15 +37,15 @@
 
 /**
  * Interface Iterator already defined by PHP5
- * 
+ *
  * This is the reference implementation of Iterator for Opus-Lists
  */
-class Opus_Search_Iterator_ListIterator implements Iterator
+class Opus_Search_Iterator_ListIterator implements Iterator, Countable
 {
-	
+
   /**
    * List, that can be iterated with this Iterator
-   * 
+   *
    * @var BasicList List this Iterator should work on
    * @access private
    */
@@ -53,7 +53,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
 
   /**
    * Internal index counter
-   * 
+   *
    * @var integer Number of the internal index counter
    * @access private
    */
@@ -61,7 +61,7 @@ class Opus_Search_Iterator_ListIterator implements Iterator
 
   /**
    * Constructor
-   * 
+   *
    * @param BasicList $list List for this Iterator
    */
   public function __construct($list) {
@@ -70,21 +70,21 @@ class Opus_Search_Iterator_ListIterator implements Iterator
 
   /**
    * Moves internal counter to the beginning of the list
-   * 
+   *
    * @return void
    */
-  public function rewind() 
+  public function rewind()
   {
   	$this->_currentIndex = 0;
   }
 
   /**
    * Checks if the list has more elements, returns false if current element is the last element of list (there are no more elements)
-   * 
+   *
    * @throws ListOutOfBoundsException Is thrown when the current index is higher than the length of the list
    * @return boolean Last element of the list?
    */
-  public function valid() 
+  public function valid()
   {
   	if (is_object($this->list) === false) {
   		return false;
@@ -100,53 +100,57 @@ class Opus_Search_Iterator_ListIterator implements Iterator
 
   /**
    * Returns the current position in the hitlist
-   * 
+   *
    * @return integer Current position of internal counter
    */
-  public function key() 
+  public function key()
   {
   	return $this->_currentIndex;
   }
 
   /**
    * Increments internal counter
-   * 
+   *
    * @return void
-   */ 
+   */
   public function next() {
     $this->_currentIndex++;
   }
 
   /**
    * Checks if the list has a following element
-   * 
+   *
    * @return boolean If true, there is another element, otherwise its false
-   */ 
+   */
   public function hasNext() {
     if ($this->_currentIndex < ($this->list->count()-1)) {
     	 return true;
     }
     return false;
   }
-  
+
+  public function count() {
+      return $this->list->count();
+  }
+
   /**
    * Returns the list of this Iterator
    * needed to count the elements of the current list or to rebuild it (resort)
-   * 
+   *
    * @return BasicList list this this Iterator is working with
    */
   public function getList()
   {
   	return $this->list;
   }
-  
+
   /**
    * Definition of the method to get the current element from the list
    * needs to be implemented in all child classes
-   * 
-   * @return Object the currently selected object of the list 
+   *
+   * @return Object the currently selected object of the list
    */
-  public function current() { 
+  public function current() {
   	return null;
   }
 }
