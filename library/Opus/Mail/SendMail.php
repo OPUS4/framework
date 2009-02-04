@@ -63,32 +63,11 @@ class Opus_Mail_SendMail {
     private $_fromName;
 
     /**
-     * Holds the e-mail address of the recipient
-     *
-     * @var string
-     */
-    private $_to;
-
-    /**
-     * Holds the name of the recipient
-     *
-     * @var string
-     */
-    private $_toName;
-
-    /**
-     * Holds the e-mail addresses of the recipients
+     * Holds the e-mail addresses and names of the recipients
      *
      * @var array
      */
-    private $_multipleTo;
-
-    /**
-     * Holds the names of the recipients
-     *
-     * @var array
-     */
-    private $_multipleToName;
+    private $_recipients;
 
     /**
      * Holds the subject of the e-mail
@@ -114,83 +93,22 @@ class Opus_Mail_SendMail {
     }
 
     /**
-     * Set the e-mail address of the recipient
+     * Set the recipients
      *
-     * @param   string $to Recipient's e-mail address
+     * @param   array $recipients Recipients
      * @return  void
      */
-    public function setTo($to) {
-        $this->validateAddress($to);
-        $this->$_to = $to;
+    public function setRecipients($recipients) {
+        $this->$_recipients = $recipients;
     }
 
     /**
-     * Get the e-mail address of the recipient
+     * Get the recipients
      *
-     * @return string Recipient's e-mail address
+     * @return array recipients
      */
-    public function getTo() {
-        return $this->$_to;
-    }
-
-    /**
-     * Set the name of the recipient
-     *
-     * @param   string $toName Recipient's name
-     * @return  void
-     */
-    public function setToName($toName) {
-        $this->$_toName = $toName;
-    }
-
-    /**
-     * Get the name of the recipient
-     *
-     * @return string Recipient's name
-     */
-    public function getToName() {
-        return $this->$_toName;
-    }
-
-    /**
-     * Set the e-mail addresses of the recipients
-     *
-     * @param   string $multipleTo Recipients' e-mail addresses
-     * @return  void
-     */
-    public function setMultipleTo($multipleTo) {
-        foreach ($multipleTo as $to) {
-            $this->validateAddress($to);
-        }
-        $this->$_multipleTo = $multipleTo;
-    }
-
-    /**
-     * Get the e-mail addresses of the recipients
-     *
-     * @return string Recipients' e-mail addresses
-     */
-    public function getMultipleTo() {
-        return $this->$_multipleTo;
-    }
-
-    /**
-     * Set the names of the recipients
-     *
-     * @param   string $multipleToName Recipients' names
-     * @return  void
-     */
-    public function setMultipleToName($multipleToName) {
-        $this->$_multipleTo = $multipleToName;
-    }
-
-    /**
-     * Get the names of the recipients
-     *
-     * @return string Recipients' names
-     */
-    public function getMultipleToName() {
-        return $this->$_multipleToName;
+    public function getRecipients() {
+        return $this->$_recipients;
     }
 
     /**
@@ -286,7 +204,7 @@ class Opus_Mail_SendMail {
      *
      * @param   string $address     Address
      * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
-     * @return  void
+     * @return  string              Address
      */
     private function validateAddress($address) {
         $validator = new Zend_Validate_EmailAddress();
@@ -295,6 +213,24 @@ class Opus_Mail_SendMail {
                 throw new Opus_Mail_Exception($message);
             }
         }
+
+        return $address;
+    }
+
+    /**
+     * Forms an array with address and composed name from a user object.
+     *
+     * @param   Opus_Model_Person   $recipient  Recipient
+     * @return  array                           Recipients' addresses and names
+     */
+    private function formRecipient($recipient) {
+        $recip = array ('address' => '', 'name' => '');
+        $recip['address'] = validateAddress($recipient->getField('EMail'));
+        $firstName = $recipient->getField('FirstName');
+        $lastName = $recipient->getField('LastName');
+        $recip['name'] = $firstName . ' ' . $lastName;
+
+        return $recip;
     }
 
     /**
@@ -303,95 +239,98 @@ class Opus_Mail_SendMail {
      * of sending mails anonymously to user-defined recipients.
      * Recommendation:  Please use the "sendMailTo..." methods
      *
-     * @param   string $from      Sender address
-     * @param   string $fromName  Sender name
-     * @param   string $subject   Subject
-     * @param   string $bodyText  Text
-     * @param   string $to        Recipient address
-     * @param   string $toName    Recipient name
+     * @param   string $from        Sender address
+     * @param   string $fromName    Sender name
+     * @param   string $subject     Subject
+     * @param   string $bodyText    Text
+     * @param   array  $recipients  Recipients
      * @return  void
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, $to, $toName) {
-        $this->setFrom($from);
-        $this->setFromName($fromName);
+    public function sendMail($from, $fromName, $subject, $bodyText, $recipients) {
+        $this->setRecipients($recipients);
         $this->setSubject($subject);
         $this->setBodyText($bodyText);
         $this->setTo($to);
         $this->setToName($toName);
 
-        $this->composeMail();
         $this->send();
     }
 
     /**
-     * Creates and sends an e-mail to the specified recipient.
+     * Creates and sends an e-mail to the specified recipients.
      *
-     * @param   string $to        Recipient address
-     * @param   string $toName    Recipient name
-     * @param   string $subject   Subject
-     * @param   string $bodyText  Text
-     * @param   string $from      Sender address - if not set, the administrator's address is taken
-     * @param   string $fromName  Sender name - if not set, the administator's name is taken
+     * @param   int | Opus_Model_Person | array $recipients Recipients
+     * @param   string                          $subject    Subject
+     * @param   string                          $bodyText   Text
+     * @param   string                          $from       Sender address - if not set, the administrator's address is taken
+     * @param   string                          $fromName   Sender name - if not set, the administator's name is taken
      * @return  void
      * @todo    Get the administrator's e-mail address and name from the configuration file
      */
-    public function sendMailToAuthor($to, $toName, $subject, $bodyText, $from = '', $fromName = '') {
+    public function sendMailToAuthor($recipients, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === false) {
-
-            //$config->Zend_Registry::get('Zend_Config');
-            //$from = $config->mail->mail.opus.address;
-            //$fromName = $config->mail->mail.opus.name;
-            $from = 'eva@o-dyn.de';
-            $fromName = 'OPUS';
+            $config->Zend_Registry->get('Zend_Config');
+            $from = $config->mail->mail.opus.address;
+            $fromName = $config->mail->mail.opus.name;
         }
 
-        $this->sendMail($from, $fromName, $subject, $bodyText, $to, $toName);
+        if (is_int($recipients)) {
+            $recipients = array(new Opus_Model_Person($recipients));
+        }
+
+        if (is_array($recipients) and is_int($recipients[0])) {
+            $recs = array();
+            $recipients = array_unique($recipients);
+            foreach ($recipients as $rec) {
+                $recipient = new Opus_Model_Person($rec);
+                array_push($recs, $recipient);
+            }
+            $recipients = $recs;
+        }
+
+        if (is_object($recipients)) {
+            $recipients = array($recipients);
+        }
+
+        $recips = array('recipients' => array('address' => '', 'name' => ''));
+        if (is_array($recipients) and is_object($recipients[0])) {
+            foreach ($recipients as $rec) {
+                $recFormed = formRecipient($rec);
+                array_push($recips, $recFormed);
+            }
+        }
+
+        $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
     }
 
     /**
      * Creates and sends an e-mail to the administrator.
-     * The author of the secified document will be set as sender.
+     * The author of the specified document will be set as sender.
      *
-     * @param   integer $documentId Document ID
-     * @param   string $subject     Subject
-     * @param   string $bodyText    Text
+     * @param   integer|Opus_Model_Document   $document Document
+     * @param   string                        $subject  Subject
+     * @param   string                        $bodyText Text
      * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found
      * @return  void
-     * @todo    Finish the implementation, i.e. the database queries
+     * @todo    Method must be implemented
      */
-    public function sendMailToAdmin($documentId, $subject, $bodyText) {
-        // Get the author's ID from the DB via the documentId
-        $authorId = 0;
-        if ($authorId === true) {
-            // Get the e-mail address and name of the person you find in the DB with the documents_id
-            $from = '';
-            $fromName = '';
-        }
-        else
-        {
-            throw new Opus_Mail_Exception('The author could not be found.');
-        }
-
-        // Get the administrator's e-mail address and name from the configuration file
-        $to = '';
-        $toName = '';
-
-        $this->sendMail($from, $fromName, $subject, $bodyText, $to, $toName);
+    public function sendMailToAdmin($document, $subject, $bodyText) {
+        // Todo:    Implement
     }
 
     /**
      * Creates and sends an e-mail to all persons connected to the specified document / documents.
      *
-     * @param   integer|array   $documentId Document ID
-     * @param   string          $subject    Subject
-     * @param   string          $bodyText   Text
-     * @param   string          $from       If not set, the standard sender address is taken
-     * @param   string          $fromName   If not set, the standard sender name is taken
+     * @param   mixed  $collection Collection
+     * @param   string $subject    Subject
+     * @param   string $bodyText   Text
+     * @param   string $from       If not set, the standard sender address is taken
+     * @param   string $fromName   If not set, the standard sender name is taken
      * @return  void
      *
      * @todo Method must be implemented.
      */
-    public function sendMailToDocument($collectionId, $subject, $bodyText, $from = '', $fromName = '') {
+    public function sendMailToDocument($collection, $subject, $bodyText, $from = '', $fromName = '') {
         // Todo:    Implement
     }
 
@@ -409,45 +348,33 @@ class Opus_Mail_SendMail {
     }
 
     /**
-     * Composes the e-mail from the specified components.
-     *
-     * @return void
-     */
-    private function composeMail() {
-        $this->$_mail->addTo($this->getTo(), $this->getToName());
-        $this->$_mail->setFrom($this->getFrom(), $this->getFromName());
-        $this->$_mail->setSubject($this->getSubject());
-        $this->$_mail->setBodyText($this->getBodyText());
-    }
-
-    /**
      * Composes the e-mail for multiple recipients from the specified components.
      *
      * @throws  Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
-     * @todo    Method must be implemented.
-     */
-    private function composeMultipleMail() {
-        // When the database query is implemented there should be taken action to avoid duplicate recipients.
-        if (count($this->_multipleTo) != count($this->_multipleToName)) {
-            throw new Opus_Mail_Exception('The number of recipient names is not equal to the number of recipient e-mail addresses.');
-        }
-        $this->$_mail->addTo($this->getMultipleTo(), $this->getMultipleToName());
-        $this->$_mail->setFrom($this->getFrom(), $this->getFromName());
-        $this->$_mail->setSubject($this->getSubject());
-        $this->$_mail->setBodyText($this->getBodyText());
-    }
-
-    /**
-     * Finally sends the e-mail with the specified properties.
-     *
-     * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
-     * @return void
+     * @throws  Opus_Mail_Exception Thrown if the mail could not be sent
      */
     private function send() {
-        try {
-            $this->$_mail->send();
-        } catch (Exception $e) {
-            throw new Opus_Mail_Exception('The mail could not be sent.');
+        $recipients = $this->getRecipients();
+        $from = $this->getFrom();
+        $fromName = $this->getFromName();
+        $subject = $this->getSubject();
+        $text = $this->getBodyText();
+
+        $error = false;
+        foreach ($recipients as $recip) {
+            $this->$_mail->addTo($recip['address'], $recip['name']);
+            $this->$_mail->setFrom($from, $fromName);
+            $this->$_mail->setSubject($subject);
+            $this->$_mail->setBodyText($text);
+
+            try {
+                $this->$_mail->send();
+            } catch (Exception $e) {
+                $error = true;
+            }
+        }
+        if ($error === true) {
+            throw new Opus_Mail_Exception('One or more mails could not be sent.');
         }
     }
 }
