@@ -69,10 +69,12 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $qhit = new Opus_Search_SearchHit($docid);
         $qhit->setRelevance($this->_parent->score);
 
-        $highlightedHTML = $document->getFieldValue('abstract');
-        #$highlightedHTML = $query->highlightMatches(html_entity_decode($document->getFieldValue('abstract')));
+        // highlightMatches needs HTML-Input with charset-meta-line
+        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=UTF-8">' . $document->getFieldValue('abstract'));
+        // hold b-Tags (highlighted text), remove all others
+        $highlighted = strip_tags($highlighter, '<b>');
 
-        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlightedHTML, 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
+        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
         $qhit->setDocument($opusdoc);
         return $qhit;
   }
