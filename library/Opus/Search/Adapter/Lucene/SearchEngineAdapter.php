@@ -89,7 +89,8 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = $oquery;
                         break;
                 }
-                $hits = $index->find(strtolower($query));
+                $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
+                $hits = $index->find(strtolower($lucenequery));
         } catch (Zend_Search_Lucene_Exception $searchException) {
                 echo 'Error: ' . $searchException->getMessage() . '<br/>';
         }

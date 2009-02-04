@@ -79,4 +79,8 @@ class Opus_Search_Index_Indexer {
 			throw $e;
         }
 	}
+
+	private function analyzeDocument(Opus_Model_Document $doc) {
+
+	}
 }

@@ -41,9 +41,42 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
      * Constructor
      *
      * @param Opus_Model_Document $document Document to index
+     * @param Opus_Search_Adapter_FileAdapter     $file      (Optional) File to index
+     */
+    public function __construct(array $document)
+    {
+        if ($document['file'] !== null) {
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $file->getURL(), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext(), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path, $this->encoding));
+        } else {
+                #$this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', join("/", $doc['frontdoorUrl']), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', '', $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten', $this->encoding));
+        }
+        $this->addField(Zend_Search_Lucene_Field::Keyword('docid', $document['id'], $this->encoding));
+        #$this->addField(Zend_Search_Lucene_Field::UnIndexed('werkurl', $doc['frontdoorUrl']));
+        $this->addField(Zend_Search_Lucene_Field::UnIndexed('year', $document['year'], $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Text('teaser', $document['title'], $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Text('title', $document['abstract'], $this->encoding));
+        $authoriterator = $document['authors'];
+        $aut = '';
+        foreach ($authoriterator as $pers) {
+            $aut .= $pers['LastName'] . ', ' . $pers['FirstName'];
+            $aut .= '; ';
+        }
+        $this->addField(Zend_Search_Lucene_Field::Text('author', $aut, $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $document['urn'], $this->encoding));
+    }
+
+
+    /**
+     * Constructor
+     *
+     * @param Opus_Model_Document $document Document to index
      * @param Opus_Search_Adapter_FileAdapter 	  $file 	 (Optional) File to index
      */
-    public function __construct(Opus_Model_Document $document, Opus_Search_Adapter_FileAdapter $file = null)
+    /*public function __construct(Opus_Model_Document $document, Opus_Search_Adapter_FileAdapter $file = null)
     {
         $doc = $document;
         $docarray = $doc->toArray();
@@ -62,12 +95,48 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::UnIndexed('year', $doc->getPublishedYear(), $this->encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('teaser', $doc->getTitleAbstract(0)->getTitleAbstractValue(), $this->encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('title', $doc->getTitleMain(0)->getTitleAbstractValue(), $this->encoding));
-		$authoriterator = $docarray['PersonAuthor'];
-		$aut = '';
-		foreach ($authoriterator as $pers) {
-			$aut .= $pers['LastName'] . ', ' . $pers['FirstName'];
-			$aut .= '; ';
-		}
+        $authoriterator = $docarray['PersonAuthor'];
+        $aut = '';
+        foreach ($authoriterator as $pers) {
+            $aut .= $pers['LastName'] . ', ' . $pers['FirstName'];
+            $aut .= '; ';
+        }
+        $this->addField(Zend_Search_Lucene_Field::Text('author', $aut, $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $doc->getUrn()->getIdentifierValue(), $this->encoding));
+    }*/
+
+    public function getTitles() {
+
+    }
+
+    public function getAbstracts() {
+
+    }
+
+    public function addToIndex() {
+        $doc = $document;
+        $docarray = $doc->toArray();
+        #print_r($docarray);
+        if ($file !== null) {
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', $file->getURL(), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext(), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path, $this->encoding));
+        } else {
+                #$this->addField(Zend_Search_Lucene_Field::UnIndexed('docurl', join("/", $doc['frontdoorUrl']), $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', '', $this->encoding));
+                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten', $this->encoding));
+        }
+        $this->addField(Zend_Search_Lucene_Field::Keyword('docid', $doc->getId(), $this->encoding));
+        #$this->addField(Zend_Search_Lucene_Field::UnIndexed('werkurl', $doc['frontdoorUrl']));
+        $this->addField(Zend_Search_Lucene_Field::UnIndexed('year', $doc->getPublishedYear(), $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Text('teaser', $doc->getTitleAbstract(0)->getTitleAbstractValue(), $this->encoding));
+        $this->addField(Zend_Search_Lucene_Field::Text('title', $doc->getTitleMain(0)->getTitleAbstractValue(), $this->encoding));
+        $authoriterator = $docarray['PersonAuthor'];
+        $aut = '';
+        foreach ($authoriterator as $pers) {
+            $aut .= $pers['LastName'] . ', ' . $pers['FirstName'];
+            $aut .= '; ';
+        }
         $this->addField(Zend_Search_Lucene_Field::Text('author', $aut, $this->encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $doc->getUrn()->getIdentifierValue(), $this->encoding));
     }

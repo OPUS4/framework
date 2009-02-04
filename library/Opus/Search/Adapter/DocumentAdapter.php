@@ -1,7 +1,7 @@
 <?php
 /**
  * Adapter to use the Documents from the framework in Module_Search
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -38,7 +38,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 {
 	/**
 	 * Attribute to store the Document as an Array
-	 * 
+	 *
 	 * @var array data of the document in form of an array
 	 * @access private
 	 */
@@ -46,8 +46,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 
 	/**
 	 * Constructor
-	 * 
-	 * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object 
+	 *
+	 * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object
 	 */
 	public function __construct($opusDocument = null) {
 		$this->documentData = array();
@@ -61,8 +61,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 
 	/**
 	 * Returns the document data as an array
-	 * 
-	 * @return array Array with document data usable in Module_Search 
+	 *
+	 * @return array Array with document data usable in Module_Search
 	 */
 	public function getDocument() {
 		return $this->documentData;
@@ -70,7 +70,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 
 	/**
 	 * Loads a document into the adapter, so that no new adapter has to get initialized
-	 * 
+	 *
 	 * @param integer $id Id of the document to be loaded
 	 * @return void
 	 */
@@ -78,16 +78,16 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		$this->documentData['id'] = $id;
 		$this->mapDocument();
 	}
-	
+
 	/**
 	 * Maps the document data to array data usable in Module_Search
-	 * 
+	 *
 	 * @return void
 	 */
 	private function mapDocument() {
-	    
+
 		$document = new Opus_Model_Document($this->documentData['id']);
-		
+
 		// transfer the title of this document into the adapter class
 		try	{
 			$title = $document->getTitleMain(0);
@@ -95,14 +95,14 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		} catch (Exception $e) {
 			$this->documentData['title'] = 'No title specified!';
 		}
-		
+
 		// transfer the abstract of this document into the adapter class
 		try {
 			if (is_array($document->getTitleAbstract()) === true) {
 				if (count($document->getTitleAbstract()) > 0) {
 					$this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
 				} else {
-					$this->documentData['abstract'] = 'No abstract specified!'; 
+					$this->documentData['abstract'] = 'No abstract specified!';
 				}
 			} else {
 				$this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
@@ -117,14 +117,14 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		} catch (Exception $e) {
 			$this->documentData['year'] = 'No publishing year specified';
 		}
-		
+
 		// transfer the URN of this document into the adapter class
 		try {
 			$this->documentData['urn'] = 'urn:nbn:de:0830-123-3'; # $document->getUrn()->getIdentifierValue();
 		} catch (Exception $e) {
 			$this->documentData['urn'] = 'No URN specified.';
 		}
-		
+
 		// get authors of this document
 		$authors = array();
 		try {
@@ -134,7 +134,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 			}
 		} catch (Exception $e) {
 			// do nothing, as there is the exception that no author is specified
-			if ($e->getCode() === 0) { 
+			if ($e->getCode() === 0) {
 				$this->documentData['author'] = 'No author specified';
 			} else {
 				$this->documentData['author'] = $e->getMessage();
@@ -151,23 +151,23 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		} else {
 			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));
 		}
-		
+
 		// set the URLs for this document
 		// is this to be done here?
 		// for compatibility reasons left here at the moment
-		$this->documentData['frontdoorUrl'] = array(
-			'module' => 'frontdoor',
-			'controller' => 'index',
-			'action' => 'index',
-			'docId' => $this->documentData['id']
-		);
-		$this->documentData['fileUrl'] = array(
-			'module' => 'frontdoor',
-			'controller' => 'index',
-			'action' => 'showfile',
-			'docId' => $this->documentData['id'],
-			'filename' => 'testfile.pdf'
-		);
-		
+		#$this->documentData['frontdoorUrl'] = array(
+		#	'module' => 'frontdoor',
+		#	'controller' => 'index',
+		#	'action' => 'index',
+		#	'docId' => $this->documentData['id']
+		#);
+		#$this->documentData['fileUrl'] = array(
+		#	'module' => 'frontdoor',
+		#	'controller' => 'index',
+		#	'action' => 'showfile',
+		#	'docId' => $this->documentData['id'],
+		#	'filename' => 'testfile.pdf'
+		#);
+
 	}
 }
