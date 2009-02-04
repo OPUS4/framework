@@ -265,7 +265,6 @@ class Opus_Mail_SendMail {
      * @param   string                          $from       (Optional) Sender address - if not set, the administrator's address is taken
      * @param   string                          $fromName   (Optional) Sender name - if not set, the administator's name is taken
      * @return  void
-     * @todo    Get the administrator's e-mail address and name from the configuration file
      */
     public function sendMailToAuthor($recipients, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === false) {
