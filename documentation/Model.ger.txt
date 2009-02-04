@@ -1,7 +1,9 @@
-= Opus_Model Dokumentation
+Opus_Model Dokumentation
+~~~~~~~~~~~~~~~~~~~~~~~~
 Felix Ostrowski <ostrowski@hbz-nrw.de>
 
-== Beweggründe
+Beweggründe
+^^^^^^^^^^^
 
 Eine Anforderung an Opus ist eine sehr flexible Bereitstellung von verschiedenen
 Dokumenttypen. Das Dokument ist ein komplexes Gebilde und durch eine sehr
@@ -23,7 +25,8 @@ objects, where each object represents some meaningful individual, whether as
 large as a corporation or as small as a single line on an order form.
 ________________________________________________________________________________
 
-== Arten von Opus_Models
+Arten von Opus_Models
+^^^^^^^^^^^^^^^^^^^^^
 
 Die Mindestanforderung an ein Opus Modell ist das Implementieren des Interfaces
 'Opus_Model_Interface'. Dies sollte vor allem dann geschehen, wenn die gesamte
@@ -45,7 +48,8 @@ desweiteren die Möglichkeit, durch erben von
 referenzieren. Das Feld enthält dann einen "Tunnel" zum referenzierten Modell,
 d.h. es ist wie ein eingebundes abhängiges Modell adressierbar.
 
-== Der Aufbau eines Opus_Models
+Der Aufbau eines Opus_Models
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Jedem Opus_Model ist eine 'primäre Tabellenzeile' zugeordnet. So hat etwa ein
 Opus_Model_Document als primäre Tabellenzeile eine Zend_Db_Tablerow aus
@@ -53,7 +57,8 @@ Opus_Db_Documents. Diese primäre Tabellenzeile wird beim Initialisieren gesetzt
 entweder auf einen bestehenden Eintrag (wenn eine ID übergeben wird), oder auf
 einen neuen Eintrag. Sie enthält alle "internen" Felder des Modells.
 
-=== Felder
+Felder
+^^^^^^
 
 Um Attribute setzen und abrufen zu können, verfügen Opus Modelle über Felder
 (Opus_Model_Field). Durch das Anhängen eines Feldes an ein Modell verfügt dieses
@@ -76,7 +81,8 @@ Für den Inhalt eines Feldes bestehen grundsätzlich zwei Möglichkeiten: entwed
 handelt es sich um atomare Werte wie Zahlen und Zeichenketten ("interne" Felder)
 oder es handelt sich um weitere Opus Modelle ("externe" Felder).
 
-==== "Interne Felder"
+"Interne Felder"
+++++++++++++++++
 
 Auch wenn Opus_Model von der Tabellenstruktur abstrahiert, liegt jedem Modell
 eine Tabelle (Opus_Db_*) - genauer: eine Zeile aus einer Tabelle - zugrunde, aus
@@ -149,7 +155,8 @@ abgelegt.
 <4> Die standard Abfragelogik des languages Feldes wird überschrieben. Der
 CSV-String wird in ein Array zerlegt und zurückgeliefert.
 
-==== "Externe" Felder
+"Externe" Felder
+++++++++++++++++
 
 Felder, die sich nicht auf eine Spalte in der primären Tabellenzeile beziehen,
 müssen im Array '$_externalFields' als solche gekennzeichnet und mit einer
@@ -191,7 +198,8 @@ unter ihr veröffentlicht sind, zu erhalten. Dies ist dem Domain model pattern
 geschuldet: es handelt sich um unterschiedliche Beziehungen, auch wenn auf
 Datenbankebene nur eine Tabelle vorhanden ist.
 
-=== Beispiel
+Beispiel
+^^^^^^^^
 
 .Das zu Grunde liegende Modell-Schema
 Der Aufbau der Modelle ist nicht überraschend, ist er doch an tatsächlich
@@ -199,7 +207,7 @@ existierenden Tabellen orientiert. Opus_Model stellt jedoch kurze, rein
 objektorientierte Zugriffs- und Speichermöglichkeiten bereit, für welche
 keinerlei Kenntnis der Tabellenstruktur nötig ist.
 
-image:schema.jpg[]
+image:Model_schema.jpg[]
 
 .Erstellen eines neuen Dokuments
 [source, php]
@@ -244,13 +252,14 @@ Felder entsprechend der Datenbank initialisiert sind.
 <5> Ergibt "Felix".
 <6> Ergibt "Ostrowski".
 
-== Interna von Opus Modellen
+Interna von Opus Modellen
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 NOTE: Dieser Abschnitt dient als (äußerst knappe) Gedächtnisstütze für Entwickler der
 Abstrakten Opus_Model Klassen.
 
-=== Objektkonstruktion
-
+Objektkonstruktion
+++++++++++++++++++
 . Die primäre Tabellenzeile wird gesetzt.
 . Felder werden angehängt.
 . Die Felder werden mit Validatoren versehen.
@@ -260,7 +269,8 @@ Abstrakten Opus_Model Klassen.
 .. Interne Felder werden direkt aus der primären Tabellenzeile bedient.
 .. Externe Felder werden mit den entsprechenden abhängigen Modellen besetzt.
 
-=== Objektspeicherung
+Objektspeicherung
++++++++++++++++++
 . Eine Transaktion wird begonnen.
 . Das Model (also die internen Felder) wird gespeichert, so dass die Id den
 abhängigen Feldern zur Verfügung steht.
