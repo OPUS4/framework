@@ -90,9 +90,12 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         break;
                 }
                 $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
+                if (strlen($query) < 2) {
+                    throw new Exception('Query string should be at least 2 characters long!');
+                }
                 $hits = $index->find(strtolower($lucenequery));
         } catch (Zend_Search_Lucene_Exception $searchException) {
-                echo 'Error: ' . $searchException->getMessage() . '<br/>';
+                throw $searchException;
         }
         // Query results are in Lucene format now
         // We need an OPUS-compliant result list to return
