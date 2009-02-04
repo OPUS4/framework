@@ -298,4 +298,21 @@ class Opus_Model_Document extends Opus_Model_Abstract
         return $result;
     }
 
+    /**
+     * Returns an array of all document ids.
+     *
+     * @return array Array of document ids.
+     */
+    public static function getAllIds() {
+        $table = new Opus_Db_Documents();
+        $select = $table->select()
+            ->from($table, array('documents_id'));
+        $rows = $table->fetchAll($select)->toArray();
+        $ids = array();
+        foreach ($rows as $row) {
+            $ids[] = $row['documents_id'];
+        }
+        return $ids;
+    }
+
 }
