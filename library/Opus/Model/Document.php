@@ -315,4 +315,16 @@ class Opus_Model_Document extends Opus_Model_Abstract
         return $ids;
     }
 
+    /**
+     * Adds the document to a collection.
+     *
+     * @param  int  $role Role of the collection.
+     * @param  int  $id   Id of the collection
+     * @return void
+     */
+    public function addToCollection($role_id, $collection_id) {
+        $collection = new Opus_Model_Collection($role_id, $collection_id);
+        $collection->addDocument($this);
+    }
+
 }

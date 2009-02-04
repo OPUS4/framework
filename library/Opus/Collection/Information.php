@@ -122,7 +122,7 @@ class Opus_Collection_Information {
      * @throws Exception Is thrown on DB errors.
      * @return integer $collections_id ID of the newely created Collection
      */
-    static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray) {
+    static public function newCollection($role_id, $parent_id, $leftSibling_id, array $contentArray = null) {
 
         // Argument validation
         $validation = new Opus_Collection_Validation();
@@ -140,8 +140,9 @@ class Opus_Collection_Information {
         $occ = new Opus_Collection_Contents($role_id);
 
         // Fill the collection content with data
-        $occ->update($contentArray);
-
+        if (is_null($contentArray) === false) {
+            $occ->update($contentArray);
+        }
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
         $db->beginTransaction();
@@ -772,5 +773,4 @@ class Opus_Collection_Information {
 
         return array($new_collections_id1, $new_collections_id2);
     }
-
 }
