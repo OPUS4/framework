@@ -21,8 +21,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category   Framework
@@ -77,9 +77,18 @@ class Opus_View_Helper_LanguageSelector {
         $form->setAction($this->_view->url(array('action' => 'language', 'controller' => 'index', 'module' => 'home')));
         $form->setAttrib('id', 'language_selector');
 
+        $availableLanguages = Zend_Registry::get('Available_Languages');
+        $translations = Zend_Registry::get('Zend_Translate')->getList();
+
+        $languages = array();
+        foreach ($translations as $trans) {
+            $languages[$trans] = $availableLanguages[$trans];
+        }
+        $currentLocale = Zend_Registry::get('Zend_Translate')->getLocale();
+
         $language = new Zend_Form_Element_Select('language');
-        $language->setMultiOptions(Zend_Registry::get('Zend_Translate')->getList());
-        $language->setValue(Zend_Registry::get('Zend_Translate')->getLocale());
+        $language->setMultiOptions($languages);
+        $language->setValue($currentLocale);
         $language->setLabel($this->_view->translate('home_index_language_label'));
 
         $submit = new Zend_Form_Element_Submit('submit');
