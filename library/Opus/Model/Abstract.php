@@ -120,7 +120,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
         // Ensure that a default table gateway class is set
-        if (is_null($this->getTableGatewayClass()) === true) {
+        if (is_null($this->getTableGatewayClass()) === true and is_null($tableGatewayModel) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
 
