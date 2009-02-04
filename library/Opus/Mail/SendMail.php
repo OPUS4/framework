@@ -312,10 +312,9 @@ class Opus_Mail_SendMail {
      * @param   string                      $bodyText Text
      * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found
      * @return  void
-     * @todo    Method must be implemented
      */
     public function sendMailToAdmin($document, $subject, $bodyText) {
-        // Todo:    Implement
+        // @todo Implement
     }
 
     /**
@@ -327,11 +326,9 @@ class Opus_Mail_SendMail {
      * @param   string $from       (Optional) If not set, the standard sender address is taken
      * @param   string $fromName   (Optional) If not set, the standard sender name is taken
      * @return  void
-     *
-     * @todo Method must be implemented.
      */
     public function sendMailToDocument($collection, $subject, $bodyText, $from = '', $fromName = '') {
-        // Todo:    Implement
+        // @todo Implement
     }
 
     /**
@@ -341,18 +338,17 @@ class Opus_Mail_SendMail {
      * @param   string        $subject      Subject
      * @param   string        $bodyText     Text
      * @return  void
-     * @todo Method must be implemented.
      */
     public function sendMailToCollection($collectionId, $subject, $bodyText) {
-        // Todo:    Implement
+        // @todo Implement
     }
 
     /**
      * Composes the e-mail for multiple recipients from the specified components.
      *
-     * @return void
      * @throws Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent
+     * @return void
      */
     private function send() {
         $recipients = $this->getRecipients();
