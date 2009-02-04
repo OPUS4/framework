@@ -70,7 +70,7 @@ class Opus_Search_Index_Indexer {
 	public function addDocumentToEntryIndex(Opus_Search_Adapter_DocumentAdapter $doc) {
     	try {
 			#print_r($doc->getDocument());
-			$this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
+    	    $this->entryindex->addDocument(new Opus_Search_Index_Document($doc));
 			# Do not flush, it will work without it
 			# Flush sends some return value that Zend interprets as header information
 			#flush();
