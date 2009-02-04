@@ -69,7 +69,7 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $qhit = new Opus_Search_SearchHit($docid);
         $qhit->setRelevance($this->_parent->score);
 
-        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $document->getFieldValue('teaser'), 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
+        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $document->getFieldValue('abstract'), 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
         $qhit->setDocument($opusdoc);
         return $qhit;
   }
