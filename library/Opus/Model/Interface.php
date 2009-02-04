@@ -106,4 +106,11 @@ interface Opus_Model_Interface
      */
     public function toArray();
 
+    /**
+     * Return XML representation of the model.
+     *
+     * @return string Model representation in XML syntax.
+     */
+    public function toXml();
+
 }

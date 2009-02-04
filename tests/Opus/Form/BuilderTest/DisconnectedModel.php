@@ -159,4 +159,13 @@ class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
     public function toArray() {
         return array();
     }
+
+    /**
+     * Mock toXml() function.
+     *
+     * @see library/Opus/Model/Opus_Model_Interface#toXml()
+     */
+    public function toXml() {
+       return '';
+    }
 }

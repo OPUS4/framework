@@ -136,4 +136,13 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
         return array();
     }
 
+    /**
+     * get XML representation. Dummy function!
+     *
+     * @see    library/Opus/Model/Opus_Model_Interface#toXml()
+     * @return string
+     */
+    public function toXml() {
+        return array();
+    }
 }
