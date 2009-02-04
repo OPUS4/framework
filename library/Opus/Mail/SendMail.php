@@ -98,7 +98,7 @@ class Opus_Mail_SendMail {
      * @param   array $recipients Recipients
      * @return  void
      */
-    public function setRecipients($recipients) {
+    public function setRecipients(array $recipients) {
         $this->$_recipients = $recipients;
     }
 
@@ -202,7 +202,7 @@ class Opus_Mail_SendMail {
     /**
      * Validates an e-mail address
      *
-     * @param   string $address     Address
+     * @param   string $address Address
      * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
      * @return  string              Address
      */
@@ -220,11 +220,11 @@ class Opus_Mail_SendMail {
     /**
      * Forms an array with address and composed name from a user object.
      *
-     * @param   Opus_Model_Person   $recipient  Recipient
-     * @return  array                           Recipients' addresses and names
+     * @param   Opus_Model_Person $recipient Recipient
+     * @return  array                        Recipients' addresses and names
      */
-    private function formRecipient($recipient) {
-        $recip = array ('address' => '', 'name' => '');
+    private function formRecipient(Opus_Model_Person $recipient) {
+        $recip = array('address' => '', 'name' => '');
         $recip['address'] = validateAddress($recipient->getField('EMail'));
         $firstName = $recipient->getField('FirstName');
         $lastName = $recipient->getField('LastName');
@@ -239,19 +239,19 @@ class Opus_Mail_SendMail {
      * of sending mails anonymously to user-defined recipients.
      * Recommendation:  Please use the "sendMailTo..." methods
      *
-     * @param   string $from        Sender address
-     * @param   string $fromName    Sender name
-     * @param   string $subject     Subject
-     * @param   string $bodyText    Text
-     * @param   array  $recipients  Recipients
+     * @param   string $from       Sender address
+     * @param   string $fromName   Sender name
+     * @param   string $subject    Subject
+     * @param   string $bodyText   Text
+     * @param   array  $recipients Recipients
      * @return  void
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, $recipients) {
+    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
         $this->setRecipients($recipients);
         $this->setSubject($subject);
         $this->setBodyText($bodyText);
-        $this->setTo($to);
-        $this->setToName($toName);
+        $this->setFrom($from);
+        $this->setFromName($fromName);
 
         $this->send();
     }
@@ -259,11 +259,11 @@ class Opus_Mail_SendMail {
     /**
      * Creates and sends an e-mail to the specified recipients.
      *
-     * @param   int | Opus_Model_Person | array $recipients Recipients
+     * @param   integer|Opus_Model_Person|array $recipients Recipients
      * @param   string                          $subject    Subject
      * @param   string                          $bodyText   Text
-     * @param   string                          $from       Sender address - if not set, the administrator's address is taken
-     * @param   string                          $fromName   Sender name - if not set, the administator's name is taken
+     * @param   string                          $from       (Optional) Sender address - if not set, the administrator's address is taken
+     * @param   string                          $fromName   (Optional) Sender name - if not set, the administator's name is taken
      * @return  void
      * @todo    Get the administrator's e-mail address and name from the configuration file
      */
@@ -274,11 +274,11 @@ class Opus_Mail_SendMail {
             $fromName = $config->mail->mail.opus.name;
         }
 
-        if (is_int($recipients)) {
+        if (is_int($recipients) === true) {
             $recipients = array(new Opus_Model_Person($recipients));
         }
 
-        if (is_array($recipients) and is_int($recipients[0])) {
+        if (is_array($recipients) === true and is_int($recipients[0]) === true) {
             $recs = array();
             $recipients = array_unique($recipients);
             foreach ($recipients as $rec) {
@@ -288,12 +288,12 @@ class Opus_Mail_SendMail {
             $recipients = $recs;
         }
 
-        if (is_object($recipients)) {
+        if (is_object($recipients) === true) {
             $recipients = array($recipients);
         }
 
         $recips = array('recipients' => array('address' => '', 'name' => ''));
-        if (is_array($recipients) and is_object($recipients[0])) {
+        if (is_array($recipients) === true and is_object($recipients[0]) === true) {
             foreach ($recipients as $rec) {
                 $recFormed = formRecipient($rec);
                 array_push($recips, $recFormed);
@@ -307,9 +307,9 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the administrator.
      * The author of the specified document will be set as sender.
      *
-     * @param   integer|Opus_Model_Document   $document Document
-     * @param   string                        $subject  Subject
-     * @param   string                        $bodyText Text
+     * @param   integer|Opus_Model_Document $document Document
+     * @param   string                      $subject  Subject
+     * @param   string                      $bodyText Text
      * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found
      * @return  void
      * @todo    Method must be implemented
@@ -324,8 +324,8 @@ class Opus_Mail_SendMail {
      * @param   mixed  $collection Collection
      * @param   string $subject    Subject
      * @param   string $bodyText   Text
-     * @param   string $from       If not set, the standard sender address is taken
-     * @param   string $fromName   If not set, the standard sender name is taken
+     * @param   string $from       (Optional) If not set, the standard sender address is taken
+     * @param   string $fromName   (Optional) If not set, the standard sender name is taken
      * @return  void
      *
      * @todo Method must be implemented.
@@ -350,8 +350,9 @@ class Opus_Mail_SendMail {
     /**
      * Composes the e-mail for multiple recipients from the specified components.
      *
-     * @throws  Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
-     * @throws  Opus_Mail_Exception Thrown if the mail could not be sent
+     * @return void
+     * @throws Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
+     * @throws Opus_Mail_Exception Thrown if the mail could not be sent
      */
     private function send() {
         $recipients = $this->getRecipients();
