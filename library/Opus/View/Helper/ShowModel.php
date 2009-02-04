@@ -271,7 +271,13 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     protected function _displayLicence($field, $value) {
         $result = '';
         // we "know" that the licence name is in NameLong
-        $iterim_value = @$value['NameLong'];
+        $display_name = @$value['NameLong'];
+        $licence_link = @$value['LinkLicence'];
+        if (false === empty($licence_link)) {
+            $iterim_value = '<a href="' . $licence_link . '">' . $display_name . '</a>';
+        } else {
+            $iterim_value = $display_name;
+        }
         if (($this->__saef === false) or (empty($iterim_value) === false)) {
             $data = $this->__skeleton($field, $iterim_value);
             $result = $this->view->partial('_model.phtml', $data);
