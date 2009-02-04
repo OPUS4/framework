@@ -61,7 +61,7 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
    *
    * @return SearchHit
    */
-  public function convertToSearchHit() {
+  public function convertToSearchHit($query = null) {
     	// make the Zend_Lucene_Search_QueryHit to a Opus-SearchHit
 	    // Ranking and other attributes are taken from the Lucene class
         $document = $this->_parent->getDocument();
@@ -69,7 +69,10 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $qhit = new Opus_Search_SearchHit($docid);
         $qhit->setRelevance($this->_parent->score);
 
-        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $document->getFieldValue('abstract'), 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
+        $highlightedHTML = $document->getFieldValue('abstract');
+        #$highlightedHTML = $query->highlightMatches(html_entity_decode($document->getFieldValue('abstract')));
+
+        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlightedHTML, 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
         $qhit->setDocument($opusdoc);
         return $qhit;
   }

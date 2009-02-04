@@ -109,7 +109,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         if (in_array($docid, $done) === false) {
                                 array_push($done, $docid);
                                 $opusHit = new Opus_Search_Adapter_Lucene_SearchHitAdapter($queryHit);
-                                $curdoc = $opusHit->convertToSearchHit();
+                                $curdoc = $opusHit->convertToSearchHit($lucenequery);
                                 if ($curdoc !== false) {
                                 	array_push($hitlistarray, $curdoc);
                                 }
