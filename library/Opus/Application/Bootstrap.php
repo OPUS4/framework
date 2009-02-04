@@ -99,6 +99,7 @@ class Opus_Application_Bootstrap {
         self::setupLogging();
         self::setupTranslationCache();
         self::setupTranslation();
+        self::setupLanguageList();
         self::setupLucene();
         self::setupDocumentType();
         self::prepare();
@@ -374,10 +375,23 @@ class Opus_Application_Bootstrap {
             $logger->info('Switching to language "' . $sessiondata->language . '".');
             $translate->setLocale($sessiondata->language);
         }
+
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Translate', $translate);
 
-        $locale = new Zend_Locale();
+    }
+
+    /**
+     * Setup language list.
+     *
+     * @return void
+     */
+    protected static function setupLanguageList() {
+        $registry = Zend_Registry::getInstance();
+        // get current translate information
+        $translate = $registry->get('Zend_Translate');
+        // trasnalte contains information about current language
+        $locale = new Zend_Locale($translate->getAdapter()->getLocale());
         $availableLanguages = $locale->getLanguageTranslationList();
         asort($availableLanguages);
         $registry->set('Available_Languages', $availableLanguages);
