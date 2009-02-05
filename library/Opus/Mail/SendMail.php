@@ -269,8 +269,8 @@ class Opus_Mail_SendMail {
     public function sendMailToAuthor($recipients, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === false) {
             $config = Zend_Registry::get('Zend_Config');
-            $from = $config->mail->mail.opus.address;
-            $fromName = $config->mail->mail.opus.name;
+            $from = $config->mail->opus->address;
+            $fromName = $config->mail->opus->name;
         }
 
         if (is_int($recipients) === true) {
@@ -314,8 +314,8 @@ class Opus_Mail_SendMail {
      */
     public function sendMailToAdmin($document, $subject, $bodyText) {
         $config = Zend_Registry::get('Zend_Config');
-        $to = $config->mail->mail.opus.address;
-        $toName = $config->mail->mail.opus.name;
+        $to = $config->mail->opus->address;
+        $toName = $config->mail->opus->name;
         $recips = array('recipients' => array('address' => $to, 'name' => $toName));
 
         // @todo Implement: get author's name and e-mail address from the database
@@ -365,6 +365,18 @@ class Opus_Mail_SendMail {
         $fromName = $this->getFromName();
         $subject = $this->getSubject();
         $text = $this->getBodyText();
+
+        if ($from === '') {
+            throw new Opus_Mail_Exception('No sender address given.');
+        }
+
+        if ($subject === '') {
+            throw new Opus_Mail_Exception('No text given.');
+        }
+
+        //if ($recipients['recipients'] === '') {
+        //    throw new Opus_Mail_Exception('No recipient address given.');
+        //}
 
         $error = false;
         foreach ($recipients as $recip) {
