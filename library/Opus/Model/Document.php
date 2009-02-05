@@ -199,8 +199,11 @@ class Opus_Model_Document extends Opus_Model_Abstract
         }
         if ($id === null and $type !== null) {
             $this->_type = $type;
+            parent::__construct(null, new self::$_tableGatewayClass);
+        } else {
+            parent::__construct($id, new self::$_tableGatewayClass);
+            $this->_type = $this->_primaryTableRow->document_type;
         }
-        parent::__construct($id, new self::$_tableGatewayClass);
     }
 
     /**
