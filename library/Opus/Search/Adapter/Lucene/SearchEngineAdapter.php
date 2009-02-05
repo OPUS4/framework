@@ -53,6 +53,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
    */
   public function __construct($boolean = 'AND') {
     $this->boolean = $boolean;
+    Zend_Search_Lucene_Search_QueryParser::setDefaultOperator(Zend_Search_Lucene_Search_QueryParser::B_AND);
   }
 
   /**
@@ -89,11 +90,11 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = $oquery;
                         break;
                 }
-                $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
+                $lucenequery = Opus_Search_Adapter_Lucene_QueryHighlighter::parse($query);
                 if (strlen($query) < 2) {
                     throw new Exception('Query string should be at least 2 characters long!');
                 }
-                $hits = $index->find(strtolower($lucenequery));
+                $hits = $index->find($lucenequery);
         } catch (Zend_Search_Lucene_Exception $searchException) {
                 throw $searchException;
         }

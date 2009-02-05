@@ -29,64 +29,19 @@
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id:$
  */
 
-/**
- * class Query
- */
-class Opus_Search_Query
+class Opus_Search_Adapter_Lucene_QueryHighlighter extends Zend_Search_Lucene_Search_QueryParser
 {
+    /**
+     * List of colors for text highlighting
+     *
+     * @var array
+     */
+    private $_highlightColors = array('#661122', '#ff66ff', '#ffff66',
+                                      '#ff8888', '#88ff88', '#8888ff',
+                                      '#88dddd', '#dd88dd', '#dddd88',
+                                      '#aaddff', '#aaffdd', '#ddaaff', '#ddffaa', '#ffaadd', '#ffddaa');
 
-  /**
-   * Querystring without any modification (as given from the user)
-   *
-   * @var string Querystring
-   * @access private
-   */
-  private $query;
-
-  /**
-   * Characterset of the querystring
-   *
-   * @var string Encoding charset of the querystring
-   * @access private
-   */
-  private $encoding;
-
-  /**
-   * Searchengine for this query
-   *
-   * @var string Search Engine backend to be used (there must be an Adapter for it)
-   * @access private
-   */
-  private $searchEngine;
-
-  /**
-   * Constructor
-   *
-   * @param string $query        Querystring for this query
-   * @param string $defaultop    (Optional) Boolean operator to be used for query, by default any boolean operators are ignored
-   * @param string $searchengine (Optional) Searchengine to be used for this query, if none is given, Lucene will be used by default
-   * @throws Exception No adapter found when Parameter $searchengine is wrong
-   */
-  public function __construct($query, $defaultop = 'ignore', $searchengine = 'Lucene') {
-    $adapterclass = 'Opus_Search_Adapter_' . $searchengine . '_SearchEngineAdapter';
-    if (class_exists($adapterclass) === true) {
-    	$this->searchEngine = new $adapterclass($defaultop);
-    } else {
-    	throw new Exception("No adapter for search engine $searchengine!");
-    }
-    $this->query = $query;
-  }
-
-  /**
-   * Commit the query to the selected searchengine
-   *
-   * @return SearchHitList
-   */
-  public function commit() {
-    $result = $this->searchEngine->find($this->query);
-    return $result;
-  }
 }

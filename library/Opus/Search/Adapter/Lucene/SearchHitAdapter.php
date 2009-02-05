@@ -71,7 +71,7 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
 
         // highlightMatches needs HTML-Input with charset-meta-line
         // workaround: set charset to ISO, otherwise Zend_Search_Lucene (1.6.2) will encode double
-        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=iso-8859-1">' . $document->getFieldValue('abstract'));
+        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=iso-8859-1">' . $document->getFieldValue('abstract'), 27);
         // hold b-Tags (highlighted text), remove all others
         $highlighted = strip_tags($highlighter, '<b>');
         // Without Syntax Highlighting

@@ -98,7 +98,7 @@ class Opus_Search_Adapter_PersonAdapter
    *
    * @return string lastName of person
    */
-    public function _toString()
+    public function __toString()
     {
         return $this->personData['lastName'];
     }

@@ -126,7 +126,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   public function sort($criteria) {
     print_r($this->persons);
     if ($criteria === 'lastname') {
-        usort($this->persons, $this->persons->_toString());
+        usort($this->persons);
     }
     if ($criteria === 'firstname') {
 
