@@ -256,22 +256,6 @@ class Opus_Model_Document extends Opus_Model_Abstract
     }
 
     /**
-     * Set the document's type.
-     *
-     * @param  string|Opus_Document_Type $type The type of the document.
-     * @return void
-     */
-    public function setDocumentType($type) {
-        $this->_type = $type;
-        if ($type instanceof Opus_Document_Type) {
-            $this->_primaryTableRow->document_type = str_replace('_', ' ', $type->getName());
-        } else {
-            $this->_primaryTableRow->document_type = str_replace('_', ' ', $type);
-        }
-        // TODO: Recreate Document on type change.
-    }
-
-    /**
      * Retrieve all Opus_Model_Document instances from the database.
      *
      * @return array Array of Opus_Model_Document objects.
