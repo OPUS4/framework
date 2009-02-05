@@ -60,12 +60,12 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('DROP TABLE IF EXISTS collections_replacement_7081;');
         $adapter->query('CREATE  TABLE collections_replacement_7081 (
-              `collections_replacement_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` INT UNSIGNED NOT NULL,
               `replacement_for_id` INT UNSIGNED,
               `replacement_by_id` INT UNSIGNED,
               `current_replacement_id` INT UNSIGNED,
-              PRIMARY KEY (`collections_replacement_id`))
+              PRIMARY KEY (`id`))
             ENGINE = InnoDB
             DEFAULT CHARACTER SET = utf8
             COLLATE = utf8_general_ci
@@ -91,7 +91,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $adapter->query('TRUNCATE institutes_replacement;');
         $adapter->query('TRUNCATE institutes_contents;');
         $adapter->query("INSERT INTO `institutes_contents`
-        (`institutes_id`, `type`, `name`)
+        (`id`, `type`, `name`)
         VALUES (3, 'Fakultät', 'Fakultät 3'),
         (4, 'Fakultät', 'Fakultät 4'),
         (5, 'Fakultät', 'Fakultät 5'),

@@ -56,13 +56,13 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('CREATE TABLE collections_contents_7081 (
-            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `id` INT( 11 ) UNSIGNED NOT NULL ,
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
-            PRIMARY KEY ( `collections_id` )
+            PRIMARY KEY ( `id` )
             ) ENGINE = InnoDB');
         $adapter->query('INSERT INTO `collections_contents_7081`
-        (`collections_id`, `name`, `number`)
+        (`id`, `name`, `number`)
         VALUES (1,  "Tiere", "000"),
         (2,  "Pflanzen", "000"),
         (3,  "dogs", "000"),
@@ -90,7 +90,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE `id` = 7081;');
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('TRUNCATE institutes_contents;');
     }
@@ -183,7 +183,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validUpdateDataProvider
      */
     public function testCollectionContentsUpdate($ID, $contentArray) {
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
         $occ = new Opus_Collection_Contents($ID);
         $occ->update($contentArray);
         foreach ($contentArray as $contentType => $contentValue) {
@@ -208,7 +208,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
             ),
 
             array(7081,
-                    array('collections_id' => 4, 'number' => '000')),
+                    array('id' => 4, 'number' => '000')),
 
             array(7081,
                     array('name' => 'Schall und Rauch', 'nummer' => '000')),
@@ -229,7 +229,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function testCollectionContentsUpdateInvArg($ID, $contentArray) {
         $this->setExpectedException('InvalidArgumentException');
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
         $occ = new Opus_Collection_Contents($ID);
         $occ->update($contentArray);
     }
@@ -308,7 +308,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validUpdateDataProvider
      */
     public function testSaveCollectionContents($ID, $contentArray) {
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
         $occ = new Opus_Collection_Contents($ID);
         $occ->update($contentArray);
         $occ->save();
@@ -353,7 +353,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function testSaveCollectionContentsInvArg($ID, $contentArray) {
         $this->setExpectedException('Exception');
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
         $occ = new Opus_Collection_Contents($ID);
         foreach ($contentArray as $language => $record) {
             $occ->update(array($language => $record));

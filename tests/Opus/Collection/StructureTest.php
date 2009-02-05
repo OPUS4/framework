@@ -58,12 +58,12 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('DROP TABLE IF EXISTS collections_structure_7081;');
         $adapter->query('CREATE TABLE IF NOT EXISTS collections_structure_7081 (
-              `collections_structure_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+              `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` int(10) UNSIGNED NOT NULL ,
               `left` int(10) UNSIGNED NOT NULL ,
               `right` int(10) UNSIGNED NOT NULL ,
               `visible` tinyint(1) NOT NULL default 1,
-              PRIMARY KEY (`collections_structure_id`) )
+              PRIMARY KEY (`id`) )
             ENGINE = InnoDB
             DEFAULT CHARACTER SET = utf8
             COLLATE = utf8_general_ci
@@ -82,7 +82,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $adapter->query('TRUNCATE institutes_structure;');
         $adapter->query('TRUNCATE institutes_contents;');
         $adapter->query("INSERT INTO `institutes_contents`
-        (`institutes_id`, `type`, `name`)
+        (`id`, `type`, `name`)
         VALUES (0, 'Fakultät', 'Fakultät A'),
         (1, 'Fakultät', 'Fakultät A1'),
         (2, 'Fakultät', 'Fakultät A2'),
@@ -178,7 +178,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validConstructorIDDataProvider
      */
     public function testCreateCollectionStructure($ID) {
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
         $ocs = new Opus_Collection_Structure($ID);
         $ocs->create();
         $this->assertEquals(array(1 => array($coll_id => 0,
