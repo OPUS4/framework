@@ -48,7 +48,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $adapter = Zend_Registry::get('db_adapter');
 
-        $adapter->query('DELETE FROM `collections_roles` WHERE collections_roles_id > 7080;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE id > 7080;');
         for ($i=7081; $i<7111; $i++) {
             $adapter->query("DROP TABLE IF EXISTS collections_replacement_$i;");
             $adapter->query("DROP TABLE IF EXISTS collections_structure_$i;");
@@ -57,7 +57,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         }
 
         $adapter->query("INSERT INTO `collections_roles`
-        (`collections_roles_id`,  `name`, `position`, `link_docs_path_to_root`, `visible`)
+        (`id`,  `name`, `position`, `link_docs_path_to_root`, `visible`)
         VALUES (7081,  'Just to shift test area', 2, 1, 1)
         ;");
 
@@ -218,7 +218,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $adapter = Zend_Registry::get('db_adapter');
-        $adapter->query('DELETE FROM `collections_roles` WHERE collections_roles_id > 7080;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE id > 7080;');
         for ($i=7081; $i<7111; $i++) {
             $adapter->query("DROP TABLE IF EXISTS collections_replacement_$i;");
             $adapter->query("DROP TABLE IF EXISTS collections_structure_$i;");
@@ -1300,6 +1300,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $sub = Opus_Collection_Information::getSubCollections(7081, $new);//print_r($new);
         $this->assertEquals($expectedChildren, count($sub));
     }
+
+
+
 
     /**
      * Data Provider

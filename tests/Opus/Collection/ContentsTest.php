@@ -48,9 +48,9 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
 
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE `id` = 7081;');
         $adapter->query('INSERT INTO `collections_roles`
-        (`collections_roles_id`, `name`, `visible`)
+        (`id`, `name`, `visible`)
         VALUES (7081, "Just to shift test area", 1)
         ;');
 
@@ -73,7 +73,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
         $adapter->query('TRUNCATE link_institutes_documents;');
         $adapter->query('TRUNCATE institutes_contents;');
         $adapter->query('INSERT INTO `institutes_contents`
-        (`institutes_id`, `type`, `name`)
+        (`id`, `type`, `name`)
         VALUES (0, "Fakultät", "Fakultät A"),
         (1, "Fakultät", "Fakultät A1"),
         (2, "Fakultät", "Fakultät A2"),
@@ -90,7 +90,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE `id` = 7081;');
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('TRUNCATE institutes_contents;');
     }
