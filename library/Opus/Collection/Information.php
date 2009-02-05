@@ -223,8 +223,18 @@ class Opus_Collection_Information {
     }
 
 
+    /**
+     * Delete an occurrence of a collection in the tree.
+     *
+     * @param integer $role_id       Identifies tree for collection.
+     * @param integer $collection_id Identifies collection to delete.
+     * @param integer $parent_id     Identifies position where to delete collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
+     * @return void
+     */
     static public function deleteCollectionPosition($role_id, $collection_id, $parent_id) {
-        // TODO: Validation, Commenting
+        // TODO: Validation
         $ocs = new Opus_Collection_Structure($role_id);
         $ocs->load();
         $leftValues = $ocs->IDToleft($collection_id, $parent_id);

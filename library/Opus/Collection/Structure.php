@@ -300,13 +300,18 @@ class Opus_Collection_Structure {
 
 
 
-        /*
+    /**
+     * Returns the nested set node to a given left value.
      *
+     * @param integer $left Left value identifying the node.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
      */
     public function parent($left) {
-        // TODO: Validation, Commenting
+        // TODO: Validation
         $this->leftOrder();
         $tree = $this->collectionStructure;
+        // Look for maximum left value lower given left value: That's the parent
         for ($leftValue = 1; $leftValue < $left; $leftValue++) {
             if ((isset($tree[$leftValue])) AND ($tree[$leftValue]['right'] > $tree[$left]['right'])) {
                 $parent = $tree[$leftValue];
@@ -320,11 +325,16 @@ class Opus_Collection_Structure {
     }
 
 
-    /*
+    /**
+     * Returns the left values to a given collection ID under a specific parent
      *
+     * @param integer $collection_id ID identifying collection.
+     * @param integer $parent_id     ID identifying parent collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
      */
     public function IDToleft($collection_id, $parent_id) {
-        // TODO: Validation, Commenting
+        // TODO: Validation
         $this->leftOrder();
         foreach ($this->collectionStructure as $index => $nested_set) {
             $parent_set = $this->parent($index);
@@ -381,7 +391,7 @@ class Opus_Collection_Structure {
     /**
      * Hide nodes with the given collections_id.
      *
-     * @param integer $collections_id Institute to hide.
+     * @param integer $collections_id ID identifying collection.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return void
      */
@@ -398,7 +408,7 @@ class Opus_Collection_Structure {
     /**
      * Count occurrences of a collection in the tree.
      *
-     * @param   integer $collections_id Institute to count.
+     * @param   integer $collections_id ID identifying collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
      * @return integer Number of occurrences
      */
@@ -414,17 +424,26 @@ class Opus_Collection_Structure {
         return $count;
     }
 
-    /*
+    /**
+     * Fetch every parent for a given collection ID.
      *
+     * @param   integer $collections_id ID identifying collection.
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
      */
     public function getAllParents($collections_id) {
+
         $this->validation = new Opus_Collection_Validation();
         $this->validation->ID($collections_id);
+
+        // Fetch occurences of the given collection
         foreach ($this->collectionStructure as $record) {
             if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
                 $positions[] = $record;
             }
         }
+
+        // Fetch parent for every occurence
         foreach ($positions as $position) {
             $temp_parent = 0;
             foreach ($this->collectionStructure as $record) {

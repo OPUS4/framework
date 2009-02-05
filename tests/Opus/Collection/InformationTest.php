@@ -923,6 +923,74 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         Opus_Collection_Information::deleteCollectionPositionByLeft(7081, $left);
     }
 
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validDeleteCollectionPositionDataProvider() {
+        return array(
+            array(5, 0),
+            array(2, 1),
+            array(8, 5),
+            array(4, 1),
+        );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collection_id   No comment, use your brain.
+     * @param integer $parent No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider validDeleteCollectionPositionDataProvider
+     */
+    public function testDeleteCollectionPosition($collection_id, $parent) {
+        $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
+        Opus_Collection_Information::deleteCollectionPosition(7081, $collection_id, $parent);
+        $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
+        $this->assertLessThan(count($pre_subColls), count($post_subColls), "deleteCollectionPosition didn't delete anything");
+    }
+
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidLeftDeleteCollectionPositionDataProvider() {
+        return array(
+            array(12),
+            array(9),
+            array(32),
+            array(30),
+            array(5, 'l'),
+            array(5, 3.1415926),
+            array(5, -32),
+            array('l', 5),
+            array(3.1415926, 5),
+            array(-32, 5),
+            );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collection_id No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
+     */
+    public function testDeleteCollectionPositionInvLeft($collection_id) {
+        $this->setExpectedException('Exception');
+        Opus_Collection_Information::deleteCollectionPosition(7081, $collection_id, $parent_id);
+    }
+
+
+
+
     /**
      * Data Provider
      *
