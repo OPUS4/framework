@@ -71,6 +71,13 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
     protected $_nameRecipient = 'John R. Public';
 
     /**
+     * Holds a recipient (address and name)
+     *
+     * @var array
+     */
+    protected $_recipient = array('recipients' => array('address' => 'recipient@testmail.de', 'name' => 'John R. Public'));
+
+    /**
      * Holds a subject
      *
      * @var string
@@ -141,5 +148,15 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
     public function testSetFromName() {
         $this->_mail->setFromName($this->_nameSender);
         $this->assertEquals($this->_mail->getFromName(), $this->_nameSender);
+    }
+
+    /**
+     * Tests the setter for recipients.
+     *
+     * @return void
+     */
+    public function testSetRecipients() {
+        $this->_mail->setRecipients($this->_recipient);
+        $this->assertEquals($this->_mail->getRecipients(), $this->_recipient);
     }
 }
