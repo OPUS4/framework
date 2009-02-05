@@ -114,11 +114,11 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     }
 
     /**
-     * Retrieve all Opus_Model_Collection_Role instances from the database.
+     * Retrieve all Opus_Model_CollectionRole instances from the database.
      *
-     * @return array Array of Opus_Model_Collection_Role objects.
+     * @return array Array of Opus_Model_CollectionRole objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Model_Collection_Role', 'Opus_Db_CollectionsRoles');
+        return self::getAllFrom('Opus_Model_CollectionRole', 'Opus_Db_CollectionsRoles');
     }
 }
