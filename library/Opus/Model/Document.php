@@ -311,7 +311,7 @@ class Opus_Model_Document extends Opus_Model_Abstract
      */
     public function addToCollection($role_id, $collection_id) {
         $collection = new Opus_Model_Collection($role_id, $collection_id);
-        $collection->addDocument($this);
+        $collection->addEntry($this);
     }
 
 }
