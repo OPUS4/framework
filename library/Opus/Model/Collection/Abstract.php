@@ -97,6 +97,8 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
         $table = new Opus_Db_CollectionsContents($this->__role);
         $info = $table->info();
         $dbFields = $info['metadata'];
+
+        // Add all database column names except primary keys as Opus_Model_Fields
         foreach (array_keys($dbFields) as $dbField) {
             if (in_array($dbField, $info['primary'])) {
                 continue;
@@ -110,22 +112,37 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
             $this->addField($field);
         }
 
+        self::$_tableGatewayClass = 'Opus_Db_CollectionsContents(' . (int) $this->__role . ')';
         $collectionClass = get_class($this);
+
+        // Add a field to hold subcollections
         $subCollectionField = new Opus_Model_Field('SubCollection');
         $subCollectionField->setMultiplicity('*');
         $this->_externalFields['SubCollection'] = array('fetch' => 'lazy', 'model' => $collectionClass);
-        self::$_tableGatewayClass = 'Opus_Db_CollectionsContents(' . (int) $this->__role . ')';
         $this->addField($subCollectionField);
 
-        // Add all first level siblings as fields.
+        // Add all first level sibling Ids as fields,
+        // collections will be instantiated later on
+        // be lazy fetching.
         $subCollections = Opus_Collection_Information::getSubCollections($this->__role, (int) $this->__collection['id']);
         foreach ($subCollections as $subCollection) {
-            $subCollectionName = $subCollection['content'][0]['name'];
-            $subCollectionId = (int) $subCollection['content'][0]['id'];
-            $this->addSubCollection(new $collectionClass($this->__role, $subCollectionId));
+            $subCollectionId = $subCollection['content'][0]['id'];
+            $this->_fields['SubCollection']->addValue((int) $subCollectionId);
         }
 
-        // Add parent as field.
+        // Add a field to hold parentcollections
+        $parentCollectionField = new Opus_Model_Field('ParentCollection');
+        $parentCollectionField->setMultiplicity('*');
+        $this->_externalFields['ParentCollection'] = array('fetch' => 'lazy', 'model' => $collectionClass);
+        $this->addField($parentCollectionField);
+
+        // Add all first level parent Ids as fields,
+        // collections will be instantiated later on
+        // be lazy fetching.
+        $parentCollectionIds = Opus_Collection_Information::getAllParents($this->__role, (int) $this->__collection['id']);
+        foreach ($parentCollectionIds as $parentCollectionId) {
+            $this->addParentCollection((int) $parentCollectionId);
+        }
     }
 
     /**
@@ -150,7 +167,17 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
      * @return Opus_Model_Collection_Abstract|array Subcollection(s).
      */
     protected function _fetchSubCollection($index = null) {
-        return $this->_fields['SubCollection']->getValue($index);
+        $collectionClass = get_class($this);
+        if (is_null($index) === false) {
+            $subCollectionId = $this->_fields['SubCollection']->getValue($index);
+            return new $collectionClass($this->__role, $subCollectionId);
+        } else {
+            $subCollections = array();
+            foreach ($this->_fields['SubCollection']->getValue() as $subCollectionId) {
+                $subCollections[] = new $collectionClass($this->__role, $subCollectionId);
+            }
+            return $subCollections;
+        }
     }
 
     /**
@@ -160,6 +187,37 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
      * @return void
      */
     protected function _storeSubCollection() {
+
+    }
+
+    /**
+     * Returns parentcollections.
+     *
+     * @param  int  $index (Optional) Index of the parentcollection to fetchl.
+     * @return Opus_Model_Collection_Abstract|array Parentcollection(s).
+     */
+    protected function _fetchParentCollection($index = null) {
+        // TODO: Handle root node.
+        $collectionClass = get_class($this);
+        if (is_null($index) === false) {
+            $parentCollectionId = $this->_fields['ParentCollection']->getValue($index);
+            return new $collectionClass($this->__role, (int) $parentCollectionId);
+        } else {
+            $parentCollections = array();
+            foreach ($this->_fields['ParentCollection']->getValue() as $parentCollectionId) {
+                $parentCollections[] = new $collectionClass($this->__role, (int) $parentCollectionId);
+            }
+            return $parentCollections;
+        }
+    }
+
+    /**
+     * Overwrites store procedure.
+     * TODO: Implement storing collection structures.
+     *
+     * @return void
+     */
+    protected function _storeParentCollection() {
 
     }
 }

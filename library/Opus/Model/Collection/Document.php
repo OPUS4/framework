@@ -61,7 +61,6 @@ class Opus_Model_Collection_Document extends Opus_Model_Collection_Abstract
      */
     public function addEntry(Opus_Model_Abstract $document) {
         $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role);
-        print_r($linkTable->info());
         $link = $linkTable->createRow();
         $link->documents_id = $document->getId();
         $link->collections_id = $this->__collection['id'];
