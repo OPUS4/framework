@@ -205,14 +205,14 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     private function __titleHelper($field, array &$value, $prefix = null) {
         $data = array();
         // title language
-        $language_field = 'TitleAbstractLanguage';
+        $language_field = 'Language';
         if (true === array_key_exists($language_field, $value)) {
             $language_list = Zend_Registry::get('Available_Languages');
             $language = $language_list[$value[$language_field]];
             $data[] = $this->__skeleton($language_field, $language);
         }
         // title value
-        $title_field = 'TitleAbstractValue';
+        $title_field = 'Value';
         $iterim_value = $value[$title_field];
         $data[] = $this->__skeleton($field . $title_field, $iterim_value);
         $iterim_data = $this->view->partialLoop('_model.phtml', $data);
@@ -417,7 +417,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
      */
     protected function _displayUrn($field, array &$value) {
         $result = '';
-        $urn_value = $value['IdentifierValue'];
+        $urn_value = $value['Value'];
         if (($this->__saef === false) or (empty($urn_value) === false)) {
             // TODO resolving URI should configurable
             $output_string = 'http://nbn-resolving.de/urn/resolver.pl?' . $urn_value;
