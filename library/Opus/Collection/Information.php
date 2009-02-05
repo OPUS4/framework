@@ -487,6 +487,14 @@ class Opus_Collection_Information {
         return $ocr->getCollectionRoles();
     }
 
+    static public function getAllParents($roles_id, $collections_id) {
+        // Load collection tree
+        $ocs = new Opus_Collection_Structure($roles_id);
+        $ocs->load();
+        $parents = $ocs->getAllParents($collections_id);
+        return $parents;
+    }
+
     /**
      * Fetch all collections on the pathes to the root node.
      *
