@@ -214,7 +214,7 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
         // title value
         $title_field = 'TitleAbstractValue';
         $iterim_value = $value[$title_field];
-        $data[] = $this->__skeleton($title_field, $iterim_value);
+        $data[] = $this->__skeleton($field . $title_field, $iterim_value);
         $iterim_data = $this->view->partialLoop('_model.phtml', $data);
         $outer = $this->__skeleton($field, $iterim_data, $prefix);
         return $this->view->partial('_model.phtml', $outer);
