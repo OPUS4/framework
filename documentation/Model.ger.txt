@@ -1,10 +1,9 @@
-Opus_Model Dokumentation
-~~~~~~~~~~~~~~~~~~~~~~~~
+Model
+~~~~~
 Felix Ostrowski <ostrowski@hbz-nrw.de>
 
 Beweggründe
 ^^^^^^^^^^^
-
 Eine Anforderung an Opus ist eine sehr flexible Bereitstellung von verschiedenen
 Dokumenttypen. Das Dokument ist ein komplexes Gebilde und durch eine sehr
 heterogene Datenstruktur charakterisiert, die sich über mehrere Tabellen
@@ -27,7 +26,6 @@ ________________________________________________________________________________
 
 Arten von Opus_Models
 ^^^^^^^^^^^^^^^^^^^^^
-
 Die Mindestanforderung an ein Opus Modell ist das Implementieren des Interfaces
 'Opus_Model_Interface'. Dies sollte vor allem dann geschehen, wenn die gesamte
 Datenbanklogik, die die abstrakte Klasse bereitstellt, nicht genutzt werden
@@ -50,7 +48,6 @@ d.h. es ist wie ein eingebundes abhängiges Modell adressierbar.
 
 Der Aufbau eines Opus_Models
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 Jedem Opus_Model ist eine 'primäre Tabellenzeile' zugeordnet. So hat etwa ein
 Opus_Model_Document als primäre Tabellenzeile eine Zend_Db_Tablerow aus
 Opus_Db_Documents. Diese primäre Tabellenzeile wird beim Initialisieren gesetzt:
@@ -59,7 +56,6 @@ einen neuen Eintrag. Sie enthält alle "internen" Felder des Modells.
 
 Felder
 ^^^^^^
-
 Um Attribute setzen und abrufen zu können, verfügen Opus Modelle über Felder
 (Opus_Model_Field). Durch das Anhängen eines Feldes an ein Modell verfügt dieses
 automatisch über get/set/add Methoden für dieses Feld.
@@ -83,7 +79,6 @@ oder es handelt sich um weitere Opus Modelle ("externe" Felder).
 
 "Interne Felder"
 ++++++++++++++++
-
 Auch wenn Opus_Model von der Tabellenstruktur abstrahiert, liegt jedem Modell
 eine Tabelle (Opus_Db_*) - genauer: eine Zeile aus einer Tabelle - zugrunde, aus
 der eine Modellinstanz ihre internen Felder, darunter auch ihre Id, bezieht.
@@ -157,7 +152,6 @@ CSV-String wird in ein Array zerlegt und zurückgeliefert.
 
 "Externe" Felder
 ++++++++++++++++
-
 Felder, die sich nicht auf eine Spalte in der primären Tabellenzeile beziehen,
 müssen im Array '$_externalFields' als solche gekennzeichnet und mit einer
 Opus_Model_Dependent Klasse versehen werden. An dieser Stelle können auch
@@ -200,7 +194,6 @@ Datenbankebene nur eine Tabelle vorhanden ist.
 
 Beispiel
 ^^^^^^^^
-
 .Das zu Grunde liegende Modell-Schema
 Der Aufbau der Modelle ist nicht überraschend, ist er doch an tatsächlich
 existierenden Tabellen orientiert. Opus_Model stellt jedoch kurze, rein
@@ -254,7 +247,6 @@ Felder entsprechend der Datenbank initialisiert sind.
 
 Interna von Opus Modellen
 ^^^^^^^^^^^^^^^^^^^^^^^^^
-
 NOTE: Dieser Abschnitt dient als (äußerst knappe) Gedächtnisstütze für Entwickler der
 Abstrakten Opus_Model Klassen.
 
