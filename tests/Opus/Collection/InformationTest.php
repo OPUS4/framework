@@ -1248,12 +1248,57 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validreplaceDataProvider
      */
     public function testreplace($collections_id, $expectedChildren, $contentArray) {
-        //$this->setExpectedException('InvalidArgumentException');
-
         $new = Opus_Collection_Information::replace(7081, $collections_id, $contentArray);
         $sub = Opus_Collection_Information::getSubCollections(7081, $new);
         $this->assertEquals($expectedChildren, count($sub));
+    }
 
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validmergeDataProvider() {
+        return array(
+            array(2, 4, 1,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5, 1, 5,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(2, 8, 2,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(5, 2, 4,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(4, 2, 1,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(8, 2, 2,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(8, 1, 2,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collections_id   No comment, use your brain.
+     * @param integer $expectedChildren No comment, use your brain.
+     * @param integer $contentArray     No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider validmergeDataProvider
+     */
+    public function testmerge($collections_id1, $collections_id2, $expectedChildren, $contentArray) {
+        $new = Opus_Collection_Information::merge(7081, $collections_id1, $collections_id2, $contentArray);
+        $sub = Opus_Collection_Information::getSubCollections(7081, $new);//print_r($new);
+        $this->assertEquals($expectedChildren, count($sub));
     }
 
     /**
@@ -1289,11 +1334,43 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function testreplaceInvArg($collections_id, $contentArray) {
         $this->setExpectedException('Exception');
-
         $new = Opus_Collection_Information::replace(7081, $collections_id, $contentArray);
-        //$sub = Opus_Collection_Information::getSubCollections(7081, $new);
-        //$this->assertEquals($expectedChildren, count($sub));
+    }
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidmergeDataProvider() {
+        return array(
+            array(-2, 4,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5.3, 1,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(2, 3.3,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5, "x",  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collections_id   No comment, use your brain.
+     * @param integer $contentArray     No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider invalidmergeDataProvider
+     */
+    public function testmergeInvArg($collections_id1, $collections_id2, $contentArray) {
+        $this->setExpectedException('Exception');
+        $new = Opus_Collection_Information::replace(7081, $collections_id1, $collections_id2, $contentArray);
     }
 
 

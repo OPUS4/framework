@@ -681,7 +681,9 @@ class Opus_Collection_Information {
                 $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id1, $contentArray);
                 $ocs->load();
 
-                $subColls = self::getSubCollections($roles_id, $collections_id1, true);
+                $subColls1 = self::getSubCollections($roles_id, $collections_id1, true);
+                $subColls2 = self::getSubCollections($roles_id, $collections_id2, true);
+                $subColls = array_merge($subColls1, $subColls2);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
                     self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);
