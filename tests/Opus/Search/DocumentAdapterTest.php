@@ -141,9 +141,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
         $this->assertFalse(empty($docData), 'No document information returned.');
 		$this->assertArrayHasKey('author', $docData, 'Author information is missing.');
-		$this->assertArrayHasKey('frontdoorUrl', $docData, 'Frontdoor URL information is missing.');
-		$this->assertArrayHasKey('fileUrl', $docData, 'File URL information is missing.');
 		$this->assertArrayHasKey('title', $docData, 'Title information is missing.');
+		$this->assertArrayHasKey('urn', $docData, 'URN information is missing.');
+		$this->assertArrayHasKey('year', $docData, 'Year information is missing.');
 		$this->assertArrayHasKey('abstract', $docData, 'Abstract information is missing.');
 	}
 
