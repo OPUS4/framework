@@ -867,7 +867,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @return array
      */
-    public function validDeleteCollectionPositionDataProvider() {
+    public function validDeleteCollectionPositionByLeftDataProvider() {
         return array(
             array(10, 0),
             array(5, 1),
@@ -883,11 +883,11 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @param integer $parent No comment, use your brain.
      * @return void
      *
-     * @dataProvider validDeleteCollectionPositionDataProvider
+     * @dataProvider validDeleteCollectionPositionByLeftDataProvider
      */
-    public function testDeleteCollectionPosition($left, $parent) {
+    public function testDeleteCollectionPositionByLeft($left, $parent) {
         $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
-        Opus_Collection_Information::deleteCollectionPosition(7081, $left);
+        Opus_Collection_Information::deleteCollectionPositionByLeft(7081, $left);
         $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent);
         $this->assertLessThan(count($pre_subColls), count($post_subColls), "deleteCollectionPosition didn't delete anything");
     }
@@ -898,7 +898,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @return array
      */
-    public function invalidLeftDeleteCollectionPositionDataProvider() {
+    public function invalidLeftDeleteCollectionPositionByLeftDataProvider() {
         return array(
             array(12),
             array(9),
@@ -916,11 +916,11 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @param integer $left No comment, use your brain.
      * @return void
      *
-     * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
+     * @dataProvider invalidLeftDeleteCollectionPositionByLeftDataProvider
      */
-    public function testDeleteCollectionPositionInvLeft($left) {
+    public function testDeleteCollectionPositionByLeftInvLeft($left) {
         $this->setExpectedException('Exception');
-        Opus_Collection_Information::deleteCollectionPosition(7081, $left);
+        Opus_Collection_Information::deleteCollectionPositionByLeft(7081, $left);
     }
 
     /**

@@ -91,7 +91,7 @@ class Opus_Collection_ReplacementTest extends PHPUnit_Framework_TestCase {
         $adapter->query('TRUNCATE institutes_replacement;');
         $adapter->query('TRUNCATE institutes_contents;');
         $adapter->query("INSERT INTO `institutes_contents`
-        (`id`, `type`, `name`)
+        (`institutes_id`, `type`, `name`)
         VALUES (3, 'Fakultät', 'Fakultät 3'),
         (4, 'Fakultät', 'Fakultät 4'),
         (5, 'Fakultät', 'Fakultät 5'),

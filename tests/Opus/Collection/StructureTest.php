@@ -82,7 +82,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $adapter->query('TRUNCATE institutes_structure;');
         $adapter->query('TRUNCATE institutes_contents;');
         $adapter->query("INSERT INTO `institutes_contents`
-        (`id`, `type`, `name`)
+        (`institutes_id`, `type`, `name`)
         VALUES (0, 'Fakultät', 'Fakultät A'),
         (1, 'Fakultät', 'Fakultät A1'),
         (2, 'Fakultät', 'Fakultät A2'),
@@ -178,7 +178,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validConstructorIDDataProvider
      */
     public function testCreateCollectionStructure($ID) {
-        $coll_id = ($ID==='institute') ? 'institutes_id' : 'id';
+        $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $ocs = new Opus_Collection_Structure($ID);
         $ocs->create();
         $this->assertEquals(array(1 => array($coll_id => 0,

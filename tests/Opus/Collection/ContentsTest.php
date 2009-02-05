@@ -90,7 +90,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $adapter = Zend_Db_Table::getDefaultAdapter();
-        $adapter->query('DELETE FROM `collections_roles` WHERE `id` = 7081;');
+        $adapter->query('DELETE FROM `collections_roles` WHERE `collections_roles_id` = 7081;');
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('TRUNCATE institutes_contents;');
     }
