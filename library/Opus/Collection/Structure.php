@@ -442,7 +442,9 @@ class Opus_Collection_Structure {
                 $positions[] = $record;
             }
         }
-
+        if (false === isset($positions)) {
+            return false;
+        }
         // Fetch parent for every occurence
         foreach ($positions as $position) {
             $temp_parent = 0;

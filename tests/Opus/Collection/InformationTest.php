@@ -1161,5 +1161,141 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     }
 
 
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validgetAllParentsDataProvider() {
+        return array(
+            array(1, 1),
+            array(2, 1),
+            array(3, 1),
+            array(4, 2),
+            array(5, 1),
+            array(6, 1),
+            array(7, 1),
+            array(8, 1),
+            array(12, 1),
+
+        );
+    }
+    /**
+     * Test function
+     *
+     * @param integer $collections_id No comment, use your brain.
+     * @param integer $expected       No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider validgetAllParentsDataProvider
+     */
+    public function testgetAllParents($collections_id, $expected) {
+        $parents = Opus_Collection_Information::getAllParents(7081, $collections_id);
+        $this->assertEquals($expected, count($parents));
+    }
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidgetAllParentsDataProvider() {
+        return array(
+            array(-5),
+            array(3.2),
+            array('l'),
+            array(array()),
+
+        );
+    }
+    /**
+     * Test function
+     *
+     * @param integer $collections_id No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider invalidgetAllParentsDataProvider
+     */
+    public function testgetAllParentsInvArg($collections_id) {
+        $this->setExpectedException('InvalidArgumentException');
+        $parents = Opus_Collection_Information::getAllParents(7081, $collections_id);
+    }
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function validreplaceDataProvider() {
+        return array(
+            array(2, 1,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5, 3,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+        );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collections_id   No comment, use your brain.
+     * @param integer $expectedChildren No comment, use your brain.
+     * @param integer $contentArray     No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider validreplaceDataProvider
+     */
+    public function testreplace($collections_id, $expectedChildren, $contentArray) {
+        //$this->setExpectedException('InvalidArgumentException');
+
+        $new = Opus_Collection_Information::replace(7081, $collections_id, $contentArray);
+        $sub = Opus_Collection_Information::getSubCollections(7081, $new);
+        $this->assertEquals($expectedChildren, count($sub));
+
+    }
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidreplaceDataProvider() {
+        return array(
+            array(-2,  array('name' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5.3,  array('name' => 'Testinput 2',
+                               'number' =>  '666')
+            ),
+            array(2,  array('namex' => 'Testinput 1',
+                               'number' =>  '666')
+            ),
+            array(5,  array('name' => 'Testinput 2',
+                               'numberx' =>  '666')
+            ),
+            );
+    }
+
+    /**
+     * Test function
+     *
+     * @param integer $collections_id   No comment, use your brain.
+     * @param integer $contentArray     No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider invalidreplaceDataProvider
+     */
+    public function testreplaceInvArg($collections_id, $contentArray) {
+        $this->setExpectedException('Exception');
+
+        $new = Opus_Collection_Information::replace(7081, $collections_id, $contentArray);
+        //$sub = Opus_Collection_Information::getSubCollections(7081, $new);
+        //$this->assertEquals($expectedChildren, count($sub));
+
+    }
+
+
 
 }
