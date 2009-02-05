@@ -162,42 +162,40 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
-            // Check if the fetch mechanism for the field is overwritten in model.
-            $callname = '_fetch' . $fieldname;
-            if (method_exists($this, $callname) === true) {
-                $field->setValue($this->$callname());
-            } else {
 
-                // Field is declared as external and requires special handling
-                if (in_array($fieldname, array_keys($this->_externalFields)) === true) {
-
-                    // Determine the fields fetching mode
-                    if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
-                        $fetchmode = $this->_externalFields[$fieldname];
-
-                        // Remember the field to be fetched later.
-                        $this->_pending[] = $fieldname;
-                    } else {
-                        $fetchmode = 'eager';
-                    }
-
-                    // Immediately load external field if fetching mode is set to 'eager'
-                    if ($fetchmode === 'eager') {
-                        // Load the model instance from the database and
-                        // take the resulting object as value for the field
-                        $this->_loadExternal($fieldname);
-                    }
-
+            // Field is declared as external and requires special handling
+            if (array_key_exists($fieldname, $this->_externalFields) === true) {
+                // Determine the fields fetching mode
+                if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
+                    $fetchmode = $this->_externalFields[$fieldname]['fetch'];
                 } else {
-                    // Field is not external an gets handled by simply reading
-                    // its value from the table row
+                    $fetchmode = 'lazy';
+                }
+                if ($fetchmode === 'lazy') {
+                    // Remember the field to be fetched later.
+                    $this->_pending[] = $fieldname;
+                    // Go to next field
+                    continue; 
+                } else {
+                    // Immediately load external field if fetching mode is set to 'eager' 
+                    // Load the model instance from the database and
+                    // take the resulting object as value for the field
+                    $this->_loadExternal($fieldname);
+                }
+            } else {
+                // Field is not external an gets handled by simply reading
+                // its value from the table row
+                // Check if the fetch mechanism for the field is overwritten in model.
+                $callname = '_fetch' . $fieldname;
+                if (method_exists($this, $callname) === true) {
+                    $field->setValue($this->$callname());
+                } else {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                     $field->setValue($this->_primaryTableRow->$colname);
                 }
-
-                // Clear the modified flag for the just loaded field
-                $field->clearModified();
             }
+            // Clear the modified flag for the just loaded field
+            $field->clearModified();
         }
     }
 
@@ -354,74 +352,80 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      */
     protected function _loadExternal($fieldname) {
 
-        // Get declared options if any
-        if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
-            $options = $this->_externalFields[$fieldname]['options'];
+        // Check if the fetch mechanism for the field is overwritten in model.
+        $callname = '_fetch' . $fieldname;
+        if (method_exists($this, $callname) === true) {
+            $this->_fields[$fieldname]->setValue($this->$callname());
         } else {
-            $options = null;
-        }
-
-        // Determine the class of the field values model
-        if (array_key_exists('through', $this->_externalFields[$fieldname])) {
-            // If handling a link model, fetch modelclass from 'through' option.
-            $modelclass = $this->_externalFields[$fieldname]['through'];
-        } else {
-            // Otherwise just use the 'model' option.
-            $modelclass = $this->_externalFields[$fieldname]['model'];
-        }
-
-        // Make sure that a field's value model is inherited from Opus_Model_Abstract
-        if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
-            throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
-                                Define _fetch' . $fieldname . ' method in model class.');
-        }
-
-        // Prepare field value
-        $result = array();
-
-        // Do nothing if the current model has not been persisted
-        // (if no identifier given)
-        if ($this->getId() === null) {
-            $result = null;
-            return;
-        }
-
-        // Get the table gateway class
-        // Workaround for missing late static binding.
-        // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
-        eval('$tablename = ' . $modelclass . '::$_tableGatewayClass;');
-        $table = Opus_Db_TableGateway::getInstance($tablename);
-
-
-        // Get name of id column in target table
-        $tableInfo = $table->info();
-        $primaryKey = $tableInfo['primary'];
-        $select = $table->select()->from($table, $primaryKey);
-        if (is_null($options) === false) {
-            foreach ($options as $column => $value) {
-                $select = $select->where("$column = ?", $value);
+            // Get declared options if any
+            if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+                $options = $this->_externalFields[$fieldname]['options'];
+            } else {
+                $options = null;
             }
+
+            // Determine the class of the field values model
+            if (array_key_exists('through', $this->_externalFields[$fieldname])) {
+                // If handling a link model, fetch modelclass from 'through' option.
+                $modelclass = $this->_externalFields[$fieldname]['through'];
+            } else {
+                // Otherwise just use the 'model' option.
+                $modelclass = $this->_externalFields[$fieldname]['model'];
+            }
+
+            // Make sure that a field's value model is inherited from Opus_Model_Abstract
+            if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
+                throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
+                        Define _fetch' . $fieldname . ' method in model class.');
+            }
+
+            // Prepare field value
+            $result = array();
+
+            // Do nothing if the current model has not been persisted
+            // (if no identifier given)
+            if ($this->getId() === null) {
+                $result = null;
+                return;
+            }
+
+            // Get the table gateway class
+            // Workaround for missing late static binding.
+            // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
+            eval('$tablename = ' . $modelclass . '::$_tableGatewayClass;');
+            $table = Opus_Db_TableGateway::getInstance($tablename);
+
+
+            // Get name of id column in target table
+            $tableInfo = $table->info();
+            $primaryKey = $tableInfo['primary'];
+            $select = $table->select()->from($table, $primaryKey);
+            if (is_null($options) === false) {
+                foreach ($options as $column => $value) {
+                    $select = $select->where("$column = ?", $value);
+                }
+            }
+
+            // Get Ids of dependent rows
+            $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
+
+            // Create new model for each id
+            foreach ($ids as $id) {
+                $result[] = new $modelclass(array_values($id));
+            }
+
+            // Form return value
+            if (count($ids) === 1) {
+                // Return a single object if threre is only one model in the result
+                $result = $result[0];
+            } else if (count($ids) === 0) {
+                // Return explicitly null if no results have been found.
+                $result = null;
+            }
+
+            // Set the field value
+            $this->_fields[$fieldname]->setValue($result);
         }
-
-        // Get Ids of dependent rows
-        $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
-
-        // Create new model for each id
-        foreach ($ids as $id) {
-            $result[] = new $modelclass(array_values($id));
-        }
-
-        // Form return value
-        if (count($ids) === 1) {
-            // Return a single object if threre is only one model in the result
-            $result = $result[0];
-        } else if (count($ids) === 0) {
-            // Return explicitly null if no results have been found.
-            $result = null;
-        }
-
-        // Set the field value
-        $this->_fields[$fieldname]->setValue($result);
     }
 
     /**
