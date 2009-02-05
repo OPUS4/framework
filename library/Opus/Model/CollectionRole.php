@@ -40,7 +40,7 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Collection_Role extends Opus_Model_Abstract {
+class Opus_Model_CollectionRole extends Opus_Model_Abstract {
 
     /**
      * Specify then table gateway.
@@ -55,6 +55,7 @@ class Opus_Model_Collection_Role extends Opus_Model_Abstract {
      * - Position
      * - LinkDocsPathToRoot
      * - Visible
+     * - Collections
      *
      * @return void
      */
@@ -63,11 +64,44 @@ class Opus_Model_Collection_Role extends Opus_Model_Abstract {
         $position = new Opus_Model_Field('Position');
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
         $visible = new Opus_Model_Field('Visible');
+        $collections = new Opus_Model_Field('Collections');
+        $collections->setMultiplicity('*');
+
+        $this->_externalFields['Collections'] = array('fetch' => 'lazy', 'model' => 'Opus_Model_Collection');
 
         $this->addField($name)
             ->addField($position)
             ->addField($links_docs_path_to_root)
-            ->addField($visible);
+            ->addField($visible)
+            ->addField($collections);
+
+        // If persistent, fetch associated collections.
+        if (is_null($this->getId()) === false) {
+            $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
+            foreach ($collections as $collection) {
+                $collectionId = $collection['content'][0]['id'];
+                $this->_fields['Collections']->addValue((int) $collectionId);
+            }
+        }
+    }
+
+    /**
+     * Returns associated collections.
+     *
+     * @param  int  $index (Optional) Index of the collection to fetch.
+     * @return Opus_Model_Collection|array Collection(s).
+     */
+    protected function _fetchCollections($index = null) {
+        if (is_null($index) === false) {
+            $collectionId = $this->_fields['Collections']->getValue($index);
+            return new Opus_Model_Collection($this->getId(), $collectionId);
+        } else {
+            $collections = array();
+            foreach ($this->_fields['Collections']->getValue() as $collectionId) {
+                $collections[] = new Opus_Model_Collection((int)$this->getId(), $collectionId);
+            }
+            return $collections;
+        }
     }
 
     /**

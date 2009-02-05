@@ -37,7 +37,7 @@
  * Bridges Opus_Collection_Information to Opus_Model_Abstract.
  *
  */
-abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
+class Opus_Model_Collection extends Opus_Model_Abstract
 {
     /**
      * Holds internal representation of the collection.
@@ -113,12 +113,11 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
         }
 
         self::$_tableGatewayClass = 'Opus_Db_CollectionsContents(' . (int) $this->__role . ')';
-        $collectionClass = get_class($this);
 
         // Add a field to hold subcollections
         $subCollectionField = new Opus_Model_Field('SubCollection');
         $subCollectionField->setMultiplicity('*');
-        $this->_externalFields['SubCollection'] = array('fetch' => 'lazy', 'model' => $collectionClass);
+        $this->_externalFields['SubCollection'] = array('fetch' => 'lazy', 'model' => 'Opus_Model_Collection');
         $this->addField($subCollectionField);
 
         // Add all first level sibling Ids as fields,
@@ -133,7 +132,7 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
         // Add a field to hold parentcollections
         $parentCollectionField = new Opus_Model_Field('ParentCollection');
         $parentCollectionField->setMultiplicity('*');
-        $this->_externalFields['ParentCollection'] = array('fetch' => 'lazy', 'model' => $collectionClass);
+        $this->_externalFields['ParentCollection'] = array('fetch' => 'lazy', 'model' => 'Opus_Model_Collection');
         $this->addField($parentCollectionField);
 
         // Add all first level parent Ids as fields,
@@ -141,7 +140,7 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
         // be lazy fetching.
         $parentCollectionIds = Opus_Collection_Information::getAllParents($this->__role, (int) $this->__collection['id']);
         foreach ($parentCollectionIds as $parentCollectionId) {
-            $this->addParentCollection((int) $parentCollectionId);
+            $this->_fields['ParentCollection']->addValue((int) $parentCollectionId);
         }
     }
 
@@ -150,7 +149,14 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
      *
      * @return array $documents The documents in the collection.
      */
-    public abstract function getEntries();
+    public function getEntries() {
+        $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role, (int) $this->__collection['id']);
+        $documents = array();
+        foreach ($docIds as $docId) {
+            $documents[] = new Opus_Model_Document($docId);
+        }
+        return $documents;
+    }
 
     /**
      * Adds a document to this collection.
@@ -158,23 +164,28 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
      * @param  Opus_Model_Document  $document The document to add.
      * @return void
      */
-    public abstract function addEntry(Opus_Model_Abstract $model);
+    public function addEntry(Opus_Model_Abstract $model) {
+        $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role);
+        $link = $linkTable->createRow();
+        $link->documents_id = $document->getId();
+        $link->collections_id = $this->__collection['id'];
+        $link->save();
+    }
 
     /**
      * Returns subcollections.
      *
      * @param  int  $index (Optional) Index of the subcollection to fetchl.
-     * @return Opus_Model_Collection_Abstract|array Subcollection(s).
+     * @return Opus_Model_Collection|array Subcollection(s).
      */
     protected function _fetchSubCollection($index = null) {
-        $collectionClass = get_class($this);
         if (is_null($index) === false) {
             $subCollectionId = $this->_fields['SubCollection']->getValue($index);
-            return new $collectionClass($this->__role, $subCollectionId);
+            return new Opus_Model_Collection($this->__role, $subCollectionId);
         } else {
             $subCollections = array();
             foreach ($this->_fields['SubCollection']->getValue() as $subCollectionId) {
-                $subCollections[] = new $collectionClass($this->__role, $subCollectionId);
+                $subCollections[] = new Opus_Model_Collection($this->__role, $subCollectionId);
             }
             return $subCollections;
         }
@@ -194,18 +205,17 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
      * Returns parentcollections.
      *
      * @param  int  $index (Optional) Index of the parentcollection to fetchl.
-     * @return Opus_Model_Collection_Abstract|array Parentcollection(s).
+     * @return Opus_Model_Collection|array Parentcollection(s).
      */
     protected function _fetchParentCollection($index = null) {
         // TODO: Handle root node.
-        $collectionClass = get_class($this);
         if (is_null($index) === false) {
             $parentCollectionId = $this->_fields['ParentCollection']->getValue($index);
-            return new $collectionClass($this->__role, (int) $parentCollectionId);
+            return new Opus_Model_Collection($this->__role, (int) $parentCollectionId);
         } else {
             $parentCollections = array();
             foreach ($this->_fields['ParentCollection']->getValue() as $parentCollectionId) {
-                $parentCollections[] = new $collectionClass($this->__role, (int) $parentCollectionId);
+                $parentCollections[] = new Opus_Model_Collection($this->__role, (int) $parentCollectionId);
             }
             return $parentCollections;
         }
@@ -220,4 +230,5 @@ abstract class Opus_Model_Collection_Abstract extends Opus_Model_Abstract
     protected function _storeParentCollection() {
 
     }
+
 }
