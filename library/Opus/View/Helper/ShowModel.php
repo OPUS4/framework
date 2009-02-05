@@ -205,10 +205,12 @@ class Opus_View_Helper_ShowModel extends Zend_View_Helper_Abstract {
     private function __titleHelper($field, array &$value, $prefix = null) {
         $data = array();
         // title language
-        $language_list = Zend_Registry::get('Available_Languages');
         $language_field = 'TitleAbstractLanguage';
-        $language = $language_list[$value[$language_field]];
-        $data[] = $this->__skeleton($language_field, $language);
+        if (true === array_key_exists($language_field, $value)) {
+            $language_list = Zend_Registry::get('Available_Languages');
+            $language = $language_list[$value[$language_field]];
+            $data[] = $this->__skeleton($language_field, $language);
+        }
         // title value
         $title_field = 'TitleAbstractValue';
         $iterim_value = $value[$title_field];
