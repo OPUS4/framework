@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library - 
- * Dresden State and University Library, the Bielefeld University Library and 
- * the University Library of Hamburg University of Technology with funding from 
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,8 +20,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Framework
@@ -39,73 +39,74 @@
  * @package  Opus_Collections
  */
 class Opus_Collection_Contents {
-    
+
     /**
      * The collection-content array
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $collectionContents;
 
     /**
      * ID for this collection-content
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
     private $collections_id;
 
     /**
      * Container for collections_contents table gateway
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $collections_contents;
 
     /**
      * Container for collections_contents table metadata
-     * 
-     * @var array 
+     *
+     * @var array
      */
     private $collections_contents_info;
 
     /**
      * Container for identifying attribute
-     * 
-     * @var string 
+     *
+     * @var string
      */
     private $collectionsIdentifier;
 
     /**
      * ID for this collections_roles
-     * 
-     * @var integer 
+     *
+     * @var integer
      */
     private $role_id;
 
     /**
      * Container for validation object
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $validation;
-    
+
     /**
-     * Constructor. 
+     * Constructor.
      *
-     * @param string|integer $ID Number identifying the collection tree (role) 
+     * @param string|integer $ID Number identifying the collection tree (role)
      *                           or 'institute' for the institutes tree.
      */
     public function __construct($ID) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->constructorID($ID);
+        $this->collectionsIdentifier    = 'id';
         if ($ID === 'institute') {
-            $this->collectionsIdentifier    = 'institutes_id';
+            //$this->collectionsIdentifier    = 'id';
             $this->collections_contents     = new Opus_Db_InstitutesContents();
         } else {
             // For throwing Inv Arg Exception on non existing roles IDs
             $ocr  = new Opus_Collection_Roles();
             $ocr->load($ID);
-            $this->collectionsIdentifier    = 'collections_id';
+            //$this->collectionsIdentifier    = 'collections_id';
             $this->collections_contents     = new Opus_Db_CollectionsContents((int) $ID);
         }
         $this->collectionContents           = array();
@@ -113,26 +114,26 @@ class Opus_Collection_Contents {
         $this->role_id                      = $ID;
         $this->collections_id               = 0;
     }
-    
+
     /**
-     * Getter ID. 
+     * Getter ID.
      *
      * @return integer
      */
     public function getCollectionsID() {
         return (int) $this->collections_id;
     }
-    
+
     /**
-     * Getter collectionContents. 
+     * Getter collectionContents.
      *
      * @return array
      */
     public function getCollectionContents() {
         return $this->collectionContents;
     }
-    
-    
+
+
     /**
      * Updating collection-content.
      *
@@ -151,10 +152,10 @@ class Opus_Collection_Contents {
             }
             $this->collectionContents[$attribute] = $content;
         }
-        // Setting the ID 
+        // Setting the ID
         $this->collectionContents[$this->collections_contents_info['primary'][1]] = $this->collections_id;
     }
-    
+
     /**
      * Load collection-content from database.
      *
@@ -171,9 +172,9 @@ class Opus_Collection_Contents {
                                                     ->where($this->collections_contents_info['primary'][1] . ' = ?', $collections_id))
                                     ->toArray();
         if (true === empty($this->collectionContents)) {
-            throw new InvalidArgumentException("Collection with ID '$collections_id' not found.");                              
+            throw new InvalidArgumentException("Collection with ID '$collections_id' not found.");
         }
-        
+
         // Has the collection-content already an ID?
         if ($this->collections_id > 0) {
             // Then overwrite the loaded data
@@ -185,7 +186,7 @@ class Opus_Collection_Contents {
     }
 
 
-    
+
     /**
      * Save (pseudo)-content for root node to database.
      *
@@ -195,15 +196,15 @@ class Opus_Collection_Contents {
     public function root() {
         try {
             $this->collections_contents
-                 ->insert(array('collections_id' => 0));
+                 ->insert(array($this->collections_contents_info['primary'][1] => 0));
         } catch (Exception $e) {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
-    
-    
-    
+
+
+
+
     /**
      * Save collection-content to database.
      *

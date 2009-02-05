@@ -312,7 +312,7 @@ class Opus_Collection_Structure {
                 $parent = $tree[$leftValue];
             }
         }
-        if (isset($parent)) {
+        if (true === isset($parent)) {
             return $parent;
         } else {
             return false;
@@ -333,7 +333,7 @@ class Opus_Collection_Structure {
                 $left_array[] = $nested_set['left'];
             }
         }
-        if (isset($left_array)) {
+        if (true === isset($left_array)) {
             return $left_array;
         } else {
             return false;

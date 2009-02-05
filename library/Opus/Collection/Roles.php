@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library - 
- * Dresden State and University Library, the Bielefeld University Library and 
- * the University Library of Hamburg University of Technology with funding from 
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,8 +20,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Framework
@@ -39,37 +39,37 @@
  * @package  Opus_Collections
  */
 class Opus_Collection_Roles {
-    
+
     /**
-     * The collection-roles array. 
-     * 
-     * @var array 
+     * The collection-roles array.
+     *
+     * @var array
      */
     private $collectionRoles;
-    
+
     /**
-     * ID for this collections_roles. 
-     * 
-     * @var integer 
+     * ID for this collections_roles.
+     *
+     * @var integer
      */
     private $roles_id;
-    
+
     /**
-     * Container for collections_roles table gateway. 
-     * 
-     * @var object 
+     * Container for collections_roles table gateway.
+     *
+     * @var object
      */
     private $collections_roles;
-    
+
     /**
-     * Container for collections_roles table metadata. 
-     * 
-     * @var array 
+     * Container for collections_roles table metadata.
+     *
+     * @var array
      */
     private $collections_roles_info;
-    
+
     /**
-     * Constructor. 
+     * Constructor.
      */
     public function __construct() {
         $this->collectionRoles          = array();
@@ -77,7 +77,7 @@ class Opus_Collection_Roles {
         $this->collections_roles_info   = $this->collections_roles->info();
         $this->roles_id                 = 0;
     }
-    
+
     /**
      * Returns collection roles array.
      *
@@ -86,7 +86,7 @@ class Opus_Collection_Roles {
     public function getCollectionRoles() {
         return $this->collectionRoles;
     }
-    
+
     /**
      * Returns roles_id.
      *
@@ -95,8 +95,8 @@ class Opus_Collection_Roles {
     public function getRolesID() {
         return (int) $this->roles_id;
     }
-    
-    
+
+
     /**
      * Updating collection-role.
      *
@@ -114,10 +114,10 @@ class Opus_Collection_Roles {
             }
             $this->collectionRoles[$attribute] = $content;
         }
-        // Setting the ID 
+        // Setting the ID
         $this->collectionRoles[$this->collections_roles_info['primary'][1]] = $this->roles_id;
     }
-    
+
     /**
      * Load collection-role from database.
      *
@@ -134,10 +134,10 @@ class Opus_Collection_Roles {
                                                     ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
                                     ->toArray();
         if (true === empty($cr)) {
-            throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");                                   
+            throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");
         }
-        $this->collectionRoles = $cr[0];                                    
-        
+        $this->collectionRoles = $cr[0];
+
         // Has the collection-role already an ID?
         if ($this->roles_id > 0) {
             // Then overwrite the loaded data
@@ -148,9 +148,9 @@ class Opus_Collection_Roles {
             // Otherwise take the ID of the loaded collection-content as the collection-content ID
             $this->roles_id = $roles_id;
         }
-        
+
     }
-    
+
     /**
      * Fetch all collection-roles from database.
      *
@@ -159,12 +159,12 @@ class Opus_Collection_Roles {
      * @return array
      */
     public function getAllRoles($alsoHidden = false) {
-        
+
         // Argument validation
         if (false === is_bool($alsoHidden)) {
             throw new InvalidArgumentException('AlsoHidden flag must be boolean.');
         }
-        
+
         if ($alsoHidden === true) {
             $allCollectionRoles = $this ->collections_roles
                                         ->fetchAll($this ->collections_roles->select()
@@ -179,7 +179,7 @@ class Opus_Collection_Roles {
         }
         return $allCollectionRoles;
     }
-    
+
     /**
      * Save collection-role to database.
      *
@@ -212,7 +212,7 @@ class Opus_Collection_Roles {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
     /**
      * Create database tables "collections_contents_X", "collections_replacement_X" and
      * "collections_structure_X" where X is the current roles_id.
@@ -231,29 +231,29 @@ class Opus_Collection_Roles {
 
         $tabellenname = 'link_documents_collections_' . $this->roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
-            `link_documents_collections_id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
-            PRIMARY KEY ( `link_documents_collections_id` ) 
+            PRIMARY KEY ( `id` )
             ) ENGINE = InnoDB'
             ;
-        
+
         try {
             $db->query($query);
         } catch (Exception $e) {
             throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
         }
-        
-        
+
+
         $tabellenname = 'collections_contents_' . $this->roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
-            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
-            PRIMARY KEY ( `collections_id` ) 
+            `id` INT( 11 ) UNSIGNED NOT NULL ,
+            PRIMARY KEY ( `id` )
             ) ENGINE = InnoDB
             DEFAULT CHARACTER SET = utf8
             COLLATE = utf8_general_ci'
             ;
-        
+
         try {
             $db->query($query);
             $db->setTablePrefix('');
@@ -263,37 +263,37 @@ class Opus_Collection_Roles {
         } catch (Exception $e) {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
-        
+
         $tabellenname = 'collections_replacement_' . $this->roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
-              `collections_replacement_id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` INT UNSIGNED NOT NULL,
               `replacement_for_id` INT UNSIGNED,
               `replacement_by_id` INT UNSIGNED,
               `current_replacement_id` INT UNSIGNED,
-              PRIMARY KEY (`collections_replacement_id`) ,
+              PRIMARY KEY (`id`) ,
               INDEX fk_link_collections_' . $this->roles_id . ' (`collections_id` ASC) ,
               INDEX fk_link_collections_replacement_for_' . $this->roles_id . ' (`replacement_for_id` ASC) ,
               INDEX fk_link_collections_replacement_by_' . $this->roles_id . ' (`replacement_by_id` ASC) ,
               INDEX fk_link_collections_current_replacement_' . $this->roles_id . ' (`current_replacement_id` ASC) ,
               CONSTRAINT `fk_link_collections_' . $this->roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
               CONSTRAINT `fk_link_collections_replacement_for_' . $this->roles_id . '`
                 FOREIGN KEY (`replacement_for_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
               CONSTRAINT `fk_link_collections_replacement_by_' . $this->roles_id . '`
                 FOREIGN KEY (`replacement_by_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
               CONSTRAINT `fk_link_collections_current_replacement_' . $this->roles_id . '`
                 FOREIGN KEY (`current_replacement_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
@@ -304,19 +304,19 @@ class Opus_Collection_Roles {
         } catch (Exception $e) {
             throw new Exception('Error creating collection replacement table: ' . $e->getMessage());
         }
-        
+
         $tabellenname = 'collections_structure_' . $this->roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
-              `collections_structure_id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+              `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` int(10) UNSIGNED NOT NULL ,
               `left` int(10) UNSIGNED NOT NULL ,
               `right` int(10) UNSIGNED NOT NULL ,
               `visible` tinyint(1) NOT NULL default 1,
-              PRIMARY KEY (`collections_structure_id`) ,
+              PRIMARY KEY (`id`) ,
               INDEX fk_collections_structure_collections_contents_' . $this->roles_id . ' (`collections_id` ASC) ,
               CONSTRAINT `fk_collections_structure_collections_contents_' . $this->roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`collections_id` )
+                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
@@ -340,19 +340,19 @@ class Opus_Collection_Roles {
     public function shiftPositions($from, $shiftup = true) {
         if (false === is_int($from)) {
             throw new InvalidArgumentException('Shifting position must be integer');
-        } 
+        }
         if ($from < 0) {
             throw new InvalidArgumentException('Shifting position must be positive integer');
-        } 
+        }
         $db = Zend_Registry::get('db_adapter');
         if (true === $shiftup) {
             $db->query('UPDATE collections_roles SET `position` = `position`+1 WHERE `position` >= ' . (int) $from);
         } else {
             $db->query('UPDATE collections_roles SET `position` = `position`-1 WHERE `position` >= ' . (int) $from);
         }
-        
+
     }
-    
+
     /**
      * Find out the lowest free position for a role
      *
@@ -367,5 +367,5 @@ class Opus_Collection_Roles {
                                         ->toArray();
             return($maxPosition['max'] + 1);
     }
-    
+
 }
