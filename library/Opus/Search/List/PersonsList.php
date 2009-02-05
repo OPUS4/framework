@@ -1,7 +1,7 @@
 <?php
 /**
  * List of persons
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -42,7 +42,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
 
   /**
    * Number of persons in this list
-   * 
+   *
    * @var integer number of persons
    * @access private
    */
@@ -50,7 +50,7 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
 
   /**
    * Elements in this list
-   * 
+   *
    * @var array Array of persons in the list
    * @access private
    */
@@ -65,27 +65,27 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
 
   /**
    * Add a person to the list
-   * 
+   *
    * @param Opus_Search_Adapter_PersonAdapter $pers Person that should be added to this list
    * @return void
    */
   public function add($pers) {
     array_push($this->persons, $pers);
-  } 
+  }
 
   /**
    * Returns the number of persons in this list
-   * 
+   *
    * @return integer Number of persons in this list
    */
   public function getNumberOfPersons() {
     $this->numberOfPersons = count($this->persons);
     return $this->numberOfPersons;
-  } 
+  }
 
   /**
    * Gets the number of persons in this list
-   * 
+   *
    * @return integer Number of persons in this list
    */
   public function count() {
@@ -94,33 +94,49 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
 
   /**
    * Deletes a person from the list
-   * 
+   *
    * @param Opus_Search_Adapter_PersonAdapter|integer $item Element (or index of element) that should be removed from the list
    * @return void
    */
   public function delete($item) {
-    
+
   }
 
   /**
    * Gets an element from the list by its index
-   * 
+   *
    * @param integer $index Index number of the element
    * @return Opus_Search_Adapter_PersonAdapter Person on the given index position
    */
   public function get($index) {
     return $this->persons[$index];
-  }  
+  }
 
   /**
    * Sorts the list
    * Possible sort criteria are:
-   * not defined yet
-   * 
+   * lastname
+   * lastnamereverse
+   * firstname
+   * firstnamereverse
+   *
    * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {
-    
-  }  
+    print_r($this->persons);
+    if ($criteria === 'lastname') {
+        usort($this->persons, $this->persons->_toString());
+    }
+    if ($criteria === 'firstname') {
+
+    }
+    if ($criteria === 'lastnamereverse') {
+        rsort($this->persons);
+    }
+    if ($criteria === 'firstnamereverse') {
+
+    }
+    print_r($this->persons);
+  }
 }

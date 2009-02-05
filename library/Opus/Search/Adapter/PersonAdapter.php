@@ -93,4 +93,14 @@ class Opus_Search_Adapter_PersonAdapter
 		return $this->personData;
 	}
 
+	/**
+   * Returns the lastName of the Person
+   *
+   * @return string lastName of person
+   */
+    public function _toString()
+    {
+        return $this->personData['lastName'];
+    }
+
 }
