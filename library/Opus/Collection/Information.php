@@ -497,6 +497,14 @@ class Opus_Collection_Information {
         return $ocr->getCollectionRoles();
     }
 
+    /**
+     * Fetch every parent of a given collection.
+     *
+     * @param   integer $roles_id       ID identifying collection tree.
+     * @param   integer $collections_id ID identifying collection.
+     * @throws  InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
     static public function getAllParents($roles_id, $collections_id) {
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);
@@ -613,7 +621,7 @@ class Opus_Collection_Information {
                                     'documents_id'   => $documents_id));
     }
 
-    /*
+    /**
      *
      */
     static public function replace($roles_id, $collections_id, array $contentArray) {
@@ -654,7 +662,7 @@ class Opus_Collection_Information {
         return $new_collections_id;
     }
 
-    /*
+    /**
      *
      */
     static public function merge($roles_id, $collections_id1, $collections_id2, array $contentArray) {
@@ -725,7 +733,7 @@ class Opus_Collection_Information {
         return $new_collections_id;
     }
 
-    /*
+    /**
      *
      */
     static public function split($roles_id, $collections_id, array $contentArray1, array $contentArray2) {
