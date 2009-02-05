@@ -69,8 +69,8 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
         try {
         		$lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
-                Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
-                Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
+                #Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+                #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
         		$index = new Zend_Search_Lucene($lucenePath);
                 // Get the boolean operators used in the query
                 $oquery = $query;

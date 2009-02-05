@@ -70,9 +70,12 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $qhit->setRelevance($this->_parent->score);
 
         // highlightMatches needs HTML-Input with charset-meta-line
-        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=UTF-8">' . $document->getFieldValue('abstract'));
+        // workaround: set charset to ISO, otherwise Zend_Search_Lucene (1.6.2) will encode double
+        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=iso-8859-1">' . $document->getFieldValue('abstract'));
         // hold b-Tags (highlighted text), remove all others
         $highlighted = strip_tags($highlighter, '<b>');
+        // Without Syntax Highlighting
+        // $highlighted = $document->getFieldValue('abstract');
 
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'urn' => $document->getFieldValue('urn')));
         $qhit->setDocument($opusdoc);
