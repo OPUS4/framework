@@ -1,7 +1,7 @@
 <?php
 /**
  * Collection node
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -43,7 +43,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Number of hits in this list
-   * 
+   *
    * @var integer Number of documents in this list
    * @access private
    */
@@ -51,7 +51,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Documents belonging to this node
-   * 
+   *
    * @var array Array of documents contained in this list
    * @access private
    */
@@ -59,7 +59,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Name of this node
-   * 
+   *
    * @var string Name of this node
    * @access private
    */
@@ -67,7 +67,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Role-ID of the CollectionRole of this Node
-   * 
+   *
    * @var integer ID of the root node of this collection
    * @access private
    */
@@ -75,7 +75,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Collection-ID of the CollectionNode
-   * 
+   *
    * @var integer ID of this node in the collection
    * @access private
    */
@@ -83,7 +83,7 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Constructor
-   * 
+   *
    * @param array|integer $coll     (Optional) ID of the root node of this collection or array containing the ID and the name of the root node
    * @param array|integer $collnode (Optional) ID of this node of this collection or array containing the ID and the name of this node
    */
@@ -105,17 +105,17 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Add a Document to this node
-   * 
+   *
    * @param Opus_Search_Adapter_DocumentAdapter $doc Document in this node
    * @return void
    */
   public function add($doc) {
     array_push($this->documents, $doc);
-  } 
+  }
 
   /**
    * Returns the number of documents in this node
-   * 
+   *
    * @return integer Number of hits in this list
    */
   public function count() {
@@ -125,44 +125,44 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 
   /**
    * Deletes a Search hit from the list
-   * 
+   *
    * @param Opus_Search_Adapter_DocumentAdapter|integer $item Element (or index of element) that should be removed from the list
    * @return void
    */
   public function delete($item) {
-    
+
   }
 
   /**
    * Gets an element from the list by its index
-   * 
+   *
    * @param integer $index Index number of the element
    * @return Opus_Search_SearchHit Document with the given index number out of this list
    */
   public function get($index) {
     return $this->documents[$index];
-  }  
+  }
 
   /**
    * Sorts the list
    * Possible sort criteria are:
    * not defined yet
-   * 
+   *
    * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
   public function sort($criteria) {
-    
-  }  
+
+  }
 
   /**
    * Gets the name of this node by its language
-   * 
+   *
    * @param string $language (Optional) Desired language of the element, if null or not given the language will be detected using Zend_Locale
    * @return string If the language does not exist, null will be returned
    */
   public function getName($language = null) {
-  	#if ($language === null) 
+  	#if ($language === null)
   	#{
      #   $translate = Zend_Registry::get('Zend_Translate');
   		#$lang = $translate->getLocale();
@@ -179,29 +179,29 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   	#}
   	#if (array_key_exists($language, $this->name)) return $this->name[$language];
   	return $this->name;
-  }  
+  }
 
   /**
    * Gets the ID of the CollectionRole containing this Node
-   * 
+   *
    * @return integer RoleId
    */
   public function getRoleId() {
   	return $this->roleId;
-  }  
+  }
 
   /**
    * Gets the ID of the CollectionNode
-   * 
+   *
    * @return integer CollectionId
    */
   public function getNodeId() {
   	return $this->collectionId;
-  }  
+  }
 
   /**
    * Gets the SubNodes ID of this CollectionNode
-   * 
+   *
    * @return integer CollectionId
    */
   public function getSubNodes() {
@@ -212,11 +212,11 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 			$doctypeList->add($node);
 		}
   	return $doctypeList;
-  }  
+  }
 
   /**
    * Builds the CollectionNode-Object mapping the information from Opus_Collection
-   * 
+   *
    * @return string Complete path to root. If this is root, null will be returned
    */
   public function getCollectionNode() {
@@ -226,11 +226,11 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
   			$nodeInfo = null;
   		}
 		return $nodeInfo;
-  }  
+  }
 
   /**
    * Gets the documents from this Node from the database
-   * 
+   *
    * @param boolean $alsoSubnodes (Optional) Put the Subnodes also in the CollectionNode
    * @return array Documents in this node
    */
@@ -243,5 +243,20 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
 			$this->add($doc);
 		}
   		return $this->documents;
+  }
+
+  /**
+   * Gets the documents from this Node from the database
+   *
+   * @param boolean $alsoSubnodes (Optional) Put the Subnodes also in the CollectionNode
+   * @return array Documents in this node
+   */
+  public static function getDocumentIds($roleId, $collectionId) {
+        $docs = Opus_Collection_Information::getAllCollectionDocuments((int) $roleId, (int) $collectionId, false);
+        $documents = array();
+        foreach ($docs as $member) {
+            array_push($documents, (int) $member);
+        }
+        return $documents;
   }
 }
