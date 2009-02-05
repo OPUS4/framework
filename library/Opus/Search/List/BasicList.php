@@ -1,7 +1,7 @@
 <?php
 /**
  * Abstract definition of all lists for the Module_Search
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -35,7 +35,7 @@
  */
 
 /**
- * class BasicList 
+ * class BasicList
  * all lists should extend this class and implement the methods
  * @abstract
  */
@@ -43,7 +43,7 @@ abstract class Opus_Search_List_BasicList {
 
   /**
    * Adds an element to the list
-   * 
+   *
    * @param object $element Element that should be added to the list
    * @return void
    */
@@ -51,7 +51,7 @@ abstract class Opus_Search_List_BasicList {
 
   /**
    * Removes an element from the list
-   * 
+   *
    * @param object|integer $element Element (or index number of element) that should be removed from the list
    * @return void
    */
@@ -59,7 +59,7 @@ abstract class Opus_Search_List_BasicList {
 
   /**
    * Gets an element from the list by its index
-   * 
+   *
    * @param integer $offset Index number of the element
    * @return object
    */
@@ -67,15 +67,15 @@ abstract class Opus_Search_List_BasicList {
 
   /**
    * Sorts the list
-   * 
+   *
    * @param string $sortCriteria Criteria the list should be sorted with
    * @return void
    */
-	public abstract function sort($sortCriteria);
+	#public abstract function sort($sortCriteria);
 
   /**
    * Counts the elements in the list
-   * 
+   *
    * @return integer Number of elements in this list
    */
 	public abstract function count();

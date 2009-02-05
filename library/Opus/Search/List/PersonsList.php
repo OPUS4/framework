@@ -111,32 +111,4 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   public function get($index) {
     return $this->persons[$index];
   }
-
-  /**
-   * Sorts the list
-   * Possible sort criteria are:
-   * lastname
-   * lastnamereverse
-   * firstname
-   * firstnamereverse
-   *
-   * @param string $criteria Criteria the list should be sorted with
-   * @return void
-   */
-  public function sort($criteria) {
-    print_r($this->persons);
-    if ($criteria === 'lastname') {
-        usort($this->persons);
-    }
-    if ($criteria === 'firstname') {
-
-    }
-    if ($criteria === 'lastnamereverse') {
-        rsort($this->persons);
-    }
-    if ($criteria === 'firstnamereverse') {
-
-    }
-    print_r($this->persons);
-  }
 }
