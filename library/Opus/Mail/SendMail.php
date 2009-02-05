@@ -329,26 +329,26 @@ class Opus_Mail_SendMail {
     /**
      * Creates and sends an e-mail to all persons connected to the specified document / documents.
      *
-     * @param   mixed  $collection Collection
-     * @param   string $subject    Subject
-     * @param   string $bodyText   Text
-     * @param   string $from       (Optional) If not set, the standard sender address is taken
-     * @param   string $fromName   (Optional) If not set, the standard sender name is taken
+     * @param   mixed  $document Document
+     * @param   string $subject  Subject
+     * @param   string $bodyText Text
+     * @param   string $from     (Optional) If not set, the standard sender address is taken
+     * @param   string $fromName (Optional) If not set, the standard sender name is taken
      * @return  void
      */
-    public function sendMailToDocument($collection, $subject, $bodyText, $from = '', $fromName = '') {
+    public function sendMailToDocument($document, $subject, $bodyText, $from = '', $fromName = '') {
         // @todo Implement
     }
 
     /**
      * Creates and sends an e-mail to all authors of the specified collection / collections.
      *
-     * @param   integer|array $collectionId Collection ID
-     * @param   string        $subject      Subject
-     * @param   string        $bodyText     Text
+     * @param   integer|array $collection Collection
+     * @param   string        $subject    Subject
+     * @param   string        $bodyText   Text
      * @return  void
      */
-    public function sendMailToCollection($collectionId, $subject, $bodyText) {
+    public function sendMailToCollection($collection, $subject, $bodyText) {
         // @todo Implement
     }
 
