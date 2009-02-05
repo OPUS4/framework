@@ -268,7 +268,7 @@ class Opus_Mail_SendMail {
      */
     public function sendMailToAuthor($recipients, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === false) {
-            $config->Zend_Registry->get('Zend_Config');
+            $config = Zend_Registry::get('Zend_Config');
             $from = $config->mail->mail.opus.address;
             $fromName = $config->mail->mail.opus.name;
         }
@@ -313,7 +313,17 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function sendMailToAdmin($document, $subject, $bodyText) {
-        // @todo Implement
+        $config = Zend_Registry::get('Zend_Config');
+        $to = $config->mail->mail.opus.address;
+        $toName = $config->mail->mail.opus.name;
+        $recips = array('recipients' => array('address' => $to, 'name' => $toName));
+
+        // @todo Implement: get author's name and e-mail address from the database
+        // Dummy code:
+        $from = '';
+        $fromName = '';
+
+        $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
     }
 
     /**
