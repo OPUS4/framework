@@ -47,7 +47,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -82,13 +82,13 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @return void
      */
     protected function _init() {
-        $documentsid = new Opus_Model_Field('DocumentsId');
-        $filepathname = new Opus_Model_Field('FilePathName');
-        $filesortorder = new Opus_Model_Field('FileSortOrder');
-        $filelabel = new Opus_Model_Field('FileLabel');
+        $documentsid = new Opus_Model_Field('DocumentId');
+        $filepathname = new Opus_Model_Field('PathName');
+        $filesortorder = new Opus_Model_Field('SortOrder');
+        $filelabel = new Opus_Model_Field('Label');
         $filetype = new Opus_Model_Field('FileType');
         $mimetype = new Opus_Model_Field('MimeType');
-        $filelanguage = new Opus_Model_Field('FileLanguage');
+        $filelanguage = new Opus_Model_Field('Language');
         $filelanguage->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
         $tempfile = new Opus_Model_Field('TempFile');

@@ -47,7 +47,7 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -64,11 +64,11 @@ class Opus_Model_Dependent_Title extends Opus_Model_DependentAbstract
      * @return void
      */
     protected function _init() {
-        $this->_primaryTableRow->title_abstract_type = 'main';
-        $language = new Opus_Model_Field('TitleAbstractLanguage');
+        $this->_primaryTableRow->type = 'main';
+        $language = new Opus_Model_Field('Language');
         $language->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
-        $value = new Opus_Model_Field('TitleAbstractValue');
+        $value = new Opus_Model_Field('Value');
 
         $this->addField($language)
             ->addField($value);

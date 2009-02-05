@@ -52,7 +52,7 @@ class Opus_Db_LinkDocumentsLicences extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('documents_id', 'licences_id');
+    protected $_primary = array('document_id', 'licence_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -62,14 +62,14 @@ class Opus_Db_LinkDocumentsLicences extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
             'Documents' => array(
-                'columns' => 'documents_id',
+                'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'documents_id',
+                'refColumns' => 'id',
                 ),
             'DocumentLicences' => array(
-                'columns' => 'licences_id',
+                'columns' => 'licence_id',
                 'refTableClass' => 'Opus_Db_DocumentLicences',
-                'refColumns' => 'licences_id'
+                'refColumns' => 'id'
                 ),
             );
 }

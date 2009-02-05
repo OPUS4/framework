@@ -49,15 +49,6 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
     protected $_name = 'collections_roles';
 
     /**
-     * DB table primary key name.
-     * Important: First element is the numeric part, second element is the language part of the key!
-     *
-     * @var array <string, string>
-     */
-    protected $_primary = 'collections_roles_id';
-    //protected $_primary = 'id';
-
-    /**
      * Primary key values cannot be generated automatically.
      *
      * @var boolean

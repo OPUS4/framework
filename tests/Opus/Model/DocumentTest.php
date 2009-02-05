@@ -66,7 +66,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="ContributingCorporation"/>
 
             <field name="DateAccepted"/>
-            <field name="DocumentType"/>
             <field name="Edition"/>
             <field name="Issue"/>
             <field name="NonInstituteAffiliation"/>
@@ -352,8 +351,8 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $document = new Opus_Model_Document(null, $type);
 
         $enrichment = new Opus_Model_Dependent_Enrichment;
-        $enrichment->setEnrichmentValue('Poor enrichment.');
-        $enrichment->setEnrichmentType('nonesense');
+        $enrichment->setValue('Poor enrichment.');
+        $enrichment->setType('nonesense');
 
         $document->addEnrichment($enrichment);
         $this->setExpectedException('InvalidArgumentException');
@@ -390,20 +389,19 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $document->setDocumentType('article');
 
         $title = $document->addTitleMain();
-        $title->setTitleAbstractValue('Title');
-        $title->setTitleAbstractLanguage('de');
+        $title->setValue('Title');
+        $title->setLanguage('de');
 
         $abstract = $document->addTitleAbstract();
-        $abstract->setTitleAbstractValue('Abstract');
-        $abstract->setTitleAbstractLanguage('fr');
+        $abstract->setValue('Abstract');
+        $abstract->setLanguage('fr');
 
         $parentTitle = $document->addTitleParent();
-        $parentTitle->setTitleAbstractValue('Parent');
-        $parentTitle->setTitleAbstractLanguage('en');
+        $parentTitle->setValue('Parent');
+        $parentTitle->setLanguage('en');
 
         $isbn = $document->addIsbn();
-        $isbn->setIdentifierValue('123-123-123');
-        $isbn->setIdentifierLabel('label');
+        $isbn->setValue('123-123-123');
 
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
@@ -411,15 +409,15 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $note->setScope('public');
 
         $patent = $document->addPatent();
-        $patent->setPatentCountries('Lummerland');
-        $patent->setPatentDateGranted('2008-12-05');
-        $patent->setPatentNumber('123456789');
-        $patent->setPatentYearApplied('2008');
-        $patent->setPatentApplication('Absolutely none.');
+        $patent->setCountries('Lummerland');
+        $patent->setDateGranted('2008-12-05');
+        $patent->setNumber('123456789');
+        $patent->setYearApplied('2008');
+        $patent->setApplication('Absolutely none.');
 
         $enrichment = $document->addEnrichment();
-        $enrichment->setEnrichmentValue('Poor enrichment.');
-        $enrichment->setEnrichmentType('nonesense');
+        $enrichment->setValue('Poor enrichment.');
+        $enrichment->setType('nonesense');
 
         $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
@@ -437,7 +435,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $licence = new Opus_Model_Licence;
         $licence->setActive(1);
-        $licence->setLicenceLanguage('de');
+        $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
         $licence->setMimeType('text/pdf');
         $licence->setNameLong('Creative Commons');
@@ -449,34 +447,33 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $id = $document->store();
         $document = new Opus_Model_Document($id);
         $title = $document->addTitleMain();
-        $title->setTitleAbstractValue('Title Two');
-        $title->setTitleAbstractLanguage('en');
+        $title->setValue('Title Two');
+        $title->setLanguage('en');
         $id = $document->store();
         $document = new Opus_Model_Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get' . $fieldname}(), "Field $fieldname was changed by database.");
         }
-        $this->assertEquals($document->getTitleMain(0)->getTitleAbstractValue(), 'Title');
-        $this->assertEquals($document->getTitleMain(0)->getTitleAbstractLanguage(), 'de');
-        $this->assertEquals($document->getTitleMain(1)->getTitleAbstractValue(), 'Title Two');
-        $this->assertEquals($document->getTitleMain(1)->getTitleAbstractLanguage(), 'en');
-        $this->assertEquals($document->getTitleAbstract()->getTitleAbstractValue(), 'Abstract');
-        $this->assertEquals($document->getTitleAbstract()->getTitleAbstractLanguage(), 'fr');
-        $this->assertEquals($document->getTitleParent()->getTitleAbstractValue(), 'Parent');
-        $this->assertEquals($document->getTitleParent()->getTitleAbstractLanguage(), 'en');
-        $this->assertEquals($document->getIsbn()->getIdentifierValue(), '123-123-123');
-        $this->assertEquals($document->getIsbn()->getIdentifierLabel(), 'label');
+        $this->assertEquals($document->getTitleMain(0)->getValue(), 'Title');
+        $this->assertEquals($document->getTitleMain(0)->getLanguage(), 'de');
+        $this->assertEquals($document->getTitleMain(1)->getValue(), 'Title Two');
+        $this->assertEquals($document->getTitleMain(1)->getLanguage(), 'en');
+        $this->assertEquals($document->getTitleAbstract()->getValue(), 'Abstract');
+        $this->assertEquals($document->getTitleAbstract()->getLanguage(), 'fr');
+        $this->assertEquals($document->getTitleParent()->getValue(), 'Parent');
+        $this->assertEquals($document->getTitleParent()->getLanguage(), 'en');
+        $this->assertEquals($document->getIsbn()->getValue(), '123-123-123');
         $this->assertEquals($document->getNote()->getMessage(), 'Ich bin eine öffentliche Notiz.');
         $this->assertEquals($document->getNote()->getCreator(), 'Jim Knopf');
         $this->assertEquals($document->getNote()->getScope(), 'public');
-        $this->assertEquals($document->getPatent()->getPatentCountries(), 'Lummerland');
-        $this->assertEquals($document->getPatent()->getPatentDateGranted(), '2008-12-05');
-        $this->assertEquals($document->getPatent()->getPatentNumber(), '123456789');
-        $this->assertEquals($document->getPatent()->getPatentYearApplied(), '2008');
-        $this->assertEquals($document->getPatent()->getPatentApplication(), 'Absolutely none.');
-        $this->assertEquals($document->getEnrichment()->getEnrichmentValue(), 'Poor enrichment.');
-        $this->assertEquals($document->getEnrichment()->getEnrichmentType(), 'nonesense');
+        $this->assertEquals($document->getPatent()->getCountries(), 'Lummerland');
+        $this->assertEquals($document->getPatent()->getDateGranted(), '2008-12-05');
+        $this->assertEquals($document->getPatent()->getNumber(), '123456789');
+        $this->assertEquals($document->getPatent()->getYearApplied(), '2008');
+        $this->assertEquals($document->getPatent()->getApplication(), 'Absolutely none.');
+        $this->assertEquals($document->getEnrichment()->getValue(), 'Poor enrichment.');
+        $this->assertEquals($document->getEnrichment()->getType(), 'nonesense');
         $this->assertEquals($document->getPersonAuthor(0)->getFirstName(), 'Ludwig');
         $this->assertEquals($document->getPersonAuthor(0)->getLastName(), 'Wittgenstein');
         $this->assertEquals($document->getPersonAuthor(0)->getDateOfBirth(), '1889-04-26 00:00:00');
@@ -486,7 +483,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getPersonAuthor(1)->getDateOfBirth(), '1857-11-26 00:00:00');
         $this->assertEquals($document->getPersonAuthor(1)->getPlaceOfBirth(), 'Genf');
         $this->assertEquals($document->getLicence()->getActive(), 1);
-        $this->assertEquals($document->getLicence()->getLicenceLanguage(), 'de');
+        $this->assertEquals($document->getLicence()->getLanguage(), 'de');
         $this->assertEquals($document->getLicence()->getLinkLicence(), 'http://creativecommons.org/');
         $this->assertEquals($document->getLicence()->getMimeType(), 'text/pdf');
         $this->assertEquals($document->getLicence()->getNameLong(), 'Creative Commons');
@@ -748,20 +745,20 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc1 = new Opus_Model_Document(null, 'article');
         $title1 = $doc1->addTitleMain();
-        $title1->setTitleAbstractLanguage('de');
-        $title1->setTitleAbstractValue('Ein deutscher Titel');
+        $title1->setLanguage('de');
+        $title1->setValue('Ein deutscher Titel');
         $doc1->store();
 
         $doc2 = new Opus_Model_Document(null, 'article');
         $title2 = $doc2->addTitleMain();
-        $title2->setTitleAbstractLanguage('en');
-        $title2->setTitleAbstractValue('An english titel');
+        $title2->setLanguage('en');
+        $title2->setValue('An english titel');
         $doc2->store();
 
         $result = Opus_Model_Document::getAllDocumentTitles();
         $this->assertEquals(2, count($result), 'Wrong number of title entries.');
-        $this->assertArrayHasKey($title1->getTitleAbstractValue(), $result, 'Expected title is not in the list.');
-        $this->assertArrayHasKey($title2->getTitleAbstractValue(), $result, 'Expected title is not in the list.');
+        $this->assertArrayHasKey($title1->getValue(), $result, 'Expected title is not in the list.');
+        $this->assertArrayHasKey($title2->getValue(), $result, 'Expected title is not in the list.');
     }
 
     /**
@@ -774,20 +771,20 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc1 = new Opus_Model_Document(null, 'article');
         $title1 = $doc1->addTitleMain();
-        $title1->setTitleAbstractLanguage('de');
-        $title1->setTitleAbstractValue('Ein deutscher Titel');
+        $title1->setLanguage('de');
+        $title1->setValue('Ein deutscher Titel');
         $id1 = $doc1->store();
 
         $doc2 = new Opus_Model_Document(null, 'article');
         $title2 = $doc2->addTitleMain();
-        $title2->setTitleAbstractLanguage('en');
-        $title2->setTitleAbstractValue('An english titel');
+        $title2->setLanguage('en');
+        $title2->setValue('An english titel');
         $id2 = $doc2->store();
 
         $result = Opus_Model_Document::getAllDocumentTitles();
 
-        $this->assertEquals($id1, $result[$title1->getTitleAbstractValue()], 'Wrong document id for title.');
-        $this->assertEquals($id2, $result[$title2->getTitleAbstractValue()], 'Wrong document id for title.');
+        $this->assertEquals($id1, $result[$title1->getValue()], 'Wrong document id for title.');
+        $this->assertEquals($id2, $result[$title2->getValue()], 'Wrong document id for title.');
     }
 
     /**
@@ -873,16 +870,16 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc = new Opus_Model_Document(null, 'article');
         $title = $doc->addTitleMain();
-        $title->setTitleAbstractLanguage('de');
-        $title->setTitleAbstractValue('Ein deutscher Titel');
+        $title->setLanguage('de');
+        $title->setValue('Ein deutscher Titel');
         $id = $doc->store();
 
         $loaded_document = new Opus_Model_Document($id);
         $iterim_result = $loaded_document->toArray();
         $result = $iterim_result['TitleMain'][0];
         $expected = array(
-            'TitleAbstractLanguage' => 'de',
-            'TitleAbstractValue' => 'Ein deutscher Titel'
+            'Language' => 'de',
+            'Value' => 'Ein deutscher Titel'
             );
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
     }

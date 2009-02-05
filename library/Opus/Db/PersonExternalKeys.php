@@ -49,13 +49,6 @@ class Opus_Db_PersonExternalKeys extends Opus_Db_TableGateway {
     protected $_name = 'person_external_keys';
 
     /**
-     * Primary key column name.
-     *
-     * @var string
-     */
-    protected $_primary = 'person_external_keys_Id';
-
-    /**
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
@@ -65,7 +58,7 @@ class Opus_Db_PersonExternalKeys extends Opus_Db_TableGateway {
         'Persons' => array(
             'columns' => 'persons_id',
             'refTableClass' => 'Opus_Db_Persons',
-            'refColumns' => 'persons_id',
+            'refColumns' => 'id',
             ),
         );
 }

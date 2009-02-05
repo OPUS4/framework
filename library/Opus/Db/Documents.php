@@ -48,14 +48,7 @@ class Opus_Db_Documents extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'documents';
-
-    /**
-     * Real database name of the primary key column.
-     *
-     * @var string
-     */
-    protected $_primary = 'documents_id';
-
+    
     /**
      * All dependant Tables,
      * i.e. those that contain a documents_id as a foreign key.

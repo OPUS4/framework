@@ -45,7 +45,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * The class of the model that is linked to.
@@ -86,7 +86,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Model_Person($this->_primaryTableRow->persons_id));
+            $this->setModel(new Opus_Model_Person($this->_primaryTableRow->person_id));
         }
 
         $institute = new Opus_Model_Field('Institute');
@@ -106,7 +106,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      * @return void
      */
     public function store() {
-        $this->_primaryTableRow->persons_id = $this->_model->store();
+        $this->_primaryTableRow->person_id = $this->_model->store();
         parent::store();
     }
 

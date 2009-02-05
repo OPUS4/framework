@@ -52,20 +52,19 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $document = new Opus_Model_Document(null, 'article');
 
         $title = $document->addTitleMain();
-        $title->setTitleAbstractValue('Title');
-        $title->setTitleAbstractLanguage('de');
+        $title->setValue('Title');
+        $title->setLanguage('de');
 
         $abstract = $document->addTitleAbstract();
-        $abstract->setTitleAbstractValue('Abstract');
-        $abstract->setTitleAbstractLanguage('fr');
+        $abstract->setValue('Abstract');
+        $abstract->setLanguage('fr');
 
         $parentTitle = $document->addTitleParent();
-        $parentTitle->setTitleAbstractValue('Parent');
-        $parentTitle->setTitleAbstractLanguage('en');
+        $parentTitle->setValue('Parent');
+        $parentTitle->setLanguage('en');
 
         $isbn = $document->addIsbn();
-        $isbn->setIdentifierValue('123-123-123');
-        $isbn->setIdentifierLabel('label');
+        $isbn->setValue('123-123-123');
 
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
@@ -73,15 +72,15 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $note->setScope('public');
 
         $patent = $document->addPatent();
-        $patent->setPatentCountries('Lummerland');
-        $patent->setPatentDateGranted('2008-12-05');
-        $patent->setPatentNumber('123456789');
-        $patent->setPatentYearApplied('2008');
-        $patent->setPatentApplication('Absolutely none.');
+        $patent->setCountries('Lummerland');
+        $patent->setDateGranted('2008-12-05');
+        $patent->setNumber('123456789');
+        $patent->setYearApplied('2008');
+        $patent->setApplication('Absolutely none.');
 
         $enrichment = $document->addEnrichment();
-        $enrichment->setEnrichmentValue('Poor enrichment.');
-        $enrichment->setEnrichmentType('nonesense');
+        $enrichment->setValue('Poor enrichment.');
+        $enrichment->setType('nonesense');
 
         $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
@@ -99,7 +98,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
         $licence = new Opus_Model_Licence;
         $licence->setActive(1);
-        $licence->setLicenceLanguage('de');
+        $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
         $licence->setMimeType('text/pdf');
         $licence->setNameLong('Creative Commons');
@@ -108,11 +107,11 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $document->addLicence($licence);
 
         $title2 = $document->addTitleMain();
-        $title2->setTitleAbstractValue('Title Two');
-        $title2->setTitleAbstractLanguage('en');
+        $title2->setValue('Title Two');
+        $title2->setLanguage('en');
         $abstract2 = $document->addTitleAbstract();
-        $abstract2->setTitleAbstractValue('Kurzfassung');
-        $abstract2->setTitleAbstractLanguage('de');
+        $abstract2->setValue('Kurzfassung');
+        $abstract2->setLanguage('de');
         $document->store();
 
         $this->_document = $document;

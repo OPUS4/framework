@@ -46,7 +46,7 @@ class Opus_Model_Dependent_Subject extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -65,10 +65,10 @@ class Opus_Model_Dependent_Subject extends Opus_Model_DependentAbstract
      * @return void
      */
     protected function _init() {
-        $this->addField(new Opus_Model_Field('SubjectLanguage'))
-            ->addField(new Opus_Model_Field('SubjectType'))
-            ->addField(new Opus_Model_Field('SubjectValue'))
-            ->addField(new Opus_Model_Field('ExternalSubjectKey'));
+        $this->addField(new Opus_Model_Field('Language'))
+            ->addField(new Opus_Model_Field('Type'))
+            ->addField(new Opus_Model_Field('Value'))
+            ->addField(new Opus_Model_Field('ExternalKey'));
     }
 
 

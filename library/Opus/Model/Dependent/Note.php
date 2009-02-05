@@ -46,7 +46,7 @@ class Opus_Model_Dependent_Note extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.

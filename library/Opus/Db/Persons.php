@@ -50,13 +50,6 @@ class Opus_Db_Persons extends Opus_Db_TableGateway {
     protected $_name = 'persons';
 
     /**
-     * Primary key column name.
-     *
-     * @var string
-     */
-    protected $_primary = 'persons_id';
-
-    /**
      * All dependant Tables,
      * i.e. those that contain a licenses_id as a foreign key.
      *

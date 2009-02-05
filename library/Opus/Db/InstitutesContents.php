@@ -50,14 +50,6 @@ class Opus_Db_InstitutesContents extends Opus_Db_TableGateway {
     protected $_name = 'institutes_contents';
 
     /**
-     * DB table primary key name.
-     * Important: First element is the numeric part, second element is the language part of the key!
-     *
-     * @var string
-     */
-    protected $_primary = 'institutes_id';
-
-    /**
      * Primary key values cannot be generated automatically.
      * 
      * @var boolean

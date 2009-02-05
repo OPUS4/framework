@@ -50,13 +50,6 @@ class Opus_Db_InstitutesReplacement extends Opus_Db_TableGateway {
     protected $_name = 'institutes_replacement';
 
     /**
-     * DB table primary key name.
-     *
-     * @var string
-     */
-    protected $_primary = 'institutes_replacement_id';
-
-    /**
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
@@ -66,22 +59,22 @@ class Opus_Db_InstitutesReplacement extends Opus_Db_TableGateway {
             'InstitutesContents' => array(
                 'columns' => 'institutes_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+                'refColumns' => 'id'
                 ),
             'ReplacementFor' => array(
                 'columns' => 'replacement_for_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+                'refColumns' => 'id'
                 ),
             'ReplacementBy' => array(
                 'columns' => 'replacement_by_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+                'refColumns' => 'id'
                 ),
             'CurrentReplacement' => array(
                 'columns' => 'current_replacement_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+                'refColumns' => 'id'
                 ),
             );
 }

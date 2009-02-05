@@ -47,7 +47,7 @@ class Opus_Model_Dependent_Identifier extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -64,11 +64,9 @@ class Opus_Model_Dependent_Identifier extends Opus_Model_DependentAbstract
      * @return void
      */
     protected function _init() {
-        $value = new Opus_Model_Field('IdentifierValue');
-        $label = new Opus_Model_Field('IdentifierLabel');
+        $value = new Opus_Model_Field('Value');
 
-        $this->addField($value)
-            ->addField($label);
+        $this->addField($value);
     }
 
 }

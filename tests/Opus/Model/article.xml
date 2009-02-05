@@ -59,7 +59,6 @@ value for "name". It must be declared.
     <field name="ContributingCorporation"/>
     <field name="CreatingCorporation"/>
     <field name="DateAccepted"/>
-    <field name="DocumentType"/>
     <field name="Edition"/>
     <field name="Issue"/>
     <field name="NonInstituteAffiliation"/>

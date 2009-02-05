@@ -46,7 +46,7 @@ class Opus_Model_Dependent_Patent extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -63,11 +63,11 @@ class Opus_Model_Dependent_Patent extends Opus_Model_DependentAbstract
      * @return void
      */
     protected function _init() {
-        $countries = new Opus_Model_Field('PatentCountries');
-        $dateGranted = new Opus_Model_Field('PatentDateGranted');
-        $number = new Opus_Model_Field('PatentNumber');
-        $yearApplied = new Opus_Model_Field('PatentYearApplied');
-        $application = new Opus_Model_Field('PatentApplication');
+        $countries = new Opus_Model_Field('Countries');
+        $dateGranted = new Opus_Model_Field('DateGranted');
+        $number = new Opus_Model_Field('Number');
+        $yearApplied = new Opus_Model_Field('YearApplied');
+        $application = new Opus_Model_Field('Application');
 
         $this->addField($countries)
             ->addField($dateGranted)

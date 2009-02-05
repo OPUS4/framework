@@ -52,7 +52,7 @@ class Opus_Db_LinkPersonsDocuments extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('persons_id', 'documents_id');
+    protected $_primary = array('person_id', 'document_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -62,19 +62,19 @@ class Opus_Db_LinkPersonsDocuments extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
             'Documents' => array(
-                'columns' => 'documents_id',
+                'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'documents_id',
+                'refColumns' => 'id',
                 ),
             'Persons' => array(
-                'columns' => 'persons_id',
+                'columns' => 'person_id',
                 'refTableClass' => 'Opus_Db_Persons',
-                'refColumns' => 'persons_id'
+                'refColumns' => 'id'
                 ),
             'Institutes' => array(
-                'column' => 'institutes_id',
+                'column' => 'institute_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id' 
+                'refColumns' => 'id' 
                 )
             );
 }

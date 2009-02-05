@@ -50,13 +50,6 @@ class Opus_Db_InstitutesStructure extends Opus_Db_TableGateway {
     protected $_name = 'institutes_structure';
 
     /**
-     * DB table primary key name.
-     *
-     * @var string
-     */
-    protected $_primary = 'institutes_structure_id';
-
-    /**
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
@@ -66,7 +59,7 @@ class Opus_Db_InstitutesStructure extends Opus_Db_TableGateway {
             'InstitutesContents' => array(
                 'columns' => 'institutes_id',
                 'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'institutes_id'
+                'refColumns' => 'id'
                 ),
             );
 }

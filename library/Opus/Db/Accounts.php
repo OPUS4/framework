@@ -46,10 +46,4 @@ class Opus_Db_Accounts extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'accounts';
-    /**
-     * Primary key column name.
-     *
-     * @var string
-     */
-    protected $_primary = 'account_id';
 }

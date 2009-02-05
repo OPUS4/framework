@@ -51,13 +51,6 @@ class Opus_Db_DocumentFiles extends Opus_Db_TableGateway {
     protected $_name = 'document_files';
 
     /**
-     * Real database name of the primary key column.
-     *
-     * @var string
-     */
-    protected $_primary = 'document_files_id';
-
-    /**
      * All dependant Tables,
      * i.e. those that contain a document_files_id as a foreign key.
      *
@@ -73,9 +66,9 @@ class Opus_Db_DocumentFiles extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
             'Documents' => array(
-                'columns' => 'documents_id',
+                'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'documents_id',
+                'refColumns' => 'id',
                 ),
             );
 }

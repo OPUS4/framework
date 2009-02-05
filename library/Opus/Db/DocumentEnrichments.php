@@ -51,13 +51,6 @@ class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
     protected $_name = 'document_enrichments';
 
     /**
-     * Real database name of the primary key column.
-     *
-     * @var string
-     */
-    protected $_primary = 'document_enrichments_id';
-
-    /**
      * Map foreign keys in this table to the column in the table they originate
      * from
      *
@@ -65,9 +58,9 @@ class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
             'Documents' => array(
-                'columns' => 'documents_id',
+                'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'documents_id',
+                'refColumns' => 'id',
                 ),
             );
 }

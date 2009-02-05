@@ -179,15 +179,15 @@ class Opus_File_Storage {
             rename($fileInformation['sourcePath'], $destdir . DIRECTORY_SEPARATOR .  $fileInformation['fileName']);
             // Second: Try to put file meta data in database
             $file_data = array(
-                'documents_id'   => $fileInformation['documentId'],
-                'file_path_name' => $fileInformation['publishYear']
+                'document_id'   => $fileInformation['documentId'],
+                'path_name' => $fileInformation['publishYear']
                                   . DIRECTORY_SEPARATOR
                                   . $fileInformation['documentId']
                                   . DIRECTORY_SEPARATOR
                                   .  $fileInformation['fileName'],
-                'file_label'     => $fileInformation['label'],
+                'label'     => $fileInformation['label'],
                 'file_type'      => $fileInformation['type'],
-                'file_language'  => $fileInformation['language'],
+                'language'  => $fileInformation['language'],
                 'mime_type'      => $fileInformation['mimeType']
                 );
             $id = (int) $filedb->insert($file_data);
@@ -219,10 +219,10 @@ class Opus_File_Storage {
         }
         $filedb->getAdapter()->beginTransaction();
         try {
-            $where = $filedb->getAdapter()->quoteInto('document_files_id = ?', $fileId);
+            $where = $filedb->getAdapter()->quoteInto('id = ?', $fileId);
             $filedb->delete($where);
             // Try to delete the file
-            $destfile = $this->repositoryPath . DIRECTORY_SEPARATOR . $rows->file_path_name;
+            $destfile = $this->repositoryPath . DIRECTORY_SEPARATOR . $rows->path_name;
             // unlink throws an exception on failure
             // not documented in php manuals until 01.09.2008
             unlink($destfile);
@@ -252,7 +252,7 @@ class Opus_File_Storage {
         if (empty($rows) === true) {
             throw new Opus_File_Exception('Could not found any data to specific entry.');
         }
-        $result = $rows->file_path_name;
+        $result = $rows->path_name;
         return $result;
     }
 
@@ -269,10 +269,10 @@ class Opus_File_Storage {
         }
         $result = array();
         $filedb = new Opus_Db_DocumentFiles();
-        $select = $filedb->select()->where('documents_id = ?', $documentId);
+        $select = $filedb->select()->where('document_id = ?', $documentId);
         $results = $filedb->fetchAll($select);
         foreach ($results as $key => $value) {
-            $result[] = $value->document_files_id;
+            $result[] = $value->id;
         }
         return $result;
     }

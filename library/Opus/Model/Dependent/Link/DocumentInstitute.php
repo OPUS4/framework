@@ -54,7 +54,7 @@ class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_L
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Initialize model with the following fields:
@@ -66,7 +66,7 @@ class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_L
         $this->addField(new Opus_Model_Field('Role'));
 
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Model_Institute($this->_primaryTableRow->institutes_id));
+            $this->setModel(new Opus_Model_Institute($this->_primaryTableRow->institute_id));
         }
     }
 
@@ -76,7 +76,7 @@ class Opus_Model_Dependent_Link_DocumentInstitute extends Opus_Model_Dependent_L
      * @return void
      */
     public function store() {
-        $this->_primaryTableRow->institutes_id = $this->_model->store();
+        $this->_primaryTableRow->institute_id = $this->_model->store();
         parent::store();
     }
 

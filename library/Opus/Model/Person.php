@@ -95,7 +95,7 @@ class Opus_Model_Person extends Opus_Model_Abstract
         $select->where('role=?', $role);
         foreach ($this->_primaryTableRow->findManyToManyRowset('Opus_Db_Documents',
                 'Opus_Db_LinkPersonsDocuments', null, null, $select) as $document) {
-            $documents[] = new Opus_Model_Document($document->documents_id);
+            $documents[] = new Opus_Model_Document($document->id);
         }
         return $documents;
     }

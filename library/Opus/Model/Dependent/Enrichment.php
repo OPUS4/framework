@@ -46,7 +46,7 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'documents_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
@@ -63,8 +63,8 @@ class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
      * @return void
      */
     protected function _init() {
-        $type = new Opus_Model_Field('EnrichmentType');
-        $value = new Opus_Model_Field('EnrichmentValue');
+        $type = new Opus_Model_Field('Type');
+        $value = new Opus_Model_Field('Value');
 
         $this->addField($type)
             ->addField($value);
