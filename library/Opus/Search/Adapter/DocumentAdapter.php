@@ -91,7 +91,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		// transfer the title of this document into the adapter class
 		try	{
 			$title = $document->getTitleMain(0);
-			$this->documentData['title'] = $title->getTitleAbstractValue();
+			$this->documentData['title'] = $title->getValue();
 		} catch (Exception $e) {
 			$this->documentData['title'] = 'No title specified!';
 		}
@@ -100,12 +100,12 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 		try {
 			if (is_array($document->getTitleAbstract()) === true) {
 				if (count($document->getTitleAbstract()) > 0) {
-					$this->documentData['abstract'] = $document->getTitleAbstract(0)->getTitleAbstractValue();
+					$this->documentData['abstract'] = $document->getTitleAbstract(0)->getValue();
 				} else {
 					$this->documentData['abstract'] = 'No abstract specified!';
 				}
 			} else {
-				$this->documentData['abstract'] = $document->getTitleAbstract()->getTitleAbstractValue();
+				$this->documentData['abstract'] = $document->getTitleAbstract()->getValue();
 			}
 		} catch (Exception $e) {
 			$this->documentData['abstract'] = 'No abstract specified!';
@@ -120,7 +120,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 
 		// transfer the URN of this document into the adapter class
 		try {
-			$this->documentData['urn'] = 'urn:nbn:de:0830-123-3'; # $document->getUrn()->getIdentifierValue();
+			$this->documentData['urn'] = $document->getUrn()->getValue();
 		} catch (Exception $e) {
 			$this->documentData['urn'] = 'No URN specified.';
 		}
