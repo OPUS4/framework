@@ -112,7 +112,7 @@ class Opus_File_Hash {
         // Generate hash values
         $hash_data = $this->generate_hash($filedata, $method);
         $hashdb_data = array(
-            'files_id' => $fileId,
+            'file_id' => $fileId,
             'type' => $method,
             'value' => $hash_data['hashvalue']
             );
@@ -133,7 +133,7 @@ class Opus_File_Hash {
             throw new InvalidArgumentException('Identifier is not an integer value.');
         }
         $hashdb = new Opus_Db_FileHashvalues();
-        $select = $hashdb->select()->where('files_id = ?' , $fileId);
+        $select = $hashdb->select()->where('file_id = ?' , $fileId);
         $result = $hashdb->fetchAll($select)->toArray();
         return $result;
     }

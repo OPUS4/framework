@@ -117,13 +117,13 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`file_hashvalues`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
-  `files_id` INT UNSIGNED NOT NULL ,
+  `file_id` INT UNSIGNED NOT NULL ,
   `type` VARCHAR(50) NOT NULL COMMENT 'Type of the hash value.' ,
   `value` TEXT NOT NULL COMMENT 'Hash value.' ,
-  PRIMARY KEY (`type`, `files_id`) ,
-  INDEX `fk_file_hashvalues_document_files` (`files_id` ASC) ,
+  PRIMARY KEY (`type`, `file_id`) ,
+  INDEX `fk_file_hashvalues_document_files` (`file_id` ASC) ,
   CONSTRAINT `fk_file_hashvalues_document_files`
-    FOREIGN KEY (`files_id` )
+    FOREIGN KEY (`file_id` )
     REFERENCES `opus400`.`document_files` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
@@ -368,7 +368,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`document_licences`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_licences` (
-  `licence_id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `active` TINYINT NOT NULL COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?' ,
   `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment.' ,
   `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML etc.).' ,
@@ -381,7 +381,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_licences` (
   `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
   `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed. (1=yes, 0=yes).' ,
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99).' ,
-  PRIMARY KEY (`licence_id`) )
+  PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
@@ -475,7 +475,7 @@ COMMENT = 'Table for system user accounts.';
 -- Table `opus400`.`collections_roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
-  `id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key.' ,
+  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `name` VARCHAR(255) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
   `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
   `link_docs_path_to_root` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If not 0: Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree.' ,
@@ -484,7 +484,8 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
   `display_doclist` VARCHAR(512) NULL ,
   `display_col_front` VARCHAR(512) NULL ,
   `display_frontdoor` VARCHAR(512) NULL ,
-  PRIMARY KEY (`id`) )
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
@@ -507,7 +508,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_licences` (
     ON UPDATE CASCADE,
   CONSTRAINT `fk_documents_has_document_licences_document_licences`
     FOREIGN KEY (`licence_id` )
-    REFERENCES `opus400`.`document_licences` (`licence_id` )
+    REFERENCES `opus400`.`document_licences` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -566,6 +567,28 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
 COMMENT = 'Table for identifiers referencing to related documents.'
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
+
+
+-- -----------------------------------------------------
+-- Table `opus400`.`link_metadocument_collection`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `opus400`.`link_metadocument_collection` (
+  `content_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific collection' ,
+  `role_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific role' ,
+  `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key of a document' ,
+  PRIMARY KEY (`content_id`, `role_id`) ,
+  INDEX `fk_link_documents_collection_documents` (`document_id` ASC) ,
+  CONSTRAINT `fk_link_documents_collection_documents`
+    FOREIGN KEY (`document_id` )
+    REFERENCES `opus400`.`documents` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
+COMMENT = 'Reference to a metadata document for a collection.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 

@@ -53,7 +53,7 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
      *
      * @var array
      */
-    protected $_primary = array('files_id', 'type');
+    protected $_primary = array('file_id', 'type');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -63,7 +63,7 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
             'DocumentFiles' => array(
-                'columns' => 'files_id',
+                'columns' => 'file_id',
                 'refTableClass' => 'Opus_Db_DocumentFiles',
                 'refColumns' => 'id',
                 ),
