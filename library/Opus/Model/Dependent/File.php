@@ -64,7 +64,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            'TempFile' => array(null),
+            'TempFile' => array(),
             'HashValue' => array(
                 'model' => 'Opus_Model_Dependent_HashValues'
             ),
@@ -72,12 +72,12 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
 
     /**
      * Initialize model with the following fields:
-     * - FilePathName
-     * - FileSortOrder
-     * - FileLabel
+     * - PathName
+     * - SortOrder
+     * - Label
      * - FileType
      * - MimeType
-     * - FileLanguage
+     * - Language
      *
      * @return void
      */
@@ -112,14 +112,16 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      */
     protected function _storeTempFile() {
         //FIXME: Hard coded path!
-        $path = '../workspace/tmp/' . date('Y') . '/' . $this->getDocumentId();
+        $path = '../workspace/files/' . $this->getDocumentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
         $hash = $this->addHashValue();
         $hash->setType('md5');
         $hash->setValue(hash_file('md5', $this->getTempFile()));
-        move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
+        if (move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName()) === false) {
+            throw new Opus_Model_Exception('Error saving file.');
+        }
     }
 
     /**
@@ -128,7 +130,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      * @return string Filename
      */
     protected function _fetchTempFile() {
-        return $this->getTempFile();
+        return $this->_fields['TempFile']->getValue();
     }
 
     /**
