@@ -218,6 +218,7 @@ class Opus_Collection_Roles {
      * "collections_structure_X" where X is the current roles_id.
      *
      * @param array(array) $content_fields (Optional) Array with collection_role database records.
+     * @param int          $roles_id       (Optional) The database table postfix.
      * @throws  Exception On failed database access.
      * @return void
      */
@@ -225,11 +226,15 @@ class Opus_Collection_Roles {
                                               'name' => 'name',
                                               'type' => 'VARCHAR',
                                               'length' => 255
-                                         ))) {
+                                         )), $roles_id = null) {
+
+        if (is_null($roles_id) === true) {
+            $roles_id = $this->roles_id;
+        }
         // Fetch DB adapter
         $db = Zend_Registry::get('db_adapter');
 
-        $tabellenname = 'link_documents_collections_' . $this->roles_id;
+        $tabellenname = 'link_documents_collections_' . $roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -245,7 +250,7 @@ class Opus_Collection_Roles {
         }
 
 
-        $tabellenname = 'collections_contents_' . $this->roles_id;
+        $tabellenname = 'collections_contents_' . $roles_id;
         $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL ,
             PRIMARY KEY ( `id` )
@@ -264,7 +269,7 @@ class Opus_Collection_Roles {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
 
-        $tabellenname = 'collections_replacement_' . $this->roles_id;
+        $tabellenname = 'collections_replacement_' . $roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` INT UNSIGNED NOT NULL,
@@ -272,28 +277,28 @@ class Opus_Collection_Roles {
               `replacement_by_id` INT UNSIGNED,
               `current_replacement_id` INT UNSIGNED,
               PRIMARY KEY (`id`) ,
-              INDEX fk_link_collections_' . $this->roles_id . ' (`collections_id` ASC) ,
-              INDEX fk_link_collections_replacement_for_' . $this->roles_id . ' (`replacement_for_id` ASC) ,
-              INDEX fk_link_collections_replacement_by_' . $this->roles_id . ' (`replacement_by_id` ASC) ,
-              INDEX fk_link_collections_current_replacement_' . $this->roles_id . ' (`current_replacement_id` ASC) ,
-              CONSTRAINT `fk_link_collections_' . $this->roles_id . '`
+              INDEX fk_link_collections_' . $roles_id . ' (`collections_id` ASC) ,
+              INDEX fk_link_collections_replacement_for_' . $roles_id . ' (`replacement_for_id` ASC) ,
+              INDEX fk_link_collections_replacement_by_' . $roles_id . ' (`replacement_by_id` ASC) ,
+              INDEX fk_link_collections_current_replacement_' . $roles_id . ' (`current_replacement_id` ASC) ,
+              CONSTRAINT `fk_link_collections_' . $roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_replacement_for_' . $this->roles_id . '`
+              CONSTRAINT `fk_link_collections_replacement_for_' . $roles_id . '`
                 FOREIGN KEY (`replacement_for_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_replacement_by_' . $this->roles_id . '`
+              CONSTRAINT `fk_link_collections_replacement_by_' . $roles_id . '`
                 FOREIGN KEY (`replacement_by_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION,
-              CONSTRAINT `fk_link_collections_current_replacement_' . $this->roles_id . '`
+              CONSTRAINT `fk_link_collections_current_replacement_' . $roles_id . '`
                 FOREIGN KEY (`current_replacement_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
@@ -305,7 +310,7 @@ class Opus_Collection_Roles {
             throw new Exception('Error creating collection replacement table: ' . $e->getMessage());
         }
 
-        $tabellenname = 'collections_structure_' . $this->roles_id;
+        $tabellenname = 'collections_structure_' . $roles_id;
         $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
               `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` int(10) UNSIGNED NOT NULL ,
@@ -313,10 +318,10 @@ class Opus_Collection_Roles {
               `right` int(10) UNSIGNED NOT NULL ,
               `visible` tinyint(1) NOT NULL default 1,
               PRIMARY KEY (`id`) ,
-              INDEX fk_collections_structure_collections_contents_' . $this->roles_id . ' (`collections_id` ASC) ,
-              CONSTRAINT `fk_collections_structure_collections_contents_' . $this->roles_id . '`
+              INDEX fk_collections_structure_collections_contents_' . $roles_id . ' (`collections_id` ASC) ,
+              CONSTRAINT `fk_collections_structure_collections_contents_' . $roles_id . '`
                 FOREIGN KEY (`collections_id` )
-                REFERENCES `collections_contents_' . $this->roles_id . '` (`id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
             ENGINE = InnoDB
