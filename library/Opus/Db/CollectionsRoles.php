@@ -48,11 +48,4 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
      */
     protected $_name = 'collections_roles';
 
-    /**
-     * Primary key values cannot be generated automatically.
-     *
-     * @var boolean
-     */
-    //protected $_sequence = false;
-
 }

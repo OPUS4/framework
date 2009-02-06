@@ -50,6 +50,17 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     protected static $_tableGatewayClass = 'Opus_Db_CollectionsRoles';
 
     /**
+     * The documents external fields, i.e. those not mapped directly to the
+     * Opus_Db_Documents table gateway.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+            'CollectionsContentSchema' => array()
+        );
+
+    /**
      * Initialize model with the following fields:
      * - Name
      * - Position
@@ -66,6 +77,8 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
         $visible = new Opus_Model_Field('Visible');
         $collections = new Opus_Model_Field('Collections');
         $collections->setMultiplicity('*');
+        $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
+        $collectionsContentSchema->setMultiplicity('*');
 
         $this->_externalFields['Collections'] = array('fetch' => 'lazy', 'model' => 'Opus_Model_Collection');
 
@@ -73,9 +86,10 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
             ->addField($position)
             ->addField($links_docs_path_to_root)
             ->addField($visible)
-            ->addField($collections);
+            ->addField($collections)
+            ->addField($collectionsContentSchema);
 
-        // If persistent, fetch associated collections.
+      // If persistent, fetch associated collection ids.
         if (is_null($this->getId()) === false) {
             $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
             foreach ($collections as $collection) {
@@ -83,14 +97,14 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
                 $this->_fields['Collections']->addValue((int) $collectionId);
             }
         }
-    }
+  }
 
-    /**
-     * Returns associated collections.
-     *
-     * @param  int  $index (Optional) Index of the collection to fetch.
-     * @return Opus_Model_Collection|array Collection(s).
-     */
+  /**
+   * Returns associated collections.
+   *
+   * @param  int  $index (Optional) Index of the collection to fetch.
+   * @return Opus_Model_Collection|array Collection(s).
+   */
     protected function _fetchCollections($index = null) {
         if (is_null($index) === false) {
             $collectionId = $this->_fields['Collections']->getValue($index);
@@ -102,6 +116,38 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
             }
             return $collections;
         }
+    }
+
+    /**
+     * Overwrites store procedure.
+     * TODO: Implement storing collection structures.
+     *
+     * @return void
+     */
+    protected function _storeCollections() {
+
+    }
+
+    /**
+     * Content schema information is only relevant internally and needs not get stored.
+     *
+     * @return void
+     */
+    protected function _fetchCollectionsContentSchema() {
+    }
+
+    /**
+     * Creates the collection content table.
+     *
+     * @return void
+     */
+    protected function _storeCollectionsContentSchema() {
+        $schema = array();
+        foreach ($this->_fields['CollectionsContentSchema']->getValue() as $fieldname) {
+            $schema[] = array('name' => $fieldname, 'type' => 'VARCHAR', 'length' => 255);
+        }
+        $role = new Opus_Collection_Roles();
+        $role->createDatabaseTables($schema, $this->getId());
     }
 
     /**
