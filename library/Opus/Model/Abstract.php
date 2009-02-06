@@ -309,7 +309,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
             if ($this->_transactional === true) {
                 $dbadapter->rollback();
             }
-            $msg = $e->getMessage() . 'Model: ' . get_class($this);
+            $msg = $e->getMessage() . '. Model: ' . get_class($this);
             throw new Opus_Model_Exception($msg);
         }
         return $id;
@@ -494,12 +494,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                 break;
 
             case 'add':
-                if (is_null($field->getValueModelClass()) === true) {
-                    throw new Opus_Model_Exception('Add accessor currently only available for fields holding models.');
-                }
-
                 // get Modelclass if model is linked
-                if ($fieldHasThroughOption === true) {
+                if ($fieldIsExternal and $fieldHasThroughOption === true) {
 
                     $linkmodelclass = $this->_externalFields[$fieldname]['through'];
 
@@ -524,6 +520,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
                     if ((count($arguments) === 1)) {
                         $model = $arguments[0];
                     } else {
+                        if (is_null($field->getValueModelClass()) === true) {
+                            throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
+                        }
                         $modelclass = $field->getValueModelClass();
                         $model = new $modelclass;
                     }
