@@ -359,8 +359,8 @@ class Opus_Collection_Information {
 
         // Map into an ID-indexed array
         foreach ($allCollectionRoles as $record) {
-            $record['collections_roles_id'] = (int) $record['collections_roles_id'];
-            $allCollectionRolesOutput[$record['collections_roles_id']] = $record;
+            $record['id'] = (int) $record['id'];
+            $allCollectionRolesOutput[$record['id']] = $record;
         }
 
         return $allCollectionRolesOutput;
