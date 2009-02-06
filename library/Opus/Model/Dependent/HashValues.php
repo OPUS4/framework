@@ -46,7 +46,7 @@ class Opus_Model_Dependent_HashValues extends Opus_Model_DependentAbstract {
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'document_id';
+    protected $_parentColumn = 'files_id';
 
     /**
      * Specify then table gateway.
