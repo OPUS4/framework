@@ -112,14 +112,14 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      */
     protected function _storeTempFile() {
         //FIXME: Hard coded path!
-        $path = '../workspace/tmp/' . date('Y') . '/' . $this->getDocumentsId();
+        $path = '../workspace/tmp/' . date('Y') . '/' . $this->getDocumentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
         $hash = $this->addHashValue();
-        $hash->setHashType('md5');
-        $hash->setHashValue(hash_file('md5', $this->getTempFile()));
-        move_uploaded_file($this->getTempFile(), $path . '/' . $this->getFilePathName());
+        $hash->setType('md5');
+        $hash->setValue(hash_file('md5', $this->getTempFile()));
+        move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
     }
 
     /**
@@ -139,7 +139,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
      */
     public function setFromPost(array $info) {
         // TODO: populate all fields
-        $this->setFilePathName($info['name']);
+        $this->setPathName($info['name']);
         $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
     }
