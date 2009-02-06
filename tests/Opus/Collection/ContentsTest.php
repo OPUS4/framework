@@ -56,7 +56,7 @@ class Opus_Collection_ContentsTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('CREATE TABLE collections_contents_7081 (
-            `id` INT( 11 ) UNSIGNED NOT NULL ,
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             PRIMARY KEY ( `id` )

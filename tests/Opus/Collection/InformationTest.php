@@ -63,25 +63,25 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
         $adapter->query('CREATE TABLE collections_contents_7081 (
-            `id` INT( 11 ) UNSIGNED NOT NULL ,
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `name` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             `number` VARCHAR( 3 ) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL ,
             PRIMARY KEY ( `id`  )
             ) ENGINE = InnoDB');
         $adapter->query("INSERT INTO `collections_contents_7081`
         (`id`, `name`, `number`)
-        VALUES  (0,  'root', '000'),
-                (1,  'A', '000'),
-                (2,  'A2', '000'),
-                (3,  'A2a', '000'),
-                (4,  'A1', '000'),
-                (5,  'B', '000'),
-                (6, 'B1', '000'),
-                (7,  'B3', '000'),
-                (8,  'B2', '000'),
-                (9,  'X', '000'),
-                (10,  'Y', '000'),
-                (11,  'Z', '000')
+        VALUES  (1,  'root', '000'),
+                (2,  'A', '000'),
+                (3,  'A2', '000'),
+                (4,  'A2a', '000'),
+                (5,  'A1', '000'),
+                (6,  'B', '000'),
+                (7, 'B1', '000'),
+                (8,  'B3', '000'),
+                (9,  'B2', '000'),
+                (10,  'X', '000'),
+                (11,  'Y', '000'),
+                (12,  'Z', '000')
         ;");
 
         $adapter->query('DROP TABLE IF EXISTS collections_structure_7081;');
@@ -105,16 +105,16 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             ROW_FORMAT = DEFAULT;');
         $adapter->query('INSERT INTO `collections_structure_7081`
         (`collections_id`, `left`, `right`, `visible`)
-        VALUES  (0, 1, 20, 0),
-                (1, 2, 9, 1),
-                (2, 5, 8, 1),
-                (3, 6, 7, 1),
-                (4, 3, 4, 1),
-                (4, 14, 15, 1),
-                (5, 10, 19, 1),
-                (6, 11, 12, 1),
-                (7, 17, 18, 1),
-                (8, 13, 16, 1)
+        VALUES  (1, 1, 20, 0),
+                (2, 2, 9, 1),
+                (3, 5, 8, 1),
+                (4, 6, 7, 1),
+                (5, 3, 4, 1),
+                (5, 14, 15, 1),
+                (6, 10, 19, 1),
+                (7, 11, 12, 1),
+                (8, 17, 18, 1),
+                (9, 13, 16, 1)
         ;');
 
         $adapter->query('DROP TABLE IF EXISTS collections_replacement_7081;');
@@ -156,14 +156,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             ROW_FORMAT = DEFAULT;');
         $adapter->query('INSERT INTO `collections_replacement_7081`
         (`collections_id`, `replacement_for_id`, `replacement_by_id`, `current_replacement_id`)
-        VALUES  (9, NULL, 4, 4),
-                (9, NULL, 2, 2),
-                (4, 9, NULL, 4),
-                (2, 9, NULL, 2),
-                (10, NULL, 7, 7),
-                (11, NULL, 7, 7),
-                (7, 10, NULL, 7),
-                (7, 11, NULL, 7)
+        VALUES  (10, NULL, 5, 5),
+                (10, NULL, 3, 3),
+                (5, 10, NULL, 5),
+                (3, 10, NULL, 3),
+                (11, NULL, 8, 8),
+                (12, NULL, 8, 8),
+                (8, 11, NULL, 8),
+                (8, 12, NULL, 8)
         ;');
 
 
@@ -180,33 +180,33 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query('INSERT INTO `link_documents_collections_7081`
         (`collections_id`, `documents_id`)
-        VALUES  (2, 200),
-        (2, 201),
-        (2, 202),
-        (2, 203),
-        (2, 204),
-        (3, 302),
-        (3, 303),
-        (3, 304),
-        (4, 400),
-        (4, 401),
-        (5, 500),
-        (5, 501),
-        (5, 502),
-        (6, 601),
-        (6, 602),
-        (8, 801),
-        (8, 802),
-        (8, 803),
-        (8, 804),
-        (8, 805),
-        (7, 701),
-        (1, 101),
-        (1, 102),
-        (1, 103),
-        (1, 104),
-        (1, 105),
-        (1, 106)
+        VALUES  (3, 200),
+        (3, 201),
+        (3, 202),
+        (3, 203),
+        (3, 204),
+        (4, 302),
+        (4, 303),
+        (4, 304),
+        (5, 400),
+        (5, 401),
+        (6, 500),
+        (6, 501),
+        (6, 502),
+        (7, 601),
+        (7, 602),
+        (9, 801),
+        (9, 802),
+        (9, 803),
+        (9, 804),
+        (9, 805),
+        (8, 701),
+        (2, 101),
+        (2, 102),
+        (2, 103),
+        (2, 104),
+        (2, 105),
+        (2, 106)
         ;');
 
     }
@@ -324,14 +324,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function validgetSubCollectionsDataProvider() {
-        return array(array(1,2),
-                    array(2,1),
-                    array(3,0),
+        return array(array(2,2),
+                    array(3,1),
                     array(4,0),
-                    array(5,3),
-                    array(6,0),
+                    array(5,0),
+                    array(6,3),
                     array(7,0),
-                    array(8,1),
+                    array(8,0),
+                    array(9,1),
         );
     }
 
@@ -382,14 +382,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function validgetPathToRootDataProvider() {
-        return array(array(1,1),
-                    array(2,1),
+        return array(array(2,1),
                     array(3,1),
-                    array(4,2),
-                    array(5,1),
+                    array(4,1),
+                    array(5,2),
                     array(6,1),
                     array(7,1),
                     array(8,1),
+                    array(9,1),
         );
     }
 
@@ -441,14 +441,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function validgetCollectionDataProvider() {
-        return array(array(1),
-                    array(2),
+        return array(array(2),
                     array(3),
                     array(4),
                     array(5),
                     array(6),
                     array(7),
                     array(8),
+                    array(9),
         );
     }
 
@@ -616,10 +616,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validnewCollectionDataProvider() {
         return array(
-            array(6, 0,  array('name' => 'Testinput 1',
+            array(7, 0,  array('name' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5, 6,  array('name' => 'Testinput 2',
+            array(6, 7,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
         );
@@ -698,7 +698,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             array(10, 2,  array('name' => 'Testinput 1',
                                'number' =>  '888')
             ),
-            array(9, 10,  array('name' => 'Testinput 2',
+            array(10, 10,  array('name' => 'Testinput 2',
                                'number' =>  '888')
             ),
         );
@@ -765,9 +765,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validnewCollectionPositionDataProvider() {
         return array(
-            array(1, 6, 0
+            array(2, 7, 1
             ),
-            array(5, 1, 4
+            array(6, 2, 5
             ),
         );
     }
@@ -798,13 +798,13 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidStructurenewCollectionPositionDataProvider() {
         return array(
-            array(12, 6, 0
+            array(13, 7, 1
             ),
-            array(15, 1, 4
+            array(16, 2, 5
             ),
-            array(1, 9, 0
+            array(2, 10, 1
             ),
-            array(5, 12, 4
+            array(6, 13, 5
             ),
         );
     }
@@ -869,10 +869,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validDeleteCollectionPositionByLeftDataProvider() {
         return array(
-            array(10, 0),
-            array(5, 1),
-            array(13, 5),
-            array(3, 1),
+            array(10, 1),
+            array(5, 2),
+            array(13, 6),
+            array(3, 2),
         );
     }
 
@@ -931,10 +931,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validDeleteCollectionPositionDataProvider() {
         return array(
-            array(5, 0),
-            array(2, 1),
-            array(8, 5),
-            array(4, 1),
+            array(6, 1),
+            array(3, 2),
+            array(9, 6),
+            array(5, 2),
         );
     }
 
@@ -962,16 +962,16 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidLeftDeleteCollectionPositionDataProvider() {
         return array(
-            array(12),
-            array(9),
+            array(13),
+            array(10),
             array(32),
             array(30),
-            array(5, 'l'),
+/*          array(5, 'l'),
             array(5, 3.1415926),
             array(5, -32),
             array('l', 5),
             array(3.1415926, 5),
-            array(-32, 5),
+            array(-32, 5),*/
             );
     }
 
@@ -1062,15 +1062,15 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validGetAllCollectionDocumentsDataProvider() {
         return array(
-            array('x', 27),
-            array(1, 16),
-            array(2, 8),
-            array(3, 3),
-            array(4, 2),
-            array(5, 13),
-            array(6, 2),
-            array(7, 1),
-            array(8, 7),
+            array(1, 27),
+            array(2, 16),
+            array(3, 8),
+            array(4, 3),
+            array(5, 2),
+            array(6, 13),
+            array(7, 2),
+            array(8, 1),
+            array(9, 7),
         );
     }
 
@@ -1100,14 +1100,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validAssignDocumentToCollectionDataProvider() {
         return array(
-            array(1, 111),
-            array(2, 222),
-            array(3, 333),
-            array(4, 444),
-            array(5, 555),
-            array(6, 666),
-            array(7, 777),
-            array(8, 888),
+            array(2, 111),
+            array(3, 222),
+            array(4, 333),
+            array(5, 444),
+            array(6, 555),
+            array(7, 666),
+            array(8, 777),
+            array(9, 888),
         );
     }
 
@@ -1168,14 +1168,15 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validgetAllParentsDataProvider() {
         return array(
-            array(1, 1),
+        //  array(1, 1),
             array(2, 1),
             array(3, 1),
-            array(4, 2),
-            array(5, 1),
+            array(4, 1),
+            array(5, 2),
             array(6, 1),
             array(7, 1),
             array(8, 1),
+            array(9, 1),
             array(12, 1),
 
         );
@@ -1228,10 +1229,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validreplaceDataProvider() {
         return array(
-            array(2, 1,  array('name' => 'Testinput 1',
+            array(3, 1,  array('name' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5, 3,  array('name' => 'Testinput 2',
+            array(6, 3,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
         );
@@ -1261,25 +1262,25 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function validmergeDataProvider() {
         return array(
-            array(2, 4, 1,  array('name' => 'Testinput 1',
+            array(3, 5, 1,  array('name' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5, 1, 5,  array('name' => 'Testinput 2',
+            array(6, 2, 5,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(2, 8, 2,  array('name' => 'Testinput 2',
+            array(3, 9, 2,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(5, 2, 4,  array('name' => 'Testinput 2',
+            array(6, 3, 4,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(4, 2, 1,  array('name' => 'Testinput 2',
+            array(5, 3, 1,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(8, 2, 2,  array('name' => 'Testinput 2',
+            array(9, 3, 2,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(8, 1, 2,  array('name' => 'Testinput 2',
+            array(9, 2, 2,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
             );
@@ -1317,10 +1318,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             array(5.3,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(2,  array('namex' => 'Testinput 1',
+            array(3,  array('namex' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5,  array('name' => 'Testinput 2',
+            array(6,  array('name' => 'Testinput 2',
                                'numberx' =>  '666')
             ),
             );
@@ -1347,16 +1348,16 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidmergeDataProvider() {
         return array(
-            array(-2, 4,  array('name' => 'Testinput 1',
+            array(-2, 5,  array('name' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5.3, 1,  array('name' => 'Testinput 2',
+            array(5.3, 2,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-            array(2, 3.3,  array('name' => 'Testinput 1',
+            array(3, 3.3,  array('name' => 'Testinput 1',
                                'number' =>  '666')
             ),
-            array(5, "x",  array('name' => 'Testinput 2',
+            array(6, "x",  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
             );

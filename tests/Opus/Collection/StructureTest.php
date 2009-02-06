@@ -181,7 +181,7 @@ class Opus_Collection_StructureTest extends PHPUnit_Framework_TestCase {
         $coll_id = ($ID==='institute') ? 'institutes_id' : 'collections_id';
         $ocs = new Opus_Collection_Structure($ID);
         $ocs->create();
-        $this->assertEquals(array(1 => array($coll_id => 0,
+        $this->assertEquals(array(1 => array($coll_id => 1,
                                             'left' => 1,
                                             'right' => 2,
                                             'visible' => 0)),
