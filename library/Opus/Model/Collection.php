@@ -218,7 +218,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         if (is_null($index) === false) {
             $parentCollectionId = $this->_fields['ParentCollection']->getValue($index);
             // When the root is reached, return the role.
-            if ($parentCollectionId === 0) {
+            if ($parentCollectionId === 1) {
                 return new Opus_Model_CollectionRole($this->__role_id);
             } else {
                 return new Opus_Model_Collection($this->__role_id, (int) $parentCollectionId);
@@ -227,7 +227,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
             $parentCollections = array();
             foreach ($this->_fields['ParentCollection']->getValue() as $parentCollectionId) {
                 // When the root is reached, return the role.
-                if ($parentCollectionId === 0) {
+                if ($parentCollectionId === 1) {
                     $parentCollections[] = new Opus_Model_CollectionRole($this->__role_id);
                 } else {
                     $parentCollections[] = new Opus_Model_Collection($this->__role_id, (int) $parentCollectionId);
