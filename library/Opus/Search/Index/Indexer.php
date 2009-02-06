@@ -89,7 +89,7 @@ class Opus_Search_Index_Indexer {
         $document['docid'] = $doc->getId();
         $document['year'] = $doc->getField('PublishedYear')->getValue();
         $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
-        $document['urn'] = $doc->getUrn()->getIdentifierValue();
+        $document['urn'] = $doc->getUrn()->getValue();
         $titles = $doc->getField('TitleMain')->getValue();
         $title_count = count($titles);
         $abstracts = $doc->getField('TitleAbstract')->getValue();
@@ -98,8 +98,8 @@ class Opus_Search_Index_Indexer {
         // Look at all titles of the document
         foreach ($titles as $title)
         {
-            $document['title'] = $title->getTitleAbstractValue();
-            $lang = $title->getTitleAbstractLanguage();
+            $document['title'] = $title->getValue();
+            $lang = $title->getLanguage();
             $document['abstract'] = $this->getAbstract($abstracts, $lang);
             array_push($langarray, $lang);
             array_push($returnarray, $document);
@@ -112,7 +112,7 @@ class Opus_Search_Index_Indexer {
         #}
         // Look if there are non-indexed abstracts left
         $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
-        $document['title'] = $doc->getTitleMain(0)->getTitleAbstractValue();
+        $document['title'] = $doc->getTitleMain(0)->getValue();
         foreach ($not_processed_abstracts as $abstract) {
             $document['abstract'] = $abstract;
             array_push($returnarray, $document);
@@ -124,8 +124,8 @@ class Opus_Search_Index_Indexer {
 	private function getAbstract($abstracts, $language) {
         foreach ($abstracts as $abstract)
         {
-            if ($abstract->getTitleAbstractLanguage() === $language) {
-                return $abstract->getTitleAbstractValue();
+            if ($abstract->getLanguage() === $language) {
+                return $abstract->getValue();
             }
         }
         return null;
@@ -135,8 +135,8 @@ class Opus_Search_Index_Indexer {
         $not_processed = array();
 	    foreach ($abstracts as $abstract)
         {
-            if (false === in_array($abstract->getTitleAbstractLanguage(), $languages)) {
-                array_push($not_processed, $abstract->getTitleAbstractValue());
+            if (false === in_array($abstract->getLanguage(), $languages)) {
+                array_push($not_processed, $abstract->getValue());
             }
         }
         return $not_processed;
