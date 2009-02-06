@@ -40,18 +40,25 @@
 class Opus_Model_Collection extends Opus_Model_Abstract
 {
     /**
+     * Specify then table gateway.
+     *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     */
+    protected static $_tableGatewayClass = 'Opus_Db_CollectionsContents';
+
+    /**
      * Holds internal representation of the collection.
      *
      * @var mixed
      */
-    private $__collection = null;
+    private $__collection_id = null;
 
     /**
      * Holds the role of the collection.
      *
      * @var int
      */
-    private $__role = null;
+    private $__role_id = null;
 
     /**
      * Fetches existing or creates new collection.
@@ -79,13 +86,15 @@ class Opus_Model_Collection extends Opus_Model_Abstract
                 throw new Opus_Model_Exception('New collection requires parent and left sibling id to be passed.');
             } else {
                 $id = Opus_Collection_Information::newCollection($role_id, $parent, $left_sibling, null);
-                $this->__collection = Opus_Collection_Information::getCollection($role_id, $id);
+                $collection = Opus_Collection_Information::getCollection($role_id, $id);
+                $this->__collection_id = $collection['id'];
             }
         } else {
-            $this->__collection = Opus_Collection_Information::getCollection($role_id, $collection_id);
+            $collection = Opus_Collection_Information::getCollection($role_id, $collection_id);
+            $this->__collection_id = $collection['id'];
         }
-        $this->__role = $role_id;
-        parent::__construct($this->__collection['id'], new Opus_Db_CollectionsContents($this->__role));
+        $this->__role_id = $role_id;
+        parent::__construct($this->__collection_id, new Opus_Db_CollectionsContents($this->__role_id));
     }
 
     /**
@@ -94,7 +103,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      * @return void
      */
     protected function _init() {
-        $table = new Opus_Db_CollectionsContents($this->__role);
+        $table = new Opus_Db_CollectionsContents($this->__role_id);
         $info = $table->info();
         $dbFields = $info['metadata'];
 
@@ -112,8 +121,6 @@ class Opus_Model_Collection extends Opus_Model_Abstract
             $this->addField($field);
         }
 
-        self::$_tableGatewayClass = 'Opus_Db_CollectionsContents(' . (int) $this->__role . ')';
-
         // Add a field to hold subcollections
         $subCollectionField = new Opus_Model_Field('SubCollection');
         $subCollectionField->setMultiplicity('*');
@@ -123,7 +130,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         // Add all first level sibling Ids as fields,
         // collections will be instantiated later on
         // be lazy fetching.
-        $subCollections = Opus_Collection_Information::getSubCollections($this->__role, (int) $this->__collection['id']);
+        $subCollections = Opus_Collection_Information::getSubCollections($this->__role_id, (int) $this->__collection_id);
         foreach ($subCollections as $subCollection) {
             $subCollectionId = $subCollection['content'][0]['id'];
             $this->_fields['SubCollection']->addValue((int) $subCollectionId);
@@ -138,7 +145,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         // Add all first level parent Ids as fields,
         // collections will be instantiated later on
         // be lazy fetching.
-        $parentCollectionIds = Opus_Collection_Information::getAllParents($this->__role, (int) $this->__collection['id']);
+        $parentCollectionIds = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->__collection_id);
         foreach ($parentCollectionIds as $parentCollectionId) {
             $this->_fields['ParentCollection']->addValue((int) $parentCollectionId);
         }
@@ -150,7 +157,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      * @return array $documents The documents in the collection.
      */
     public function getEntries() {
-        $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role, (int) $this->__collection['id']);
+        $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role_id, (int) $this->__collection_id);
         $documents = array();
         foreach ($docIds as $docId) {
             $documents[] = new Opus_Model_Document($docId);
@@ -165,10 +172,10 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      * @return void
      */
     public function addEntry(Opus_Model_Abstract $model) {
-        $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role);
+        $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role_id);
         $link = $linkTable->createRow();
         $link->documents_id = $model->getId();
-        $link->collections_id = $this->__collection['id'];
+        $link->collections_id = $this->__collection_id;
         $link->save();
     }
 
@@ -181,11 +188,11 @@ class Opus_Model_Collection extends Opus_Model_Abstract
     protected function _fetchSubCollection($index = null) {
         if (is_null($index) === false) {
             $subCollectionId = $this->_fields['SubCollection']->getValue($index);
-            return new Opus_Model_Collection($this->__role, $subCollectionId);
+            return new Opus_Model_Collection($this->__role_id, $subCollectionId);
         } else {
             $subCollections = array();
             foreach ($this->_fields['SubCollection']->getValue() as $subCollectionId) {
-                $subCollections[] = new Opus_Model_Collection($this->__role, $subCollectionId);
+                $subCollections[] = new Opus_Model_Collection($this->__role_id, $subCollectionId);
             }
             return $subCollections;
         }
@@ -208,14 +215,23 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      * @return Opus_Model_Collection|array Parentcollection(s).
      */
     protected function _fetchParentCollection($index = null) {
-        // TODO: Handle root node.
         if (is_null($index) === false) {
             $parentCollectionId = $this->_fields['ParentCollection']->getValue($index);
-            return new Opus_Model_Collection($this->__role, (int) $parentCollectionId);
+            // When the root is reached, return the role.
+            if ($parentCollectionId === 0) {
+                return new Opus_Model_CollectionRole($this->__role_id);
+            } else {
+                return new Opus_Model_Collection($this->__role_id, (int) $parentCollectionId);
+            }
         } else {
             $parentCollections = array();
             foreach ($this->_fields['ParentCollection']->getValue() as $parentCollectionId) {
-                $parentCollections[] = new Opus_Model_Collection($this->__role, (int) $parentCollectionId);
+                // When the root is reached, return the role.
+                if ($parentCollectionId === 0) {
+                    $parentCollections[] = new Opus_Model_CollectionRole($this->__role_id);
+                } else {
+                    $parentCollections[] = new Opus_Model_Collection($this->__role_id, (int) $parentCollectionId);
+                }
             }
             return $parentCollections;
         }
