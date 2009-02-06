@@ -57,7 +57,20 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            'CollectionsContentSchema' => array()
+            'CollectionsContentSchema' => array(),
+            'Collections' => array(
+                'fetch' => 'lazy',
+                'model' => 'Opus_Model_Collection'
+            ),
+        );
+
+    /**
+     * Fields that should not be displayed on a form.
+     *
+     * @var array  Defaults to array('File').
+     */
+    protected $_hiddenFields = array(
+            'Collections',
         );
 
     /**
@@ -78,9 +91,8 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
         $collections = new Opus_Model_Field('Collections');
         $collections->setMultiplicity('*');
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
-        $collectionsContentSchema->setMultiplicity('*');
+//        $collectionsContentSchema->setMultiplicity('*');
 
-        $this->_externalFields['Collections'] = array('fetch' => 'lazy', 'model' => 'Opus_Model_Collection');
 
         $this->addField($name)
             ->addField($position)
@@ -134,6 +146,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      * @return void
      */
     protected function _fetchCollectionsContentSchema() {
+        return $this->_fields['CollectionsContentSchema']->getValue();
     }
 
     /**
@@ -143,8 +156,16 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      */
     protected function _storeCollectionsContentSchema() {
         $schema = array();
-        foreach ($this->_fields['CollectionsContentSchema']->getValue() as $fieldname) {
-            $schema[] = array('name' => $fieldname, 'type' => 'VARCHAR', 'length' => 255);
+        // FIXME: As soon as the document builder supports multiple
+        // values for atomic field types, remove artificial array
+        // construction.
+        if (is_array($this->_fields['CollectionsContentSchema']->getValue()) === false) {
+            $tablecolumns = array('name', $this->_fields['CollectionsContentSchema']->getValue());
+        } else {
+            $tablecolumns = $this->_fields['CollectionsContentSchema']->getValue();
+        }
+        foreach ($tablecolumns as $tablecolumn) {
+            $schema[] = array('name' => $tablecolumn, 'type' => 'VARCHAR', 'length' => 255);
         }
         $role = new Opus_Collection_Roles();
         $role->createDatabaseTables($schema, $this->getId());
