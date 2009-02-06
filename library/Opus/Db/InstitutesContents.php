@@ -51,10 +51,10 @@ class Opus_Db_InstitutesContents extends Opus_Db_TableGateway {
 
     /**
      * Primary key values cannot be generated automatically.
-     * 
+     *
      * @var boolean
      *      */
-    protected $_sequence = false;
+    //protected $_sequence = false;
 
     /**
      * All dependant Tables,

@@ -53,7 +53,7 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = 'id';
+    //protected $_primary = 'id';
 
     /**
      * Constructor.

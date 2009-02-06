@@ -53,6 +53,6 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
      *
      * @var boolean
      */
-    protected $_sequence = false;
+    //protected $_sequence = false;
 
 }

@@ -54,14 +54,14 @@ class Opus_Db_CollectionsContents extends Opus_Db_TableGateway {
      *
      * @var array <string, string>
      */
-    protected $_primary = 'id';
+    //protected $_primary = 'id';
 
     /**
      * Primary key values cannot be generated automatically.
      *
      * @var boolean
      */
-    protected $_sequence = false;
+    //protected $_sequence = false;
 
     /**
      * Constructor.
