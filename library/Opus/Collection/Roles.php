@@ -235,7 +235,7 @@ class Opus_Collection_Roles {
         $db = Zend_Registry::get('db_adapter');
 
         $tabellenname = 'link_documents_collections_' . $roles_id;
-        $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
+        $query = 'CREATE TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
@@ -251,7 +251,7 @@ class Opus_Collection_Roles {
 
 
         $tabellenname = 'collections_contents_' . $roles_id;
-        $query = 'CREATE TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
+        $query = 'CREATE TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL ,
             PRIMARY KEY ( `id` )
             ) ENGINE = InnoDB
@@ -270,7 +270,7 @@ class Opus_Collection_Roles {
         }
 
         $tabellenname = 'collections_replacement_' . $roles_id;
-        $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
+        $query = 'CREATE  TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
               `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` INT UNSIGNED NOT NULL,
               `replacement_for_id` INT UNSIGNED,
@@ -311,7 +311,7 @@ class Opus_Collection_Roles {
         }
 
         $tabellenname = 'collections_structure_' . $roles_id;
-        $query = 'CREATE  TABLE ' . $db->quoteIdentifier($tabellenname) . ' (
+        $query = 'CREATE  TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
               `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
               `collections_id` int(10) UNSIGNED NOT NULL ,
               `left` int(10) UNSIGNED NOT NULL ,
@@ -355,7 +355,6 @@ class Opus_Collection_Roles {
         } else {
             $db->query('UPDATE collections_roles SET `position` = `position`-1 WHERE `position` >= ' . (int) $from);
         }
-
     }
 
     /**
