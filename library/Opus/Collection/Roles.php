@@ -252,7 +252,7 @@ class Opus_Collection_Roles {
 
         $tabellenname = 'collections_contents_' . $roles_id;
         $query = 'CREATE TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
-            `id` INT( 11 ) UNSIGNED NOT NULL ,
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             PRIMARY KEY ( `id` )
             ) ENGINE = InnoDB
             DEFAULT CHARACTER SET = utf8

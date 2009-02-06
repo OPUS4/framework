@@ -105,7 +105,7 @@ class Opus_Collection_Structure {
      * @return void
      */
     public function create() {
-        $this->collectionStructure[1] = array(  $this->collectionsIdentifier => 0,
+        $this->collectionStructure[1] = array(  $this->collectionsIdentifier => 1,
                                                 'left' => 1,
                                                 'right' => 2,
                                                 'visible' => 0);

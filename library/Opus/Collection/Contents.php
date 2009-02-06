@@ -196,7 +196,7 @@ class Opus_Collection_Contents {
     public function root() {
         try {
             $this->collections_contents
-                 ->insert(array($this->collections_contents_info['primary'][1] => 0));
+                 ->insert(array($this->collections_contents_info['primary'][1] => 1));
         } catch (Exception $e) {
             throw new Exception('Database error: ' . $e->getMessage());
         }
