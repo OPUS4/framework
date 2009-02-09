@@ -58,7 +58,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      */
     protected $_externalFields = array(
             'CollectionsContentSchema' => array(),
-            'Collections' => array(
+            'SubCollection' => array(
                 'fetch' => 'lazy',
                 'model' => 'Opus_Model_Collection'
             ),
@@ -70,7 +70,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      * @var array  Defaults to array('File').
      */
     protected $_hiddenFields = array(
-            'Collections',
+            'SubCollection',
         );
 
     /**
@@ -88,8 +88,8 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
         $position = new Opus_Model_Field('Position');
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
         $visible = new Opus_Model_Field('Visible');
-        $collections = new Opus_Model_Field('Collections');
-        $collections->setMultiplicity('*');
+        $subcollection = new Opus_Model_Field('SubCollection');
+        $subcollection->setMultiplicity('*');
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
 //        $collectionsContentSchema->setMultiplicity('*');
 
@@ -98,7 +98,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
             ->addField($position)
             ->addField($links_docs_path_to_root)
             ->addField($visible)
-            ->addField($collections)
+            ->addField($subcollection)
             ->addField($collectionsContentSchema);
 
   }
@@ -108,7 +108,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
    *
    * @return Opus_Model_Collection|array Collection(s).
    */
-    protected function _fetchCollections() {
+    protected function _fetchSubCollection() {
         $result = array();
         $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
         foreach ($collections as $collection) {
@@ -124,7 +124,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      *
      * @return void
      */
-    protected function _storeCollections() {
+    protected function _storeSubCollection() {
 
     }
 
