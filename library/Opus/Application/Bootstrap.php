@@ -282,8 +282,20 @@ class Opus_Application_Bootstrap {
      */
     protected static function setupView()
     {
+        $config = Zend_Registry::get('Zend_Config');
+        $theme = $config->theme;
+        if (true === empty($theme)) {
+            $theme = 'default';
+        }
+
+        $layoutpath = self::$applicationRootDirectory . '/public/layouts/' . $theme;
+
+        if (false === is_dir($layoutpath)) {
+            throw new Exception('Requested theme "' . $theme . '" not found.');
+        }
+
         Zend_Layout::startMvc(array(
-                'layoutPath'=>self::$applicationRootDirectory . '/public/layouts/default',
+                'layoutPath'=> $layoutpath,
                 'layout'=>'common'));
 
         // Initialize view with custom encoding and global view helpers.
