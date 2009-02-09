@@ -283,7 +283,7 @@ class Opus_Application_Bootstrap {
     protected static function setupView()
     {
         Zend_Layout::startMvc(array(
-                'layoutPath'=>self::$applicationRootDirectory . '/layouts',
+                'layoutPath'=>self::$applicationRootDirectory . '/public/layouts/default',
                 'layout'=>'common'));
 
         // Initialize view with custom encoding and global view helpers.
