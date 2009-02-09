@@ -1,7 +1,21 @@
-Collection
-~~~~~~~~~~
+= Opus_Collections Dokumentation
+Tobias Tappe <tobias.tappe@uni-bielefeld.de>
 
-////////////////////////////////////////////////////////////////////////////////
-Zur Erstellung und Bearbeitung Deiner Dokumentation, siehe im 
-Subversion-Repository unter: /documentation/general/template.ger.txt
-////////////////////////////////////////////////////////////////////////////////
+== Sinn und Zweck der Collections
+
+Eine Anforderung an einen modernen Dokumentenserver ist das Schaffen von Mechanismen zur strukturierenden Einordnung der Dokumente. Solche Strukturen können je nach Einrichtung und Einsatzzweck des Dokumentenservers völlig unterschiedlich beschaffen sein und unterschiedliche Kriterien zur Einordnung verwenden.
+Das Konzept der Collections in Opus 4 sieht vor, eine möglichst umfassende Abdeckung denkbarer Anwendungsfälle solcher Strukturierungsmechanismen zu erreichen. In der Anforderungsanalysephase haben sich folgende sinnvolle Eigenschaften herauskristallisiert:
+
+- Dokumente sollen zu Sammlungen (Collections) zusammengefasst werden können, ohne eine Semantik solch einer Sammlung von vornherein vorzuschreiben. Bsp.: Die UB Bielefeld möchte auf einem ihrer Dokumentenserver Konferenz-Papers ablegen. Hierfür legt sie verschiedene Collections für die Konferenzen an.
+- Sammlungen sollen in Hierarchien (Collection Trees) angeordnet werden können. Bsp.: Die Institutionshierarchie innerhalb der betreibenden Einrichtung: Universität-Fakultät-Sonderforschungsbereich.
+- Sammlungen können innerhalb eines Collection Tree mehrfach auftreten. Bsp.: Sonderforschungsbereiche können fakultätsübergreifend eingerichtet werden und im Collection Tree somit unterhalb verschiedener Fakultäten angelegt werden.
+- Es sollen Mechanismen bereitgestellt werden, die es ermöglichen, Collections durch neue zu ersetzen, Collections aufzuteilen und zusammenzuführen ohne dabei die Eigenschaften der ersetzten Collection(s) im Kontext der darin enthaltenen Dokumente zu verlieren. Bsp.: Die Fakultät für Mathematik wird mit der Fakultät für Informatik zusammengelegt. Die entsprechenden Collections werden zusammengeführt, die historischen Dokumente der Einzelfakultäten werden unterhalb der neu geschaffenen Fakultät gefunden, die Metadaten der Dokumente enthalten aber weiterhin die Bezeichnung der Einzelfakultäten.
+- Der Betreiber von Opus soll eigene Collection Trees und Collections hinzufügen, ausblenden und bearbeiten können.
+- Collections haben je nach Einsatzgebiet unterschiedliche "Metadaten". Bsp: Die DDC als Collection Tree hat die Datenfelder "Name" und "Nummer", Institutionen hingegen z.B. "Name", "Website", "Anschrift", ...
+
+== Konzept
+
+Aus diesen Anforderungen ergaben sich einige Hinweise zur technischen Umsetzung. Aufgrund der Anforderung, betreiberindividuelle Collectionbäume anlegen zu können, erschien es vernünftig, das für einen Tree nötige Datenbankunterschema administrationsinitiiert anlegen lassen zu können. Das Ablegen einer hierarchischen Struktur in einer Datenbank geschieht im Falle häufiger Lese- und seltener Schreibvorgänge sinnvollerweise als so genannte Nested Sets (siehe XXX). Da Collections mehrfach innerhalb eines Baumes auftreten können, sollten die Inhaltsdaten (Metadaten) der Collections
+in einer von der Nested Sets Struktur getrennten Tabelle abgelegt werden, um redundante Datenhaltung zu vermeiden. Die Tabellen mit den Inhaltsdaten zu Collections erhalten kein im Vorfeld festgelegtes Tabellenschema; die Entscheidung über die verwendeten Felder wird beim Anlegen des Collection Baumes getroffen. Der historische Verlauf einzelner Collections muss in der Datenbank abgelegt werden.
+
+
