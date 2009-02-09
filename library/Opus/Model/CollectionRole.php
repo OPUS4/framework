@@ -101,33 +101,21 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
             ->addField($collections)
             ->addField($collectionsContentSchema);
 
-      // If persistent, fetch associated collection ids.
-        if (is_null($this->getId()) === false) {
-            $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
-            foreach ($collections as $collection) {
-                $collectionId = $collection['content'][0]['id'];
-                $this->_fields['Collections']->addValue((int) $collectionId);
-            }
-        }
   }
 
   /**
    * Returns associated collections.
    *
-   * @param  int  $index (Optional) Index of the collection to fetch.
    * @return Opus_Model_Collection|array Collection(s).
    */
-    protected function _fetchCollections($index = null) {
-        if (is_null($index) === false) {
-            $collectionId = $this->_fields['Collections']->getValue($index);
-            return new Opus_Model_Collection($this->getId(), $collectionId);
-        } else {
-            $collections = array();
-            foreach ($this->_fields['Collections']->getValue() as $collectionId) {
-                $collections[] = new Opus_Model_Collection((int)$this->getId(), $collectionId);
-            }
-            return $collections;
+    protected function _fetchCollections() {
+        $result = array();
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
+        foreach ($collections as $collection) {
+            $collectionId = $collection['content'][0]['id'];
+            $result[] = new Opus_Model_Collection((int)$this->getId(), (int) $collectionId);
         }
+        return $result;
     }
 
     /**
@@ -150,7 +138,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     }
 
     /**
-     * Creates the collection content table.
+     * Creates the collection's database tables.
      *
      * @return void
      */
