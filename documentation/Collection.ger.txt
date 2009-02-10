@@ -18,4 +18,58 @@ Das Konzept der Collections in Opus 4 sieht vor, eine möglichst umfassende Abde
 Aus diesen Anforderungen ergaben sich einige Hinweise zur technischen Umsetzung. Aufgrund der Anforderung, betreiberindividuelle Collectionbäume anlegen zu können, erschien es vernünftig, das für einen Tree nötige Datenbankunterschema administrationsinitiiert anlegen lassen zu können. Das Ablegen einer hierarchischen Struktur in einer Datenbank geschieht im Falle häufiger Lese- und seltener Schreibvorgänge sinnvollerweise als so genannte Nested Sets (siehe XXX). Da Collections mehrfach innerhalb eines Baumes auftreten können, sollten die Inhaltsdaten (Metadaten) der Collections
 in einer von der Nested Sets Struktur getrennten Tabelle abgelegt werden, um redundante Datenhaltung zu vermeiden. Die Tabellen mit den Inhaltsdaten zu Collections erhalten kein im Vorfeld festgelegtes Tabellenschema; die Entscheidung über die verwendeten Felder wird beim Anlegen des Collection Baumes getroffen. Der historische Verlauf einzelner Collections muss in der Datenbank abgelegt werden.
 
+== Das Datenbankschema
+
+=== Die Eigenschaften eines jeden Collection Baumes sind abhängig von der Bedeutung (Institution, Fachklassifikation, Schriftenreihe, Konferenz, ...), die er einnimmt. Diese Daten bestimmen sich also über die Rolle, die der Baum einnimmt. Die Ablage dieser Rolleneigenschaften erfolgt in der baumübergreifenden Tabelle collection_roles:
+
+[width="50%",options="header"]
+|==========================================================================================================================================
+|Feldname |Typ     |Bedeutung
+|id       |Integer |Primärschlüssel
+|name     |Varchar |Bezeichnung der Rolle, z.B. "Sachgruppen DDC" oder "PACS"
+|position |Integer |Position der Rolle innerhalb von Auflistungen aller Rollen, z.B. beim Browsen oder in der Administration.
+|visible  |Integer |Bestimmt, ob die Rolle beim Browsen angezeigt wird
+|display  |Varchar |Bestimmung der Felder der Collection-Inhaltsdaten, die angezeigt werden.
+|==========================================================================================================================================
+
+Für jeden Collectionbaum wird desweiteren ein eigenes Datenbankunterschema angelegt. Zur Identifikation, welche Unterschematabellen zu welcher Rolle gehören, wird den entsprechenden Tabellen der Wert des Primärschlüssels der collection_roles-Tabelle angehängt. Für folgende Zeile in der collection_roles
+[width="50%",options="header"]
+|==================================
+|id |name |position|visible|display
+|5  |MSC  |4       |1      |name, type
+existieren vier weitere Tabellen. Für die Inhaltsdaten der einzelnen Collections existiert die Tabelle collection_contents_5:
+
+[width="50%",options="header"]
+|=======================================================================================================================
+|Feldname |Typ     |Bedeutung
+|id       |Integer |Primärschlüssel. Insbesondere ist dies auch der tabellenübergreifende Identifizierer der Collection.
+|name     |Varchar |Bezeichnung der Collection, z.B. "Philosophie" oder "Analytische Geometrie"
+|number   |Integer |Individuell
+|type     |Integer |Individuell
+|=======================================================================================================================
+
+Für die Nested-Sets-Repräsentation des Baumes gibt es die Tabelle collection_structure_5:
+
+[width="50%",options="header"]
+|=============================================================================
+|Feldname       |Typ     |Bedeutung
+|id             |Integer |Primärschlüssel
+|collections_id |Integer |Fremdschlüssel auf die ID der collection_contents_5.
+|left           |Integer |Left-Wert des Nested Sets
+|right          |Integer |Right-Wert des Nested Sets
+|=============================================================================
+
+Für die Repräsentation des historischen Verlaufs einzelner Collections gibt es die Tabelle collection_replacement_5:
+
+[width="50%",options="header"]
+|=============================================================================
+|Feldname           |Typ     |Bedeutung
+|id                 |Integer |Primärschlüssel
+|collections_id     |Integer |Fremdschlüssel auf die ID der collection_contents_5.
+|replacement_for_id |Integer |Fremdschlüssel auf die ID der collection_contents_5. Gibt an, welche Collection durch collections_id ersetzt wird.
+|replacement_by_id  |Integer |Fremdschlüssel auf die ID der collection_contents_5. Gibt an, von welcher Collection collections_id ersetzt wurde.
+|=============================================================================
+
+
+
 
