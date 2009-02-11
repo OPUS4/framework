@@ -109,11 +109,19 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
    * @return Opus_Model_Collection|array Collection(s).
    */
     protected function _fetchSubCollection() {
-        $result = array();
         $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
+        $collectionIds = array();
         foreach ($collections as $collection) {
-            $collectionId = $collection['content'][0]['id'];
-            $result[] = new Opus_Model_Collection((int)$this->getId(), (int) $collectionId);
+            $collectionIds[] = $collection['structure']['collections_id'];
+        }
+        $result = array();
+        if (empty($collectionIds) === false) {
+            $result = array();
+            $table = new Opus_Db_CollectionsContents((int) $this->getId());
+            $rows = $table->find($collectionIds);
+            foreach ($rows as $row) {
+                $result[] = new Opus_Model_Collection((int) $this->getId(), $row);
+            }
         }
         return $result;
     }
