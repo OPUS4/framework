@@ -402,28 +402,28 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
 
             // Get name of id column in target table
-            $tableInfo = $table->info();
-            $primaryKey = $tableInfo['primary'];
-            $select = $table->select()->from($table, $primaryKey);
             if (is_null($options) === false) {
+                $select = $table->select();
                 foreach ($options as $column => $value) {
                     $select = $select->where("$column = ?", $value);
                 }
+            } else {
+                $select = null;
             }
 
-            // Get Ids of dependent rows
-            $ids = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select)->toArray();
+            // Get dependent rows
+            $rows = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select);
 
-            // Create new model for each id
-            foreach ($ids as $id) {
-                $result[] = new $modelclass(array_values($id));
+            // Create new model for each row
+            foreach ($rows as $row) {
+                $result[] = new $modelclass($row);
             }
 
             // Form return value
-            if (count($ids) === 1) {
+            if (count($rows) === 1) {
                 // Return a single object if threre is only one model in the result
                 $result = $result[0];
-            } else if (count($ids) === 0) {
+            } else if (count($rows) === 0) {
                 // Return explicitly null if no results have been found.
                 $result = null;
             }
