@@ -70,6 +70,16 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         );
 
     /**
+     * Fields that should not be displayed on a form.
+     *
+     * @var array  Defaults to array('SubCollection', 'ParentCollection').
+     */
+    protected $_hiddenFields = array(
+            'SubCollection',
+            'ParentCollection',
+        );
+
+    /**
      * Fetches existing or creates new collection.
      *
      * @param  int|string  $role           The role that this collection is in.
@@ -225,6 +235,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         $result = array();
         foreach ($this->getSubCollection() as $subCollection) {
             $result[] = array(
+                    'Id' => $subCollection->getId(),
                     'Name' => $subCollection->getName(),
                     'SubCollection' => $subCollection->toArray(),
                 );
@@ -232,4 +243,13 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         return $result;
     }
 
+    /**
+     * Overwrite to reconnect to correct primary table row in database after unserializing.
+     *
+     * @return void
+     */
+    public function __wakeup() {
+        $table = new Opus_Db_CollectionsContents($this->__role_id);
+        $this->_primaryTableRow->setTable($table);
+    }
 }

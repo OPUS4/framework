@@ -67,7 +67,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     /**
      * Fields that should not be displayed on a form.
      *
-     * @var array  Defaults to array('File').
+     * @var array  Defaults to array('SubCollection').
      */
     protected $_hiddenFields = array(
             'SubCollection',
@@ -194,6 +194,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
         $result = array();
         foreach ($this->getSubCollection() as $subCollection) {
             $result[] = array(
+                    'Id' => $subCollection->getId(),
                     'Name' => $subCollection->getName(),
                     'SubCollection' => $subCollection->toArray(),
                 );
