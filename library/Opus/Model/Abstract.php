@@ -114,8 +114,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
     /**
      * Constructor. Pass an id to fetch from database.
      *
-     * @param integer       $id                (Optional) Id of existing database row.
-     * @param Zend_Db_Table $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
+     * @param Zend_Db_Table             $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
     public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
@@ -133,11 +133,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
+        } else if ($id instanceof Zend_Db_Table_Row) {
+            if ($id->getTableClass() !== $this->getTableGatewayClass()) {
+                throw new Opus_Model_Exception('Mistyped table row passed. Expected row from ' .
+                        $this->getTableGatewayClass() . ', got row from ' . $id->getTableClass() . '.');
+            }
+            $this->_primaryTableRow = $id;
         } else {
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
-                throw new Opus_Model_Exception('No ' .
-                get_class($tableGatewayModel) . " with id $id in database.");
+                throw new Opus_Model_Exception('No ' . get_class($tableGatewayModel) . " with id $id in database.");
             }
         }
         $this->_init();
@@ -770,26 +775,20 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         // As we are in static context, we have no chance to retrieve
         // those class names.
-        if ((is_null($modelClassName) === true) or (is_null($tableGatewayClassName))) {
+        if ((is_null($modelClassName) === true) or (is_null($tableGatewayClassName) === true)) {
             throw new InvalidArgumentException('Both model class and table gateway class must be given.');
         }
 
         // As this is calling from static context we cannot
         // use the instance variable $_tableGateway here.
         $table = Opus_Db_TableGateway::getInstance($tableGatewayClassName);
-        $tableInfo = $table->info();
-        // FIXME: Assuming that there is no compound primary key.
-        $primaryKeyName = $tableInfo['primary'][1];
 
-        // Fetch all present primary keys.
-        $select = $table->select()->from($table)->columns($primaryKeyName);
-        $rows = $table->fetchAll($select)->toArray();
-
-        // Turn the list of primary keys in a list of objects.
+        // Fetch all entries in one query and pass result table rows
+        // directly to models.
+        $rows = $table->fetchAll();
         $result = array();
-
         foreach ($rows as $row) {
-            $result[] = new $modelClassName($row[$primaryKeyName]);
+            $result[] = new $modelClassName($row);
         }
         return $result;
     }
