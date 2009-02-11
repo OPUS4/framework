@@ -771,7 +771,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
      * @return array List of all known model entities.
      * @throws InvalidArgumentException When not passing class names.
      */
-    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null) {
+    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null) {
 
         // As we are in static context, we have no chance to retrieve
         // those class names.
@@ -785,7 +785,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_Interface
 
         // Fetch all entries in one query and pass result table rows
         // directly to models.
-        $rows = $table->fetchAll();
+        if (is_null($ids) === true or empty($ids) === true) {
+            $rows = $table->fetchAll();
+        } else {
+            $rows = $table->find($ids);
+        }
         $result = array();
         foreach ($rows as $row) {
             $result[] = new $modelClassName($row);
