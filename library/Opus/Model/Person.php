@@ -100,5 +100,13 @@ class Opus_Model_Person extends Opus_Model_Abstract
         return $documents;
     }
 
+    /**
+     * Retrieve all Opus_Model_Person instances from the database.
+     *
+     * @return array Array of Opus_Model_Person objects.
+     */
+    public static function getAll() {
+        return self::getAllFrom('Opus_Model_Person', 'Opus_Db_Persons');
+    }
 
 }
