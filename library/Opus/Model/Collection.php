@@ -203,4 +203,20 @@ class Opus_Model_Collection extends Opus_Model_Abstract
 
     }
 
+    /**
+     * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
+     *
+     * @return array A (nested) array representation of the model.
+     */
+    public function toArray() {
+        $result = array();
+        foreach ($this->getSubCollection() as $subCollection) {
+            $result[] = array(
+                    'Name' => $subCollection->getName(),
+                    'SubCollection' => $subCollection->toArray(),
+                );
+        }
+        return $result;
+    }
+
 }

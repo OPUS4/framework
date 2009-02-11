@@ -176,4 +176,20 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     public static function getAll() {
         return self::getAllFrom('Opus_Model_CollectionRole', 'Opus_Db_CollectionsRoles');
     }
+
+    /**
+     * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
+     *
+     * @return array A (nested) array representation of the model.
+     */
+    public function toArray() {
+        $result = array();
+        foreach ($this->getSubCollection() as $subCollection) {
+            $result[] = array(
+                    'Name' => $subCollection->getName(),
+                    'SubCollection' => $subCollection->toArray(),
+                );
+        }
+        return $result;
+    }
 }
