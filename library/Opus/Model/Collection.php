@@ -252,4 +252,13 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         $table = new Opus_Db_CollectionsContents($this->__role_id);
         $this->_primaryTableRow->setTable($table);
     }
+
+    /**
+     * Overwrite standard deletion in favour of collections history tracking.
+     *
+     * @return void
+     */
+    public function delete() {
+        Opus_Collection_Information::deleteCollection($this->__role_id, (int) $this->getId());
+    }
 }
