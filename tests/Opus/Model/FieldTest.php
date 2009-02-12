@@ -41,10 +41,10 @@
  * @group    FieldTest
  */
 class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
-    
+
     /**
      * Date provider for invalid setMultiplicity() arguments test.
-     * 
+     *
      * @return array
      */
     public function invalidSetMultiplicityValuesDataProvider() {
@@ -55,7 +55,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
             array(array(1,2,3,4))
         );
     }
-    
+
     /**
      * Data provider for function name and corresponding data that is ought
      * to be interpreted as boolean.
@@ -79,7 +79,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
             array('Selection', false, false),
             );
     }
-    
+
     /**
      * Test if the class name of a model can be retrieved from the field.
      *
@@ -91,7 +91,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $classname = $field->getValueModelClass();
         $this->assertEquals('Opus_Model_AbstractMock', $classname, 'Wrong class name returned.');
     }
-    
+
     /**
      * Test that the returned model class name is empty if the field value
      * is not an model instance.
@@ -104,8 +104,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $classname = $field->getValueModelClass();
         $this->assertNull($classname, 'Class name returned when no model instance is set as value.');
     }
-    
-    
+
+
     /**
      * Test if a field is set to have single value it never returns an array
      * as its value.
@@ -118,8 +118,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $result = $field->getValue();
         $this->assertFalse(is_array($result), 'Returned value should not be an array.');
     }
-    
-    
+
+
     /**
      * Test if a field is set to have multiple values it always returns an array
      * as its value.
@@ -132,7 +132,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $result = $field->getValue();
         $this->assertTrue(is_array($result), 'Returned value is not an array.');
     }
-    
+
     /**
      * Test if a field is set to have single value it does not accept an array as
      * its input value.
@@ -145,13 +145,13 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('InvalidArgumentException');
         $field->setValue(array('single', 'sungle', 'sangle'));
     }
-    
+
     /**
      * Test if only valid integer values greater zero or "*" can be set
      * as multiplicity.
      *
      * @return void
-     * 
+     *
      * @dataProvider invalidSetMultiplicityValuesDataProvider
      */
     public function testInputValuesForMultiplicityAreIntegerOrStar($value) {
@@ -162,7 +162,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test if a specific value can be obtained from a multivalued field by
-     * specifying an array index. 
+     * specifying an array index.
      *
      * @return void
      */
@@ -174,9 +174,9 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(2, $field->getValue(1), 'Wrong value on index 1.');
         $this->assertEquals('Hallo', $field->getValue(2), 'Wrong value on index 2.');
     }
-    
+
     /**
-     * Test if the modified flag of a field is set to false. 
+     * Test if the modified flag of a field is set to false.
      *
      * @return void
      */
@@ -185,7 +185,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $result = $field->isModified();
         $this->assertFalse($result, 'Modified flag is initially true.');
     }
-    
+
     /**
      * Test if the modified falg is indeed set to true if a call to setValue()
      * gives a new value to the field.
@@ -198,7 +198,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $after = $field->isModified();
         $this->assertTrue($after, 'Modified flag has has not been set.');
     }
-    
+
     /**
      * Test if the modified flag can be set back to false again.
      *
@@ -211,7 +211,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $after = $field->isModified();
         $this->assertFalse($after, 'Modified flag has has not been cleared.');
     }
-    
+
     /**
      * Test if the modified flag is set to true after a call to setValue()
      * with the current value of the field.
@@ -225,7 +225,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $after = $field->isModified();
         $this->assertEquals($before, $after, 'Modified flag has changed.');
     }
-    
+
     /**
      * Test setting of default values
      *
@@ -238,75 +238,94 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $result = $field->getDefault();
         $this->assertEquals($array, $result, 'Wrong default value returned');
     }
-    
+
     /**
-     * Test if setting the selection flag clear the textarea flag.
+     * Test if setting the selection flag clear other flags.
      *
      * @return void
      */
-    public function testSelectionFlagClearsTextareaFlag() {
+    public function testSelectionFlagClearsOtherFlags() {
         $field = new Opus_Model_Field('MyField');
+        $field->setCheckbox(true);
         $field->setTextarea(true);
         $field->setSelection(true);
-        
+
         $this->assertTrue($field->isSelection(), 'Selection flag does not get set.');
         $this->assertFalse($field->isTextarea(), 'Textarea flag does not get cleared when selection is set.');
+        $this->assertFalse($field->isCheckbox(), 'Checkbox flag does not get cleared when selection is set.');
     }
 
     /**
-     * Test if setting the textarea flag clear the selection flag.
+     * Test if setting the textarea flag clear other flags.
      *
      * @return void
      */
-    public function testTextareaFlagClearsSelectionFlag() {
+    public function testTextareaFlagClearsOtherFlags() {
         $field = new Opus_Model_Field('MyField');
+        $field->setCheckbox(true);
         $field->setSelection(true);
         $field->setTextarea(true);
-        
+
         $this->assertTrue($field->isTextarea(), 'Textarea flag does not get set.');
         $this->assertFalse($field->isSelection(), 'Selection flag does not get cleared when selection is set.');
+        $this->assertFalse($field->isCheckbox(), 'Checkbox flag does not get cleared when selection is set.');
     }
-    
-    
+
     /**
-     * Test that only real boolean values can be passed to flag functions. 
+     * Test if setting the checkbox flag clear other flags.
      *
      * @return void
-     * 
+     */
+    public function testCheckboxFlagClearsOtherFlags() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setTextarea(true);
+        $field->setSelection(true);
+        $field->setCheckbox(true);
+
+
+        $this->assertTrue($field->isCheckbox(), 'Checkbox flag does not get set.');
+        $this->assertFalse($field->isTextarea(), 'Textarea flag does not get cleared when selection is set.');
+        $this->assertFalse($field->isSelection(), 'Selection flag does not get cleared when selection is set.');
+    }
+    /**
+     * Test that only real boolean values can be passed to flag functions.
+     *
+     * @return void
+     *
      * @dataProvider setterGetterCallDataProvider
      */
     public function testSetterGetterTypeCastingInputValues($func, $input, $output) {
         $field = new Opus_Model_Field('MyField');
-        
+
         $set_callname = 'set' . $func;
         $get_callname = 'is' . $func;
-        
+
         $field->$set_callname($input);
         $result = $field->$get_callname();
-        
+
         $this->assertEquals($output, $result, 'Retrieved value considered wrong.');
     }
-    
+
     /**
      * Test if setting object references uses a weaker comparison method
      * to ensure that objects with same attribute values are treated as equal
-     * even if they are different instances. 
+     * even if they are different instances.
      *
      * @return void
      */
     public function testWeakComparisonForObjectReferences() {
         $field = new Opus_Model_Field('MyField');
-        
+
         $obj1 = new Opus_Model_Field('Message');
-        $obj2 = new Opus_Model_Field('Message'); 
-        
+        $obj2 = new Opus_Model_Field('Message');
+
         $field->setValue($obj1);
         $field->clearModified();
-        
+
         $field->setValue($obj2);
         $this->assertFalse($field->isModified(), 'Assigning equal objects should not raise modified flag.');
     }
-    
+
     /**
      * Test if setting a non-object value enforces strong comparision
      * including type checking.
@@ -315,17 +334,17 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
      */
     public function testStrongComparisionForNonObjectsValues() {
         $field = new Opus_Model_Field('MyField');
-        
+
         $val1 = true;
-        $val2 = 'true'; 
-        
+        $val2 = 'true';
+
         $field->setValue($val1);
         $field->clearModified();
-        
+
         $field->setValue($val2);
         $this->assertTrue($field->isModified(), 'Assigning unequal types should raise modified flag.');
     }
-    
+
     /**
      * Test if new values can be added to present values of a multivalued field.
      *
@@ -334,13 +353,13 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     public function testAddingValueToMultivaluedFields() {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
-        
+
         $field->setValue(array(1,2,3,4));
         $field->addValue(15);
-        
+
         $this->assertEquals(array(1,2,3,4,15), $field->getValue(), 'Value has not been added.');
     }
-    
+
     /**
      * Test if a whole array can be added to a multivalued field.
      *
@@ -349,13 +368,13 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     public function testAddingArrayValuesToMultivaluedField() {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
-        
+
         $field->setValue(array(1,2,3,4));
         $field->addValue(array(15,16,17));
-        
+
         $this->assertEquals(array(1,2,3,4,15,16,17), $field->getValue(), 'Values have not been added.');
     }
-    
+
     /**
      * Test if values can be added to an uninitialized field.
      *
@@ -367,7 +386,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->addValue(array(15,16,17));
         $this->assertEquals(array(15,16,17), $field->getValue(), 'Values have not been added.');
     }
-    
+
     /**
      * Test if values can be added to an uninitialized non-multiple field.
      *
@@ -379,7 +398,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->setMultiplicity('1');
         $field->addValue(array(15,16,17));
     }
-    
+
     /**
      * Test if single value can be added to an uninitialized non-multiple field.
      *
@@ -391,7 +410,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->addValue(15);
         $this->assertEquals(15, $field->getValue(), 'Value has not been added.');
     }
-    
+
     /**
      * Test if adding multiple values raises the modified flag.
      *
@@ -404,7 +423,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->addValue(array(15,16,17));
         $this->assertTrue($field->isModified(), 'Adding values should raise "modified" flag.');
     }
-    
+
     /**
      * Test if attempt to add more values than allowed throws an exception.
      *
@@ -416,7 +435,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field->setMultiplicity(3);
         $field->addValue(array(15,16,17, 18));
     }
-    
+
     /**
      * Test if setting multi-value fields to null clears field properly.
      *

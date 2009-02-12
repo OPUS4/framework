@@ -117,6 +117,13 @@ class Opus_Model_Field
     protected $_selection = false;
 
     /**
+     * Specify if a field can be displayed as a checkbox.
+     *
+     * @var boolean
+     */
+    protected $_checkbox = false;
+
+    /**
      * Set to true if the field value has been modified.
      *
      * @var boolean Saves the state of the field.
@@ -386,7 +393,7 @@ class Opus_Model_Field
     }
 
     /**
-     * Set the textarea property. Override selection property if textarea is set
+     * Set the textarea property. Override other properties if textarea is set
      * to true.
      *
      * @param boolean $value True, if the field can be displayed as a text box.
@@ -395,6 +402,7 @@ class Opus_Model_Field
     public function setTextarea($value) {
         $this->_textarea = (bool) $value;
         if ($this->_textarea === true) {
+            $this->_checkbox = false;
             $this->_selection = false;
         }
     }
@@ -410,7 +418,7 @@ class Opus_Model_Field
 
 
     /**
-     * Set the selection property. Override textarea property if selection is
+     * Set the selection property. Override other properties if selection is
      * set to true.
      *
      * @param boolean $value True, if the field can be displayed as a selection
@@ -420,6 +428,7 @@ class Opus_Model_Field
     public function setSelection($value) {
         $this->_selection = (bool) $value;
         if ($this->_selection === true) {
+            $this->_checkbox = false;
             $this->_textarea = false;
         }
         return $this;
@@ -469,5 +478,30 @@ class Opus_Model_Field
      */
     public function clearModified() {
         $this->_modified = false;
+    }
+
+    /**
+     * Set the checkbox property. Override other properties if checkbox is
+     * set to true.
+     *
+     * @param boolean $value True, if the field can be displayed as a checkbox
+     * @return Opus_Model_Field Provide fluent interface.
+     */
+    public function setCheckbox($value) {
+        $this->_checkbox = (bool) $value;
+        if ($this->_checkbox === true) {
+            $this->_selection = false;
+            $this->_textarea = false;
+        }
+        return $this;
+    }
+
+    /**
+     * Return checkbox property.
+     *
+     * @return Boolean True, if the field can be displayed as a checkbox.
+     */
+    public function isCheckbox() {
+        return $this->_checkbox;
     }
 }
