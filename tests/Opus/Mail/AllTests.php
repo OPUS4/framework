@@ -26,11 +26,12 @@
  *
  * @category    Tests
  * @package     Opus_Mail
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Eva Kranz <eva@o-dyn.de>
+ * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
+
 
 // The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
 // configure the method of test execution. When called via php directly
@@ -70,9 +71,9 @@ class Opus_Mail_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Mail');
+        $suite->addTestSuite('Opus_Document_SendMailTest');
         return $suite;
     }
-
 }
 
 // Execute the test run if necessary.
