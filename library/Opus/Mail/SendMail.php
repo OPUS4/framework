@@ -89,7 +89,7 @@ class Opus_Mail_SendMail {
      */
     public function __construct() {
         $this->createSmtpTransport();
-        $this->$_mail = new Zend_Mail();
+        $this->_mail = new Zend_Mail();
     }
 
     /**
@@ -99,7 +99,7 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function setRecipients(array $recipients) {
-        $this->$_recipients = $recipients;
+        $this->_recipients = $recipients;
     }
 
     /**
@@ -108,7 +108,7 @@ class Opus_Mail_SendMail {
      * @return array recipients
      */
     public function getRecipients() {
-        return $this->$_recipients;
+        return $this->_recipients;
     }
 
     /**
@@ -119,7 +119,7 @@ class Opus_Mail_SendMail {
      */
     public function setFrom($from) {
         $this->validateAddress($from);
-        $this->$_from = $from;
+        $this->_from = $from;
     }
 
     /**
@@ -128,7 +128,7 @@ class Opus_Mail_SendMail {
      * @return string Sender's e-mail address
      */
     public function getFrom() {
-        return $this->$_from;
+        return $this->_from;
     }
 
     /**
@@ -138,7 +138,7 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function setFromName($fromName) {
-        $this->$_fromName = $fromName;
+        $this->_fromName = $fromName;
     }
 
     /**
@@ -147,7 +147,7 @@ class Opus_Mail_SendMail {
      * @return string Sender's name
      */
     public function getFromName() {
-        return $this->$_fromName;
+        return $this->_fromName;
     }
 
     /**
@@ -157,7 +157,7 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function setSubject($subject) {
-        $this->$_subject = $subject;
+        $this->_subject = $subject;
     }
 
     /**
@@ -166,7 +166,7 @@ class Opus_Mail_SendMail {
      * @return string Subject
      */
     public function getSubject() {
-        return $this->$_subject;
+        return $this->_subject;
     }
 
     /**
@@ -176,7 +176,7 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function setBodyText($bodyText) {
-        $this->$_bodyText = strip_tags($bodyText);
+        $this->_bodyText = strip_tags($bodyText);
     }
 
     /**
@@ -185,7 +185,7 @@ class Opus_Mail_SendMail {
      * @return string Text
      */
     public function getBodyText() {
-        return $this->$_bodyText;
+        return $this->_bodyText;
     }
 
    /**
@@ -386,7 +386,7 @@ class Opus_Mail_SendMail {
             $this->$_mail->setBodyText($text);
 
             try {
-                $this->$_mail->send();
+                $this->_mail->send();
             } catch (Exception $e) {
                 $error = true;
             }
