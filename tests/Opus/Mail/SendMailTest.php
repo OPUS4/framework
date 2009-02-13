@@ -89,10 +89,7 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    protected $_text = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit,
-        sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
-        volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper
-        suscipit lobortis nisl ut aliquip ex ea commodo consequat.';
+    protected $_text = 'Lorem ipsum dolor sit amet, consectetuer ad.';
 
     /**
      * Holds a mail object
@@ -107,7 +104,7 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        $this->_mail = new SendMail();
+        $this->_mail = new Opus_Mail_SendMail();
     }
 
     /**
@@ -158,17 +155,5 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
     public function testSetRecipients() {
         $this->_mail->setRecipients($this->_recipient);
         $this->assertEquals($this->_mail->getRecipients(), $this->_recipient);
-    }
-
-    /**
-     * Tests the e-mail validation.
-     *
-     * @return void
-     */
-    public function testValidateAddress() {
-        $this->assertEquals($this->_mail->validateAddress($this->_addressSender), $this->_addressSender());
-        $this->assertNotEquals($this->_mail->validateAddress('addresswithoutat.de'), 'addresswithoutat.de');
-        $this->assertNotEquals($this->_mail->validateAddress('address@withoutdotde'), 'address@withoutdotde');
-        $this->assertNotEquals($this->_mail->validateAddress('address@withincorrecttld.d'), 'address@withincorrecttld.d');
     }
 }

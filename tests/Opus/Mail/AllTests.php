@@ -71,7 +71,7 @@ class Opus_Mail_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Mail');
-        $suite->addTestSuite('Opus_Document_SendMailTest');
+        $suite->addTestSuite('Opus_Mail_SendMailTest');
         return $suite;
     }
 }
