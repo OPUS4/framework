@@ -159,4 +159,16 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
         $this->_mail->setRecipients($this->_recipient);
         $this->assertEquals($this->_mail->getRecipients(), $this->_recipient);
     }
+
+    /**
+     * Tests the e-mail validation.
+     *
+     * @return void
+     */
+    public function testValidateAddress() {
+        $this->assertEquals($this->_mail->validateAddress($this->_addressSender), $this->_addressSender());
+        $this->assertNotEquals($this->_mail->validateAddress('addresswithoutat.de'), 'addresswithoutat.de');
+        $this->assertNotEquals($this->_mail->validateAddress('address@withoutdotde'), 'address@withoutdotde');
+        $this->assertNotEquals($this->_mail->validateAddress('address@withincorrecttld.d'), 'address@withincorrecttld.d');
+    }
 }
