@@ -29,7 +29,7 @@
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id:$
+ * @version     $Id$
  */
 
 class Opus_Search_Adapter_Lucene_QueryHighlighter extends Zend_Search_Lucene_Search_QueryParser
