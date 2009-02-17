@@ -89,7 +89,10 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      *
      * @var string
      */
-    protected $_text = 'Lorem ipsum dolor sit amet, consectetuer ad.';
+    protected $_text = 'Lorem ipsum dolor sit amet, consectetuer adipiscing elit,
+        sed diam nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
+        volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation ullamcorper
+        suscipit lobortis nisl ut aliquip ex ea commodo consequat.';
 
     /**
      * Holds a mail object
@@ -104,7 +107,7 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        $this->_mail = new Opus_Mail_SendMail();
+        $this->_mail = new SendMail();
     }
 
     /**

@@ -77,7 +77,6 @@ class Opus_Model_Licence extends Opus_Model_Abstract
      */
     protected function _init() {
         $active = new Opus_Model_Field('Active');
-        $active->setCheckbox(true);
         $comment_internal = new Opus_Model_Field('CommentInternal');
         $desc_markup = new Opus_Model_Field('DescMarkup');
         $desc_text = new Opus_Model_Field('DescText');
@@ -91,7 +90,6 @@ class Opus_Model_Licence extends Opus_Model_Abstract
         $name_long = new Opus_Model_Field('NameLong');
         $sort_order = new Opus_Model_Field('SortOrder');
         $pod_allowed = new Opus_Model_Field('PodAllowed');
-        $pod_allowed->setCheckbox(true);
 
         $this->addField($active)
             ->addField($comment_internal)

@@ -57,7 +57,18 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
      *
      * @var Opus_Model_Abstract
      */
-    protected $_modelclass = null;
+    protected static $_modelclass = null;
+
+    /**
+     * Late static binding workaround, returns value of static variable of
+     * descendant classes.
+     *
+     * @return string
+     */
+    private function __getModelClass() {
+        eval('$modelclass = ' . get_class($this) . '::$_modelclass;');
+        return $modelclass;
+    }
 
     /**
      * List all available model instances
@@ -65,7 +76,7 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
      * @return void
      */
     public function indexAction() {
-        eval('$entries = ' . $this->_modelclass . '::getAll();');
+        eval('$entries = ' . $this->__getModelClass() . '::getAll();');
         $this->view->entries = array();
         foreach ($entries as $entry) {
             $this->view->entries[$entry->getId()] = $entry->getDisplayName();
@@ -79,9 +90,9 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
      */
     public function showAction() {
         $id = $this->getRequest()->getParam('id');
-        $model = new $this->_modelclass($id);
+        $modelclass = $this->__getModelclass();
+        $model = new $modelclass($id);
         $this->view->entry = $model->toArray();
-        return $model;
     }
 
     /**
@@ -91,7 +102,8 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
      */
     public function newAction() {
         $form_builder = new Opus_Form_Builder();
-        $model = new $this->_modelclass;
+        $modelclass = $this->__getModelclass();
+        $model = new $modelclass;
         $modelForm = $form_builder->build($model);
         $action_url = $this->view->url(array("action" => "create"));
         $modelForm->setAction($action_url);
@@ -109,16 +121,16 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
             $form_builder = new Opus_Form_Builder();
             if (array_key_exists('submit', $data) === false) {
                 $form = $form_builder->buildFromPost($data);
-                $action_url = $this->view->url(array("action" => "create"));
+                $action_url = $this->view->url(array("action" => "rolecreate"));
                 $form->setAction($action_url);
                 $this->view->form = $form;
             } else {
                 $form = $form_builder->buildFromPost($data);
                 if ($form->isValid($data) === true) {
                     // retrieve values from form and save them into model
-                    $model = $form_builder->getModelFromForm($form);
-                    $form_builder->setFromPost($model, $form->getValues());
-                    $model->store();
+                    $role = $form_builder->getModelFromForm($form);
+                    $form_builder->setFromPost($role, $form->getValues());
+                    $role->store();
                     $this->_redirectTo('Model successfully created.', 'index');
                 } else {
                     $this->view->form = $form;
@@ -137,7 +149,8 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
     public function editAction() {
         $id = $this->getRequest()->getParam('id');
         $form_builder = new Opus_Form_Builder();
-        $model = new $this->_modelclass($id);
+        $modelclass = $this->__getModelclass();
+        $model = new $modelclass($id);
         $modelForm = $form_builder->build($model);
         $action_url = $this->view->url(array("action" => "create"));
         $modelForm->setAction($action_url);
@@ -152,7 +165,8 @@ class Opus_Controller_CRUDAction extends Opus_Controller_Action {
     public function deleteAction() {
         if ($this->_request->isPost() === true) {
             $id = $this->getRequest()->getPost('id');
-            $model = new $this->_modelclass($id);
+            $modelclass = $this->__getModelclass();
+            $model = new $modelclass($id);
             $model->delete();
             $this->_redirectTo('Model successfully deleted.', 'index');
         } else {

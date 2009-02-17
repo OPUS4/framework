@@ -67,7 +67,7 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
     /**
      * Fields that should not be displayed on a form.
      *
-     * @var array  Defaults to array('SubCollection').
+     * @var array  Defaults to array('File').
      */
     protected $_hiddenFields = array(
             'SubCollection',
@@ -109,19 +109,11 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
    * @return Opus_Model_Collection|array Collection(s).
    */
     protected function _fetchSubCollection() {
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
-        $collectionIds = array();
-        foreach ($collections as $collection) {
-            $collectionIds[] = $collection['structure']['collections_id'];
-        }
         $result = array();
-        if (empty($collectionIds) === false) {
-            $result = array();
-            $table = new Opus_Db_CollectionsContents((int) $this->getId());
-            $rows = $table->find($collectionIds);
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Collection((int) $this->getId(), $row);
-            }
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
+        foreach ($collections as $collection) {
+            $collectionId = $collection['content'][0]['id'];
+            $result[] = new Opus_Model_Collection((int)$this->getId(), (int) $collectionId);
         }
         return $result;
     }
@@ -183,22 +175,5 @@ class Opus_Model_CollectionRole extends Opus_Model_Abstract {
      */
     public static function getAll() {
         return self::getAllFrom('Opus_Model_CollectionRole', 'Opus_Db_CollectionsRoles');
-    }
-
-    /**
-     * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
-     *
-     * @return array A (nested) array representation of the model.
-     */
-    public function toArray() {
-        $result = array();
-        foreach ($this->getSubCollection() as $subCollection) {
-            $result[] = array(
-                    'Id' => $subCollection->getId(),
-                    'Name' => $subCollection->getName(),
-                    'SubCollection' => $subCollection->toArray(),
-                );
-        }
-        return $result;
     }
 }

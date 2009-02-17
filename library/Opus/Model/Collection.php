@@ -70,16 +70,6 @@ class Opus_Model_Collection extends Opus_Model_Abstract
         );
 
     /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('SubCollection', 'ParentCollection').
-     */
-    protected $_hiddenFields = array(
-            'SubCollection',
-            'ParentCollection',
-        );
-
-    /**
      * Fetches existing or creates new collection.
      *
      * @param  int|string  $role           The role that this collection is in.
@@ -165,22 +155,15 @@ class Opus_Model_Collection extends Opus_Model_Abstract
     /**
      * Returns subcollections.
      *
+     * @param  int  $index (Optional) Index of the subcollection to fetchl.
      * @return Opus_Model_Collection|array Subcollection(s).
      */
     protected function _fetchSubCollection() {
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
-        $collectionIds = array();
-        foreach ($collections as $collection) {
-            $collectionIds[] = $collection['structure']['collections_id'];
-        }
         $result = array();
-        if (empty($collectionIds) === false) {
-            $result = array();
-            $table = new Opus_Db_CollectionsContents($this->__role_id);
-            $rows = $table->find($collectionIds);
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Collection((int) $this->__role_id, $row);
-            }
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
+        foreach ($collections as $collection) {
+            $collectionId = $collection['content'][0]['id'];
+            $result[] = new Opus_Model_Collection((int) $this->__role_id, (int) $collectionId);
         }
         return $result;
     }
@@ -203,15 +186,9 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      */
     protected function _fetchParentCollection() {
         $result = array();
-        $collectionIds = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->getId());
-        $result = array();
-        if (empty($collectionIds) === false) {
-            $result = array();
-            $table = new Opus_Db_CollectionsContents($this->__role_id);
-            $rows = $table->find($collectionIds);
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Collection((int) $this->__role_id, $row);
-            }
+        $collections = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->getId());
+        foreach ($collections as $collectionId) {
+            $result[] = new Opus_Model_Collection((int)$this->__role_id, (int) $collectionId);
         }
         return $result;
     }
@@ -226,39 +203,4 @@ class Opus_Model_Collection extends Opus_Model_Abstract
 
     }
 
-    /**
-     * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
-     *
-     * @return array A (nested) array representation of the model.
-     */
-    public function toArray() {
-        $result = array();
-        foreach ($this->getSubCollection() as $subCollection) {
-            $result[] = array(
-                    'Id' => $subCollection->getId(),
-                    'Name' => $subCollection->getName(),
-                    'SubCollection' => $subCollection->toArray(),
-                );
-        }
-        return $result;
-    }
-
-    /**
-     * Overwrite to reconnect to correct primary table row in database after unserializing.
-     *
-     * @return void
-     */
-    public function __wakeup() {
-        $table = new Opus_Db_CollectionsContents($this->__role_id);
-        $this->_primaryTableRow->setTable($table);
-    }
-
-    /**
-     * Overwrite standard deletion in favour of collections history tracking.
-     *
-     * @return void
-     */
-    public function delete() {
-        Opus_Collection_Information::deleteCollection($this->__role_id, (int) $this->getId());
-    }
 }

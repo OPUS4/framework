@@ -525,22 +525,4 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($values, $element->getMultiOptions(), 'Selection does not contain correct values.');
     }
 
-    /**
-     * Test if a checkbox is build properly.
-     *
-     * @return void
-     */
-    public function testBuildingOfCheckboxElement() {
-        $value = 1;
-        $checkbox = new Opus_Model_Field('CheckboxField');
-        $checkbox->setCheckbox(true);
-        $checkbox->setValue($value);
-        $this->_model->addField($checkbox);
-        $form = $this->_builder->build($this->_model);
-        $element = $form->getElement('CheckboxField');
-
-        $this->assertEquals('Zend_Form_Element_Checkbox', $element->getType(), 'Builded element is not a checkbox.');
-        $this->assertEquals($value, $element->getValue(), 'Checkbox does not contain correct value.');
-    }
-
 }

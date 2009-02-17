@@ -318,22 +318,6 @@ class Opus_Form_Builder {
     }
 
     /**
-     * Build a checkbox element.
-     *
-     * @param Opus_Model_Field $field     Field object with building informations.
-     * @param Zend_Form        $container Zend_Form object to add created element to.
-     * @return void
-     */
-    protected function _makeCheckboxElement(Opus_Model_Field $field, Zend_Form $container) {
-        $fieldname = $field->getName();
-        $element = new Zend_Form_Element_Checkbox($fieldname);
-        $element->setLabel($fieldname);
-        $element->setValue($field->getValue());
-        $container->addElement($element);
-        $this->_setFieldAttributes($field, $container);
-    }
-
-    /**
      * Map field name and value to an Zend_Form_Element and add it to
      * the given container object. If the value is a model instance then
      * a sub form is added.
@@ -349,8 +333,6 @@ class Opus_Form_Builder {
             $this->_makeSelectionElement($field, $container);
         } else if ($field->isTextarea() === true) {
             $this->_makeTextAreaElement($field, $container);
-        } else if ($field->isCheckbox() === true) {
-            $this->_makeCheckboxElement($field, $container);
         } else if ($value instanceof Opus_Model_Interface) {
             $this->_makeSubForm($name, $value, $container);
         } else {
