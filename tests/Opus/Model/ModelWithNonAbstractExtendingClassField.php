@@ -40,7 +40,7 @@
  * @category Tests
  *
  */
-class Opus_Model_ModelWithNonAbstractExtendingClassField extends Opus_Model_Abstract
+class Opus_Model_ModelWithNonAbstractExtendingClassField extends Opus_Model_AbstractDb
 {
 
     /**

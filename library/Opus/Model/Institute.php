@@ -34,92 +34,26 @@
 
 /**
  * Domain model for institutes in the Opus framework
- * 
- * TODO Currently just a mockup
+ *
+ * TODO Implement connection to Opus_Collection API.
  *
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Institute extends Opus_Model_Interface
+class Opus_Model_Institute extends Opus_Model_Abstract
 {
-    
-    
-    protected $_fields = array();
 
     /**
-     * TODO Connect to institutes-tree of Opus_Collection
-     *
-     * @param mixed $id Primary key of an institute or null for creating a new one.
-     */
-    public function __construct($id = null) {
-        $this->_fields = array(
-            'Name' => new Opus_Model_Field('Name'),
-            'PostalAddress' => new Opus_Model_Field('PostalAddress'),
-            'Site' => new Opus_Model_Field('Site'),        
-        );
-    }
-
-    /**
-     * Persist all the models information to its database locations.
-     *
-     * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
-     * @return void
-     */
-    public function store() {
-        
-    }
-
-    /**
-     * Return the primary key that identifies the model instance in the database.
-     * If called on a clean new instance, null is returned until a call to store(). 
+     * Add an institutes metadata fields.
      *
      * @return void
+     * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    public function getId() {
-        return null;
+    protected function _init() {
+        $this->addField(new Opus_Model_Field('Name'));
+        $this->addField(new Opus_Model_Field('PostalAddress'));
+        $this->addField(new Opus_Model_Field('Site'));
     }
 
-    /**
-     * Remove the model instance from the database.
-     *
-     * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
-     * @return void
-     */
-    public function delete() {
-        
-    }
-
-    /**
-     * Returns describing information about the model. This includes the list
-     * of fields and field properties thus others components know the field
-     * interface to interact with the model.
-     *
-     * @return Mixed Model self description.
-     */
-    public function describe() {
-        return array_keys($this->_fields);
-    }
-    
-    /**
-     * Add an field to the model. If a field with the same name has already been added,
-     * it will be replaced by the given field.
-     *
-     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
-     * @return Opus_Model_Abstract Provide fluent interface.
-     */
-    public function addField(Opus_Model_Field $field) {
-        return $this;
-    }
-    
-    /**
-     * Return a reference to an actual field.
-     *
-     * @param string $name Name of the requested field.
-     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
-     */
-    public function getField($name) {
-        return $this->_fields[$name];
-    }
-    
 }

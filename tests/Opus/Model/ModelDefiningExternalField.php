@@ -41,7 +41,7 @@
  * @package Opus_Model
  *
  */
-class Opus_Model_ModelDefiningExternalField extends Opus_Model_Abstract {
+class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
 
     /**
      * Array of field names for wich _loadExternal has been called.

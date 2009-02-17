@@ -49,11 +49,20 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
     protected $_modelClass = 'Opus_Model_AbstractMock';
 
     /**
-     * Clear out constructor code for this mockup.
+     * This mockup is not connected to a datastore so fetching and initializing
+     * of values has to be prevented.
      *
      */
     public function __construct() {
+    }
 
+    /**
+     * No fields to add for this link model so the method has an empty body.
+     *
+     * @return void
+     * @see library/Opus/Model/Opus_Model_Abstract#_init()
+     */
+    protected function _init() {
     }
 
 }

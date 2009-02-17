@@ -57,12 +57,12 @@ class Opus_Form_Builder {
      * Additionally the given model object is serialized, compressed and base64
      * encoded and stored in a hidden form field "__model".
      *
-     * @param Opus_Model_Interface $model         Model to build a form for.
-     * @param boolean              $createSubForm (Optional) True, if a sub form should be
-     *                                            generated instead of a form.
+     * @param Opus_Model_Abstract $model         Model to build a form for.
+     * @param boolean             $createSubForm (Optional) True, if a sub form should be
+     *                                           generated instead of a form.
      * @return Zend_Form The generated form object.
      */
-    public function build(Opus_Model_Interface $model, $createSubForm = false) {
+    public function build(Opus_Model_Abstract $model, $createSubForm = false) {
         if ($createSubForm === true) {
             $form = new Zend_Form_SubForm();
         } else {
@@ -155,10 +155,10 @@ class Opus_Form_Builder {
     /**
      * Compress a model object for transfering in forms.
      *
-     * @param Opus_Model_Interface $model Model object to compress
+     * @param Opus_Model_Abstract $model Model object to compress
      * @return string
      */
-    public function compressModel(Opus_Model_Interface $model) {
+    public function compressModel(Opus_Model_Abstract $model) {
         return base64_encode(bzcompress(serialize($model)));
     }
 
@@ -182,11 +182,11 @@ class Opus_Form_Builder {
     /**
      * Set all field values of a given model instance by using form post data.
      *
-     * @param Opus_Model_Interface $model Model to be updated.
-     * @param array                $post  Post data.
+     * @param Opus_Model_Abstract $model Model to be updated.
+     * @param array               $post  Post data.
      * @return void
      */
-    public function setFromPost(Opus_Model_Interface $model, array $post) {
+    public function setFromPost(Opus_Model_Abstract $model, array $post) {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
             $setCallName = 'set' . $fieldname;
@@ -239,7 +239,7 @@ class Opus_Form_Builder {
      *
      * @param string $model Compressed model object.
      * @throws Opus_Form_Exception Thrown if compressed model data are invalid.
-     * @return Opus_Model_Interface
+     * @return Opus_Model_Abstract
      */
     public function uncompressModel($model) {
         try {
@@ -351,7 +351,7 @@ class Opus_Form_Builder {
             $this->_makeTextAreaElement($field, $container);
         } else if ($field->isCheckbox() === true) {
             $this->_makeCheckboxElement($field, $container);
-        } else if ($value instanceof Opus_Model_Interface) {
+        } else if ($value instanceof Opus_Model_Abstract) {
             $this->_makeSubForm($name, $value, $container);
         } else {
             $this->_makeTextElement($field, $container);
@@ -371,7 +371,7 @@ class Opus_Form_Builder {
         $element->setLabel($fieldname);
         $defaults = $field->getDefault();
         foreach ($defaults as $key => $default) {
-            if ($default instanceOf Opus_Model_Interface) {
+            if ($default instanceOf Opus_Model_Abstract) {
                 $key = $default->getId();
                 $value = $default->getDisplayName();
                 $element->addMultiOption($key, $value);
@@ -380,7 +380,7 @@ class Opus_Form_Builder {
             }
         }
         $value = $field->getValue();
-        if ($value instanceOf Opus_Model_Interface) {
+        if ($value instanceOf Opus_Model_Abstract) {
             $element->setValue($value->getId());
         } else {
             $element->setValue($value);
@@ -393,11 +393,11 @@ class Opus_Form_Builder {
      * Build a sub form.
      *
      * @param string               $name      Name of the subform.
-     * @param Opus_Model_Interface $model     Model object with building informations.
+     * @param Opus_Model_Abstract  $model     Model object with building informations.
      * @param Zend_Form            $container Zend_Form object to add created element to.
      * @return void
      */
-    protected function _makeSubForm($name, Opus_Model_Interface $model, Zend_Form $container) {
+    protected function _makeSubForm($name, Opus_Model_Abstract $model, Zend_Form $container) {
         $subform = $this->build($model, true);
         $subform->setLegend($name);
         $container->addSubForm($subform, $name);

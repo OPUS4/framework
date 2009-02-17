@@ -40,24 +40,34 @@
  */
 class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Dependent_Link_Abstract {
 
-    
+
     /**
      * Clear out constructor code for this mockup.
-     * 
+     *
      */
     public function __construct() {
-        
+
     }
-    
+
+    /**
+     * No fields to add for this mock model so the method has an empty body.
+     *
+     * @return void
+     * @see library/Opus/Model/Opus_Model_Abstract#_init()
+     */
+    protected function _init() {
+    }
+
+
     /**
      * Mockup for setting linked model.
-     * 
-     * @param Opus_Model_Interface $model Mock model.
+     *
+     * @param Opus_Model_Abstract $model Mock model.
      * @see    library/Opus/Model/Dependent/Link/Opus_Model_Dependent_Link_Abstract#setModel()
      * @return void
      */
-    public function setModel(Opus_Model_Interface $model) {
+    public function setModel(Opus_Model_Abstract $model) {
         $this->_model = $model;
     }
-    
+
 }

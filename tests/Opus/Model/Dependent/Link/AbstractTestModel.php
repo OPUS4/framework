@@ -38,47 +38,15 @@
  * @category    Tests
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interface {
+class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
 
     /**
-     * Persist all the models information to its database locations.
-     *
-     * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
-     * @return void
-     */
-    public function store() {
-
-    }
-
-    /**
-     * Return the primary key that identifies the model instance in the database.
-     * If called on a clean new instance, null is returned until a call to store().
+     * No fields to add for this mock model so the method has an empty body.
      *
      * @return void
+     * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    public function getId() {
-
-    }
-
-    /**
-     * Remove the model instance from the database.
-     *
-     * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
-     * @return void
-     */
-    public function delete() {
-
-    }
-
-    /**
-     * Returns describing information about the model. This includes the list
-     * of fields and field properties thus others components know the field
-     * interface to interact with the model.
-     *
-     * @return Mixed Model self description.
-     */
-    public function describe() {
-        return array();
+    protected function _init() {
     }
 
     /**
@@ -92,57 +60,12 @@ class Opus_Model_Dependent_Link_AbstractTestModel implements Opus_Model_Interfac
     }
 
     /**
-     * Returns a string representing the informational entity
-     * covered by the model.
+     * Returns a the mock models display name as set by setDisplayName();
      *
-     * @return string Textual representation by name.
+     * @return string Mock display name.
      */
     public function getDisplayName() {
         return $this->_mockDisplayName;
     }
 
-    /**
-     * Add an field to the model. If a field with the same name has already been added,
-     * it will be replaced by the given field.
-     *
-     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
-     * @return Opus_Model_Abstract Provide fluent interface.
-     */
-    public function addField(Opus_Model_Field $field) {
-        // Make codesniffer happy.
-        $myfield = $field;
-        return $this;
-    }
-
-    /**
-     * Return a reference to an actual field.
-     *
-     * @param string $name Name of the requested field.
-     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
-     */
-    public function getField($name) {
-        // Make codesniffer happy.
-        $myname = $name;
-        return null;
-    }
-
-    /**
-     * Get a nested associative array representation of the model. Dummy function!
-     *
-     * @see    library/Opus/Model/Opus_Model_Interface#toArray()
-     * @return array
-     */
-    public function toArray() {
-        return array();
-    }
-
-    /**
-     * get XML representation. Dummy function!
-     *
-     * @see    library/Opus/Model/Opus_Model_Interface#toXml()
-     * @return string
-     */
-    public function toXml() {
-        return array();
-    }
 }

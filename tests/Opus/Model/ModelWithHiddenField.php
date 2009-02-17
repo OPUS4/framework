@@ -42,14 +42,6 @@
 class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
 
     /**
-     * Specify then table gateway.
-     * This model is not connected for testing purposes.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor, empty for testing purpose.
-     */
-    protected static $_tableGatewayClass = '';
-
-    /**
      * Fields to be not reported by describe().
      *
      * @var array
@@ -66,14 +58,5 @@ class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
             ->addField(new Opus_Model_Field('HiddenField'));
     }
 
-
-    /**
-     * Supress fetching values for this model.
-     *
-     * @return void
-     */
-    protected function _fetchValues() {
-
-    }
 
 }

@@ -40,7 +40,7 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_DependentAbstract extends Opus_Model_Abstract
+abstract class Opus_Model_DependentAbstract extends Opus_Model_AbstractDb
 {
     /**
      * Whether db transaction should be used in store()

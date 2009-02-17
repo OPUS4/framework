@@ -39,26 +39,26 @@
  * @package     Opus_Form
  * @uses        Opus_Model_Abstract
  */
-class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
+class Opus_Form_BuilderTest_Model extends Opus_Model_AbstractDb {
 
-    
+
     /**
      * Contains mock up data for MultiField.
      *
      * @var array
      */
     protected $_multiFieldValue = array();
-    
+
     /**
      * Contains mock up data for MultiModel.
      *
      * @var array
      */
     protected $_multiModelValue = array();
-    
-    
+
+
     protected static $_tableGatewayClass = 'Opus_Form_BuilderTest_DbModel';
-    
+
     /**
      * Mock external field "ReferenceField".
      *
@@ -80,21 +80,21 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      */
     protected function _init() {
         $simpleField = new Opus_Model_Field('SimpleField');
-        
+
         $multiField = new Opus_Model_Field('MultiField');
         $multiField->setMultiplicity('*');
-        
+
         $multiModel = new Opus_Model_Field('MultiModel');
         $multiModel->setValueModelClass('Opus_Form_BuilderTest_DisconnectedModel');
         $multiModel->setMultiplicity('*');
-        
+
         $referenceField = new Opus_Model_Field('ReferenceField');
-        
+
         $this->addField($simpleField)
             ->addField($multiField)
             ->addField($multiModel)
             ->addField($referenceField);
-            
+
     }
 
     /**
@@ -119,7 +119,7 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
         return $mockModel;
     }
 
-    
+
     /**
      * Mock function.
      *
@@ -129,7 +129,7 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      */
     protected function _storeMultiField($value) {
     }
-    
+
     /**
      * Return an array with mock field data.
      *
@@ -139,7 +139,7 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
     protected function _fetchMultiField() {
         return $this->_multiFieldValue;
     }
-    
+
     /**
      * Mock function.
      *
@@ -149,7 +149,7 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
      */
     protected function _storeMultiModel($value) {
     }
-    
+
     /**
      * Return an array with mock model identifiers.
      *
@@ -159,6 +159,6 @@ class Opus_Form_BuilderTest_Model extends Opus_Model_Abstract {
     protected function _fetchMultiModel() {
         return array();
     }
-    
-    
+
+
 }

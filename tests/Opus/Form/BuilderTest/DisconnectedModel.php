@@ -38,134 +38,15 @@
  *
  * @category    Tests
  * @package     Opus_Form
- * @uses        Opus_Model_Interface
  */
-class Opus_Form_BuilderTest_DisconnectedModel implements Opus_Model_Interface {
-
-
-    /**
-     * Holds a simple field instance.
-     *
-     * @var Opus_Model_Field
-     */
-    protected $_field = null;
+class Opus_Form_BuilderTest_DisconnectedModel extends Opus_Model_Abstract {
 
     /**
      * Set up simple field instance "field1";
      *
      */
-    public function __construct() {
-        $this->_field = new Opus_Model_Field('Field1');
+    protected function _init() {
+        $this->addField(new Opus_Model_Field('Field1'));
     }
 
-    /**
-     * Just a mock function.
-     *
-     * @see    Opus_Model_Interface
-     * @return void
-     */
-    public function store() {
-
-    }
-
-    /**
-     * Always returns 4711.
-     *
-     * @see    Opus_Model_Interface
-     * @return Integer 4711.
-     */
-    public function getId() {
-        return 4711;
-    }
-
-    /**
-     * Just a mock function.
-     *
-     * @see    Opus_Model_Interface
-     * @return void
-     */
-    public function delete() {
-
-    }
-
-    /**
-     * Return a single field name.
-     *
-     * @return Mixed Model self description.
-     */
-    public function describe() {
-        return array('Field1');
-    }
-
-    /**
-     * Mock function.
-     *
-     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
-     * @return Opus_Model_Abstract Provide fluent interface.
-     */
-    public function addField(Opus_Model_Field $field) {
-        // Make codesniffer happy.
-        $my_field = $field;
-        return $this;
-    }
-
-    /**
-     * Return a field definition.
-     *
-     * @param string $name Name of the requested field.
-     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
-     */
-    public function getField($name) {
-        // Make codesniffer happy.
-        $my_name = $name;
-        return $this->_field;
-    }
-
-    /**
-     * Mock setter function.
-     *
-     * @param mixed $value Value to set.
-     * @return void
-     */
-    public function setField1($value) {
-        $this->_field->setValue($value);
-    }
-
-    /**
-     * Mock getter function.
-     *
-     * @return mixed
-     */
-    public function getField1() {
-        return $this->_field->getValue();
-    }
-
-    /**
-     * Mock getter function.
-     *
-     * @see    library/Opus/Model/Opus_Model_Interface#getDisplayName()
-     * @return string
-     */
-    public function getDisplayName() {
-        return get_class($this);
-    }
-
-    /**
-     * Mock toArray function.
-     *
-     * @see    library/Opus/Model/Opus_Model_Interface#toArray()
-     * @return array
-     */
-    public function toArray() {
-        return array();
-    }
-
-    /**
-     * Mock toXml() function.
-     *
-     * @see library/Opus/Model/Opus_Model_Interface#toXml()
-     */
-    public function toXml() {
-       return '';
-    }
 }

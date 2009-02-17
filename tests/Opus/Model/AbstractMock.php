@@ -42,7 +42,7 @@
  * @package Opus_Model
  * @group AbstractTest
  */
-class Opus_Model_AbstractMock extends Opus_Model_Abstract {
+class Opus_Model_AbstractMock extends Opus_Model_AbstractDb {
 
 
     /**
