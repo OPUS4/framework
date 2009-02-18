@@ -386,7 +386,6 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             $callname = 'set' . $fieldname;
             $document->$callname($value);
         }
-        $document->setDocumentType('article');
 
         $title = $document->addTitleMain();
         $title->setValue('Title');
@@ -884,4 +883,16 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
     }
 
+    /**
+     * Test if a document's fields come out of an Xml-import as they went in.
+     *
+     * @return void
+     */
+    public function testDocumentImportFromXml() {
+        $this->markTestIncomplete('Pending fields break assertion.');
+        $document = new Opus_Model_Document(null, 'article');
+        $xml = $document->toXml();
+        $importedDocument = Opus_Model_Document::fromXml($xml);
+        $this->assertEquals($document, $importedDocument, 'Document did not persist Xml import.');
+    }
 }
