@@ -435,4 +435,47 @@ abstract class Opus_Model_Abstract
         return $result;
     }
 
+    /**
+     * Instantiates an Opus_Model from xml as delivered by the toXml() method.
+     *
+     * @param  string  $xml The xml-string representing the model.
+     * @return Opus_Model_Abstract The Opus_Model derived from xml.
+     */
+    public static function fromXml($rawXml) {
+        $domXml = new DomDocument('1.0', 'UTF-8');
+        $domXml->loadXml($rawXml);
+        $modelclass = $domXml->documentElement->nodeName;
+        $model = new $modelclass;
+        return Opus_Model_Abstract::_populateModelFromXml($model, $domXml->documentElement);
+    }
+
+    /**
+     * Recursively populates  model's fields from an Xml DomElement.
+     *
+     * @param  Opus_Model_Abstract  $model   The model to be populated.
+     * @param  DomElement           $element The DomElement holding the field names and values.
+     * @return Opus_Model_Abstract  $model   The populated model.
+     */
+    protected static function _populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
+        // Internal fields exist as attributes
+        foreach ($element->attributes as $field) {
+            // FIXME: Implement adding values to multi-value internal fields.
+            $callname = 'set' . $field->name;
+            if ($field->value === '') {
+                $model->$callname(null);
+            } else {
+                $model->$callname($field->value);
+            }
+        }
+
+        // External fields exist as child elements
+        foreach ($element->childNodes as $externalField) {
+            $modelclass = $model->getField($externalField->nodeName)->getValueModelClass();
+            $submodel = Opus_Model_Abstract::_populateModelFromXml(new $modelclass, $externalField);
+            $callname = 'add' . $externalField->nodeName;
+            $model->$callname($submodel);
+        }
+
+        return $model;
+    }
 }
