@@ -244,30 +244,20 @@ class Opus_Model_Document extends Opus_Model_AbstractDb
             $this->getField('Licence')->setDefault($licences)
                 ->setSelection(true);
         }
+
+        // Add the document's type as a normal field
+        $documentType = new Opus_Model_Field('Type');
+        $documentType->setValue($this->_type);
+        $this->addField($documentType);
     }
 
     /**
-     * Get the document's type.
-     *
-     * @return string|Opus_Document_Type The type of the document.
-     */
-    public function getDocumentType() {
-        return $this->_type;
-    }
-
-    /**
-     * Set the document's type.
+     * FIXME: Set the document's type.
      *
      * @param  string|Opus_Document_Type $type The type of the document.
      * @return void
      */
-    public function setDocumentType($type) {
-        $this->_type = $type;
-        if ($type instanceof Opus_Document_Type) {
-            $this->_primaryTableRow->type = str_replace('_', ' ', $type->getName());
-        } else {
-            $this->_primaryTableRow->type = str_replace('_', ' ', $type);
-        }
+    public function setType($type) {
         // TODO: Recreate Document on type change.
     }
 
