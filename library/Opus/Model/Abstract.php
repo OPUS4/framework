@@ -373,8 +373,25 @@ abstract class Opus_Model_Abstract
      * @return string A plain Xml-string representation of the model.
      */
     public function toXml() {
+        $result = '<' . get_class($this);
+        $result .= $this->_recurseXml();
+        $result .= '</' . get_class($this) . '>';
+        return $result;
+    }
+
+    /**
+     * Recurses over the model's field to generate an Xml-string.
+     *
+     * @return string A plain Xml-string representation of the model.
+     */
+    protected function _recurseXml() {
         $result = '';
+
+        // Iterate internal fields and add them as attributes
         foreach ($this->_fields as $fieldname => $field) {
+            if (array_key_exists($fieldname, $this->_externalFields) === true) {
+                continue;
+            }
 
             // Call to getField() to ensure fetching of pending fields.
             if (in_array($fieldname, $this->_pending) === true) {
@@ -382,22 +399,39 @@ abstract class Opus_Model_Abstract
             }
 
             if ($field->hasMultipleValues()) {
-                $fieldvalues = '';
+                foreach($field->getValue() as $value) {
+                    $result .= ' ' . $fieldname . '=' . '"' . $value . '"';
+                }
+            } else {
+                $result .= ' ' . $fieldname . '=' . '"' . $field->getValue() . '"';
+            }
+        }
+
+        $result .= '>';
+
+        // Iterate external fields and add them as child elements
+        foreach ($this->_fields as $fieldname => $field) {
+            if (array_key_exists($fieldname, $this->_externalFields) === false) {
+                continue;
+            }
+            // Call to getField() to ensure fetching of pending fields.
+            if (in_array($fieldname, $this->_pending) === true) {
+                $field = $this->getField($fieldname);
+            }
+
+            if ($field->hasMultipleValues()) {
                 foreach($field->getValue() as $value) {
                     if ($value instanceof Opus_Model_Abstract) {
-                        $result .= '<' . $fieldname . '>' . $value->toXml() . '</' . $fieldname . '>';
-                    } else {
-                        $result .= '<' . $fieldname . '>' . $value . '</' . $fieldname . '>';
+                        $result .= '<' . $fieldname . $value->_recurseXml() . '</' . $fieldname . '>';
                     }
                 }
             } else {
                 if ($field->getValue() instanceof Opus_Model_Abstract) {
-                    $result .= '<' . $fieldname . '>' . $field->getValue()->toXml() . '</' . $fieldname . '>';
-                } else {
-                    $result .= '<' . $fieldname . '>' . $field->getValue() . '</' . $fieldname . '>';
+                    $result .= '<' . $fieldname . $field->getValue()->_recurseXml() . '</' . $fieldname . '>';
                 }
             }
         }
+
         return $result;
     }
 

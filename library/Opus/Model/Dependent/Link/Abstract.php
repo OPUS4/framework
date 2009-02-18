@@ -136,11 +136,12 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     }
 
     /**
-     * Get an Xml-string representation of the linked model.
+     * Recurses over the linked model's field to generate an Xml-string.
      *
-     * @return array An Xml-string representation of the linked model.
+     * @return string A plain Xml-string representation of the model.
      */
-    public function toXml() {
-        return $this->_model->toXml();
+    protected function _recurseXml() {
+        return $this->_model->_recurseXml();
     }
+
 }
