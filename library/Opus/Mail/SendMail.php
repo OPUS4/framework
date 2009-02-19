@@ -244,7 +244,7 @@ class Opus_Mail_SendMail {
      * @param   string $subject    Subject
      * @param   string $bodyText   Text
      * @param   array  $recipients Recipients
-     * @return  void
+     * @return  boolean            True if mail was sent
      */
     public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
         $this->setRecipients($recipients);
@@ -253,7 +253,7 @@ class Opus_Mail_SendMail {
         $this->setFrom($from);
         $this->setFromName($fromName);
 
-        $this->send();
+        return $this->send();
     }
 
     /**
@@ -264,7 +264,7 @@ class Opus_Mail_SendMail {
      * @param   string                          $bodyText   Text
      * @param   string                          $from       (Optional) Sender address - if not set, the administrator's address is taken
      * @param   string                          $fromName   (Optional) Sender name - if not set, the administator's name is taken
-     * @return  void
+     * @return  boolean                         True if mail was sent
      */
     public function sendMailToAuthor($recipients, $subject, $bodyText, $from = '', $fromName = '') {
         if ($from === false) {
@@ -299,7 +299,7 @@ class Opus_Mail_SendMail {
             }
         }
 
-        $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
+        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
     }
 
     /**
@@ -310,7 +310,7 @@ class Opus_Mail_SendMail {
      * @param   string                      $subject  Subject
      * @param   string                      $bodyText Text
      * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found
-     * @return  void
+     * @return  boolean                     True if mail could be sent
      */
     public function sendMailToAdmin($document, $subject, $bodyText) {
         $config = Zend_Registry::get('Zend_Config');
@@ -323,7 +323,7 @@ class Opus_Mail_SendMail {
         $from = '';
         $fromName = '';
 
-        $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
+        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
     }
 
     /**
@@ -334,7 +334,7 @@ class Opus_Mail_SendMail {
      * @param   string $bodyText Text
      * @param   string $from     (Optional) If not set, the standard sender address is taken
      * @param   string $fromName (Optional) If not set, the standard sender name is taken
-     * @return  void
+     * @return  boolean          True if mail could be sent
      */
     public function sendMailToDocument($document, $subject, $bodyText, $from = '', $fromName = '') {
         // @todo Implement
@@ -346,7 +346,7 @@ class Opus_Mail_SendMail {
      * @param   integer|array $collection Collection
      * @param   string        $subject    Subject
      * @param   string        $bodyText   Text
-     * @return  void
+     * @return  boolean                   True if mail could be sent
      */
     public function sendMailToCollection($collection, $subject, $bodyText) {
         // @todo Implement
@@ -357,7 +357,7 @@ class Opus_Mail_SendMail {
      *
      * @throws Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent
-     * @return void
+     * @return boolean             True if mail could be sent
      */
     private function send() {
         $recipients = $this->getRecipients();
@@ -394,5 +394,7 @@ class Opus_Mail_SendMail {
         if ($error === true) {
             throw new Opus_Mail_Exception('One or more mails could not be sent.');
         }
+
+        return true;
     }
 }
