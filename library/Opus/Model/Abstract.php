@@ -368,24 +368,23 @@ abstract class Opus_Model_Abstract
     }
 
     /**
-     * Returns an Xml-string representation of the model.
+     * Returns a Dom representation of the model.
      *
-     * @return string A plain Xml-string representation of the model.
+     * @return DomDocument A Dom representation of the model.
      */
     public function toXml() {
-        $result = '<' . get_class($this);
-        $result .= $this->_recurseXml();
-        $result .= '</' . get_class($this) . '>';
+        $result = new DomDocument;
+        $result->appendChild($result->createElement(get_class($this)));
+        $result = $this->_recurseXml($result);
         return $result;
     }
 
     /**
-     * Recurses over the model's field to generate an Xml-string.
+     * Recurses over the model's field to generate a DomDocument.
      *
-     * @return string A plain Xml-string representation of the model.
+     * @return DomDocument A Dom representation of the model.
      */
-    protected function _recurseXml() {
-        $result = '';
+    protected function _recurseXml(DomDocument $domXml) {
 
         // Iterate internal fields and add them as attributes
         foreach ($this->_fields as $fieldname => $field) {
@@ -400,14 +399,12 @@ abstract class Opus_Model_Abstract
 
             if ($field->hasMultipleValues()) {
                 foreach($field->getValue() as $value) {
-                    $result .= ' ' . $fieldname . '=' . '"' . $value . '"';
+                    $domXml->documentElement->setAttribute($fieldname, $value);
                 }
             } else {
-                $result .= ' ' . $fieldname . '=' . '"' . $field->getValue() . '"';
+                $domXml->documentElement->setAttribute($fieldname, $field->getValue());
             }
         }
-
-        $result .= '>';
 
         // Iterate external fields and add them as child elements
         foreach ($this->_fields as $fieldname => $field) {
@@ -419,38 +416,52 @@ abstract class Opus_Model_Abstract
                 $field = $this->getField($fieldname);
             }
 
+            $child = new DomDocument;
+
             if ($field->hasMultipleValues()) {
                 foreach($field->getValue() as $value) {
                     if ($value instanceof Opus_Model_Abstract) {
-                        $result .= '<' . $fieldname . $value->_recurseXml() . '</' . $fieldname . '>';
+                        $element = $child->createElement($fieldname);
+                        $child->appendChild($element);
+                        $result = $value->_recurseXml($child);
+                        $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
                     }
                 }
             } else {
                 if ($field->getValue() instanceof Opus_Model_Abstract) {
-                    $result .= '<' . $fieldname . $field->getValue()->_recurseXml() . '</' . $fieldname . '>';
+                    $element = $child->createElement($fieldname);
+                    $child->appendChild($element);
+                    $result = $field->getValue()->_recurseXml($child);
+                    $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
                 }
             }
         }
 
-        return $result;
+        return $domXml;
     }
 
     /**
      * Instantiates an Opus_Model from xml as delivered by the toXml() method.
      *
-     * @param  string  $xml The xml-string representing the model.
+     * @param  DomDocument|string  $xml The xml representing the model.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
-    public static function fromXml($rawXml) {
-        $domXml = new DomDocument('1.0', 'UTF-8');
-        $domXml->loadXml($rawXml);
+    public static function fromXml($xml) {
+        if ($xml instanceof DomDocument) {
+            $domXml = $xml;
+        } else if (is_string($xml)) {
+            $domXml = new DomDocument('1.0', 'UTF-8');
+            $domXml->loadXml($rawXml);
+        } else {
+            throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
+        }
         $modelclass = $domXml->documentElement->nodeName;
         $model = new $modelclass;
         return Opus_Model_Abstract::_populateModelFromXml($model, $domXml->documentElement);
     }
 
     /**
-     * Recursively populates  model's fields from an Xml DomElement.
+     * Recursively populates model's fields from an Xml DomElement.
      *
      * @param  Opus_Model_Abstract  $model   The model to be populated.
      * @param  DomElement           $element The DomElement holding the field names and values.

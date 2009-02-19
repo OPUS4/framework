@@ -136,12 +136,12 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     }
 
     /**
-     * Recurses over the linked model's field to generate an Xml-string.
+     * Recurses over the linked model's field to generate a Dom.
      *
-     * @return string A plain Xml-string representation of the model.
+     * @return DomDocument A Dom representation of the model.
      */
-    protected function _recurseXml() {
-        return $this->_model->_recurseXml();
+    protected function _recurseXml(DomDocument $domXml) {
+        return $this->_model->_recurseXml($domXml);
     }
 
 }
