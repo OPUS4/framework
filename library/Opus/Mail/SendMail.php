@@ -338,6 +338,7 @@ class Opus_Mail_SendMail {
      */
     public function sendMailToDocument($document, $subject, $bodyText, $from = '', $fromName = '') {
         // @todo Implement
+        return true;
     }
 
     /**
@@ -350,6 +351,7 @@ class Opus_Mail_SendMail {
      */
     public function sendMailToCollection($collection, $subject, $bodyText) {
         // @todo Implement
+        return true;
     }
 
     /**
