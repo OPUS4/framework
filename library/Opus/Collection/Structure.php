@@ -214,14 +214,14 @@ class Opus_Collection_Structure {
                 if (false === $leftSiblingFound) {
                     $leftSibling = 0;
                 }
-
                 if (false === $collectionAlreadyChild) {
 
                     // If parent has no child or new node shall be most left sibling
                     if (($this->collectionStructure[$index1]['right'] === $this->collectionStructure[$index1]['left']+1) or
                         ($leftSibling === 0)) {
                         // LEFT of new node is RIGHT of the parent
-                        $new_left = (int) $this->collectionStructure[$index1]['right'];
+                        //$new_left = (int) $this->collectionStructure[$index1]['right'];
+                        $new_left = (int) $this->collectionStructure[$index1]['left'] + 1;
                     } else {
                         // If parent has other children
                         // Find designated left sibling below designated parent

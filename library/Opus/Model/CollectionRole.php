@@ -28,6 +28,7 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -117,10 +118,17 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
         $result = array();
         if (empty($collectionIds) === false) {
             $result = array();
-            $table = new Opus_Db_CollectionsContents((int) $this->getId());
+            $table = new Opus_Db_CollectionsContents($this->getId());
             $rows = $table->find($collectionIds);
-            foreach ($rows as $row) {
-                $result[] = new Opus_Model_Collection((int) $this->getId(), $row);
+            
+            foreach ($collectionIds as $key => $collectionId) {
+                foreach ($rows as $row) {
+                    $rowArray = $row->toArray();
+                    if ($collectionId === $rowArray['id']) {
+                        $result[$key] = new Opus_Model_Collection((int) $this->getId(), $row);
+                    }
+                }
+                
             }
         }
         return $result;
