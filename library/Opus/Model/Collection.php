@@ -38,7 +38,7 @@
  * Bridges Opus_Collection_Information to Opus_Model_Abstract.
  *
  */
-class Opus_Model_Collection extends Opus_Model_Abstract
+class Opus_Model_Collection extends Opus_Model_AbstractDb
 {
     /**
      * Specify then table gateway.
@@ -155,7 +155,7 @@ class Opus_Model_Collection extends Opus_Model_Abstract
      * @param  Opus_Model_Document  $document The document to add.
      * @return void
      */
-    public function addEntry(Opus_Model_Abstract $model) {
+    public function addEntry(Opus_Model_AbstractDb $model) {
         $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role_id);
         $link = $linkTable->createRow();
         $link->documents_id = $model->getId();

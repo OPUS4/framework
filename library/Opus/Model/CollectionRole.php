@@ -41,7 +41,7 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_CollectionRole extends Opus_Model_Abstract {
+class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
