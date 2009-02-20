@@ -50,6 +50,13 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
     protected $_addressSender = 'sender@testmail.de';
 
     /**
+     * Holds a syntactically incorrect sender e-mail address.
+     *
+     * @var string
+     */
+    protected $_addressSenderIncorrect = 'sender@testmailde';
+
+    /**
      * Holds a syntactically correct recipient e-mail address.
      *
      * @var string
@@ -133,6 +140,13 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSetFrom() {
+        try {
+            $error = false;
+            $this->_mail->setFrom($this->_addressSenderIncorrect);
+            $this->assertFalse($error);
+        }
+        catch (Exception $e) {
+        }
         $this->_mail->setFrom($this->_addressSender);
         $this->assertEquals($this->_mail->getFrom(), $this->_addressSender);
     }
