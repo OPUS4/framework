@@ -143,7 +143,7 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
         try {
             $error = false;
             $this->_mail->setFrom($this->_addressSenderIncorrect);
-            $this->assertFalse($error);
+            $this->assertTrue($error);
         }
         catch (Exception $e) {
         }
@@ -175,9 +175,22 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
      * Tests the sending of an e-mail
      *
      * @return void
-     *
+     */
     public function testSendMail() {
-        $this->assertTrue($this->sendMail($this->_addressSender, $this->_nameSender, $this->_subject, $this->_text, $this->_recipient));
+        try {
+            $error = false;
+            $this->sendMail('', $this->_nameSender, $this->_subject, $this->_text, $this->_recipient);
+            $this->assertTrue($error);
+        }
+        catch (Exception $e) {
+        }
+
+        try {
+            $error = false;
+            $this->sendMail($this->_addressSender, $this->_nameSender, '', $this->_text, $this->_recipient);
+            $this->assertTrue($error);
+        }
+        catch (Exception $e) {
+        }
     }
-    */
 }
