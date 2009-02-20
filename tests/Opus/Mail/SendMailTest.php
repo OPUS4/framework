@@ -172,14 +172,11 @@ class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Tests the sending of an e-mail to an author
+     * Tests the sending of an e-mail
      *
      * @return void
-     *
-    public function testSendMailToAuthor() {
-        $this->assertTrue($this->sendMailToAuthor(1, $this->_subject, $this->_text, $this->_addressSender, $this->_nameSender));
-        $this->assertTrue($this->sendMailToAuthor(1, $this->_subject, $this->_text));
-        $this->assertTrue($this->sendMailToAuthor(array(1), $this->_subject, $this->_text, $this->_addressSender, $this->_nameSender));
+     */
+    public function testSendMail() {
+        $this->assertTrue($this->sendMail($this->_addressSender, $this->_nameSender, $this->_subject, $this->_text, $this->_recipient));
     }
-    */
 }
