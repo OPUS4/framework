@@ -375,7 +375,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getSubCollections($roles_id, $collections_id = 0, $alsoHidden = false) {
+    static public function getSubCollections($roles_id, $collections_id = 1, $alsoHidden = false) {
 
         // Argument validation
         $validation = new Opus_Collection_Validation();
@@ -434,7 +434,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id = 0) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 1) {
 
         
         $collections_id = (int) $collections_id;
