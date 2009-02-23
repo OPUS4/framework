@@ -148,7 +148,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlFile() {
-        $xml = dirname(__FILE__) . '/TypeTest.xml';
+        $xml = dirname(__FILE__) . '/type_test.xml';
         try {
             $type = new Opus_Document_Type($xml);
         } catch (Exception $ex) {
@@ -188,7 +188,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlDomDocument() {
-        $file = dirname(__FILE__) . '/TypeTest.xml';
+        $file = dirname(__FILE__) . '/type_test.xml';
         $dom = new DOMDocument();
         $dom->load($file);
         try {
@@ -230,10 +230,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testTypeFromFileGetsRegisteredInZendRegistry() {
-        $xml1 = dirname(__FILE__) . '/TypeTest.xml';
+        $xml1 = dirname(__FILE__) . '/type_test.xml';
         $type1 = new Opus_Document_Type($xml1);
         $typename = $type1->getName();
-        $xml2 = dirname(__FILE__) . '/TypeTest.xml';
+        $xml2 = dirname(__FILE__) . '/type_test.xml';
         $type2 = new Opus_Document_Type($xml2);
 
         // Check if the type2 is registered.
@@ -377,6 +377,19 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type('type_test');
         $this->assertNotNull($type);
     }
+
+    /**
+     * Test if a document type file can be loaded by inferencing the filename
+     * from a type name containing withespaces.
+     *
+     * @return void
+     */
+    public function testGetDocumentTypeFileByTypeNameWithWhitespaces() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $type = new Opus_Document_Type('type test');
+        $this->assertNotNull($type);
+    }
+
 
     /**
      * Test if a multiplicity value is integer.

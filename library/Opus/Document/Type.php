@@ -127,9 +127,9 @@ class Opus_Document_Type {
                 $type = 'filename';
                 $xml = $filename;
             } else {
-                // Try to do inference by removing "_" and transform filename to camelcase.
+                // Try to do inference by replacing "_" with " ".
                 if (self::$_xmlDocTypePath !== '') {
-                    $filename = str_replace(' ', '', ucwords(str_replace('_', ' ', $filename)));
+                    $filename = str_replace(' ', '_', $filename);
                     $filename = self::$_xmlDocTypePath . '/' . $filename . '.xml';
                     if (is_file($filename) === true) {
                         $type = 'filename';
