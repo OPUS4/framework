@@ -16,7 +16,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `contributing_corporation` TEXT NULL COMMENT 'Contribution corporate body.' ,
   `creating_corporation` TEXT NULL COMMENT 'Creating corporate body.' ,
   `date_accepted` DATE NULL COMMENT 'Date of final exam (date of the doctoral graduation).' ,
-  `type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Document type.' ,
+  `type` enum('article','book section','monograph','report','doctoral thesis','manual','master thesis','honour thesis','journal','conference','conference item','paper','study paper','preprint','other','habil thesis','bachelor thesis','lecture') NOT NULL COMMENT 'Document type.',
   `edition` VARCHAR(25) NULL COMMENT 'Edition.' ,
   `issue` VARCHAR(25) NULL COMMENT 'Issue.' ,
   `language` VARCHAR(255) NULL COMMENT 'Language(s) of the document.' ,
