@@ -306,7 +306,7 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the administrator.
      * The author of the specified document will be set as sender.
      *
-     * @param   integer|Opus_Model_Document $document Document
+     * @param   integer|Opus_Document $document Document
      * @param   string                      $subject  Subject
      * @param   string                      $bodyText Text
      * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found

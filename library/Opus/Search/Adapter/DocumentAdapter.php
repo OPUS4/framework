@@ -34,7 +34,7 @@
  * @version     $Id$
  */
 
-class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
+class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 {
 	/**
 	 * Attribute to store the Document as an Array
@@ -86,7 +86,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Model_Document
 	 */
 	private function mapDocument() {
 
-		$document = new Opus_Model_Document($this->documentData['id']);
+		$document = new Opus_Document($this->documentData['id']);
 
 		// transfer the title of this document into the adapter class
 		try	{

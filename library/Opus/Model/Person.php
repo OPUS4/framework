@@ -86,7 +86,7 @@ class Opus_Model_Person extends Opus_Model_AbstractDb
      * Fetches all documents associated to the person by a certain role.
      *
      * @param string $role The role that the person has for the documents.
-     * @return array An array of Opus_Model_Document
+     * @return array An array of Opus_Document
      */
     public function getDocumentsByRole($role) {
         $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
@@ -95,7 +95,7 @@ class Opus_Model_Person extends Opus_Model_AbstractDb
         $select->where('role=?', $role);
         foreach ($this->_primaryTableRow->findManyToManyRowset('Opus_Db_Documents',
                 'Opus_Db_LinkPersonsDocuments', null, null, $select) as $document) {
-            $documents[] = new Opus_Model_Document($document->id);
+            $documents[] = new Opus_Document($document->id);
         }
         return $documents;
     }

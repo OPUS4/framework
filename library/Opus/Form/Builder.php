@@ -166,7 +166,7 @@ class Opus_Form_Builder {
      * Returns model from given form.
      *
      * @param Zend_Form $form Form object with compact model information
-     * @return Opus_Model_Document|null Returns an Opus_Model_Document or
+     * @return Opus_Document|null Returns an Opus_Document or
      *                                  null if no model information are in form
      */
     public function getModelFromForm(Zend_Form $form) {

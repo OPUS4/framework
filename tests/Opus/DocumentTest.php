@@ -26,7 +26,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
@@ -37,15 +37,15 @@
 
 
 /**
- * Test cases for class Opus_Model_Document.
+ * Test cases for class Opus_Document.
  *
- * @package Opus_Model
+ * @package Opus
  * @category Tests
  *
  * @group DocumentTest
  *
  */
-class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
+class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
 
     /**
@@ -136,7 +136,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSerializing() {
-        $doc = new Opus_Model_Document(null, $this->_type);
+        $doc = new Opus_Document(null, $this->_type);
         $ser = serialize($doc);
     }
 
@@ -146,7 +146,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testDeserializing() {
-        $doc1 = new Opus_Model_Document(null, $this->_type);
+        $doc1 = new Opus_Document(null, $this->_type);
         $ser = serialize($doc1);
         $doc2 = unserialize($ser);
         $this->assertEquals($doc1, $doc2, 'Deserializing unsuccesful.');
@@ -212,7 +212,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $licence = new Opus_Model_Licence();
 
         $doc->addLicence($licence);
@@ -237,7 +237,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
 
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
@@ -265,7 +265,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
 
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
@@ -295,7 +295,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
 
         $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
@@ -320,7 +320,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
 
         $author = new Opus_Model_Person();
         $author->setFirstName('Ludwig');
@@ -348,7 +348,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
 
         $type = new Opus_Document_Type($xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
 
         $enrichment = new Opus_Model_Dependent_Enrichment;
         $enrichment->setValue('Poor enrichment.');
@@ -381,7 +381,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function testDocumentFieldsPersistDatabaseStorage(array $documentDataset) {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Model_Document(null, 'article');
+        $document = new Opus_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
             $callname = 'set' . $fieldname;
             $document->$callname($value);
@@ -444,12 +444,12 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
 
         // Save document, modify, and save again.
         $id = $document->store();
-        $document = new Opus_Model_Document($id);
+        $document = new Opus_Document($id);
         $title = $document->addTitleMain();
         $title->setValue('Title Two');
         $title->setLanguage('en');
         $id = $document->store();
-        $document = new Opus_Model_Document($id);
+        $document = new Opus_Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
             $this->assertEquals($value, $document->{'get' . $fieldname}(), "Field $fieldname was changed by database.");
@@ -503,7 +503,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="PersonAuthor" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $author = new Opus_Model_Person();
 
         $doc->addPersonAuthor($author);
@@ -527,7 +527,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Licence" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $licence = new Opus_Model_Licence();
 
         $doc->addLicence($licence);
@@ -552,7 +552,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Enrichment" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $enrichment = new Opus_Model_Dependent_Enrichment();
 
         $doc->addEnrichment($enrichment);
@@ -576,7 +576,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Isbn" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $isbn = new Opus_Model_Dependent_Identifier();
 
         $doc->addIsbn($isbn);
@@ -600,7 +600,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Patent" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $patent = new Opus_Model_Dependent_Patent();
 
         $doc->addPatent($patent);
@@ -624,7 +624,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Note" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $note = new Opus_Model_Dependent_Note();
 
         $doc->addNote($note);
@@ -648,7 +648,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="SubjectSwd" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $subject = new Opus_Model_Dependent_Subject();
 
         $doc->addSubjectSwd($subject);
@@ -672,7 +672,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="TitleMain" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $title = new Opus_Model_Dependent_Title();
 
         $doc->addTitleMain($title);
@@ -696,7 +696,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="TitleAbstract" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Model_Document(null, $type);
+        $doc = new Opus_Document(null, $type);
         $abstract = new Opus_Model_Dependent_Abstract();
 
         $doc->addTitleAbstract($abstract);
@@ -714,13 +714,13 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function testRetrieveAllDocuments() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $docs[] = new Opus_Model_Document(null, 'article');
-        $docs[] = new Opus_Model_Document(null, 'article');
-        $docs[] = new Opus_Model_Document(null, 'article');
+        $docs[] = new Opus_Document(null, 'article');
+        $docs[] = new Opus_Document(null, 'article');
+        $docs[] = new Opus_Document(null, 'article');
         foreach ($docs as $doc) {
             $doc->store();
         }
-        $result = Opus_Model_Document::getAll();
+        $result = Opus_Document::getAll();
         $this->assertEquals(count($docs), count($result), 'Wrong number of objects retrieved.');
     }
 
@@ -730,7 +730,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRetrieveEmptyTitleListFromEmptyDatabase() {
-        $result = Opus_Model_Document::getAllDocumentTitles();
+        $result = Opus_Document::getAllDocumentTitles();
         $this->assertTrue(empty($result), 'Title list contains phantom results.');
     }
 
@@ -742,19 +742,19 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     public function testRetrieveAllTitles() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
 
-        $doc1 = new Opus_Model_Document(null, 'article');
+        $doc1 = new Opus_Document(null, 'article');
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
         $doc1->store();
 
-        $doc2 = new Opus_Model_Document(null, 'article');
+        $doc2 = new Opus_Document(null, 'article');
         $title2 = $doc2->addTitleMain();
         $title2->setLanguage('en');
         $title2->setValue('An english titel');
         $doc2->store();
 
-        $result = Opus_Model_Document::getAllDocumentTitles();
+        $result = Opus_Document::getAllDocumentTitles();
         $this->assertEquals(2, count($result), 'Wrong number of title entries.');
         $this->assertArrayHasKey($title1->getValue(), $result, 'Expected title is not in the list.');
         $this->assertArrayHasKey($title2->getValue(), $result, 'Expected title is not in the list.');
@@ -768,19 +768,19 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     public function testRetrieveDocumentIdPerTitle() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
 
-        $doc1 = new Opus_Model_Document(null, 'article');
+        $doc1 = new Opus_Document(null, 'article');
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
         $id1 = $doc1->store();
 
-        $doc2 = new Opus_Model_Document(null, 'article');
+        $doc2 = new Opus_Document(null, 'article');
         $title2 = $doc2->addTitleMain();
         $title2->setLanguage('en');
         $title2->setValue('An english titel');
         $id2 = $doc2->store();
 
-        $result = Opus_Model_Document::getAllDocumentTitles();
+        $result = Opus_Document::getAllDocumentTitles();
 
         $this->assertEquals($id1, $result[$title1->getValue()], 'Wrong document id for title.');
         $this->assertEquals($id2, $result[$title2->getValue()], 'Wrong document id for title.');
@@ -802,7 +802,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Licence" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         $licence = new Opus_Model_Licence;
         $document->addLicence($licence);
 
@@ -826,7 +826,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Licence" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         $licence = new Opus_Model_Licence;
         $document->setLicence($licence);
 
@@ -850,7 +850,7 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="Licence" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         $licence = new Opus_Model_Licence;
         $document->setLicence($licence);
         $licence = $document->getLicence();
@@ -867,13 +867,13 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
     public function testToArrayReturnsCorrectValuesForTitleMain(){
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
 
-        $doc = new Opus_Model_Document(null, 'article');
+        $doc = new Opus_Document(null, 'article');
         $title = $doc->addTitleMain();
         $title->setLanguage('de');
         $title->setValue('Ein deutscher Titel');
         $id = $doc->store();
 
-        $loaded_document = new Opus_Model_Document($id);
+        $loaded_document = new Opus_Document($id);
         $iterim_result = $loaded_document->toArray();
         $result = $iterim_result['TitleMain'][0];
         $expected = array(
@@ -890,9 +890,9 @@ class Opus_Model_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function testDocumentImportFromXml() {
         $this->markTestIncomplete('Pending fields break assertion.');
-        $document = new Opus_Model_Document(null, 'article');
+        $document = new Opus_Document(null, 'article');
         $xml = $document->toXml();
-        $importedDocument = Opus_Model_Document::fromXml($xml);
+        $importedDocument = Opus_Document::fromXml($xml);
         $this->assertEquals($document, $importedDocument, 'Document did not persist Xml import.');
     }
 }

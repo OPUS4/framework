@@ -61,7 +61,7 @@ class Opus_Document_Builder {
      *
      * @param Opus_Document_Type $type (Optional) Set document type.
      * @throws Opus_Document_Exception Thrown if no document type is specified.
-     * @return Opus_Model_Document
+     * @return Opus_Document
      */
     public function create(Opus_Document_Type $type = null) {
         if ((is_null($type) === true) and (is_null($this->_type) === true)) {
@@ -74,18 +74,18 @@ class Opus_Document_Builder {
             $this->_type = $type;
         }
 
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         return $this->addFieldsTo($document);
     }
 
     /**
      * Add fields to a document
      *
-     * @param Opus_Model_Document $document Document where to add fields.
+     * @param Opus_Document $document Document where to add fields.
      * @throws Opus_Document_Exception Thrown if no document type is specified.
-     * @return Opus_Model_Document
+     * @return Opus_Document
      */
-    public function addFieldsTo(Opus_Model_Document $document) {
+    public function addFieldsTo(Opus_Document $document) {
         if (is_null($this->_type) === true) {
             throw new Opus_Document_Exception('Document type not specified. Use correct __construct() method.');
         }

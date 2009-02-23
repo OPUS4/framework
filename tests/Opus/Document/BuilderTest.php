@@ -89,7 +89,7 @@ class Opus_Document_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Document_Exception');
         $builder = new Opus_Document_Builder();
         $type = new Opus_Document_Type($this->_xml);
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         $builder->addFieldsTo($document);
     }
 

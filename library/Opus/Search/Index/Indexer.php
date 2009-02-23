@@ -63,11 +63,11 @@ class Opus_Search_Index_Indexer {
 	/**
 	 * Stores a document in the Search Engine Index
 	 *
-	 * @param Opus_Model_Document $doc Model of the document that should be added to the index
+	 * @param Opus_Document $doc Model of the document that should be added to the index
 	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
 	 * @return void
 	 */
-	public function addDocumentToEntryIndex(Opus_Model_Document $doc) {
+	public function addDocumentToEntryIndex(Opus_Document $doc) {
     	try {
 			#print_r($doc->getDocument());
     	    $analyzedDocs = $this->analyzeDocument($doc);
@@ -83,7 +83,7 @@ class Opus_Search_Index_Indexer {
         }
 	}
 
-	private function analyzeDocument(Opus_Model_Document $doc) {
+	private function analyzeDocument(Opus_Document $doc) {
         #print_r($doc->toArray());
         $docarray = array();
         $document['docid'] = $doc->getId();

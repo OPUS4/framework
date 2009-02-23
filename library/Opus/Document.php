@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -37,10 +37,10 @@
  * Domain model for documents in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Document extends Opus_Model_AbstractDb
+class Opus_Document extends Opus_Model_AbstractDb
 {
 
 
@@ -53,7 +53,7 @@ class Opus_Model_Document extends Opus_Model_AbstractDb
 
     /**
      * The document is the most complex Opus_Model. An Opus_Document_Builder is
-     * used in the _init() function to construct an Opus_Model_Document of a
+     * used in the _init() function to construct an Opus_Document of a
      * certain type.
      *
      * @var Opus_Document_Builder
@@ -262,12 +262,12 @@ class Opus_Model_Document extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_Model_Document instances from the database.
+     * Retrieve all Opus_Document instances from the database.
      *
-     * @return array Array of Opus_Model_Document objects.
+     * @return array Array of Opus_Document objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Model_Document', 'Opus_Db_Documents');
+        return self::getAllFrom('Opus_Document', 'Opus_Db_Documents');
     }
 
 
@@ -321,9 +321,9 @@ class Opus_Model_Document extends Opus_Model_AbstractDb
     }
 
     /**
-     * Instantiates an Opus_Model_Document from xml as delivered by the toXml()
+     * Instantiates an Opus_Document from xml as delivered by the toXml()
      * method. Standard behaviour is overwritten due to the type parameter that
-     * needs to be passed into the Opus_Model_Document constructor.
+     * needs to be passed into the Opus_Document constructor.
      *
      * @param  string  $xml The xml-string representing the model.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
@@ -335,7 +335,7 @@ class Opus_Model_Document extends Opus_Model_AbstractDb
         // Remove type attribute, which is only needed for document
         // construction.
         $domXml->documentElement->removeAttribute('Type');
-        $document = new Opus_Model_Document(null, $type);
+        $document = new Opus_Document(null, $type);
         $result = Opus_Model_Abstract::_populateModelFromXml($document,
                 $domXml->documentElement);
         return $result;

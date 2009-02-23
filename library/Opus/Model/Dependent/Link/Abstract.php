@@ -100,7 +100,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAb
     /**
      * Pass the getDisplayname() calls to linked model.
      * 
-     * @return string Model class name and identifier (e.g. Opus_Model_Document#4711).
+     * @return string Model class name and identifier (e.g. Opus_Document#4711).
      */
     public function getDisplayName() {
         return $this->_model->getDisplayName();

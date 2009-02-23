@@ -38,7 +38,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
     /**
      * Test fixture document instance.
      *
-     * @var Opus_Model_Document
+     * @var Opus_Document
      */
     protected $_document = null;
 
@@ -49,7 +49,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Model_Document(null, 'article');
+        $document = new Opus_Document(null, 'article');
 
         $title = $document->addTitleMain();
         $title->setValue('Title');

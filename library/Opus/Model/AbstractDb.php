@@ -379,7 +379,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * By default, the textual representation of a modeled entity is
      * its class name and identifier.
      *
-     * @return string Model class name and identifier (e.g. Opus_Model_Document#4711).
+     * @return string Model class name and identifier (e.g. Opus_Document#4711).
      */
     public function getDisplayName() {
         return get_class($this) . '#' . $this->getId();

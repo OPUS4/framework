@@ -144,7 +144,7 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
         $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role_id, (int) $this->getId());
         $documents = array();
         foreach ($docIds as $docId) {
-            $documents[] = new Opus_Model_Document($docId);
+            $documents[] = new Opus_Document($docId);
         }
         return $documents;
     }
@@ -152,7 +152,7 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
     /**
      * Adds a document to this collection.
      *
-     * @param  Opus_Model_Document  $document The document to add.
+     * @param  Opus_Document  $document The document to add.
      * @return void
      */
     public function addEntry(Opus_Model_AbstractDb $model) {
