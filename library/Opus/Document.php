@@ -116,7 +116,7 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'fetch' => 'lazy'
             ),
             'Licence' => array(
-                'model' => 'Opus_Model_Licence',
+                'model' => 'Opus_Licence',
                 'through' => 'Opus_Model_Dependent_Link_DocumentLicence',
                 'fetch' => 'lazy'
             ),
@@ -240,7 +240,7 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         // Initialize available licences
         if ($this->getField('Licence') !== null) {
-            $licences = Opus_Model_Licence::getAll();
+            $licences = Opus_Licence::getAll();
             $this->getField('Licence')->setDefault($licences)
                 ->setSelection(true);
         }

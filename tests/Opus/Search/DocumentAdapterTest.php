@@ -96,7 +96,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
-        $licence = new Opus_Model_Licence;
+        $licence = new Opus_Licence;
         $licence->setActive(1);
         $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');

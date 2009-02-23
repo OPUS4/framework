@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
+ * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -33,14 +33,14 @@
  */
 
 /**
- * Test cases for class Opus_Model_Licence.
+ * Test cases for class Opus_Licence.
  *
- * @package Opus_Model
+ * @package Opus
  * @category Tests
  *
  * @group LicenceTest
  */
-class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
+class Opus_LicenceTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Clear out licences table.
@@ -57,13 +57,13 @@ class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRetrieveAllLicences() {
-        $lics[] = new Opus_Model_Licence();
-        $lics[] = new Opus_Model_Licence();
-        $lics[] = new Opus_Model_Licence();
+        $lics[] = new Opus_Licence();
+        $lics[] = new Opus_Licence();
+        $lics[] = new Opus_Licence();
         foreach ($lics as $lic) {
             $lic->store();
         }
-        $result = Opus_Model_Licence::getAll();
+        $result = Opus_Licence::getAll();
         $this->assertEquals(count($lics), count($result), 'Wrong number of objects retrieved.');
     }
 
@@ -73,7 +73,7 @@ class Opus_Model_LicenceTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testDisplayNameMatchesLongName() {
-        $lic = new Opus_Model_Licence();
+        $lic = new Opus_Licence();
         $lic->setNameLong('MyLongName');
         $this->assertEquals($lic->getNameLong(), $lic->getDisplayName(), 'Displayname does not match long name.');
     }

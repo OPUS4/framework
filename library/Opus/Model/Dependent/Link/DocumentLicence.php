@@ -60,7 +60,7 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Model_Licence';
+    protected $_modelClass = 'Opus_Licence';
 
     /**
      * The name of the field containing an identifying string.
@@ -77,9 +77,9 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Model_Licence($this->_primaryTableRow->licence_id));
+            $this->setModel(new Opus_Licence($this->_primaryTableRow->licence_id));
         } else {
-            $this->setModel(new Opus_Model_Licence);
+            $this->setModel(new Opus_Licence);
         }
     }
 

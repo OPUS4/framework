@@ -213,7 +213,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $licence = new Opus_Model_Licence();
+        $licence = new Opus_Licence();
 
         $doc->addLicence($licence);
         $doc->getLicence(0)->setSortOrder(47);
@@ -243,7 +243,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
 
-        $doc->addLicence(new Opus_Model_Licence());
+        $doc->addLicence(new Opus_Licence());
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
@@ -432,7 +432,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
-        $licence = new Opus_Model_Licence;
+        $licence = new Opus_Licence;
         $licence->setActive(1);
         $licence->setLanguage('de');
         $licence->setLinkLicence('http://creativecommons.org/');
@@ -528,7 +528,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $licence = new Opus_Model_Licence();
+        $licence = new Opus_Licence();
 
         $doc->addLicence($licence);
         $doc->store();
@@ -803,7 +803,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $document = new Opus_Document(null, $type);
-        $licence = new Opus_Model_Licence;
+        $licence = new Opus_Licence;
         $document->addLicence($licence);
 
         $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
@@ -827,7 +827,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $document = new Opus_Document(null, $type);
-        $licence = new Opus_Model_Licence;
+        $licence = new Opus_Licence;
         $document->setLicence($licence);
 
         $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
@@ -851,7 +851,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $document = new Opus_Document(null, $type);
-        $licence = new Opus_Model_Licence;
+        $licence = new Opus_Licence;
         $document->setLicence($licence);
         $licence = $document->getLicence();
 

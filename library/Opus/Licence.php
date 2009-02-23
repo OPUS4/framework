@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -36,10 +36,10 @@
  * Domain model for licences in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Licence extends Opus_Model_AbstractDb
+class Opus_Licence extends Opus_Model_AbstractDb
 {
 
     /**
@@ -50,12 +50,12 @@ class Opus_Model_Licence extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_DocumentLicences';
 
     /**
-     * Retrieve all Opus_Model_Licence instances from the database.
+     * Retrieve all Opus_Licence instances from the database.
      *
-     * @return array Array of Opus_Model_Licence objects.
+     * @return array Array of Opus_Licence objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Model_Licence', 'Opus_Db_DocumentLicences');
+        return self::getAllFrom('Opus_Licence', 'Opus_Db_DocumentLicences');
     }
 
     /**

@@ -85,6 +85,7 @@ class Opus_AllTests {
         $suite->addTest(Opus_Workflow_AllTests::suite());
 
         $suite->addTestSuite('Opus_DocumentTest');
+        $suite->addTestSuite('Opus_LicenceTest');
 
         return $suite;
     }

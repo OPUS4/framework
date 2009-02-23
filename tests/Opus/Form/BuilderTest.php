@@ -496,16 +496,16 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
     public function testBuildingSelectionFromLinkedModels() {
         // Set up test licences in the database.
         // It's crucial to call store() to provide an id to each licence model.
-        $lica = new Opus_Model_Licence();
+        $lica = new Opus_Licence();
         $lica->setNameLong('Long Licence 1');
         $lica->store();
-        $licb = new Opus_Model_Licence();
+        $licb = new Opus_Licence();
         $licb->setNameLong('Short Licence 2');
         $licb->store();
 
         // Create a selection field holding licences.
         $field = new Opus_Model_Field('Licence');
-        $field->setValueModelClass('Opus_Model_Licence');
+        $field->setValueModelClass('Opus_Licence');
         $field->setSelection(true);
         $field->setDefault(array($lica, $licb));
 
