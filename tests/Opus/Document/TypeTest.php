@@ -46,18 +46,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * Drop the Zend_Registry.
-     *
-     * @return void
-     */
-    public function setUp() {
-        // Unsetting the registry instance breaks following tests.
-        // Zend_Registry::_unsetInstance();
-    }
-
-
-
-    /**
      * Data provider for invalid creation arguments.
      *
      * @return array Array of invalid creation arguments and an error message.
@@ -241,7 +229,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function testTypeGetsRegisteredInZendRegistry() {
+    public function testTypeFromFileGetsRegisteredInZendRegistry() {
         $xml1 = dirname(__FILE__) . '/TypeTest.xml';
         $type1 = new Opus_Document_Type($xml1);
         $typename = $type1->getName();
@@ -254,6 +242,28 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $result = $registered[$typename];
         $this->assertNotSame($type1, $result, 'Second attempt to register type did not override the old type.');
         $this->assertSame($type2, $result, 'Second attempt to register type did not override the old type.');
+    }
+
+    /**
+     * Test if a loaded type instance gets registered with its name.
+     *
+     * @return void
+     */
+    public function testTypeGetsRegisteredInZendRegistry() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="special_type"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language" multiplicity="*" mandatory="yes" />
+                </documenttype>';
+        // Register the type.
+        $type = new Opus_Document_Type($xml);
+
+        // Reload the type from the registry.
+        $type2 = new Opus_Document_Type('special_type');
+
+        $this->assertNotNull($type2, 'Type has not been registered.');
+        $this->assertEquals($type, $type2, 'Type returned is not the one expected.');
     }
 
 
@@ -364,7 +374,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      */
     public function testGetDocumentTypeFileByTypeName() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $type = new Opus_Document_Type('TypeTest');
+        $type = new Opus_Document_Type('type_test');
         $this->assertNotNull($type);
     }
 
@@ -386,10 +396,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
         $multi = $fields['TitleMain']['multiplicity'];
         $this->assertTrue(is_int($multi), 'Multiplicity should be an integer');
     }
-    
+
     /**
      * Test if the mandatory field description is of type boolean
-     * especially when mandatory="no" is given in the schema description. 
+     * especially when mandatory="no" is given in the schema description.
      *
      * @return void
      */
@@ -409,12 +419,12 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Test if setting an invalid document type path throws an exception.
-     * 
+     *
      * @return void
      */
     public function testSetInvalidDocumentTypePathThrowsException() {
         $this->setExpectedException('InvalidArgumentException');
         Opus_Document_Type::setXmlDoctypePath('xxyyzz');
     }
-    
+
 }

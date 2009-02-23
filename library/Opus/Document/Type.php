@@ -90,7 +90,8 @@ class Opus_Document_Type {
     /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
-     * @param string|DOMDocument $xml XML string, a filename or an DOMDocument instance representing
+     * @param string|DOMDocument $xml XML string, a filename, type name or
+     *                                an DOMDocument instance representing
      *                                the document type specification.
      *
      * @throws InvalidArgumentException If given argument is not a kind of XML source.
@@ -104,15 +105,40 @@ class Opus_Document_Type {
         $type = '';
         if (is_string($xml) === true) {
             $type = 'string';
-            foreach (glob(self::$_xmlDocTypePath . '/*.xml') as $filename) {
-                if (basename($filename, '.xml') === str_replace(' ', '_', $xml)) {
-                    $xml = $filename;
-                    break;
+
+            // Check if a type with the given name is already registered
+            $registry = Zend_Registry::getInstance();
+            if ($registry->isRegistered(self::ZEND_REGISTRY_KEY) === true) {
+                $registered = $registry->get(self::ZEND_REGISTRY_KEY);
+
+                // If the type has already been instanciated use the
+                // registred instance as a prototype.
+                if (array_key_exists($xml, $registered) === true) {
+                    $type = 'prototype';
+                }
+
+            }
+
+            // Check if the given string is the name of a file
+            $filename = $xml;
+
+            // Check for a regular filename.
+            if (is_file($filename) === true ) {
+                $type = 'filename';
+                $xml = $filename;
+            } else {
+                // Try to do inference by removing "_" and transform filename to camelcase.
+                if (self::$_xmlDocTypePath !== '') {
+                    $filename = str_replace(' ', '', ucwords(str_replace('_', ' ', $filename)));
+                    $filename = self::$_xmlDocTypePath . '/' . $filename . '.xml';
+                    if (is_file($filename) === true) {
+                        $type = 'filename';
+                        $xml = $filename;
+                    }
                 }
             }
-            if (is_file($xml) === true ) {
-                $type = 'filename';
-            }
+            unset($filename);
+
         } else if ($xml instanceof DOMDocument) {
             $type = 'domdocument';
         }
@@ -140,13 +166,21 @@ class Opus_Document_Type {
                     $document = $xml;
                     break;
 
+                case 'prototype':
+                    $registered = Zend_Registry::get(self::ZEND_REGISTRY_KEY);
+                    $prototype = $registered[$xml];
+                    $this->_definition = $prototype->_definition;
+                    $this->_name = $prototype->_name;
+                    return;
+                    break;
+
                 default:
                     // just to trigger the catch block
                     throw new InvalidArgumentException();
                     break;
             }
         } catch (Exception $ex) {
-            throw new InvalidArgumentException('Argument should be a valid document type name, an XML string, a filename or an DOMDocument object.');
+            throw new InvalidArgumentException('Argument should be a valid document type name, an XML string, a filename or an DOMDocument object:' . $xml);
         }
 
         // Validate the XML definition.
@@ -206,7 +240,7 @@ class Opus_Document_Type {
             // Check for attributes and set values or defaults respectivly.
             if (is_null($multiplicity) === false) {
                 if ($multiplicity->value !== '*') {
-                    $multval = (int) $multiplicity->value;  
+                    $multval = (int) $multiplicity->value;
                 } else {
                     $multval = '*';
                 }
@@ -216,8 +250,8 @@ class Opus_Document_Type {
             }
 
             if (is_null($mandatory) === false) {
-                $mandval = ($mandatory->value === 'yes'); 
-                $fieldsdef[$fieldname]['mandatory'] = $mandval; 
+                $mandval = ($mandatory->value === 'yes');
+                $fieldsdef[$fieldname]['mandatory'] = $mandval;
             } else {
                 $fieldsdef[$fieldname]['mandatory'] = false;
             }
