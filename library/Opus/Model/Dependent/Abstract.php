@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Dependent
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -37,10 +37,10 @@
  * Abstract class for all dependent models in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Dependent
  */
 
-abstract class Opus_Model_DependentAbstract extends Opus_Model_AbstractDb
+abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
 {
     /**
      * Whether db transaction should be used in store()

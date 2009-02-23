@@ -697,14 +697,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $abstract = new Opus_Abstract();
+        $abstract = new Opus_Title();
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
         $id = $doc->getTitleAbstract()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $abstract = new Opus_Abstract($id);
+        $abstract = new Opus_Title($id);
     }
 
     /**

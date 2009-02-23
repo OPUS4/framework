@@ -38,7 +38,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_DependentAbstract
+abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_Abstract
 {
     /**
      * The model to link to.

@@ -233,7 +233,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     /**
      * Save the values of external fields.
      *
-     * @param array|Opus_Model_DependentAbstract $values One or mor dependent opus models.
+     * @param array|Opus_Model_Dependent_Abstract $values One or mor dependent opus models.
      * @param array                              $conditions (Optional) fixed conditions for certain attributes.
      * @throws Opus_Model_Exception Thrown when trying to save non Opus_Model_Dependent objects.
      * @return void
@@ -244,7 +244,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 $this->_storeExternal($value, $conditions);
             }
         } else if (is_null($values) === false) {
-            if ($values instanceof Opus_Model_DependentAbstract === false) {
+            if ($values instanceof Opus_Model_Dependent_Abstract === false) {
                 throw new Opus_Model_Exception('External fields must be Opus_Model_Dependent.');
             }
             if (is_null($conditions) === false) {
