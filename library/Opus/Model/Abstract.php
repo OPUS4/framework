@@ -76,7 +76,7 @@ abstract class Opus_Model_Abstract
      * It is an associative array referencing an declaration array for each field.
      *
      * 'MyField' => array(
-     *          'model' => 'Opus_Model_Dependent_Title',
+     *          'model' => 'Opus_Title',
      *          'options' => array('type' => 'main'))
      *
      * @var array

@@ -40,7 +40,7 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
+class Opus_File extends Opus_Model_DependentAbstract {
 
     /**
      * Primary key of the parent model.
@@ -66,7 +66,7 @@ class Opus_Model_Dependent_File extends Opus_Model_DependentAbstract {
     protected $_externalFields = array(
             'TempFile' => array(),
             'HashValue' => array(
-                'model' => 'Opus_Model_Dependent_HashValues'
+                'model' => 'Opus_HashValues'
             ),
         );
 

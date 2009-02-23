@@ -25,48 +25,53 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
+ * @package     Opus
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Domain model for hashvalues in the Opus framework
+ * Domain model for titles in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_HashValues extends Opus_Model_DependentAbstract {
-
+class Opus_Title extends Opus_Model_DependentAbstract
+{
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'file_id';
+    protected $_parentColumn = 'document_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus_Db_FileHashvalues';
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
 
     /**
      * Initialize model with the following fields:
-     * - HashType
-     * - HashValue
+     * - Language
+     * - Title
      *
      * @return void
      */
     protected function _init() {
-        $hashtype = new Opus_Model_Field('Type');
-        $hashvalue = new Opus_Model_Field('Value');
+        $this->_primaryTableRow->type = 'main';
+        $language = new Opus_Model_Field('Language');
+        $language->setDefault(Zend_Registry::get('Available_Languages'))
+            ->setSelection(true);
+        $value = new Opus_Model_Field('Value');
 
-        $this->addField($hashtype)
-            ->addField($hashvalue);
+        $this->addField($language)
+            ->addField($value);
     }
+
 }

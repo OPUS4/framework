@@ -25,22 +25,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Domain model for titles in the Opus framework
+ * Domain model for document subjects in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Parent extends Opus_Model_DependentAbstract
+class Opus_Subject extends Opus_Model_DependentAbstract
 {
     /**
      * Primary key of the parent model.
@@ -52,26 +51,26 @@ class Opus_Model_Dependent_Parent extends Opus_Model_DependentAbstract
     /**
      * Specify then table gateway.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @var string
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentTitleAbstracts';
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
 
     /**
      * Initialize model with the following fields:
      * - Language
-     * - Title
+     * - Type
+     * - Value
+     * - External key
      *
      * @return void
      */
     protected function _init() {
-        $this->_primaryTableRow->type = 'parent';
-        $language = new Opus_Model_Field('Language');
-        $language->setDefault(Zend_Registry::get('Available_Languages'))
-            ->setSelection(true);
-        $value = new Opus_Model_Field('Value');
-
-        $this->addField($language)
-            ->addField($value);
+        $this->addField(new Opus_Model_Field('Language'))
+            ->addField(new Opus_Model_Field('Type'))
+            ->addField(new Opus_Model_Field('Value'))
+            ->addField(new Opus_Model_Field('ExternalKey'));
     }
 
+
 }
+

@@ -25,55 +25,48 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @package     Opus
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Domain model for patents in the Opus framework
+ * Domain model for hashvalues in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Patent extends Opus_Model_DependentAbstract
-{
+class Opus_HashValues extends Opus_Model_DependentAbstract {
+
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
-    protected $_parentColumn = 'document_id';
+    protected $_parentColumn = 'file_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus_Db_DocumentPatents';
+    protected static $_tableGatewayClass  = 'Opus_Db_FileHashvalues';
 
     /**
      * Initialize model with the following fields:
-     * - Language
-     * - Title
+     * - HashType
+     * - HashValue
      *
      * @return void
      */
     protected function _init() {
-        $countries = new Opus_Model_Field('Countries');
-        $dateGranted = new Opus_Model_Field('DateGranted');
-        $number = new Opus_Model_Field('Number');
-        $yearApplied = new Opus_Model_Field('YearApplied');
-        $application = new Opus_Model_Field('Application');
+        $hashtype = new Opus_Model_Field('Type');
+        $hashvalue = new Opus_Model_Field('Value');
 
-        $this->addField($countries)
-            ->addField($dateGranted)
-            ->addField($number)
-            ->addField($yearApplied)
-            ->addField($application);
+        $this->addField($hashtype)
+            ->addField($hashvalue);
     }
-
 }

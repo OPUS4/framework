@@ -76,39 +76,39 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected $_externalFields = array(
             'TitleMain' => array(
-                'model' => 'Opus_Model_Dependent_Title',
+                'model' => 'Opus_Title',
                 'options' => array('type' => 'main'),
                 'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
-                'model' => 'Opus_Model_Dependent_Abstract',
+                'model' => 'Opus_Abstract',
                 'options' => array('type' => 'abstract'),
                 'fetch' => 'lazy'
             ),
             'TitleParent' => array(
-                'model' => 'Opus_Model_Dependent_Parent',
+                'model' => 'Opus_Parent',
                 'options' => array('type' => 'parent'),
                 'fetch' => 'lazy'
             ),
             'Isbn' => array(
-                'model' => 'Opus_Model_Dependent_Identifier',
+                'model' => 'Opus_Identifier',
                 'options' => array('type' => 'isbn'),
                 'fetch' => 'lazy'
             ),
             'Urn' => array(
-                'model' => 'Opus_Model_Dependent_Identifier',
+                'model' => 'Opus_Identifier',
                 'options' => array('type' => 'urn')
             ),
             'Note' => array(
-                'model' => 'Opus_Model_Dependent_Note',
+                'model' => 'Opus_Note',
                 'fetch' => 'lazy'
             ),
             'Patent' => array(
-                'model' => 'Opus_Model_Dependent_Patent',
+                'model' => 'Opus_Patent',
                 'fetch' => 'lazy'
             ),
             'Enrichment' => array(
-                'model' => 'Opus_Model_Dependent_Enrichment',
+                'model' => 'Opus_Enrichment',
                 'fetch' => 'lazy'
             ),
             'Institute' => array(
@@ -163,12 +163,12 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'fetch' => 'lazy'
             ),
             'SubjectSwd' => array(
-                'model' => 'Opus_Model_Dependent_Subject',
+                'model' => 'Opus_Subject',
                 'options' => array('type' => 'swd'),
                 'fetch' => 'lazy'
             ),
             'File' => array(
-                'model' => 'Opus_Model_Dependent_File',
+                'model' => 'Opus_File',
                 'fetch' => 'lazy'
             ),
         );

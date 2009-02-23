@@ -275,7 +275,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertType('Opus_Model_Dependent_Note', $value[0], 'Returned object is of wrong type.');
+        $this->assertType('Opus_Note', $value[0], 'Returned object is of wrong type.');
     }
 
 
@@ -350,7 +350,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $document = new Opus_Document(null, $type);
 
-        $enrichment = new Opus_Model_Dependent_Enrichment;
+        $enrichment = new Opus_Enrichment;
         $enrichment->setValue('Poor enrichment.');
         $enrichment->setType('nonesense');
 
@@ -553,14 +553,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $enrichment = new Opus_Model_Dependent_Enrichment();
+        $enrichment = new Opus_Enrichment();
 
         $doc->addEnrichment($enrichment);
         $doc->store();
         $id = $doc->getEnrichment()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $enrichment = new Opus_Model_Dependent_Enrichment($id);
+        $enrichment = new Opus_Enrichment($id);
     }
 
     /**
@@ -577,14 +577,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $isbn = new Opus_Model_Dependent_Identifier();
+        $isbn = new Opus_Identifier();
 
         $doc->addIsbn($isbn);
         $doc->store();
         $id = $doc->getIsbn()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $isbn = new Opus_Model_Dependent_Identifier($id);
+        $isbn = new Opus_Identifier($id);
     }
 
     /**
@@ -601,14 +601,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $patent = new Opus_Model_Dependent_Patent();
+        $patent = new Opus_Patent();
 
         $doc->addPatent($patent);
         $doc->store();
         $id = $doc->getPatent()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $patent = new Opus_Model_Dependent_Patent($id);
+        $patent = new Opus_Patent($id);
     }
 
     /**
@@ -625,14 +625,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $note = new Opus_Model_Dependent_Note();
+        $note = new Opus_Note();
 
         $doc->addNote($note);
         $doc->store();
         $id = $doc->getNote()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $note = new Opus_Model_Dependent_Note($id);
+        $note = new Opus_Note($id);
     }
 
     /**
@@ -649,14 +649,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $subject = new Opus_Model_Dependent_Subject();
+        $subject = new Opus_Subject();
 
         $doc->addSubjectSwd($subject);
         $doc->store();
         $id = $doc->getSubjectSwd()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $subject = new Opus_Model_Dependent_Subject($id);
+        $subject = new Opus_Subject($id);
     }
 
     /**
@@ -673,14 +673,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $title = new Opus_Model_Dependent_Title();
+        $title = new Opus_Title();
 
         $doc->addTitleMain($title);
         $doc->store();
         $id = $doc->getTitleMain()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $title = new Opus_Model_Dependent_Title($id);
+        $title = new Opus_Title($id);
     }
 
     /**
@@ -697,14 +697,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $abstract = new Opus_Model_Dependent_Abstract();
+        $abstract = new Opus_Abstract();
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
         $id = $doc->getTitleAbstract()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
-        $abstract = new Opus_Model_Dependent_Abstract($id);
+        $abstract = new Opus_Abstract($id);
     }
 
     /**

@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -36,10 +36,10 @@
  * Domain model for enrichments in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Dependent_Enrichment extends Opus_Model_DependentAbstract
+class Opus_Enrichment extends Opus_Model_DependentAbstract
 {
     /**
      * Primary key of the parent model.
