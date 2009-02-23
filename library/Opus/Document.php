@@ -81,12 +81,12 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
-                'model' => 'Opus_Abstract',
+                'model' => 'Opus_Title',
                 'options' => array('type' => 'abstract'),
                 'fetch' => 'lazy'
             ),
             'TitleParent' => array(
-                'model' => 'Opus_Parent',
+                'model' => 'Opus_Title',
                 'options' => array('type' => 'parent'),
                 'fetch' => 'lazy'
             ),
@@ -112,7 +112,8 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'fetch' => 'lazy'
             ),
             'Institute' => array(
-                'model' => 'Opus_Model_Link_DocumentInstitute',
+                'model' => 'Opus_Institute',
+                'through' => 'Opus_Model_Link_DocumentInstitute',
                 'fetch' => 'lazy'
             ),
             'Licence' => array(

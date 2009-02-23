@@ -38,9 +38,9 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @uses        Opus_Model_DependentAbstract
+ * @uses        Opus_Model_Dependent_Abstract
  */
-class Opus_Identifier extends Opus_Model_DependentAbstract
+class Opus_Identifier extends Opus_Model_Dependent_Abstract
 {
     /**
      * Primary key of the parent model.

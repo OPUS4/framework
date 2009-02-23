@@ -39,7 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Note extends Opus_Model_DependentAbstract
+class Opus_Note extends Opus_Model_Dependent_Abstract
 {
     /**
      * Primary key of the parent model.
