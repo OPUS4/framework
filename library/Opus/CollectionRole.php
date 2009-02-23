@@ -21,12 +21,12 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
@@ -38,10 +38,10 @@
  * Domain model for collection roles in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
+class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -61,7 +61,7 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
             'CollectionsContentSchema' => array(),
             'SubCollection' => array(
                 'fetch' => 'lazy',
-                'model' => 'Opus_Model_Collection'
+                'model' => 'Opus_Collection'
             ),
         );
 
@@ -107,7 +107,7 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
   /**
    * Returns associated collections.
    *
-   * @return Opus_Model_Collection|array Collection(s).
+   * @return Opus_Collection|array Collection(s).
    */
     protected function _fetchSubCollection() {
         $collections = Opus_Collection_Information::getSubCollections((int) $this->getId());
@@ -120,15 +120,15 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
             $result = array();
             $table = new Opus_Db_CollectionsContents($this->getId());
             $rows = $table->find($collectionIds);
-            
+
             foreach ($collectionIds as $key => $collectionId) {
                 foreach ($rows as $row) {
                     $rowArray = $row->toArray();
                     if ($collectionId === $rowArray['id']) {
-                        $result[$key] = new Opus_Model_Collection((int) $this->getId(), $row);
+                        $result[$key] = new Opus_Collection((int) $this->getId(), $row);
                     }
                 }
-                
+
             }
         }
         return $result;
@@ -173,7 +173,7 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
         }
         $role = new Opus_Collection_Roles();
         $role->createDatabaseTables($schema, $this->getId());
-        
+
         // Write pseudo content for the hidden root node to fullfill foreign key constraint
         $occ = new Opus_Collection_Contents((int) $this->getId());
         $occ->root();
@@ -182,7 +182,7 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
         $ocs = new Opus_Collection_Structure((int) $this->getId());
         $ocs->create();
         $ocs->save();
-        
+
     }
 
     /**
@@ -195,12 +195,12 @@ class Opus_Model_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve all Opus_Model_CollectionRole instances from the database.
+     * Retrieve all Opus_CollectionRole instances from the database.
      *
-     * @return array Array of Opus_Model_CollectionRole objects.
+     * @return array Array of Opus_CollectionRole objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Model_CollectionRole', 'Opus_Db_CollectionsRoles');
+        return self::getAllFrom('Opus_CollectionRole', 'Opus_Db_CollectionsRoles');
     }
 
     /**

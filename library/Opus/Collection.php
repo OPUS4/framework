@@ -21,12 +21,12 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
@@ -37,8 +37,10 @@
 /**
  * Bridges Opus_Collection_Information to Opus_Model_Abstract.
  *
+ * @category    Framework
+ * @package     Opus
  */
-class Opus_Model_Collection extends Opus_Model_AbstractDb
+class Opus_Collection extends Opus_Model_AbstractDb
 {
     /**
      * Specify then table gateway.
@@ -64,10 +66,10 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
     protected $_externalFields = array(
         'SubCollection' => array(
             'fetch' => 'lazy',
-            'model' => 'Opus_Model_Collection'),
+            'model' => 'Opus_Collection'),
         'ParentCollection' => array(
             'fetch' => 'lazy',
-            'model' => 'Opus_Model_Collection'),
+            'model' => 'Opus_Collection'),
         );
 
     /**
@@ -166,7 +168,7 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
     /**
      * Returns subcollections.
      *
-     * @return Opus_Model_Collection|array Subcollection(s).
+     * @return Opus_Collection|array Subcollection(s).
      */
     protected function _fetchSubCollection() {
         $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
@@ -179,15 +181,15 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
             $result = array();
             $table = new Opus_Db_CollectionsContents($this->__role_id);
             $rows = $table->find($collectionIds);
-            
+
             foreach ($collectionIds as $key => $collectionId) {
                 foreach ($rows as $row) {
                     $rowArray = $row->toArray();
                     if ($collectionId === $rowArray['id']) {
-                        $result[$key] = new Opus_Model_Collection((int) $this->__role_id, $row);
+                        $result[$key] = new Opus_Collection((int) $this->__role_id, $row);
                     }
                 }
-                
+
             }
         }
         return $result;
@@ -207,7 +209,7 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
      * Returns parentcollections.
      *
      * @param  int  $index (Optional) Index of the parentcollection to fetchl.
-     * @return Opus_Model_Collection|array Parentcollection(s).
+     * @return Opus_Collection|array Parentcollection(s).
      */
     protected function _fetchParentCollection() {
         $result = array();
@@ -218,7 +220,7 @@ class Opus_Model_Collection extends Opus_Model_AbstractDb
             $table = new Opus_Db_CollectionsContents($this->__role_id);
             $rows = $table->find($collectionIds);
             foreach ($rows as $row) {
-                $result[] = new Opus_Model_Collection((int) $this->__role_id, $row);
+                $result[] = new Opus_Collection((int) $this->__role_id, $row);
             }
         }
         return $result;
