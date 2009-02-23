@@ -297,7 +297,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $doc->addPersonAuthor($author);
@@ -322,7 +322,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $document = new Opus_Document(null, $type);
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
 
@@ -418,14 +418,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $enrichment->setValue('Poor enrichment.');
         $enrichment->setType('nonesense');
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1889-04-26 00:00:00');
         $author->setPlaceOfBirth('Wien');
         $document->addPersonAuthor($author);
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ferdinand');
         $author->setLastName('de Saussure');
         $author->setDateOfBirth('1857-11-26 00:00:00');
@@ -504,7 +504,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
 
         $doc->addPersonAuthor($author);
         $doc->store();

@@ -34,7 +34,7 @@
  */
 
 /**
- * Adapter for Opus_Model_Person to query person information for index generation
+ * Adapter for Opus_Person to query person information for index generation
  * and hitlist. This adapter class is used in all index based search components to
  * protect date retrieval from Opus_Model specifics.
  *
@@ -59,7 +59,7 @@ class Opus_Search_Adapter_PersonAdapter
 	public function __construct($person = null)
 	{
   		if (is_numeric($person) === true) {
-  		    $model = new Opus_Model_Person((int) $person);
+  		    $model = new Opus_Person((int) $person);
   		    $this->personData['id'] = (int) $person;
             $this->personData['lastName'] = $model->getLastName();
             $this->personData['firstName'] = $model->getFirstName();
@@ -73,10 +73,10 @@ class Opus_Search_Adapter_PersonAdapter
   		    }
   		} else if ($person instanceof Opus_Search_Adapter_PersonAdapter) {
   			$this->personData = $person->get();
-  		} else if ($person instanceof Opus_Model_Person) {
+  		} else if ($person instanceof Opus_Person) {
             $this->personData['id'] = $person->getId();
             if (is_null($this->personData['id']) === true) {
-                throw new Opus_Search_Adapter_Exception('Given Opus_Model_Person instance has not been persistet yet.');
+                throw new Opus_Search_Adapter_Exception('Given Opus_Person instance has not been persistet yet.');
             }
             $this->personData['lastName'] = $person->getLastName();
             $this->personData['firstName'] = $person->getFirstName();

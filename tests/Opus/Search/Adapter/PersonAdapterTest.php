@@ -44,9 +44,9 @@ class Opus_Search_Adapter_PersonAdapterTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * Test fixture Opus_Model_Person object.
+     * Test fixture Opus_Person object.
      *
-     * @var Opus_Model_Person
+     * @var Opus_Person
      */
     protected $_personModel = null;
 
@@ -57,7 +57,7 @@ class Opus_Search_Adapter_PersonAdapterTest extends PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         // Persist a person model
-        $this->_personModel = new Opus_Model_Person();
+        $this->_personModel = new Opus_Person();
         $this->_personModel->setFirstName('Gybrush');
         $this->_personModel->setLastName('Threepwood');
         $pid = $this->_personModel->store();
@@ -138,7 +138,7 @@ class Opus_Search_Adapter_PersonAdapterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test initializing person adapter using an Opus_Model_Person instance.
+     * Test initializing person adapter using an Opus_Person instance.
      *
      * @return void
      */
@@ -154,13 +154,13 @@ class Opus_Search_Adapter_PersonAdapterTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test initializing person adapter using an unpersistet Opus_Model_Person instance
+     * Test initializing person adapter using an unpersistet Opus_Person instance
      * throws exception.
      *
      * @return void
      */
     public function testInitializeFromUnpersistetModelInstanceThrowsException() {
-        $model = new Opus_Model_Person();
+        $model = new Opus_Person();
         $model->setFirstName('Harry');
         $model->setLastName('Potter');
 

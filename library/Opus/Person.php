@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -37,10 +37,10 @@
  * Domain model for persons in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Person extends Opus_Model_AbstractDb
+class Opus_Person extends Opus_Model_AbstractDb
 {
 
     /**
@@ -101,12 +101,12 @@ class Opus_Model_Person extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_Model_Person instances from the database.
+     * Retrieve all Opus_Person instances from the database.
      *
-     * @return array Array of Opus_Model_Person objects.
+     * @return array Array of Opus_Person objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Model_Person', 'Opus_Db_Persons');
+        return self::getAllFrom('Opus_Person', 'Opus_Db_Persons');
     }
 
 }

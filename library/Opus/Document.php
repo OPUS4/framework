@@ -121,43 +121,43 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'fetch' => 'lazy'
             ),
             'PersonAdvisor' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'advisor'),
                 'fetch' => 'lazy'
             ),
             'PersonAuthor' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'author'),
                 'fetch' => 'lazy'
             ),
             'PersonContributor' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'contributor'),
                 'fetch' => 'lazy'
             ),
             'PersonEditor' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'editor'),
                 'fetch' => 'lazy'
             ),
             'PersonReferee' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'referee'),
                 'fetch' => 'lazy'
             ),
             'PersonOther' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'other'),
                 'fetch' => 'lazy'
             ),
             'PersonTranslator' => array(
-                'model' => 'Opus_Model_Person',
+                'model' => 'Opus_Person',
                 'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                 'options'  => array('role' => 'translator'),
                 'fetch' => 'lazy'

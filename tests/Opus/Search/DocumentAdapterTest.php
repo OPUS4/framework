@@ -82,14 +82,14 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $enrichment->setValue('Poor enrichment.');
         $enrichment->setType('nonesense');
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
         $author->setDateOfBirth('1889-04-26 00:00:00');
         $author->setPlaceOfBirth('Wien');
         $document->addPersonAuthor($author);
 
-        $author = new Opus_Model_Person();
+        $author = new Opus_Person();
         $author->setFirstName('Ferdinand');
         $author->setLastName('de Saussure');
         $author->setDateOfBirth('1857-11-26 00:00:00');

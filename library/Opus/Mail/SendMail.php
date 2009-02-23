@@ -220,10 +220,10 @@ class Opus_Mail_SendMail {
     /**
      * Forms an array with address and composed name from a user object.
      *
-     * @param   Opus_Model_Person $recipient Recipient
+     * @param   Opus_Person $recipient Recipient
      * @return  array                        Recipients' addresses and names
      */
-    private function formRecipient(Opus_Model_Person $recipient) {
+    private function formRecipient(Opus_Person $recipient) {
         $recip = array('address' => '', 'name' => '');
         $recip['address'] = validateAddress($recipient->getField('EMail'));
         $firstName = $recipient->getField('FirstName');
@@ -259,7 +259,7 @@ class Opus_Mail_SendMail {
     /**
      * Creates and sends an e-mail to the specified recipients.
      *
-     * @param   integer|Opus_Model_Person|array $recipients Recipients
+     * @param   integer|Opus_Person|array $recipients Recipients
      * @param   string                          $subject    Subject
      * @param   string                          $bodyText   Text
      * @param   string                          $from       (Optional) Sender address - if not set, the administrator's address is taken
@@ -274,14 +274,14 @@ class Opus_Mail_SendMail {
         }
 
         if (is_int($recipients) === true) {
-            $recipients = array(new Opus_Model_Person($recipients));
+            $recipients = array(new Opus_Person($recipients));
         }
 
         if (is_array($recipients) === true and is_int($recipients[0]) === true) {
             $recs = array();
             $recipients = array_unique($recipients);
             foreach ($recipients as $rec) {
-                $recipient = new Opus_Model_Person($rec);
+                $recipient = new Opus_Person($rec);
                 array_push($recs, $recipient);
             }
             $recipients = $recs;

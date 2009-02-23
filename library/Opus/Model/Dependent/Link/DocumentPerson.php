@@ -52,7 +52,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Model_Person';
+    protected $_modelClass = 'Opus_Person';
 
     /**
      * Specify then table gateway.
@@ -86,7 +86,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Model_Person($this->_primaryTableRow->person_id));
+            $this->setModel(new Opus_Person($this->_primaryTableRow->person_id));
         }
 
         $institute = new Opus_Model_Field('Institute');
