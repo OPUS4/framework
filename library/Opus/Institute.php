@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -38,10 +38,10 @@
  * TODO Implement connection to Opus_Collection API.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Model_Institute extends Opus_Model_Abstract
+class Opus_Institute extends Opus_Model_Abstract
 {
 
     /**

@@ -71,7 +71,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
 //     */
 //    protected $_externalFields = array(
 //            'Institute' => array(
-//                'model' => 'Opus_Model_Institute',
+//                'model' => 'Opus_Institute',
 //                'table' => 'Opus_Db_InstitutesContents'
 //            ),
 //    );
