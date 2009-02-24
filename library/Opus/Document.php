@@ -326,12 +326,18 @@ class Opus_Document extends Opus_Model_AbstractDb
      * method. Standard behaviour is overwritten due to the type parameter that
      * needs to be passed into the Opus_Document constructor.
      *
-     * @param  string  $xml The xml-string representing the model.
+     * @param  string|DomDocument  $xml The xml representing the model.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
-    public static function fromXml($rawXml) {
-        $domXml = new DomDocument('1.0', 'UTF-8');
-        $domXml->loadXml($rawXml);
+    public static function fromXml($xml) {
+        if ($xml instanceof DomDocument) {
+            $domXml = $xml;
+        } else if (is_string($xml)) {
+            $domXml = new DomDocument('1.0', 'UTF-8');
+            $domXml->loadXml($xml);
+        } else {
+            throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
+        }
         $type = $domXml->documentElement->getAttribute('Type');
         // Remove type attribute, which is only needed for document
         // construction.
