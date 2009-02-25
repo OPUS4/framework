@@ -382,10 +382,10 @@ class Opus_Mail_SendMail {
 
         $error = false;
         foreach ($recipients as $recip) {
-            $this->$_mail->addTo($recip['address'], $recip['name']);
-            $this->$_mail->setFrom($from, $fromName);
-            $this->$_mail->setSubject($subject);
-            $this->$_mail->setBodyText($text);
+            $this->_mail->addTo($recip['address'], $recip['name']);
+            $this->_mail->setFrom($from, $fromName);
+            $this->_mail->setSubject($subject);
+            $this->_mail->setBodyText($text);
 
             try {
                 $this->_mail->send();
