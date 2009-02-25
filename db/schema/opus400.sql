@@ -16,7 +16,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `contributing_corporation` TEXT NULL COMMENT 'Contribution corporate body.' ,
   `creating_corporation` TEXT NULL COMMENT 'Creating corporate body.' ,
   `date_accepted` DATE NULL COMMENT 'Date of final exam (date of the doctoral graduation).' ,
-  `type` enum('article','book section','monograph','report','doctoral thesis','manual','master thesis','honour thesis','journal','conference','conference item','paper','study paper','preprint','other','habil thesis','bachelor thesis','lecture') NOT NULL COMMENT 'Document type.',
+  `type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Document type.' ,
   `edition` VARCHAR(25) NULL COMMENT 'Edition.' ,
   `issue` VARCHAR(25) NULL COMMENT 'Issue.' ,
   `language` VARCHAR(255) NULL COMMENT 'Language(s) of the document.' ,
@@ -342,20 +342,36 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
+-- Table `opus400`.`type_enrichments`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `opus400`.`type_enrichments` (
+  `id` INT UNSIGNED NOT NULL ,
+  `name` VARCHAR(100) NULL ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `opus400`.`document_enrichments`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `type_enrichment_id` INT UNSIGNED NOT NULL ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` VARCHAR(255) NOT NULL COMMENT 'Type or label of enrichment.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the enrichment.' ,
-  PRIMARY KEY (`id`) ,
+  PRIMARY KEY (`id`, `type_enrichment_id`) ,
   INDEX `fk_document_enrichment_document` (`document_id` ASC) ,
+  INDEX `fk_document_enrichments_type_enrichments` (`type_enrichment_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
     FOREIGN KEY (`document_id` )
     REFERENCES `opus400`.`documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_document_enrichments_type_enrichments`
+    FOREIGN KEY (`type_enrichment_id` )
+    REFERENCES `opus400`.`type_enrichments` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = utf8
 COLLATE = utf8_general_ci
