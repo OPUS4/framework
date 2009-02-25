@@ -451,7 +451,7 @@ abstract class Opus_Model_Abstract
             $domXml = $xml;
         } else if (is_string($xml)) {
             $domXml = new DomDocument('1.0', 'UTF-8');
-            $domXml->loadXml($rawXml);
+            $domXml->loadXml($xml);
         } else {
             throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
         }
