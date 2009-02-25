@@ -33,13 +33,13 @@
 
 // Configure include path.
 set_include_path('.' . PATH_SEPARATOR
-            . PATH_SEPARATOR . dirname(__FILE__)
-            . PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
-            . PATH_SEPARATOR . get_include_path());
+. PATH_SEPARATOR . dirname(__FILE__)
+. PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
+. PATH_SEPARATOR . get_include_path());
 
 // Zend_Loader is'nt available yet. We have to do a require_once
 // in order to find the bootstrap class.
-require_once 'Opus/Application/Bootstrap.php';
+require_once 'Opus/Bootstrap/Base.php';
 
 /**
  * This class provides a static initializiation method for setting up
@@ -48,29 +48,17 @@ require_once 'Opus/Application/Bootstrap.php';
  *
  * @category    Tests
  */
-class TestHelper extends Opus_Application_Bootstrap {
+class TestHelper extends Opus_Bootstrap_Base {
+
     /**
-     * Perform basic bootstrapping. Setup environment variables, load
-     * configuration and initialize database connection.
+     * Add setting up database and logging facilities.
      *
      * @return void
+     * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
      */
-    public static function init() {
-        
-        // For logging base path.
-        self::$applicationRootDirectory = dirname(__FILE__);
-        self::$applicationWorkspaceDirectory = self::$applicationRootDirectory;
-
-        self::setupEnvironment();
-        self::configure(self::CONFIG_TEST, dirname(__FILE__));
-        self::setupDatabase();
-        self::setupLogging();
-
-        $registry = Zend_Registry::getInstance();
-        $locale = new Zend_Locale();
-        $availableLanguages = $locale->getLanguageTranslationList();
-        asort($availableLanguages);
-        $registry->set('Available_Languages', $availableLanguages);
+    protected function _setupBackend() {
+        $this->_setupDatabase();
+        $this->_setupLogging();
     }
 
     /**
@@ -104,10 +92,11 @@ class TestHelper extends Opus_Application_Bootstrap {
      * @return boolean True in case of MS Windows; False otherwise.
      */
     public static function isWindows() {
-       return (substr(PHP_OS, 0, 3) === 'WIN');
+        return (substr(PHP_OS, 0, 3) === 'WIN');
     }
 
 }
 
 // Do test environment initializiation.
-TestHelper::init();
+$testhelper = new TestHelper();
+$testhelper->run(dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);

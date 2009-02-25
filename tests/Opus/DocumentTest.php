@@ -107,6 +107,10 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);
         $adapter = Zend_Db_Table::getDefaultAdapter();
+
+        // Set up a mock language list.
+        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch');
+        Zend_Registry::set('Available_Languages', $list);
     }
 
     /**

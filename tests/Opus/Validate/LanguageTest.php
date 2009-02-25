@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -38,12 +38,12 @@
  *
  * @category    Tests
  * @package     Opus_Validate
- * 
+ *
  * @group       LanguageTest
- * 
+ *
  */
 class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
-    
+
     /**
      * Data provider for valid arguments.
      *
@@ -55,8 +55,8 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
             array('fr'),
             array('az'),
             array('es'),
-            array('ab'),
-            array('zza')
+            array('ar'),
+            array('zu')
         );
     }
 
@@ -73,6 +73,26 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
             array(true),
             array('not_a_valid_type')
         );
+    }
+
+
+    /**
+     * Set up test fixture.
+     *
+     * @return void
+     */
+    public function setUp() {
+        // Set up a mock language list.
+        $list = array(
+            'de' => 'Test_Deutsch',
+            'en' => 'Test_Englisch',
+            'fr' => 'Test_Französisch',
+            'az' => 'Test_Aserbaidschanisch',
+            'es' => 'Test_Spanisch',
+            'ar' => 'Test_Arabisch',
+            'zu' => 'Test_Zulu',
+        );
+        Zend_Registry::set('Available_Languages', $list);
     }
 
 
@@ -101,6 +121,6 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
         $validator = new Opus_Validate_Language();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
-    
-    
+
+
 }

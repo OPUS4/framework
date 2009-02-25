@@ -235,8 +235,11 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         // Initialize available languages
         if ($this->getField('Language') !== null) {
-            $this->getField('Language')->setDefault(Zend_Registry::get('Available_Languages'))
-                ->setSelection(true);
+            if (Zend_Registry::isRegistered('Available_Languages') === true) {
+                $this->getField('Language')
+                    ->setDefault(Zend_Registry::get('Available_Languages'))
+                    ->setSelection(true);
+            }
         }
 
         // Initialize available licences

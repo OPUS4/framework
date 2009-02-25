@@ -80,6 +80,10 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
         $this->_model = new Opus_Form_BuilderTest_Model(null, new Opus_Form_BuilderTest_DbModel);
         $this->_builder = new Opus_Form_Builder();
+
+        // Set up a mock language list.
+        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch');
+        Zend_Registry::set('Available_Languages', $list);
     }
 
     /**
