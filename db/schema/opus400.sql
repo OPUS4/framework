@@ -16,7 +16,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `contributing_corporation` TEXT NULL COMMENT 'Contribution corporate body.' ,
   `creating_corporation` TEXT NULL COMMENT 'Creating corporate body.' ,
   `date_accepted` DATE NULL COMMENT 'Date of final exam (date of the doctoral graduation).' ,
-  `type` ENUM('article', 'book section', 'monograph', 'report', 'doctoral thesis') NOT NULL COMMENT 'Document type.' ,
+  `type` VARCHAR(100) NOT NULL COMMENT 'Document type.' ,
   `edition` VARCHAR(25) NULL COMMENT 'Edition.' ,
   `issue` VARCHAR(25) NULL COMMENT 'Issue.' ,
   `language` VARCHAR(255) NULL COMMENT 'Language(s) of the document.' ,
@@ -346,7 +346,8 @@ ROW_FORMAT = DEFAULT;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`type_enrichments` (
   `id` INT UNSIGNED NOT NULL ,
-  `name` VARCHAR(100) NULL ,
+  `name` VARCHAR(100) NOT NULL ,
+  `type` VARCHAR(100) NOT NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
 
@@ -359,7 +360,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   `type_enrichment_id` INT UNSIGNED NOT NULL ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the enrichment.' ,
-  PRIMARY KEY (`id`, `type_enrichment_id`) ,
+  PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichment_document` (`document_id` ASC) ,
   INDEX `fk_document_enrichments_type_enrichments` (`type_enrichment_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
