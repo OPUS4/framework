@@ -83,9 +83,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
 
-        $enrichment = $document->addEnrichment();
-        $enrichment->setValue('Poor enrichment.');
-        $enrichment->setType('nonesense');
+//      $enrichment = $document->addEnrichment();
+//      $enrichment->setValue('Poor enrichment.');
+//      $enrichment->setType('nonesense');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
