@@ -220,7 +220,8 @@ abstract class Opus_Model_Abstract
                 }
 
                 $field->setValue($model);
-                return $field->getValue();
+                return $this;
+
                 break;
 
             case 'add':

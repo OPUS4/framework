@@ -542,7 +542,17 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
     }
 
+    /**
+     * Test if set calls can be done in a flunet interface style.
+     * E.g. $model->setField(1)->setAnotherField('Foo');
+     *
+     * @return void
+     */
+    public function testFluentInterfaceOnSetCall() {
+        $model = new Opus_Model_AbstractMock();
 
-
+        $result = $model->setValue('Value');
+        $this->assertType('Opus_Model_AbstractMock', $result, 'No fluent interface after set...() call.');
+    }
 
 }
