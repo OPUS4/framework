@@ -555,4 +555,17 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertType('Opus_Model_AbstractMock', $result, 'No fluent interface after set...() call.');
     }
 
+
+    /**
+     * Test if a call to an unknown model method throws an exception
+     * describing exactly this problem - not an "unknown field" exception.
+     *
+     * @return void
+     */
+    public function testCallToUnknownMethodThrowsBadMethodCallException() {
+        $this->setExpectedException('BadMethodCallException');
+        $model = new Opus_Model_AbstractMock();
+        $model->notAMethodOfThisClass();
+    }
+
 }

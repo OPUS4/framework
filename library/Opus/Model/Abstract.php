@@ -169,6 +169,13 @@ abstract class Opus_Model_Abstract
      */
     public function __call($name, array $arguments) {
         $accessor = substr($name, 0, 3);
+
+        // Filter calls to unknown methods and turn them into an exception
+        $validAccessors = array('set', 'get', 'add');
+        if (in_array($accessor, $validAccessors) === false) {
+            throw new BadMethodCallException($name . ' is no method in this object.');
+        }
+
         $fieldname = substr($name, 3);
 
         $argumentModelGiven = false;
