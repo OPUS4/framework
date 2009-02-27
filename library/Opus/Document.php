@@ -331,6 +331,46 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
+     * Store multiple languages as a comma seperated string.
+     *
+     * @return void
+     */
+    protected function _storeLanguage() {
+        if ($this->_fields['Language']->getValue() !== null) {
+            if ($this->_fields['Language']->hasMultipleValues()) {
+                $result = implode(',', $this->_fields['Language']->getValue());
+            } else {
+                $result = $this->_fields['Language']->getValue();
+            }
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->language = $result;
+    }
+
+    /**
+     * Load multiple languages from a comma seperated string.
+     *
+     * @return array
+     */
+    protected function _fetchLanguage() {
+        if (empty($this->_primaryTableRow->language) === false) {
+            if ($this->_fields['Language']->hasMultipleValues()) {
+                $result = explode(',', $this->_primaryTableRow->language);
+            } else {
+                $result = $this->_primaryTableRow->language;
+            }
+        } else {
+            if ($this->_fields['Language']->hasMultipleValues()) {
+                $result = array();
+            } else {
+                $result = null;
+            }
+        }
+        return $result;
+    }
+
+    /**
      * FIXME: Set the document's type.
      *
      * @param  string|Opus_Document_Type $type The type of the document.

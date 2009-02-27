@@ -898,4 +898,30 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $importedDocument = Opus_Document::fromXml($xml);
         $this->assertEquals($document, $importedDocument, 'Document did not persist Xml import.');
     }
+
+    /**
+     * Test if multiple languages are (re)stored properly.
+     *
+     * @return void
+     */
+    public function testMultipleLanguageStorage() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Language" multiplicity="3"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $doc->addLanguage('de');
+        $doc->addLanguage('en');
+        $doc->addLanguage('fr');
+        $languages = $doc->getLanguage();
+        $id = $doc->store();
+        $doc = new Opus_Document($id);
+
+        $this->assertEquals($languages, $doc->getLanguage(), 'Document language list corrupted by storage.');
+    }
 }
