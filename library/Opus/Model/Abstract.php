@@ -489,12 +489,16 @@ abstract class Opus_Model_Abstract
 
         // External fields exist as child elements
         foreach ($element->childNodes as $externalField) {
-            $modelclass = $model->getField($externalField->nodeName)->getValueModelClass();
+            $field = $model->getField($externalField->nodeName);
+            if (is_null($field) === true) {
+                throw new Opus_Model_Exception('Field ' . $externalField->nodeName . ' not defined');
+            } else {
+                $modelclass = $field->getValueModelClass();
+            }
             $submodel = Opus_Model_Abstract::_populateModelFromXml(new $modelclass, $externalField);
             $callname = 'add' . $externalField->nodeName;
             $model->$callname($submodel);
         }
-
         return $model;
     }
 
