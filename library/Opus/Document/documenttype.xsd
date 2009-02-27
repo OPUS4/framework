@@ -135,7 +135,6 @@
 	       <enumeration value="Enrichment"/>
 	       <enumeration value="File"/>
 	       <enumeration value="Institute"/>
-	       <enumeration value="Isbn"/>
 	       <enumeration value="Issue"/>
 	       <enumeration value="Language"/>
 	       <enumeration value="Licence"/>
@@ -149,14 +148,15 @@
 	       <enumeration value="PersonAuthor"/>
 	       <enumeration value="PersonOther"/>
 	       <enumeration value="PersonReferee"/>
-	       <enumeration value="Publication"/>
-	       <enumeration value="PublicationStatus"/>
+	       <enumeration value="PersonContributor"/>
+	       <enumeration value="PersonEditor"/>
+	       <enumeration value="PersonTranslator"/>
+	       <enumeration value="PublicationState"/>
 	       <enumeration value="PublishedDate"/>
 	       <enumeration value="PublishedYear"/>
 	       <enumeration value="PublisherName"/>
 	       <enumeration value="PublisherPlace"/>
 	       <enumeration value="PublisherUniversity"/>
-	       <enumeration value="Range"/>
 	       <enumeration value="Reviewed"/>
 	       <enumeration value="ServerDateModified"/>
 	       <enumeration value="ServerDatePublished"/>
@@ -171,9 +171,26 @@
 	       <enumeration value="TitleAbstract"/>
 	       <enumeration value="TitleMain"/>
 	       <enumeration value="TitleParent"/>
-	       <enumeration value="Urn"/>
 	       <enumeration value="VgWortPixelUrl"/>
 	       <enumeration value="Volume"/>
+	       <enumeration value="IdentifierIsbn"/>
+	       <enumeration value="IdentifierUrn"/>
+	       <enumeration value="IdentifierDoi"/>
+	       <enumeration value="IdentifierHandle"/>
+	       <enumeration value="IdentifierUrl"/>
+	       <enumeration value="IdentifierIssn"/>
+	       <enumeration value="IdentifierStdDoi"/>
+	       <enumeration value="IdentifierCrisLink"/>
+	       <enumeration value="IdentifierSplashUrl"/>
+	       <enumeration value="ReferenceIsbn"/>
+	       <enumeration value="ReferenceUrn"/>
+	       <enumeration value="ReferenceDoi"/>
+	       <enumeration value="ReferenceHandle"/>
+	       <enumeration value="ReferenceUrl"/>
+	       <enumeration value="ReferenceIssn"/>
+	       <enumeration value="ReferenceStdDoi"/>
+	       <enumeration value="ReferenceCrisLink"/>
+	       <enumeration value="ReferenceSplashUrl"/>
 	   </restriction>
 	</simpleType>
 

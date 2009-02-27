@@ -90,14 +90,79 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'options' => array('type' => 'parent'),
                 'fetch' => 'lazy'
             ),
-            'Isbn' => array(
+            'IdentifierIsbn' => array(
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'isbn'),
                 'fetch' => 'lazy'
             ),
-            'Urn' => array(
+            'IdentifierUrn' => array(
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'urn')
+            ),
+            'IdentifierDoi' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'doi')
+            ),
+            'IdentifierHandle' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'handle')
+            ),
+            'IdentifierUrl' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'url')
+            ),
+            'IdentifierIssn' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'issn')
+            ),
+            'IdentifierStdDoi' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'std-doi')
+            ),
+            'IdentifierCrisLink' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'cris-link')
+            ),
+            'IdentifierSplashUrl' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'splash-url')
+            ),
+            'ReferenceIsbn' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'isbn'),
+                'fetch' => 'lazy'
+            ),
+            'ReferenceUrn' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'urn')
+            ),
+            'ReferenceDoi' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'doi')
+            ),
+            'ReferenceHandle' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'handle')
+            ),
+            'ReferenceUrl' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'url')
+            ),
+            'ReferenceIssn' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'issn')
+            ),
+            'ReferenceStdDoi' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'std-doi')
+            ),
+            'ReferenceCrisLink' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'cris-link')
+            ),
+            'ReferenceSplashUrl' => array(
+                'model' => 'Opus_Reference',
+                'options' => array('type' => 'splash-url')
             ),
             'Note' => array(
                 'model' => 'Opus_Note',
@@ -166,6 +231,16 @@ class Opus_Document extends Opus_Model_AbstractDb
             'SubjectSwd' => array(
                 'model' => 'Opus_Subject',
                 'options' => array('type' => 'swd'),
+                'fetch' => 'lazy'
+            ),
+            'SubjectPsyndex' => array(
+                'model' => 'Opus_Subject',
+                'options' => array('type' => 'psyndex'),
+                'fetch' => 'lazy'
+            ),
+            'SubjectUncontrolled' => array(
+                'model' => 'Opus_Subject',
+                'options' => array('type' => 'uncontrolled'),
                 'fetch' => 'lazy'
             ),
             'File' => array(
