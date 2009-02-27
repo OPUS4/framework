@@ -497,4 +497,39 @@ abstract class Opus_Model_Abstract
 
         return $model;
     }
+
+    /**
+     * Loop through all fields and check if they are valid.
+     *
+     * @return Boolean True if all fields report to be valid, false if
+     *                 at least one field fails validation.
+     */
+    public function isValid() {
+        $return = true;
+        foreach ($this->_fields as $field) {
+            $validator = $field->getValidator();
+            if (is_null($validator) === false) {
+                $result = $validator->isValid($field->getValue());
+                $return = ($return and $result);
+            }
+        }
+        return $return;
+    }
+
+    /**
+     * Return list of validation errors per field.
+     * E.g. 'FieldName' => array('Msg1', 'Msg2', ...)
+     *
+     * @return array Associative array mapping fieldnames to validation errors.
+     */
+    public function getValidationErrors() {
+        $result = array();
+        foreach ($this->_fields as $field) {
+            $validator = $field->getValidator();
+            $messages = $validator->getMessages();
+            $result[$field->getName()] = $messages;
+        }
+        return $result;
+    }
+
 }

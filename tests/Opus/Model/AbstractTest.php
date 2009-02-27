@@ -568,4 +568,76 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $model->notAMethodOfThisClass();
     }
 
+    /**
+     * Test if a model can validate its field values.
+     *
+     * @return void
+     */
+    public function testValidateModel() {
+        $model = new Opus_Model_AbstractMock();
+        $model->setValue('FieldValue');
+
+        $field1 = new Opus_Model_Field('Field1');
+        $field1->setValidator(new Zend_Validate_Alnum());
+
+        $field2 = new Opus_Model_Field('Field2');
+        $field2->setValidator(new Zend_Validate_NotEmpty());
+
+        $model->addField($field1)->addField($field2);
+
+        // try a failing
+        $this->assertFalse($model->isValid(), 'Validation should fail.');
+
+        // try successful validation
+        $model->setField1('abc123');
+        $model->setField2('notempty');
+        $this->assertTrue($model->isValid(), 'Validation should succeed.');
+    }
+
+    /**
+     * Test if a model can validate its field values.
+     *
+     * @return void
+     */
+    public function testValidationIsSkippedForFieldsWithNoValidator() {
+        $model = new Opus_Model_AbstractMock();
+        $model->setValue('FieldValue');
+
+        $field1 = new Opus_Model_Field('Field1');
+        $field1->setValidator(new Zend_Validate_Alnum());
+
+        $model->addField($field1);
+
+        // try successful validation
+        $model->setField1('abc123');
+        $this->assertTrue($model->isValid(), 'Validation should succeed.');
+    }
+
+    /**
+     * Test if a validation error list can be retrieved.
+     *
+     * @return void
+     */
+    public function testValidationErrorsAreObtainable() {
+        $model = new Opus_Model_AbstractMock();
+        // Model field "Value" is empty.
+        $this->assertFalse($model->isValid(), 'Validation should fail.');
+        $this->assertNotNull($model->getValidationErrors(), 'Validation errors are not set.');
+    }
+
+    /**
+     * Test if the returned validation errors are in the form of an
+     * associative array mapping fieldnamed to errors.
+     *
+     * @return void
+     */
+    public function testValidationErrorsAreObtainablePerField() {
+        $model = new Opus_Model_AbstractMock();
+
+        $model->isValid();
+        $errors = $model->getValidationErrors();
+
+        $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
+    }
+
 }
