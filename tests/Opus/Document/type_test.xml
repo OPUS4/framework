@@ -56,7 +56,7 @@
     <field name="DateAccepted" mandatory="yes" />
 
     <!-- identifiers -->
-    <field name="Isbn" />
+    <field name="IdentifierIsbn" />
 
     <!-- institutes -->
     <field name="Institute" multiplicity="*" mandatory="yes" />

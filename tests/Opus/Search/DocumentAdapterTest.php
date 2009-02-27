@@ -68,7 +68,7 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $parentTitle->setValue('Parent');
         $parentTitle->setLanguage('en');
 
-        $isbn = $document->addIsbn();
+        $isbn = $document->addIdentifierIsbn();
         $isbn->setValue('123-123-123');
 
         $note = $document->addNote();

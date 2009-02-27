@@ -402,7 +402,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $parentTitle->setValue('Parent');
         $parentTitle->setLanguage('en');
 
-        $isbn = $document->addIsbn();
+        $isbn = $document->addIdentifierIsbn();
         $isbn->setValue('123-123-123');
 
         $note = $document->addNote();
@@ -464,7 +464,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($document->getTitleAbstract()->getLanguage(), 'fr');
         $this->assertEquals($document->getTitleParent()->getValue(), 'Parent');
         $this->assertEquals($document->getTitleParent()->getLanguage(), 'en');
-        $this->assertEquals($document->getIsbn()->getValue(), '123-123-123');
+        $this->assertEquals($document->getIdentifierIsbn()->getValue(), '123-123-123');
         $this->assertEquals($document->getNote()->getMessage(), 'Ich bin eine öffentliche Notiz.');
         $this->assertEquals($document->getNote()->getCreator(), 'Jim Knopf');
         $this->assertEquals($document->getNote()->getScope(), 'public');
@@ -576,15 +576,15 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         <documenttype name="doctoral_thesis"
             xmlns="http://schemas.opus.org/documenttype"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Isbn" />
+            <field name="IdentifierIsbn" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $isbn = new Opus_Identifier();
 
-        $doc->addIsbn($isbn);
+        $doc->addIdentifierIsbn($isbn);
         $doc->store();
-        $id = $doc->getIsbn()->getId();
+        $id = $doc->getIdentifierIsbn()->getId();
         $doc->delete();
         $this->setExpectedException('Opus_Model_Exception');
         $isbn = new Opus_Identifier($id);
