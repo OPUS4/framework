@@ -37,6 +37,8 @@
  *
  * @category    Tests
  * @package     Opus_Security
+ *
+ * @group       AuthAdapterTest
  */
 class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
     
@@ -68,8 +70,22 @@ class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         TestHelper::clearTable('accounts');
-        Opus_Security_Account::create('bob', 'secret');
+
+        $bob = new Opus_Security_Account;
+        $bob->setLogin('bob')->setPassword('secret')->store();
+        
         $this->_auth_adapter = new Opus_Security_AuthAdapter();
+    }
+    
+    
+    /**
+     * Test if a successful authentication can be performed.
+     *
+     * @return void
+     */
+    public function testSettingEmptyCredentialsThrowsException() {
+        $this->setExpectedException('Zend_Auth_Adapter_Exception');
+        $this->_auth_adapter->setCredentials('', null);
     }
     
     /**

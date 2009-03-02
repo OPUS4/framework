@@ -69,13 +69,36 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, $rowset->count(), 'Accounts table is not empty no test begin.');
     }
     
+    
+    /**
+     * Test if creating a new account on a clean database works.
+     *
+     * @return void
+     */
+    public function testCreate() {
+        $account = new Opus_Security_Account;
+    }
+    
+    /**
+     * Test setting of login and password.
+     *
+     * @return void
+     */
+    public function testSetCredentials() {
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob')
+            ->setPassword('secret');
+    }
+    
+    
     /**
      * Test if a new password is required after creating a new account.
      *
      * @return void
      */
     public function testNewPasswordRequiredAfterCreation() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob');
         $this->assertTrue($account->isNewPasswordRequired(), 'New password should be required after creation of a new account.'); 
     }
     
@@ -85,7 +108,8 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testLoginNameIsSetAfterCreation() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob');
         $this->assertEquals('bob', $account->getLogin(), 'Login returned is not correct.');
     }
     
@@ -96,48 +120,65 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRecordExistsAfterCreation() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob');
+        $account->store();
         $rowset = $this->_accounts->fetchAll();
         $this->assertGreaterThan(0, $rowset->count(), 'Accounts table is still empty after creation.');
     }
 
     /**
-     * Test if a database record has been added after creation of an account.
+     * Creating accounts with equal login name should fail with an exception.
      *
      * @return void
      */
-    public function testCreatingTwoAccountsWithSameLoginThrowsException() {
+    public function testCreatingAccountsWithSameLoginThrowsException() {
+        $account1 = new Opus_Security_Account;
+        $account1->setLogin('bob');
+        $account2 = new Opus_Security_Account;
+        $account2->setLogin('bob');
+        
+        $account1->store();
         $this->setExpectedException('Opus_Security_Exception');
-        $account1 = Opus_Security_Account::create('bob', 'useruser');
-        $account2 = Opus_Security_Account::create('bob', 'useruseruser');
+        $account2->store();
     }
     
-  
+    /**
+      * Attempt to store an account without a given login name
+      * should throw an exception.
+      *
+      * @return void
+      */
+     public function testCreateAndStoreWithoutLoginThrowsException() {
+         $account = new Opus_Security_Account;
+         $this->setExpectedException('Opus_Security_Exception');
+         $account->store();
+     }
+
     /**
      * Test if a password can be validated correct after it has been set.
      *
      * @return void
      */
     public function testPasswordIsValidWhenNewPasswordWasSet() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        $account->setPassword('useruser', 'bobbob');
-        $this->assertFalse($account->isNewPasswordRequired(), 'No new password should be required after creation of a new account.');
-        $this->assertTrue($account->isPasswordCorrect('bobbob'), 'Password should be validated correct.');
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob')
+            ->setPassword('secret');
+        $this->assertFalse($account->isNewPasswordRequired(), 'No new password should be required after setting it explicitly.');
+        $this->assertTrue($account->isPasswordCorrect('secret'), 'Password should be validated correct.');
     }
     
     
     /**
-     * Test if attempt to remove an account that does not exist is an
-     * idempotent operation.
+     * Ensure that the stored password is SHA1 hashed.
      *
      * @return void
      */
-    public function testRemovingIsIdempotent() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        // First call shall remove the account. 
-        $account->remove('bob');
-        // Second call shall not fail.
-        $account->remove('bob');
+    public function testPasswordIsSha1Hashed() {
+        $account = new Opus_Security_Account;
+        $account->setLogin('bob')
+            ->setPassword('secret');
+        $this->assertEquals(sha1('secret'), $account->getPassword(), 'Password hash is invalid.');        
     }
     
     /**
@@ -146,78 +187,13 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testFindCreatedAccount() {
-        $account1 = Opus_Security_Account::create('bob', 'useruser');
-        $account2 = Opus_Security_Account::create('peter', 'useruser');
-        
-        $find1 = Opus_Security_Account::find('bob');
-        $find2 = Opus_Security_Account::find('peter');
-        
-        $this->assertEquals($account1->getLogin(), $find1->getLogin(), 'Find returned wrong account object.');
-        $this->assertEquals($account2->getLogin(), $find2->getLogin(), 'Find returned wrong account object.');
+        $account1 = new Opus_Security_Account;
+        $account1->setLogin('bob')->setPassword('bobbob')->store();
+        $account2 = new Opus_Security_Account('bob');
+        $this->assertEquals($account1->getLogin(), $account2->getLogin(), 'Found wrong account object.');
     }
     
-    /**
-     * Test if an account is not found any longer after removing it.
-     *
-     * @return void
-     */
-    public function testAccountIsNotFoundAfterRemove() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        Opus_Security_Account::remove('bob');
-        $found = Opus_Security_Account::find('bob');
-        $this->assertNull($found, 'Removing failed.');
-    }
-    
-    /**
-     * Test if password change operation causes a change of the database record.
-     *
-     * @return void
-     */
-    public function testChangingPasswordIsReflectedInTheDatabase() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        $account->setPassword('useruser','bobbob');
-        
-        $account2 = Opus_Security_Account::find('bob');
-        $this->assertTrue($account2->isPasswordCorrect('bobbob'), 'Password has not been changed.');
-    }
 
-    /**
-     * Test if login name change operation causes a change of the database record.
-     *
-     * @return void
-     */
-    public function testChangingLoginIsReflectedInTheDatabase() {
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        $account->setLogin('useruser','bobbob');
-        
-        $account2 = Opus_Security_Account::find('bobbob');
-        $this->assertNotNull($account2, 'Account cannot be found anymore after changing login name.');
-    }
-    
-    /**
-     * Test if attempt to alter the password but not providing the current password
-     * fails with exception.
-     *
-     * @return void
-     */
-    public function testAlterPasswordWithWrongCredentialsThrowsException() {
-        $this->setExpectedException('Opus_Security_Exception');
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        $account->setPassword('xxWRONGxx','bobbob');
-    }
-
-    /**
-     * Test if attempt to alter the login name but not providing the current password
-     * fails with exception.
-     *
-     * @return void
-     */
-    public function testAlterLoginWithWrongCredentialsThrowsException() {
-        $this->setExpectedException('Opus_Security_Exception');
-        $account = Opus_Security_Account::create('bob', 'useruser');
-        $account->setLogin('xxWRONGxx','bobbob');
-    }
-    
     /**
      * Test if an exception is thrown when attempt to change a login name
      * to a name that is already used by another account. 
@@ -225,32 +201,51 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testChangeLoginNameToAlreadyExistingNameThrowsException() {
+        $bob = new Opus_Security_Account;
+        $bob->setLogin('bob')->setPassword('secret')->store();
+
+        $dave = new Opus_Security_Account;
+        $dave->setLogin('dave')->setPassword('secret')->store();
+
         $this->setExpectedException('Opus_Security_Exception');
-        $bob = Opus_Security_Account::create('bob', 'pass1');
-        $bart = Opus_Security_Account::create('bart', 'pass2');
-        $bob->setLogin('pass1','bart');
+        $dave->setLogin('bob')->store();
     }
     
     /**
-     * Test if quotes in login names get stored correct.
+     * Test if quotes in login names can only contain alphanumeric characters.
      *
      * @return void
      */
-    public function testUsingLoginNameWithQuotes() {
-        $account = Opus_Security_Account::create('b"o\'b', 'pass1');
-        $this->assertEquals('b"o\'b', $account->getLogin(), 'Quotes not handled correctly in login name.');
+    public function testNonAlphaNumericLoginsGetRejected() {
+        $dave = new Opus_Security_Account;
+        $this->setExpectedException('Opus_Security_Exception');
+        $dave->setLogin('#~$??!');
     }
+    
+    /**
+     * Test if an account can be retrieved by passing the login name.
+     * 
+     * @return void
+     */
+    public function testRetrieveAccountByLoginName() {
+        $bob = new Opus_Security_Account;
+        $bob->setLogin('bob')->setPassword('secret')->store();
+        
+        $result = new Opus_Security_Account('bob');
+        $this->assertEquals($bob->getId(), $result->getId(), 'Retrieved account does not match stored account.');
+    }   
 
     /**
-     * Test if accounts that have quotes in login names get retrieved correct.
-     *
+     * Test if retrieving an account with a unknown login name throws exception.
+     * 
      * @return void
      */
-    public function testRetrievingLoginNameWithQuotes() {
-        Opus_Security_Account::create('b"o\'b', 'pass1');
-        $account = Opus_Security_Account::find('b"o\'b');
-        $this->assertEquals('b"o\'b', $account->getLogin(), 'Quotes not handled correctly in login name.');
-    }
-    
-    
+    public function testRetrieveAccountByWrongLoginNameThrowsException() {
+        $bob = new Opus_Security_Account;
+        $bob->setLogin('bob')->setPassword('secret')->store();
+        
+        $this->setExpectedException('Opus_Security_Exception');
+        $result = new Opus_Security_Account('bobby');
+    }   
+
 }

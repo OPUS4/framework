@@ -40,97 +40,132 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Account {
+class Opus_Security_Account extends Opus_Model_AbstractDb {
     
     /**
-     * Holds the login name.
+     * Table to store account information to.
      *
      * @var string
      */
-    protected $_login;
-    
+    protected static $_tableGatewayClass = 'Opus_Db_Accounts';
+
     /**
-     * Holds the account password in md5 hash format.
-     *
-     * @var string
-     */
-    protected $_password;
-    
-    /**
-     * Set to true if a new password is required. A given password will
-     * never be validated correct as long as this variable demands a new password.
+     * Set to true if a new password is required. 
      *
      * @var boolean
      */
-    protected $_new_password_required = true;
+    protected $_newPasswordRequired = true;
     
     /**
-     * Initialize account with given credentials.
+     * Override to allow retrieving an account record from the unique login name.
      *
-     * @param string $login    Login name.
-     * @param string $password Password.
+     * @param string|integer|Zend_Db_Table_Row $id                (Optional) Id or login of existing record.
+     * @param Zend_Db_Table                    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @throws Opus_Model_Exception            Thrown if passed id is invalid.
+     * @throws Opus_Security_Exception         Thrown if a passed login is invalid.
      */
-    protected function __construct($login, $password) {
-        $this->_login = $login;
-        $this->_password = $password;
-    }
-    
-    /**
-     * Create account with given credentials.
-     *
-     * @param string $login         Login name.
-     * @param string $firstpassword Password for first login. Has to be changed later on.
-     * @throws Opus_Security_Exception Thrown if the account to create already exists. 
-     * @return Opus_Security_Account Account object. 
-     */
-    public static function create($login, $firstpassword) {
-        $row = self::getRecord($login);
-        if (is_null($row) === false) {
-            throw new Opus_Security_Exception('Account with login name ' . $login . ' already exists.');
+    public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
+        $rec = $id;
+        if (is_string($rec) === true) {
+            $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+            $rec = $table->fetchRow($table->select()->where('login = ?', $rec));
+            if (is_null($rec) === true) {
+                throw new Opus_Security_Exception('An account with the login name ' . $id . ' cannot be found.');
+            }
         }
-            
-        $accounts = new Opus_Db_Accounts();
-        $row = $accounts->createRow();
-        $row->login = $login;
-        $row->password = $firstpassword;
-        $row->save();
-        
-        return new self($row->login, $row->password);
+        parent::__construct($rec, $tableGatewayModel);
     }
     
     /**
-     * Deliver an account object given a login name.
+     * Initialize with login and password fields.
      *
-     * @param string $login Login name to query for.
-     * @return Opus_Security_Account If an account with the given login name exists,
-     *                               an instance of Opus_Security_Account is returned
-     *                               representing this account.  
-     */
-    public static function find($login) {
-        $row = self::getRecord($login);
-                
-        if (is_null($row) === true) {
-            return null;
-        }
-         
-        return new self($row->login, $row->password);
-    }
-    
-    /**
-     * Remove an account given an login name. If the specified account does not exist,
-     * nothing happens. 
-     *
-     * @param string $login Login name.
      * @return void
      */
-    public static function remove($login) {
-        $row = self::getRecord($login);
+    protected function _init() {
+        $login = new Opus_Model_Field('Login');
+        $loginValidator = new Zend_Validate;
+        $loginValidator->addValidator(new Zend_Validate_NotEmpty)
+            ->addValidator(new Zend_Validate_Alnum);
+        $login->setValidator($loginValidator);
         
-        if (is_null($row) === false) {
-            $row->delete();
+        $password = new Opus_Model_Field('Password');
+        $this->addField($login)
+            ->addField($password);    
+    }
+    
+    /**
+     * Tells whether a new password is required.
+     *
+     * @return boolean True, if a new password is required.
+     */
+    public function isNewPasswordRequired() {
+        return $this->_newPasswordRequired;
+    }
+
+
+    /**
+     * Stores the accounts credentials. Throws exception if something failes
+     * during the store operation.
+     *
+     * @throws Opus_Security_Exception If storing failes.
+     * @return void
+     */
+    public function store() {
+        // Check for a proper credentials
+        if ($this->isValid() === false) {
+            throw new Opus_Security_Exception('Credentials are invalid.');
+        }
+    
+        // Check if there is a account with the same
+        // loginname before creating a new record.
+        if (is_null($this->getId() === true)) {
+            // brand new record here
+            $accounts = Opus_Db_TableGateway::getInstance($tableGatewayClassName);
+            $select = $accounts->select()->where('login=?', $this->getLogin());
+            $row = $accounts->fetchRow($select);
+            if ($row === false) {
+                throw new Opus_Security_Exception('Account with login name ' . $this->getLogin() . ' already exists.'); 
+            }
+        }
+        try {
+            parent::store();
+        } catch (Exception $ex) {
+            throw new Opus_Security_Exception($ex->getMessage());
         }
     }
     
+    
+    /**
+     * Validate the login before accepting the value.
+     *
+     * @param string $login Login name.
+     * @throws Opus_Security_Exception Thrown if the login name is not valid.
+     * @return Opus_Security_Account Fluent interface.
+     */
+    public function setLogin($login) {
+        $loginField = $this->getField('Login');
+        if ($loginField->getValidator()->isValid($login) === false) {
+            throw new Opus_Security_Exception('Login name should only contain alpha numeric characters.');
+        }
+        $loginField->setValue($login);
+        return $this;
+    }
+    
+    
+    /**
+     * Set a new password and reset isNewPasswordRequired flag.
+     * The password goes through the PHP sha1 hash algorithm.
+     *
+     * @param string A new password to set.
+     * @return Opus_Security_Account Fluent interface.
+     */
+    public function setPassword($password) {
+        $this->getField('Password')->setValue(sha1($password));
+        $this->_newPasswordRequired = false;
+        return $this;
+    }
+
+
     /**
      * Check if a given string is the correct password for this account.
      *
@@ -138,94 +173,8 @@ class Opus_Security_Account {
      * @return boolean
      */
     public function isPasswordCorrect($password) {
-        return ($this->_password === $password);
+        return ($this->getPassword() === sha1($password));
     }
 
-    /**
-     * Tells whether a new password is required.
-     *
-     * @return boolean True, if a new password is required.
-     */
-    public function isNewPasswordRequired() {
-        return $this->_new_password_required;
-    }
-    
-
-    /**
-     * Get the accounts login name.
-     *
-     * @return string Login name.
-     */
-    public function getLogin() {
-        return $this->_login;
-    }
-    
-    /**
-     * Given the accounts current password a new password can be set.
-     *
-     * @param string $old Old password.
-     * @param string $new New password.
-     * @throws Opus_Security_Exception Thrown if the given password is not correct.
-     * @return void
-     */
-    public function setPassword($old, $new) {
-        $this->_new_password_required = false;
-        
-        if ($this->isPasswordCorrect($old) === true) {
-            // Change password
-            $this->_password = $new;
-            
-            // Update record
-            $row = self::getRecord($this->_login);
-            $row->password = $this->_password;
-            $row->save();
-        } else {
-            throw new Opus_Security_Exception('Password not correct.');
-        }
-    }
-    
-    /**
-     * Given the accounts current password the login name can be altered.
-     *
-     * @param string $password Current account password.
-     * @param string $login    New login name.
-     * @throws Opus_Security_Exception Thrown if the given password is not correct.
-     * @return void
-     */
-    public function setLogin($password, $login) {
-        if ($this->isPasswordCorrect($password) === true) {
-
-            // Get record
-            $row = self::getRecord($this->_login);
-
-            // Check if a record with the same login name already exists.
-            $check = self::getRecord($login);
-            if (is_null($check) === false) {
-                throw new Opus_Security_Exception('Name ' . $login . ' is already in use.');
-            }
-            
-            // Change login
-            $this->_login = $login;
-            
-            // Update
-            $row->login = $this->_login;
-            $row->save();
-        } else {
-            throw new Opus_Security_Exception('Password not correct.');
-        }
-    }
-
-    /**
-     * Return the database record given a login name.
-     *
-     * @param string $login Login name.
-     * @return Zend_Db_Row Database row representing the record.
-     */
-    protected static function getRecord($login) {
-        $accounts = new Opus_Db_Accounts();
-        $select = $accounts->select()->where('login = ?', $login);
-        $row = $accounts->fetchRow($select);
-        return $row;
-    }
-    
 }
+

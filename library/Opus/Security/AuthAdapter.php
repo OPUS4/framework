@@ -66,22 +66,22 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
      *
      * @param string $login    Login or account name .
      * @param string $password Account password.
+     * @throws Zend_Auth_Adapter_Exception If given credentials are invalid.
      * @return Opus_Security_AuthAdapter Fluent interface.
      */
     public function setCredentials($login, $password) {
+       if ((is_string($login) === false) or (is_string($password) === false)) {
+            throw new Zend_Auth_Adapter_Exception('Credentials are not strings.');
+        }
+        if (empty($login) === true) {
+            throw new Zend_Auth_Adapter_Exception('No login name or account name given.');
+        }
+        if (empty($password) === true) {
+            throw new Zend_Auth_Adapter_Exception('No password given.');
+        }
         $this->_login = $login;
         $this->_password = $password;
         return $this;
-    }
-    
-    /**
-     * Inject an Opus_Security_Account object dependency.
-     *
-     * @param Opus_Security_Account $account Actual account implementation.
-     * @return void
-     */
-    public function setAccountModel(Opus_Security_Account $account) {
-        $this->_account = $account;
     }
     
     /**
@@ -91,23 +91,11 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
      * @return Zend_Auth_Result
      */
     public function authenticate() {
-        if ((is_string($this->_login) === false) or (is_string($this->_password) === false)) {
-            throw new Zend_Auth_Adapter_Exception('Credentials are not strings.');
-        }
-        if (empty($this->_login) === true) {
-            throw new Zend_Auth_Adapter_Exception('No login name or account name given.');
-        }
-        if (empty($this->_password) === true) {
-            throw new Zend_Auth_Adapter_Exception('No password given.');
-        }
         
         // Try to get the account information
-        if (is_null($this->_account) === true) {
-            $account = Opus_Security_Account::find($this->_login);    
-        } else {
-            $account = $this->_account->find($this->_login);
-        }
-        if (is_null($account) === true) {
+        try {
+            $account = new Opus_Security_Account($this->_login);
+        } catch (Exception $ex) {
             return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, $this->_login,
                 array('The supplied identity could not be found.'));
         }
