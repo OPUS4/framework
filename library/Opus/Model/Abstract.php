@@ -42,7 +42,7 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_Abstract
+abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 {
 
     /**
@@ -331,13 +331,24 @@ abstract class Opus_Model_Abstract
     }
 
     /**
+     * The default ResourceId of a model is its class name. If the
+     * model instance comprehends an id, an hashmark and the id
+     * should be attached.
+     *
+     * @return string The ResourceId for Zend_Acl.
+     */
+    public function getResourceId() {
+        return get_class($this);
+    }
+
+    /**
      * By default, the textual representation of a modeled entity is
      * its class name.
      *
      * @return string Model class name.
      */
     public function getDisplayName() {
-        return get_class($this);
+        return $this->get_class($this);
     }
 
     /**

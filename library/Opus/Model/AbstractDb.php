@@ -371,6 +371,35 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     }
 
     /**
+     * Returns class name and the id of the model instance if an id is
+     * set already.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getResourceId()
+     * @return string The ResourceId for Zend_Acl.
+     */
+    public function getResourceId() {
+        $id = $this->getId();
+        $result = get_class($this);
+
+        if (is_null($id)) {
+            return $result;
+        }
+
+        $result .= "#";
+        if (is_array($id)) {
+            for ($i = 0; $i < count($id); $i++) {
+                if ($i != 0) {
+                    $result .= "/";
+                }
+                $result .= $id[$i];
+            }
+        } else {
+            $result .= $id;
+        }
+        return $result;
+    }
+
+    /**
      * By default, the textual representation of a modeled entity is
      * its class name and identifier.
      *
