@@ -24,7 +24,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Security
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -32,53 +32,59 @@
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Security_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing database access and models.
+ * Represents a system account and provides static methods to find and/or
+ * remove accounts. Thus, every account has to have a password, those password
+ * can be changed only by providing the current valid password. 
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_AllTests {
+class Opus_Security_Role extends Opus_Model_Abstract implements Zend_Acl_Role_Interface {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Augment 'Parent' field with model information.
+     *
+     * @var array
+     */
+    protected $_externalFields = array(
+        'Parent' => array(
+            'model' => 'Opus_Security_Role')
+    );
+
+    /**
+     * Add role name and parent fields.
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    protected function _init() {
+        $name = new Opus_Model_Field('Name');
+        $nameValidator = new Zend_Validate;
+        $nameValidator->addValidator(new Zend_Validate_NotEmpty);
+        $nameValidator->addValidator(new Zend_Validate_Alnum);        
+        $name->setValidator($nameValidator)
+            ->setMandatory(true);
+        
+        $parent = new Opus_Model_Field('Parent');
+        $parent->setMultiplicity('*');
+        
+        $this->addField($name)
+            ->addField($parent);
     }
-
+    
     /**
-     * Construct and return the test suite.
+     * Return an identifier for this role containing class name, role name and
+     * id (if persistent). E.g. Opus/Security/MyRole/4711.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @return string Role identifier.
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Security');
-        $suite->addTestSuite('Opus_Security_AccountTest');
-        $suite->addTestSuite('Opus_Security_AuthAdapterTest');
-        $suite->addTestSuite('Opus_Security_RoleTest');
-        return $suite;
+    public function getRoleId() {
+        $result = str_replace('_', '/', get_class($this));
+        $name = $this->getName();
+        if (empty($name) === false) {
+            $result = $result . '/' . $name;
+        }
+        return $result;
     }
 
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Security_AllTests::main') {
-    Opus_Security_AllTests::main();
 }
