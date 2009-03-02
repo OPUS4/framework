@@ -33,9 +33,7 @@
  */
 
 /**
- * Represents a system account and provides static methods to find and/or
- * remove accounts. Thus, every account has to have a password, those password
- * can be changed only by providing the current valid password. 
+ * Represents a system account with password and login name.
  *
  * @category    Framework
  * @package     Opus_Security
@@ -59,12 +57,10 @@ class Opus_Security_Account extends Opus_Model_AbstractDb {
     /**
      * Override to allow retrieving an account record from the unique login name.
      *
-     * @param string|integer|Zend_Db_Table_Row $id                (Optional) Id or login of existing record.
-     * @param Zend_Db_Table                    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @throws Opus_Model_Exception            Thrown if passed id is invalid.
-     * @throws Opus_Security_Exception         Thrown if a passed login is invalid.
+     * @param string|integer|Zend_Db_Table_Row $id (Optional) Id or login of existing record.
+     * @throws Opus_Security_Exception Thrown if a passed login is invalid.
      */
-    public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
+    public function __construct($id = null) {
         $rec = $id;
         if (is_string($rec) === true) {
             $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
@@ -73,7 +69,7 @@ class Opus_Security_Account extends Opus_Model_AbstractDb {
                 throw new Opus_Security_Exception('An account with the login name ' . $id . ' cannot be found.');
             }
         }
-        parent::__construct($rec, $tableGatewayModel);
+        parent::__construct($rec);
     }
     
     /**
@@ -156,7 +152,7 @@ class Opus_Security_Account extends Opus_Model_AbstractDb {
      * Set a new password and reset isNewPasswordRequired flag.
      * The password goes through the PHP sha1 hash algorithm.
      *
-     * @param string A new password to set.
+     * @param string $password The new password to set.
      * @return Opus_Security_Account Fluent interface.
      */
     public function setPassword($password) {
