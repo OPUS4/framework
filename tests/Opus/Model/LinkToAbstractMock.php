@@ -46,7 +46,7 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Model_AbstractMock';
+    protected $_modelClass = 'Opus_Model_ModelAbstract';
 
     /**
      * This mockup is not connected to a datastore so fetching and initializing

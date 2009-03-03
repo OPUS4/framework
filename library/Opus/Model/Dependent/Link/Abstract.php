@@ -65,7 +65,11 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
             throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target.');
         } else {
             $this->_model = $model;
-            $model->setTransactional(false);
+            
+            // Disable transactions if supported
+            if ($model instanceof Opus_Model_AbstractDb) {
+                $model->setTransactional(false);
+            }
         }
     }
 

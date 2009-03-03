@@ -70,6 +70,7 @@ class Opus_Model_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Model');
+        $suite->addTestSuite('Opus_Model_AbstractDbTest');
         $suite->addTestSuite('Opus_Model_AbstractTest');
         $suite->addTestSuite('Opus_Model_FieldTest');
         $suite->addTestSuite('Opus_Model_Dependent_Link_AbstractTest');

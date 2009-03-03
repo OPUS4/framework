@@ -34,15 +34,14 @@
  */
 
 /**
- * This class extends Opus_Model_Abstract to be able to test its code.
- * Opus_Model_Abstract is an abstract class.
+ * This class extends Opus_Model_AbstractDb to be able to test its code.
+ * Opus_Model_AbstractDb is an abstract class.
  * This mock is needed to be able to instantiate Opus_Model_Abstract.
  *
  * @category Tests
  * @package Opus_Model
- * @group AbstractTest
  */
-class Opus_Model_AbstractMock extends Opus_Model_AbstractDb {
+class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
 
 
     /**

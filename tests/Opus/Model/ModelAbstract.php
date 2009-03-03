@@ -26,6 +26,7 @@
  *
  * @category    Tests
  * @package     Opus_Model
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -39,60 +40,19 @@
  *
  * @category Tests
  * @package Opus_Model
- *
  */
-class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
+class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
 
     /**
-     * Array of field names for wich _loadExternal has been called.
-     *
-     * @var array Array of field names.
-     */
-    public $loadExternalHasBeenCalledOn = array();
-
-
-    /**
-     * Specify then table gateway.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
-     */
-    protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
-
-    /**
-     * Provide a mockup external fields declaration.
-     *
-     * @var array
-     */
-    protected $_externalFields = array(
-        'ExternalModel' => array(
-            'model' => 'Opus_Model_ModelAbstract',
-            'through' => 'Opus_Model_LinkToAbstractMock',
-            'options' => ''),
-        'LazyExternalModel' => array(
-            'model' => '',
-            'through' => '',
-            'options' => '',
-            'fetch' => 'lazy')
-    );
-
-    /**
-     * Initialize model with the a single field "ExternalModel".
+     * Initialize model with the a single field "value".
      *
      * @return void
      */
     protected function _init() {
-        $this->addField(new Opus_Model_Field('ExternalModel'));
-        $this->addField(new Opus_Model_Field('LazyExternalModel'));
-    }
+        $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
+        $this->_filterPrefix[] = 'Opus_Model_FilterTest';
 
-    /**
-     * Mock up function to detect calls to loadExternal.
-     *
-     * @param string $fieldname A fieldname.
-     * @see    library/Opus/Model/Opus_Model_Abstract#_loadExternal()
-     * @return void
-     */
-    protected function _loadExternal($fieldname) {
-        $this->loadExternalHasBeenCalledOn[] = $fieldname;
+        $value = new Opus_Model_Field('Value');
+        $this->addField($value);
     }
 }
