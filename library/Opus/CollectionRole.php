@@ -214,6 +214,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             $result[] = array(
                     'Id' => $subCollection->getId(),
                     'Name' => $subCollection->getName(),
+                    'Parent' => $this->getId(),
                     'SubCollection' => $subCollection->toArray(),
                 );
         }
