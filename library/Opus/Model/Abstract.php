@@ -358,16 +358,14 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      */
     public function toArray() {
         $result = array();
-        foreach ($this->_fields as $fieldname => $field) {
+        foreach (array_keys($this->_fields) as $fieldname) {
 
-            // Call to getField() to ensure fetching of pending fields.
-            if (in_array($fieldname, $this->_pending) === true) {
-                $field = $this->getField($fieldname);
-            }
+            $callname = 'get' . $fieldname;
+            $fieldvalue = $this->$callname();
 
-            if ($field->hasMultipleValues()) {
+            if ($this->getField($fieldname)->hasMultipleValues()) {
                 $fieldvalues = array();
-                foreach($field->getValue() as $value) {
+                foreach($fieldvalue as $value) {
                     if ($value instanceof Opus_Model_Abstract) {
                         $fieldvalues[] = $value->toArray();
                     } else {
@@ -376,10 +374,10 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 }
                 $result[$fieldname] = $fieldvalues;
             } else {
-                if ($field->getValue() instanceof Opus_Model_Abstract) {
-                    $result[$fieldname] = $field->getValue()->toArray();
+                if ($fieldvalue instanceof Opus_Model_Abstract) {
+                    $result[$fieldname] = $fieldvalue->toArray();
                 } else {
-                    $result[$fieldname] = $field->getValue();
+                    $result[$fieldname] = $fieldvalue;
                 }
             }
         }
@@ -405,53 +403,48 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      */
     protected function _recurseXml(DomDocument $domXml) {
 
-        // Iterate internal fields and add them as attributes
-        foreach ($this->_fields as $fieldname => $field) {
-            if (array_key_exists($fieldname, $this->_externalFields) === true) {
-                continue;
-            }
+        foreach (array_keys($this->_fields) as $fieldname) {
 
-            // Call to getField() to ensure fetching of pending fields.
-            if (in_array($fieldname, $this->_pending) === true) {
-                $field = $this->getField($fieldname);
-            }
+            $callname = 'get' . $fieldname;
+            $fieldvalue = $this->$callname();
 
-            if ($field->hasMultipleValues()) {
-                foreach($field->getValue() as $value) {
-                    $domXml->documentElement->setAttribute($fieldname, $value);
-                }
-            } else {
-                $domXml->documentElement->setAttribute($fieldname, $field->getValue());
-            }
-        }
-
-        // Iterate external fields and add them as child elements
-        foreach ($this->_fields as $fieldname => $field) {
-            if (array_key_exists($fieldname, $this->_externalFields) === false) {
-                continue;
-            }
-            // Call to getField() to ensure fetching of pending fields.
-            if (in_array($fieldname, $this->_pending) === true) {
-                $field = $this->getField($fieldname);
-            }
-
-            $child = new DomDocument;
-
-            if ($field->hasMultipleValues()) {
-                foreach($field->getValue() as $value) {
-                    if ($value instanceof Opus_Model_Abstract) {
+            if ($this->getField($fieldname)->hasMultipleValues()) {
+                foreach($fieldvalue as $value) {
+                    if (array_key_exists($fieldname, $this->_externalFields) === true) {
+                        $child = new DomDocument;
                         $element = $child->createElement($fieldname);
                         $child->appendChild($element);
-                        $result = $value->_recurseXml($child);
+                        if ($value instanceof Opus_Model_Abstract) {
+                            $result = $value->_recurseXml($child);
+                        } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
+                            $classname = $this->getField($fieldname)->getValueModelClass();
+                            $result = new $classname;
+                            $result = $result->_recurseXml($child);
+                        } else {
+                            $result = $child;
+                        }
                         $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
+                    } else {
+                        $domXml->documentElement->setAttribute($fieldname, $value);
                     }
                 }
             } else {
-                if ($field->getValue() instanceof Opus_Model_Abstract) {
+                if (array_key_exists($fieldname, $this->_externalFields) === true) {
+                    $child = new DomDocument;
                     $element = $child->createElement($fieldname);
                     $child->appendChild($element);
-                    $result = $field->getValue()->_recurseXml($child);
+                    if ($fieldvalue instanceof Opus_Model_Abstract) {
+                        $result = $fieldvalue->_recurseXml($child);
+                    } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
+                        $classname = $this->getField($fieldname)->getValueModelClass();
+                        $result = new $classname;
+                        $result = $result->_recurseXml($child);
+                    } else {
+                        $result = $child;
+                    }
                     $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
+                } else {
+                    $domXml->documentElement->setAttribute($fieldname, $fieldvalue);
                 }
             }
         }
