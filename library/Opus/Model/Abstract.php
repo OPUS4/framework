@@ -348,7 +348,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      * @return string Model class name.
      */
     public function getDisplayName() {
-        return $this->get_class($this);
+        return get_class($this);
     }
 
     /**

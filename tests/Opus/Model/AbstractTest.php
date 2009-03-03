@@ -312,6 +312,18 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
+     * Test default getDisplayName() result of Opus_Model_Abstract
+     * is the class name.
+     *
+     * @return void
+     */
+    public function testAbstractDisplayName() {
+        $model = new Opus_Model_ModelWithHiddenField;
+        $dspln = $model->getDisplayName();
+        $this->assertEquals('Opus_Model_ModelWithHiddenField', $dspln, 'Expected class name.');
+    }
+
+    /**
      * Test if zero model entities would be retrieved by static getAll()
      * on an empty database.
      *
@@ -638,6 +650,28 @@ class Opus_Model_AbstractTest extends PHPUnit_Extensions_Database_TestCase {
         $errors = $model->getValidationErrors();
 
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
+    }
+ 
+    /**
+     * Test if the class under test implements Zend_Acl_Resource_Interface.
+     *
+     * @return void
+     */
+    public function testImplementsZendAclResourceInterface() {
+        $model = new Opus_Model_AbstractMock();
+        $this->assertTrue($model instanceof Zend_Acl_Resource_Interface, 
+            'Class does not implement Zend_Acl_Resource_Interface.');
+    }
+ 
+    /**
+     * Test format of resource id is class name.
+     *
+     * @return void
+     */   
+    public function testResourceIdFormat() {
+        $model = new Opus_Model_AbstractMock();
+        $resid = $model->getResourceId();
+        $this->assertEquals('Opus_Model_AbstractMock', $resid, 'Wrong standard resource id. Expected class name');
     }
 
 }
