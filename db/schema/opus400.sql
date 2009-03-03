@@ -616,7 +616,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`configurations`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`configurations` (
-  `id` INT UNSIGNED NOT NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL ,
   `theme` VARCHAR(45) NULL DEFAULT 'default' ,
   `site_name` VARCHAR(255) NULL ,
@@ -634,7 +634,7 @@ ROW_FORMAT = DEFAULT;
 -- Table `opus400`.`roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`roles` (
-  `id` INT UNSIGNED NOT NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `parent` INT UNSIGNED NULL ,
   `name` VARCHAR(255) NULL ,
   PRIMARY KEY (`id`) ,
@@ -651,7 +651,7 @@ ENGINE = InnoDB;
 -- Table `opus400`.`privilegs`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`privilegs` (
-  `id` INT NOT NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL ,
   `privileg` VARCHAR(15) NOT NULL ,
   `resource` VARCHAR(255) NOT NULL ,
@@ -690,6 +690,23 @@ COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
+
+-- -----------------------------------------------------
+-- Table `opus400`.`translations`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `opus400`.`translations` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+    `context` VARCHAR(15) NOT NULL,
+    `locale` VARCHAR(10) NOT NULL,    
+    `translation_key` VARCHAR(15) NOT NULL,
+    `translation_msg` VARCHAR(15) NOT NULL,    
+    PRIMARY KEY (`id`)
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8
+COLLATE = utf8_general_ci
+PACK_KEYS = 0
+ROW_FORMAT = DEFAULT;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
