@@ -50,13 +50,8 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
      */
     public function __construct(array &$documentdata, Opus_Search_Adapter_FileAdapter $file = null)
     {
-        if (false === is_null($file)) {
-                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $file->getFulltext(), $this->__encoding));
-                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $file->_path, $this->__encoding));
-        } else {
-                $this->addField(Zend_Search_Lucene_Field::UnStored('contents', '', $this->__encoding));
-                $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', 'Metadaten', $this->__encoding));
-        }
+        $this->addField(Zend_Search_Lucene_Field::UnStored('contents', $documentdata['content'], $this->__encoding));
+        $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $documentdata['source'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('docid', $documentdata['docid'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnIndexed('year', $documentdata['year'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('abstract', $documentdata['abstract'], $this->__encoding));

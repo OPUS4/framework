@@ -72,7 +72,7 @@ class Opus_Search_Index_Indexer {
 			#print_r($doc->getDocument());
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
-			 $this->entryindex->addDocument(new Opus_Search_Index_Document($analyzedDoc));
+			 	$this->entryindex->addDocument(new Opus_Search_Index_Document($analyzedDoc));
             }
 			# Do not flush, it will work without it
 			# Flush sends some return value that Zend interprets as header information
@@ -87,9 +87,11 @@ class Opus_Search_Index_Indexer {
         #print_r($doc->toArray());
         $docarray = array();
         $document['docid'] = $doc->getId();
+        $document['source'] = 'metadata';
         $document['year'] = $doc->getField('PublishedYear')->getValue();
         $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
         $document['urn'] = $doc->getUrn()->getValue();
+        $document['content'] = '';
         $titles = $doc->getField('TitleMain')->getValue();
         $title_count = count($titles);
         $abstracts = $doc->getField('TitleAbstract')->getValue();
@@ -104,13 +106,18 @@ class Opus_Search_Index_Indexer {
             array_push($langarray, $lang);
             array_push($returnarray, $document);
         }
-        // Get abstract with the corresponding language of title
-        // if that does not exist, get first title
-        #foreach ($abstracts as $abstract)
-        #{
-
-        #}
+        // index files and add the last title and last abstract to data set
+        $files = $doc->getField('File')->getValue();
+        $file_count = count($files);
+        foreach ($files as $file)
+        {
+        	$document['source'] = $file->getPathName();
+        	$document['content'] = $this->getFileContent($file); 
+        	array_push($returnarray, $document);
+        }
         // Look if there are non-indexed abstracts left
+        $document['source'] = 'metadata';
+        $document['content'] = '';
         $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
         $document['title'] = $doc->getTitleMain(0)->getValue();
         foreach ($not_processed_abstracts as $abstract) {
@@ -152,5 +159,19 @@ class Opus_Search_Index_Indexer {
 	       return implode('; ', $aut);
 	    }
 	    return null;
+	}
+	
+	private function getFileContent($file) {
+       //FIXME: Hard coded path!
+        $path_prefix = '../workspace/files/' . $file->getDocumentId();
+		switch ($file->getMimeType())
+		{
+			case 'application/pdf':
+				$fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				break;
+			default:
+				$fulltext = null;
+		}
+		return $fulltext;
 	}
 }
