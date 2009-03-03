@@ -171,7 +171,6 @@
 	       <enumeration value="TitleAbstract"/>
 	       <enumeration value="TitleMain"/>
 	       <enumeration value="TitleParent"/>
-	       <enumeration value="VgWortPixelUrl"/>
 	       <enumeration value="Volume"/>
 	       <enumeration value="IdentifierIsbn"/>
 	       <enumeration value="IdentifierUrn"/>

@@ -85,7 +85,6 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="ServerDateValid"/>
             <field name="Source"/>
             <field name="SwbId"/>
-            <field name="VgWortPixelUrl"/>
             <field name="Volume"/>
 
         </documenttype>';
@@ -184,8 +183,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
                     'ServerDateUnlocking' => '2008-12-01',
                     'ServerDateValid' => '2008-12-01',
                     'Source' => 'BlaBla',
-                    'SwbId' => '1',
-                    'VgWortPixelUrl' => 'http://geht.doch.eh.nicht',
+                    'SwbId' => '1'
                 )
             )
         );
