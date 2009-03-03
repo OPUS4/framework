@@ -408,33 +408,18 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
             $callname = 'get' . $fieldname;
             $fieldvalue = $this->$callname();
 
-            if ($this->getField($fieldname)->hasMultipleValues()) {
-                foreach($fieldvalue as $value) {
-                    if (array_key_exists($fieldname, $this->_externalFields) === true) {
-                        $child = new DomDocument;
-                        $element = $child->createElement($fieldname);
-                        $child->appendChild($element);
-                        if ($value instanceof Opus_Model_Abstract) {
-                            $result = $value->_recurseXml($child);
-                        } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
-                            $classname = $this->getField($fieldname)->getValueModelClass();
-                            $result = new $classname;
-                            $result = $result->_recurseXml($child);
-                        } else {
-                            $result = $child;
-                        }
-                        $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
-                    } else {
-                        $domXml->documentElement->setAttribute($fieldname, $value);
-                    }
-                }
-            } else {
+            // Create array from non-multiple fieldvalue.
+            if ($this->getField($fieldname)->hasMultipleValues() === false) {
+                $fieldvalue = array($fieldvalue);
+            }
+
+            foreach($fieldvalue as $value) {
                 if (array_key_exists($fieldname, $this->_externalFields) === true) {
                     $child = new DomDocument;
                     $element = $child->createElement($fieldname);
                     $child->appendChild($element);
-                    if ($fieldvalue instanceof Opus_Model_Abstract) {
-                        $result = $fieldvalue->_recurseXml($child);
+                    if ($value instanceof Opus_Model_Abstract) {
+                        $result = $value->_recurseXml($child);
                     } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
                         $classname = $this->getField($fieldname)->getValueModelClass();
                         $result = new $classname;
@@ -444,9 +429,10 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                     }
                     $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
                 } else {
-                    $domXml->documentElement->setAttribute($fieldname, $fieldvalue);
+                    $domXml->documentElement->setAttribute($fieldname, $value);
                 }
             }
+
         }
 
         return $domXml;
