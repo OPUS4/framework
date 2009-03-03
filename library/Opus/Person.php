@@ -74,12 +74,40 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $last_name = new Opus_Model_Field('LastName');
 
+        $name = new Opus_Model_Field('Name');
+
         $this->addField($academic_title)
             ->addField($date_of_birth)
             ->addField($place_of_birth)
             ->addField($email)
             ->addField($first_name)
-            ->addField($last_name);
+            ->addField($last_name)
+            ->addField($name);
+    }
+
+    /**
+     * Get uniform representation of names.
+     *
+     * @return string
+     */
+    public function getName() {
+        return $this->getLastName() . ', ' . $this->getFirstName();
+    }
+
+    /**
+     * Virtual field to deliver uniform representation of names.
+     *
+     * @return string
+     */
+    public function _fetchName() {
+    }
+
+    /**
+     * Name is a virtual field (i.e. it is not persisted).
+     *
+     * @return void
+     */
+    public function _storeName() {
     }
 
     /**
