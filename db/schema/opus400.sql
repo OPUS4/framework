@@ -648,16 +648,20 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`privilegs`
+-- Table `opus400`.`privileges`
+-- 
+-- The columns role_id, privilege and resource may be changed to allow NULL.
+-- Zend_Acl uses null to define default rules.
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`privilegs` (
+CREATE  TABLE IF NOT EXISTS `opus400`.`privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL ,
-  `privileg` VARCHAR(15) NOT NULL ,
+  `privilege` VARCHAR(15) NOT NULL ,
   `resource` VARCHAR(255) NOT NULL ,
+  `granted` TINYINT NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_privilegs_roles` (`role_id` ASC) ,
-  CONSTRAINT `fk_privilegs_roles`
+  INDEX `fk_privileges_roles` (`role_id` ASC) ,
+  CONSTRAINT `fk_privileges_roles`
     FOREIGN KEY (`role_id` )
     REFERENCES `opus400`.`roles` (`id` )
     ON DELETE NO ACTION
