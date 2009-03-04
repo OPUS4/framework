@@ -24,62 +24,36 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Security
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Security_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing database access and models.
+ * This class extends Zend_Acl to load and store rules automatically.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_AllTests {
+class Opus_Security_Acl extends Zend_Acl{
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Holds the RessourceIds of already loaded resources.
      *
-     * @return void
+     * @var array
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
-    }
+    protected $_loadedResources = array();
 
     /**
-     * Construct and return the test suite.
+     * Holds the RoleIds of already loaded roles.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @var array
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Security');
-        $suite->addTestSuite('Opus_Security_AccountTest');
-        $suite->addTestSuite('Opus_Security_AclTest');
-        $suite->addTestSuite('Opus_Security_AuthAdapterTest');
-        $suite->addTestSuite('Opus_Security_RoleTest');
-        return $suite;
-    }
+    protected $_loadedRoles = array();
 
-}
 
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Security_AllTests::main') {
-    Opus_Security_AllTests::main();
+
 }
