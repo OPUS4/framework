@@ -33,19 +33,19 @@
  */
 
 /**
- * Table gateway class to table 'privileges'.
+ * Table gateway class to table 'resources'.
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_Privileges extends Opus_Db_TableGateway {
+class Opus_Db_Resources extends Opus_Db_TableGateway {
     /**
      * Table schema name.
      *
      * @var string
      */
-    protected $_name = 'privileges';
+    protected $_name = 'resources';
 
     /**
      * All dependant Tables,
@@ -53,7 +53,7 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_Roles', 'Opus_Db_Resources');
+    protected $_dependentTables = array('Opus_Db_Resources');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -62,13 +62,8 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
-            'Roles' => array(
-                'columns' => 'role_id',
-                'refTableClass' => 'Opus_Db_Roles',
-                'refColumns' => 'id',
-                ),
-            'Resources' => array(
-                'columns' => 'resource_id',
+            'Documents' => array(
+                'columns' => 'parent',
                 'refTableClass' => 'Opus_Db_Resources',
                 'refColumns' => 'id',
                 ),
