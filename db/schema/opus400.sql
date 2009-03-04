@@ -637,6 +637,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`resources` (
   `parent` INT UNSIGNED NULL ,
   `name` VARCHAR(255) NULL ,
   PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
   INDEX `fk_resources_resources` (`parent` ASC) ,
   CONSTRAINT `fk_resources_resources`
     FOREIGN KEY (`parent` )
@@ -675,6 +676,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`privileges` (
   `privilege` VARCHAR(15) NOT NULL ,
   `granted` TINYINT NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
   PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `UNIQUE_ROLE_ID_RESOURCE_ID_PRIVILEGE` (`role_id` ASC, `resource_id` ASC, `privilege` ASC) ,
   INDEX `fk_privileges_roles` (`role_id` ASC) ,
   CONSTRAINT `fk_privileges_roles`
     FOREIGN KEY (`role_id` )
