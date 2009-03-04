@@ -52,6 +52,7 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         return array(
         array('Opus_Db_Accounts'),
         array('Opus_Db_CollectionsRoles'),
+        array('Opus_Db_Configurations'),
         array('Opus_Db_DocumentEnrichments'),
         array('Opus_Db_DocumentFiles'),
         array('Opus_Db_DocumentIdentifiers'),

@@ -100,6 +100,8 @@ class Opus_Bootstrap_Base {
         $this->_setupBackendCaching();
         $this->_setupBackend();
 
+        $this->_setupInternalConfiguration();
+
         $this->_setupFrontendCaching();
         $this->_setupFrontend();
 
@@ -223,6 +225,16 @@ class Opus_Bootstrap_Base {
         // This avoids an exception if the locale cannot determined automatically.
         Zend_Locale::setDefault('de');
 
+    }
+
+
+    /**
+     * Augment the application configuration with configuration values
+     * delivered by Opus_Configuration model.
+     *
+     * @return void
+     */
+    protected function _setupInternalConfiguration() {       
     }
 
     /**
