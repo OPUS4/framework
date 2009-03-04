@@ -629,6 +629,21 @@ ENGINE = InnoDB
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
+-- -----------------------------------------------------
+-- Table `opus400`.`resources`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `opus400`.`resources` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `parent` INT UNSIGNED NULL ,
+  `name` VARCHAR(255) NULL ,
+  PRIMARY KEY (`id`) ,
+  INDEX `fk_resources_resources` (`parent` ASC) ,
+  CONSTRAINT `fk_resources_resources`
+    FOREIGN KEY (`parent` )
+    REFERENCES `opus400`.`resources` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `opus400`.`roles`
@@ -656,14 +671,20 @@ ENGINE = InnoDB;
 CREATE  TABLE IF NOT EXISTS `opus400`.`privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL ,
+  `resource_id` INT UNSIGNED NOT NULL ,
   `privilege` VARCHAR(15) NOT NULL ,
-  `resource` VARCHAR(255) NOT NULL ,
   `granted` TINYINT NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_privileges_roles` (`role_id` ASC) ,
   CONSTRAINT `fk_privileges_roles`
     FOREIGN KEY (`role_id` )
     REFERENCES `opus400`.`roles` (`id` )
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION ,
+  INDEX `fk_privileges_resources` (`resource_id`ASC) ,
+  CONSTRAINT `fk_privileges_resources`
+    FOREIGN KEY (`resource_id`)
+    REFERENCES `opus400`.`resources` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
