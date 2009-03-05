@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -92,4 +93,21 @@ class Opus_Configuration extends Opus_Model_AbstractDb
         return new Zend_Config($cfg);
     }
 
+    /**
+     * Retrieve all Opus_Configuration instances from the database.
+     *
+     * @return array Array of Opus_Configuration objects.
+     */
+    public static function getAll() {
+        return self::getAllFrom('Opus_Configuration', 'Opus_Db_Configurations');
+    }
+
+    /**
+     * Returns name field.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     */
+    public function getDisplayName() {
+       return $this->getName();
+    }
 }
