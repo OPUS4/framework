@@ -38,7 +38,7 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Acl extends Zend_Acl{
+class Opus_Security_Acl extends Zend_Acl {
 
     /**
      * Holds the RessourceIds of already loaded resources.
@@ -54,6 +54,21 @@ class Opus_Security_Acl extends Zend_Acl{
      */
     protected $_loadedRoles = array();
 
+    /**
+     * Table gateway to privileges table.
+     *
+     * @var Zend_Db_Table
+     */
+    protected $_dba = null;
 
+    /**
+     * Initialize table gateway.
+     *
+     */
+    public function __construct() {
+        $this->_dba = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
+    }
+    
+    
 
 }

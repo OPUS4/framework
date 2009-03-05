@@ -27,6 +27,7 @@
  * @category    Tests
  * @package     Opus_Security
  * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
