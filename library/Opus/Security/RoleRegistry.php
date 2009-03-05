@@ -26,57 +26,19 @@
  *
  * @category    Framework
  * @package     Opus_Security
- * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * This class extends Zend_Acl to load and store rules automatically.
+ * This class extends Zend_Acl_Role_Registry to load and store Roles using
+ * via the Opus_Security_Role model.
  *
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Acl extends Zend_Acl {
-
-    /**
-     * Holds the RessourceIds of already loaded resources.
-     *
-     * @var array
-     */
-    protected $_loadedResources = array();
-
-    /**
-     * Table gateway to privileges table.
-     *
-     * @var Zend_Db_Table
-     */
-    protected $_dba = null;
-
-    /**
-     * Initialize table gateway.
-     *
-     */
-    public function __construct() {
-        $this->_dba = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
-    }
-
-    /**
-     * Returns the Role registry for this ACL. The Role registry as delivered
-     * by this method is able to make Roles perstent.
-     *
-     * If no Role registry has been created yet, a new default Role registry
-     * is created and returned.
-     *
-     * @return Opus_Security_RoleRegistry
-     */
-    protected function _getRoleRegistry()
-    {
-        if (null === $this->_roleRegistry) {
-            $this->_roleRegistry = new Opus_Security_RoleRegistry();
-        }
-        return $this->_roleRegistry;
-    }
+class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
 
 }

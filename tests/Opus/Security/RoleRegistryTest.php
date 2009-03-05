@@ -24,59 +24,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus_Security
- * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * This class extends Zend_Acl to load and store rules automatically.
+ * Test case for Opus_Security_RoleRegistry. 
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus_Security
+ * 
+ * @group       RoleRegistryTest
  */
-class Opus_Security_Acl extends Zend_Acl {
-
+class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
+    
     /**
-     * Holds the RessourceIds of already loaded resources.
+     * Test if creating a new role registry.
      *
-     * @var array
+     * @return void
      */
-    protected $_loadedResources = array();
-
-    /**
-     * Table gateway to privileges table.
-     *
-     * @var Zend_Db_Table
-     */
-    protected $_dba = null;
-
-    /**
-     * Initialize table gateway.
-     *
-     */
-    public function __construct() {
-        $this->_dba = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
+    public function testCreate() {
+        $role = new Opus_Security_RoleRegistry;
     }
-
-    /**
-     * Returns the Role registry for this ACL. The Role registry as delivered
-     * by this method is able to make Roles perstent.
-     *
-     * If no Role registry has been created yet, a new default Role registry
-     * is created and returned.
-     *
-     * @return Opus_Security_RoleRegistry
-     */
-    protected function _getRoleRegistry()
-    {
-        if (null === $this->_roleRegistry) {
-            $this->_roleRegistry = new Opus_Security_RoleRegistry();
-        }
-        return $this->_roleRegistry;
-    }
-
+ 
 }
