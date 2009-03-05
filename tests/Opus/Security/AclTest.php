@@ -115,14 +115,14 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testResourceExistsAfterAddingToAcl() {
-        $this->markTestSkipped('Not yet implemented.');
-    
+        $this->markTestSkipped('Implementation errors: Segmantation fault in PHP!');
         $acl = new Opus_Security_Acl();
         $resource = new Zend_Acl_Resource('MyResource');
         $acl->add($resource);
         $rowset = $this->_resources->fetchAll($this->_resources->select()
             ->where('name = ?', $resource->getResourceId()));
         $this->assertEquals(1, $rowset->count(), 'Opus_Security_Acl does not store resources in the DB.');
+        $this->assertTrue($acl->has($resource));
     }
 
     /**
@@ -131,12 +131,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testHasMethodLoadsResources() {
-        $this->markTestSkipped('Not yet implemented.');
-    
+        $this->markTestSkipped('Implementation errors: Segmantation fault in PHP!');
         $acl = new Opus_Security_Acl();
         $resource = new Zend_Acl_Resource('MyResource');
         $acl->add($resource);
-        
+
         $acl = new Opus_Security_Acl();
         $this->assertTrue($acl->has($resource), 'Acl does not load resources from database.');
     }
