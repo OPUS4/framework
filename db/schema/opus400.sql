@@ -43,7 +43,6 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 COMMENT = 'Document related data (monolingual, unreproducible colums).'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -64,7 +63,6 @@ CREATE  TABLE IF NOT EXISTS `document_identifiers` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for identifiers  related to the document.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -80,7 +78,6 @@ CREATE  TABLE IF NOT EXISTS `institutes_contents` (
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 COMMENT = '(Relation) table for insitute related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -105,7 +102,6 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for file related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -125,7 +121,6 @@ CREATE  TABLE IF NOT EXISTS `file_hashvalues` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table for hash values.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -148,7 +143,6 @@ CREATE  TABLE IF NOT EXISTS `document_subjects` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for subject heading related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -170,7 +164,6 @@ CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table with title and abstract related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -189,7 +182,6 @@ CREATE  TABLE IF NOT EXISTS `persons` (
   INDEX `last_name` (`last_name` ASC) )
 ENGINE = InnoDB
 COMMENT = 'Person related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -211,7 +203,6 @@ CREATE  TABLE IF NOT EXISTS `person_external_keys` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for external identifiers related to a person.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -246,7 +237,6 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, persons, institutes_contents).'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -270,7 +260,6 @@ CREATE  TABLE IF NOT EXISTS `document_patents` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for patent related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -293,7 +282,6 @@ CREATE  TABLE IF NOT EXISTS `document_statistics` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for statistic related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -315,7 +303,6 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for notes to documents.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -353,7 +340,6 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Key-value table for database scheme enhancements.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -377,7 +363,6 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 COMMENT = 'Table for licence related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -399,7 +384,6 @@ CREATE  TABLE IF NOT EXISTS `institutes_structure` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table for the structure of the institutes hierarchy.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -439,7 +423,6 @@ CREATE  TABLE IF NOT EXISTS `institutes_replacement` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table for the institutes history related data.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -496,7 +479,6 @@ CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, document_licences).'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -522,7 +504,6 @@ CREATE  TABLE IF NOT EXISTS `link_institutes_documents` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, institutes_contents).'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -544,7 +525,6 @@ CREATE  TABLE IF NOT EXISTS `document_references` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for identifiers referencing to related documents.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -564,7 +544,6 @@ CREATE  TABLE IF NOT EXISTS `link_metadocument_collection` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Reference to a metadata document for a collection.'
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -582,7 +561,6 @@ CREATE  TABLE IF NOT EXISTS `configurations` (
   `smtp_server_password` VARCHAR(45) NULL ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 -- -----------------------------------------------------
@@ -668,7 +646,6 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
@@ -684,7 +661,6 @@ CREATE  TABLE IF NOT EXISTS `translations` (
     PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB
-PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 
