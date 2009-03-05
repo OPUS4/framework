@@ -8,9 +8,9 @@ DEFAULT COLLATE = utf8_general_ci;
 USE `opus400`;
 
 -- -----------------------------------------------------
--- Table `opus400`.`documents`
+-- Table `documents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
+CREATE  TABLE IF NOT EXISTS `documents` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `range_id` INT NULL COMMENT 'Foreign key: ?.? .' ,
   `completed_date` DATE NULL COMMENT 'Date of completion of the publication.' ,
@@ -48,9 +48,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_identifiers`
+-- Table `document_identifiers`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
+CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn') NOT NULL COMMENT 'Type of the identifier.' ,
@@ -59,7 +59,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
   INDEX `fk_document_identifiers_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_identifiers_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -69,9 +69,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`institutes_contents`
+-- Table `institutes_contents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
+CREATE  TABLE IF NOT EXISTS `institutes_contents` (
   `id` INT UNSIGNED NOT NULL COMMENT 'Primary key.' ,
   `type` VARCHAR(50) NOT NULL COMMENT 'Type of institute.' ,
   `name` VARCHAR(255) NOT NULL COMMENT 'Name or description of the institute.' ,
@@ -85,9 +85,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_files`
+-- Table `document_files`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
+CREATE  TABLE IF NOT EXISTS `document_files` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `path_name` TEXT NOT NULL COMMENT 'File and path name.' ,
@@ -100,7 +100,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
   INDEX `fk_document_files_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_files_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -110,9 +110,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`file_hashvalues`
+-- Table `file_hashvalues`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
+CREATE  TABLE IF NOT EXISTS `file_hashvalues` (
   `file_id` INT UNSIGNED NOT NULL ,
   `type` VARCHAR(50) NOT NULL COMMENT 'Type of the hash value.' ,
   `value` TEXT NOT NULL COMMENT 'Hash value.' ,
@@ -120,7 +120,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
   INDEX `fk_file_hashvalues_document_files` (`file_id` ASC) ,
   CONSTRAINT `fk_file_hashvalues_document_files`
     FOREIGN KEY (`file_id` )
-    REFERENCES `opus400`.`document_files` (`id` )
+    REFERENCES `document_files` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -130,9 +130,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_subjects`
+-- Table `document_subjects`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
+CREATE  TABLE IF NOT EXISTS `document_subjects` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the subject heading.' ,
@@ -143,7 +143,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
   INDEX `fk_document_subjects_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_subjects_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -153,9 +153,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_title_abstracts`
+-- Table `document_title_abstracts`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
+CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Type of title or abstract.' ,
@@ -165,7 +165,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
   INDEX `fk_document_title_abstracts_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_title_abstracts_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -175,9 +175,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`persons`
+-- Table `persons`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
+CREATE  TABLE IF NOT EXISTS `persons` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `academic_title` VARCHAR(255) NULL COMMENT 'Academic title.' ,
   `date_of_birth` DATETIME NULL COMMENT 'Date of birth.' ,
@@ -194,9 +194,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`person_external_keys`
+-- Table `person_external_keys`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
+CREATE  TABLE IF NOT EXISTS `person_external_keys` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `person_id` INT UNSIGNED NULL COMMENT 'Foreign key to: persons.persons_id.' ,
   `type` ENUM('pnd') NOT NULL COMMENT 'Type of the external identifer, i. e. PND-Number (Personennormdatei).' ,
@@ -206,7 +206,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
   INDEX `fk_person_external_keys_persons` (`person_id` ASC) ,
   CONSTRAINT `fk_person_external_keys_persons`
     FOREIGN KEY (`person_id` )
-    REFERENCES `opus400`.`persons` (`id` )
+    REFERENCES `persons` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -216,9 +216,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_persons_documents`
+-- Table `link_persons_documents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
+CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
   `person_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: persons.persons_id.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
   `institute_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id.' ,
@@ -231,17 +231,17 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
   INDEX `fk_link_persons_documents_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_link_documents_persons_persons`
     FOREIGN KEY (`person_id` )
-    REFERENCES `opus400`.`persons` (`id` )
+    REFERENCES `persons` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_link_persons_publications_institutes_contents`
     FOREIGN KEY (`institute_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_persons_documents_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -251,9 +251,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_patents`
+-- Table `document_patents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
+CREATE  TABLE IF NOT EXISTS `document_patents` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `countries` TEXT NOT NULL COMMENT 'Countries in which the patent was granted.' ,
@@ -265,7 +265,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
   INDEX `fk_patent_information_document` (`document_id` ASC) ,
   CONSTRAINT `fk_patent_information_document`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -275,9 +275,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_statistics`
+-- Table `document_statistics`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
+CREATE  TABLE IF NOT EXISTS `document_statistics` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `type` TEXT NOT NULL COMMENT 'Type of the statistic.' ,
@@ -288,7 +288,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
   INDEX `fk_document_statistics_Document` (`document_id` ASC) ,
   CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -298,9 +298,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_notes`
+-- Table `document_notes`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
+CREATE  TABLE IF NOT EXISTS `document_notes` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `message` TEXT NOT NULL COMMENT 'Message text.' ,
@@ -310,7 +310,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
   INDEX `fk_document_notes_document` (`document_id` ASC) ,
   CONSTRAINT `fk_document_notes_document`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -320,9 +320,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`type_enrichments`
+-- Table `type_enrichments`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`type_enrichments` (
+CREATE  TABLE IF NOT EXISTS `type_enrichments` (
   `id` INT UNSIGNED NOT NULL ,
   `name` VARCHAR(100) NOT NULL ,
   `type` VARCHAR(100) NOT NULL ,
@@ -331,9 +331,9 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_enrichments`
+-- Table `document_enrichments`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
+CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `type_enrichment_id` INT UNSIGNED NOT NULL ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
@@ -343,12 +343,12 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
   INDEX `fk_document_enrichments_type_enrichments` (`type_enrichment_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_document_enrichments_type_enrichments`
     FOREIGN KEY (`type_enrichment_id` )
-    REFERENCES `opus400`.`type_enrichments` (`id` )
+    REFERENCES `type_enrichments` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -358,9 +358,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_licences`
+-- Table `document_licences`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_licences` (
+CREATE  TABLE IF NOT EXISTS `document_licences` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `active` TINYINT NOT NULL COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?' ,
   `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment.' ,
@@ -382,9 +382,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`institutes_structure`
+-- Table `institutes_structure`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
+CREATE  TABLE IF NOT EXISTS `institutes_structure` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: institutes_contents.institutes_id.' ,
   `left` INT UNSIGNED NOT NULL COMMENT 'The left value of the nested set node.' ,
@@ -394,7 +394,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
   INDEX `fk_institutes_structure_institutes_contents` (`institutes_id` ASC) ,
   CONSTRAINT `fk_institutes_structure_institutes_contents`
     FOREIGN KEY (`institutes_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -404,9 +404,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`institutes_replacement`
+-- Table `institutes_replacement`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
+CREATE  TABLE IF NOT EXISTS `institutes_replacement` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to actual displayed/processed institute.' ,
   `replacement_for_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to replaced institute.' ,
@@ -419,22 +419,22 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
   INDEX `fk_link_institute_current_replacement` (`current_replacement_id` ASC) ,
   CONSTRAINT `fk_link_institute`
     FOREIGN KEY (`institutes_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_institute_replacement_for`
     FOREIGN KEY (`replacement_for_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_institute_replacement_by`
     FOREIGN KEY (`replacement_by_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_institute_current_replacement`
     FOREIGN KEY (`current_replacement_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -444,9 +444,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`accounts`
+-- Table `accounts`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`accounts` (
+CREATE  TABLE IF NOT EXISTS `accounts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `login` VARCHAR(45) NOT NULL COMMENT 'Login name.' ,
   `password` VARCHAR(45) NOT NULL COMMENT 'Password.' ,
@@ -457,9 +457,9 @@ COMMENT = 'Table for system user accounts.';
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`collections_roles`
+-- Table `collections_roles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
+CREATE  TABLE IF NOT EXISTS `collections_roles` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
   `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
@@ -476,9 +476,9 @@ COMMENT = 'Administration table for the indivdual collection trees.';
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_documents_licences`
+-- Table `link_documents_licences`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_licences` (
+CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
   `licence_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: licences.licences_id.' ,
   PRIMARY KEY (`document_id`, `licence_id`) ,
@@ -486,12 +486,12 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_licences` (
   INDEX `fk_documents_has_document_licences_document_licences` (`licence_id` ASC) ,
   CONSTRAINT `fk_documents_has_document_licences_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_documents_has_document_licences_document_licences`
     FOREIGN KEY (`licence_id` )
-    REFERENCES `opus400`.`document_licences` (`id` )
+    REFERENCES `document_licences` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -501,9 +501,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_institutes_documents`
+-- Table `link_institutes_documents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_institutes_documents` (
+CREATE  TABLE IF NOT EXISTS `link_institutes_documents` (
   `institute_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: institutes_contents.institutes_id.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
   `role` ENUM('publisher','creator','other') NOT NULL COMMENT 'Role of the institute in the actual institute-document context.' ,
@@ -512,12 +512,12 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_institutes_documents` (
   INDEX `fk_institutes_contents_has_documents_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_institutes_contents_has_documents_institutes_contents`
     FOREIGN KEY (`institute_id` )
-    REFERENCES `opus400`.`institutes_contents` (`id` )
+    REFERENCES `institutes_contents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_institutes_contents_has_documents_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -527,9 +527,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`document_references`
+-- Table `document_references`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`document_references` (
+CREATE  TABLE IF NOT EXISTS `document_references` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to referencing document.' ,
   `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn') NOT NULL COMMENT 'Type of the identifier.' ,
@@ -539,7 +539,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_references` (
   INDEX `fk_document_references_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_references_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
@@ -549,9 +549,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_metadocument_collection`
+-- Table `link_metadocument_collection`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_metadocument_collection` (
+CREATE  TABLE IF NOT EXISTS `link_metadocument_collection` (
   `content_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific collection' ,
   `role_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific role' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key of a document' ,
@@ -559,7 +559,7 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_metadocument_collection` (
   INDEX `fk_link_documents_collection_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_link_documents_collection_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `opus400`.`documents` (`id` )
+    REFERENCES `documents` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -569,9 +569,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`configurations`
+-- Table `configurations`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`configurations` (
+CREATE  TABLE IF NOT EXISTS `configurations` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(45) NOT NULL ,
   `theme` VARCHAR(45) NULL DEFAULT 'default' ,
@@ -586,9 +586,9 @@ PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
 -- -----------------------------------------------------
--- Table `opus400`.`resources`
+-- Table `resources`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`resources` (
+CREATE  TABLE IF NOT EXISTS `resources` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `parent` INT UNSIGNED NULL ,
   `name` VARCHAR(255) NULL ,
@@ -597,15 +597,15 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`resources` (
   INDEX `fk_resources_resources` (`parent` ASC) ,
   CONSTRAINT `fk_resources_resources`
     FOREIGN KEY (`parent` )
-    REFERENCES `opus400`.`resources` (`id` )
+    REFERENCES `resources` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `opus400`.`roles`
+-- Table `roles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`roles` (
+CREATE  TABLE IF NOT EXISTS `roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `parent` INT UNSIGNED NULL ,
   `name` VARCHAR(255) NULL ,
@@ -613,19 +613,19 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`roles` (
   INDEX `fk_roles_roles` (`parent` ASC) ,
   CONSTRAINT `fk_roles_roles`
     FOREIGN KEY (`parent` )
-    REFERENCES `opus400`.`roles` (`id` )
+    REFERENCES `roles` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`privileges`
+-- Table `privileges`
 -- 
 -- The columns role_id, privilege and resource may be changed to allow NULL.
 -- Zend_Acl uses null to define default rules.
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`privileges` (
+CREATE  TABLE IF NOT EXISTS `privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL ,
   `resource_id` INT UNSIGNED NOT NULL ,
@@ -636,22 +636,22 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`privileges` (
   INDEX `fk_privileges_roles` (`role_id` ASC) ,
   CONSTRAINT `fk_privileges_roles`
     FOREIGN KEY (`role_id` )
-    REFERENCES `opus400`.`roles` (`id` )
+    REFERENCES `roles` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION ,
   INDEX `fk_privileges_resources` (`resource_id`ASC) ,
   CONSTRAINT `fk_privileges_resources`
     FOREIGN KEY (`resource_id`)
-    REFERENCES `opus400`.`resources` (`id`)
+    REFERENCES `resources` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`link_accounts_roles`
+-- Table `link_accounts_roles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`link_accounts_roles` (
+CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
   `account_id` INT UNSIGNED NOT NULL ,
   `role_id` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`account_id`, `role_id`) ,
@@ -659,12 +659,12 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_accounts_roles` (
   INDEX `fk_accounts_has_roles_roles` (`role_id` ASC) ,
   CONSTRAINT `fk_accounts_has_roles_accounts`
     FOREIGN KEY (`account_id` )
-    REFERENCES `opus400`.`accounts` (`id` )
+    REFERENCES `accounts` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_accounts_has_roles_roles`
     FOREIGN KEY (`role_id` )
-    REFERENCES `opus400`.`roles` (`id` )
+    REFERENCES `roles` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -673,9 +673,9 @@ ROW_FORMAT = DEFAULT;
 
 
 -- -----------------------------------------------------
--- Table `opus400`.`translations`
+-- Table `translations`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `opus400`.`translations` (
+CREATE  TABLE IF NOT EXISTS `translations` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
     `context` VARCHAR(15) NOT NULL,
     `locale` VARCHAR(10) NOT NULL,    
