@@ -64,7 +64,7 @@ class Opus_Security_Acl extends Zend_Acl {
 
     /**
      * Returns the Role registry for this ACL. The Role registry as delivered
-     * by this method is able to make Roles perstent.
+     * by this method is able deliver the identifier of persisted roles.
      *
      * If no Role registry has been created yet, a new default Role registry
      * is created and returned.

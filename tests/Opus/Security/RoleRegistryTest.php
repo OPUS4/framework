@@ -50,5 +50,37 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
     public function testCreate() {
         $role = new Opus_Security_RoleRegistry;
     }
+  
+    /**
+     * Test if a persistent role is treated as registered by the registry.
+     *
+     * @return void
+     */ 
+    public function testPersistedRoleIsRegistered() {
+        $role = new Opus_Security_Role;
+        $id = $role->setName('MyRole')->store();
+        $rid = $role->getRoleId();
+
+        $reg = new Opus_Security_RoleRegistry;
+        $result = $reg->has($rid);
+        
+        $this->assertTrue($result, 'Persistent Role is not recocnized as registered.');
+    }
+    
+    /**
+     * Test if a persited role can be instanciated via
+     * the registrys get method.
+     *
+     * @return void
+     */
+    public function testPersitedRoleGetsReturnedByGet() {
+        $role = new Opus_Security_Role;
+        $id = $role->setName('MyRole')->store();
+        $rid = $role->getRoleId();
+
+        $reg = new Opus_Security_RoleRegistry;
+        $result = $reg->get($rid);
+        $this->assertEquals($role->toArray(), $result->toArray(), 'Persisted and retrieved model values dont match.');
+    }
  
 }

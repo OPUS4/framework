@@ -40,7 +40,14 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Role extends Opus_Model_Abstract implements Zend_Acl_Role_Interface {
+class Opus_Security_Role extends Opus_Model_AbstractDb implements Zend_Acl_Role_Interface {
+
+    /**
+     * Specify table gateway.
+     *
+     * @var string
+     */
+    protected static $_tableGatewayClass = 'Opus_Db_Roles';
 
     /**
      * Augment 'Parent' field with model information.
@@ -66,7 +73,6 @@ class Opus_Security_Role extends Opus_Model_Abstract implements Zend_Acl_Role_In
             ->setMandatory(true);
         
         $parent = new Opus_Model_Field('Parent');
-        $parent->setMultiplicity('*');
         
         $this->addField($name)
             ->addField($parent);
@@ -84,7 +90,46 @@ class Opus_Security_Role extends Opus_Model_Abstract implements Zend_Acl_Role_In
         if (empty($name) === false) {
             $result = $result . '/' . $name;
         }
+        $id = $this->getId();
+        if (null !== $id) {
+            $result = $result . '/' . $id;
+        }
         return $result;
+    }
+    
+    /**
+     * Retrieve an Role model by role id as returned by getRoleId().
+     *
+     * @param string $roleId Role identifying string.
+     * @return void
+     */
+    public static function getByRoleId($roleId) {
+        $arr = explode('/', $roleId);
+        $id = array_pop($arr);
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $row = $table->fetchRow($table->select()->where('id=?', $id));
+        if (null !== $row) {
+            return new Opus_Security_Role($row);
+        }
+        return null;
+    }
+    
+    /**
+     * Check if a given roleId can be mapped to an
+     * persisted instance.
+     *
+     * @param string $roleId Role identifying string.
+     * @return bool
+     */
+    public static function isRoleIdExistent($roleId) {
+        $arr = explode('/', $roleId);
+        $id = array_pop($arr);
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $row = $table->fetchRow($table->select()->where('id=?', $id));
+        if (null !== $row) {
+            return true;
+        }
+        return false;
     }
 
 }

@@ -41,4 +41,62 @@
  */
 class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
 
+
+
+    /**
+     * Returns the identified Role
+     *
+     * The $role parameter can either be a Role or a Role identifier.
+     *
+     * @param  Zend_Acl_Role_Interface|string $role
+     * @throws Zend_Acl_Role_Registry_Exception
+     * @return Zend_Acl_Role_Interface
+     */
+    public function get($role)
+    {
+        if ($role instanceof Zend_Acl_Role_Interface) {
+            $roleId = $role->getRoleId();
+        } else {
+            $roleId = (string) $role;
+        }
+
+        if (!$this->has($role)) {
+            /**
+             * @see Zend_Acl_Role_Registry_Exception
+             */
+            require_once 'Zend/Acl/Role/Registry/Exception.php';
+            throw new Zend_Acl_Role_Registry_Exception("Role '$roleId' not found");
+        }
+
+        // Check if it is really in the internal array list
+        if (in_array($roleId, $this->_roles) === true) {
+            return $this->_roles[$roleId]['instance'];
+        } else {
+            // If not, fetch it from the database
+            $model = Opus_Security_Role::getByRoleId($roleId);
+            return $model;
+        }
+    }
+
+    /**
+     * Returns true if and only if the Role exists in the registry
+     * or as record in the database.
+     *
+     * The $role parameter can either be a Role or a Role identifier.
+     *
+     * @param  Zend_Acl_Role_Interface|string $role
+     * @return boolean
+     */
+    public function has($role)
+    {
+        if ($role instanceof Zend_Acl_Role_Interface) {
+            $roleId = $role->getRoleId();
+        } else {
+            $roleId = (string) $role;
+        }
+
+        return (isset($this->_roles[$roleId]) or Opus_Security_Role::isRoleIdExistent($roleId));
+    }
+   
+
 }
