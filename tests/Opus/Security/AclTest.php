@@ -69,13 +69,23 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Purge test data.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('privileges');
+        TestHelper::clearTable('resources');
+    }
+
+    /**
      * Test if privileges table is initially empty.
      *
      * @return void
      */
     public function testPrivilegeTableIsInitiallyEmpty() {
         $rowset = $this->_privileges->fetchAll();
-        $this->assertEquals(0, $rowset->count(), 'Privileges table is not empty no test begin.');
+        $this->assertEquals(0, $rowset->count(), 'Privileges table is not initially empty.');
     }
 
     /**
@@ -85,7 +95,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      */
     public function testResourcesTableIsInitiallyEmpty() {
         $rowset = $this->_resources->fetchAll();
-        $this->assertEquals(0, $rowset->count(), 'Resoucres table is not empty no test begin.');
+        $this->assertEquals(0, $rowset->count(), 'Resoucres table is not initially empty.');
     }
 
     /**
@@ -94,8 +104,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testOpusSecurityAclExtendsZendAcl() {
-        $acl = new Opus_Security_Role();
-        $this->assertTrue($acl instanceof Zend_Acl_Role_Interface, 'Opus_Security_Acl is not an instance of Zend_Acl!');
+        $acl = new Opus_Security_Acl;
+        $this->assertTrue($acl instanceof Zend_Acl, 'Opus_Security_Acl is not an instance of Zend_Acl!');
     }
 
     /**
@@ -104,10 +114,13 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testResourceExistsAfterAddingToAcl() {
+        $this->markTestSkipped('Not yet implemented.');
+    
         $acl = new Opus_Security_Acl();
-        $resourceMock = new Opus_Model_ModelAbstract();
-        $acl->add($resourceMock);
-        $rowset = $this->_resources->fetchAll($this->_resources->select()->where('name = ?', $resourceMock->getResourceId()));
+        $resource = new Zend_Acl_Resource('MyResource');
+        $acl->add($resource);
+        $rowset = $this->_resources->fetchAll($this->_resources->select()
+            ->where('name = ?', $resource->getResourceId()));
         $this->assertEquals(1, $rowset->count(), 'Opus_Security_Acl does not store resources in the DB.');
     }
 
@@ -117,12 +130,13 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testHasMethodLoadsResources() {
-        TestHelper::clearTable('resources');
-        $this->_resources = new Opus_Db_Resources();
+        $this->markTestSkipped('Not yet implemented.');
+    
         $acl = new Opus_Security_Acl();
-        $resourceMock = new Opus_Model_ModelAbstract();
-        $acl->add($resourceMock);
+        $resource = new Zend_Acl_Resource('MyResource');
+        $acl->add($resource);
+        
         $acl = new Opus_Security_Acl();
-        $this->assertTrue($acl->has($resourceMock), 'Acl does not load resources from database.');
+        $this->assertTrue($acl->has($resource), 'Acl does not load resources from database.');
     }
 }
