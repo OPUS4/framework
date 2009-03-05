@@ -42,8 +42,7 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `volume` VARCHAR(25) NULL COMMENT 'Volume.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-COMMENT = 'Document related data (monolingual, unreproducible colums).'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Document related data (monolingual, unreproducible colums).';
 
 
 -- -----------------------------------------------------
@@ -62,8 +61,7 @@ CREATE  TABLE IF NOT EXISTS `document_identifiers` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for identifiers  related to the document.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for identifiers  related to the document.';
 
 
 -- -----------------------------------------------------
@@ -77,8 +75,7 @@ CREATE  TABLE IF NOT EXISTS `institutes_contents` (
   `site` TEXT NULL COMMENT 'URI to the website of the institute.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-COMMENT = '(Relation) table for insitute related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = '(Relation) table for insitute related data.';
 
 
 -- -----------------------------------------------------
@@ -101,8 +98,7 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for file related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for file related data.';
 
 
 -- -----------------------------------------------------
@@ -120,8 +116,7 @@ CREATE  TABLE IF NOT EXISTS `file_hashvalues` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table for hash values.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for hash values.';
 
 
 -- -----------------------------------------------------
@@ -142,8 +137,7 @@ CREATE  TABLE IF NOT EXISTS `document_subjects` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for subject heading related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for subject heading related data.';
 
 
 -- -----------------------------------------------------
@@ -163,8 +157,7 @@ CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table with title and abstract related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table with title and abstract related data.';
 
 
 -- -----------------------------------------------------
@@ -181,8 +174,7 @@ CREATE  TABLE IF NOT EXISTS `persons` (
   PRIMARY KEY (`id`) ,
   INDEX `last_name` (`last_name` ASC) )
 ENGINE = InnoDB
-COMMENT = 'Person related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Person related data.';
 
 
 -- -----------------------------------------------------
@@ -202,8 +194,7 @@ CREATE  TABLE IF NOT EXISTS `person_external_keys` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for external identifiers related to a person.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for external identifiers related to a person.';
 
 
 -- -----------------------------------------------------
@@ -236,8 +227,7 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (documents, persons, institutes_contents).'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Relation table (documents, persons, institutes_contents).';
 
 
 -- -----------------------------------------------------
@@ -259,8 +249,7 @@ CREATE  TABLE IF NOT EXISTS `document_patents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for patent related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for patent related data.';
 
 
 -- -----------------------------------------------------
@@ -281,8 +270,7 @@ CREATE  TABLE IF NOT EXISTS `document_statistics` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for statistic related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for statistic related data.';
 
 
 -- -----------------------------------------------------
@@ -302,8 +290,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for notes to documents.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for notes to documents.';
 
 
 -- -----------------------------------------------------
@@ -339,8 +326,7 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Key-value table for database scheme enhancements.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Key-value table for database scheme enhancements.';
 
 
 -- -----------------------------------------------------
@@ -362,8 +348,7 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99).' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-COMMENT = 'Table for licence related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for licence related data.';
 
 
 -- -----------------------------------------------------
@@ -383,8 +368,7 @@ CREATE  TABLE IF NOT EXISTS `institutes_structure` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table for the structure of the institutes hierarchy.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for the structure of the institutes hierarchy.';
 
 
 -- -----------------------------------------------------
@@ -422,8 +406,7 @@ CREATE  TABLE IF NOT EXISTS `institutes_replacement` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table for the institutes history related data.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for the institutes history related data.';
 
 
 -- -----------------------------------------------------
@@ -478,8 +461,7 @@ CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (documents, document_licences).'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Relation table (documents, document_licences).';
 
 
 -- -----------------------------------------------------
@@ -503,8 +485,7 @@ CREATE  TABLE IF NOT EXISTS `link_institutes_documents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (documents, institutes_contents).'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Relation table (documents, institutes_contents).';
 
 
 -- -----------------------------------------------------
@@ -524,8 +505,7 @@ CREATE  TABLE IF NOT EXISTS `document_references` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for identifiers referencing to related documents.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Table for identifiers referencing to related documents.';
 
 
 -- -----------------------------------------------------
@@ -543,8 +523,7 @@ CREATE  TABLE IF NOT EXISTS `link_metadocument_collection` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Reference to a metadata document for a collection.'
-ROW_FORMAT = DEFAULT;
+COMMENT = 'Reference to a metadata document for a collection.';
 
 
 -- -----------------------------------------------------
@@ -560,8 +539,7 @@ CREATE  TABLE IF NOT EXISTS `configurations` (
   `smtp_server_login` VARCHAR(45) NULL ,
   `smtp_server_password` VARCHAR(45) NULL ,
   PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-ROW_FORMAT = DEFAULT;
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `resources`
@@ -645,8 +623,7 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
     REFERENCES `roles` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB
-ROW_FORMAT = DEFAULT;
+ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
@@ -660,8 +637,7 @@ CREATE  TABLE IF NOT EXISTS `translations` (
     `translation_msg` VARCHAR(15) NOT NULL,    
     PRIMARY KEY (`id`)
 )
-ENGINE = InnoDB
-ROW_FORMAT = DEFAULT;
+ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
