@@ -239,8 +239,25 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
 
         $form = $this->_builder->build($this->_model);
         $subForm = $form->getSubForm('MultiField');
-        $elements = $subForm->getElements();
-        $this->assertEquals(5, count($elements), 'Wrong number of elements generated.');
+
+        /*
+         * Multifield elements are:
+         * - 3 remove buttons
+         * - 1 add button
+         * - 3 subforms
+         * every subform should contain
+         * - 1 element
+         * - 0 subforms
+         * summary:
+         * 10 elements total
+         */
+        $total = count($subForm->getElements());
+        $total += count($subForm->getSubForms());
+        $total += count($subForm->getSubForm('1')->getElements());
+        $total += count($subForm->getSubForm('2')->getElements());
+        $total += count($subForm->getSubForm('3')->getElements());
+
+        $this->assertEquals(10, $total, 'Wrong number of elements generated.');
     }
 
     /**
@@ -257,7 +274,10 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $subForm = $form->getSubForm('MultiField');
         $elements = $subForm->getElements();
 
-        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values.');
+        $result[] = $subForm->getSubForm('1')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('2')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('3')->getElement('MultiField')->getValue();
+        $this->assertEquals($expected, $result, 'Multifield does not contain correct values.');
     }
 
     /**
@@ -311,13 +331,34 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         );
 
         $new_form = $this->_builder->buildFromPost($post);
-        $elements = $new_form->MultiField->getElements();
+        $subForm = $new_form->getSubForm('MultiField');
 
-        $this->assertEquals(6, count($elements), 'Multifield should contain 6 elements.');
+        /*
+         * Form with a added field should contain
+         * - 4 remove buttons
+         * - 1 add button
+         * - 4 sub forms
+         * every sub form should contain
+         * - 1 element
+         * summary:
+         * 13 elements
+         */
+        $total = count($subForm->getElements());
+        $total += count($subForm->getSubForms());
+        $total += count($subForm->getSubForm('1')->getElements());
+        $total += count($subForm->getSubForm('2')->getElements());
+        $total += count($subForm->getSubForm('3')->getElements());
+        $total += count($subForm->getSubForm('4')->getElements());
+        $this->assertEquals(13, $total, 'Multifield should contain 13 elements.');
+
         $expected = $start_values;
+        $result[] = $subForm->getSubForm('1')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('2')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('3')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('4')->getElement('MultiField')->getValue();
         // new value should be empty
         $expected[] = '';
-        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values');
+        $this->assertEquals($expected, $result, 'Multifield does not contain correct values');
     }
 
     /**
@@ -346,12 +387,29 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         );
 
         $new_form = $this->_builder->buildFromPost($post);
-        $elements = $new_form->MultiField->getElements();
+        $subForm = $new_form->getSubForm('MultiField');
 
-        $this->assertEquals(4, count($elements), 'Multifield should contain after removing 4 elements.');
+        /*
+         * Form with a removed field should contain
+         * - 2 remove buttons
+         * - 1 add button
+         * - 2 sub forms
+         * every sub form should contain
+         * - 1 element
+         * summary:
+         * 7 elements
+         */
+        $total = count($subForm->getElements());
+        $total += count($subForm->getSubForms());
+        $total += count($subForm->getSubForm('1')->getElements());
+        $total += count($subForm->getSubForm('2')->getElements());
+        $this->assertEquals(7, $total, 'Multifield should contain 7 elements.');
 
-        $expected = array('dul', 'set');
-        $this->assertEquals($expected, $elements['MultiField']->getValue(), 'Multifield does not contain correct values after removing');
+        $expected = $start_values;
+        $result[] = $subForm->getSubForm('1')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('2')->getElement('MultiField')->getValue();
+        array_shift($expected);
+        $this->assertEquals($expected, $result, 'Multifield does not contain correct values');
 
     }
 
@@ -403,10 +461,25 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         );
 
         $new_form = $this->_builder->buildFromPost($post);
-        $elements = $new_form->MultiField->getElements();
+        $subForm = $new_form->getSubForm('MultiField');
 
-        $this->assertEquals(2, count($elements), 'Multifield should contain after removing 2 elements.');
-        $this->assertEquals($expected, $elements['MultiField']->getValue());
+        /*
+         * Form with a non-removed field should contain
+         * - 0 remove buttons
+         * - 1 add button
+         * - 1 sub forms
+         * every sub form should contain
+         * - 1 element
+         * summary:
+         * 3 elements
+         */
+        $total = count($subForm->getElements());
+        $total += count($subForm->getSubForms());
+        $total += count($subForm->getSubForm('1')->getElements());
+        $this->assertEquals(3, $total, 'Multifield should contain 3 elements.');
+
+        $result[] = $subForm->getSubForm('1')->getElement('MultiField')->getValue();
+        $this->assertEquals($expected, $result, 'Multifield does not contain correct values');
     }
 
     /**
@@ -434,10 +507,27 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         );
 
         $new_form = $this->_builder->buildFromPost($post);
-        $elements = $new_form->MultiField->getElements();
+        $subForm = $new_form->getSubForm('MultiField');
 
-        $this->assertEquals(4, count($elements), 'Multifield should contain after removing 4 elements.');
-        $this->assertEquals($expected, $elements['MultiField']->getValue());
+        /*
+         * Form with a non-removed field should contain
+         * - 2 remove buttons
+         * - 1 add button
+         * - 2 sub forms
+         * every sub form should contain
+         * - 1 element
+         * summary:
+         * 7 elements
+         */
+        $total = count($subForm->getElements());
+        $total += count($subForm->getSubForms());
+        $total += count($subForm->getSubForm('1')->getElements());
+        $total += count($subForm->getSubForm('2')->getElements());
+        $this->assertEquals(7, $total, 'Multifield should contain 7 elements.');
+
+        $result[] = $subForm->getSubForm('1')->getElement('MultiField')->getValue();
+        $result[] = $subForm->getSubForm('2')->getElement('MultiField')->getValue();
+        $this->assertEquals($expected, $result, 'Multifield does not contain correct values');
     }
 
     /**

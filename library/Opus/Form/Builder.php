@@ -71,53 +71,7 @@ class Opus_Form_Builder {
 
         foreach ($model->describe() as $fieldname) {
             $field = $model->getField($fieldname);
-            $counts = count($field->getValue());
-            $modelclass = $field->getValueModelClass();
-
-            if ($field->hasMultipleValues() === true) {
-                $i = 1;
-                $subform = new Zend_Form_SubForm();
-                $subform->setLegend($fieldname);
-
-                if (($counts === 0) and ($modelclass !== null) and ($field->isSelection() === false)) {
-                    // build a subform for multiple new depend model
-                    // should contain afterwards one empty element
-                    $this->_makeSubForm("$i", new $modelclass, $subform);
-                } else {
-                    foreach ($field->getValue() as $fieldvalue) {
-                        // build each multi element
-                        $this->_makeElement("$i", $fieldvalue, $subform, $field);
-                        // Adding remove button if more than one element
-                        if ($counts > 1) {
-                            $remove = new Zend_Form_Element_Submit('remove_' . $fieldname . '_'  . $i);
-                            $remove->setLabel('-');
-                            $subform->addElement($remove);
-                        }
-                        $i++;
-                    }
-                }
-
-                $mult = $field->getMultiplicity();
-                // Adding add button
-                if (($mult === '*') or ($counts < $mult)) {
-                    $add = new Zend_Form_Element_Submit('add_' . $fieldname);
-                    $add->setLabel('+');
-                    $subform->addElement($add);
-                }
-                // add sub form to parent form
-                $form->addSubForm($subform, $fieldname);
-            } else {
-                // non multiple values
-                if (($counts === 0) and (is_null($modelclass) === false) and ($field->isSelection() === false)) {
-                    // build a subform for a new single depend model
-                    // should contain afterwards an empty element
-                    $this->_makeSubForm($fieldname, new $modelclass, $form);
-                } else {
-                    // build a element
-                    $this->_makeElement($fieldname, $field->getValue(), $form, $field);
-                }
-            }
-
+            $this->_prepareElement($field, $form);
         }
 
         if ($createSubForm === false) {
@@ -180,57 +134,21 @@ class Opus_Form_Builder {
     }
 
     /**
-     * Set all field values of a given model instance by using form post data.
+     * Set values from post data into model.
      *
-     * @param Opus_Model_Abstract $model Model to be updated.
-     * @param array               $post  Post data.
+     * @param Opus_Model_Abstract $model Model
+     * @param array               $post  Post
      * @return void
      */
     public function setFromPost(Opus_Model_Abstract $model, array $post) {
         foreach ($post as $fieldname => $value) {
             $field = $model->getField($fieldname);
-            $setCallName = 'set' . $fieldname;
-            $addCallName = 'add' . $fieldname;
             // set only field which exists in model
-            if (is_null($field) === true) {
+            if (true === is_null($field)) {
                 continue;
             }
-            $modelclass = $field->getValueModelClass();
-            if (is_null($modelclass) === false) {
-                if ($field->hasMultipleValues() === true) {
-                    $model->$setCallName(null);
-                    foreach ($value as $postvalue) {
-                        // Skip empty postvalues
-                        if ($postvalue === null) {
-                            continue;
-                        }
-                        $submodel = new $modelclass;
-                        if (is_array($postvalue) === false) {
-                            $postvalue = array($postvalue);
-                        }
-                        $this->setFromPost($submodel, $postvalue);
-                        $model->$addCallName($submodel);
-                    }
 
-                } else {
-                    if ($field->isSelection() === true) {
-                        $value = new $modelclass($value);
-                        $model->$setCallName($value);
-                    } else {
-                        $submodel = new $modelclass;
-                        if (is_array($value) === false) {
-                            $value = array($value);
-                        }
-                        $this->setFromPost($submodel, $value);
-                        $model->$setCallName($submodel);
-                    }
-                }
-            } else {
-                if (is_array($value) === true) {
-                    $value = array_values($value);
-                }
-                $model->$setCallName($value);
-            }
+            $this->_setPostData($field, $value);
         }
     }
 
@@ -334,28 +252,155 @@ class Opus_Form_Builder {
     }
 
     /**
-     * Map field name and value to an Zend_Form_Element and add it to
-     * the given container object. If the value is a model instance then
-     * a sub form is added.
+     * Create a multiple general element (default single input line).
      *
-     * @param string           $name      Name of the field.
-     * @param mixed            $value     Value of then field.
-     * @param Zend_Form        $container Zend_Form object to add the created element to.
-     * @param Opus_Model_Field $field     Field object containing more information.
+     * @param Opus_Model_Field $field     Holds field informations.
+     * @param Zend_Form        $container Container where to add this field.
      * @return void
      */
-    protected function _makeElement($name, $value, Zend_Form $container, Opus_Model_Field $field) {
-        if ($field->isSelection() === true) {
-            $this->_makeSelectionElement($field, $container);
-        } else if ($field->isTextarea() === true) {
-            $this->_makeTextAreaElement($field, $container);
-        } else if ($field->isCheckbox() === true) {
-            $this->_makeCheckboxElement($field, $container);
-        } else if ($value instanceof Opus_Model_Abstract) {
-            $this->_makeSubForm($name, $value, $container);
+    protected function _makeMultiElement(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        $subform = new Zend_Form_SubForm();
+        $subform->setLegend($fieldname);
+        $i = 1;
+        $values = $field->getValue();
+        do {
+            // every element must be holded in a subform
+            $helpform = new Zend_Form_Subform();
+            $helpform->setLegend("$i");
+            // clone field and set current value
+            $clone_field = clone $field;
+            $clone_field->setMultiplicity(1);
+            $clone_field->setValue(array_shift($values));
+            $this->_makeTextElement($clone_field, $helpform);
+            $subform->addSubForm($helpform, "$i");
+            $this->__addRemoveButton($field, $subform, $i);
+            $i++;
+        } while ($i <= $count);
+        $this->__addAddButton($field, $subform);
+        $container->addSubForm($subform, $fieldname);
+    }
+
+    /**
+     * Create a multiple checkbox element.
+     *
+     * @param Opus_Model_Field $field     Holds field informations.
+     * @param Zend_Form        $container Container where to add this field.
+     * @return void
+     */
+    protected function _makeMultiElementCheckbox(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        $subform = new Zend_Form_SubForm();
+        $subform->setLegend($fieldname);
+        $i = 1;
+        $values = $field->getValue();
+        do {
+            // every element must be holded in a subform
+            $helpform = new Zend_Form_Subform();
+            $helpform->setLegend("$i");
+            // clone field and set current value
+            $clone_field = clone $field;
+            $clone_field->setMultiplicity(1);
+            $clone_field->setValue(array_shift($values));
+            $this->_makeCheckboxElement($clone_field, $helpform);
+            $subform->addSubForm($helpform, "$i");
+            $this->__addRemoveButton($field, $subform, $i);
+            $i++;
+        } while ($i <= $count);
+        $this->__addAddButton($field, $subform);
+        $container->addSubForm($subform, $fieldname);
+    }
+
+    /**
+     * Create a multiple selection element.
+     *
+     * @param Opus_Model_Field $field     Holds field informations.
+     * @param Zend_Form        $container Container where to add this field.
+     * @return void
+     */
+    protected function _makeMultiElementSelection(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        $subform = new Zend_Form_SubForm();
+        $subform->setLegend($fieldname);
+        $i = 1;
+        $values = $field->getValue();
+        do {
+            // every element must be holded in a subform
+            $helpform = new Zend_Form_Subform();
+            $helpform->setLegend("$i");
+            // clone field and set current value
+            $clone_field = clone $field;
+            $clone_field->setMultiplicity(1);
+            $clone_field->setValue(array_shift($values));
+            $this->_makeSelectionElement($clone_field, $helpform);
+            $subform->addSubForm($helpform, "$i");
+            $this->__addRemoveButton($field, $subform, $i);
+            $i++;
+        } while ($i <= $count);
+        $this->__addAddButton($field, $subform);
+        $container->addSubForm($subform, $fieldname);
+    }
+
+    /**
+     * Create a multiple textarea element.
+     *
+     * @param Opus_Model_Field $field     Holds field informations.
+     * @param Zend_Form        $container Container where to add this field.
+     * @return void
+     */
+    protected function _makeMultiElementTextarea(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        $subform = new Zend_Form_SubForm();
+        $subform->setLegend($fieldname);
+        $i = 1;
+        $values = $field->getValue();
+        do {
+            // every element must be holded in a subform
+            $helpform = new Zend_Form_Subform();
+            $helpform->setLegend("$i");
+            // clone field and set current value
+            $clone_field = clone $field;
+            $clone_field->setMultiplicity(1);
+            $clone_field->setValue(array_shift($values));
+            $this->_makeTextAreaElement($clone_field, $helpform);
+            $subform->addSubForm($helpform, "$i");
+            $this->__addRemoveButton($field, $subform, $i);
+            $i++;
+        } while ($i <= $count);
+        $this->__addAddButton($field, $subform);
+        $container->addSubForm($subform, $fieldname);
+    }
+
+    /**
+     * Create a multi model.
+     *
+     * @param Opus_Model_Field $field     Field to create.
+     * @param Zend_Form        $container Container where to add field.
+     * @return void
+     */
+    protected function _makeMultiModel(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        $subform = new Zend_Form_SubForm();
+        $subform->setLegend($fieldname);
+        $i = 1;
+        if (0 === $count) {
+            $modelClassName = $field->getValueModelClass();
+            $this->_makeSubForm($i, new $modelClassName, $subform);
         } else {
-            $this->_makeTextElement($field, $container);
+            foreach ($field->getValue() as $fieldvalue) {
+                // fieldvalue contains a "working" model
+                $this->_makeSubForm("$i", $fieldvalue, $subform);
+                $this->__addRemoveButton($field, $subform, "$i");
+                $i++;
+            }
         }
+        $this->__addAddButton($field, $subform);
+        $container->addSubForm($subform, $fieldname);
     }
 
     /**
@@ -390,11 +435,30 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Made a singe model.
+     *
+     * @param Opus_Model_Field $field     Field to create.
+     * @param Zend_Form        $container Container where to add field.
+     * @return void
+     */
+    protected function _makeSingleModel(Opus_Model_Field $field, Zend_Form $container) {
+        $fieldname = $field->getName();
+        $count = count($field->getValue());
+        if (0 === $count) {
+            $modelClassName = $field->getValueModelClass();
+            $this->_makeSubForm($fieldname, new $modelClassName, $container);
+        } else {
+            // field->getValue() holds model
+            $this->_makeSubForm($fieldname, $field->getValue(), $container);
+        }
+    }
+
+    /**
      * Build a sub form.
      *
-     * @param string               $name      Name of the subform.
-     * @param Opus_Model_Abstract  $model     Model object with building informations.
-     * @param Zend_Form            $container Zend_Form object to add created element to.
+     * @param string              $name      Name of the subform.
+     * @param Opus_Model_Abstract $model     Model object with building informations.
+     * @param Zend_Form           $container Zend_Form object to add created element to.
      * @return void
      */
     protected function _makeSubForm($name, Opus_Model_Abstract $model, Zend_Form $container) {
@@ -432,16 +496,92 @@ class Opus_Form_Builder {
         $fieldname = $field->getName();
         $element = new Zend_Form_Element_Text($fieldname);
         $element->setLabel($fieldname);
-        $element->setValue($field->getValue());
+        $fieldvalue = $field->getValue();
+        if ((is_array($fieldvalue) === true) or (is_object($fieldvalue) === true)) {
+            $fieldvalue = '';
+        }
+        $element->setValue($fieldvalue);
         $container->addElement($element);
         $this->_setFieldAttributes($field, $container);
+    }
+
+    /**
+     * Prepare which kind of element should be created.
+     *
+     * @param Opus_Model_Field $field     Field
+     * @param Zend_Form        $container ZendForm
+     * @throws Opus_Form_Exception Thrown on error
+     * @return void
+     */
+    protected function _prepareElement(Opus_Model_Field $field, Zend_Form $container) {
+
+        $elementToCreate = $this->__determinateFieldAction($field);
+
+        switch ($elementToCreate) {
+            case 'SingleElement':
+                $this->_makeTextElement($field, $container);
+                break;
+
+            case 'SingleElementCheckbox':
+                $this->_makeCheckboxElement($field, $container);
+                break;
+
+            case 'SingleElementSelection':
+                // Break intentionally omitted
+            case 'SingleModelSelection':
+                $this->_makeSelectionElement($field, $container);
+                break;
+
+            case 'SingleElementTextarea':
+                $this->_makeTextAreaElement($field, $container);
+                break;
+
+            case 'SingleModel':
+                // Break intentionally omitted
+            case 'SingleModelCheckbox':
+                // Break intentionally omitted
+            case 'SingleModelTextArea':
+                $this->_makeSingleModel($field, $container);
+                break;
+
+            case 'MultiElement':
+                $this->_makeMultiElement($field, $container);
+                break;
+
+            case 'MultiElementCheckbox':
+                $this->_makeMultiElementCheckbox($field, $container);
+                break;
+
+            case 'MultiElementSelection':
+                // Break intentionally omitted
+            case 'MultiModelSelection':
+                $this->_makeMultiElementSelection($field, $container);
+                break;
+
+            case 'MultiElementTextarea':
+                $this->_makeMultiElementTextarea($field, $container);
+                break;
+
+            case 'MultiModel':
+                // Break intentionally omitted
+            case 'MultiModelCheckbox':
+                // Break intentionally omitted
+            case 'MultiModelTextarea':
+                $this->_makeMultiModel($field, $container);
+                break;
+
+            default:
+                throw new Opus_Form_Exception('No action found for field "' . $field->getName() . '"');
+                break;
+        }
+
     }
 
     /**
      * Set field attributes.
      *
      * @param Opus_Model_Field $field Field with necessary attribute information.
-     * @param Zend_Form $form         Form where field attributes are to be set.
+     * @param Zend_Form        $form  Form where field attributes are to be set.
      * @return void
      */
     protected function _setFieldAttributes(Opus_Model_Field $field, Zend_Form $form) {
@@ -449,6 +589,107 @@ class Opus_Form_Builder {
         $this->_addFilter($field, $form);
         $this->_addMandatory($field, $form);
         $this->_addValidator($field, $form);
+    }
+
+    /**
+     * Set post data into model.
+     *
+     * @param Opus_Model_Field $field     Field
+     * @param mixed            $postvalue PostData
+     * @throws Opus_Form_Exception Thrown if a action is requested which is not available.
+     * @return void
+     */
+    protected function _setPostData(Opus_Model_Field $field, $postvalue) {
+
+        $modelclass = $field->getValueModelClass();
+
+        $elementToSave = $this->__determinateFieldAction($field);
+
+        switch ($elementToSave) {
+
+            case 'SingleElement':
+                // Break intentionally omitted
+            case 'SingleElementCheckbox':
+                // Break intentionally omitted
+            case 'SingleElementSelection':
+                // Break intentionally omitted
+            case 'SingleElementTextarea':
+                // Break intentionally omitted
+            case 'SingleModelSelection':
+                $field->setValue($postvalue);
+                break;
+
+            case 'SingleModel':
+                // Break intentionally omitted
+            case 'SingleModelCheckbox':
+                // Break intentionally omitted
+            case 'SingleModelTextarea':
+                $submodel = new $modelclass;
+                $this->setFromPost($submodel, $postvalue);
+                $field->setValue($submodel);
+                break;
+
+            case 'MultiElement':
+                // Break intentionally omitted
+            case 'MultiElementCheckbox':
+                // Break intentionally omitted
+            case 'MultiElementSelection':
+                // Break intentionally omitted
+            case 'MultiElementTextarea':
+                // Break intentionally omitted
+            case 'MultiModelSelection':
+                $result = array();
+                foreach ($postvalue as $value) {
+                    if (true === is_array($value)) {
+                        $vals = current(array_values($value));
+                    } else {
+                        $vals = $value;
+                    }
+                    $result[] = $vals;
+                }
+                $field->setValue($result);
+                break;
+
+            case 'MultiModel':
+                // Break intentionally omitted
+            case 'MultiModelCheckbox':
+                // Break intentionally omitted
+            case 'MultiModelTextarea':
+                $result = array();
+                foreach ($postvalue as $nr => $value) {
+                    $submodel = new $modelclass;
+                    if (false === is_array($value)) {
+                        $value = array($value);
+                    }
+                    $this->setFromPost($submodel, $value);
+                    $result[] = $submodel;
+                }
+                $field->setValue($result);
+                break;
+
+            default:
+                throw new Opus_Form_Exception('No action found for field "' . $field->getName() . '"');
+                break;
+        }
+
+    }
+
+    /**
+     * Add a + button to a form.
+     *
+     * @param Opus_Model_Field $field     Holds necessary field informations.
+     * @param Zend_Form        $container Form where to add.
+     * @return void
+     */
+    private function __addAddButton(Opus_Model_Field $field, Zend_Form $container) {
+        $mult = $field->getMultiplicity();
+        $counts = count($field->getValue());
+        if (('*' === $mult) or ($counts < $mult)) {
+            $fieldname = $field->getName();
+            $addButton = new Zend_Form_Element_Submit('add_' . $fieldname);
+            $addButton->setLabel('+');
+            $container->addElement($addButton);
+        }
     }
 
     /**
@@ -476,7 +717,7 @@ class Opus_Form_Builder {
                 $index = (int) $fname[2];
                 // protect removing nonexisting fields or emptying structure
                 if ((array_key_exists($index, $value) === true)
-                    and (count($value) > 1)) {
+                and (count($value) > 1)) {
                     unset($value[$index]);
                 }
                 break;
@@ -485,5 +726,61 @@ class Opus_Form_Builder {
                 // No action taken
                 break;
         }
+    }
+
+    /**
+     * Add a - button to a form.
+     *
+     * @param Opus_Model_Field $field     Holds necessary field informations.
+     * @param Zend_Form        $container Form where to add.
+     * @param mixed            $iterator  Iterator number of remove field.
+     * @return void
+     */
+    private function __addRemoveButton(Opus_Model_Field $field, Zend_Form $container, $iterator) {
+        $counts = count($field->getValue());
+        if ($counts > 1) {
+            $fieldname = $field->getName() . '_' . $iterator;
+            $removeButton = new Zend_Form_Element_Submit('remove_' . $fieldname);
+            $removeButton->setLabel('-');
+            $container->addElement($removeButton);
+        }
+    }
+
+    /**
+     * Determinate which action of a field should later be done.
+     *
+     * @param Opus_Model_Field $field Field with neccessary informations.
+     * @return string
+     */
+    private function __determinateFieldAction(Opus_Model_Field $field) {
+        $model = (false === is_null($field->getValueModelClass()));
+        $multiple = $field->hasMultipleValues();
+        $selection = $field->isSelection();
+        $checkbox = $field->isCheckbox();
+        $textarea = $field->isTextarea();
+
+        $action = '';
+
+        if (true === $multiple) {
+            $action .= 'Multi';
+        } else {
+            $action .= 'Single';
+        }
+
+        if (true === $model) {
+            $action .= 'Model';
+        } else {
+            $action .= 'Element';
+        }
+
+        if (true === $selection) {
+            $action .= 'Selection';
+        } else if (true === $textarea) {
+            $action .= 'Textarea';
+        } else if (true === $checkbox) {
+            $action .= 'Checkbox';
+        }
+
+        return $action;
     }
 }
