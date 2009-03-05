@@ -2,7 +2,9 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-CREATE SCHEMA IF NOT EXISTS `opus400` ;
+CREATE SCHEMA IF NOT EXISTS `opus400` 
+DEFAULT CHARACTER SET = utf8 
+DEFAULT COLLATE = utf8_general_ci;
 USE `opus400`;
 
 -- -----------------------------------------------------
@@ -40,8 +42,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`documents` (
   `volume` VARCHAR(25) NULL COMMENT 'Volume.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Document related data (monolingual, unreproducible colums).'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -63,8 +63,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_identifiers` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for identifiers  related to the document.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -81,8 +79,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_contents` (
   `site` TEXT NULL COMMENT 'URI to the website of the institute.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = '(Relation) table for insitute related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -108,8 +104,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_files` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for file related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -130,8 +124,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`file_hashvalues` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for hash values.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -155,8 +147,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_subjects` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for subject heading related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -179,8 +169,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_title_abstracts` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table with title and abstract related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -200,8 +188,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`persons` (
   PRIMARY KEY (`id`) ,
   INDEX `last_name` (`last_name` ASC) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Person related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -224,8 +210,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`person_external_keys` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for external identifiers related to a person.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -261,8 +245,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_persons_documents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Relation table (documents, persons, institutes_contents).'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -287,8 +269,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_patents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for patent related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -312,8 +292,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_statistics` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for statistic related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -336,8 +314,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_notes` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for notes to documents.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -376,8 +352,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_enrichments` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Key-value table for database scheme enhancements.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -402,8 +376,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_licences` (
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99).' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for licence related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -426,8 +398,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_structure` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for the structure of the institutes hierarchy.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -468,8 +438,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`institutes_replacement` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for the institutes history related data.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -485,8 +453,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`accounts` (
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for system user accounts.';
 
 
@@ -495,7 +461,7 @@ COMMENT = 'Table for system user accounts.';
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `name` VARCHAR(255) CHARACTER SET 'utf8' COLLATE 'utf8_general_ci' NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
+  `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
   `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
   `link_docs_path_to_root` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If not 0: Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree.' ,
   `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Is the collection visible? (1=yes, 0=no).' ,
@@ -506,8 +472,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`collections_roles` (
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Administration table for the indivdual collection trees.';
 
 
@@ -531,8 +495,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_documents_licences` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Relation table (documents, document_licences).'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -559,8 +521,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_institutes_documents` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Relation table (documents, institutes_contents).'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -583,8 +543,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`document_references` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Table for identifiers referencing to related documents.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -605,8 +563,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_metadocument_collection` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 COMMENT = 'Reference to a metadata document for a collection.'
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
@@ -712,8 +668,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`link_accounts_roles` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
@@ -730,8 +684,6 @@ CREATE  TABLE IF NOT EXISTS `opus400`.`translations` (
     PRIMARY KEY (`id`)
 )
 ENGINE = InnoDB
-DEFAULT CHARACTER SET = utf8
-COLLATE = utf8_general_ci
 PACK_KEYS = 0
 ROW_FORMAT = DEFAULT;
 
