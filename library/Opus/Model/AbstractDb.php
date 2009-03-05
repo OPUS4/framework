@@ -224,7 +224,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             if ($this->_transactional === true) {
                 $dbadapter->rollback();
             }
-            $msg = $e->getMessage() . '. Model: ' . get_class($this);
+            $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname;
             throw new Opus_Model_Exception($msg);
         }
         return $id;
