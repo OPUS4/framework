@@ -34,6 +34,10 @@
 
 /**
  * This class extends Zend_Acl to load and store rules automatically.
+ * In difference to Zend_Acl this implementation does not support to get the
+ * instance of a ressource. The method get() returns an instance of
+ * Zend_Acl_Ressource containing the same ResourceId as the ressource added
+ * to the acl.
  *
  * @category    Framework
  * @package     Opus_Security
@@ -54,6 +58,11 @@ class Opus_Security_Acl extends Zend_Acl {
      */
     protected $_resourcesTable = null;
 
+    /**
+     * Holds the ResourceIds of already loaded resources.
+     *
+     * @var array
+     */
     protected $_loadedResources = array();
 
     /**
@@ -68,6 +77,7 @@ class Opus_Security_Acl extends Zend_Acl {
     /**
      * Adds a Resource having an identifier unique to the ACL.
      * The specified resource identifier is persisted in the database.
+     * The instance of the resource is not persisted, as documented in method get().
      *
      * The $parent parameter may be a reference to, or the string identifier for,
      * the existing Resource from which the newly added Resource will inherit.
@@ -120,6 +130,22 @@ class Opus_Security_Acl extends Zend_Acl {
     }
 
     /**
+     * Returns an instance of Zend_Acl_Interface containing the same ResourceId, as
+     * the ressource that was added to the acl. To be able to safe the acl in a
+     * database, we had to break with the original API of Zend_Acl, that returns
+     * the original instance of the resource here.
+     *
+     * The $resource parameter can either be a Resource or a Resource identifier.
+     *
+     * @param  Zend_Acl_Resource_Interface|string $resource
+     * @throws Zend_Acl_Exception
+     * @return Zend_Acl_Resource
+     */
+    public function get($resource) {
+        return parent::get($resource);
+    }
+
+    /**
      * Returns the Role registry for this ACL. The Role registry as delivered
      * by this method is able deliver the identifier of persisted roles.
      *
@@ -137,8 +163,7 @@ class Opus_Security_Acl extends Zend_Acl {
     }
 
     /**
-     * Returns true if and only if the Resource exists in the ACL
-     *
+     * Returns true if and only if the Resource exists in the ACL.
      * The $resource parameter can either be a Resource or a Resource identifier.
      *
      * @param  Zend_Acl_Resource_Interface|string $resource
@@ -175,6 +200,14 @@ class Opus_Security_Acl extends Zend_Acl {
         return $result;
     }
 
+    /**
+     * Checks if a resource exists in DB.
+     * This method ist needed to stop recursion between the methods
+     * _loadResource an parent::add.
+     *
+     * @param $resource
+     * @return unknown_type
+     */
     protected function _resourceExists($resource) {
         // Get Resource identifier
         if ($resource instanceof Zend_Acl_Resource_Interface) {
