@@ -115,7 +115,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testResourceExistsAfterAddingToAcl() {
-        $this->markTestSkipped('Implementation errors: Segmantation fault in PHP!');
+        //$this->markTestSkipped('Implementation errors: Segmantation fault in PHP!');
         $acl = new Opus_Security_Acl();
         $resource = new Zend_Acl_Resource('MyResource');
         $acl->add($resource);
@@ -132,6 +132,10 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      */
     public function testHasMethodLoadsResources() {
         $this->markTestSkipped('Implementation errors: Segmantation fault in PHP!');
+        
+        // hängt in Rekursion fest:
+        // has->loadResource->add->has...
+        
         $acl = new Opus_Security_Acl();
         $resource = new Zend_Acl_Resource('MyResource');
         $acl->add($resource);
