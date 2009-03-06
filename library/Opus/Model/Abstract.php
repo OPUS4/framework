@@ -294,6 +294,10 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 $model = $this->_externalFields[$fieldname]['model'];
                 $field->setValueModelClass($model);
             }
+            if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                $linkmodel = $this->_externalFields[$fieldname]['through'];
+                $field->setLinkModelClass($linkmodel);
+            }
         }
 
         return $this;

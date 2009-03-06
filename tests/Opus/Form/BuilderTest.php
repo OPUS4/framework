@@ -620,8 +620,8 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Zend_Form_Element_Select', $element->getType(), 'Builded element is not a selection.');
 
         $values = array(
-            $lica->getId() => $lica->getDisplayName(),
-            $licb->getId() => $licb->getDisplayName());
+            $lica->getDisplayName(),
+            $licb->getDisplayName());
 
         $this->assertEquals($values, $element->getMultiOptions(), 'Selection does not contain correct values.');
     }

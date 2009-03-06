@@ -84,6 +84,12 @@ class Opus_Model_Field
      */
     protected $_valueModelClass = null;
 
+    /**
+     * Holds the classname for link fields.
+     *
+     * @var string
+     */
+    protected $_linkModelClass = null;
 
     /**
      * Holds the fields default values. For selection list fields this should
@@ -460,6 +466,25 @@ class Opus_Model_Field
      */
     public function setValueModelClass($classname) {
         $this->_valueModelClass = $classname;
+    }
+
+    /**
+     * Return the name of model class if the field holds link model instances.
+     *
+     * @return string Class name or null if the value is not a model.
+     */
+    public function getLinkModelClass() {
+        return $this->_linkModelClass;
+    }
+
+    /**
+     * Set the name of model class if the field holds link model instances.
+     *
+     * @param  string $classname The name of the class that is used as model for this field or null.
+     * @return void
+     */
+    public function setLinkModelClass($classname) {
+        $this->_linkModelClass = $classname;
     }
 
     /**

@@ -438,7 +438,6 @@ class Opus_Form_Builder {
         $defaults = $field->getDefault();
         foreach ($defaults as $key => $default) {
             if ($default instanceOf Opus_Model_Abstract) {
-                $key = $default->getId();
                 $value = $default->getDisplayName();
                 $element->addMultiOption($key, $value);
             } else {
@@ -624,6 +623,7 @@ class Opus_Form_Builder {
     protected function _setPostData(Opus_Model_Field $field, $postvalue) {
 
         $modelclass = $field->getValueModelClass();
+        $linkclass = $field->getLinkModelClass();
 
         $elementToSave = $this->__determinateFieldAction($field);
 
@@ -636,9 +636,18 @@ class Opus_Form_Builder {
             case 'SingleElementSelection':
                 // Break intentionally omitted
             case 'SingleElementTextarea':
-                // Break intentionally omitted
-            case 'SingleModelSelection':
                 $field->setValue($postvalue);
+                break;
+
+            case 'SingleModelSelection':
+                $defaults = $field->getDefault();
+                $model = $defaults[$postvalue];
+                if (false === is_null($linkclass)) {
+                    $linkmodel = new $linkclass;
+                    $linkmodel->setModel($model);
+                    $model = $linkmodel;
+                }
+                $field->setValue($model);
                 break;
 
             case 'SingleModel':
@@ -646,7 +655,14 @@ class Opus_Form_Builder {
             case 'SingleModelCheckbox':
                 // Break intentionally omitted
             case 'SingleModelTextarea':
-                $submodel = new $modelclass;
+                if (false === is_null($linkclass)) {
+                    $linkmodel = new $linkclass;
+                    $submodel = new $modelclass;
+                    $linkmodel->setModel($submodel);
+                    $submodel = $linkmodel;
+                } else {
+                    $submodel = new $modelclass;
+                }
                 $this->setFromPost($submodel, $postvalue);
                 $field->setValue($submodel);
                 break;
@@ -658,8 +674,6 @@ class Opus_Form_Builder {
             case 'MultiElementSelection':
                 // Break intentionally omitted
             case 'MultiElementTextarea':
-                // Break intentionally omitted
-            case 'MultiModelSelection':
                 $result = array();
                 foreach ($postvalue as $key => $value) {
                     if (true === is_numeric($key)) {
@@ -674,6 +688,28 @@ class Opus_Form_Builder {
                 $field->setValue($result);
                 break;
 
+            case 'MultiModelSelection':
+                $result = array();
+                foreach ($postvalue as $key => $value) {
+                    if (true === is_numeric($key)) {
+                        if (true === is_array($value)) {
+                            $vals = current(array_values($value));
+                        } else {
+                            $vals = $value;
+                        }
+                        $defaults = $field->getDefault();
+                        $model = $defaults[$vals];
+                        if (false === is_null($linkclass)) {
+                            $linkmodel = new $linkclass;
+                            $linkmodel->setModel($model);
+                            $model = $linkmodel;
+                        }
+                        $result[] = $model;
+                    }
+                }
+                $field->setValue($result);
+                break;
+
             case 'MultiModel':
                 // Break intentionally omitted
             case 'MultiModelCheckbox':
@@ -681,7 +717,14 @@ class Opus_Form_Builder {
             case 'MultiModelTextarea':
                 $result = array();
                 foreach ($postvalue as $nr => $value) {
-                    $submodel = new $modelclass;
+                    if (false === is_null($linkclass)) {
+                        $linkmodel = new $linkclass;
+                        $submodel = new $modelclass;
+                        $linkmodel->setModel($submodel);
+                        $submodel = $linkmodel;
+                    } else {
+                        $submodel = new $modelclass;
+                    }
                     if (false === is_array($value)) {
                         $value = array($value);
                     }
