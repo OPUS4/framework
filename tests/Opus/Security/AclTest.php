@@ -173,8 +173,6 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testParentRelationshipIsPersisted() {
-        $this->markTestSkipped('Not working yet.');
-
         $acl = new Opus_Security_Acl;
         $resource = new Zend_Acl_Resource('MyResource');
         $parent = new Zend_Acl_Resource('MyParent');
