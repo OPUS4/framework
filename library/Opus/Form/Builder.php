@@ -169,6 +169,27 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Adds a description if a translation is available.
+     *
+     * @param Opus_Model_Field $field Field with description information.
+     * @param Zend_Form        $form  Form container where the field should be exists.
+     * @return void
+     */
+    protected function _addDescription(Opus_Model_Field $field, Zend_Form $form) {
+        $fieldname = $field->getName();
+        $descrfield = $fieldname . 'Descr';
+        $trans = $form->getTranslator()->_($descrfield);
+        $element = $form->getElement($fieldname);
+        if (($trans !== $descrfield) and ($element instanceof Zend_Form_Element)) {
+            // set decorator - maybe only needed for ZF 1.6.x
+            $element->addDecorators(array(
+                array('Description', array('tag' => 'p', 'class' => 'description')),
+                ));
+            $element->setDescription($trans);
+        }
+    }
+
+    /**
      * Add a given filter to form element.
      *
      * @param Opus_Model_Field $field Field object with necessary field informations
@@ -586,6 +607,7 @@ class Opus_Form_Builder {
      */
     protected function _setFieldAttributes(Opus_Model_Field $field, Zend_Form $form) {
         // set element attributes
+        $this->_addDescription($field, $form);
         $this->_addFilter($field, $form);
         $this->_addMandatory($field, $form);
         $this->_addValidator($field, $form);

@@ -50,7 +50,6 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
      */
     protected $_model = null;
 
-
     /**
      * Test fixture holding an instance of the Opus_Form_BuilderTest_DbModel table gateway.
      *
@@ -84,6 +83,14 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         // Set up a mock language list.
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch');
         Zend_Registry::set('Available_Languages', $list);
+
+        $testTranslation = array('test1Descr' => 'test 1');
+        $translate = new Zend_Translate(
+            Zend_Translate::AN_ARRAY,
+            $testTranslation,
+            'en'
+        );
+        Zend_Registry::set('Zend_Translate', $translate);
     }
 
     /**
@@ -637,4 +644,31 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($value, $element->getValue(), 'Checkbox does not contain correct value.');
     }
 
+    /**
+     * Test if a translated description is added to a element.
+     *
+     * @return void
+     */
+    public function testDescriptionIsAddedToAElement() {
+        // translation of description is set up in setUp()
+        $testfield1 = new Opus_Model_Field('test1');
+        $this->_model->addField($testfield1);
+        $form = $this->_builder->build($this->_model);
+        $element = $form->getElement('test1');
+        $this->assertEquals('test 1' , $element->getDescription(), 'Description is not added to field.');
+    }
+
+    /**
+     * Test if a description is not added if no translation is available.
+     *
+     * @return void
+     */
+    public function testDescriptionIsNotAddedToAElement() {
+        // translation of description is set up in setUp()
+        $testfield2 = new Opus_Model_Field('test2');
+        $this->_model->addField($testfield2);
+        $form = $this->_builder->build($this->_model);
+        $element = $form->getElement('test2');
+        $this->assertNull($element->getDescription(), 'Description of a field contains a unexpected value.');
+    }
 }
