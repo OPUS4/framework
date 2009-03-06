@@ -94,17 +94,35 @@ class Opus_Security_Acl extends Zend_Acl {
     
         parent::add($resource, $parent);
         
-        // Get Resource identifier
-        if ($resource instanceof Zend_Acl_Resource_Interface) {
-            $resourceId = $resource->getResourceId();
-        } else {
-            $resourceId = (string) $resource;
-        }
-        
         // store resource id if not prohibited
         if (false === $this->_disableStorage) {
+            // Get Resource identifier
+            if ($resource instanceof Zend_Acl_Resource_Interface) {
+                $resourceId = $resource->getResourceId();
+            } else {
+                $resourceId = (string) $resource;
+            }
+            
+            // Get database identifier of parent if given
+            if (null !== $parent) {
+                if ($parent instanceof Zend_Acl_Resource_Interface) {
+                    $parentResourceId = $parent->getResourceId();
+                } else {
+                    $parentResourceId = (string) $parent;
+                }
+                // Fetch database identifier
+                $parentRow = $this->_resourcesTable->fetchRow(
+                    $this->_resourcesTable->select()
+                        ->where('name = ?', $parentResourceId)
+                    );
+                $parentId = $parentRow->id;
+            } else {
+                $parentId = null;
+            }
+        
             $this->_resourcesTable->insert(array(
-                'name' => $resourceId));
+                'name' => $resourceId,
+                'parent_id' => $parentId));
         }
     }
 
@@ -192,7 +210,16 @@ class Opus_Security_Acl extends Zend_Acl {
 
         $resourceInstance = new Zend_Acl_Resource($resourceRow->name);
         $resourceParent = null;
-
+        
+        // Fetch parent resource if not already registered
+        if (null !== $resourceRow->parent_id) {
+            $parentId = (string) $resourceRow->parent_id;
+            if (true === $this->has($parentId)) {
+                $resourceParent = $this->get($parentId);
+            } else {
+                $resourceParent = $this->_loadResource($parentId);
+            }
+        }
 
         // Disable unwanted creation of database records
         $this->_disableStorage = true;

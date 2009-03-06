@@ -151,4 +151,37 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $hasResource = $acl->has('MyResource');
         $this->assertTrue($hasResource, 'Acl does not load resources from database.');
     }
+    
+    /**
+     * Test if a parent resource can be set.
+     *
+     * @return void
+     */
+    public function testParentResourceGetsAdded() {
+        $acl = new Opus_Security_Acl;
+        $resource = new Zend_Acl_Resource('MyResource');
+        $parent = new Zend_Acl_Resource('MyParent');
+        $acl->add($parent);
+        $acl->add($resource, $parent);
+        
+        $this->assertTrue($acl->inherits($resource, $parent), 'Parent relation ship is wrong.');
+    }
+    
+    /**
+     * Test if an parent relationship gets persisted.
+     *
+     * @return void
+     */
+    public function testParentRelationshipIsPersisted() {
+        $this->markTestSkipped('Not working yet.');
+    
+        $acl = new Opus_Security_Acl;
+        $resource = new Zend_Acl_Resource('MyResource');
+        $parent = new Zend_Acl_Resource('MyParent');
+        $acl->add($parent);
+        $acl->add($resource, $parent);
+        
+        $acl = new Opus_Security_Acl;
+        $this->assertTrue($acl->inherits($resource, $parent), 'Parent relation ship is not persistent.');
+    }   
 }
