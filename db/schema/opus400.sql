@@ -520,8 +520,8 @@ CREATE  TABLE IF NOT EXISTS `link_metadocument_collection` (
   CONSTRAINT `fk_link_documents_collection_documents`
     FOREIGN KEY (`document_id` )
     REFERENCES `documents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Reference to a metadata document for a collection.';
 
@@ -538,7 +538,7 @@ CREATE  TABLE IF NOT EXISTS `configurations` (
   `smtp_server_host` VARCHAR(255) NULL ,
   `smtp_server_login` VARCHAR(45) NULL ,
   `smtp_server_password` VARCHAR(45) NULL ,
-  PRIMARY KEY (`id`) )
+  PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -546,16 +546,16 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `resources` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `parent` INT UNSIGNED NULL ,
+  `parent_id` INT UNSIGNED NULL ,
   `name` VARCHAR(255) NULL ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
-  INDEX `fk_resources_resources` (`parent` ASC) ,
+  INDEX `fk_resources_resources` (`parent_id` ASC) ,
   CONSTRAINT `fk_resources_resources`
-    FOREIGN KEY (`parent` )
+    FOREIGN KEY (`parent_id` )
     REFERENCES `resources` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -570,8 +570,8 @@ CREATE  TABLE IF NOT EXISTS `roles` (
   CONSTRAINT `fk_roles_roles`
     FOREIGN KEY (`parent` )
     REFERENCES `roles` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -593,14 +593,14 @@ CREATE  TABLE IF NOT EXISTS `privileges` (
   CONSTRAINT `fk_privileges_roles`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION ,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE ,
   INDEX `fk_privileges_resources` (`resource_id`ASC) ,
   CONSTRAINT `fk_privileges_resources`
     FOREIGN KEY (`resource_id`)
     REFERENCES `resources` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -616,13 +616,13 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
   CONSTRAINT `fk_accounts_has_roles_accounts`
     FOREIGN KEY (`account_id` )
     REFERENCES `accounts` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
   CONSTRAINT `fk_accounts_has_roles_roles`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 
@@ -635,8 +635,7 @@ CREATE  TABLE IF NOT EXISTS `translations` (
     `locale` VARCHAR(10) NOT NULL,    
     `translation_key` VARCHAR(15) NOT NULL,
     `translation_msg` VARCHAR(15) NOT NULL,    
-    PRIMARY KEY (`id`)
-)
+    PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
 

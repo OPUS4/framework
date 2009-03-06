@@ -41,18 +41,11 @@
 class Opus_Security_Acl extends Zend_Acl {
 
     /**
-     * Holds the ResourceIds of already loaded resources.
-     *
-     * @var array
-     */
-    protected $_loadedResources = array();
-
-    /**
      * Table gateway to privileges table.
      *
      * @var Zend_Db_Table
      */
-    protected $_dba = null;
+    protected $_privilegesTable = null;
 
     /**
      * Table gateway to resources table.
@@ -62,12 +55,57 @@ class Opus_Security_Acl extends Zend_Acl {
     protected $_resourcesTable = null;
 
     /**
+     * To temporarly disable storing resource ids wich
+     * would otherwise lead to constraint violation in the database.
+     *
+     * @var Boolean
+     */
+    protected $_disableStorage = false;
+    
+    /**
+     * To temporarly disable has() method.
+     * 
+     * @var Boolean
+     */
+    protected $_hasReturnsAlwaysFalse = false;
+
+    /**
      * Initialize table gateway.
      *
      */
     public function __construct() {
-        $this->_dba = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
+        $this->_privilegesTable = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
         $this->_resourcesTable = Opus_Db_TableGateway::getInstance('Opus_Db_Resources');
+    }
+
+    /**
+     * Adds a Resource having an identifier unique to the ACL.
+     * The specified resource identifier is persisted in the database.
+     *
+     * The $parent parameter may be a reference to, or the string identifier for,
+     * the existing Resource from which the newly added Resource will inherit.
+     *
+     * @param  Zend_Acl_Resource_Interface        $resource
+     * @param  Zend_Acl_Resource_Interface|string $parent
+     * @throws Zend_Acl_Exception
+     * @return Zend_Acl Provides a fluent interface
+     */
+    public function add(Zend_Acl_Resource_Interface $resource, $parent = null) {
+    
+        parent::add($resource, $parent);
+        
+        // Get Resource identifier
+        if ($resource instanceof Zend_Acl_Resource_Interface) {
+            $resourceId = $resource->getResourceId();
+        } else {
+            $resourceId = (string) $resource;
+        }
+        
+        // store resource id if not prohibited
+        if (false === $this->_disableStorage) {
+            $this->_resourcesTable->insert(array(
+                'name' => $resourceId));
+        }
     }
 
     /**
@@ -88,107 +126,45 @@ class Opus_Security_Acl extends Zend_Acl {
     }
 
     /**
-     * Adds a Resource having an identifier unique to the ACL and persist its to the database.
-     *
-     * The $parent parameter may be a reference to, or the string identifier for,
-     * the existing Resource from which the newly added Resource will inherit.
-     *
-     * @param  Zend_Acl_Resource_Interface        $resource
-     * @param  Zend_Acl_Resource_Interface|string $parent
-     * @throws Zend_Acl_Exception
-     * @return Zend_Acl Provides a fluent interface
-     * @see Zend_Acl::add()
-     */
-    public function add(Zend_Acl_Resource_Interface $resource, $parent = null) {
-        // check if resource exist already
-        if (true === in_array($resource->getResourceId(), $this->_loadedResources)) {
-            throw new Zend_Acl_Exception("Resource id '" . $resource->getResourceId() . "' already exists in the ACL");
-        }
-        // check if resource exists in DB
-        if (false === is_null($this->_loadResource($resource))) {
-            throw new Zend_Acl_Exception("Resource id '" . $resource->getResourceId() . "' already exists in the ACL");
-        }
-
-        // get parentname
-        $parentname = null;
-        if (false === is_null($parent)) {
-            if ($parent instanceof Zend_Acl_Resource_Interface) {
-                $parentname = $parent->getResourceId();
-            } else {
-                $parentname = $parent;
-            }
-            // try to load parent if not loaded yet
-            if (false === in_array($parentname, $this->_loadedResources)) {
-                $this->_loadResource($parentname);
-            }
-        }
-
-        // add resource to the acl, parrent::add checks if parent exists (throws Zend_Acl_Exception)
-        parent::add($resource, $parent);
-
-        // persist resource
-        $this->_resourcesTable->insert(array(
-            'name' => $resource->getResourceId(),
-            'parent' => $parentname,
-            ));
-
-        // mark that resource as loaded
-        $this->_loadedResources[] = $resource->getResourceId();
-        // print("adding " . $resource->getResourceId() . "to array.\n");
-        // print_r($this->_loadedResources);
-
-        return $this;
-    }
-
-    /**
-     * Returns the identified Resource. If the resource has not been loaded yet
-     * it gets fetched from the datastore.
-     *
-     * The $resource parameter can either be a Resource or a Resource identifier.
-     *
-     * @param  Zend_Acl_Resource_Interface|string $resource
-     * @throws Zend_Acl_Exception
-     * @return Zend_Acl_Resource_Interface
-     */
-    public function get($resource) {
-        $resourceId = $resource;
-        if ($resource instanceof Zend_Acl_Resource_Interface) {
-            $resourceId = $resource->getResourceId();
-        }
-
-        if (false === in_array($resourceId, $this->_loadedResources)) {
-            $this->_loadResource($resource);
-        }
-        return parent::get($resource);
-    }
-
-    /**
      * Returns true if and only if the Resource exists in the ACL
      *
+     * If the protected variable $_hasReturnsAlwaysFalse is set to true
+     * this method always returns false.
+     * 
      * The $resource parameter can either be a Resource or a Resource identifier.
      *
      * @param  Zend_Acl_Resource_Interface|string $resource
      * @return boolean
      */
-    public function has($resource)
-    {
-        if ($resource instanceof Zend_Acl_Resource_Interface) {
-            $resourceId = $resource->getResourceId();
-        } else {
-            $resourceId = (string) $resource;
+    public function has($resource) {
+    
+        if ($this->_hasReturnsAlwaysFalse === true) {
+            // calls to has() are not permitted.
+            return false;
         }
+        
+        $result = parent::has($resource);
+        
+        if (false === $result) {
+            // Resource not yet registered, see database
 
-        if (false === in_array($resourceId, $this->_loadedResources)) {
-            // print("$resourceId not found in");
-            // print_r($this->_loadedResources);
-            // print("\n");
-            if (true === is_null($this->_loadResource($resource))) {
-                return false;
+            // Get Resource identifier
+            if ($resource instanceof Zend_Acl_Resource_Interface) {
+                $resourceId = $resource->getResourceId();
+            } else {
+                $resourceId = (string) $resource;
             }
-        } else {
-            //print("nothing loaded\n");
+
+            try {
+                // Attempt to load resource
+                $loaded = $this->_loadResource($resource);
+            } catch (Exception $ex) {
+                $loaded = null;
+            }
+            $result = (null !== $loaded);            
         }
-        return isset($this->_resources[$resourceId]);
+        
+        return $result;
     }
 
     /**
@@ -206,46 +182,31 @@ class Opus_Security_Acl extends Zend_Acl {
             $resourceId = $resource->getResourceId();
         }
 
-        // check if resource isn't loaded yet.
-        if (true === in_array($resourceId, $this->_loadedResources)) {
-            return;
-        }
         // fetch the resource from DB
         $resourceRow = $this->_resourcesTable->fetchRow($this->_resourcesTable->select()
             ->where('name = ?', $resourceId));
         if (true === is_null($resourceRow)) {
-            // resource dose not exist.
+            // resource does not exist.
             return null;
         }
 
-        // load parent
-        if (false === is_null($resourceRow->parent)) {
-            // fetch parent name (resourceId of the parent)
-            $where = $this->_resourceTable->select()->where('id = ?', $resourceRow->parent);
-            $parentRow = $this->_resourcesTable->fetchRow($where);
-            if (true === is_null($parentRow)) {
-                throw new Zend_Acl_Exception("Parent Resource id '" . $parentRow->name . "' does not exist");
-            }
-
-            if (false === in_array($parentRow->name, $this->_loadedResources)) {
-                // load grandparent
-                $this->_loadResource(new Zend_Acl_Resource($parentRow->name));
-            }
-        }
-        // FIXME: instanzen der Resourcen richtig wieder herstellen!
         $resourceInstance = new Zend_Acl_Resource($resourceRow->name);
+        $resourceParent = null;
 
-        // add ressource to the acl.
-        if (true === is_null($resourceRow->parent)) {
-            parent::add($resourceInstance);
-        } else {
-            parent::add($resourceInstance, $resourceRow->parent);
-        }
 
-        // mark the ressource as loaded
-        $this->_loadedResources[] = $resourceRow->name;
-        // print("adding " . $resourceRow->name . " to array.\n");
-        // print_r($this->_loadedResources);
+        // Disable unwanted creation of database records
+        $this->_disableStorage = true;
+        // Disable unwanted recursion on has()
+        $this->_hasReturnsAlwaysFalse = true;
+
+        // Add resource and parent resource
+        $this->add($resourceInstance, $resourceParent);
+
+        // Enable recursion on has()
+        $this->_hasReturnsAlwaysFalse = false;
+
+        // Enable creation of database records
+        $this->_disableStorage = false;
 
         return $resourceInstance;
     }
