@@ -25,62 +25,70 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Model
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @package     Opus_Security
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Model_AllTests::main');
-}
-
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
-
 /**
- * Main test suite for testing database access and models.
+ * Test for Opus_Security_Realm.
  *
- * @category    Tests
- * @package     Opus_Model
+ * @package Opus_Security
+ * @category Tests
+ *
+ * @group RealmTest
  */
-class Opus_Model_AllTests {
+class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
+     * Tear down access control list.
      *
      * @return void
      */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
+    public function tearDown() {
+        Opus_Security_Realm::getInstance()->setAcl(null);
     }
 
     /**
-     * Construct and return the test suite.
+     * Test getting singleton instance.
      *
-     * WARNING: <b>This will drop and recreate the whole database.</b>
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
+     * @return void
      */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Model');
-        $suite->addTestSuite('Opus_Model_AbstractDbTest');
-        $suite->addTestSuite('Opus_Model_AbstractSecurityTest');
-        $suite->addTestSuite('Opus_Model_AbstractTest');
-        $suite->addTestSuite('Opus_Model_FieldTest');
-        $suite->addTestSuite('Opus_Model_Dependent_Link_AbstractTest');
-        return $suite;
+    public function testGetInstance() {
+        $realm = Opus_Security_Realm::getInstance();
+        $this->assertNotNull($realm, 'Expected instance');
+        $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
     }
 
-}
 
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Model_AllTests::main') {
-    Opus_Model_AllTests::main();
+    /**
+     * Test if every permission is granted if no Acl is set up.
+     *
+     * @return void
+     */
+    public function testAllowAllWhenNoAcl() {
+        $realm = Opus_Security_Realm::getInstance();
+        $perm = $realm->isAllowed('whatever', 'everthing');
+        $this->assertTrue($perm, 'Expected permission to be granted when no Acl is initialized.');
+    }
+
+    /**
+     * Test if a privileg gets granted through the Realm.
+     *
+     * @return void
+     */
+    public function testIsAllowed() {
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setAcl(new Zend_Acl);
+        $realm->getAcl()->add(new Zend_Acl_Resource('resource'));
+        $realm->getAcl()->addRole(new Zend_Acl_Role('user'));
+        $realm->setRole(new Zend_Acl_Role('user'));
+        $realm->getAcl()->allow('user', 'resource', 'edit');
+        
+        $perm = $realm->isAllowed('edit', 'resource');
+        $this->assertTrue($perm, 'Expected permission to be granted.');
+    }
+
 }

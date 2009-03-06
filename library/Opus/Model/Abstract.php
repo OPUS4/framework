@@ -99,8 +99,14 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      * 1 - _init();
      * 2 - _addValidators();
      * 3 - _addFilters();
+     *
+     * @throws Opus_Security_Exception Thrown if the 'create' permission is not granted to the
+     *                                 current role.
      */
     public function __construct() {
+        if (false === Opus_Security_Realm::getInstance()->isAllowed('create', $this)) {
+            throw new Opus_Security_Exception('Operation "create" not allowed for current Role on ' . get_class($this));
+        }
         $this->_init();
         $this->_addValidators();
         $this->_addFilters();
