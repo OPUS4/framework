@@ -716,7 +716,11 @@ class Opus_Form_Builder {
                 // Break intentionally omitted
             case 'MultiModelTextarea':
                 $result = array();
-                foreach ($postvalue as $nr => $value) {
+                foreach ($postvalue as $key => $value) {
+                    // skip remove buttons
+                    if (false === is_numeric($key)) {
+                        continue;
+                    }
                     if (false === is_null($linkclass)) {
                         $linkmodel = new $linkclass;
                         $submodel = new $modelclass;
@@ -728,6 +732,7 @@ class Opus_Form_Builder {
                     if (false === is_array($value)) {
                         $value = array($value);
                     }
+
                     $this->setFromPost($submodel, $value);
                     $result[] = $submodel;
                 }
