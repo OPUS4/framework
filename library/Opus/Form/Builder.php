@@ -639,13 +639,15 @@ class Opus_Form_Builder {
                 // Break intentionally omitted
             case 'MultiModelSelection':
                 $result = array();
-                foreach ($postvalue as $value) {
-                    if (true === is_array($value)) {
-                        $vals = current(array_values($value));
-                    } else {
-                        $vals = $value;
+                foreach ($postvalue as $key => $value) {
+                    if (true === is_numeric($key)) {
+                        if (true === is_array($value)) {
+                            $vals = current(array_values($value));
+                        } else {
+                            $vals = $value;
+                        }
+                        $result[] = $vals;
                     }
-                    $result[] = $vals;
                 }
                 $field->setValue($result);
                 break;
