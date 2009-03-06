@@ -436,20 +436,26 @@ class Opus_Form_Builder {
         $element = new Zend_Form_Element_Select($fieldname);
         $element->setLabel($fieldname);
         $defaults = $field->getDefault();
+        $value = $field->getValue();
+        if ($value instanceOf Opus_Model_Dependent_Link_Abstract) {
+            $preselect = $value->getLinkedModelId();
+        } else if ($value instanceOf Opus_Model_Abstract) {
+            $preselect = $value->getId();
+        } else {
+            $preselect = $value;
+        }
         foreach ($defaults as $key => $default) {
             if ($default instanceOf Opus_Model_Abstract) {
+                if ($default->getId() === $preselect) {
+                    $preselect = $key;
+                }
                 $value = $default->getDisplayName();
                 $element->addMultiOption($key, $value);
             } else {
                 $element->addMultiOption($key, $default);
             }
         }
-        $value = $field->getValue();
-        if ($value instanceOf Opus_Model_Abstract) {
-            $element->setValue($value->getId());
-        } else {
-            $element->setValue($value);
-        }
+        $element->setValue($preselect);
         $container->addElement($element);
         $this->_setFieldAttributes($field, $container);
     }
@@ -698,6 +704,9 @@ class Opus_Form_Builder {
                             $vals = $value;
                         }
                         $defaults = $field->getDefault();
+                        if ('' === $vals) {
+                            $vals = 0;
+                        }
                         $model = $defaults[$vals];
                         if (false === is_null($linkclass)) {
                             $linkmodel = new $linkclass;

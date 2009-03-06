@@ -62,7 +62,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function setModel(Opus_Model_Abstract $model) {
         if ($model instanceof $this->_modelClass === false) {
-            throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target.');
+            throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target, ' .
+                    get_class($model) . 'given.');
         } else {
             $this->_model = $model;
             
