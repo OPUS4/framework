@@ -57,6 +57,7 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
      * @return void
      */ 
     public function testPersistedRoleIsRegistered() {
+        // Making a role persistent makes it also available in the registry.
         $role = new Opus_Security_Role;
         $id = $role->setName('MyRole')->store();
         $rid = $role->getRoleId();
@@ -74,13 +75,14 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testPersitedRoleGetsReturnedByGet() {
+        // Making a role persistent makes it also available in the registry.
         $role = new Opus_Security_Role;
         $id = $role->setName('MyRole')->store();
         $rid = $role->getRoleId();
 
         $reg = new Opus_Security_RoleRegistry;
         $result = $reg->get($rid);
-        $this->assertEquals($role->toArray(), $result->toArray(), 'Persisted and retrieved model values dont match.');
+        $this->assertEquals($rid, $result->getRoleId(), 'Persisted and retrieved role identifier dont match.');
     }
  
 }

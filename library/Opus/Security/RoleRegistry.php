@@ -41,46 +41,20 @@
  */
 class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
 
-
-
     /**
-     * Returns the identified Role
+     * To temporarly disable calls to has() wich
+     * would otherwise lead to never-ending recursion.
      *
-     * The $role parameter can either be a Role or a Role identifier.
-     *
-     * @param  Zend_Acl_Role_Interface|string $role
-     * @throws Zend_Acl_Role_Registry_Exception
-     * @return Zend_Acl_Role_Interface
+     * @var Boolean
      */
-    public function get($role)
-    {
-        if ($role instanceof Zend_Acl_Role_Interface) {
-            $roleId = $role->getRoleId();
-        } else {
-            $roleId = (string) $role;
-        }
-
-        if (!$this->has($role)) {
-            /**
-             * @see Zend_Acl_Role_Registry_Exception
-             */
-            require_once 'Zend/Acl/Role/Registry/Exception.php';
-            throw new Zend_Acl_Role_Registry_Exception("Role '$roleId' not found");
-        }
-
-        // Check if it is really in the internal array list
-        if (in_array($roleId, $this->_roles) === true) {
-            return $this->_roles[$roleId]['instance'];
-        } else {
-            // If not, fetch it from the database
-            $model = Opus_Security_Role::getByRoleId($roleId);
-            return $model;
-        }
-    }
-
+    protected $_disableHasQuery = false;
+   
     /**
      * Returns true if and only if the Role exists in the registry
      * or as record in the database.
+     *
+     * If the protected variable $_disableHasQuery is set to true
+     * this method always returns false.
      *
      * The $role parameter can either be a Role or a Role identifier.
      *
@@ -89,14 +63,35 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
      */
     public function has($role)
     {
-        if ($role instanceof Zend_Acl_Role_Interface) {
-            $roleId = $role->getRoleId();
-        } else {
-            $roleId = (string) $role;
+        if ($this->_disableHasQuery === true) {
+            // calls to has() are not permitted.
+            return false;
         }
-
-        return (isset($this->_roles[$roleId]) or Opus_Security_Role::isRoleIdExistent($roleId));
+        
+        $result = parent::has($role);
+        
+        if ($result === false) {
+            // Role is not registered yet?
+            // Lets have a look into the database!
+            if ($role instanceof Zend_Acl_Role_Interface) {
+                $roleId = $role->getRoleId();
+            } else {
+                $roleId = (string) $role;
+            }
+            if (Opus_Security_Role::isRoleIdExistent($roleId)) {
+                // There is a persisted Role model available.
+                // So add it into the registry by disabling recursion on has.
+                $this->_disableHasQuery = true;
+                $this->add(new Zend_Acl_Role($roleId));
+                $this->_disableHasQuery = false;
+                
+                // Now the return value indicates the registation of that role
+                $result = true;
+            }
+        }
+        
+        return $result;
     }
-   
+    
 
 }
