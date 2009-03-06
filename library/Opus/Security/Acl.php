@@ -213,11 +213,15 @@ class Opus_Security_Acl extends Zend_Acl {
         
         // Fetch parent resource if not already registered
         if (null !== $resourceRow->parent_id) {
-            $parentId = (string) $resourceRow->parent_id;
-            if (true === $this->has($parentId)) {
-                $resourceParent = $this->get($parentId);
+            $parentId = $resourceRow->parent_id;
+
+            $parentRow = $this->_resourcesTable->find($parentId);
+            $parentResourceId = $parentRow->name;
+            
+            if (true === $this->has($parentResourceId)) {
+                $resourceParent = $this->get($parentResourceId);
             } else {
-                $resourceParent = $this->_loadResource($parentId);
+                $resourceParent = $this->_loadResource($parentResourceId);
             }
         }
 
