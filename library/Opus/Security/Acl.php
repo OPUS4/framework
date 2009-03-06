@@ -140,6 +140,16 @@ class Opus_Security_Acl extends Zend_Acl {
         return $this;
     }
 
+    /**
+     * Returns the identified Resource. If the resource has not been loaded yet
+     * it gets fetched from the datastore.
+     *
+     * The $resource parameter can either be a Resource or a Resource identifier.
+     *
+     * @param  Zend_Acl_Resource_Interface|string $resource
+     * @throws Zend_Acl_Exception
+     * @return Zend_Acl_Resource_Interface
+     */
     public function get($resource) {
         $resourceId = $resource;
         if ($resource instanceof Zend_Acl_Resource_Interface) {
