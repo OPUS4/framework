@@ -57,6 +57,9 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::Text('abstract', $documentdata['abstract'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('title', $documentdata['title'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('author', $documentdata['author'], $this->__encoding));
-        $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $documentdata['urn'], $this->__encoding));
+        if (array_key_exists('urn', $documentdata) === true)
+        {
+            $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $documentdata['urn'], $this->__encoding));
+        }
     }
 }

@@ -90,7 +90,16 @@ class Opus_Search_Index_Indexer {
         $document['source'] = 'metadata';
         $document['year'] = $doc->getField('PublishedYear')->getValue();
         $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
-        $document['urn'] = $doc->getUrn()->getValue();
+        if (count($doc->getIdentifierUrn()) > 0)
+        {
+            try {
+                $document['urn'] = $doc->getIdentifierUrn(0)->getValue();
+            }
+            catch (Exception $e)
+            {
+            	$document['urn'] = '';
+            }
+        }
         $document['content'] = '';
         $titles = $doc->getField('TitleMain')->getValue();
         $title_count = count($titles);
