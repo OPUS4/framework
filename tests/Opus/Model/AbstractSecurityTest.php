@@ -92,6 +92,18 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $model = new Opus_Model_ModelAbstract;
     }
     
+    /**
+     * Test if the model throws an exception on attempt to perform
+     * prohibited creation by xml of model.
+     *
+     * @return void
+     */
+    public function testFromXmlThrowsExceptionIfCreationIsProhibited() {
+        // Set current role        
+        $this->_realm->setRole(new Zend_Acl_Role('anybody'));
+        $this->setExpectedException('Opus_Security_Exception');
+        $model = Opus_Model_ModelAbstract::fromXml('<Opus_Model_ModelAbstract/>');
+    }
     
     /**
      * Test if the model behaves normal on attempt to perform an
@@ -130,5 +142,129 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($model, 'Creation of a model should be permitted.');
     }
     
+    /**
+     * If 'edit' is not granted, set...() call throws exception.
+     *
+     * @return void
+     */
+    public function testSetThrowExceptionWhenEditNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $model->setValue('thisCallShouldRaiseException');
+    }
+
+    /**
+     * If 'edit' is not granted, add...() call throws exception.
+     *
+     * @return void
+     */
+    public function testAddThrowExceptionWhenEditNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $model->addValue();
+    }
+
+    /**
+     * Test if the fromXml() throws exception if the model can not
+     * be edited by the current role.
+     *
+     * @return void
+     */
+    public function testFromXmlThrowsExceptionIfEditProhibited() {
+        // Set current role        
+        $this->_realm->setRole(new Zend_Acl_Role('anybody'));
+
+        // Allow create operation.
+        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstract', 'create');
+
+        $this->setExpectedException('Opus_Security_Exception');
+        $model = Opus_Model_ModelAbstract::fromXml('<Opus_Model_ModelAbstract Value="Foo"/>');
+    }
+
+    /**
+     * If 'read' is not granted, get...() call throws exception.
+     *
+     * @return void
+     */
+    public function testGetThrowExceptionWhenReadNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $val = $model->getValue();
+    }
+
+    /**
+     * If 'read' is not granted, get...() call throws exception.
+     *
+     * @return void
+     */
+    public function testGetFieldThrowExceptionWhenReadNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $val = $model->getField('Value');
+    }
+
+    /**
+     * If 'read' is not granted, toArray() call throws exception.
+     *
+     * @return void
+     */
+    public function testToArrayThrowExceptionWhenReadNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $val = $model->toArray();
+    }
+
+    /**
+     * If 'read' is not granted, toXml() call throws exception.
+     *
+     * @return void
+     */
+    public function testToXmlThrowExceptionWhenReadNotPermitted() {
+        // Set current role
+        $anybody = new Zend_Acl_Role('anybody');
+        $this->_realm->setRole($anybody);
+        
+        // Allow create operation.
+        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $model = new Opus_Model_ModelAbstract;
+         
+        $this->setExpectedException('Opus_Security_Exception');
+        $val = $model->toXml();
+    }
 
 }

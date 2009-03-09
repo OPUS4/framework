@@ -46,6 +46,28 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 {
 
     /**
+     * Define name for 'create' permission.
+     *
+     * @var string
+     */
+    const PERM_CREATE = 'create';
+
+    /**
+     * Define name for 'edit' permission.
+     *
+     * @var string
+     */
+    const PERM_EDIT = 'edit';
+
+    /**
+     * Define name for 'read' permission.
+     *
+     * @var string
+     */
+    const PERM_READ = 'read';
+
+
+    /**
      * Holds all fields of the domain model.
      *
      * @var array
@@ -104,8 +126,8 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      *                                 current role.
      */
     public function __construct() {
-        if (false === Opus_Security_Realm::getInstance()->isAllowed('create', $this)) {
-            throw new Opus_Security_Exception('Operation "create" not allowed for current Role on ' . get_class($this));
+        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_CREATE, $this)) {
+            throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . get_class($this));
         }
         $this->_init();
         $this->_addValidators();
@@ -169,8 +191,9 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      *
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
-     * @throws Opus_Model_Exception If an unknown field or method is requested.
      * @throws InvalidArgumentException When adding a link to a field without an argument.
+     * @throws Opus_Model_Exception     If an unknown field or method is requested.
+     * @throws Opus_Security_Exception  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments) {
@@ -203,6 +226,9 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 
         switch ($accessor) {
             case 'get':
+                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . get_class($this));
+                }
                 if (empty($arguments) === false) {
                     return $field->getValue($arguments[0]);
                 } else {
@@ -211,6 +237,9 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 break;
 
             case 'set':
+                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . get_class($this));
+                }
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
@@ -238,6 +267,9 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 break;
 
             case 'add':
+                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . get_class($this));
+                }
                 // get Modelclass if model is linked
                 if ($fieldIsExternal and $fieldHasThroughOption === true) {
 
@@ -313,9 +345,13 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      * Return a reference to an actual field.
      *
      * @param string $name Name of the requested field.
+     * @throws Opus_Security_Exception  If the current role has no permission for the 'read' operation.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
+        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
+            throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . get_class($this));
+        }
         if (array_key_exists($name, $this->_fields) === true) {
             return $this->_fields[$name];
         } else {
