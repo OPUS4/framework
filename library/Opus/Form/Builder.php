@@ -289,13 +289,13 @@ class Opus_Form_Builder {
         do {
             // every element must be holded in a subform
             $helpform = new Zend_Form_Subform();
-            $helpform->setLegend("$i");
+            $helpform->setLegend((string) $i);
             // clone field and set current value
             $clone_field = clone $field;
             $clone_field->setMultiplicity(1);
             $clone_field->setValue(array_shift($values));
             $this->_makeTextElement($clone_field, $helpform);
-            $subform->addSubForm($helpform, "$i");
+            $subform->addSubForm($helpform, (string) $i);
             $this->__addRemoveButton($field, $subform, $i);
             $i++;
         } while ($i <= $count);
@@ -320,13 +320,13 @@ class Opus_Form_Builder {
         do {
             // every element must be holded in a subform
             $helpform = new Zend_Form_Subform();
-            $helpform->setLegend("$i");
+            $helpform->setLegend((string) $i);
             // clone field and set current value
             $clone_field = clone $field;
             $clone_field->setMultiplicity(1);
             $clone_field->setValue(array_shift($values));
             $this->_makeCheckboxElement($clone_field, $helpform);
-            $subform->addSubForm($helpform, "$i");
+            $subform->addSubForm($helpform, (string) $i);
             $this->__addRemoveButton($field, $subform, $i);
             $i++;
         } while ($i <= $count);
@@ -351,13 +351,13 @@ class Opus_Form_Builder {
         do {
             // every element must be holded in a subform
             $helpform = new Zend_Form_Subform();
-            $helpform->setLegend("$i");
+            $helpform->setLegend((string) $i);
             // clone field and set current value
             $clone_field = clone $field;
             $clone_field->setMultiplicity(1);
             $clone_field->setValue(array_shift($values));
             $this->_makeSelectionElement($clone_field, $helpform);
-            $subform->addSubForm($helpform, "$i");
+            $subform->addSubForm($helpform, (string) $i);
             $this->__addRemoveButton($field, $subform, $i);
             $i++;
         } while ($i <= $count);
@@ -382,13 +382,13 @@ class Opus_Form_Builder {
         do {
             // every element must be holded in a subform
             $helpform = new Zend_Form_Subform();
-            $helpform->setLegend("$i");
+            $helpform->setLegend((string) $i);
             // clone field and set current value
             $clone_field = clone $field;
             $clone_field->setMultiplicity(1);
             $clone_field->setValue(array_shift($values));
             $this->_makeTextAreaElement($clone_field, $helpform);
-            $subform->addSubForm($helpform, "$i");
+            $subform->addSubForm($helpform, (string) $i);
             $this->__addRemoveButton($field, $subform, $i);
             $i++;
         } while ($i <= $count);
@@ -415,8 +415,8 @@ class Opus_Form_Builder {
         } else {
             foreach ($field->getValue() as $fieldvalue) {
                 // fieldvalue contains a "working" model
-                $this->_makeSubForm("$i", $fieldvalue, $subform);
-                $this->__addRemoveButton($field, $subform, "$i");
+                $this->_makeSubForm((string) $i, $fieldvalue, $subform);
+                $this->__addRemoveButton($field, $subform, (string) $i);
                 $i++;
             }
         }
