@@ -183,8 +183,8 @@ class Opus_Form_Builder {
         if (($trans !== $descrfield) and ($element instanceof Zend_Form_Element)) {
             // set decorator - maybe only needed for ZF 1.6.x
             $element->addDecorators(array(
-                array('Description', array('tag' => 'p', 'class' => 'description')),
-                ));
+            array('Description', array('tag' => 'p', 'class' => 'description')),
+            ));
             $element->setDescription($trans);
         }
     }
@@ -619,17 +619,112 @@ class Opus_Form_Builder {
     }
 
     /**
+     * Set values of a multiple element.
+     *
+     * @param Opus_Model_Field $field      Field for setting values.
+     * @param mixed            &$postvalue Contains field values.
+     * @return void
+     */
+    protected function _setMultiElement(Opus_Model_Field $field, &$postvalue) {
+        $result = array();
+        foreach ($postvalue as $key => $value) {
+            // skip non-numeric key for example remove buttons
+            if (false === is_numeric($key)) {
+                continue;
+            }
+            if (true === is_array($value)) {
+                $vals = current(array_values($value));
+            } else {
+                $vals = $value;
+            }
+            $result[] = $vals;
+        }
+        $field->setValue($result);
+    }
+
+    /**
+     * Set values of a multiple model.
+     *
+     * @param Opus_Model_Field $field      Field for setting values.
+     * @param mixed            &$postvalue Contains field values.
+     * @return void
+     */
+    protected function _setMultiModel(Opus_Model_Field $field, &$postvalue) {
+
+        $result = array();
+        $modelclass = $field->getValueModelClass();
+        $linkclass = $field->getLinkModelClass();
+
+        foreach ($postvalue as $key => $value) {
+            // skip non-numeric key for example remove buttons
+            if (false === is_numeric($key)) {
+                continue;
+            }
+            if (false === is_null($linkclass)) {
+                $linkmodel = new $linkclass;
+                $submodel = new $modelclass;
+                $linkmodel->setModel($submodel);
+                $submodel = $linkmodel;
+            } else {
+                $submodel = new $modelclass;
+            }
+            if (false === is_array($value)) {
+                $value = array($value);
+            }
+
+            $this->setFromPost($submodel, $value);
+            $result[] = $submodel;
+        }
+        $field->setValue($result);
+    }
+
+    /**
+     * Set multiple selection models.
+     *
+     * @param Opus_Model_Field $field      Field for setting values.
+     * @param mixed            &$postvalue Contains field values.
+     * @return void
+     */
+    protected function _setMultiModelSelection(Opus_Model_Field $field, &$postvalue) {
+
+        $result = array();
+        $modelclass = $field->getValueModelClass();
+        $linkclass = $field->getLinkModelClass();
+        $defaults = $field->getDefault();
+
+        foreach ($postvalue as $key => $value) {
+            // skip non-numeric key for example remove buttons
+            if (false === is_numeric($key)) {
+                continue;
+            }
+            if (true === is_array($value)) {
+                $vals = current(array_values($value));
+            } else {
+                $vals = $value;
+            }
+            if ('' === $vals) {
+                $vals = 0;
+            }
+            $model = $defaults[$vals];
+            if (false === is_null($linkclass)) {
+                $linkmodel = new $linkclass;
+                $linkmodel->setModel($model);
+                $model = $linkmodel;
+            }
+            $result[] = $model;
+        }
+        $field->setValue($result);
+    }
+
+    /**
      * Set post data into model.
      *
-     * @param Opus_Model_Field $field     Field
-     * @param mixed            $postvalue PostData
+     * @param Opus_Model_Field $field      Field
+     * @param mixed            &$postvalue PostData
      * @throws Opus_Form_Exception Thrown if a action is requested which is not available.
      * @return void
      */
-    protected function _setPostData(Opus_Model_Field $field, $postvalue) {
-
-        $modelclass = $field->getValueModelClass();
-        $linkclass = $field->getLinkModelClass();
+    protected function _setPostData(Opus_Model_Field $field, &$postvalue) {
 
         $elementToSave = $this->__determinateFieldAction($field);
 
@@ -646,14 +741,7 @@ class Opus_Form_Builder {
                 break;
 
             case 'SingleModelSelection':
-                $defaults = $field->getDefault();
-                $model = $defaults[$postvalue];
-                if (false === is_null($linkclass)) {
-                    $linkmodel = new $linkclass;
-                    $linkmodel->setModel($model);
-                    $model = $linkmodel;
-                }
-                $field->setValue($model);
+                $this->_setSingleModelSelection($field, $postvalue);
                 break;
 
             case 'SingleModel':
@@ -661,16 +749,7 @@ class Opus_Form_Builder {
             case 'SingleModelCheckbox':
                 // Break intentionally omitted
             case 'SingleModelTextarea':
-                if (false === is_null($linkclass)) {
-                    $linkmodel = new $linkclass;
-                    $submodel = new $modelclass;
-                    $linkmodel->setModel($submodel);
-                    $submodel = $linkmodel;
-                } else {
-                    $submodel = new $modelclass;
-                }
-                $this->setFromPost($submodel, $postvalue);
-                $field->setValue($submodel);
+                $this->_setSingleModel($field, $postvalue);
                 break;
 
             case 'MultiElement':
@@ -680,43 +759,11 @@ class Opus_Form_Builder {
             case 'MultiElementSelection':
                 // Break intentionally omitted
             case 'MultiElementTextarea':
-                $result = array();
-                foreach ($postvalue as $key => $value) {
-                    if (true === is_numeric($key)) {
-                        if (true === is_array($value)) {
-                            $vals = current(array_values($value));
-                        } else {
-                            $vals = $value;
-                        }
-                        $result[] = $vals;
-                    }
-                }
-                $field->setValue($result);
+                $this->_setMultiElement($field, $postvalue);
                 break;
 
             case 'MultiModelSelection':
-                $result = array();
-                foreach ($postvalue as $key => $value) {
-                    if (true === is_numeric($key)) {
-                        if (true === is_array($value)) {
-                            $vals = current(array_values($value));
-                        } else {
-                            $vals = $value;
-                        }
-                        $defaults = $field->getDefault();
-                        if ('' === $vals) {
-                            $vals = 0;
-                        }
-                        $model = $defaults[$vals];
-                        if (false === is_null($linkclass)) {
-                            $linkmodel = new $linkclass;
-                            $linkmodel->setModel($model);
-                            $model = $linkmodel;
-                        }
-                        $result[] = $model;
-                    }
-                }
-                $field->setValue($result);
+                $this->_setMultiModelSelection($field, $postvalue);
                 break;
 
             case 'MultiModel':
@@ -724,28 +771,7 @@ class Opus_Form_Builder {
             case 'MultiModelCheckbox':
                 // Break intentionally omitted
             case 'MultiModelTextarea':
-                $result = array();
-                foreach ($postvalue as $key => $value) {
-                    // skip remove buttons
-                    if (false === is_numeric($key)) {
-                        continue;
-                    }
-                    if (false === is_null($linkclass)) {
-                        $linkmodel = new $linkclass;
-                        $submodel = new $modelclass;
-                        $linkmodel->setModel($submodel);
-                        $submodel = $linkmodel;
-                    } else {
-                        $submodel = new $modelclass;
-                    }
-                    if (false === is_array($value)) {
-                        $value = array($value);
-                    }
-
-                    $this->setFromPost($submodel, $value);
-                    $result[] = $submodel;
-                }
-                $field->setValue($result);
+                $this->_setMultiModel($field, $postvalue);
                 break;
 
             default:
@@ -753,6 +779,52 @@ class Opus_Form_Builder {
                 break;
         }
 
+    }
+
+    /**
+     * Set value for a model.
+     *
+     * @param Opus_Model_Field $field      Field for setting value.
+     * @param mixed            &$postvalue Contains field value.
+     * @return void
+     */
+    protected function _setSingleModel(Opus_Model_Field $field, &$postvalue) {
+
+        $modelclass = $field->getValueModelClass();
+        $linkclass = $field->getLinkModelClass();
+
+        if (false === is_null($linkclass)) {
+            $linkmodel = new $linkclass;
+            $submodel = new $modelclass;
+            $linkmodel->setModel($submodel);
+            $submodel = $linkmodel;
+        } else {
+            $submodel = new $modelclass;
+        }
+        $this->setFromPost($submodel, $postvalue);
+        $field->setValue($submodel);
+    }
+
+    /**
+     * Set single selection model.
+     *
+     * @param Opus_Model_Field $field      Field for setting value.
+     * @param mixed            &$postvalue Contains field value.
+     * @return void
+     */
+    protected function _setSingleModelSelection(Opus_Model_Field $field, &$postvalue) {
+
+        $modelclass = $field->getValueModelClass();
+        $linkclass = $field->getLinkModelClass();
+
+        $defaults = $field->getDefault();
+        $model = $defaults[$postvalue];
+        if (false === is_null($linkclass)) {
+            $linkmodel = new $linkclass;
+            $linkmodel->setModel($model);
+            $model = $linkmodel;
+        }
+        $field->setValue($model);
     }
 
     /**
