@@ -127,6 +127,10 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'splash-url')
             ),
+            'IdentifierOpus3' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'opus3-id')
+            ),
             'ReferenceIsbn' => array(
                 'model' => 'Opus_Reference',
                 'options' => array('type' => 'isbn'),
