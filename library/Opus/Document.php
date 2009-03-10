@@ -465,4 +465,30 @@ class Opus_Document extends Opus_Model_AbstractDb
                 $domXml->documentElement);
         return $result;
     }
+
+    /**
+     * Add URN identifer if no identifier has been added yet.
+     *
+     * @return void
+     */
+    protected function _storeIdentifierUrn() {
+        $value = $this->_fields['IdentifierUrn']->getValue();
+        if (true === empty($value)) {
+            // TODO contructor values should be configurable
+            $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+            $urn_value = $urn->getUrn($this->getId());
+            $urn_model = new Opus_Identifier();
+            $urn_model->setValue($urn_value);
+            $this->setIdentifierUrn($urn_model);
+        }
+
+        if (array_key_exists('options', $this->_externalFields['IdentifierUrn']) === true) {
+            $options = $this->_externalFields['IdentifierUrn']['options'];
+        } else {
+            $options = null;
+        }
+
+        $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
+    }
+
 }

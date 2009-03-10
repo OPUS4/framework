@@ -922,4 +922,79 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $this->assertEquals($languages, $doc->getLanguage(), 'Document language list corrupted by storage.');
     }
+
+    /**
+     * Test storing of a urn.
+     *
+     * @return void
+     */
+    public function testStoringOfOneIdentifierUrn() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="1"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $id = $doc->store();
+        $urn_value = $doc->getIdentifierUrn()->getValue();
+
+        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $this->assertEquals($urn->getUrn($id), $urn_value);
+    }
+
+    /**
+     * Test saving of empty multiple urn fields.
+     *
+     * @return void
+     */
+    public function testStoringOfMultipleIdentifierUrnField() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="2"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $id = $doc->store();
+        $urn_value = $doc->getIdentifierUrn(0)->getValue();
+
+        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $this->assertEquals($urn->getUrn($id), $urn_value);
+    }
+
+    /**
+     * Ensure that existing urn values not overriden.
+     *
+     * @return void
+     */
+    public function testNotOverrideExistingUrn() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="1"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $urn_value = 'urn:nbn:de:swb:14-opus-5548';
+        $urn_model = $doc->addIdentifierUrn();
+        $urn_model->setValue($urn_value);
+
+        $id = $doc->store();
+        $doc2 = new Opus_Document($id);
+
+        $this->assertEquals($urn_value, $doc2->getIdentifierUrn()->getValue());
+    }
+
 }
+
+
