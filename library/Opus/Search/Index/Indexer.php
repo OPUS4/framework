@@ -72,6 +72,7 @@ class Opus_Search_Index_Indexer {
 			#print_r($doc->getDocument());
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
+            	//print_r($analyzedDoc);
 			 	$this->entryindex->addDocument(new Opus_Search_Index_Document($analyzedDoc));
             }
 			# Do not flush, it will work without it
@@ -84,55 +85,124 @@ class Opus_Search_Index_Indexer {
 	}
 
 	private function analyzeDocument(Opus_Document $doc) {
-        #print_r($doc->toArray());
         $docarray = array();
+        $returnarray = array();
+        $langarray = array();
+
         $document['docid'] = $doc->getId();
-        $document['source'] = 'metadata';
         $document['year'] = $doc->getField('PublishedYear')->getValue();
-        $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
-        if (count($doc->getIdentifierUrn()) > 0)
+        $document['author'] = '';
+        // Does the field exist?
+        if (count($doc->getField('PersonAuthor')) > 0)
         {
-            try {
-                $document['urn'] = $doc->getIdentifierUrn(0)->getValue();
-            }
-            catch (Exception $e)
+            // Does the field have content?
+            if (count($doc->getField('PersonAuthor')->getValue()) > 0)
             {
-            	$document['urn'] = '';
+                $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
             }
         }
-        $document['content'] = '';
+        $document['persons'] = '';
+        // Does the field exist?
+        if (count($doc->getField('PersonContributor')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonContributor')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonContributor')->getValue());
+            }
+        }
+        // Does the field exist?
+        if (count($doc->getField('PersonAdvisor')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonAdvisor')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonAdvisor')->getValue());
+            }
+        }
+        // Does the field exist?
+        if (count($doc->getField('PersonEditor')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonEditor')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonEditor')->getValue());
+            }
+        }
+        // Does the field exist?
+        if (count($doc->getField('PersonReferee')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonReferee')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonReferee')->getValue());
+            }
+        }
+        // Does the field exist?
+        if (count($doc->getField('PersonOther')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonOther')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonOther')->getValue());
+            }
+        }
+        // Does the field exist?
+        if (count($doc->getField('PersonTranslator')) > 0)
+        {
+            // Does the field have content?
+            if (count($doc->getField('PersonTranslator')->getValue()) > 0)
+            {
+        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonTranslator')->getValue());
+            }
+        }
+        
+        $document['doctype'] = $doc->getType();
+
         $titles = $doc->getField('TitleMain')->getValue();
         $title_count = count($titles);
         $abstracts = $doc->getField('TitleAbstract')->getValue();
-        $returnarray = array();
-        $langarray = array();
+
         // Look at all titles of the document
+        $document['title'] = '';
+        $document['abstract'] = '';
         foreach ($titles as $title)
         {
-            $document['title'] = $title->getValue();
+            $document['title'] .= ' ' . $title->getValue();
             $lang = $title->getLanguage();
-            $document['abstract'] = $this->getAbstract($abstracts, $lang);
+            $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
             array_push($langarray, $lang);
-            array_push($returnarray, $document);
         }
-        // index files and add the last title and last abstract to data set
+        // Look if there are non-indexed abstracts left
+        $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
+        foreach ($not_processed_abstracts as $abstract) {
+            $document['abstract'] .= ' ' . $abstract;
+        }
+
+        // Missing fields
+        $document['subject'] = '';
+        $document['institute'] = '';
+
+        // index files (each file will get one data set)
         $files = $doc->getField('File')->getValue();
         $file_count = count($files);
         foreach ($files as $file)
         {
-        	$document['source'] = $file->getPathName();
-        	$document['content'] = $this->getFileContent($file); 
-        	array_push($returnarray, $document);
+        	if ($this->getFileContent($file) !== null)
+        	{
+        	    $document['source'] = $file->getPathName();
+        	    $document['content'] = $this->getFileContent($file); 
+        	    array_push($returnarray, $document);
+            }
         }
-        // Look if there are non-indexed abstracts left
-        $document['source'] = 'metadata';
-        $document['content'] = '';
-        $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
-        $document['title'] = $doc->getTitleMain(0)->getValue();
-        foreach ($not_processed_abstracts as $abstract) {
-            $document['abstract'] = $abstract;
+        // if there is no file (or a non-readable one) associated with the document, index only metadata
+        if (count($returnarray) === 0)
+        {
+            $document['source'] = 'metadata';
+            $document['content'] = '';
             array_push($returnarray, $document);
         }
+
         // return array of documents to index
         return $returnarray;
 	}

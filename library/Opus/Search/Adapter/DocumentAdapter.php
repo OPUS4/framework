@@ -120,7 +120,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 
 		// transfer the URN of this document into the adapter class
 		try {
-			$this->documentData['urn'] = $document->getUrn()->getValue();
+			$this->documentData['urn'] = $document->getIdentifierUrn(0)->getValue();
 		} catch (Exception $e) {
 			$this->documentData['urn'] = 'No URN specified.';
 		}
