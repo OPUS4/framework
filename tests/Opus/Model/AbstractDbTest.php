@@ -110,6 +110,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // Instantiate the Zend_Db_Table
         $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
     }
+    
+    /**
+     * Remove temporary table.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::dropTable('test_testtable');
+    }
 
     /**
      * Test if loading a model instance from the database devlivers the expected value.

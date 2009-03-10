@@ -55,6 +55,17 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
+        // Create table for TestModel
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        try {
+            $dba->deleteTable('testtable');
+        } catch (Exception $ex) {
+            // CodeSniffer dope
+            $noop = 12;
+        }
+        $dba->createTable('testtable');
+        $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
+    
         // Setup Realm
         $this->_realm = Opus_Security_Realm::getInstance();
     
@@ -74,12 +85,14 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Remove temporary table.
      * Tear down access control list.
      *
      * @return void
      */
     public function tearDown() {
         Opus_Security_Realm::getInstance()->setAcl(null);
+        TestHelper::dropTable('test_testtable');
     }
     
     /**
