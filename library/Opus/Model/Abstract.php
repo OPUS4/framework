@@ -127,7 +127,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      */
     public function __construct() {
         if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_CREATE, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . get_class($this));
+            throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . $this->getResourceId());
         }
         $this->_init();
         $this->_addValidators();
@@ -227,7 +227,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
         switch ($accessor) {
             case 'get':
                 if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . get_class($this));
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
                 }
                 if (empty($arguments) === false) {
                     return $field->getValue($arguments[0]);
@@ -238,7 +238,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 
             case 'set':
                 if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . get_class($this));
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . $this->getResourceId());
                 }
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
@@ -268,7 +268,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 
             case 'add':
                 if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . get_class($this));
+                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . $this->getResourceId());
                 }
                 // get Modelclass if model is linked
                 if ($fieldIsExternal and $fieldHasThroughOption === true) {
@@ -350,7 +350,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      */
     public function getField($name) {
         if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . get_class($this));
+            throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
         }
         if (array_key_exists($name, $this->_fields) === true) {
             return $this->_fields[$name];

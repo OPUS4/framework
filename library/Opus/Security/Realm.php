@@ -96,11 +96,54 @@ class Opus_Security_Realm {
         return $this->_role;
     }
 
+    /**
+     * Allow a given privileg on an specified resource for a specified role.
+     * If no access control list is set up, nothing happens. If the given Resource
+     * and/or Role is not known yet, it gets registered.
+     *
+     * @param string $privileg                   Name of a privileg.
+     * @param Zend_Acl_Resource_Interface|string (Optional) Resource or identifier of a Resource.
+     * @param Zend_Acl_Role_Interface|string     (Optional) Role or identifier of a Role.
+     *                                           If null, the current set Role is used.
+     * @return void
+     */
+    public function allow($privileg, $resource=null, $role=null) {
+        if (null !== $this->_acl) {
+            if (null === $role) {
+                $role = $this->_role;
+            }
+            try {
+                // autoregister Resource
+                if (null !== $resource) {
+                    if (false === $this->_acl->has($resource)) {
+                        if (is_string($resource)) {
+                            $resource = new Zend_Acl_Resource($resource);
+                        }
+                        $this->_acl->add($resource);
+                    }
+                }
+                
+                // autoregister Role
+                if (false === $this->_acl->hasRole($role)) {
+                    if (is_string($role)) {
+                        $role = new Zend_Acl_Role($role);
+                    }
+                    $this->_acl->addRole($role);
+                }
+                             
+                $this->_acl->allow($role, $resource, $privileg);
+            } catch (Zend_Acl_Exception $zaclex) {
+                // Filter exception when unregistered resources or roles get queried.
+                return;
+            }
+        }
+    }
 
     
     /**
      * Check if a given $privileg is granted for $role on $resource in this Realm.
-     * Always returns true if no access control list is set up.
+     * Always returns true if no access control list is set up. If a specified resource
+     * or role is not registered it returns false.
      *
      * @param string $privileg                   Name of a privileg.
      * @param Zend_Acl_Resource_Interface|string (Optional) Resource or identifier of a Resource.
@@ -113,7 +156,12 @@ class Opus_Security_Realm {
             if (null === $role) {
                 $role = $this->_role;
             }
-            return $this->_acl->isAllowed($role, $resource, $privileg);
+            try {
+                return $this->_acl->isAllowed($role, $resource, $privileg);
+            } catch (Zend_Acl_Exception $zaclex) {
+                // Just return false when unregistered resources or roles get queried.
+                return false;
+            }
         }
         return true;
     }

@@ -42,6 +42,21 @@
 
 abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 {
+
+    /**
+     * Define name for 'update' permission.
+     *
+     * @var string
+     */
+    const PERM_UPDATE = 'update';
+
+    /**
+     * Define name for 'delete' permission.
+     *
+     * @var string
+     */
+    const PERM_DELETE = 'delete';
+
     /**
      * Holds the primary database table row. The concrete class is responsible
      * for any additional table rows it might need.
@@ -163,10 +178,15 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * Persist all the models information to its database locations.
      *
      * @see    Opus_Model_Interface::store()
-     * @throws Opus_Model_Exception Thrown if the store operation could not be performed.
+     * @throws Opus_Model_Exception     Thrown if the store operation could not be performed.
+     * @throws Opus_Security_Exception  If the current role has no permission for the 'update' operation.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
+        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_UPDATE, $this)) {
+            throw new Opus_Security_Exception('Operation ' . self::PERM_UPDATE . ' not allowed for current Role on ' . $this->getResourceId());
+        }
+
         if ($this->_transactional === true) {
             $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
             $dbadapter->beginTransaction();
@@ -347,10 +367,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * Remove the model instance from the database.
      *
      * @see    Opus_Model_Interface::delete()
-     * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
+     * @throws Opus_Model_Exception    If a delete operation could not be performed on this model.
+     * @throws Opus_Security_Exception If the current role has no permission for the 'delete' operation.
      * @return void
      */
     public function delete() {
+        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_DELETE, $this)) {
+            throw new Opus_Security_Exception('Operation ' . self::PERM_DELETE . ' not allowed for current Role on ' . $this->getResourceId());
+        }
         $this->_primaryTableRow->delete();
         $this->_primaryTableRow = null;
     }

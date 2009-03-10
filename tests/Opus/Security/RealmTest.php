@@ -85,10 +85,55 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $realm->getAcl()->add(new Zend_Acl_Resource('resource'));
         $realm->getAcl()->addRole(new Zend_Acl_Role('user'));
         $realm->setRole(new Zend_Acl_Role('user'));
-        $realm->getAcl()->allow('user', 'resource', 'edit');
+        $realm->allow('edit', 'resource', 'user');
         
         $perm = $realm->isAllowed('edit', 'resource');
         $this->assertTrue($perm, 'Expected permission to be granted.');
+    }
+    
+    /**
+     * Test if call allow() with unknown Resource registers this Resource.
+     *
+     * @return void
+     */
+    public function testAutoregisterResourceOnAllow() {
+        $realm = Opus_Security_Realm::getInstance();
+        $acl = new Zend_Acl;
+        $realm->setAcl($acl);
+        
+        $realm->allow('privileg', 'resource');
+        
+        $this->assertTrue($acl->has('resource'), 'Expect Resource to be registered.');
+    }
+
+    /**
+     * Test if call allow() with unknown Role registers this Role.
+     *
+     * @return void
+     */
+    public function testAutoregisterRoleOnAllow() {
+        $realm = Opus_Security_Realm::getInstance();
+        $acl = new Zend_Acl;
+        $realm->setAcl($acl);
+        
+        $realm->allow('privileg', 'resource', 'role');
+        
+        $this->assertTrue($acl->hasRole('role'), 'Expect Role to be registered.');
+    }
+    
+    /**
+     * Test if no exception is thrown if an unknown resource is queried.
+     *
+     * @return void
+     */
+    public function testIsAllowedOnUnknownResourceNotThrowsException() {
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setAcl(new Zend_Acl);
+        try {
+            $realm->isAllowed('whatever', 'UnknownResource');    
+        } catch (Zend_Acl_Exception $zaclex) {
+            $this->fail('Expected no Zend_Acl_Exception when querying unknown resource.');
+        }
     }
 
 }
