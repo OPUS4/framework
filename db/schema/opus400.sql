@@ -8,6 +8,18 @@ DEFAULT COLLATE = utf8_general_ci;
 USE `opus400`;
 
 -- -----------------------------------------------------
+-- Table to store schema versioning information
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `schema_version`;
+CREATE TABLE `schema_version` (
+    `last_changed_date` VARCHAR(50) DEFAULT '$LastChangedDate$',
+    `revision` VARCHAR(10) DEFAULT '$Rev$',
+    `author` VARCHAR(50) DEFAULT '$Author$'
+)
+ENGINE = InnoDB
+COMMENT = 'Holds revision information from subversion properties.';
+
+-- -----------------------------------------------------
 -- Table `documents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `documents` (
