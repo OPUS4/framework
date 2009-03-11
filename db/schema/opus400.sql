@@ -12,12 +12,13 @@ USE `opus400`;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
-    `last_changed_date` VARCHAR(50) DEFAULT '$LastChangedDate$',
-    `revision` VARCHAR(10) DEFAULT '$Rev$',
-    `author` VARCHAR(50) DEFAULT '$Author$'
+    `last_changed_date` VARCHAR(100) ,
+    `revision` VARCHAR(20) ,
+    `author` VARCHAR(100)
 )
 ENGINE = InnoDB
 COMMENT = 'Holds revision information from subversion properties.';
+INSERT INTO `schema_version` (last_changed_date, revision, author) VALUES ('$LastChangedDate$', '$Rev$', '$Author$');
 
 -- -----------------------------------------------------
 -- Table `documents`
