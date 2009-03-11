@@ -18,6 +18,12 @@ CREATE TABLE `schema_version` (
 )
 ENGINE = InnoDB
 COMMENT = 'Holds revision information from subversion properties.';
+-- -----------------------------------------------------
+-- Insert revision information
+-- 
+-- The values are generated through svn checkin.
+-- Do not edit here.
+-- -----------------------------------------------------
 INSERT INTO `schema_version` (last_changed_date, revision, author) VALUES ('$LastChangedDate$', '$Rev$', '$Author$');
 
 -- -----------------------------------------------------

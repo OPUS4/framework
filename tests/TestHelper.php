@@ -57,8 +57,60 @@ class TestHelper extends Opus_Bootstrap_Base {
      * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
      */
     protected function _setupBackend() {
-        $this->_setupDatabase();
         $this->_setupLogging();
+        $this->_setupDatabase();
+    }
+
+    /**
+     * Set up database connection. If stored schema version information
+     * denotes an deprecated schema, end with exception.
+     *
+     * @throws Exception Thrown if database schema check unveils an revision number mismatch.
+     * @return void
+     */
+    protected function _setupDatabase() {
+        parent::_setupDatabase();
+        $log = Zend_Registry::get('Zend_Log');
+        
+        // Determine current schema revision from opus400.sql
+        $sqlFile = dirname(dirname(__FILE__)) . '/db/schema/opus400.sql';
+        if (false === is_file($sqlFile)) {
+            $log->warn('Schema file ' . $sqlFile . ' not found.');
+            return;
+        }
+        
+        // Scan for revision information
+        $handle = @fopen($sqlFile, 'r');
+        if (false === $handle) {
+            $log->warn('Cannot open schema file ' . $sqlFile . '.');
+            return;
+        }
+        while(false === feof($handle)) {
+            $line = fgets($handle);
+            if (1 === preg_match('/\$Rev: \d*\s\$/', $line, $matches)) {
+                $sqlRev = $matches[0];
+                break;
+            }
+        }
+        fclose($handle);
+        
+        // Load revision from database
+        $dba = Zend_Registry::get('db_adapter');
+        try {
+            $row = $dba->fetchRow($dba->select()->from('schema_version'));
+            if (true === empty($row)) {
+                throw new Exception('No revision information available.');
+            } 
+            $dbRev = $row['revision'];
+        } catch (Exception $ex) {
+            $log->warn('Cannot read schema information from database: ' . $ex->getMessage());
+            return;
+        }           
+            
+        // Compare revisions and throw exception if needed
+        if ($sqlRev !== $dbRev) {
+            throw new Exception("Database schema revision mismatch: ($sqlRev !== $dbRev). Consider rebuilding the database.");            
+        }
     }
 
     /**
