@@ -104,7 +104,8 @@ class Opus_ConfigurationTest extends PHPUnit_Framework_TestCase {
         $conf = new Opus_Configuration;
         $conf->setName('MyConf')
             ->setTheme('MyTheme')
-            ->setSiteName('MySiteName');
+            ->setSiteName('MySiteName')
+            ->setLoadOnStartup(0);
         $id = $conf->store();
         
         $conf2 = new Opus_Configuration($id);

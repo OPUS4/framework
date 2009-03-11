@@ -531,14 +531,15 @@ COMMENT = 'Reference to a metadata document for a collection.';
 -- Table `configurations`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `configurations` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(45) NOT NULL ,
-  `theme` VARCHAR(45) NULL DEFAULT 'default' ,
-  `site_name` VARCHAR(255) NULL ,
-  `admin_email` VARCHAR(255) NULL ,
-  `smtp_server_host` VARCHAR(255) NULL ,
-  `smtp_server_login` VARCHAR(45) NULL ,
-  `smtp_server_password` VARCHAR(45) NULL ,
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key of a specific configuration' ,
+  `name` VARCHAR(45) NOT NULL COMMENT 'Name of the configuration' ,
+  `theme` VARCHAR(45) NULL DEFAULT 'default'  COMMENT 'Name of the theme to load' ,
+  `site_name` VARCHAR(255) NULL COMMENT 'Name of the server site (eg. an institution)' ,
+  `admin_email` VARCHAR(255) NULL  COMMENT 'Email address to for admin mails' ,
+  `smtp_server_host` VARCHAR(255) NULL COMMENT 'Hostname of SMTP server' ,
+  `smtp_server_login` VARCHAR(45) NULL COMMENT 'Login for SMTP server' ,
+  `smtp_server_password` VARCHAR(45) NULL COMMENT 'Password for SMTP server login' ,
+  `load_on_startup` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Given 1 the configuration shall be loaded on startup' ,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 

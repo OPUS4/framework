@@ -65,6 +65,8 @@ class Opus_Configuration extends Opus_Model_AbstractDb
         $smtpServerHost = new Opus_Model_Field('SmtpServerHost');
         $smtpServerLogin = new Opus_Model_Field('SmtpServerLogin');
         $smtpServerPassword = new Opus_Model_Field('SmtpServerPassword');
+        $loadOnStartup = new Opus_Model_Field('LoadOnStartup');
+        $loadOnStartup->setCheckbox(true);
         
         $this->addField($name)
             ->addField($theme)
@@ -72,7 +74,8 @@ class Opus_Configuration extends Opus_Model_AbstractDb
             ->addField($adminEmail)
             ->addField($smtpServerHost)
             ->addField($smtpServerLogin)
-            ->addField($smtpServerPassword);
+            ->addField($smtpServerPassword)
+            ->addField($loadOnStartup);
     }
     
     /**
