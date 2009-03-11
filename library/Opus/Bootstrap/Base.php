@@ -97,12 +97,12 @@ class Opus_Bootstrap_Base {
         $this->_setupEnvironment();
         $this->_setupConfiguration($configLevel, $configPath);
 
-        //$this->_setupBackendCaching();
+        $this->_setupBackendCaching();
         $this->_setupBackend();
 
         $this->_setupInternalConfiguration();
 
-        //$this->_setupFrontendCaching();
+        $this->_setupFrontendCaching();
         $this->_setupFrontend();
 
         $this->_run();
@@ -234,7 +234,7 @@ class Opus_Bootstrap_Base {
      *
      * @return void
      */
-    protected function _setupInternalConfiguration() {       
+    protected function _setupInternalConfiguration() {
     }
 
     /**
