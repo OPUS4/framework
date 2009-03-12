@@ -584,8 +584,8 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `parent` INT UNSIGNED NULL ,
-  `name` VARCHAR(255) NULL ,
+  `parent` INT UNSIGNED ,
+  `name` VARCHAR(255) ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_roles_roles` (`parent` ASC) ,
   CONSTRAINT `fk_roles_roles`
@@ -605,9 +605,9 @@ ENGINE = InnoDB;
 CREATE  TABLE IF NOT EXISTS `privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL ,
-  `resource_id` INT UNSIGNED NOT NULL ,
-  `privilege` VARCHAR(15) NOT NULL ,
-  `granted` TINYINT NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
+  `resource_id` INT UNSIGNED ,
+  `privilege` VARCHAR(15) ,
+  `granted` TINYINT(1) NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_ROLE_ID_RESOURCE_ID_PRIVILEGE` (`role_id` ASC, `resource_id` ASC, `privilege` ASC) ,
   INDEX `fk_privileges_roles` (`role_id` ASC) ,
