@@ -119,7 +119,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hash = $this->addHashValue();
         $hash->setType('md5');
         $hash->setValue(hash_file('md5', $this->getTempFile()));
-        if (move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName()) === false) {
+        if (is_uploaded_file($this->getTempFile())) {
+        	$copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
+        }
+        else {
+        	$copyResult = copy($this->getTempFile(), $path . '/' . $this->getPathName());
+        }
+        if ($copyResult === false) {
             throw new Opus_Model_Exception('Error saving file.');
         }
     }
