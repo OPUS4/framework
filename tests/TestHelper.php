@@ -87,7 +87,7 @@ class TestHelper extends Opus_Bootstrap_Base {
         }
         while(false === feof($handle)) {
             $line = fgets($handle);
-            if (1 === preg_match('/\$Rev$line, $matches)) {
+            if (1 === preg_match('/\$Rev: \d*\s\$/', $line, $matches)) {
                 $sqlRev = $matches[0];
                 break;
             }
