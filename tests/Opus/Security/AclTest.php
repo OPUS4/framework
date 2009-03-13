@@ -100,7 +100,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test initallization of Opus_Security_Acl and if Opus_Security_Acl extends Zend_Acl.
+     * Test initalization of Opus_Security_Acl and if Opus_Security_Acl extends Zend_Acl.
      *
      * @return void
      */

@@ -84,5 +84,27 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
         $result = $reg->get($rid);
         $this->assertEquals($rid, $result->getRoleId(), 'Persisted and retrieved role identifier dont match.');
     }
+    
+    
+    /**
+     * Test if a role has a parent role assigned, this
+     * parent role is known by the registry.
+     *
+     * @return void
+     */
+    public function testPersistedChildInheritsPersistedParentRole() {
+        $parent = new Opus_Security_Role;
+        $parent->setName('MyParentRole')->store();
+        $pid = $parent->getRoleId();
+        
+        $child = new Opus_Security_Role;
+        $child->setName('Child')
+            ->setParent($parent)
+            ->store();
+        
+        $reg = new Opus_Security_RoleRegistry;
+        $result = $reg->inherits($child, $parent);
+        $this->assertTrue($result, 'Persisted child Role does not inherit parent Role.');
+    }   
  
 }

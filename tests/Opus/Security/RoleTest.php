@@ -42,6 +42,25 @@
  */
 class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
     
+    
+    /**
+     * Provide a clean roles table.
+     *
+     * @return void
+     */
+    public function setUp() {
+        TestHelper::clearTable('roles');
+    }
+    
+    /**
+     * Purge test data.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('roles');
+    }
+    
     /**
      * Test if creating a new role.
      *
@@ -67,8 +86,6 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSetParentRole() {
-        $this->markTestIncomplete('Not implemented yet for DB model.');
-    
         $parent = new Opus_Security_Role;
         $parent->setName('Parent');
         
@@ -78,10 +95,7 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
         
         $result = $child->getParent();
         
-        $this->assertTrue(is_array($result), 'Expect array of role objects.');
-        $this->assertFalse(empty($result), 'Expect non-empty array.');
-        $this->assertEquals(1, count($result), 'Expect one element in array.');
-        $this->assertEquals($parent, $result[0], 'Wrong parent role object retrieved.');
+        $this->assertEquals($parent, $result, 'Wrong parent role object retrieved.');
     }
     
     
@@ -177,6 +191,29 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
         $role = new Opus_Security_Role($id);
         $this->assertEquals('MyRole', $role->getName(), 'Wrong Role model returned.');
     }
+
+    /**
+     * Test if model can be properly stored and retrieved
+     * with a parent role assigned.
+     *
+     * @return void
+     */   
+    public function testStoreFetchRoleWithParent() {
+        $parent = new Opus_Security_Role;
+        $parent->setName('Parent');
+        $parent->store();
+
+        $role = new Opus_Security_Role;
+        $role->setName('MyRole')
+            ->setParent($parent);
+        $id = $role->store();
+        
+        $role = new Opus_Security_Role($id);
+        $this->assertEquals('MyRole', $role->getName(), 'Wrong Role model returned.');
+        $this->assertNotNull($role->getParent(), 'Parent object not loaded.');
+        $this->assertEquals($parent->getResourceId(), $role->getParent()->getResourceId(), 'Wrong Role model returned.');
+    }
+
     
     /**
      * Test retrieve a role by id.

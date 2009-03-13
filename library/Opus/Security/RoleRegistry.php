@@ -42,19 +42,15 @@
 class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
 
     /**
-     * To temporarly disable calls to has() wich
-     * would otherwise lead to never-ending recursion.
+     * Hold roleId's of already loaded roles.
      *
-     * @var Boolean
+     * @var array
      */
-    protected $_disableHasQuery = false;
+    protected $_loadedRoles = array();
    
     /**
      * Returns true if and only if the Role exists in the registry
      * or as record in the database.
-     *
-     * If the protected variable $_disableHasQuery is set to true
-     * this method always returns false.
      *
      * The $role parameter can either be a Role or a Role identifier.
      *
@@ -63,11 +59,6 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
      */
     public function has($role)
     {
-        if ($this->_disableHasQuery === true) {
-            // calls to has() are not permitted.
-            return false;
-        }
-        
         $result = parent::has($role);
         
         if ($result === false) {
@@ -78,12 +69,17 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
             } else {
                 $roleId = (string) $role;
             }
-            if (Opus_Security_Role::isRoleIdExistent($roleId)) {
-                // There is a persisted Role model available.
-                // So add it into the registry by disabling recursion on has.
-                $this->_disableHasQuery = true;
-                $this->add(new Zend_Acl_Role($roleId));
-                $this->_disableHasQuery = false;
+            
+            $isLoaded = in_array($roleId, $this->_loadedRoles);
+            
+            if (Opus_Security_Role::isRoleIdExistent($roleId) and (false === $isLoaded)) {
+                // There is a persisted Role model available, so add it into the registry.
+                $roleModel = Opus_Security_Role::getByRoleId($roleId);
+                $parentModel = $roleModel->getParent();
+                
+                // Mark as loaded and add
+                $this->_loadedRoles[] = $roleId;
+                $this->add($roleModel, $parentModel);
                 
                 // Now the return value indicates the registation of that role
                 $result = true;

@@ -50,16 +50,6 @@ class Opus_Security_Role extends Opus_Model_AbstractDb implements Zend_Acl_Role_
     protected static $_tableGatewayClass = 'Opus_Db_Roles';
 
     /**
-     * Augment 'Parent' field with model information.
-     *
-     * @var array
-     */
-    protected $_externalFields = array(
-        'Parent' => array(
-            'model' => 'Opus_Security_Role')
-    );
-
-    /**
      * Add role name and parent fields.
      *
      * @return void
@@ -76,6 +66,39 @@ class Opus_Security_Role extends Opus_Model_AbstractDb implements Zend_Acl_Role_
         
         $this->addField($name)
             ->addField($parent);
+    }
+    
+    /**
+     * Fetch any assigned parent object by using the parent_id column.
+     *
+     * @return Opus_Security_Role Instanciated Role model.
+     */
+    protected function _fetchParent() {
+        $pid = $this->_primaryTableRow->parent;
+        if (null === $pid) {
+            // No parent assigned. Nothing to fetch.
+            return null;
+        }
+        $parent = new Opus_Security_Role($pid);
+        return $parent;
+    }
+    
+    /**
+     * Store the assigned parent object.
+     *
+     * @return void
+     */
+    protected function _storeParent() {
+        $parent = $this->getParent();
+        if (null === $parent) {
+            // No parent assigned. Nothing to store.
+            return;
+        }
+        $pid = $parent->getId();
+        if (null === $pid) {
+            throw new Opus_Model_Exception('Referenced parent object is not yet persistent.');
+        }
+        $this->_primaryTableRow->parent = $pid;
     }
     
     /**
