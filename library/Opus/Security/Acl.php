@@ -264,5 +264,81 @@ class Opus_Security_Acl extends Zend_Acl {
 
         return $resourceInstance;
     }
+    
+    
+    /**
+     * Fetch all persisted privileges for a given role and merge them into
+     * the objects internal array privileges registry.
+     *
+     * @param Zend_Acl_Role_Interface $role A Role object to fetch privileges for.
+     * @return void
+     */
+    protected function _fetchRolePrivileges(Zend_Acl_Role_Interface $role) {
+        // Fetch the Role model
+        $roleModel = $this->_getRoleRegistry()->get($role);
+        
+        // Fetch corresponding privileg records
+        $select = $this->_privilegesTable->select()->where('role_id', $roleModel->getId());
+        $rows = $this->_privilegesTable->fetchAll($select);
+        foreach ($rows as $row) {
+            // Get Resource
+            $resourceRow = $this->_resourcesTable->find($row->resource_id)->current();
+            if (null === $resourceRow) {
+                $resource = null;
+            } else {
+                // Ensure Resource loading through get() call
+                $resource = $this->get($resourceRow->name);
+            }        
+            // Allow or deny access on Resource for Role
+            if (true === ((bool) $row->granted)) {
+                $this->allow($role, $resource, $row->privilege);   
+            } else {
+                $this->deny($role, $resource, $row->privilege);   
+            }
+        }
 
+    }
+    
+    /**
+     * Visits an $role in order to look for a rule allowing/denying $role access to all privileges upon $resource.
+     * 
+     * Before passing the original request to the parent Zend_Acl method, it tries to query all privileges
+     * corresponding with the given Role from the database.
+     *
+     * @see Zend_Acl::_roleDFSVisitAllPrivileges
+     *
+     * @param  Zend_Acl_Role_Interface     $role
+     * @param  Zend_Acl_Resource_Interface $resource
+     * @param  array                       $dfs
+     * @return boolean|null
+     * @throws Zend_Acl_Exception
+     */
+    protected function _roleDFSVisitAllPrivileges(Zend_Acl_Role_Interface $role,
+        Zend_Acl_Resource_Interface $resource = null, &$dfs = null) {
+        
+        $this->_fetchRolePrivileges($role); 
+       
+        return parent::_roleDFSVisitAllPrivileges($role, $resource, $dfs);
+    }
+    
+    /**
+     * Performs a depth-first search of the Role DAG, starting at $role, in order to find a rule
+     * allowing/denying $role access to a $privilege upon $resource
+     *
+     * Before passing the original request to the parent Zend_Acl method, it tries to query all privileges
+     * corresponding with the given Role from the database.
+     *
+     * @param  Zend_Acl_Role_Interface     $role
+     * @param  Zend_Acl_Resource_Interface $resource
+     * @param  string                      $privilege
+     * @return boolean|null
+     * @throws Zend_Acl_Exception
+     */
+    protected function _roleDFSOnePrivilege(Zend_Acl_Role_Interface $role,
+        Zend_Acl_Resource_Interface $resource = null, $privilege = null) {
+
+        $this->_fetchRolePrivileges($role); 
+        
+        return parent::_roleDFSOnePrivilege($role, $resource, $privilege);
+    }
 }

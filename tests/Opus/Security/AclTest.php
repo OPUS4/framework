@@ -182,4 +182,61 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $acl = new Opus_Security_Acl;
         $this->assertTrue($acl->inherits($resource, $parent), 'Parent relation ship is not persistent.');
     }
+    
+    
+    /**
+     * Test if a granted privileg gets persisted.
+     *
+     * @return
+     */
+    public function testPrivilegGetsPersisted() {
+        $this->markTestSkipped('Persisting of allow/deny rules not implemented yet.');
+        
+        // Set up role and resource
+        $role = new Opus_Security_Role();
+        $roleId = $role->setName('me')->store();
+        $resource = new Zend_Acl_Resource('MyResource');
+
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+        $acl->add($resource);
+        
+        // Allow permission
+        $acl->allow($role, $resource, 'sendToMars');
+        
+        // Expect permisson to be persisted
+        $rowset = $this->_privileges->fetchAll();
+        $this->assertEquals(1, $rowset->count(), 'Privileg has not been persisted.');
+    }
+    
+    /**
+     * Test if a privileg gets loaded from the database.
+     *
+     * @return void
+     */
+    public function testPrivilegGetLoadedFromDatabase() {
+        // Set up role 
+        $jamesBond = new Opus_Security_Role();
+        $roleId = $jamesBond->setName('JamesBond')->store();
+        
+        // ...and resource
+        $row = $this->_resources->createRow();
+        $row->name = 'BadGuy';
+        $resourceId = $row->save();
+        
+        // Set up privileg entry
+        $row = $this->_privileges->createRow();
+        $row->role_id = $roleId;
+        $row->resource_id = $resourceId;
+        $row->privilege = 'kill';
+        $row->granted = true;
+        $row->save();
+        
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+       
+        // Expect permission to be granted
+        $granted = $acl->isAllowed($jamesBond, 'BadGuy', 'kill');
+        $this->assertTrue($granted, 'Expect persisted permission to be granted by Acl.');
+    }   
 }
