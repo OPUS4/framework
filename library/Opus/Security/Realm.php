@@ -80,10 +80,10 @@ class Opus_Security_Realm {
     /**
      * Set the current Role instance.
      *
-     * @param Zend_Acl_Role Role instance to be set.
+     * @param Zend_Acl_Role_Interface Role instance to be set.
      * @return Opus_Security_Realm Fluent interface.
      */
-    public function setRole(Zend_Acl_Role $role) {
+    public function setRole(Zend_Acl_Role_Interface $role) {
         $this->_role = $role;
     }
     
