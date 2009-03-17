@@ -291,7 +291,7 @@ class Opus_Security_Acl extends Zend_Acl {
             }        
             // Allow or deny access on Resource for Role
             if (true === ((bool) $row->granted)) {
-                $this->allow($role, $resource, $row->privilege);   
+                $this->allow($role, $resource, $row->privilege);
             } else {
                 $this->deny($role, $resource, $row->privilege);   
             }

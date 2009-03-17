@@ -210,11 +210,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
-     * Test if a privileg gets loaded from the database.
+     * Test if a privilege gets loaded from the database.
      *
      * @return void
      */
-    public function testPrivilegGetLoadedFromDatabase() {
+    public function testPrivilegeGetLoadedFromDatabase() {
         // Set up role 
         $jamesBond = new Opus_Security_Role();
         $roleId = $jamesBond->setName('JamesBond')->store();
@@ -224,7 +224,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $row->name = 'BadGuy';
         $resourceId = $row->save();
         
-        // Set up privileg entry
+        // Set up privilege entry
         $row = $this->_privileges->createRow();
         $row->role_id = $roleId;
         $row->resource_id = $resourceId;
@@ -238,5 +238,41 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         // Expect permission to be granted
         $granted = $acl->isAllowed($jamesBond, 'BadGuy', 'kill');
         $this->assertTrue($granted, 'Expect persisted permission to be granted by Acl.');
-    }   
+    }
+ 
+    /**
+     * Test if a privilege on a resource gets inherited to child resources.
+     *   
+     * @return void
+     */
+    public function testHasPrivilegeResourceInheritance() {
+         // Set up role 
+        $jamesBond = new Opus_Security_Role();
+        $roleId = $jamesBond->setName('JamesBond')->store();
+        
+        // Resources
+        $row = $this->_resources->createRow();
+        $row->name = 'BadGuy';
+        $rid = $row->save();
+        
+        $row = $this->_resources->createRow();
+        $row->name = 'VeryBadGuy';
+        $row->parent_id = $rid;
+        $row->save();
+        
+        // Set up privilege entry on 'BadGuy'
+        $row = $this->_privileges->createRow();
+        $row->role_id = $roleId;
+        $row->resource_id = $rid;
+        $row->privilege = 'kill';
+        $row->granted = true;
+        $row->save();
+        
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+       
+        // Expect permission to be granted on child resource
+        $granted = $acl->isAllowed($jamesBond, 'VeryBadGuy', 'kill');
+        $this->assertTrue($granted, 'Expect inherited permission to be granted by Acl.');
+   }
 }
