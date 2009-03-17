@@ -384,7 +384,7 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      * @return string The ResourceId for Zend_Acl.
      */
     public function getResourceId() {
-        return get_class($this);
+        return str_replace('_', '/', get_class($this));
     }
 
     /**

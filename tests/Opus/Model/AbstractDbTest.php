@@ -121,6 +121,53 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
+     * Test if an call to add...() throws an exception if the 'through' definition for
+     * external fields holding models is invalid.
+     *
+     * @return void
+     */
+    public function testAddWithoutPropertLinkModelClassThrowsException() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningExternalField();
+        $this->setExpectedException('Opus_Model_Exception');
+        $mockup->addLazyExternalModel();
+    }
+
+    /**
+     * Test if setting a field containing a link model to null removes link
+     * model.
+     *
+     * @return void
+     */
+    public function testSetLinkModelFieldToNullRemovesLinkModel() {
+        $model = new Opus_Model_ModelDefiningExternalField();
+
+        $abstractMock = new Opus_Model_ModelAbstract;
+        $external = $model->setExternalModel($abstractMock);
+        $model->setExternalModel(null);
+
+        $field = $model->getField('ExternalModel');
+        $this->assertNull($field->getValue(), 'Link model field value is not null.');
+    }
+
+    /**
+     * Test if a link model is the field value of an external field that uses
+     * the 'through' option.
+     *
+     * @return void
+     */
+    public function testLinkModelIsFieldValueWhenUsingThroughOption() {
+        $model = new Opus_Model_ModelDefiningExternalField();
+
+        $abstractMock = new Opus_Model_ModelAbstract;
+        $external = $model->setExternalModel($abstractMock);
+        $field = $model->getField('ExternalModel');
+        $fieldvalue = $field->getValue();
+        $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
+    }
+
+
+    /**
      * Test if loading a model instance from the database devlivers the expected value.
      *
      * @param integer $test_testtable_id Id of dataset to load.

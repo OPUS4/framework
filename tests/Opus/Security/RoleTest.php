@@ -142,19 +142,6 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
-     * Test if a role identifier contains class- and role name.
-     *
-     * @return void
-     */
-    public function testRoleIdentifierContainsClassname() {
-        $role = new Opus_Security_Role;
-        $role->setName('MyRole');
-
-        $rid = $role->getRoleId();
-        $this->assertEquals('Opus/Security/Role/MyRole', $rid, 'Wrong role identifier returned.');
-    }
-    
-    /**
      * Test if a role identifier contains class- and role name and id.
      *
      * @return void
@@ -165,7 +152,7 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
         $id = $role->store();
 
         $rid = $role->getRoleId();
-        $this->assertEquals('Opus/Security/Role/MyRole/' . $id, $rid, 'Wrong role identifier returned.');
+        $this->assertEquals('Opus/Security/Role/' . $id, $rid, 'Wrong role identifier returned.');
     }
     
     /**

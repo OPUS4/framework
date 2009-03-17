@@ -78,10 +78,10 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Resources for newly created models
-        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus_Model_ModelAbstractDb'));
+        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus/Model/ModelAbstractDb'));
         
         // Permissions for newly created models
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstractDb', array('create', 'edit', 'read'));
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstractDb', array('create', 'edit', 'read'));
     }
     
     /**
@@ -120,7 +120,7 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         $model->setValue('Foo');
         
         // Grant update permission
-        $this->_realm->allow('update', 'Opus_Model_ModelAbstractDb', 'anybody');
+        $this->_realm->allow('update', 'Opus/Model/ModelAbstractDb', 'anybody');
         $model->store();
         
         // Grant edit permission for stored model
@@ -141,7 +141,7 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      */
     public function testDeleteThrowsExceptionIfDeleteIsNotGrantedForModelWithId() {
          // Grant update permission
-        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstractDb', 'update');
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDb', 'update');
         
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
@@ -158,14 +158,14 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */   
     public function testResourceIdFormat() {
-         // Grant update permission
-        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstractDb', 'update');
+         // Disable Acl
+        $this->_realm->setAcl(null);
 
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
         $id = $model->store();
         
         $resid = $model->getResourceId();
-        $this->assertEquals('Opus_Model_ModelAbstractDb#'.$id, $resid, 'Wrong standard resource id. Expected class name');
+        $this->assertEquals('Opus/Model/ModelAbstractDb/'.$id, $resid, 'Wrong standard resource id. Expected class name');
     }
 }

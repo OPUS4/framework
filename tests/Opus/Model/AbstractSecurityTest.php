@@ -67,7 +67,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->getAcl()->addRole($anybody);
         
         // Resources
-        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus_Model_ModelAbstract'));
+        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus/Model/ModelAbstract'));
     }
     
     /**
@@ -116,7 +116,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole(new Zend_Acl_Role('anybody'));
         
         // Allow "anybody" to create models.
-        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstract', 'create');
         
         $model = new Opus_Model_ModelAbstract;
         $this->assertNotNull($model, 'Creation of a model should be permitted.');
@@ -136,7 +136,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($submitter);
         
         // Allow "submitter" to create models.
-        $this->_realm->getAcl()->allow('submitter', 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow('submitter', 'Opus/Model/ModelAbstract', 'create');
         
         $model = new Opus_Model_ModelAbstract;
         $this->assertNotNull($model, 'Creation of a model should be permitted.');
@@ -153,7 +153,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');
@@ -171,7 +171,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');
@@ -189,7 +189,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole(new Zend_Acl_Role('anybody'));
 
         // Allow create operation.
-        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstract', 'create');
 
         $this->setExpectedException('Opus_Security_Exception');
         $model = Opus_Model_ModelAbstract::fromXml('<Opus_Model_ModelAbstract Value="Foo"/>');
@@ -206,7 +206,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');
@@ -224,7 +224,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');
@@ -242,7 +242,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');
@@ -260,7 +260,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
         $this->_realm->setRole($anybody);
         
         // Allow create operation.
-        $this->_realm->getAcl()->allow($anybody, 'Opus_Model_ModelAbstract', 'create');
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstract', 'create');
         $model = new Opus_Model_ModelAbstract;
          
         $this->setExpectedException('Opus_Security_Exception');

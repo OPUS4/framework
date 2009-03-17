@@ -39,7 +39,7 @@
  * @package Opus_Model
  * @category Tests
  *
- * @group AbstractDbTest
+ * @group AbstractTest
  */
 class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
@@ -117,7 +117,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testAddingCustomFilters() {
-        $mock = new Opus_Model_ModelAbstractDb;
+        $mock = new Opus_Model_ModelAbstract;
         $field = $mock->getField('Value');
         $this->assertNotNull($field->getFilter(), 'Filter instance missing.');
     }
@@ -169,51 +169,8 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Opus_Model_ModelWithHiddenField', $dspln, 'Expected class name.');
     }
 
-    /**
-     * Test if an call to add...() throws an exception if the 'through' definition for
-     * external fields holding models is invalid.
-     *
-     * @return void
-     */
-    public function testAddWithoutPropertLinkModelClassThrowsException() {
-        // Build a mockup to observe calls to _loadExternal
-        $mockup = new Opus_Model_ModelDefiningExternalField();
-        $this->setExpectedException('Opus_Model_Exception');
-        $mockup->addLazyExternalModel();
-    }
 
-    /**
-     * Test if setting a field containing a link model to null removes link
-     * model.
-     *
-     * @return void
-     */
-    public function testSetLinkModelFieldToNullRemovesLinkModel() {
-        $model = new Opus_Model_ModelDefiningExternalField();
 
-        $abstractMock = new Opus_Model_ModelAbstract;
-        $external = $model->setExternalModel($abstractMock);
-        $model->setExternalModel(null);
-
-        $field = $model->getField('ExternalModel');
-        $this->assertNull($field->getValue(), 'Link model field value is not null.');
-    }
-
-    /**
-     * Test if a link model is the field value of an external field that uses
-     * the 'through' option.
-     *
-     * @return void
-     */
-    public function testLinkModelIsFieldValueWhenUsingThroughOption() {
-        $model = new Opus_Model_ModelDefiningExternalField();
-
-        $abstractMock = new Opus_Model_ModelAbstract;
-        $external = $model->setExternalModel($abstractMock);
-        $field = $model->getField('ExternalModel');
-        $fieldvalue = $field->getValue();
-        $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
-    }
 
     /**
      * Test if set calls can be done in a flunet interface style.
@@ -321,7 +278,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
     public function testResourceIdFormat() {
         $model = new Opus_Model_ModelAbstract;
         $resid = $model->getResourceId();
-        $this->assertEquals('Opus_Model_ModelAbstract', $resid, 'Wrong standard resource id. Expected class name');
+        $this->assertEquals('Opus/Model/ModelAbstract', $resid, 'Wrong standard resource id. Expected class name');
     }
     
     /**

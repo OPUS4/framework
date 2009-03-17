@@ -408,22 +408,21 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     public function getResourceId() {
         $id = $this->getId();
-        $result = get_class($this);
+        $result = parent::getResourceId();
 
         if (is_null($id)) {
+            // Return, no id to append
             return $result;
         }
-
-        $result .= "#";
-        if (is_array($id)) {
-            for ($i = 0; $i < count($id); $i++) {
-                if ($i != 0) {
-                    $result .= "/";
-                }
-                $result .= $id[$i];
-            }
-        } else {
-            $result .= $id;
+        
+        // Prepare for id appending
+        if (false === is_array($id)) {
+            $ids = array($id);
+        }
+        
+        // Append ids in URL style
+        foreach ($ids as $id) {
+            $result .= "/" . $id;
         }
         return $result;
     }
