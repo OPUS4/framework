@@ -152,5 +152,20 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         $model->delete();
     }
 
-    
+    /**
+     * Test format of resource id is class name.
+     *
+     * @return void
+     */   
+    public function testResourceIdFormat() {
+         // Grant update permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus_Model_ModelAbstractDb', 'update');
+
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('Foo');
+        $id = $model->store();
+        
+        $resid = $model->getResourceId();
+        $this->assertEquals('Opus_Model_ModelAbstractDb#'.$id, $resid, 'Wrong standard resource id. Expected class name');
+    }
 }

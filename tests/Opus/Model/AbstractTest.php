@@ -314,17 +314,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
     }
  
     /**
-     * Test if the class under test implements Zend_Acl_Resource_Interface.
-     *
-     * @return void
-     */
-    public function testImplementsZendAclResourceInterface() {
-       $model = new Opus_Model_ModelAbstract;
-       $this->assertTrue($model instanceof Zend_Acl_Resource_Interface, 
-            'Class does not implement Zend_Acl_Resource_Interface.');
-    }
- 
-    /**
      * Test format of resource id is class name.
      *
      * @return void

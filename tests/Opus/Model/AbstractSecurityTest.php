@@ -78,7 +78,7 @@ class Opus_Model_AbstractSecurityTest extends PHPUnit_Framework_TestCase {
     public function tearDown() {
         Opus_Security_Realm::getInstance()->setAcl(null);
     }
-    
+
     /**
      * Test if the model throws an exception on attempt to perform
      * prohibited creation of model.

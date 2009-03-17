@@ -413,15 +413,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
     }
 
-    /**
-     * Test format of resource id is class name.
-     *
-     * @return void
-     */   
-    public function testResourceIdFormat() {
-        $model = new Opus_Model_ModelAbstractDb(1);
-        $resid = $model->getResourceId();
-        $this->assertEquals('Opus_Model_ModelAbstractDb#1', $resid, 'Wrong standard resource id. Expected class name');
-    }
+    
  
 }
