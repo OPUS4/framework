@@ -130,7 +130,7 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
     
     
     /**
-     * Test set up and assignment of multiple parent role objects.
+     * Test if Opus_Security_Role implements Zend_Acl_Role_Interface.
      *
      * @return void
      */
