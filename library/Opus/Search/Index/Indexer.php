@@ -72,8 +72,9 @@ class Opus_Search_Index_Indexer {
 			#print_r($doc->getDocument());
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
-            	//print_r($analyzedDoc);
-			 	$this->entryindex->addDocument(new Opus_Search_Index_Document($analyzedDoc));
+            	$doc = new Opus_Search_Index_Document($analyzedDoc);
+				#print_r($doc);
+			 	$this->entryindex->addDocument($doc);
             }
 			# Do not flush, it will work without it
 			# Flush sends some return value that Zend interprets as header information
@@ -84,13 +85,61 @@ class Opus_Search_Index_Indexer {
         }
 	}
 
+	/**
+	 * Finalizes the entry in Search Engine Index
+	 *
+	 * @return void
+	 */
+	public function finalize() {
+		$this->entryindex->commit();
+    	$this->entryindex->optimize();
+    	flush();
+	}
+
 	private function analyzeDocument(Opus_Document $doc) {
         $docarray = array();
         $returnarray = array();
         $langarray = array();
 
         $document['docid'] = $doc->getId();
-        $document['year'] = $doc->getField('PublishedYear')->getValue();
+        $document['year'] = $doc->getField('CompletedYear')->getValue();
+        $document['urn'] = '';
+        if (true === is_array($doc->getField('IdentifierUrn')->getValue())) {
+            $urnCount = count($doc->getField('IdentifierUrn'));
+            if ($urnCount > 0)
+            {
+                // Does the field have content?
+                if (count($doc->getField('IdentifierUrn')->getValue()) > 0)
+                {
+                    for ($n = 0; $n < $urnCount; $n++)
+                    {
+            	        $document['urn'] .= $doc->getIdentifierUrn($n)->getValue() . ' ';
+                    }
+                }
+            }
+        }
+        else {
+        	$document['urn'] .= $doc->getIdentifierUrn()->getValue() . ' ';
+        }
+        $document['isbn'] = '';
+        if (true === is_array($doc->getField('IdentifierIsbn')->getValue())) {
+            $isbnCount = count($doc->getField('IdentifierIsbn'));
+            if ($isbnCount > 0)
+            {
+                // Does the field have content?
+                if (count($doc->getField('IdentifierIsbn')->getValue()) > 0)
+                {
+                    for ($n = 0; $n < $isbnCount; $n++)
+                    {
+            	        $document['isbn'] .= $doc->getIdentifierIsbn($n)->getValue() . ' ';
+                    }
+                }
+            }
+        }
+        else {
+        	$document['isbn'] .= $doc->getIdentifierIsbn()->getValue() . ' ';
+        }
+ 
         $document['author'] = '';
         // Does the field exist?
         if (count($doc->getField('PersonAuthor')) > 0)
@@ -203,6 +252,7 @@ class Opus_Search_Index_Indexer {
             array_push($returnarray, $document);
         }
 
+        #print_r($returnarray);
         // return array of documents to index
         return $returnarray;
 	}
@@ -243,10 +293,17 @@ class Opus_Search_Index_Indexer {
 	private function getFileContent($file) {
        //FIXME: Hard coded path!
         $path_prefix = '../workspace/files/' . $file->getDocumentId();
-		switch ($file->getMimeType())
+		$mimeType = $file->getMimeType();
+		if (substr($mimeType, 0, 9) === 'text/html') {
+			$mimeType = 'text/html';
+		}
+		switch ($mimeType)
 		{
 			case 'application/pdf':
 				$fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				break;
+			case 'text/html':
+				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . $file->getPathName()); 
 				break;
 			default:
 				$fulltext = null;
