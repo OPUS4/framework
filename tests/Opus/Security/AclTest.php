@@ -246,7 +246,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testHasPrivilegeResourceInheritance() {
-         // Set up role 
+        // Set up role 
         $jamesBond = new Opus_Security_Role();
         $roleId = $jamesBond->setName('JamesBond')->store();
         
@@ -275,4 +275,65 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $granted = $acl->isAllowed($jamesBond, 'VeryBadGuy', 'kill');
         $this->assertTrue($granted, 'Expect inherited permission to be granted by Acl.');
    }
+   
+   /**
+    * Test if all privileges can be granted to a Role
+    *
+    * @return void
+    */
+   public function testAllPrivilegesGrantedToSuperrole() {
+        // Set up role 
+        $chuckNorris = new Opus_Security_Role;
+        $chuckNorris->setName('ChuckNorris')->store();
+
+        // Acl
+        $acl = new Opus_Security_Acl;
+        
+        // Resources
+        $timeAndSpace = new Zend_Acl_Resource('TimeAndSpace');
+        $earthWindAndFire = new Zend_Acl_Resource('EarthWindAndFire', $timeAndSpace);   
+        $acl->add($timeAndSpace);
+        $acl->add($earthWindAndFire);        
+                
+        // This would not be necessary if Chuck Norris runs the script
+        // because he is already allowed everything
+        $acl->allow($chuckNorris);
+        
+        // Expect Chuck Norris to have control over time and space...
+        $this->assertTrue($acl->isAllowed($chuckNorris, $timeAndSpace), 'Access to resource has not been granted.');
+        // ...and earth, wind and fire as well :)
+        $this->assertTrue($acl->isAllowed($chuckNorris, $earthWindAndFire), 'Access to resource has not been granted.');
+   }
+
+
+   /**
+    * Test if all privileges can be granted to a Role
+    *
+    * @return void
+    */
+   public function testAllPrivilegesGrantedToSuperroleIfResourcesInDatabase() {
+        // Set up role 
+        $superUser = new Opus_Security_Role;
+        $superUser->setName('SuperUser')->store();
+        
+        // Resources
+        $row = $this->_resources->createRow();
+        $row->name = 'A';
+        $rid = $row->save();
+        
+        $row = $this->_resources->createRow();
+        $row->name = 'B';
+        $row->parent_id = $rid;
+        $row->save();
+                
+        // Acl
+        $acl = new Opus_Security_Acl;
+        $acl->allow($superUser);
+        
+        // Expect super-user to have control over everything
+        $this->assertTrue($acl->isAllowed($superUser, 'A'), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed($superUser, 'B'), 'Access to resource has not been granted.');
+   }
+
+   
 }
