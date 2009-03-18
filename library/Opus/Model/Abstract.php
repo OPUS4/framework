@@ -42,30 +42,8 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
+abstract class Opus_Model_Abstract
 {
-
-    /**
-     * Define name for 'create' permission.
-     *
-     * @var string
-     */
-    const PERM_CREATE = 'create';
-
-    /**
-     * Define name for 'edit' permission.
-     *
-     * @var string
-     */
-    const PERM_EDIT = 'edit';
-
-    /**
-     * Define name for 'read' permission.
-     *
-     * @var string
-     */
-    const PERM_READ = 'read';
-
 
     /**
      * Holds all fields of the domain model.
@@ -126,9 +104,6 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      *                                 current role.
      */
     public function __construct() {
-        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_CREATE, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . $this->getResourceId());
-        }
         $this->_init();
         $this->_addValidators();
         $this->_addFilters();
@@ -226,9 +201,6 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 
         switch ($accessor) {
             case 'get':
-                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
-                }
                 if (empty($arguments) === false) {
                     return $field->getValue($arguments[0]);
                 } else {
@@ -237,9 +209,6 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 break;
 
             case 'set':
-                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . $this->getResourceId());
-                }
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
@@ -267,9 +236,6 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
                 break;
 
             case 'add':
-                if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_EDIT, $this)) {
-                    throw new Opus_Security_Exception('Operation ' . self::PERM_EDIT . ' not allowed for current Role on ' . $this->getResourceId());
-                }
                 // get Modelclass if model is linked
                 if ($fieldIsExternal and $fieldHasThroughOption === true) {
 
@@ -349,9 +315,6 @@ abstract class Opus_Model_Abstract implements Zend_Acl_Resource_Interface
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
-        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
-        }
         if (array_key_exists($name, $this->_fields) === true) {
             return $this->_fields[$name];
         } else {

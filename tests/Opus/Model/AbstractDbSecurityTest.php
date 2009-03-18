@@ -95,6 +95,21 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         TestHelper::dropTable('test_testtable');
     }
     
+    
+    /**
+     * Test if persisting a model throws exception if "create" is not permitted.
+     *
+     * @return void
+     */
+    public function testCreateThrowsExceptionIfNotPermitted() {
+        // disallow create
+        $this->_realm->getAcl()->deny('anybody', 'Opus/Model/ModelAbstractDb', 'create');
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('Foo');
+        $this->setExpectedException('Opus_Security_Exception');
+        $id = $model->store();
+    }
+    
     /**
      * Test if the model throws an exception on attempt to perform
      * prohibited update of model.
@@ -104,7 +119,11 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
     public function testStoreThrowsExceptionIfUpdateIsNotGranted() {
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
+        $id = $model->store();
         
+        $model = new Opus_Model_ModelAbstractDb($id);
+        $model->setValue('FooBar');
+
         $this->setExpectedException('Opus_Security_Exception');
         $model->store();
     }

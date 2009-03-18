@@ -40,8 +40,21 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
+abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend_Acl_Resource_Interface
 {
+    /**
+     * Define name for 'create' permission.
+     *
+     * @var string
+     */
+    const PERM_CREATE = 'create';
+
+    /**
+     * Define name for 'read' permission.
+     *
+     * @var string
+     */
+    const PERM_READ = 'read';
 
     /**
      * Define name for 'update' permission.
@@ -99,6 +112,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
     public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
+        // Check for permission to read the model
+        // if an id is given
+        if (null !== $id) {
+            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
+                throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
+            }
+        }
+    
         // Ensure that a default table gateway class is set
         if (is_null($this->getTableGatewayClass()) === true and is_null($tableGatewayModel) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
@@ -183,10 +204,19 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
-        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_UPDATE, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_UPDATE . ' not allowed for current Role on ' . $this->getResourceId());
+    
+        // Check permissions
+        if (null === $this->getId()) {
+            // probably creation of new record, needs PERM_CREATE
+            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_CREATE, $this)) {
+                throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . $this->getResourceId());
+            }
+        } else {
+            // probably update, needs PERM_UPDATE
+            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_UPDATE, $this)) {
+                throw new Opus_Security_Exception('Operation ' . self::PERM_UPDATE . ' not allowed for current Role on ' . $this->getResourceId());
+            }
         }
-
         if ($this->_transactional === true) {
             $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
             $dbadapter->beginTransaction();
@@ -385,6 +415,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return mixed
      */
     public function getId() {
+        if (null === $this->_primaryTableRow) {
+            return null;
+        }
         $tableInfo = $this->_primaryTableRow->getTable()->info();
         $result = array();
         foreach ($tableInfo['primary'] as $primary_key) {
