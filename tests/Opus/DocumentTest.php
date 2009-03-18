@@ -940,10 +940,11 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc = new Opus_Document(null, $type);
 
         $id = $doc->store();
-        $urn_value = $doc->getIdentifierUrn()->getValue();
+        $doc2 = new Opus_Document($id);
+        $urn_value = $doc2->getIdentifierUrn()->getValue();
 
         $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
-        $this->assertEquals($urn->getUrn($id), $urn_value);
+        $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
     }
 
     /**
@@ -967,8 +968,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
         $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
-        $this->assertEquals($urn->getUrn($id), $urn_value);
-        $this->assertEquals(1, count($doc2->getIdentifierUrn()));
+        $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
+        $this->assertEquals(1, count($doc2->getIdentifierUrn()), 'On an empty multiple field only 2 URN value should be stored.');
     }
 
     /**
@@ -994,7 +995,31 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
 
-        $this->assertEquals($urn_value, $doc2->getIdentifierUrn()->getValue());
+        $this->assertEquals($urn_value, $doc2->getIdentifierUrn()->getValue(), 'Stored and expected URN value did not match.');
+    }
+
+    /**
+     * Test storing document with empty identifier urn model create a urn.
+     *
+     * @return void
+     */
+    public function testStoreUrnWithEmptyModel() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="1"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+        $urn_model = new Opus_Identifier();
+        $doc->setIdentifierUrn($urn_model);
+        $id = $doc->store();
+        $doc2 = new Opus_Document($id);
+        $this->assertNotNull($doc2->getIdentifierUrn()->getValue(), 'URN value should not be empty.');
+        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn()->getValue(), 'Stored and expected URN value did not match.');
     }
 
 }
