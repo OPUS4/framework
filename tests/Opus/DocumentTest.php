@@ -963,10 +963,12 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc = new Opus_Document(null, $type);
 
         $id = $doc->store();
-        $urn_value = $doc->getIdentifierUrn(0)->getValue();
+        $doc2 = new Opus_Document($id);
+        $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
         $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
         $this->assertEquals($urn->getUrn($id), $urn_value);
+        $this->assertEquals(1, count($doc2->getIdentifierUrn()));
     }
 
     /**

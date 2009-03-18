@@ -476,8 +476,9 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _storeIdentifierUrn() {
-        $value = $this->_fields['IdentifierUrn']->getValue();
-        if (true === empty($value)) {
+        $value = $this->getField('IdentifierUrn')->getValue();
+        if ((false === ($value instanceOf Opus_Identifier))
+            or ('' === $value->getValue())) {
             // TODO contructor values should be configurable
             $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
             $urn_value = $urn->getUrn($this->getId());
