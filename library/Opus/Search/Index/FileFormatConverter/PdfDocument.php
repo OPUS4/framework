@@ -44,13 +44,17 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    */
     public static function toText($filepath)
     {
-   		//TODO replace pdftotext-system-call with native php functions (Zend_PDF?) or make path configurable
-   		//TODO check filepath on existance
-        exec("/usr/bin/pdftotext -enc UTF-8 ".$filepath." -", $return, $returnval);
-        #$return = Zend_Pdf::load($filepath);
-        #print_r($return);
+   		$config = new Zend_Config_Ini('../config/config.ini');
+
+		$pdftotextPath = $config->searchengine->pdftotext->path;
+   		
+   		if (false === file_exists($pdftotextPath . '/pdftotext'))
+   		{
+   			throw new Exception('Cannot index document: PDF-Converter not found! Please check configuration.');
+   		}
+
+        exec("$pdftotextPath/pdftotext -enc UTF-8 ".$filepath." -", $return, $returnval);
         $volltext = implode(' ', $return);
-        #echo $volltext;
         return $volltext;
     }
 }

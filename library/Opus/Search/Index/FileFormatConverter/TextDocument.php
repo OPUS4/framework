@@ -44,9 +44,20 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
    */
     public static function toText($filepath)
     {
-        //TODO check filepath on existance
-        //TODO check charset of file and make it UTF8
-        $volltext = implode(' ', file($filepath));
+        $volltext = null;
+        // check filepath on existance
+        if (true === file_exists($filepath))
+        {
+            $fileContent = implode(' ', file($filepath));
+            // check charset of file and make it UTF8 if necessary
+            if (mb_detect_encoding($fileContent) !== 'UTF-8')
+            {
+            	$volltext = utf8_encode($fileContent);
+            }
+            else {
+                $volltext = $fileContent;
+            }        	
+        }
         return $volltext;
     }	
 }

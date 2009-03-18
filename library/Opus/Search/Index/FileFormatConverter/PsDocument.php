@@ -44,9 +44,16 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
    */
     public static function toText($filepath)
     {
-   		//TODO replace system-call ps2ascii with php functions if possible or make path configurable
-   		//TODO check filepath on existance
-        #exec("/usr/bin/ps2ascii ".$filepath, $return, $returnval);
+   		$config = new Zend_Config_Ini('../config/config.ini');
+
+		$ps2asciiPath = $config->searchengine->ps2ascii->path;
+   		
+   		if (false === file_exists($ps2asciiPath . '/ps2ascii'))
+   		{
+   			throw new Exception('Cannot index document: PS-Converter not found! Please check configuration.');
+   		}
+
+        exec("$ps2asciiPath/ps2ascii ".$filepath, $return, $returnval);
         $volltext = implode(' ', $return);
         return $volltext;
     }

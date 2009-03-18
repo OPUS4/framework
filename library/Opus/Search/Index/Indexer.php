@@ -67,22 +67,29 @@ class Opus_Search_Index_Indexer {
 	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
 	 * @return void
 	 */
-	public function addDocumentToEntryIndex(Opus_Document $doc) {
+	public function addDocumentToEntryIndex(Opus_Document $doc) 
+	{
+    	$returnarray = array();
+    	
     	try {
-			#print_r($doc->getDocument());
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
             	$doc = new Opus_Search_Index_Document($analyzedDoc);
-				#print_r($doc);
 			 	$this->entryindex->addDocument($doc);
+			 	if (true === array_key_exists('exception', $analyzedDoc))
+			 	{
+			 		$returnarray[] = $analyzedDoc['source'] . ':' . $analyzedDoc['exception'];
+			 	}
+			 	else
+			 	{
+			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
+			 	}
             }
-			# Do not flush, it will work without it
-			# Flush sends some return value that Zend interprets as header information
-			#flush();
 		} catch (Exception $e) {
-			#echo $e->getMessage();
 			throw $e;
         }
+        
+        return $returnarray;
 	}
 
 	/**
@@ -237,10 +244,18 @@ class Opus_Search_Index_Indexer {
         $file_count = count($files);
         foreach ($files as $file)
         {
-        	if ($this->getFileContent($file) !== null)
-        	{
+        	try {
+        	    if ($this->getFileContent($file) !== null)
+        	    {
+        	        $document['source'] = $file->getPathName();
+        	        $document['content'] = $this->getFileContent($file); 
+        	        array_push($returnarray, $document);
+                }
+            }
+            catch (Exception $e) {
         	    $document['source'] = $file->getPathName();
-        	    $document['content'] = $this->getFileContent($file); 
+        	    $document['content'] = '';
+        	    $document['exception'] = $e->getMessage();
         	    array_push($returnarray, $document);
             }
         }
@@ -297,16 +312,27 @@ class Opus_Search_Index_Indexer {
 		if (substr($mimeType, 0, 9) === 'text/html') {
 			$mimeType = 'text/html';
 		}
-		switch ($mimeType)
-		{
-			case 'application/pdf':
-				$fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . $file->getPathName()); 
-				break;
-			case 'text/html':
-				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . $file->getPathName()); 
-				break;
-			default:
-				$fulltext = null;
+		try {
+		    switch ($mimeType)
+		    {
+			    case 'application/pdf':
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				    break;
+			    case 'application/postscript':
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				    break;
+			    case 'text/html':
+    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . $file->getPathName()); 
+	    			break;
+			    case 'text/plain':
+    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . $file->getPathName()); 
+	    			break;
+		    	default:
+			    	throw new Exception('No converter for MIME-Type ' . $mimeType);
+		    }
+		}
+		catch (Exception $e) {
+			throw $e;
 		}
 		return $fulltext;
 	}
