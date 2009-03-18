@@ -105,14 +105,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
      * @throws Opus_Model_Exception            Thrown if passed id is invalid.
      */
     public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
-        // Check for permission to read the model
-        // if an id is given
-        if (null !== $id) {
-            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-                throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
-            }
-        }
-    
         // Ensure that a default table gateway class is set
         if (is_null($this->getTableGatewayClass()) === true and is_null($tableGatewayModel) === true) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
@@ -137,6 +129,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_Exception('No ' . get_class($tableGatewayModel) . " with id $id in database.");
+            }
+        }
+        // Check for permission to read the model
+        // if an id is given
+        if (null !== $id) {
+            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
+                throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
             }
         }
         parent::__construct();

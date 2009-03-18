@@ -111,6 +111,37 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Test if persisting a model throws exception if "create" is not permitted.
+     *
+     * @return void
+     */
+    public function testConstructionFromIdThrowsExceptionIfReadNotPermitted() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('Foo');
+        $id = $model->store();
+
+        $this->setExpectedException('Opus_Security_Exception');
+        $model = new Opus_Model_ModelAbstractDb($id);
+    }
+
+    /**
+     * Test if persisting a model throws exception if "create" is not permitted.
+     *
+     * @return void
+     */
+    public function testConstructionFromTableRowThrowsExceptionIfReadNotPermitted() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('Foo');
+        $id = $model->store();
+        
+        $table = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
+        $row = $table->find($id)->current();
+
+        $this->setExpectedException('Opus_Security_Exception');
+        $model = new Opus_Model_ModelAbstractDb($row);
+    }
+    
+    /**
      * Test if the model throws an exception on attempt to perform
      * prohibited update of model.
      *
@@ -120,6 +151,9 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
         $id = $model->store();
+        
+        // Grant read access to model
+        $this->_realm->allow('read', $model, 'anybody');
         
         $model = new Opus_Model_ModelAbstractDb($id);
         $model->setValue('FooBar');
