@@ -87,13 +87,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
     protected static $_tableGatewayClass = null;
 
     /**
-     * Whether db transaction should be used in store()
-     *
-     * @var boolean  Defaults to true.
-     */
-    protected $_transactional = true;
-
-    /**
      * Names of the fields that are in suspended fetch state.
      *
      * @var array
@@ -217,10 +210,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
                 throw new Opus_Security_Exception('Operation ' . self::PERM_UPDATE . ' not allowed for current Role on ' . $this->getResourceId());
             }
         }
-        if ($this->_transactional === true) {
-            $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
-            $dbadapter->beginTransaction();
-        }
+        
+        // Start transaction
+        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+        $dbadapter->beginTransaction();
+
         try {
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
@@ -267,13 +261,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
                 // Clear modification status of successfully stored field.
                 $field->clearModified();
             }
-            if ($this->_transactional === true) {
-                $dbadapter->commit();
-            }
+            $dbadapter->commit();
         } catch (Exception $e) {
-            if ($this->_transactional === true) {
-                $dbadapter->rollback();
-            }
+            $dbadapter->rollback();
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname;
             throw new Opus_Model_Exception($msg);
         }
@@ -480,16 +470,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
         $tableclass = $this->_primaryTableRow->getTableClass();
         $table = Opus_Db_TableGateway::getInstance($tableclass);
         $this->_primaryTableRow->setTable($table);
-    }
-
-    /**
-     * Set whether storing this model opens a database transaction or not.
-     *
-     * @param  boolean $transactional (Optional) Whether to use a transaction or not.
-     * @return void
-     */
-    public function setTransactional($transactional = true) {
-        $this->_transactional = $transactional;
     }
 
     /**

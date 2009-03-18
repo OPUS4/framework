@@ -48,9 +48,32 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
+        // Clean setup of default database adapter
+        $config = Zend_Registry::get('Zend_Config');
+        // Use zend_Db factory to create a database adapter
+        // and make it the default for all tables.
+        $db = Zend_Db::factory($config->db);
+        Zend_Db_Table::setDefaultAdapter($db);
+
+        // Register the adapter within Zend_Registry.
+        Zend_Registry::getInstance()->set('db_adapter', $db);
+            
+        // drop helper table
         TestHelper::dropTable('test_timmy');
+
+        // Set up table prefix for subsequent tests
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->setTablePrefix('test_');
+    }
+    
+    /**
+     * Tear down database changed.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        // drop helper table
+        TestHelper::dropTable('test_timmy');
     }
 
     /**
@@ -679,5 +702,67 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         $this->assertFalse($result, 'Table should be reported as existent.');
     }
     
+    /**
+     * Test if starting nested transactions gets handeld by the adapter.
+     *
+     * @return void
+     */
+    public function testStartNestingTransactions() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->beginTransaction();
+        try {
+            $dba->beginTransaction();
+        } catch (Exception $ex) {
+            $this->fail('Failed start of nested transaction.');
+        }
+    }
+    
+    /**
+     * Test if all opened transactions can be committed.
+     *
+     * @return void
+     */
+    public function testCommitNestedTransactions() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->beginTransaction();
+        $dba->beginTransaction();
+        $dba->beginTransaction();
+        
+        $dba->commit();
+        $dba->commit();
+        $dba->commit();
+
+        try {
+            $dba->commit();
+        } catch (Exception $ex) {
+            return;
+        }
+        $this->fail('Commit without transaction goes ok.');
+    }   
+
+
+    /**
+     * Test if all opened transactions can be ended by rollback.
+     *
+     * @return void
+     */
+    public function testRollbackNestedTransactions() {
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->beginTransaction();
+        $dba->beginTransaction();
+        $dba->beginTransaction();
+        
+        $dba->rollback();
+        $dba->rollback();
+        $dba->rollback();
+
+        try {
+            $dba->rollback();
+        } catch (Exception $ex) {
+            return;
+        }
+        $this->fail('Rollback without transaction goes ok.');
+    }   
+
     
 }

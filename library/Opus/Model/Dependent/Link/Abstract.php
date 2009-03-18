@@ -66,11 +66,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
                     get_class($model) . 'given.');
         } else {
             $this->_model = $model;
-            
-            // Disable transactions if supported
-            if ($model instanceof Opus_Model_AbstractDb) {
-                $model->setTransactional(false);
-            }
         }
     }
 

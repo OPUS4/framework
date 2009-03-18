@@ -42,12 +42,6 @@
 
 abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
 {
-    /**
-     * Whether db transaction should be used in store()
-     *
-     * @var boolean Defaults to false.
-     */
-    protected $_transactional = false;
 
     /**
      * Primary key of the parent model.

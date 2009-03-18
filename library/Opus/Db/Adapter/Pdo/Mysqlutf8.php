@@ -51,6 +51,14 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      * @var string
      */
     protected $_tableprefix = 'test_';
+    
+    
+    /**
+     * Number of transaction start attempts.
+     *
+     * @var int
+     */
+    protected $_runningTransactions = 0;
 
     /**
      * Modifies standard connection behavior to use UTF-8.
@@ -69,6 +77,53 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
         // set connection to utf8
         $this->query('SET NAMES utf8');
     }
+
+
+
+    /**
+     * Override to implement transaction start counting.
+     *
+     * If a transaction is already running, no new one will be started.
+     *
+     * @return bool True
+     */    
+    protected function _beginTransaction() {
+        if ($this->_runningTransactions < 1) {
+            parent::_beginTransaction();
+        }
+        $this->_runningTransactions++;
+        return true;
+    }   
+    
+    /**
+     * Decrease transaction counter and issue commit.
+     *
+     * @return bool True
+     */
+    protected function _commit() {
+        if ($this->_runningTransactions < 2) {
+            // Check for values < 2 to not mask errors on misuse of commit()
+            parent::_commit();
+        }
+        $this->_runningTransactions--;
+        return true;
+    }
+    
+    /**
+     * Decrease transaction counter and issue rollback.
+     *
+     * @return bool True
+     */
+    protected function _rollback() {
+        if ($this->_runningTransactions < 2) {
+            // Check for values < 2 to not mask errors on misuse of rollback()
+            parent::_rollback();
+        }
+        $this->_runningTransactions--;
+        return true;
+    }
+
+
 
     /**
      * Validate a name
@@ -330,4 +385,5 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
 
         return true;
     }
+    
 }
