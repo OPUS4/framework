@@ -1022,6 +1022,66 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn()->getValue(), 'Stored and expected URN value did not match.');
     }
 
+    /**
+     * Test if multiple existing URN values does not overriden.
+     *
+     * @return void
+     */
+    public function testNotOverrideExistingMultipleUrn() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="2"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
+        $urn_model = $doc->addIdentifierUrn();
+        $urn_model->setValue($urn_value_1);
+
+        $urn_value_2 = 'urn:nbn:de:swb:14-opus-5598';
+        $urn_model = $doc->addIdentifierUrn();
+        $urn_model->setValue($urn_value_2);
+        $id = $doc->store();
+        $doc2 = new Opus_Document($id);
+
+        $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
+    }
+
+    /**
+     * Test if at least one value inside a multiple urn values does not create a new urn.
+     *
+     * @return void
+     */
+    public function testNotOverridePartialExistingMultipleUrn() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="IdentifierUrn" multiplicity="2"/>
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
+        $urn_model = $doc->addIdentifierUrn();
+        $urn_model->setValue($urn_value_1);
+
+        $urn_value_2 = '';
+        $urn_model = $doc->addIdentifierUrn();
+        $urn_model->setValue($urn_value_2);
+        $id = $doc->store();
+        $doc2 = new Opus_Document($id);
+
+        $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
+    }
+
 }
 
 

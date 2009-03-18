@@ -478,14 +478,22 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected function _storeIdentifierUrn() {
         $identifierUrn = $this->getField('IdentifierUrn')->getValue();
 
-        $set = false;
-        if (true === ($identifierUrn instanceof Opus_Identifier)) {
-            $tmp = $identifierUrn->getValue();
-            if (true === empty($tmp)) {
-                $set = true;
-            }
+        if (false === is_array($identifierUrn)) {
+            $identifiers = array($identifierUrn);
         } else {
-            $set = true;
+            $identifiers = $identifierUrn;
+        }
+
+        $set = true;
+        foreach ($identifiers as $identifier) {
+            if (true === ($identifier instanceof Opus_Identifier)) {
+                $tmp = $identifier->getValue();
+                if (false === empty($tmp)) {
+                    $set = false;
+                }
+            } else if (false === empty($identifier)) {
+                $set = false;
+            }
         }
 
         if (true === $set) {
