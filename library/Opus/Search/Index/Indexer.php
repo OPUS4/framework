@@ -75,13 +75,13 @@ class Opus_Search_Index_Indexer {
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
             	$doc = new Opus_Search_Index_Document($analyzedDoc);
-			 	$this->entryindex->addDocument($doc);
 			 	if (true === array_key_exists('exception', $analyzedDoc))
 			 	{
-			 		$returnarray[] = $analyzedDoc['source'] . ':' . $analyzedDoc['exception'];
+			 		$returnarray[] = $analyzedDoc['source'] . ' in document ID ' . $analyzedDoc['docid'] . ': ' . $analyzedDoc['exception'];
 			 	}
 			 	else
 			 	{
+			 		$this->entryindex->addDocument($doc);
 			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
 			 	}
             }
@@ -242,28 +242,29 @@ class Opus_Search_Index_Indexer {
         // index files (each file will get one data set)
         $files = $doc->getField('File')->getValue();
         $file_count = count($files);
+        $numberOfIndexableFiles = $file_count;
         foreach ($files as $file)
         {
         	try {
-        	    if ($this->getFileContent($file) !== null)
-        	    {
-        	        $document['source'] = $file->getPathName();
-        	        $document['content'] = $this->getFileContent($file); 
-        	        array_push($returnarray, $document);
-                }
+       	        $document['content'] = $this->getFileContent($file);
+       	        $document['source'] = $file->getPathName();
+       	        unset($document['exception']);
+   	        	array_push($returnarray, $document);
             }
             catch (Exception $e) {
         	    $document['source'] = $file->getPathName();
         	    $document['content'] = '';
         	    $document['exception'] = $e->getMessage();
+        	    $numberOfIndexableFiles--;
         	    array_push($returnarray, $document);
             }
         }
-        // if there is no file (or a non-readable one) associated with the document, index only metadata
-        if (count($returnarray) === 0)
+        // if there is no file (or only non-readable ones) associated with the document, index only metadata
+        if ($numberOfIndexableFiles === 0)
         {
             $document['source'] = 'metadata';
             $document['content'] = '';
+            unset($document['exception']);
             array_push($returnarray, $document);
         }
 
@@ -306,7 +307,8 @@ class Opus_Search_Index_Indexer {
 	}
 	
 	private function getFileContent($file) {
-       //FIXME: Hard coded path!
+        $fulltext = '';
+        //FIXME: Hard coded path!
         $path_prefix = '../workspace/files/' . $file->getDocumentId();
 		$mimeType = $file->getMimeType();
 		if (substr($mimeType, 0, 9) === 'text/html') {
@@ -316,16 +318,16 @@ class Opus_Search_Index_Indexer {
 		    switch ($mimeType)
 		    {
 			    case 'application/pdf':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
 				    break;
 			    case 'application/postscript':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . $file->getPathName()); 
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
 				    break;
 			    case 'text/html':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . $file->getPathName()); 
+    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
 	    			break;
 			    case 'text/plain':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . $file->getPathName()); 
+    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
 	    			break;
 		    	default:
 			    	throw new Exception('No converter for MIME-Type ' . $mimeType);
