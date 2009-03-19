@@ -40,35 +40,8 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend_Acl_Resource_Interface
+abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 {
-    /**
-     * Define name for 'create' permission.
-     *
-     * @var string
-     */
-    const PERM_CREATE = 'create';
-
-    /**
-     * Define name for 'read' permission.
-     *
-     * @var string
-     */
-    const PERM_READ = 'read';
-
-    /**
-     * Define name for 'update' permission.
-     *
-     * @var string
-     */
-    const PERM_UPDATE = 'update';
-
-    /**
-     * Define name for 'delete' permission.
-     *
-     * @var string
-     */
-    const PERM_DELETE = 'delete';
 
     /**
      * Holds the primary database table row. The concrete class is responsible
@@ -102,7 +75,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
      *
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
      * @param Zend_Db_Table             $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @throws Opus_Model_Exception            Thrown if passed id is invalid.
+     * @throws Opus_Model_Exception     Thrown if passed id is invalid.
      */
     public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
         // Ensure that a default table gateway class is set
@@ -129,13 +102,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_Exception('No ' . get_class($tableGatewayModel) . " with id $id in database.");
-            }
-        }
-        // Check for permission to read the model
-        // if an id is given
-        if (null !== $id) {
-            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_READ, $this)) {
-                throw new Opus_Security_Exception('Operation ' . self::PERM_READ . ' not allowed for current Role on ' . $this->getResourceId());
             }
         }
         parent::__construct();
@@ -192,23 +158,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
      *
      * @see    Opus_Model_Interface::store()
      * @throws Opus_Model_Exception     Thrown if the store operation could not be performed.
-     * @throws Opus_Security_Exception  If the current role has no permission for the 'update' operation.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
-    
-        // Check permissions
-        if (null === $this->getId()) {
-            // probably creation of new record, needs PERM_CREATE
-            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_CREATE, $this)) {
-                throw new Opus_Security_Exception('Operation ' . self::PERM_CREATE . ' not allowed for current Role on ' . $this->getResourceId());
-            }
-        } else {
-            // probably update, needs PERM_UPDATE
-            if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_UPDATE, $this)) {
-                throw new Opus_Security_Exception('Operation ' . self::PERM_UPDATE . ' not allowed for current Role on ' . $this->getResourceId());
-            }
-        }
         
         // Start transaction
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
@@ -387,13 +339,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
      *
      * @see    Opus_Model_Interface::delete()
      * @throws Opus_Model_Exception    If a delete operation could not be performed on this model.
-     * @throws Opus_Security_Exception If the current role has no permission for the 'delete' operation.
      * @return void
      */
     public function delete() {
-        if (false === Opus_Security_Realm::getInstance()->isAllowed(self::PERM_DELETE, $this)) {
-            throw new Opus_Security_Exception('Operation ' . self::PERM_DELETE . ' not allowed for current Role on ' . $this->getResourceId());
-        }
         $this->_primaryTableRow->delete();
         $this->_primaryTableRow = null;
     }
@@ -421,33 +369,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Zend
         }
     }
 
-    /**
-     * Returns class name and the id of the model instance if an id is
-     * set already.
-     *
-     * @see library/Opus/Model/Opus_Model_Abstract#getResourceId()
-     * @return string The ResourceId for Zend_Acl.
-     */
-    public function getResourceId() {
-        $id = $this->getId();
-        $result = parent::getResourceId();
-
-        if (is_null($id)) {
-            // Return, no id to append
-            return $result;
-        }
-        
-        // Prepare for id appending
-        if (false === is_array($id)) {
-            $ids = array($id);
-        }
-        
-        // Append ids in URL style
-        foreach ($ids as $id) {
-            $result .= "/" . $id;
-        }
-        return $result;
-    }
 
     /**
      * By default, the textual representation of a modeled entity is

@@ -269,17 +269,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
     }
- 
-    /**
-     * Test format of resource id is class name.
-     *
-     * @return void
-     */   
-    public function testResourceIdFormat() {
-        $model = new Opus_Model_ModelAbstract;
-        $resid = $model->getResourceId();
-        $this->assertEquals('Opus/Model/ModelAbstract', $resid, 'Wrong standard resource id. Expected class name');
-    }
     
     /**
      * Create a model using its XML representation.

@@ -25,7 +25,8 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Security
+ * @package     Opus_Model
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -33,43 +34,28 @@
  */
 
 /**
- * Test for Opus_Security_Realm.
+ * This class extends Opus_Model_AbstractDbSecure to be able to test its code.
  *
- * @package Opus_Security
  * @category Tests
- *
- * @group RealmTest
+ * @package Opus_Model
  */
-class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
+class Opus_Model_ModelAbstractDbSecure extends Opus_Model_AbstractDbSecure {
+
 
     /**
-     * Tear down access control list.
+     * Specify then table gateway.
+     *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     */
+    protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
+
+    /**
+     * Initialize model with the a single field "value".
      *
      * @return void
      */
-    public function tearDown() {
-        Opus_Security_Realm::getInstance()->setAcl(null);
+    protected function _init() {
+        $value = new Opus_Model_Field('Value');
+        $this->addField($value);
     }
-
-    /**
-     * Test getting singleton instance.
-     *
-     * @return void
-     */
-    public function testGetInstance() {
-        $realm = Opus_Security_Realm::getInstance();
-        $this->assertNotNull($realm, 'Expected instance');
-        $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
-    }
-
-    /**
-     * Test if a new Acl object is created if no Acl has been set via setAcl()
-     *
-     * @return void
-     */
-    public function testGetNewAclWhenNoAclSet() {
-        $realm = Opus_Security_Realm::getInstance();
-        $this->assertType('Zend_Acl', $realm->getAcl(), 'Expected new Zend_Acl.');
-    }
-
 }

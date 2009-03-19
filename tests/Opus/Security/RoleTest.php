@@ -198,7 +198,7 @@ class Opus_Security_RoleTest extends PHPUnit_Framework_TestCase {
         $role = new Opus_Security_Role($id);
         $this->assertEquals('MyRole', $role->getName(), 'Wrong Role model returned.');
         $this->assertNotNull($role->getParent(), 'Parent object not loaded.');
-        $this->assertEquals($parent->getResourceId(), $role->getParent()->getResourceId(), 'Wrong Role model returned.');
+        $this->assertEquals($parent->getRoleId(), $role->getParent()->getRoleId(), 'Wrong Role model returned.');
     }
 
     

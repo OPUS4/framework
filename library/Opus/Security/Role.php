@@ -105,11 +105,15 @@ class Opus_Security_Role extends Opus_Model_AbstractDb implements Zend_Acl_Role_
      * Return an identifier for this role containing class name, and
      * id (if persistent). E.g. Opus/Security/4711.
      *
-     * @see Opus_Model_Abstract::getResourceId()
      * @return string Role identifier.
      */
     public function getRoleId() {
-        return parent::getResourceId();
+        $result = str_replace('_', '/', get_class($this));
+        $id = $this->getId();
+        if (null !== $id) {
+            $result .= '/' . $id;
+        }
+        return $result;
     }
     
     /**

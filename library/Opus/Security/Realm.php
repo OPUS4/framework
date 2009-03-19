@@ -57,6 +57,14 @@ class Opus_Security_Realm {
      */
     protected $_role = null;
     
+    
+    /**
+     * The current master resource all newly created resources shall belong to.
+     *
+     * @var Zend_Acl_Resource_Interface
+     */
+    protected $_resource = null;
+    
     /**
      * Set the current Acl instance.
      *
@@ -68,11 +76,14 @@ class Opus_Security_Realm {
     }
     
     /**
-     * Return the current Acl.
+     * Return the current Acl. If no Acl has been set it returns a new Zend_Acl object.
      *
      * @return Zend_Acl Current Acl instance.
      */
     public function getAcl() {
+        if (null === $this->_acl) {
+            $this->_acl = new Zend_Acl;
+        }
         return $this->_acl;
     }
 
@@ -90,82 +101,32 @@ class Opus_Security_Realm {
     /**
      * Return the current Role.
      *
-     * @return Zend_Acl_Role Current Role instance.
+     * @return Zend_Acl_Role_Interface Current Role instance.
      */
     public function getRole() {
         return $this->_role;
     }
 
-    /**
-     * Allow a given privileg on an specified resource for a specified role.
-     * If no access control list is set up, nothing happens. If the given Resource
-     * and/or Role is not known yet, it gets registered.
-     *
-     * @param string $privileg                   Name of a privileg.
-     * @param Zend_Acl_Resource_Interface|string (Optional) Resource or identifier of a Resource.
-     * @param Zend_Acl_Role_Interface|string     (Optional) Role or identifier of a Role.
-     *                                           If null, the current set Role is used.
-     * @return void
-     */
-    public function allow($privileg, $resource=null, $role=null) {
-        if (null !== $this->_acl) {
-            if (null === $role) {
-                $role = $this->_role;
-            }
-            try {
-                // autoregister Resource
-                if (null !== $resource) {
-                    if (false === $this->_acl->has($resource)) {
-                        if (is_string($resource)) {
-                            $resource = new Zend_Acl_Resource($resource);
-                        }
-                        $this->_acl->add($resource);
-                    }
-                }
-                
-                // autoregister Role
-                if (false === $this->_acl->hasRole($role)) {
-                    if (is_string($role)) {
-                        $role = new Zend_Acl_Role($role);
-                    }
-                    $this->_acl->addRole($role);
-                }
-                             
-                $this->_acl->allow($role, $resource, $privileg);
-            } catch (Zend_Acl_Exception $zaclex) {
-                // Filter exception when unregistered resources or roles get queried.
-                return;
-            }
-        }
-    }
 
+    /**
+     * Set the current Master Resource instance.
+     *
+     * @param Zend_Acl_Resource_Interface Resource instance to be set.
+     * @return Opus_Security_Realm Fluent interface.
+     */
+    public function setResourceMaster(Zend_Acl_Resource_Interface $master) {
+        $this->_resource = $master;
+    }
     
     /**
-     * Check if a given $privileg is granted for $role on $resource in this Realm.
-     * Always returns true if no access control list is set up. If a specified resource
-     * or role is not registered it returns false.
+     * Return the current Master Resource.
      *
-     * @param string $privileg                   Name of a privileg.
-     * @param Zend_Acl_Resource_Interface|string (Optional) Resource or identifier of a Resource.
-     * @param Zend_Acl_Role_Interface|string     (Optional) Role or identifier of a Role.
-     *                                           If null, the current set Role is used.
-     * @return Boolean
+     * @return Zend_Acl_Resource_Interface Current Master Resource instance.
      */
-    public function isAllowed($privileg, $resource=null, $role=null) {
-        if (null !== $this->_acl) {
-            if (null === $role) {
-                $role = $this->_role;
-            }
-            try {
-                return $this->_acl->isAllowed($role, $resource, $privileg);
-            } catch (Zend_Acl_Exception $zaclex) {
-                // Just return false when unregistered resources or roles get queried.
-                return false;
-            }
-        }
-        return true;
+    public function getResourceMaster() {
+        return $this->_resource;
     }
-
+    
     /********************************************************************************************/
     /* Singleton code below                                                                     */    
     /********************************************************************************************/

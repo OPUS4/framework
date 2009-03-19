@@ -33,14 +33,14 @@
  */
 
 /**
- * Security related test cases for class Opus_Model_AbstractDb.
+ * Security related test cases for class Opus_Model_AbstractDbSecure.
  *
  * @package Opus_Model
  * @category Tests
  *
- * @group AbstractDbSecurityTest
+ * @group AbstractDbSecureTest
  */
-class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
+class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Actual security realm.
@@ -68,20 +68,17 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
     
         // Setup Realm
         $this->_realm = Opus_Security_Realm::getInstance();
-    
-        // Create access control list
-        $this->_realm->setAcl(new Zend_Acl);
         
         // Roles
         $anybody = new Zend_Acl_Role('anybody');
         $this->_realm->getAcl()->addRole($anybody);
         $this->_realm->setRole($anybody);
         
-        // Resources for newly created models
-        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus/Model/ModelAbstractDb'));
+        // Add model Resource
+        $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus/Model/ModelAbstractDbSecure'));
         
-        // Permissions for newly created models
-        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstractDb', array('create', 'edit', 'read'));
+        // Grant create permission
+        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstractDbSecure', 'create');
     }
     
     /**
@@ -95,7 +92,6 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         TestHelper::dropTable('test_testtable');
     }
     
-    
     /**
      * Test if persisting a model throws exception if "create" is not permitted.
      *
@@ -103,8 +99,8 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      */
     public function testCreateThrowsExceptionIfNotPermitted() {
         // disallow create
-        $this->_realm->getAcl()->deny('anybody', 'Opus/Model/ModelAbstractDb', 'create');
-        $model = new Opus_Model_ModelAbstractDb;
+        Opus_Security_Realm::getInstance()->getAcl()->deny('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $this->setExpectedException('Opus_Security_Exception');
         $id = $model->store();
@@ -116,12 +112,12 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testConstructionFromIdThrowsExceptionIfReadNotPermitted() {
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
 
         $this->setExpectedException('Opus_Security_Exception');
-        $model = new Opus_Model_ModelAbstractDb($id);
+        $model = new Opus_Model_ModelAbstractDbSecure($id);
     }
 
     /**
@@ -130,7 +126,7 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testConstructionFromTableRowThrowsExceptionIfReadNotPermitted() {
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
         
@@ -138,7 +134,7 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
         $row = $table->find($id)->current();
 
         $this->setExpectedException('Opus_Security_Exception');
-        $model = new Opus_Model_ModelAbstractDb($row);
+        $model = new Opus_Model_ModelAbstractDbSecure($row);
     }
     
     /**
@@ -148,14 +144,14 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testStoreThrowsExceptionIfUpdateIsNotGranted() {
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
         
         // Grant read access to model
-        $this->_realm->allow('read', $model, 'anybody');
+        $this->_realm->getAcl()->allow('anybody', $model, 'read');
         
-        $model = new Opus_Model_ModelAbstractDb($id);
+        $model = new Opus_Model_ModelAbstractDbSecure($id);
         $model->setValue('FooBar');
 
         $this->setExpectedException('Opus_Security_Exception');
@@ -169,15 +165,15 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testStoreThrowsExceptionIfUpdateIsNotGrantedForModelWithId() {
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         
         // Grant update permission
-        $this->_realm->allow('update', 'Opus/Model/ModelAbstractDb', 'anybody');
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'update');
         $model->store();
         
         // Grant edit permission for stored model
-        $this->_realm->allow('edit', $model, 'anybody');
+        $this->_realm->getAcl()->allow('anybody', $model, 'edit');
         
         // Second try, now on model with given id
         $model->setValue('modified!');
@@ -194,9 +190,9 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
      */
     public function testDeleteThrowsExceptionIfDeleteIsNotGrantedForModelWithId() {
          // Grant update permission
-        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDb', 'update');
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'update');
         
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $model->store();
         
@@ -206,19 +202,30 @@ class Opus_Model_AbstractDbSecurityTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if a new Resource entry gets registered after successful call to store().
+     *
+     * @return void
+     */
+    public function testResourceRegisteredOnStore() {
+        $model = new Opus_Model_ModelAbstractDbSecure;
+        $model->setValue('Foo')->store();
+        
+        $acl = $this->_realm->getAcl();
+        $this->assertTrue($acl->has($model), 'Model resource not registered after store.');
+    }
+
+
+    /**
      * Test format of resource id is class name.
      *
      * @return void
      */   
     public function testResourceIdFormat() {
-         // Disable Acl
-        $this->_realm->setAcl(null);
-
-        $model = new Opus_Model_ModelAbstractDb;
+        $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
         
         $resid = $model->getResourceId();
-        $this->assertEquals('Opus/Model/ModelAbstractDb/'.$id, $resid, 'Wrong standard resource id. Expected class name');
+        $this->assertEquals('Opus/Model/ModelAbstractDbSecure/'.$id, $resid, 'Wrong standard resource id. Expected class name');
     }
 }

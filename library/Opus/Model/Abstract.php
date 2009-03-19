@@ -340,17 +340,6 @@ abstract class Opus_Model_Abstract
     }
 
     /**
-     * The default ResourceId of a model is its class name. If the
-     * model instance comprehends an id, an hashmark and the id
-     * should be attached.
-     *
-     * @return string The ResourceId for Zend_Acl.
-     */
-    public function getResourceId() {
-        return str_replace('_', '/', get_class($this));
-    }
-
-    /**
      * By default, the textual representation of a modeled entity is
      * its class name.
      *
