@@ -74,6 +74,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::UnStored('fulltext', strtolower($documentdata['content'])));
         #$this->addField(Zend_Search_Lucene_Field::UnStored('contents', "This is just a test, every document should get it as fulltext.", $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('persons', $documentdata['persons'], $this->__encoding));
+        $this->addField(Zend_Search_Lucene_Field::UnStored('language', $documentdata['language'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('subject', $documentdata['subject'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('doctype', $documentdata['doctype'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('institute', $documentdata['institute'], $this->__encoding));

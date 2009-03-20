@@ -222,10 +222,12 @@ class Opus_Search_Index_Indexer {
         // Look at all titles of the document
         $document['title'] = '';
         $document['abstract'] = '';
+        $document['language'] = '';
         foreach ($titles as $title)
         {
             $document['title'] .= ' ' . $title->getValue();
             $lang = $title->getLanguage();
+            $document['language'] .= ' ' . $lang;
             $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
             array_push($langarray, $lang);
         }
