@@ -77,9 +77,7 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
         
         // Add model Resource
         $this->_realm->getAcl()->add(new Zend_Acl_Resource('Opus/Model/ModelAbstractDbSecure'));
-        
-        // Grant create permission
-        $this->_realm->getAcl()->allow($anybody, 'Opus/Model/ModelAbstractDbSecure', 'create');
+       
     }
     
     /**
@@ -114,8 +112,6 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateThrowsExceptionIfNotPermitted() {
-        // disallow create
-        Opus_Security_Realm::getInstance()->getAcl()->deny('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $this->setExpectedException('Opus_Security_Exception');
@@ -128,6 +124,9 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testConstructionFromIdThrowsExceptionIfReadNotPermitted() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
@@ -142,6 +141,9 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testConstructionFromTableRowThrowsExceptionIfReadNotPermitted() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
@@ -160,6 +162,9 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testStoreThrowsExceptionIfUpdateIsNotGranted() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
@@ -181,15 +186,12 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testStoreThrowsExceptionIfUpdateIsNotGrantedForModelWithId() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
-        
-        // Grant update permission
-        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'update');
         $model->store();
-        
-        // Grant edit permission for stored model
-        $this->_realm->getAcl()->allow('anybody', $model, 'edit');
         
         // Second try, now on model with given id
         $model->setValue('modified!');
@@ -207,6 +209,8 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
     public function testDeleteThrowsExceptionIfDeleteIsNotGrantedForModelWithId() {
          // Grant update permission
         $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'update');
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
         
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
@@ -223,6 +227,9 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testResourceRegisteredOnStore() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo')->store();
         
@@ -237,6 +244,9 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      * @return void
      */   
     public function testResourceIdFormat() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+
         $model = new Opus_Model_ModelAbstractDbSecure;
         $model->setValue('Foo');
         $id = $model->store();
@@ -244,4 +254,72 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
         $resid = $model->getResourceId();
         $this->assertEquals('Opus/Model/ModelAbstractDbSecure/'.$id, $resid, 'Wrong standard resource id. Expected class name');
     }
+
+
+    /**
+     * Test if the Model registeres itsefl as a resource in the Acl when stored.
+     *
+     *
+     * @return void
+     */
+    public function testModelRegistersItselfAsResource() {
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+        $model = new Opus_Model_ModelAbstractDbSecure;
+        $model->setValue('Foo');
+        $id = $model->store();
+
+        $acl = $this->_realm->getAcl();
+        $this->assertTrue($acl->has($model), 'Model gets not registered as resource.');
+    }
+    
+    /**
+     * Test if the master resource is set after store.
+     *
+     * @return void
+     */
+    public function testMasterResourceIsSetAfterStore() {
+        // Create master and register resource
+        $master = new Zend_Acl_Resource('MASTER');
+        $this->_realm->getAcl()->add($master);
+        $this->_realm->setResourceMaster($master);
+        
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+        $model = new Opus_Model_ModelAbstractDbSecure;
+        $model->setValue('Foo');
+        $id = $model->store();
+        
+        // Check if $model is child of $master
+        $acl = $this->_realm->getAcl();
+        $this->assertTrue($acl->inherits($model, $master), 'Master resource has not been set.');
+    }   
+    
+    /**
+     * Test permission can be inherited from master resource. This is rather
+     * a Acl test then a AbstractDbSecure test but lets do it anyway for the
+     * sake of end-to-end argument :)
+     *
+     * @return void
+     */
+    public function testInheritPermissonFromMasterResource() {
+        // Create master and register resource
+        $master = new Zend_Acl_Resource('MASTER');
+        $this->_realm->getAcl()->add($master);
+        $this->_realm->setResourceMaster($master);
+        
+        // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+        $model = new Opus_Model_ModelAbstractDbSecure;
+        $model->setValue('Foo');
+        $id = $model->store();
+
+        // Deny everything on the master resource
+        $this->_realm->getAcl()->deny('anybody', 'MASTER');
+        
+        // Expect read operation to fail
+        $this->setExpectedException('Opus_Security_Exception');
+        $model = new Opus_Model_ModelAbstractDbSecure($id);
+    }
+    
 }
