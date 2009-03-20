@@ -133,4 +133,160 @@ class Opus_Search_SearchHit
   public function setDocument(Opus_Search_Adapter_DocumentAdapter $doc) {
     $this->document = $doc;
   }
+    
+    /**
+     * Compare method to sort Hits by year (ascending)
+     */
+    static function cmp_year($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['year'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['year'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear > $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by title (ascending)
+     */
+    static function cmp_title($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['title'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['title'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear > $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by author (anytime the first one) (ascending)
+     */
+    static function cmp_author($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['author'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['author'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear > $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by relevance (descending)
+     */
+    static function cmp_relevance($a, $b)
+    {
+    	$a1 = $a->getRelevance();
+        $b1 = $b->getRelevance();
+        if ($a1 == $b1) {
+            return 0;
+        }
+        return ($a1 < $b1) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by year and title (ascending)
+     */
+    static function cmp_yat($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['year'];
+        $atitle = $a1['title'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['year'];
+        $btitle = $b1['title'];
+        if ($ayear == $byear) {
+        	if ($atitle == $btitle) {
+        		return 0;
+        	}
+            return ($atitle > $btitle) ? +1 : -1;
+        }
+        return ($ayear > $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by year (descending)
+     */
+    static function cmp_year_desc($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['year'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['year'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear < $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by title (descending)
+     */
+    static function cmp_title_desc($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['title'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['title'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear < $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by author (anytime the first one) (descending)
+     */
+    static function cmp_author_desc($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['author'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['author'];
+        if ($ayear == $byear) {
+            return 0;
+        }
+        return ($ayear < $byear) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by relevance (ascending)
+     */
+    static function cmp_relevance_asc($a, $b)
+    {
+    	$a1 = $a->getRelevance();
+        $b1 = $b->getRelevance();
+        if ($a1 == $b1) {
+            return 0;
+        }
+        return ($a1 > $b1) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort Hits by year and title (descending)
+     */
+    static function cmp_yat_desc($a, $b)
+    {
+    	$a1 = $a->getSearchHit()->getDocument();
+        $ayear = $a1['year'];
+        $atitle = $a1['title'];
+        $b1 = $b->getSearchHit()->getDocument();
+        $byear = $b1['year'];
+        $btitle = $b1['title'];
+        if ($ayear == $byear) {
+        	if ($atitle == $btitle) {
+        		return 0;
+        	}
+            return ($atitle < $btitle) ? +1 : -1;
+        }
+        return ($ayear < $byear) ? +1 : -1;
+    }
 }

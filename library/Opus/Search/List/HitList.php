@@ -120,7 +120,37 @@ class Opus_Search_List_HitList extends Opus_Search_List_BasicList
    * @param string $criteria Criteria the list should be sorted with
    * @return void
    */
-  public function sort($criteria) {
-    
+  public function sort($criteria = 'year') {
+    switch ($criteria) {
+    	case 'year':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_year"));
+    	    break;
+    	case 'title':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_title"));
+    	    break;    	    
+    	case 'author':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_author"));
+    	    break;    	    
+    	case 'yat':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_yat"));
+    	    break;
+    	case 'year_desc':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_year_desc"));
+    	    break;
+    	case 'title_desc':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_title_desc"));
+    	    break;    	    
+    	case 'author_desc':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_author_desc"));
+    	    break;    	    
+    	case 'yat_desc':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_yat_desc"));
+    	    break;
+    	case 'relevance_asc':
+    	    usort($this->hits, array("Opus_Search_SearchHit", "cmp_relevance_asc"));
+    	    break;
+    	default:
+    		usort($this->hits, array("Opus_Search_SearchHit", "cmp_relevance"));
+    }
   }  
 }

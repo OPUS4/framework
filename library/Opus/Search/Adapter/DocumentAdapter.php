@@ -113,7 +113,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 
 		// transfer the year of publication of this document into the adapter class
 		try {
-			$this->documentData['year'] = $document->getPublishedYear();
+			$this->documentData['year'] = $document->getCreatedYear();
 		} catch (Exception $e) {
 			$this->documentData['year'] = 'No publishing year specified';
 		}
