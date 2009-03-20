@@ -39,7 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Licence extends Opus_Model_AbstractDb
+class Opus_Licence extends Opus_Model_AbstractDbSecure
 {
 
     /**

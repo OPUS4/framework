@@ -43,15 +43,6 @@
 class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * Tear down access control list.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        Opus_Security_Realm::getInstance()->setAcl(null);
-    }
-
-    /**
      * Test getting singleton instance.
      *
      * @return void
@@ -60,16 +51,6 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $realm = Opus_Security_Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
         $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
-    }
-
-    /**
-     * Test if a new Acl object is created if no Acl has been set via setAcl()
-     *
-     * @return void
-     */
-    public function testGetNewAclWhenNoAclSet() {
-        $realm = Opus_Security_Realm::getInstance();
-        $this->assertType('Zend_Acl', $realm->getAcl(), 'Expected new Zend_Acl.');
     }
 
 }

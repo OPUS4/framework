@@ -38,9 +38,9 @@
  *
  * @category    Framework
  * @package     Opus
- * @uses        Opus_Model_AbstractDb
+ * @uses        Opus_Model_AbstractDbSecure
  */
-class Opus_Configuration extends Opus_Model_AbstractDb
+class Opus_Configuration extends Opus_Model_AbstractDbSecure
 {
 
     /**

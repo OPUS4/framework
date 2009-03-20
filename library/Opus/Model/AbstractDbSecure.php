@@ -142,6 +142,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
     public function store() {
     
         // Check permissions
+        $registerResource = false;
         if (null === $this->getId()) {
             // probably creation of new record, needs PERM_CREATE
             $this->_ensure(self::PERM_CREATE);
@@ -156,8 +157,10 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         // Register model as resource
         if (true === $registerResource) {
             $acl = Opus_Security_Realm::getInstance()->getAcl();
-            if (false === $acl->has($this)) {
-                $acl->add($this, Opus_Security_Realm::getInstance()->getResourceMaster());
+            if (null !== $acl) {
+                if (false === $acl->has($this)) {
+                    $acl->add($this, Opus_Security_Realm::getInstance()->getResourceMaster());
+                }
             }
         }
         
@@ -179,26 +182,37 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
 
         // remove resource registration
         $acl = Opus_Security_Realm::getInstance()->getAcl();
-        if (false === $acl->has($this)) {
-            $acl->remove($this);
+        if (null !== $acl) {
+            if (false === $acl->has($this)) {
+                $acl->remove($this);
+            }
         }
-        
     }
 
     /**
      * Test if a given privilege is granted for the current Role
      * within the current Security Realm. If not, throw exception.
      *
+     * If no Acl is defined nothing happens.
+     *
      * @throws Opus_Security_Exception Thrown if specified permission is not granted.
      * @return void
      */
     protected function _ensure($privilege) {
         $acl = Opus_Security_Realm::getInstance()->getAcl();
-        $role = Opus_Security_Realm::getInstance()->getRole()->getRoleId();
-        $resource = $this->getResourceId();
+        if (null === $acl) {
+            return;
+        }
+        $role = Opus_Security_Realm::getInstance()->getRole();
     
-        if (false === $acl->isAllowed($role, $resource, $privilege)) {
-            throw new Opus_Security_Exception("Operation $privilege is not allowed for $role on $resource.");
+        if (false === $acl->isAllowed($role, $this, $privilege)) {
+            if (null !== $role) {
+                $roleId = $role->getRoleId();
+            } else {
+                $roleId = 'everyone';
+            }
+            $resourceId = $this->getResourceId();
+            throw new Opus_Security_Exception("Operation $privilege is not allowed for $roleId on $resourceId.");
         }
     }   
 

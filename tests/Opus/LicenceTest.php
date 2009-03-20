@@ -43,15 +43,6 @@
 class Opus_LicenceTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * Clear out licences table.
-     *
-     * @return void
-     */
-    public function setUp() {
-        TestHelper::clearTable('document_licences');
-    }
-
-    /**
      * Test if a set of licences can be retrieved by getAll().
      *
      * @return void

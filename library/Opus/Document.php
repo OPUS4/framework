@@ -40,7 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Document extends Opus_Model_AbstractDb
+class Opus_Document extends Opus_Model_AbstractDbSecure
 {
 
 

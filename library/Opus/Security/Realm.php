@@ -76,14 +76,11 @@ class Opus_Security_Realm {
     }
     
     /**
-     * Return the current Acl. If no Acl has been set it returns a new Zend_Acl object.
+     * Return the current Acl.
      *
      * @return Zend_Acl Current Acl instance.
      */
     public function getAcl() {
-        if (null === $this->_acl) {
-            $this->_acl = new Zend_Acl;
-        }
         return $this->_acl;
     }
 
@@ -94,7 +91,7 @@ class Opus_Security_Realm {
      * @param Zend_Acl_Role_Interface Role instance to be set.
      * @return Opus_Security_Realm Fluent interface.
      */
-    public function setRole(Zend_Acl_Role_Interface $role) {
+    public function setRole($role) {
         $this->_role = $role;
     }
     

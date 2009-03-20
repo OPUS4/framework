@@ -68,6 +68,7 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
     
         // Setup Realm
         $this->_realm = Opus_Security_Realm::getInstance();
+        $this->_realm->setAcl(new Zend_Acl);
         
         // Roles
         $anybody = new Zend_Acl_Role('anybody');
@@ -90,6 +91,21 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
     public function tearDown() {
         Opus_Security_Realm::getInstance()->setAcl(null);
         TestHelper::dropTable('test_testtable');
+    }
+    
+    
+    /**
+     * Test if the permission also gets queried when no standard role
+     * is assigned in the security realm.
+     *
+     * @return void
+     */
+    public function testPermissonGetsQueriedWhenNoRoleIsSet() {
+        $this->_realm->setRole(null);
+        $model = new Opus_Model_ModelAbstractDbSecure;
+        $model->setValue('Foo');
+        $this->setExpectedException('Opus_Security_Exception');
+        $id = $model->store();
     }
     
     /**
