@@ -459,7 +459,31 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // Check that _loadExternal has been called
         $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
     }
-
     
+    /**
+     * Test if multiple calls to store do not change the record.
+     *
+     * @return void
+     */
+    public function testStoreIsIdempotend() {
+        // Create persistent model
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('Foo');
+        $id1 = $model->store();
+        
+        // Retrieve stored model value from the database table
+        $row = $this->dbProvider->find($id1)->current();
+        $val1 = $row->value; 
+       
+        // Trigger a new store
+        $id2 = $model->store();
+        
+        // Check the value again
+        $row = $this->dbProvider->find($id2)->current();
+        $val2 = $row->value; 
+       
+        $this->assertEquals($id1, $id2, 'Store function is not idempotend to identifiers.');
+        $this->assertEquals($val1, $val2, 'Store function is not idempotend to values.');
+    }
  
 }

@@ -56,6 +56,13 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @var Zend_Db_Table
      */
     protected $_resources = null;
+    
+    /**
+     * Table adapter to roles table.
+     *
+     * @var Zend_Db_Table
+     */
+    protected $_roles = null;
 
     /**
      * Set up table adapter.
@@ -67,6 +74,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $this->_privileges = new Opus_Db_Privileges();
         TestHelper::clearTable('resources');
         $this->_resources = new Opus_Db_Resources();
+        TestHelper::clearTable('roles');
+        $this->_roles = new Opus_Db_Resources();
     }
 
     /**
@@ -77,6 +86,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     public function tearDown() {
         TestHelper::clearTable('privileges');
         TestHelper::clearTable('resources');
+        TestHelper::clearTable('roles');
     }
 
     /**
@@ -335,5 +345,43 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($acl->isAllowed($superUser, 'B'), 'Access to resource has not been granted.');
    }
 
+    /**
+     * Test that Acl queries the database tables for Resources and Roles
+     * not more then one time per request.
+     *
+     * @return void
+     */
+    public function testRolesResourcesGetQueriedOnlyOnce() {
+        // Set up a complex resource setting
+        $allDocumentsId = $this->_resources->insert(array('name' => 'AllDocuments'));
+        $pubDocumentsId = $this->_resources->insert(array('name' => 'PublicDocuments', 'parent_id' => $allDocumentsId));
+        $clnDocumentsId = $this->_resources->insert(array('name' => 'ClientDocuments', 'parent_id' => $allDocumentsId));
+        for ($i = 0; $i<5 ; $i++) {
+            $doc = $this->_resources->insert(array('name' => "Opus/Document/$i", 'parent_id' => $clnDocumentsId)); 
+        }
+        for ($i = 5; $i<10 ; $i++) {
+            $doc = $this->_resources->insert(array('name' => "Opus/Document/$i", 'parent_id' => $pubDocumentsId)); 
+        }
+        
+        $guestId  = $this->_roles->insert(array('name' => 'guest'));
+        $clientId = $this->_roles->insert(array('name' => 'client'));
+        $adminId = $this->_roles->insert(array('name' => 'admin'));
+        
+        $this->_privileges->insert(array('role_id' => $guestId, 'resource_id' => $pubDocuments, 
+            'privilege' => 'read', 'granted' => true));
+        $this->_privileges->insert(array('role_id' => $clientId, 'resource_id' => $clnDocuments
+            'privilege' => 'read', 'granted' => true));
+        $this->_privileges->insert(array('role_id' => $adminId, 'resource_id' => $allDocuments,
+            'privilege' => 'read', 'granted' => true));
+        
+        // Turn on database profiler
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $db->getProfiler()->setEnabled(true);
+        
+        // Set up Acl and ask for permission of guest to read Opus/Document/3 which should be permitted
+        $acl = new Opus_Security_Acl();
+        $acl->isAllowed();
+        
+    }   
    
 }
