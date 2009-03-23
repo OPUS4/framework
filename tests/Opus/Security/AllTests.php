@@ -75,7 +75,6 @@ class Opus_Security_AllTests {
         $suite->addTestSuite('Opus_Security_AuthAdapterTest');
         $suite->addTestSuite('Opus_Security_RealmTest');
         $suite->addTestSuite('Opus_Security_RoleRegistryTest');
-        $suite->addTestSuite('Opus_Security_RoleTest');
         return $suite;
     }
 

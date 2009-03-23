@@ -43,6 +43,24 @@
 class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
     
     /**
+     * Provide a clean roles table.
+     *
+     * @return void
+     */
+    public function setUp() {
+        TestHelper::clearTable('roles');
+    }
+    
+    /**
+     * Clear the roles table.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('roles');
+    }
+    
+    /**
      * Test if creating a new role registry.
      *
      * @return void
@@ -58,12 +76,11 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
      */ 
     public function testPersistedRoleIsRegistered() {
         // Making a role persistent makes it also available in the registry.
-        $role = new Opus_Security_Role;
-        $id = $role->setName('MyRole')->store();
-        $rid = $role->getRoleId();
+        $roles = new Opus_Db_Roles;
+        $roles->insert(array('name' => 'MyRole'));
 
         $reg = new Opus_Security_RoleRegistry;
-        $result = $reg->has($rid);
+        $result = $reg->has('MyRole');
         
         $this->assertTrue($result, 'Persistent Role is not recocnized as registered.');
     }
@@ -76,13 +93,12 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
      */
     public function testPersitedRoleGetsReturnedByGet() {
         // Making a role persistent makes it also available in the registry.
-        $role = new Opus_Security_Role;
-        $id = $role->setName('MyRole')->store();
-        $rid = $role->getRoleId();
+        $roles = new Opus_Db_Roles;
+        $roles->insert(array('name' => 'MyRole'));
 
         $reg = new Opus_Security_RoleRegistry;
-        $result = $reg->get($rid);
-        $this->assertEquals($rid, $result->getRoleId(), 'Persisted and retrieved role identifier dont match.');
+        $result = $reg->get('MyRole');
+        $this->assertEquals('MyRole', $result->getRoleId(), 'Persisted and retrieved role identifier dont match.');
     }
     
     
@@ -93,18 +109,46 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testPersistedChildInheritsPersistedParentRole() {
-        $parent = new Opus_Security_Role;
-        $parent->setName('MyParentRole')->store();
-        $pid = $parent->getRoleId();
-        
-        $child = new Opus_Security_Role;
-        $child->setName('Child')
-            ->setParent($parent)
-            ->store();
+        $roles  = new Opus_Db_Roles;
+        $parent = $roles->insert(array('name' => 'Parent'));
+        $roles->insert(array('name' => 'Child', 'parent' => $parent));
         
         $reg = new Opus_Security_RoleRegistry;
+        $parent = $reg->get('Parent');
+        $child  = $reg->get('Child');
+        
         $result = $reg->inherits($child, $parent);
         $this->assertTrue($result, 'Persisted child Role does not inherit parent Role.');
+    }
+    
+    /**
+     * Test a role is to be found by the registry even if it is not a persisted
+     * Opus_Security_Role object.
+     *
+     * @return void
+     */
+    public function testRegistryFindsRolesThatAreNotOpusSecurityRoleInstances() {
+        $roles = new Opus_Db_Roles;
+        $roles->insert(array('name' => 'guest'));
+        
+        $reg = new Opus_Security_RoleRegistry;
+        $result = $reg->has('guest');        
+        $this->assertTrue($result, 'Role record in the database gets not found by the Registry.');
+    }
+    
+    
+    /**
+     * Test if a Role's database ID can be retrieved
+     *
+     * @return void
+     */
+    public function testGetDatabaseIdForRole() {
+        $roles = new Opus_Db_Roles;
+        $id = $roles->insert(array('name' => 'guest'));
+        
+        $reg = new Opus_Security_RoleRegistry;
+        $result = $reg->getId('guest');        
+        $this->assertEquals($id, $result, 'Role database id and retrieved id do not match.');
     }   
- 
+    
 }

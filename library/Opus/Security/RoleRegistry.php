@@ -33,61 +33,51 @@
  */
 
 /**
- * This class extends Zend_Acl_Role_Registry to load and store Roles using
- * via the Opus_Security_Role model.
+ * This class extends Zend_Acl_Role_Registry to load and store Roles.
  *
  * @category    Framework
  * @package     Opus_Security
  */
 class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
 
+
     /**
-     * Hold roleId's of already loaded roles.
+     * Load all Roles from the database.
      *
-     * @var array
      */
-    protected $_loadedRoles = array();
-   
-    /**
-     * Returns true if and only if the Role exists in the registry
-     * or as record in the database.
-     *
-     * The $role parameter can either be a Role or a Role identifier.
-     *
-     * @param  Zend_Acl_Role_Interface|string $role
-     * @return boolean
-     */
-    public function has($role)
-    {
-        $result = parent::has($role);
+    public function __construct() {
+        // Query all Roles from the database beginning with the parents
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->select()
+            ->from(array('r1' => 'roles'), array('id','name'))
+            ->joinLeft(array('r2' => 'roles'), 'r2.id = r1.parent', array('name AS parent'))
+            ->order(array('r1.parent ASC'));
+        $rowset = $db->fetchAll($select);
         
-        if ($result === false) {
-            // Role is not registered yet?
-            // Lets have a look into the database!
-            if ($role instanceof Zend_Acl_Role_Interface) {
-                $roleId = $role->getRoleId();
-            } else {
-                $roleId = (string) $role;
-            }
-            
-            $isLoaded = in_array($roleId, $this->_loadedRoles);
-            
-            if (Opus_Security_Role::isRoleIdExistent($roleId) and (false === $isLoaded)) {
-                // There is a persisted Role model available, so add it into the registry.
-                $roleModel = Opus_Security_Role::getByRoleId($roleId);
-                $parentModel = $roleModel->getParent();
-                
-                // Mark as loaded and add
-                $this->_loadedRoles[] = $roleId;
-                $this->add($roleModel, $parentModel);
-                
-                // Now the return value indicates the registation of that role
-                $result = true;
-            }
-        }
-        
-        return $result;
+        foreach ($rowset as $row) {
+            $role = new Zend_Acl_Role($row['name']);
+            $this->add($role, $row['parent']);
+            $roleId = $role->getRoleId();
+            $this->_roles[$roleId]['dbid'] = $row['id'];
+        }        
     }
-    
+
+    /**
+     * Return the database id of specified Role. If the role has no id, null is returned.
+     *
+     * @param Zend_Acl_Role_Interface|string $role Role or role identifer.
+     * @return mixed Database id.
+     */
+    public function getId($role) {
+        if ($role instanceof Zend_Acl_Role_Interface) {
+            $roleId = $role->getRoleId();
+        } else {
+            $roleId = (string) $role;
+        }
+        if (array_key_exists('dbid', $this->_roles[$roleId])) {
+            return $this->_roles[$roleId]['dbid'];
+        }
+        return null;
+    }
 
 }

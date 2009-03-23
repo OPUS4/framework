@@ -67,6 +67,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $this->_privileges = new Opus_Db_Privileges();
         TestHelper::clearTable('resources');
         $this->_resources = new Opus_Db_Resources();
+        TestHelper::clearTable('roles');
+        $this->_roles = new Opus_Db_Roles();
     }
 
     /**
@@ -216,8 +218,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      */
     public function testPrivilegeGetLoadedFromDatabase() {
         // Set up role 
-        $jamesBond = new Opus_Security_Role();
-        $roleId = $jamesBond->setName('JamesBond')->store();
+        $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
         
         // ...and resource
         $row = $this->_resources->createRow();
@@ -236,7 +237,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $acl = new Opus_Security_Acl;
        
         // Expect permission to be granted
-        $granted = $acl->isAllowed($jamesBond, 'BadGuy', 'kill');
+        $granted = $acl->isAllowed('JamesBond', 'BadGuy', 'kill');
         $this->assertTrue($granted, 'Expect persisted permission to be granted by Acl.');
     }
  
@@ -247,8 +248,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      */
     public function testHasPrivilegeResourceInheritance() {
         // Set up role 
-        $jamesBond = new Opus_Security_Role();
-        $roleId = $jamesBond->setName('JamesBond')->store();
+        $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
         
         // Resources
         $row = $this->_resources->createRow();
@@ -272,7 +272,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $acl = new Opus_Security_Acl;
        
         // Expect permission to be granted on child resource
-        $granted = $acl->isAllowed($jamesBond, 'VeryBadGuy', 'kill');
+        $granted = $acl->isAllowed('JamesBond', 'VeryBadGuy', 'kill');
         $this->assertTrue($granted, 'Expect inherited permission to be granted by Acl.');
    }
    
@@ -283,8 +283,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     */
    public function testAllPrivilegesGrantedToSuperrole() {
         // Set up role 
-        $chuckNorris = new Opus_Security_Role;
-        $chuckNorris->setName('ChuckNorris')->store();
+        $this->_roles->insert(array('name' => 'ChuckNorris'));
 
         // Acl
         $acl = new Opus_Security_Acl;
@@ -297,12 +296,12 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
                 
         // This would not be necessary if Chuck Norris runs the script
         // because he is already allowed everything
-        $acl->allow($chuckNorris);
+        $acl->allow('ChuckNorris');
         
         // Expect Chuck Norris to have control over time and space...
-        $this->assertTrue($acl->isAllowed($chuckNorris, $timeAndSpace), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed('ChuckNorris', $timeAndSpace), 'Access to resource has not been granted.');
         // ...and earth, wind and fire as well :)
-        $this->assertTrue($acl->isAllowed($chuckNorris, $earthWindAndFire), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed('ChuckNorris', $earthWindAndFire), 'Access to resource has not been granted.');
    }
 
 
@@ -311,10 +310,9 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     *
     * @return void
     */
-   public function testAllPrivilegesGrantedToSuperroleIfResourcesInDatabase() {
+   public function testAllPrivilegesGrantedToSuperroleIfResourcIsInDatabase() {
         // Set up role 
-        $superUser = new Opus_Security_Role;
-        $superUser->setName('SuperUser')->store();
+        $this->_roles->insert(array('name' => 'JamesBond'));
         
         // Resources
         $row = $this->_resources->createRow();
@@ -328,12 +326,52 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
                 
         // Acl
         $acl = new Opus_Security_Acl;
-        $acl->allow($superUser);
+        $acl->allow('JamesBond');
         
         // Expect super-user to have control over everything
-        $this->assertTrue($acl->isAllowed($superUser, 'A'), 'Access to resource has not been granted.');
-        $this->assertTrue($acl->isAllowed($superUser, 'B'), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed('JamesBond', 'A'), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed('JamesBond', 'B'), 'Access to resource has not been granted.');
    }
 
+    /**
+     * Test that Acl queries the database tables for Resources and Roles
+     * not more then one time per request.
+     *
+     * @return void
+     */
+    public function testRolesResourcesGetQueriedOnlyOnce() {
+        $this->markTestIncomplete();
+    
+        // Set up a complex resource setting
+        $allDocumentsId = $this->_resources->insert(array('name' => 'AllDocuments'));
+        $pubDocumentsId = $this->_resources->insert(array('name' => 'PublicDocuments', 'parent_id' => $allDocumentsId));
+        $clnDocumentsId = $this->_resources->insert(array('name' => 'ClientDocuments', 'parent_id' => $allDocumentsId));
+        for ($i = 0; $i<5 ; $i++) {
+            $doc = $this->_resources->insert(array('name' => "Opus/Document/$i", 'parent_id' => $clnDocumentsId)); 
+        }
+        for ($i = 5; $i<10 ; $i++) {
+            $doc = $this->_resources->insert(array('name' => "Opus/Document/$i", 'parent_id' => $pubDocumentsId)); 
+        }
+        
+        $guestId  = $this->_roles->insert(array('name' => 'guest'));
+        $clientId = $this->_roles->insert(array('name' => 'client'));
+        $adminId = $this->_roles->insert(array('name' => 'admin'));
+        
+        $this->_privileges->insert(array('role_id' => $guestId, 'resource_id' => $pubDocumentsId, 
+            'privilege' => 'read', 'granted' => true));
+        $this->_privileges->insert(array('role_id' => $clientId, 'resource_id' => $clnDocumentsId,
+            'privilege' => 'read', 'granted' => true));
+        $this->_privileges->insert(array('role_id' => $adminId, 'resource_id' => $allDocumentsId,
+            'privilege' => 'read', 'granted' => true));
+        
+        // Turn on database profiler
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $db->getProfiler()->setEnabled(true);
+        
+        // Set up Acl and ask for permission of guest to read Opus/Document/3 which should be permitted
+        $acl = new Opus_Security_Acl();
+        $granted = $acl->isAllowed('guest', 'Opus/Document/3', 'read');
+        
+    }   
    
 }

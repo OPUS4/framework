@@ -274,11 +274,9 @@ class Opus_Security_Acl extends Zend_Acl {
      * @return void
      */
     protected function _fetchRolePrivileges(Zend_Acl_Role_Interface $role) {
-        // Fetch the Role model
-        $roleModel = $this->_getRoleRegistry()->get($role);
-        
         // Fetch corresponding privileg records
-        $select = $this->_privilegesTable->select()->where('role_id', $roleModel->getId());
+        $roleId = $this->_getRoleRegistry()->getId($role);
+        $select = $this->_privilegesTable->select()->where('role_id = ?', $roleId);
         $rows = $this->_privilegesTable->fetchAll($select);
         foreach ($rows as $row) {
             // Get Resource
