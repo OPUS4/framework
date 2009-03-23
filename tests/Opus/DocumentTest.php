@@ -373,6 +373,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * FIXME: Handling of Files and Enrichments are not tested!
+     *
      * Test if a document's fields come out of the database as they went in.
      *
      * @param array $documentDataset Array with valid data of documents.
