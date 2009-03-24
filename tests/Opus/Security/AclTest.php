@@ -333,16 +333,13 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($acl->isAllowed('JamesBond', 'B'), 'Access to resource has not been granted.');
    }
 
+
     /**
-     * Test that Acl queries the database tables for Resources and Roles
-     * not more then one time per request.
+     * Helper function for complex resource and privileges setting.
      *
      * @return void
      */
-    public function testRolesResourcesGetQueriedOnlyOnce() {
-        $this->markTestIncomplete();
-    
-        // Set up a complex resource setting
+    private function __setUpComplexResourceSetting() {
         $allDocumentsId = $this->_resources->insert(array('name' => 'AllDocuments'));
         $pubDocumentsId = $this->_resources->insert(array('name' => 'PublicDocuments', 'parent_id' => $allDocumentsId));
         $clnDocumentsId = $this->_resources->insert(array('name' => 'ClientDocuments', 'parent_id' => $allDocumentsId));
@@ -363,15 +360,45 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
             'privilege' => 'read', 'granted' => true));
         $this->_privileges->insert(array('role_id' => $adminId, 'resource_id' => $allDocumentsId,
             'privilege' => 'read', 'granted' => true));
-        
-        // Turn on database profiler
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->getProfiler()->setEnabled(true);
+    }
+
+    /**
+     * Test that Acl queries to the database are not issued more then once.
+     *
+     * @return void
+     */
+    public function testTablesGetQueriedOnlyOnce() {
+        $this->markTestSkipped('Fix yet not implemented in Opus_Security_Acl.');
+    
+        $this->__setUpComplexResourceSetting();
         
         // Set up Acl and ask for permission of guest to read Opus/Document/3 which should be permitted
         $acl = new Opus_Security_Acl();
+
+        // Turn on database profiler
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $db->getProfiler()->setEnabled(true)
+            ->setFilterQueryType(Zend_Db_Profiler::SELECT);
+    
+        // Submit the query
         $granted = $acl->isAllowed('guest', 'Opus/Document/3', 'read');
         
+        // Count SELECT queries to "resources" table
+        $profiles = $db->getProfiler()->getQueryProfiles();
+        $selects = array();
+        foreach ($profiles as $profile) {
+            $query = $profile->getQuery();
+            if (true === array_key_exists($query, $selects)) {
+                $selects[$query]++;
+            } else {
+                $selects[$query] = 1;
+            }
+        }
+
+        // Assert call-once for each query
+        foreach ($selects as $stm => $calls) {
+            $this->assertEquals(1, $calls, "More then one call to $stm.");
+        }
     }   
    
 }
