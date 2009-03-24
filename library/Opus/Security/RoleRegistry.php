@@ -56,7 +56,7 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
         
         foreach ($rowset as $row) {
             $role = new Zend_Acl_Role($row['name']);
-            $this->add($role, $row['parent']);
+            parent::add($role, $row['parent']);
             $roleId = $role->getRoleId();
             $this->_roles[$roleId]['dbid'] = $row['id'];
         }        
@@ -78,6 +78,27 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
             return $this->_roles[$roleId]['dbid'];
         }
         return null;
+    }
+    
+    /**
+     * Adds a Role having an identifier unique to the registry.
+     * The added Role gets stored to the roles table in the database.
+     *
+     * @see Zend_Acl_Role_Registry::add()
+     * @param  Zend_Acl_Role_Interface              $role
+     * @param  Zend_Acl_Role_Interface|string|array $parents
+     * @throws Zend_Acl_Role_Registry_Exception
+     * @return Zend_Acl_Role_Registry Provides a fluent interface
+     */
+    public function add(Zend_Acl_Role_Interface $role, $parents = null) {
+        $result = parent::add($role, $parents);
+        
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $id = $roles->insert(array(
+            'name' => $role->getRoleId()));
+        $this->_roles[$role->getRoleId()]['dbid'] = $id;
+        
+        return $result;
     }
 
 }

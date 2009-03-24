@@ -151,4 +151,35 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($id, $result, 'Role database id and retrieved id do not match.');
     }   
     
+    /**
+     * Test if adding a Role to the registry also adds a role record in the database.
+     *
+     * @return void
+     */
+    public function testAddedRolesArePersisted() {
+        $reg = new Opus_Security_RoleRegistry;
+        $reg->add(new Zend_Acl_Role('AddedRole'));
+
+        $roles = new Opus_Db_Roles;
+        $row = $roles->fetchAll()->current();
+        $this->assertNotNull($row, 'Role has not been persisted.');
+        $this->assertEquals('AddedRole', $row->name, 'Role name information is wrong.');        
+    }
+    
+    /**
+     * Test that an added Role has a corresponding database id.
+     *
+     * @return void
+     */
+    public function testAddedRoleHasId() {
+        $reg = new Opus_Security_RoleRegistry;
+        $role = new Zend_Acl_Role('AddedRole');
+        $reg->add($role);
+
+        $roles = new Opus_Db_Roles;
+        $row = $roles->fetchAll()->current();
+        
+        $this->assertEquals($reg->getId($role), $row->id, 'Role database identifier in registry does not match with the one in the database table.');        
+    }
+    
 }
