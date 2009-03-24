@@ -111,14 +111,18 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return void
      */
     protected function _storeTempFile() {
+        if (is_null($this->getTempFile()) === true) {
+            return;
+        }
         //FIXME: Hard coded path!
         $path = '../workspace/files/' . $this->getDocumentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
-        $hash = $this->addHashValue();
+        $hash = new Opus_HashValues;
         $hash->setType('md5');
         $hash->setValue(hash_file('md5', $this->getTempFile()));
+        $this->setHashValue($hash);
         if (is_uploaded_file($this->getTempFile())) {
         	$copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
         }
