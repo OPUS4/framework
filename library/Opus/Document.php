@@ -233,8 +233,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'fetch' => 'lazy'
             ),
             'SubjectSwd' => array(
-                'model' => 'Opus_Subject',
-                'options' => array('type' => 'swd'),
+                'model' => 'Opus_SubjectSwd',
                 'fetch' => 'lazy'
             ),
             'SubjectPsyndex' => array(

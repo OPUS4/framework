@@ -26,60 +26,44 @@
  *
  * @category    Framework
  * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Domain model for document subjects in the Opus framework
+ * Domain model for SWD document subjects in the Opus framework
  *
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Subject extends Opus_Model_Dependent_Abstract
+class Opus_SubjectSwd extends Opus_Subject
 {
-    /**
-     * Primary key of the parent model.
-     *
-     * @var mixed $_parentId.
-     */
-    protected $_parentColumn = 'document_id';
 
     /**
-     * Specify then table gateway.
+     * Hide Type and Language fields.
      *
-     * @var string
-     */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
-
-    /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('Type').
+     * @var array 
      */
     protected $_hiddenFields = array(
         'Type',
+        'Language'
     );
 
     /**
-     * Initialize model with the following fields:
-     * - Language
-     * - Type
-     * - Value
-     * - External key
+     * Set fix value for language and type field.
      *
      * @return void
      */
     protected function _init() {
-        $this->addField(new Opus_Model_Field('Language'))
-            ->addField(new Opus_Model_Field('Type'))
-            ->addField(new Opus_Model_Field('Value'))
-            ->addField(new Opus_Model_Field('ExternalKey'));
+        parent::_init();
+            
+        // Set 'de' for subject language and 'swd' for the type
+        $this->setLanguage('de');
+        $this->setType('swd');
     }
-
 
 }
 
