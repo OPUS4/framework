@@ -276,14 +276,11 @@ COMMENT = 'Table for patent related data.';
 -- Table `document_statistics`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `document_statistics` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` TEXT NOT NULL COMMENT 'Type of the statistic.' ,
-  `value` TEXT NOT NULL COMMENT 'Value of the statistic.' ,
-  `start_survey_period` DATETIME NOT NULL COMMENT 'Time and date of the beginning of the survey period.' ,
-  `end_survey_period` DATETIME NOT NULL COMMENT 'Time and date of the ending of the survey period.' ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_document_statistics_Document` (`document_id` ASC) ,
+  `document_id` int(10) unsigned NOT NULL COMMENT 'Foreign key to: documents.documents_id.',
+  `count` int(11) NOT NULL,
+  `year` year(4) NOT NULL,
+  `month` tinyint(1) NOT NULL,
+  PRIMARY KEY  (`document_id`,`year`,`month`),
   CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`document_id` )
     REFERENCES `documents` (`id` )
@@ -291,7 +288,6 @@ CREATE  TABLE IF NOT EXISTS `document_statistics` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for statistic related data.';
-
 
 -- -----------------------------------------------------
 -- Table `document_notes`
