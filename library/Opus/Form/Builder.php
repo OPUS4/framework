@@ -566,7 +566,7 @@ class Opus_Form_Builder {
                 // Break intentionally omitted
             case 'SingleModelCheckbox':
                 // Break intentionally omitted
-            case 'SingleModelTextArea':
+            case 'SingleModelTextarea':
                 $this->_makeSingleModel($field, $container);
                 break;
 
