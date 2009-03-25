@@ -64,7 +64,6 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
      * @return void
      */
     protected function _init() {
-        $this->_primaryTableRow->type = 'main';
         $language = new Opus_Model_Field('Language');
         $language->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
