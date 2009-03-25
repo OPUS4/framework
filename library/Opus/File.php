@@ -93,6 +93,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->setSelection(true);
         $tempfile = new Opus_Model_Field('TempFile');
         $hashvalue = new Opus_Model_Field('HashValue');
+        $hashvalue->setMultiplicity('*');
 
         $this->addField($filepathname)
             ->addField($filesortorder)
@@ -114,15 +115,22 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (is_null($this->getTempFile()) === true) {
             return;
         }
+
+        $hashtypes = array('md5', 'sha512');
+
         //FIXME: Hard coded path!
         $path = '../workspace/files/' . $this->getDocumentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
-        $hash = new Opus_HashValues;
-        $hash->setType('md5');
-        $hash->setValue(hash_file('md5', $this->getTempFile()));
-        $this->setHashValue($hash);
+
+        foreach ($hashtypes as $type) {
+            $hash = new Opus_HashValues();
+            $hash->setType($type);
+            $hash->setValue(hash_file($type, $this->getTempFile()));
+            $this->addHashValue($hash);
+        }
+
         if (is_uploaded_file($this->getTempFile())) {
         	$copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
         }
