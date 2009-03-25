@@ -181,5 +181,27 @@ class Opus_Security_RoleRegistryTest extends PHPUnit_Framework_TestCase {
         
         $this->assertEquals($reg->getId($role), $row->id, 'Role database identifier in registry does not match with the one in the database table.');        
     }
+ 
+    /**
+     * Test if add() takes a parent role object and writes referencing foreing key to
+     * the database table.
+     *
+     * @return void
+     */   
+    public function testAddAcceptsParentAndRole() {
+        $parent = new Zend_Acl_Role('Parent');
+        $child = new Zend_Acl_Role('Child');
+        $reg = new Opus_Security_RoleRegistry;
+        $reg->add($parent);
+        $reg->add($child, $parent);
+
+        $roles = new Opus_Db_Roles;
+        $rowset = $roles->fetchAll();
+        
+        $this->assertEquals(2, $rowset->count(), 'Expect only two records in the roles table.');
+        
+        $row = $roles->find($reg->getId($child))->current();
+        $this->assertEquals($reg->getId($parent), $row->parent, 'Wrong parent id in database record.');
+    }
     
 }

@@ -91,14 +91,21 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
      * @return Zend_Acl_Role_Registry Provides a fluent interface
      */
     public function add(Zend_Acl_Role_Interface $role, $parents = null) {
-        $result = parent::add($role, $parents);
+        parent::add($role, $parents);
+        
+        // Determine a parent Role id
+        $parentId = null;
+        if (false === empty($this->_roles[$role->getRoleId()]['parents'])) {
+            $parentId = $this->getId(current($this->_roles[$role->getRoleId()]['parents']));
+        }
         
         $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $id = $roles->insert(array(
-            'name' => $role->getRoleId()));
+            'name' => $role->getRoleId(),
+            'parent' => $parentId));
         $this->_roles[$role->getRoleId()]['dbid'] = $id;
         
-        return $result;
+        return $this;
     }
 
 }
