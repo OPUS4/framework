@@ -42,6 +42,59 @@
  */
 class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
 
+
+    /**
+     * Documenttype for countable documents.
+     * 
+     * @var Opus_Document_Type
+     */
+    protected $_documentType = null;
+    
+    /**
+     * Document to count on :)
+     *
+     * @var Opus_Document
+     */
+    protected $_document = null;
+
+    /**
+     * Provide clean documents and statistics table and remove temporary files.
+     * Create document type and document for counting.
+     *
+     * @return void
+     */
+    public function setUp() {
+        TestHelper::clearTable('document_statistics');
+        TestHelper::clearTable('documents');
+
+        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';        
+        @unlink($path);
+        
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="counter_test_type"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language"/>
+                </documenttype>';
+        $this->_documentType = new Opus_Document_Type($xml);
+
+        $this->_document = new Opus_Document(null, $this->_documentType);
+        $this->_document->store();
+    }
+    
+    /**
+     * Clean up tables, remove temporary files.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('document_statistics');
+        TestHelper::clearTable('documents');
+
+        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';        
+        @unlink($path);
+    }
+
     /**
      * Test getting singleton instance.
      *
@@ -51,6 +104,28 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
         $lc = Opus_Statistic_LocalCounter::getInstance();
         $this->assertNotNull($lc, 'Expected instance');
         $this->assertType('Opus_Statistic_LocalCounter', $lc, 'Expected object of type Opus_Statistic_LocalCounter.');
+    }
+
+    /**
+     * Simulate single click and check if the document counter gets increased.
+     *
+     * @return void
+     */
+    public function testCountSingleClick() {
+        $this->markTestIncomplete('Test and CUT still under development.');
+        
+        $docId = $this->_document->getId();
+        
+        // issue counting request
+        $lc = Opus_Statistic_LocalCounter::getInstance();
+        $lc->count($docId, null);
+        
+        // check database table for counting value
+        $ods = new Opus_Db_DocumentStatistics();
+        $rows = $ods->fetchAll()->toArray();
+        
+        $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
+        //...
     }
 
 }

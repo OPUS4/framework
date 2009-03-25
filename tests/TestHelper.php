@@ -58,6 +58,7 @@ class TestHelper extends Opus_Bootstrap_Base {
      */
     protected function _setupBackend() {
         $this->_setupLogging();
+        $this->_setupTemp();
         $this->_setupDatabase();
     }
 
