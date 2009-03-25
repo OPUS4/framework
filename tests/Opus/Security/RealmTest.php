@@ -135,5 +135,32 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(in_array('role1', $result), 'Wrong set of roles returned.');
         $this->assertTrue(in_array('role2', $result), 'Wrong set of roles returned.');
     }
+    
+    /**
+     * Test if null is retrieved if no Roles are assigned to an Account.
+     *
+     * @return void
+     */
+    public function testNoRolesReturnedWhenNoRolesAssigned() {
+        // create account
+        $acc = new Opus_Db_Accounts;
+        $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
+
+        $realm = Opus_Security_Realm::getInstance();
+        $result = $realm->getIdentityRole('user');
+        $this->assertNull($result, 'Expected null if no roles are assigned.');
+   }
+
+    /**
+     * Test if exception gets thrown if the specified Account doesnt exist.
+     *
+     * @return void
+     */
+    public function testThrowExceptionIfAccountDontExist() {
+        $realm = Opus_Security_Realm::getInstance();
+        $this->setExpectedException('Opus_Security_Exception');
+        $result = $realm->getIdentityRole('user');
+   }
+
 
 }

@@ -146,7 +146,7 @@ class Opus_Security_Realm {
         if (1 === $assignedRoles->count()) {
             // return the role name
             return $assignedRoles->current()->name;
-        } else {
+        } else if ($assignedRoles->count() > 1) {
             $result = array();
             foreach ($assignedRoles as $arole) {
                 $result[] = $arole->name;
