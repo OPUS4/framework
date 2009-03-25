@@ -81,7 +81,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
-                'model' => 'Opus_Title',
+                'model' => 'Opus_Abstract',
                 'options' => array('type' => 'abstract'),
                 'fetch' => 'lazy'
             ),
