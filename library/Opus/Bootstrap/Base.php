@@ -292,7 +292,11 @@ class Opus_Bootstrap_Base {
 
 
 
-
+   protected function _setupTemp() {
+        $tempDirectory = $this->_applicationWorkspaceDirectory . '/tmp/';
+        $registry = Zend_Registry::getInstance();
+        $registry->set('temp_dir', $tempDirectory);
+    }
 
     /**
      * Setup Zend_Search_Lucene with Index
