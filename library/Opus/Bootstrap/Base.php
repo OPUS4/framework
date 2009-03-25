@@ -133,6 +133,7 @@ class Opus_Bootstrap_Base {
         $this->_setupDatabase();
         $this->_setupLogging();
         $this->_setupLucene();
+        $this->_setupTemp();
         $this->_setupDocumentType();
     }
 
@@ -150,6 +151,12 @@ class Opus_Bootstrap_Base {
      * @return void
      */
     protected function _setupFrontendCaching() {
+    }
+
+    protected function _setupTemp() {
+        $tempDirectory = $this->_applicationWorkspaceDirectory . '/tmp/';
+        $registry = Zend_Registry::getInstance();
+        $registry->set('temp_dir', $tempDirectory);
     }
 
     /**
