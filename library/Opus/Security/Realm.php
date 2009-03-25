@@ -124,6 +124,39 @@ class Opus_Security_Realm {
         return $this->_resource;
     }
     
+    
+    /**
+     * Get the roles that are assigned to the specified identity.
+     *
+     * @param string $identity The name of the queried identity.
+     * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
+     * @return string|array
+     */
+    public function getIdentityRole($identity) {
+        $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
+        $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));        
+        if (null === $account) {
+            throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
+        }
+
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
+        $assignedRoles = $account->findManyToManyRowset($roles, $link);
+        
+        if (1 === $assignedRoles->count()) {
+            // return the role name
+            return $assignedRoles->current()->name;
+        } else {
+            $result = array();
+            foreach ($assignedRoles as $arole) {
+                $result[] = $arole->name;
+            }
+            return $result;
+        }
+    
+        return null;
+    }
+    
     /********************************************************************************************/
     /* Singleton code below                                                                     */    
     /********************************************************************************************/

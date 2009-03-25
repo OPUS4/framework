@@ -42,6 +42,29 @@
  */
 class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
 
+
+    /**
+     * Provide clean tables.
+     *
+     * @return void
+     */
+    public function setUp() {
+        TestHelper::clearTable('link_accounts_roles');
+        TestHelper::clearTable('accounts');
+        TestHelper::clearTable('roles');
+    }
+    
+    /**
+     * Clear used tables.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('link_accounts_roles');
+        TestHelper::clearTable('accounts');
+        TestHelper::clearTable('roles');
+    }    
+
     /**
      * Test getting singleton instance.
      *
@@ -51,6 +74,66 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $realm = Opus_Security_Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
         $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
+    }
+    
+    /**
+     * Test if a given user account (identity) can be mapped
+     * correctly to its assigned role.
+     *
+     * @return void
+     */
+    public function testIdentityCanBeMappedToSingleRole() {
+        // create account
+        $acc = new Opus_Db_Accounts;
+        $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
+        
+        // create role
+        $rol = new Opus_Db_Roles;
+        $rolId = $rol->insert(array('name' => 'role'));
+        
+        // connect role and account
+        $lar = new Opus_Db_LinkAccountsRoles;
+        $lar->insert(array('account_id' => $accId, 'role_id' => $rolId));
+        
+        // query Realm
+        $realm = Opus_Security_Realm::getInstance();
+        $result = $realm->getIdentityRole('user');
+        
+        $this->assertNotNull($result, 'Expect assigned role.');
+        $this->assertEquals('role', $result, 'Wrong role returned.');
+    }
+
+
+    /**
+     * Test if a given user account (identity) can be mapped
+     * correctly to its assigned roles.
+     *
+     * @return void
+     */
+    public function testIdentityCanBeMappedToMultipleRoles() {
+        // create account
+        $acc = new Opus_Db_Accounts;
+        $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
+        
+        // create role
+        $rol = new Opus_Db_Roles;
+        $rolId[] = $rol->insert(array('name' => 'role1'));
+        $rolId[] = $rol->insert(array('name' => 'role2'));
+        
+        
+        // connect role and account
+        $lar = new Opus_Db_LinkAccountsRoles;
+        $lar->insert(array('account_id' => $accId, 'role_id' => $rolId[0]));
+        $lar->insert(array('account_id' => $accId, 'role_id' => $rolId[1]));
+        
+        // query Realm
+        $realm = Opus_Security_Realm::getInstance();
+        $result = $realm->getIdentityRole('user');
+        
+        $this->assertNotNull($result, 'Expect assigned role.');
+        $this->assertTrue(is_array($result), 'Expect result to be an array of roles.');
+        $this->assertTrue(in_array('role1', $result), 'Wrong set of roles returned.');
+        $this->assertTrue(in_array('role2', $result), 'Wrong set of roles returned.');
     }
 
 }
