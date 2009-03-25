@@ -94,7 +94,7 @@ class Opus_Statistic_LocalCounter  {
 
     public static function getInstance() {
         if (self::$localCounter == NULL) {
-            self::$localCounter = new Statistic_LocalCounter();
+            self::$localCounter = new Opus_Statistic_LocalCounter();
         }
         return self::$localCounter;
     }
