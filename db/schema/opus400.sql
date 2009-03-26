@@ -280,7 +280,8 @@ CREATE  TABLE IF NOT EXISTS `document_statistics` (
   `count` int(11) NOT NULL,
   `year` year(4) NOT NULL,
   `month` tinyint(1) NOT NULL,
-  PRIMARY KEY  (`document_id`,`year`,`month`),
+  `type` enum('frontdoor','files') NOT NULL,
+  PRIMARY KEY  (`document_id`,`year`,`month`,`type`),
   CONSTRAINT `fk_document_statistics_Document`
     FOREIGN KEY (`document_id` )
     REFERENCES `documents` (`id` )

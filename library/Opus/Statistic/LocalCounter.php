@@ -138,29 +138,36 @@ class Opus_Statistic_LocalCounter  {
 
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
      */
-    public function count($documentId, $fileId, $ip = null, $userAgent = null, $redirectStatus = null) {
-        if ($ip == null) {
+    public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null) {
+        //return 0;
+        //print("??????????????????");
+        if ($type != 'frontdoor' || $type != 'files') {
+            return 0;
+        }
+        if ($ip == null || $ip == '') {
             $ip = $_SERVER['REMOTE_ADDR'];
         }
-        if ($userAgent == null) {
+        if ($userAgent == null || $userAgent == '') {
             $userAgent = $_SERVER['HTTP_USER_AGENT'];
         }
-        if ($redirectStatus == null) {
+        if ($redirectStatus == null || $redirectStatus == '') {
             $redirectStatus = $_SERVER['REDIRECT_STATUS'];
         }
 
 
+        print("<br>UserAgent: $userAgent, IP: $ip, RedirectStatus: $redirectStatus<br>");
+
         $time = time();
         //determine whether it was a double click or not
         if ($this->isRedirectStatusOk($redirectStatus) == false){
-            throw new Exception('Redirect Status not 200 or 304');
+            return 0;
         }
         if ($this->checkSpider($userAgent) == true) {
-            throw new Exception('Spider access, nothing to count');
+            return 0;
         }
 
         if ($this->logClick($documentId, $fileId, $time) == true) {
-            throw new Exception('double click, nothing to count');
+            return 0;
         }
 
         //no double click? increase counter!
@@ -172,7 +179,7 @@ class Opus_Statistic_LocalCounter  {
 
         $ods = new Opus_Db_DocumentStatistics();
         try {
-            $rowSet = $ods->find($documentId, $year, $month);
+            $rowSet = $ods->find($documentId, $year, $month, $type);
             foreach ($rowSet as $row) {
                 $value = $row->count;
             }
@@ -188,11 +195,13 @@ class Opus_Statistic_LocalCounter  {
                 'document_id' => $documentId,
                 'year' => $year,
                 'month' => $month,
-                'count' => $value
+                'count' => $value,
+                'type' => $type,
             );
             $where = $ods->getAdapter()->quoteInto('document_id = ?', $documentId) .
             $ods->getAdapter()->quoteInto(' AND year = ?', $year) .
-            $ods->getAdapter()->quoteInto(' AND month = ?', $month);
+            $ods->getAdapter()->quoteInto(' AND month = ?', $month) .
+            $ods->getAdapter()->quoteInto(' AND type = ?', $type);
             //print($where);
 
 
@@ -201,18 +210,20 @@ class Opus_Statistic_LocalCounter  {
             } else {
                 $ods->update($data, $where);
             }
-            $rowSet = $ods->find($documentId, $year, $month);
+            /*$rowSet = $ods->find($documentId, $year, $month, $type);
             foreach ($rowSet as $row) {
                 $value = $row->count;
-            }
+            }*/
             //echo ("->$value");
 
             $db->commit();
+            return $value;
         } catch (Exception $e) {
             $db->rollBack();
             print ($e->getMessage());
+            return 0;
         }
-        return $value;
+        return 0;
     }
 
     /**
