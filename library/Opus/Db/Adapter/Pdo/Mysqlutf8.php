@@ -51,8 +51,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      * @var string
      */
     protected $_tableprefix = 'test_';
-    
-    
+
+
     /**
      * Number of transaction start attempts.
      *
@@ -86,15 +86,15 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      * If a transaction is already running, no new one will be started.
      *
      * @return bool True
-     */    
+     */
     protected function _beginTransaction() {
         if ($this->_runningTransactions < 1) {
             parent::_beginTransaction();
         }
         $this->_runningTransactions++;
         return true;
-    }   
-    
+    }
+
     /**
      * Decrease transaction counter and issue commit.
      *
@@ -108,7 +108,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
         $this->_runningTransactions--;
         return true;
     }
-    
+
     /**
      * Decrease transaction counter and issue rollback.
      *
@@ -385,5 +385,112 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
 
         return true;
     }
-    
+
+    /**
+     * Create database tables "collections_contents_X", "collections_replacement_X" and
+     * "collections_structure_X" where X is the current roles_id.
+     *
+     * @param array(array) $content_fields (Optional) Array with collection_role database records.
+     * @param int          $roles_id       (Optional) The database table postfix.
+     * @throws  Exception On failed database access.
+     * @return void
+     */
+    public function createCollectionDatabaseTables(array $content_fields = array(array(
+                                              'name' => 'name',
+                                              'type' => 'VARCHAR',
+                                              'length' => 255
+                                         )), $roles_id = null) {
+
+        $tabellenname = 'link_documents_collections_' . $roles_id;
+        $query = 'CREATE TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
+            PRIMARY KEY ( `id` )
+            ) ENGINE = InnoDB';
+
+        try {
+            $this->query($query);
+        } catch (Exception $e) {
+            throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
+        }
+
+
+        $tabellenname = 'collections_contents_' . $roles_id;
+        $query = 'CREATE TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            PRIMARY KEY ( `id` )
+            ) ENGINE = InnoDB';
+
+        try {
+            $this->query($query);
+            $this->setTablePrefix('');
+            foreach ($content_fields as $content_field) {
+                $this->addField($tabellenname, $content_field);
+            }
+        } catch (Exception $e) {
+            throw new Exception('Error creating collection content table: ' . $e->getMessage());
+        }
+
+        $tabellenname = 'collections_replacement_' . $roles_id;
+        $query = 'CREATE  TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
+              `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+              `collections_id` INT UNSIGNED NOT NULL,
+              `replacement_for_id` INT UNSIGNED,
+              `replacement_by_id` INT UNSIGNED,
+              `current_replacement_id` INT UNSIGNED,
+              PRIMARY KEY (`id`) ,
+              INDEX fk_link_collections_' . $roles_id . ' (`collections_id` ASC) ,
+              INDEX fk_link_collections_replacement_for_' . $roles_id . ' (`replacement_for_id` ASC) ,
+              INDEX fk_link_collections_replacement_by_' . $roles_id . ' (`replacement_by_id` ASC) ,
+              INDEX fk_link_collections_current_replacement_' . $roles_id . ' (`current_replacement_id` ASC) ,
+              CONSTRAINT `fk_link_collections_' . $roles_id . '`
+                FOREIGN KEY (`collections_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION,
+              CONSTRAINT `fk_link_collections_replacement_for_' . $roles_id . '`
+                FOREIGN KEY (`replacement_for_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION,
+              CONSTRAINT `fk_link_collections_replacement_by_' . $roles_id . '`
+                FOREIGN KEY (`replacement_by_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION,
+              CONSTRAINT `fk_link_collections_current_replacement_' . $roles_id . '`
+                FOREIGN KEY (`current_replacement_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION)
+            ENGINE = InnoDB';
+        try {
+            $this->query($query);
+        } catch (Exception $e) {
+            throw new Exception('Error creating collection replacement table: ' . $e->getMessage());
+        }
+
+        $tabellenname = 'collections_structure_' . $roles_id;
+        $query = 'CREATE  TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
+              `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+              `collections_id` int(10) UNSIGNED NOT NULL ,
+              `left` int(10) UNSIGNED NOT NULL ,
+              `right` int(10) UNSIGNED NOT NULL ,
+              `visible` tinyint(1) NOT NULL default 1,
+              PRIMARY KEY (`id`) ,
+              INDEX fk_collections_structure_collections_contents_' . $roles_id . ' (`collections_id` ASC) ,
+              CONSTRAINT `fk_collections_structure_collections_contents_' . $roles_id . '`
+                FOREIGN KEY (`collections_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id` )
+                ON DELETE NO ACTION
+                ON UPDATE NO ACTION)
+            ENGINE = InnoDB';
+        try {
+            $this->query($query);
+        } catch (Exception $e) {
+            throw new Exception('Error creating collection structure table: ' . $e->getMessage());
+        }
+    }
+
 }
