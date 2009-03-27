@@ -53,7 +53,6 @@ class Opus_Db_CollectionsStructure extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    //protected $_primary = 'id';
 
     /**
      * Constructor.
@@ -63,6 +62,16 @@ class Opus_Db_CollectionsStructure extends Opus_Db_TableGateway {
     public function __construct($ID) {
         $this->_name = 'collections_structure_' . $ID;
         parent::__construct();
+    }
+
+    /**
+     * Truncate structure table.
+     *
+     * @param integer $ID Number identifying the collection tree (role)
+     */
+    public function truncate() {
+        $db = Zend_Registry::get('db_adapter');
+        $db->truncateTable($this->_name);
     }
 
 }

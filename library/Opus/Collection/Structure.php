@@ -162,7 +162,7 @@ class Opus_Collection_Structure {
     public function save() {
         try {
             // Erase outdated structure
-            $this->collections_structure->delete(true);
+            $this->collections_structure->truncate();
             // Write new structure
             foreach ($this->collectionStructure as $record) {
                 $this->collections_structure

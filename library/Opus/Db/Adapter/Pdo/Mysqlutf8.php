@@ -254,6 +254,29 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
     }
 
     /**
+     * Empty a table.
+     *
+     * @param string $name Contains the table name for emptying
+     * @throws Exception Exception on non valid name or non-existing table
+     * @return bool true on success
+     */
+    public function truncateTable($name) {
+        // check for a valid table name
+        if (self::isValidName($name) === false) {
+            throw new Exception('Non-valid name for a table.');
+        }
+        // build sql query
+        $stmt = 'TRUNCATE TABLE ' . $this->_quoteIdentifier(strtolower($name));
+        try {
+            $this->query($stmt);
+        } catch (Exception $e) {
+            throw new Exception('Tried to empty a non-existing table! Error reason: ' . $e->getMessage());
+        }
+        // return true on success
+        return true;
+    }
+
+    /**
      * Adds a field to a table
      *
      * Array(
