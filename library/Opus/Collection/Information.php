@@ -136,6 +136,10 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
         }
 
+        if (0 === $parent_id) {
+            $parent_id = 1;
+        }
+
         // Create a new collection content container
         $occ = new Opus_Collection_Contents($role_id);
 
@@ -157,7 +161,7 @@ class Opus_Collection_Information {
             // Load nested sets structure from DB
             $ocs = new Opus_Collection_Structure($role_id);
             $ocs->load();
-            
+
             // Insert new collection underneath given parent to the right of the given left sibling
             $ocs->insert($collections_id, (int) $parent_id, (int) $leftSibling_id);
 
@@ -436,14 +440,14 @@ class Opus_Collection_Information {
      */
     static public function getAllCollectionDocuments($roles_id, $collections_id = 1) {
 
-        
+
         $collections_id = (int) $collections_id;
         $roles_id = (int) $roles_id;
-        
+
         if (false === is_int($collections_id)) {
             $collections_id = 0;
         }
-        
+
         // Argument validation
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);

@@ -240,8 +240,7 @@ class Opus_Collection_Roles {
             `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
             `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
             PRIMARY KEY ( `id` )
-            ) ENGINE = InnoDB'
-            ;
+            ) ENGINE = InnoDB';
 
         try {
             $db->query($query);
@@ -254,10 +253,7 @@ class Opus_Collection_Roles {
         $query = 'CREATE TABLE IF NOT EXISTS ' . $db->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
             PRIMARY KEY ( `id` )
-            ) ENGINE = InnoDB
-            DEFAULT CHARACTER SET = utf8
-            COLLATE = utf8_general_ci'
-            ;
+            ) ENGINE = InnoDB';
 
         try {
             $db->query($query);
@@ -301,9 +297,7 @@ class Opus_Collection_Roles {
                 REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
-            ENGINE = InnoDB
-            PACK_KEYS = 0
-            ROW_FORMAT = DEFAULT;';
+            ENGINE = InnoDB';
         try {
             $db->query($query);
         } catch (Exception $e) {
@@ -324,9 +318,7 @@ class Opus_Collection_Roles {
                 REFERENCES `collections_contents_' . $roles_id . '` (`id` )
                 ON DELETE NO ACTION
                 ON UPDATE NO ACTION)
-            ENGINE = InnoDB
-            PACK_KEYS = 0
-            ROW_FORMAT = DEFAULT;';
+            ENGINE = InnoDB';
         try {
             $db->query($query);
         } catch (Exception $e) {
