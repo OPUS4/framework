@@ -90,14 +90,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param  int         $parent         (Optional) parent Id of a new collection.
      * @param  int         $left_sibling   (Optional) left sibling Id of a new collection.
      */
-    public function __construct($role_id, $collection_id = null, $parent = null, $left_sibling = null) {
-        if (is_null($collection_id) === true) {
-            if (is_null($parent) === true or is_null($left_sibling) === true) {
-                throw new Opus_Model_Exception('New collection requires parent and left sibling id to be passed.');
-            } else {
-                $collection_id = Opus_Collection_Information::newCollection($role_id, $parent, $left_sibling, null);
-            }
-        }
+    public function __construct($role_id, $collection_id = null) {
         $this->__role_id = $role_id;
         parent::__construct($collection_id, new Opus_Db_CollectionsContents($role_id));
     }
@@ -202,7 +195,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _storeSubCollection() {
-
+        foreach ($this->getSubCollection() as $subCollection) {
+            $subCollection->store();
+            $id = (int) $subCollection->getId();
+            Opus_Collection_Information::newCollectionPosition((int) $this->__role_id, $id, (int) $this->getId(), 0);
+        }
     }
 
     /**

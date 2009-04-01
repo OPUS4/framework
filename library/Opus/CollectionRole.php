@@ -141,7 +141,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeSubCollection() {
-
+        foreach ($this->getSubCollection() as $subCollection) {
+            $subCollection->store();
+            $id = (int) $subCollection->getId();
+            Opus_Collection_Information::newCollectionPosition((int) $this->getId(), $id, 1, 0);
+        }
     }
 
     /**
@@ -159,6 +163,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeCollectionsContentSchema() {
+        if ($this->_isNewRecord === false) return;
         $schema = array();
         // FIXME: As soon as the document builder supports multiple
         // values for atomic field types, remove artificial array
@@ -182,8 +187,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $ocs = new Opus_Collection_Structure((int) $this->getId());
         $ocs->create();
         $ocs->save();
-
     }
+
 
     /**
      * Returns long name.
