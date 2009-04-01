@@ -249,7 +249,6 @@ class Opus_Collection_Information {
     }
 
 
-
     /**
      * Delete an occurrence of a collection in the tree.
      *
@@ -438,14 +437,14 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id = 1) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 1, $counting = false) {
 
 
         $collections_id = (int) $collections_id;
         $roles_id = (int) $roles_id;
 
         if (false === is_int($collections_id)) {
-            $collections_id = 0;
+            $collections_id = 1;
         }
 
         // Argument validation
@@ -463,12 +462,17 @@ class Opus_Collection_Information {
         $ocr  = new Opus_Collection_Roles();
         $ocr->load($roles_id);
         $cr = $ocr->getCollectionRoles();
+        if (false === $counting) {
+            $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('display' === $cr['link_docs_path_to_root'])) ? true : false;
+        } else {
+            $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('count' === $cr['link_docs_path_to_root'])) ? true : false;
+        }
         // If !=0 fetch every ID on path to root
-        if (0 !== (int) $cr['link_docs_path_to_root']) {
+        if (true === $ldptr) {
             $sc = self::getSubCollections($roles_id, $collections_id, false);
             // For every such ID: fetch all related docs recursively
             foreach ($sc as $index => $record) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['structure']['collections_id']));
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['structure']['collections_id'], $counting));
             }
         }
 
@@ -476,7 +480,7 @@ class Opus_Collection_Information {
         $ancestors = $ocr->getAncestor($collections_id);
         foreach ($ancestors as $ancestor) {
             if (false === empty($ancestor)) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $ancestor));
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $ancestor, $counting));
             }
         }
 
@@ -491,6 +495,21 @@ class Opus_Collection_Information {
             $allCollectionDocumentsOut[] =  $doc_id['documents_id'];
         }
         return array_unique($allCollectionDocumentsOut);
+    }
+
+
+    /**
+     * Count all documents belonging to a collection.
+     *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id (Optional) Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function countAllCollectionDocuments($roles_id, $collections_id = 1) {
+
+        $allCollectionDocumentsOut = self::getAllCollectionDocuments($roles_id, $collections_id, true);
+        return count($allCollectionDocumentsOut);
     }
 
     /**

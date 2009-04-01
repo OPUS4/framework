@@ -446,7 +446,7 @@ CREATE  TABLE IF NOT EXISTS `collections_roles` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
   `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
-  `link_docs_path_to_root` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If not 0: Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree.' ,
+  `link_docs_path_to_root` ENUM('none', 'count', 'display', 'both') default 'none' COMMENT 'Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree for document counting, document diplaying, none or both.',
   `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Is the collection visible? (1=yes, 0=no).' ,
   `display_browsing` VARCHAR(512) NULL ,
   `display_doclist` VARCHAR(512) NULL ,
