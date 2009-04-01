@@ -252,6 +252,16 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns Xml representation of the collection.
+     *
+     * @param  array $excludeFields Fields to exclude from the Xml output.
+     * @return DomDocument Xml representation of the collection.
+     */
+    public function toXml(array $excludeFields = null) {
+        return parent::toXml(array('ParentCollection'));
+    }
+
+    /**
      * Overwrite to reconnect to correct primary table row in database after unserializing.
      *
      * @return void

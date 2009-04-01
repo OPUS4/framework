@@ -225,4 +225,15 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
         return $result;
     }
+
+    /**
+     * Returns Xml representation of the collection role.
+     *
+     * @param  array $excludeFields Fields to exclude from the Xml output.
+     * @return DomDocument Xml representation of the collection role.
+     */
+    public function toXml(array $excludeFields = null) {
+        return parent::toXml(array('ParentCollection'));
+    }
+
 }

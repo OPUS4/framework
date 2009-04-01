@@ -387,10 +387,13 @@ abstract class Opus_Model_Abstract
      *
      * @return DomDocument A Dom representation of the model.
      */
-    public function toXml() {
+    public function toXml(array $excludeFields = null) {
+        if (is_null($excludeFields) === true) {
+            $excludeFields = array();
+        }
         $result = new DomDocument;
         $result->appendChild($result->createElement(get_class($this)));
-        $result = $this->_recurseXml($result);
+        $result = $this->_recurseXml($result, $excludeFields);
         return $result;
     }
 
@@ -399,9 +402,8 @@ abstract class Opus_Model_Abstract
      *
      * @return DomDocument A Dom representation of the model.
      */
-    protected function _recurseXml(DomDocument $domXml) {
-
-        foreach (array_keys($this->_fields) as $fieldname) {
+    protected function _recurseXml(DomDocument $domXml, array $excludeFields) {
+        foreach (array_diff(array_keys($this->_fields), $excludeFields) as $fieldname) {
 
             $callname = 'get' . $fieldname;
             $fieldvalue = $this->$callname();
@@ -417,11 +419,11 @@ abstract class Opus_Model_Abstract
                     $element = $child->createElement($fieldname);
                     $child->appendChild($element);
                     if ($value instanceof Opus_Model_Abstract) {
-                        $result = $value->_recurseXml($child);
+                        $result = $value->_recurseXml($child, $excludeFields);
                     } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
                         $classname = $this->getField($fieldname)->getValueModelClass();
                         $result = new $classname;
-                        $result = $result->_recurseXml($child);
+                        $result = $result->_recurseXml($child, $excludeFields);
                     } else {
                         $result = $child;
                     }
