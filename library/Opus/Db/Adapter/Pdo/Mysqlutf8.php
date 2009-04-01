@@ -373,6 +373,20 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
     }
 
     /**
+     * Checks if a field is allready existant in a table.
+     *
+     * @param  mixed  $tablename The name of the table to check.
+     * @param  mixed  $fieldname The name of the field to check for.
+     * @return bool Whether the field exists in the table or not.
+     */
+    public function hasField($tablename, $fieldname) {
+        if ($this->isExistent($tablename, $fieldname) === true) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    /**
      * Delete a field from a table
      *
      * @param string $table Contains table name without prefix
@@ -449,7 +463,9 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
             $this->query($query);
             $this->setTablePrefix('');
             foreach ($content_fields as $content_field) {
-                $this->addField($tabellenname, $content_field);
+                if ($this->hasField($tabellenname, $content_field['name']) === false) {
+                    $this->addField($tabellenname, $content_field);
+                }
             }
         } catch (Exception $e) {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
@@ -515,5 +531,4 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
             throw new Exception('Error creating collection structure table: ' . $e->getMessage());
         }
     }
-
 }
