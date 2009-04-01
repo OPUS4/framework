@@ -66,6 +66,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     protected $_pending = array();
 
+    /**
+     * Holds persistance status of the model, including all dependant models.
+     *
+     * @var int  Defaults to true.
+     */
+    protected $_isNewRecord = true;
 
     /**
      * Construct a new model instance and connect it a database table's row.
@@ -218,6 +224,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname;
             throw new Opus_Model_Exception($msg);
         }
+        $this->_isNewRecord = false;
         return $id;
     }
 
