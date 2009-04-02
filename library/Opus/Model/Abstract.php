@@ -402,11 +402,16 @@ abstract class Opus_Model_Abstract
      *
      * @return DomDocument A Dom representation of the model.
      */
-    protected function _recurseXml(DomDocument $domXml, array $excludeFields) {
+    protected function _recurseXml(DomDocument $domXml, array $excludeFields = null) {
+        if (is_null($excludeFields) === true) {
+            $excludeFields = array();
+        }
         foreach (array_diff(array_keys($this->_fields), $excludeFields) as $fieldname) {
 
             $callname = 'get' . $fieldname;
             $fieldvalue = $this->$callname();
+
+            if (empty($fieldvalue) === true) continue;
 
             // Create array from non-multiple fieldvalue.
             if ($this->getField($fieldname)->hasMultipleValues() === false) {
