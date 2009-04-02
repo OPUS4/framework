@@ -140,7 +140,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return DomDocument A Dom representation of the model.
      */
-    protected function _recurseXml(DomDocument $domXml) {
+    protected function _recurseXml(DomDocument $domXml, array $excludeFields) {
         return $this->_model->_recurseXml($domXml);
     }
 
