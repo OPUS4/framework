@@ -438,21 +438,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
                                               'length' => 255
                                          )), $roles_id = null) {
 
-        $tabellenname = 'link_documents_collections_' . $roles_id;
-        $query = 'CREATE TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
-            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
-            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
-            `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
-            PRIMARY KEY ( `id` )
-            ) ENGINE = InnoDB';
-
-        try {
-            $this->query($query);
-        } catch (Exception $e) {
-            throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
-        }
-
-
         $tabellenname = 'collections_contents_' . $roles_id;
         $query = 'CREATE TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
             `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
@@ -470,6 +455,33 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
         } catch (Exception $e) {
             throw new Exception('Error creating collection content table: ' . $e->getMessage());
         }
+
+        $tabellenname = 'link_documents_collections_' . $roles_id;
+        $query = 'CREATE TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
+            `id` INT( 11 ) UNSIGNED NOT NULL AUTO_INCREMENT ,
+            `collections_id` INT( 11 ) UNSIGNED NOT NULL ,
+            `documents_id` INT( 11 ) UNSIGNED NOT NULL ,
+            PRIMARY KEY ( `id` ),
+              INDEX fk_link_documents_collections_collections_contents_' . $roles_id . ' (`collections_id` ASC) ,
+              INDEX fk_link_documents_collections_documents_' . $roles_id . ' (`documents_id` ASC) ,
+              CONSTRAINT `fk_link_documents_collections_collections_contents_' . $roles_id . '`
+                FOREIGN KEY (`collections_id` )
+                REFERENCES `collections_contents_' . $roles_id . '` (`id`)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE,
+              CONSTRAINT `fk_link_documents_collections_documents_' . $roles_id . '`
+                FOREIGN KEY (`documents_id` )
+                REFERENCES `documents` (`id`)
+                ON DELETE CASCADE
+                ON UPDATE CASCADE
+            ) ENGINE = InnoDB';
+
+        try {
+            $this->query($query);
+        } catch (Exception $e) {
+            throw new Exception('Error creating collection document linking table: ' . $e->getMessage());
+        }
+
 
         $tabellenname = 'collections_replacement_' . $roles_id;
         $query = 'CREATE  TABLE IF NOT EXISTS ' . $this->quoteIdentifier($tabellenname) . ' (
