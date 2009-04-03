@@ -123,10 +123,11 @@ class Opus_Collection_Structure {
         if ( (false === is_int($left)) or (0 >= $left) ) {
             throw new InvalidArgumentException('LEFT value must be a positive integer.');
         }
-        if (false === isset($this->collectionStructure[$left])) {
-            throw new InvalidArgumentException('Given LEFT value "' . $left . '" not found in structure.');
-        }
         $this->leftOrder();
+        //print_r($this->collectionStructure[(int) $left]);
+        /*if (false === isset($this->collectionStructure[$left])) {
+            throw new InvalidArgumentException('Given LEFT value "' . $left . '" not found in structure.');
+        }*/
         return (int) $this->collectionStructure[$left]['collections_id'];
     }
 
