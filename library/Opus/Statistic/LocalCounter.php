@@ -338,7 +338,7 @@ class Opus_Statistic_LocalCounter  {
             $result[$row->month] = $row->count;
         }
 
-        if ($result == null) {
+        if (isset($result) === false) {
             for ($i = 1; $i <= 12; $i++) {
                 $result[$i] = 0;
             }
@@ -370,7 +370,7 @@ class Opus_Statistic_LocalCounter  {
             $result[$row->year] = $row->count;
         }
 
-        if ($result == null) {
+        if (isset($result) === false) {
             $result = array(date('Y') => 0);
         }
         return $result;
