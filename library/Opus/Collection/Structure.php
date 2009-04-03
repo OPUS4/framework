@@ -124,7 +124,7 @@ class Opus_Collection_Structure {
             throw new InvalidArgumentException('LEFT value must be a positive integer.');
         }
         if (false === isset($this->collectionStructure[$left])) {
-            throw new InvalidArgumentException('Given LEFT value not found in structure.');
+            throw new InvalidArgumentException('Given LEFT value "' . $left . '" not found in structure.');
         }
         $this->leftOrder();
         return (int) $this->collectionStructure[$left]['collections_id'];
@@ -190,6 +190,8 @@ class Opus_Collection_Structure {
         $this->leftOrder();
         $parentNodeFound = false;
         $new_left = 0;
+        $insertionLeft = array();
+        $deletionLeft  = array();
         // For each node
         foreach ($this->collectionStructure as $index1 => $nested_set) {
 
@@ -203,7 +205,11 @@ class Opus_Collection_Structure {
                 while ($left < ($right-1)) {
                     $left++;
                     if ((int) $this->collectionStructure[$left][$this->collectionsIdentifier] === $collections_id) {
-                        $collectionAlreadyChild = true;
+                        if (0 === (int) $this->collectionStructure[$left]['visible']) {
+                            $deletionLeft[] = $left;
+                        } else {
+                            $collectionAlreadyChild = true;
+                        }
                     }
                     if ((int) $this->collectionStructure[$left][$this->collectionsIdentifier] === $leftSibling) {
                         $leftSiblingFound = true;
@@ -215,7 +221,6 @@ class Opus_Collection_Structure {
                     $leftSibling = 0;
                 }
                 if (false === $collectionAlreadyChild) {
-
                     // If parent has no child or new node shall be most left sibling
                     if (($this->collectionStructure[$index1]['right'] === $this->collectionStructure[$index1]['left']+1) or
                         ($leftSibling === 0)) {
@@ -246,50 +251,59 @@ class Opus_Collection_Structure {
             }
         }
 
-        if (isset($insertionLeft)) {
-            rsort($insertionLeft);
-            foreach ($insertionLeft as $new_left) {
-                foreach ($this->collectionStructure as $index3 => $nested_set3) {
-                        if ((int) $this->collectionStructure[$index3]['left'] >= $new_left) {
+        $toDoList = array_merge($deletionLeft, $insertionLeft);
+        rsort($toDoList);
+
+        foreach ($toDoList as $leftValue) {
+
+            if (in_array($leftValue, $deletionLeft)) {
+                $this->delete($leftValue);
+            }
+
+            if (in_array($leftValue, $insertionLeft)) {
+                foreach ($insertionLeft as $leftValue) {
+                    foreach ($this->collectionStructure as $index3 => $nested_set3) {
+                        if ((int) $this->collectionStructure[$index3]['left'] >= $leftValue) {
                             $this->collectionStructure[$index3]['left'] += 2;
                         }
-                        if ((int) $this->collectionStructure[$index3]['right'] >= $new_left) {
+                        if ((int) $this->collectionStructure[$index3]['right'] >= $leftValue) {
                             $this->collectionStructure[$index3]['right'] += 2;
                         }
                     }
-                $this->collectionStructure[] = array($this->collectionsIdentifier => $collections_id,
-                                                                            'left'    => (int) $new_left,
-                                                                            'right'   => (int) $new_left+1,
-                                                                            'visible' => 1);
-            }
-
-            $subTreeFound = false;
-            // Rekursives Subtree-kopieren
-            foreach ($this->collectionStructure as $index => $nested_set) {
-                // If subtree not found yet AND node is the right collection AND node is not a leaf
-                if ((false === $subTreeFound) AND
-                    ($collections_id === (int) $nested_set[$this->collectionsIdentifier]) AND
-                    ((int) $nested_set['right'] > ((int) $nested_set['left']) + 1)) {
-
-                    $subTreeFound = true;
-                    $left = (int) $nested_set['left'];
-                    $right = (int) $nested_set['right'];
-                    $leftSibling = 0;
-                    while ($left < ($right-1)) {
-                        $left++;
-                        $this->leftOrder();
-                        $subcollection_id = (int) $this->collectionStructure[$left][$this->collectionsIdentifier];
-                        $insertionArray[] = array ($subcollection_id, $collections_id, $leftSibling);
-                        $leftSibling = $subcollection_id;
-                        $left = $this->collectionStructure[$left]['right'];
-                    }
-
-                    foreach ($insertionArray as $record) {
-                        $this->insert($record[0], $record[1], $record[2]);
-                    }
+                    $this->collectionStructure[] = array($this->collectionsIdentifier => $collections_id,
+                                                                                'left'    => (int) $leftValue,
+                                                                                'right'   => (int) $leftValue+1,
+                                                                                'visible' => 1);
                 }
-            }
-        }
+
+                $subTreeFound = false;
+                // Rekursives Subtree-kopieren
+                foreach ($this->collectionStructure as $index => $nested_set) {
+                    // If subtree not found yet AND node is the right collection AND node is not a leaf
+                    if ((false === $subTreeFound) AND
+                        ($collections_id === (int) $nested_set[$this->collectionsIdentifier]) AND
+                        ((int) $nested_set['right'] > ((int) $nested_set['left']) + 1)) {
+
+                        $subTreeFound = true;
+                        $left = (int) $nested_set['left'];
+                        $right = (int) $nested_set['right'];
+                        $leftSibling = 0;
+                        while ($left < ($right-1)) {
+                            $left++;
+                            $this->leftOrder();
+                            $subcollection_id = (int) $this->collectionStructure[$left][$this->collectionsIdentifier];
+                            $insertionArray[] = array ($subcollection_id, $collections_id, $leftSibling);
+                            $leftSibling = $subcollection_id;
+                            $left = $this->collectionStructure[$left]['right'];
+                        }
+
+                        foreach ($insertionArray as $record) {
+                            $this->insert($record[0], $record[1], $record[2]);
+                        }
+                    } // if ((false === $subTreeFound) AND ...
+                } // foreach ($this->collectionStructure as $index => $nested_set)
+            } // if (in_array($leftValue, $insertionLeft))
+        } //foreach ($toDoList as $leftValue)
 
         $this->leftOrder();
         if ($parentNodeFound === false) {
