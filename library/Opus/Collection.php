@@ -173,32 +173,54 @@ class Opus_Collection extends Opus_Model_AbstractDb
         if (empty($collectionIds) === false) {
             $result = array();
             $table = new Opus_Db_CollectionsContents($this->__role_id);
-            $rows = $table->find($collectionIds);
-
-            foreach ($collectionIds as $key => $collectionId) {
-                foreach ($rows as $row) {
-                    $rowArray = $row->toArray();
-                    if ($collectionId === $rowArray['id']) {
-                        $result[$key] = new Opus_Collection((int) $this->__role_id, $row);
-                    }
-                }
-
+            // Unfortunaley, we cannot use find() here, since it destroys the order of the Ids.
+            // TODO: Find a way to make the query more performant.
+            // $rows = $table->find($collectionIds);
+            $rows = array();
+            foreach ($collectionIds as $id) {
+                $rows[] = $table->fetchRow($table->select()->where('id = ?', $id));
             }
+            foreach ($rows as $row) {
+                $result[] = new Opus_Collection((int) $this->__role_id, $row);
+            }
+
         }
         return $result;
     }
 
     /**
-     * Overwrites store procedure.
-     * TODO: Implement storing collection structures.
+     * Overwrites standard store procedure to account for subcollections.
      *
      * @return void
      */
     protected function _storeSubCollection() {
-        foreach ($this->getSubCollection() as $subCollection) {
+        $updatedSubCollections = array();
+        // Store subcollections as they were before the update.
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
+        $previousCollections = array();
+        foreach ($collections as $collection) {
+            $previousCollections[] = $collection['structure']['collections_id'];
+        }
+        foreach ($this->getSubCollection() as $index => $subCollection) {
             $subCollection->store();
             $id = (int) $subCollection->getId();
-            Opus_Collection_Information::newCollectionPosition((int) $this->__role_id, $id, (int) $this->getId(), 0);
+            $updatedSubCollections[] = $id;
+            if ($index === 0) {
+                $leftSibling = 0;
+            } else {
+                $leftSibling = (int) $this->getSubCollection($index - 1)->getId();
+            }
+            Opus_Collection_Information::deleteCollectionPosition((int) $this->__role_id, $id, (int) $this->getId());
+            Opus_Collection_Information::newCollectionPosition((int) $this->__role_id, $id, (int) $this->getId(), $leftSibling);
+            // FIXME: Resolve calling store() twice issue.
+            // It's due to the nature of deleteCollectionPosition, which
+            // removes subcollections as well.
+            $subCollection->store();
+        }
+        // Remove subcollections that are not supposed to be there any more.
+        $removeCollections = array_diff($previousCollections, $updatedSubCollections);
+        foreach ($removeCollections as $removeCollection) {
+            Opus_Collection_Information::deleteCollectionPosition((int) $this->__role_id, $removeCollection, (int) $this->getId());
         }
     }
 

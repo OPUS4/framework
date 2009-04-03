@@ -242,6 +242,10 @@ class Opus_Collection_Information {
         $ocs = new Opus_Collection_Structure($role_id);
         $ocs->load();
         $leftValues = $ocs->IDToleft($collection_id, $parent_id);
+        // TODO: Throw exception
+        if (false === is_array($leftValues)) {
+            return;
+        }
         rsort($leftValues);
         foreach ($leftValues as $left) {
             self::deleteCollectionPositionByLeft($role_id, (int) $left);
