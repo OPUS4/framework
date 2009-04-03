@@ -109,9 +109,6 @@ class Opus_Statistic_LocalCounter  {
         $userAgent =strtolower($userAgent);
 
         foreach ($this->spiderList as $spider) {
-            //$spider = strtolower($spider);
-            //$spiderWithoutSpaces = str_replace(' ', '+', $spider);
-            //print('<br><br>'.stristr($userAgent ,$spider).'<br>');
             if (stristr($userAgent, $spider) != FALSE || stristr($userAgent, str_replace(' ', '+', $spider)) != FALSE) {
                 print('<br>found spider<br>');
                 return true;
@@ -138,10 +135,9 @@ class Opus_Statistic_LocalCounter  {
 
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
      */
-    public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null) {
-        //return 0;
-        //print("??????????????????");
-        if ($type != 'frontdoor' || $type != 'files') {
+ public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null) {
+        if ($type != 'frontdoor' && $type != 'files') {
+            print('type not defined');
             return 0;
         }
         if ($ip == null || $ip == '') {
@@ -160,13 +156,20 @@ class Opus_Statistic_LocalCounter  {
         $time = time();
         //determine whether it was a double click or not
         if ($this->isRedirectStatusOk($redirectStatus) == false){
+            print('wrong redirect status');
             return 0;
         }
         if ($this->checkSpider($userAgent) == true) {
+            print('spider found');
             return 0;
         }
 
+        //don't log any file id if the frontdoor is counted
+        if ($type == 'frontdoor') {
+            $fileId = -1;
+        }
         if ($this->logClick($documentId, $fileId, $time) == true) {
+            print('double click');
             return 0;
         }
 
@@ -188,7 +191,6 @@ class Opus_Statistic_LocalCounter  {
                 $value = 0;
                 $createEntry = true;
             }
-            //echo ($value);
 
             $value++;
             $data = array (
@@ -198,11 +200,16 @@ class Opus_Statistic_LocalCounter  {
                 'count' => $value,
                 'type' => $type,
             );
+
+
+
+            //TODO direct $ods->insert() possible??
+
+
             $where = $ods->getAdapter()->quoteInto('document_id = ?', $documentId) .
             $ods->getAdapter()->quoteInto(' AND year = ?', $year) .
             $ods->getAdapter()->quoteInto(' AND month = ?', $month) .
             $ods->getAdapter()->quoteInto(' AND type = ?', $type);
-            //print($where);
 
 
             if ($createEntry == true) {
@@ -210,11 +217,6 @@ class Opus_Statistic_LocalCounter  {
             } else {
                 $ods->update($data, $where);
             }
-            /*$rowSet = $ods->find($documentId, $year, $month, $type);
-            foreach ($rowSet as $row) {
-                $value = $row->count;
-            }*/
-            //echo ("->$value");
 
             $db->commit();
             return $value;
@@ -311,5 +313,53 @@ class Opus_Statistic_LocalCounter  {
         $xmlFileId->setAttribute('lastAccess', $time);
         $dom->save($tempDir . '~localstat.xml');
         return $doubleClick;
+    }
+
+    public function readMonths($documentId, $datatype = 'files', $year = null) {
+        if ($year == null) {
+            //set current year
+            $year = date('Y', time());
+        }
+
+        if ($datatype != 'files' && $datatype != 'frontdoor') {
+            $datatype = 'files';
+        }
+        $ods = new Opus_Db_DocumentStatistics();
+        $select = $ods->select()->where('year = ?', $year)
+            ->where('document_id = ?', $documentId)
+            ->where('type = ?', $datatype)
+            ->order('month');
+        $queryResult = $ods->fetchAll($select);
+        unset($result);
+        foreach ($queryResult as $row) {
+            $result[$row->month] = $row->count;
+        }
+        return $result;
+    }
+
+    public function readYears($documentId, $datatype = 'files') {
+        if ($datatype != 'files' && $datatype != 'frontdoor') {
+            $datatype = 'files';
+        }
+        $ods = new Opus_Db_DocumentStatistics();
+
+        $select = $ods->select()
+            ->from(array('stat' => 'document_statistics'), array('count' => 'SUM(stat.count)'))
+            ->from(array('stat2' => 'document_statistics'), array('year' => 'stat2.year'))
+            ->where('stat.type = ?', $datatype)
+            ->where('stat.document_id = ?', $documentId)
+            ->where('stat.document_id = stat2.document_id')
+            ->where('stat.year = stat2.year')
+            ->where('stat.month = stat2.month')
+            ->where('stat.type = stat2.type')
+            ->group('stat2.year')
+            ->order('stat2.year');
+
+        $queryResult = $ods->fetchAll($select);
+        unset($result);
+        foreach ($queryResult as $row) {
+            $result[$row->year] = $row->count;
+        }
+        return $result;
     }
 }
