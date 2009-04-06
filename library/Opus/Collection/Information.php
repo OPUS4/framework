@@ -436,24 +436,26 @@ class Opus_Collection_Information {
         $allCollectionDocumentsOut = array();
         $allCollectionDocuments = array();
 
-        // Look for 'link_docs_path_to_root' attribute
-        $ocr  = new Opus_Collection_Roles();
-        $ocr->load($roles_id);
-        $cr = $ocr->getCollectionRoles();
-        if (false === $counting) {
-            $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('display' === $cr['link_docs_path_to_root'])) ? true : false;
-        } else {
-            $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('count' === $cr['link_docs_path_to_root'])) ? true : false;
-        }
-        // If !=0 fetch every ID on path to root
-        if ((true === $ldptr) and (true === $recursive)) {
-            $ocs = new Opus_Collection_Structure($roles_id);
-            $ocs->load();
-            $sc = $ocs->getSubCollections($collections_id, false, true);
+        if (true === $recursive) {
+            // Look for 'link_docs_path_to_root' attribute
+            $ocr  = new Opus_Collection_Roles();
+            $ocr->load($roles_id);
+            $cr = $ocr->getCollectionRoles();
+            if (false === $counting) {
+                $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('display' === $cr['link_docs_path_to_root'])) ? true : false;
+            } else {
+                $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('count' === $cr['link_docs_path_to_root'])) ? true : false;
+            }
+            // If !=0 fetch every ID on path to root
+            if (true === $ldptr) {
+                $ocs = new Opus_Collection_Structure($roles_id);
+                $ocs->load();
+                $sc = $ocs->getSubCollections($collections_id, false, true);
 
-            // For every such ID: fetch all related docs recursively
-            foreach ($sc as $index => $record) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['collections_id'], $counting, false));
+                // For every such ID: fetch all related docs recursively
+                foreach ($sc as $index => $record) {
+                    $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['collections_id'], $counting, false));
+                }
             }
         }
 
