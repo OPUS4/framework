@@ -92,6 +92,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $filelanguage->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
         $tempfile = new Opus_Model_Field('TempFile');
+        $filesize = new Opus_Model_Field('FileSize');
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMultiplicity('*');
 
@@ -102,6 +103,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->addField($mimetype)
             ->addField($filelanguage)
             ->addField($tempfile)
+            ->addField($filesize)
             ->addField($documentsid)
             ->addField($hashvalue);
     }
@@ -132,13 +134,28 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         if (is_uploaded_file($this->getTempFile())) {
-        	$copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
+            $copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
         }
         else {
-        	$copyResult = copy($this->getTempFile(), $path . '/' . $this->getPathName());
+            $copyResult = copy($this->getTempFile(), $path . '/' . $this->getPathName());
         }
         if ($copyResult === false) {
             throw new Opus_Model_Exception('Error saving file.');
+        }
+    }
+
+    /**
+     * Store the file size.
+     *
+     * @return void
+     */
+    protected function _storeFileSize() {
+        if (true === $this->_isNewRecord) {
+            // Common workaround for php limitation (2 / 4 GB file size)
+            // look at http://de.php.net/manual/en/function.filesize.php
+            // more inforamtion
+            $file_size = sprintf("%u", @filesize($this->getTempFile()));
+            $this->_primaryTableRow->file_size = $file_size;
         }
     }
 
