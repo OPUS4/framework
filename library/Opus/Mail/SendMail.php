@@ -260,17 +260,20 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the specified recipients.
      *
      * @param   integer|Opus_Person|array $recipient Recipient(s)
-     * @param   string                          $subject    Subject
-     * @param   string                          $bodyText   Text
-     * @param   string                          $from       (Optional) Sender address - if not set, the administrator's address is taken
-     * @param   string                          $fromName   (Optional) Sender name - if not set, the administator's name is taken
-     * @return  boolean                         True if mail was sent
+     * @param   string                    $subject    Subject
+     * @param   string                    $bodyText   Text
+     * @param   string                    $from       (Optional) Sender address - if not set, the administrator's address is taken
+     * @param   string                    $fromName   (Optional) Sender name - if not set, the administator's name is taken
+     * @return  boolean                   True if mail was sent
      */
     public function sendMailToAuthor($recipient, $subject, $bodyText, $from = '', $fromName = '') {
-        if ($from === false) {
+        if (($from === '') and ($fromName === '')) {
             $config = Zend_Registry::get('Zend_Config');
             $from = $config->mail->opus->address;
             $fromName = $config->mail->opus->name;
+        }
+        else if (($from === '') xor ($fromName === '')) {
+            throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
         if (is_array($recipient) === true and is_int($recipient[0]) === true) {
@@ -282,10 +285,10 @@ class Opus_Mail_SendMail {
             }
             $recipient = $recs;
         }
-        elseif (is_int($recipient) === true) {
+        else if (is_int($recipient) === true) {
             $recipient = array(new Opus_Person($recipient));
         }
-        elseif (is_object($recipient) === true) {
+        else if (is_object($recipient) === true) {
             $recipient = array($recipient);
         }
 
@@ -305,10 +308,10 @@ class Opus_Mail_SendMail {
      * The author of the specified document will be set as sender.
      *
      * @param   integer|Opus_Document $document Document
-     * @param   string                      $subject  Subject
-     * @param   string                      $bodyText Text
-     * @throws  Opus_Mail_Exception Thrown if the author / the document cannot be found
-     * @return  boolean                     True if mail could be sent
+     * @param   string                $subject  Subject
+     * @param   string                $bodyText Text
+     * @throws  Opus_Mail_Exception   Thrown if the author / the document cannot be found
+     * @return  boolean               True if mail could be sent
      */
     public function sendMailToAdmin($document, $subject, $bodyText) {
         $config = Zend_Registry::get('Zend_Config');
@@ -316,14 +319,14 @@ class Opus_Mail_SendMail {
         $toName = $config->mail->opus->name;
         $recips = array('recipients' => array('address' => $to, 'name' => $toName));
 
-        if (is_int($document)) {
+        if (is_int($document) === true) {
             $document = new Opus_Document($document);
         }
 
         $author = new Opus_Person($document.getField('PersonAuthor'));
-        $from = $author.getField('Email');
-        $firstName = $author.getField('FirstName');
-        $lastName = $author.getField('LastName');
+        $from = $author->getField('Email');
+        $firstName = $author->getField('FirstName');
+        $lastName = $author->getField('LastName');
         $fromName = $firstName . $lastName;
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
@@ -341,12 +344,12 @@ class Opus_Mail_SendMail {
      * @return  boolean             True if mail could be sent
      */
     public function sendMailToDocument($document, $subject, $bodyText, $from = '', $fromName = '') {
-        if (($from === false) and ($fromName === false)) {
+        if (($from === '') and ($fromName === '')) {
             $config = Zend_Registry::get('Zend_Config');
             $from = $config->mail->opus->address;
             $fromName = $config->mail->opus->name;
         }
-        elseif (($from === false) xor ($fromName === false)) {
+        else if (($from === '') xor ($fromName === '')) {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
@@ -360,21 +363,21 @@ class Opus_Mail_SendMail {
             }
             $document = $docs;
         }
-        elseif (is_int($document) === true) {
+        else if (is_int($document) === true) {
             $document = array(new Opus_Document($document));
         }
-        elseif (is_object($document) === true) {
+        else if (is_object($document) === true) {
             $document = array($document);
         }
 
         foreach ($document as $doc) {
-            $advisor = new Opus_Person($doc.getField('PersonAdvisor'));
-            $author = new Opus_Person($doc.getField('PersonAuthor'));
-            $contributor = new Opus_Person($doc.getField('PersonContributor'));
-            $editor = new Opus_Person($doc.getField('PersonEditor'));
-            $referee = new Opus_Person($doc.getField('PersonReferee'));
-            $other = new Opus_Person($doc.getField('PersonOther'));
-            $translator = new Opus_Person($doc.getField('PersonTranslator'));
+            $advisor = new Opus_Person($doc->getField('PersonAdvisor'));
+            $author = new Opus_Person($doc->getField('PersonAuthor'));
+            $contributor = new Opus_Person($doc->getField('PersonContributor'));
+            $editor = new Opus_Person($doc->getField('PersonEditor'));
+            $referee = new Opus_Person($doc->getField('PersonReferee'));
+            $other = new Opus_Person($doc->getField('PersonOther'));
+            $translator = new Opus_Person($doc->getField('PersonTranslator'));
 
             $connectedPersons = array('advisor' => $advisor,
                                 'author' => $author,
@@ -388,9 +391,9 @@ class Opus_Mail_SendMail {
                                                     'name' => $toName));
 
             foreach ($connectedPersons as $connected) {
-                $to = $connected.getField('Email');
-                $firstName = $connected.getField('FirstName');
-                $lastName = $connected.getField('LastName');
+                $to = $connected->getField('Email');
+                $firstName = $connected->getField('FirstName');
+                $lastName = $connected->getField('LastName');
                 $toName = $firstName . $lastName;
                 $addressAndName = array('address' => $to,
                                     'name' => $toName);
@@ -423,10 +426,10 @@ class Opus_Mail_SendMail {
             }
             $collections = $collections;
         }
-        elseif (is_int($collection) === true) {
+        else if (is_int($collection) === true) {
             $collection = array(new Opus_Collection($collection));
         }
-        elseif (is_object($collection) === true) {
+        else if (is_object($collection) === true) {
             $collection = array($collection);
         }
 
@@ -441,9 +444,9 @@ class Opus_Mail_SendMail {
             $recips = array('recipients' => array('address' => $to,
                                                     'name' => $toName));
 
-            $to = $author.getField('Email');
-            $firstName = $author.getField('FirstName');
-            $lastName = $author.getField('LastName');
+            $to = $author->getField('Email');
+            $firstName = $author->getField('FirstName');
+            $lastName = $author->getField('LastName');
             $toName = $firstName . $lastName;
             $addressAndName = array('address' => $to,
                                     'name' => $toName);
@@ -474,10 +477,6 @@ class Opus_Mail_SendMail {
         if ($subject === '') {
             throw new Opus_Mail_Exception('No text given.');
         }
-
-        //if ($recipients['recipients'] === '') {
-        //    throw new Opus_Mail_Exception('No recipient address given.');
-        //}
 
         $error = false;
         foreach ($recipients as $recip) {
