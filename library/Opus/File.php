@@ -71,6 +71,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         );
 
     /**
+     * The file models hidden fields for not showing inside form builder.
+     *
+     * @var array
+     * @see   Opus_Model_Abstract::$_hiddenFields
+     */
+    protected $_hiddenFields = array(
+            'FileSize',
+        );
+
+    /**
      * Initialize model with the following fields:
      * - PathName
      * - SortOrder
