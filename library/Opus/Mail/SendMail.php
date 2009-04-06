@@ -260,10 +260,11 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the specified recipients.
      *
      * @param   integer|Opus_Person|array $recipient Recipient(s)
-     * @param   string                    $subject    Subject
-     * @param   string                    $bodyText   Text
-     * @param   string                    $from       (Optional) Sender address - if not set, the administrator's address is taken
-     * @param   string                    $fromName   (Optional) Sender name - if not set, the administator's name is taken
+     * @param   string                    $subject   Subject
+     * @param   string                    $bodyText  Text
+     * @param   string                    $from      (Optional) Sender address - if not set, the administrator's address is taken
+     * @param   string                    $fromName  (Optional) Sender name - if not set, the administator's name is taken
+     * @throws  Opus_Mail_Exception       Thrown if either the sender e-mail address or name is not given
      * @return  boolean                   True if mail was sent
      */
     public function sendMailToAuthor($recipient, $subject, $bodyText, $from = '', $fromName = '') {
@@ -284,11 +285,9 @@ class Opus_Mail_SendMail {
                 array_push($recs, $recipient);
             }
             $recipient = $recs;
-        }
-        else if (is_int($recipient) === true) {
+        } else if (is_int($recipient) === true) {
             $recipient = array(new Opus_Person($recipient));
-        }
-        else if (is_object($recipient) === true) {
+        } else if (is_object($recipient) === true) {
             $recipient = array($recipient);
         }
 
@@ -321,7 +320,7 @@ class Opus_Mail_SendMail {
             $document = new Opus_Document($document);
         }
 
-        $author = new Opus_Person($document.getField('PersonAuthor'));
+        $author = new Opus_Person($document->getField('PersonAuthor'));
         $recips = array('recipients' => array('address' => '', 'name' => ''));
         $recFormed = formRecipient($author);
         array_push($recips, $recFormed);
@@ -345,8 +344,7 @@ class Opus_Mail_SendMail {
             $config = Zend_Registry::get('Zend_Config');
             $from = $config->mail->opus->address;
             $fromName = $config->mail->opus->name;
-        }
-        else if (($from === '') xor ($fromName === '')) {
+        } else if (($from === '') xor ($fromName === '')) {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
@@ -359,11 +357,9 @@ class Opus_Mail_SendMail {
                 array_push($docs, $myDoc);
             }
             $document = $docs;
-        }
-        else if (is_int($document) === true) {
+        } else if (is_int($document) === true) {
             $document = array(new Opus_Document($document));
-        }
-        else if (is_object($document) === true) {
+        } else if (is_object($document) === true) {
             $document = array($document);
         }
 
@@ -416,22 +412,20 @@ class Opus_Mail_SendMail {
                 array_push($collections, $myCollection);
             }
             $collections = $collections;
-        }
-        else if (is_int($collection) === true) {
+        } else if (is_int($collection) === true) {
             $collection = array(new Opus_Collection($collection));
-        }
-        else if (is_object($collection) === true) {
+        } else if (is_object($collection) === true) {
             $collection = array($collection);
         }
 
         $documents = array();
         foreach ($collection as $collect) {
-            array_push($documents, $collect.getEntries());
+            array_push($documents, $collect->getEntries());
         }
 
         $recips = array('recipients' => array('address', 'name'));
         foreach ($documents as $doc) {
-            $author = new Opus_Person($doc.getField('PersonAuthor'));
+            $author = new Opus_Person($doc->getField('PersonAuthor'));
             $recFormed = formRecipient($author);
             array_push($recips, 'recipients', $recFormed);
         }
