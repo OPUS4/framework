@@ -293,11 +293,9 @@ class Opus_Mail_SendMail {
         }
 
         $recips = array('recipients' => array('address' => '', 'name' => ''));
-        if (is_array($recipient) === true and is_object($recipient[0]) === true) {
-            foreach ($recipient as $rec) {
-                $recFormed = formRecipient($rec);
-                array_push($recips, $recFormed);
-            }
+        foreach ($recipient as $rec) {
+            $recFormed = formRecipient($rec);
+            array_push($recips, $recFormed);
         }
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
@@ -324,10 +322,9 @@ class Opus_Mail_SendMail {
         }
 
         $author = new Opus_Person($document.getField('PersonAuthor'));
-        $from = $author->getField('Email');
-        $firstName = $author->getField('FirstName');
-        $lastName = $author->getField('LastName');
-        $fromName = $firstName . $lastName;
+        $recips = array('recipients' => array('address' => '', 'name' => ''));
+        $recFormed = formRecipient($author);
+        array_push($recips, $recFormed);
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
     }
@@ -387,17 +384,11 @@ class Opus_Mail_SendMail {
                                 'other' => $other,
                                 'translator' => $translator);
 
-            $recips = array('recipients' => array('address' => $to,
-                                                    'name' => $toName));
+            $recips = array('recipients' => array('address', 'name'));
 
             foreach ($connectedPersons as $connected) {
-                $to = $connected->getField('Email');
-                $firstName = $connected->getField('FirstName');
-                $lastName = $connected->getField('LastName');
-                $toName = $firstName . $lastName;
-                $addressAndName = array('address' => $to,
-                                    'name' => $toName);
-                array_push($recips, 'recipients', $addressAndName);
+                $recFormed = formRecipient($connected);
+                array_push($recips, $recFormed);
             }
         }
 
@@ -410,7 +401,7 @@ class Opus_Mail_SendMail {
      * @param   integer|Opus_Collection|array $collection Collection(s)
      * @param   string                        $subject    Subject
      * @param   string                        $bodyText   Text
-     * @return  boolean                                   True if mail could be sent
+     * @return  boolean                       True if mail could be sent
      */
     public function sendMailToCollection($collection, $subject, $bodyText) {
         $config = Zend_Registry::get('Zend_Config');
@@ -438,19 +429,11 @@ class Opus_Mail_SendMail {
             array_push($documents, $collect.getEntries());
         }
 
+        $recips = array('recipients' => array('address', 'name'));
         foreach ($documents as $doc) {
             $author = new Opus_Person($doc.getField('PersonAuthor'));
-
-            $recips = array('recipients' => array('address' => $to,
-                                                    'name' => $toName));
-
-            $to = $author->getField('Email');
-            $firstName = $author->getField('FirstName');
-            $lastName = $author->getField('LastName');
-            $toName = $firstName . $lastName;
-            $addressAndName = array('address' => $to,
-                                    'name' => $toName);
-            array_push($recips, 'recipients', $addressAndName);
+            $recFormed = formRecipient($author);
+            array_push($recips, 'recipients', $recFormed);
         }
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
