@@ -124,10 +124,9 @@ class Opus_Collection_Structure {
             throw new InvalidArgumentException('LEFT value must be a positive integer.');
         }
         $this->leftOrder();
-        //print_r($this->collectionStructure[(int) $left]);
-        /*if (false === isset($this->collectionStructure[$left])) {
+        if (false === isset($this->collectionStructure[$left])) {
             throw new InvalidArgumentException('Given LEFT value "' . $left . '" not found in structure.');
-        }*/
+        }
         return (int) $this->collectionStructure[$left]['collections_id'];
     }
 
@@ -313,6 +312,54 @@ class Opus_Collection_Structure {
     }
 
 
+    /**
+     * Fetch all child collections of a collection.
+     *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id (Optional) Identifies the collection.
+     * @param boolean $alsoHidden     (Optional) Return also hidden collections?
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    public function getSubCollectionIDs($collections_id, $alsoHidden = false) {
+
+        // Argument validation
+        if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
+        }
+
+        // Container for the child collections
+        $children = array();
+
+        /*
+         * Find out left and right values of the given collection id.
+         * It should not matter which occurence of the collection in the tree we get
+         * since every subtree should lead to the same subtree-collections_ids.
+         */
+        foreach ($this->collectionStructure as $node) {
+            if ((int) $node['collections_id'] === (int) $collections_id) {
+                if ((int) $node['left'] === (int) $node['right'] - 1) {
+                    return $children;
+                }
+                $left  = $node['left'];
+                $right = $node['right'];
+            }
+        }
+
+        if (true === isset($left)) {
+            // Walk through the children and load the corresponding collection contents
+            while ($left < ($right-1)) {
+                $left++;
+                if ( (1 === (int) $this->collectionStructure[$left]['visible']) or (true === $alsoHidden) ) {
+                    $children[] = $this->collectionStructure[$left];
+                }
+                $left = $this->collectionStructure[$left]['right'];
+            }
+//echo "left-right: $left - $right<br>";
+//exit();
+        }
+        return $children;
+    }
 
 
     /**
