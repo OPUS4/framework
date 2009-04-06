@@ -392,7 +392,7 @@ class Opus_Collection_Information {
         }
         $ocs = new Opus_Collection_Structure($roles_id);
         $ocs->load();
-        $scstructure = $ocs->getSubCollectionIDs($collections_id, $alsoHidden);
+        $scstructure = $ocs->getSubCollections($collections_id, $alsoHidden);
 
         if (true === $onlyStructure) {
             return $scstructure;
@@ -406,49 +406,6 @@ class Opus_Collection_Information {
             return $children;
         }
 
-/*
-        // Container for the child collections
-        $children = array();
-
-        // Load complete tree information
-        $ocs = new Opus_Collection_Structure($roles_id);
-        $ocs->load();
-        $tree = $ocs->getCollectionStructure();
-
-        // Create collection content object
-        $occ = new Opus_Collection_Contents($roles_id);
-
-        /*
-         * Find out left and right values of the given collection id.
-         * It should not matter which occurence of the collection in the tree we get
-         * since every subtree should lead to the same subtree-collections_ids.
-         */
-/*        foreach ($tree as $node) {
-            if ((int) $node['collections_id'] === (int) $collections_id) {
-                if ((int) $node['left'] === (int) $node['right'] - 1) {
-                    return $children;
-                }
-                $left  = $node['left'];
-                $right = $node['right'];
-            }
-        }
-
-        if (true === isset($left)) {
-            // Walk through the children and load the corresponding collection contents
-            while ($left < ($right-1)) {
-                $left++;
-                if ( (1 === (int) $tree[$left]['visible']) or (true === $alsoHidden) ) {
-                    if (true === $onlyIDs) {
-                        $children[] = (int) $tree[$left]['collections_id'];
-                    } else {
-                        $occ->load((int) $tree[$left]['collections_id']);
-                        $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
-                    }
-                }
-                $left = $tree[$left]['right'];
-            }
-        }
-        return $children;*/
     }
 
     /**
@@ -459,7 +416,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getAllCollectionDocuments($roles_id, $collections_id = 1, $counting = false) {
+    static public function getAllCollectionDocuments($roles_id, $collections_id = 1, $counting = false, $recursive = true) {
 
         $collections_id = (int) $collections_id;
         $roles_id = (int) $roles_id;
@@ -489,11 +446,14 @@ class Opus_Collection_Information {
             $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('count' === $cr['link_docs_path_to_root'])) ? true : false;
         }
         // If !=0 fetch every ID on path to root
-        if (true === $ldptr) {
-            $sc = self::getSubCollections($roles_id, $collections_id, true, false);
+        if ((true === $ldptr) and (true === $recursive)) {
+            $ocs = new Opus_Collection_Structure($roles_id);
+            $ocs->load();
+            $sc = $ocs->getSubCollections($collections_id, false, true);
+
             // For every such ID: fetch all related docs recursively
             foreach ($sc as $index => $record) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['collections_id'], $counting));
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['collections_id'], $counting, false));
             }
         }
 

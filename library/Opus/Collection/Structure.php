@@ -321,7 +321,7 @@ class Opus_Collection_Structure {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    public function getSubCollectionIDs($collections_id, $alsoHidden = false) {
+    public function getSubCollections($collections_id, $alsoHidden = false, $recursive = false) {
 
         // Argument validation
         if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
@@ -348,15 +348,19 @@ class Opus_Collection_Structure {
 
         if (true === isset($left)) {
             // Walk through the children and load the corresponding collection contents
+            $left++;
             while ($left < ($right-1)) {
-                $left++;
                 if ( (1 === (int) $this->collectionStructure[$left]['visible']) or (true === $alsoHidden) ) {
                     $children[] = $this->collectionStructure[$left];
                 }
-                $left = $this->collectionStructure[$left]['right'];
+                if (true === $recursive) {
+                    do {
+                        $left++;
+                    } while ((false === isset($this->collectionStructure[$left])) and ($left < ($right-1)));
+                } else {
+                    $left = $this->collectionStructure[$left]['right'] + 1;
+                }
             }
-//echo "left-right: $left - $right<br>";
-//exit();
         }
         return $children;
     }
