@@ -382,8 +382,7 @@ class Opus_Collection_Information {
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
-    static public function getSubCollections($roles_id, $collections_id = 1, $alsoHidden = false) {
-
+    static public function getSubCollections($roles_id, $collections_id = 1, $alsoHidden = false, $onlyIDs = false) {
         // Argument validation
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);
@@ -410,25 +409,28 @@ class Opus_Collection_Information {
          */
         foreach ($tree as $node) {
             if ((int) $node['collections_id'] === (int) $collections_id) {
+                if ((int) $node['left'] === (int) $node['right'] - 1) {
+                    return $children;
+                }
                 $left  = $node['left'];
                 $right = $node['right'];
             }
         }
 
-        /*if (false === isset($left)) {
-            throw new InvalidArgumentException("Collection ID $collections_id not found in Structure");
-        }*/
-
         if (true === isset($left)) {
-        // Walk through the children and load the corresponding collection contents
-        while ($left < ($right-1)) {
-            $left++;
-            if ( (1 === (int) $tree[$left]['visible']) or (true === $alsoHidden) ) {
-                $occ->load((int) $tree[$left]['collections_id']);
-                $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
+            // Walk through the children and load the corresponding collection contents
+            while ($left < ($right-1)) {
+                $left++;
+                if ( (1 === (int) $tree[$left]['visible']) or (true === $alsoHidden) ) {
+                    if (true === $onlyIDs) {
+                        $children[] = (int) $tree[$left]['collections_id'];
+                    } else {
+                        $occ->load((int) $tree[$left]['collections_id']);
+                        $children[] = array('content' => $occ->getCollectionContents(), 'structure' => $tree[$left]);
+                    }
+                }
+                $left = $tree[$left]['right'];
             }
-            $left = $tree[$left]['right'];
-        }
         }
         return $children;
     }
@@ -473,10 +475,10 @@ class Opus_Collection_Information {
         }
         // If !=0 fetch every ID on path to root
         if (true === $ldptr) {
-            $sc = self::getSubCollections($roles_id, $collections_id, false);
+            $sc = self::getSubCollections($roles_id, $collections_id, false, true);
             // For every such ID: fetch all related docs recursively
             foreach ($sc as $index => $record) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record['structure']['collections_id'], $counting));
+                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $record, $counting));
             }
         }
 
