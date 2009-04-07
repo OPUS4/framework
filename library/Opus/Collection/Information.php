@@ -390,6 +390,9 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
         }
+
+        $children = array();
+
         $ocs = new Opus_Collection_Structure($roles_id);
         $ocs->load();
         $scstructure = $ocs->getSubCollections($collections_id, $alsoHidden);
