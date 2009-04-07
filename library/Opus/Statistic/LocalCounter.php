@@ -124,6 +124,15 @@ class Opus_Statistic_LocalCounter  {
         return false;
     }
 
+
+public function countFrontdoor($documentId) {
+    count($documentId, -1, 'frontdoor');
+}
+
+public function countFiles($documentId, $fileId) {
+    count($documentId, $fileId, 'files');
+}
+
     /**
      *
      *
