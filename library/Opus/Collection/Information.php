@@ -654,7 +654,7 @@ class Opus_Collection_Information {
                 $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray);
                 $ocs->load();
 
-                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $subColls = self::getSubCollections($roles_id, $collections_id, false, true);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
                     self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);

@@ -58,7 +58,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query("INSERT INTO `collections_roles`
         (`id`,  `name`, `position`, `link_docs_path_to_root`, `visible`)
-        VALUES (7081,  'Just to shift test area', 2, 1, 1)
+        VALUES (7081,  'Just to shift test area', 2, 'display', 1)
         ;");
 
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
