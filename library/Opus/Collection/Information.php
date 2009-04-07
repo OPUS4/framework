@@ -695,8 +695,8 @@ class Opus_Collection_Information {
                 $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id1, $contentArray);
                 $ocs->load();
 
-                $subColls1 = self::getSubCollections($roles_id, $collections_id1, true);
-                $subColls2 = self::getSubCollections($roles_id, $collections_id2, true);
+                $subColls1 = self::getSubCollections($roles_id, $collections_id1, false, true);
+                $subColls2 = self::getSubCollections($roles_id, $collections_id2, false, true);
                 $subColls = array_merge($subColls1, $subColls2);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
@@ -725,7 +725,7 @@ class Opus_Collection_Information {
                 $new_collections_id = self::newCollection($roles_id, (int) $parents_id, $collections_id2, $contentArray);
                 $ocs->load();
 
-                $subColls = self::getSubCollections($roles_id, $collections_id2, true);
+                $subColls = self::getSubCollections($roles_id, $collections_id2, false, true);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
                     self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id, $leftSibling);
@@ -769,7 +769,7 @@ class Opus_Collection_Information {
                 $new_collections_id1 = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray2);
                 $ocs->load();
 
-                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $subColls = self::getSubCollections($roles_id, $collections_id, false, true);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
                     self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id1, $leftSibling);
@@ -791,7 +791,7 @@ class Opus_Collection_Information {
                 $new_collections_id2 = self::newCollection($roles_id, (int) $parents_id, $collections_id, $contentArray1);
                 $ocs->load();
 
-                $subColls = self::getSubCollections($roles_id, $collections_id, true);
+                $subColls = self::getSubCollections($roles_id, $collections_id, false, true);
                 $leftSibling = 0;
                 foreach ($subColls as $subColl) {
                     self::newCollectionPosition($roles_id, (int) $subColl['structure']['collections_id'], (int) $new_collections_id2, $leftSibling);
