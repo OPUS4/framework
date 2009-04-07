@@ -401,7 +401,7 @@ class Opus_Collection_Information {
             $allCollectionRoles = $role->getAllRoles(true);
             // Map into an ID-indexed array
             foreach ($allCollectionRoles as $record) {
-                if (1 === (int) $record['visible']) {
+                if ((true === $alsoHidden) or (1 === (int) $record['visible'])) {
                     $record['id'] = (int) $record['id'];
                     self::$collectionRoles[$record['id']] = $record;
                 }
@@ -575,7 +575,11 @@ class Opus_Collection_Information {
             }
 
         }
-        return self::$collectionRoles[$roles_id];
+        if (false === empty(self::$collectionRoles[$roles_id])) {
+            return self::$collectionRoles[$roles_id];
+        } else {
+            throw new InvalidArgumentException("Roles ID $roles_id not found.");
+        }
     }
 
     /**
@@ -700,6 +704,15 @@ class Opus_Collection_Information {
 
         $link_documents_collections->insert(array('collections_id' => $collections_id,
                                     'documents_id'   => $documents_id));
+
+        self::$linkDocumentsCollections = array();
+        // Fetch all links
+        self::$linkDocumentsCollections = $linkDocColl
+                                        ->fetchAll($linkDocColl->select()
+                                        ->from($linkDocColl))
+                                        ->toArray();
+
+
     }
 
     /**
