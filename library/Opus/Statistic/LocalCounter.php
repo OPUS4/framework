@@ -110,7 +110,6 @@ class Opus_Statistic_LocalCounter  {
 
         foreach ($this->spiderList as $spider) {
             if (stristr($userAgent, $spider) != FALSE || stristr($userAgent, str_replace(' ', '+', $spider)) != FALSE) {
-                print('<br>found spider<br>');
                 return true;
             }
         }
@@ -146,7 +145,7 @@ public function countFiles($documentId, $fileId) {
      */
  public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null) {
         if ($type != 'frontdoor' && $type != 'files') {
-            print('type not defined');
+            //print('type not defined');
             return 0;
         }
         if ($ip == null || $ip == '') {
@@ -160,16 +159,15 @@ public function countFiles($documentId, $fileId) {
         }
 
 
-        print("<br>UserAgent: $userAgent, IP: $ip, RedirectStatus: $redirectStatus<br>");
 
         $time = time();
         //determine whether it was a double click or not
         if ($this->isRedirectStatusOk($redirectStatus) == false){
-            print('wrong redirect status');
+        //    print('wrong redirect status');
             return 0;
         }
         if ($this->checkSpider($userAgent) == true) {
-            print('spider found');
+        //    print('spider found');
             return 0;
         }
 
@@ -178,7 +176,7 @@ public function countFiles($documentId, $fileId) {
             $fileId = -1;
         }
         if ($this->logClick($documentId, $fileId, $time) == true) {
-            print('double click');
+        //    print('double click');
             return 0;
         }
 
