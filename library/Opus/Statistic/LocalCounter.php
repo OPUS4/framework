@@ -205,14 +205,10 @@ class Opus_Statistic_LocalCounter  {
 
             //TODO direct $ods->insert() possible??
 
-            $where = $ods->getAdapter()->where('document_id = ?', $documentId)
-                ->where('year = ?', $year)
-                ->where('month = ?', $month)
-                ->where('type = ?', $type);
-            /*$where = $ods->getAdapter()->quoteInto('document_id = ?', $documentId) .
+            $where = $ods->getAdapter()->quoteInto('document_id = ?', $documentId) .
             $ods->getAdapter()->quoteInto(' AND year = ?', $year) .
             $ods->getAdapter()->quoteInto(' AND month = ?', $month) .
-            $ods->getAdapter()->quoteInto(' AND type = ?', $type);*/
+            $ods->getAdapter()->quoteInto(' AND type = ?', $type);
 
 
             if ($createEntry == true) {
