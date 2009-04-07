@@ -41,6 +41,27 @@
 class Opus_Collection_Information {
 
     /**
+     * container for link table for avoiding unnecessary DB queries
+     *
+     * @var array
+     */
+    private static $linkDocumentsCollections = array();
+
+    /**
+     * container for roles table for avoiding unnecessary DB queries
+     *
+     * @var array
+     */
+    private static $collectionRoles = array();
+
+    /**
+     * container for roles table for avoiding unnecessary DB queries
+     *
+     * @var array
+     */
+    private static $collectionReplacements = array();
+
+    /**
      * Create a complete new collection structure (role).
      *
      * @param array(string => array(string => string)) $roleArray      Array with collection_role database records.
@@ -94,6 +115,18 @@ class Opus_Collection_Information {
 
             // Create collection tables for the newly created role
             $role->createDatabaseTables($content_fields);
+
+            self::$collectionRoles = array();
+
+            // Fetch all or fetch only visible
+            $allCollectionRoles = $role->getAllRoles(true);
+            // Map into an ID-indexed array
+            foreach ($allCollectionRoles as $record) {
+                $record['id'] = (int) $record['id'];
+                self::$collectionRoles[$record['id']] = $record;
+            }
+
+
 
             // Write pseudo content for the hidden root node to fullfill foreign key constraint
             $occ = new Opus_Collection_Contents($role->getRolesID());
@@ -358,19 +391,25 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('AlsoHidden flag must be boolean.');
         }
 
-        $role = new Opus_Collection_Roles();
-        $allCollectionRolesOutput = array();
 
-        // Fetch all or fetch only visible
-        $allCollectionRoles = $role->getAllRoles($alsoHidden);
+        if (true === empty(self::$collectionRoles)) {
 
-        // Map into an ID-indexed array
-        foreach ($allCollectionRoles as $record) {
-            $record['id'] = (int) $record['id'];
-            $allCollectionRolesOutput[$record['id']] = $record;
+            $role = new Opus_Collection_Roles();
+            self::$collectionRoles = array();
+
+            // Fetch all or fetch only visible
+            $allCollectionRoles = $role->getAllRoles(true);
+            // Map into an ID-indexed array
+            foreach ($allCollectionRoles as $record) {
+                if (1 === (int) $record['visible']) {
+                    $record['id'] = (int) $record['id'];
+                    self::$collectionRoles[$record['id']] = $record;
+                }
+            }
+
         }
 
-        return $allCollectionRolesOutput;
+        return self::$collectionRoles;
     }
 
     /**
@@ -441,9 +480,11 @@ class Opus_Collection_Information {
 
         if (true === $recursive) {
             // Look for 'link_docs_path_to_root' attribute
+            /*
             $ocr  = new Opus_Collection_Roles();
             $ocr->load($roles_id);
-            $cr = $ocr->getCollectionRoles();
+            $cr = $ocr->getCollectionRoles();*/
+            $cr = self::getCollectionRole($roles_id);
             if (false === $counting) {
                 $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('display' === $cr['link_docs_path_to_root'])) ? true : false;
             } else {
@@ -462,25 +503,38 @@ class Opus_Collection_Information {
             }
         }
 
-        $ocr  = new Opus_Collection_Replacement($roles_id);
-        $ancestors = $ocr->getAncestor($collections_id);
-        foreach ($ancestors as $ancestor) {
-            if (false === empty($ancestor)) {
-                $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $ancestor, $counting));
+        if (true === empty(self::$collectionReplacements)) {
+            $ocr  = new Opus_Collection_Replacement($roles_id);
+            self::$collectionReplacements = $ocr->getAllReplacements();
+        }
+
+        if (true === in_array($collections_id, self::$collectionReplacements)) {
+            $ancestors = $ocr->getAncestor($collections_id);
+            foreach ($ancestors as $ancestor) {
+                if (false === empty($ancestor)) {
+                    $allCollectionDocumentsOut = array_merge($allCollectionDocumentsOut, self::getAllCollectionDocuments($roles_id, (int) $ancestor, $counting));
+                }
             }
         }
 
-        // Fetch all document IDs linked with the collection ID
-        $allCollectionDocuments = $linkDocColl
-                                        ->fetchAll($linkDocColl->select()
-                                        ->from($linkDocColl, array('documents_id'))
-                                        ->where('collections_id = ?', $collections_id))
-                                        ->toArray();
-        // Reformat array
-        foreach ($allCollectionDocuments as $doc_id) {
-            $allCollectionDocumentsOut[] =  $doc_id['documents_id'];
+
+
+        if (true === empty(self::$linkDocumentsCollections)) {
+            // Fetch all links
+            self::$linkDocumentsCollections = $linkDocColl
+                                            ->fetchAll($linkDocColl->select()
+                                            ->from($linkDocColl))
+                                            ->toArray();
+        }
+        // Fetch doc ids linked with the collection ID and reformat array
+        foreach (self::$linkDocumentsCollections as $collDocs) {
+            if ($collections_id === (int) $collDocs['collections_id']) {
+                $allCollectionDocumentsOut[] = $collDocs['documents_id'];
+            }
         }
         return array_unique($allCollectionDocumentsOut);
+
+
     }
 
 
@@ -506,9 +560,22 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getCollectionRole($roles_id) {
-        $ocr  = new Opus_Collection_Roles();
-        $ocr->load($roles_id);
-        return $ocr->getCollectionRoles();
+        $roles_id = (int) $roles_id;
+        if (true === empty(self::$collectionRoles[$roles_id])) {
+
+            $role = new Opus_Collection_Roles();
+            self::$collectionRoles = array();
+
+            // Fetch all or fetch only visible
+            $allCollectionRoles = $role->getAllRoles(true);
+            // Map into an ID-indexed array
+            foreach ($allCollectionRoles as $record) {
+                $record['id'] = (int) $record['id'];
+                self::$collectionRoles[$record['id']] = $record;
+            }
+
+        }
+        return self::$collectionRoles[$roles_id];
     }
 
     /**
@@ -782,7 +849,6 @@ class Opus_Collection_Information {
             }
         }
 
-
         $new_collections_id2 = 0;
         // Beneath every parent a new collection (the replacement) is placed right of the replaced collection
         foreach ($parents_ids as $parents_id) {
@@ -806,8 +872,6 @@ class Opus_Collection_Information {
             $ocs->hide($collections_id);
             $ocs->save();
         }
-
-
 
         // Entry in the replacement table
         $ocr = new Opus_Collection_Replacement($roles_id);

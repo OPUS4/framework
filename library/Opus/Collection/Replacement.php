@@ -8,9 +8,9 @@
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
- * the Saarland University and State Library, the Saxon State Library - 
- * Dresden State and University Library, the Bielefeld University Library and 
- * the University Library of Hamburg University of Technology with funding from 
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -20,8 +20,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category	Framework
@@ -42,29 +42,29 @@ class Opus_Collection_Replacement {
 
     /**
      * Container for institutes_replacement table gateway
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $collections_replacement;
-    
+
     /**
      * Container for identifying attribute
-     * 
-     * @var string 
+     *
+     * @var string
      */
     private $collectionsIdentifier;
-    
+
     /**
      * Container for validation object
-     * 
-     * @var object 
+     *
+     * @var object
      */
     private $validation;
-    
+
     /**
-     * Constructor. 
+     * Constructor.
      *
-     * @param string|integer $ID Number identifying the collection tree (role) 
+     * @param string|integer $ID Number identifying the collection tree (role)
      *                           or 'institute' for the institutes tree.
      */
     public function __construct($ID) {
@@ -81,9 +81,9 @@ class Opus_Collection_Replacement {
             $this->collections_replacement = new Opus_Db_CollectionsReplacement($ID);
         }
     }
-    
+
     /**
-     * Creates a database entry for a deleted collection. 
+     * Creates a database entry for a deleted collection.
      *
      * @param integer $collections_id Number identifying the deleted collection.
      * @throws Exception Is thrown on invalid arguments.
@@ -105,16 +105,16 @@ class Opus_Collection_Replacement {
     }
 
     /**
-     * Getter for $collectionsIdentifier. 
+     * Getter for $collectionsIdentifier.
      *
      * @return string
      */
     public function getCollectionsIdentifier() {
         return (string) $this->collectionsIdentifier;
     }
-    
+
     /**
-     * Creates a database entry for a replaced collection. 
+     * Creates a database entry for a replaced collection.
      *
      * @param integer $collections_id_old Number identifying the replaced collection.
      * @param integer $collections_id_new Number identifying the replacing collection.
@@ -142,9 +142,9 @@ class Opus_Collection_Replacement {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
     /**
-     * Creates a database entry for a collection divided into two new collections. 
+     * Creates a database entry for a collection divided into two new collections.
      *
      * @param integer $collections_id_old  Number identifying the divided collection.
      * @param integer $collections_id_new1 Number identifying the first replacing collection.
@@ -164,9 +164,9 @@ class Opus_Collection_Replacement {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
     /**
-     * Creates a database entry for two collections merged together into a new collection. 
+     * Creates a database entry for two collections merged together into a new collection.
      *
      * @param integer $collections_id_old1 Number identifying the first of the merged collections.
      * @param integer $collections_id_old2 Number identifying the second of the merged collections.
@@ -186,9 +186,9 @@ class Opus_Collection_Replacement {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-    
+
     /**
-     * Fetch the replacement records for a collection. 
+     * Fetch the replacement records for a collection.
      *
      * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
@@ -205,13 +205,27 @@ class Opus_Collection_Replacement {
                     ->toArray();
         return $set;
     }
-    
+
     /**
-     * Fetch the actual (last) replacement for a collection. 
+     * Fetch all replacing and replaced collections.
+     *
+     * @return array Replacement records
+     */
+    public function getAllReplacements() {
+        $set = $this->collections_replacement
+                    ->fetchAll($this->collections_replacement->select()
+                    ->from($this->collections_replacement, array('collections_id')))
+                    ->toArray();
+
+        return $set;
+    }
+
+    /**
+     * Fetch the actual (last) replacement for a collection.
      *
      * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
-     * @return integer ID of current replacing collection 
+     * @return integer ID of current replacing collection
      */
     public function getCurrent($collections_id) {
         $current = array();
@@ -222,9 +236,9 @@ class Opus_Collection_Replacement {
         return array_unique($current);
 
     }
-    
+
     /**
-     * Fetch the direct ancestor of a collection. 
+     * Fetch the direct ancestor of a collection.
      *
      * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
@@ -238,9 +252,9 @@ class Opus_Collection_Replacement {
         }
         return array_unique($ancestor);
     }
-    
+
     /**
-     * Fetch the direct replacement for a collection. 
+     * Fetch the direct replacement for a collection.
      *
      * @param   integer $collections_id Number identifying the collection.
      * @throws  InvalidArgumentException Is thrown on invalid arguments.
