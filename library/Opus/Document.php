@@ -260,6 +260,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     protected $_hiddenFields = array(
             'File',
             'Type',
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateUnlocking',
+            'ServerDateValid',
+            'ServerState',
         );
 
     /**
