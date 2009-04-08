@@ -59,7 +59,7 @@ class Opus_Collection_Information {
      *
      * @var array
      */
-    private static $collectionReplacements = array();
+    private static $collectionReplacements = false;
 
     /**
      * Create a complete new collection structure (role).
@@ -503,7 +503,7 @@ class Opus_Collection_Information {
             }
         }
 
-        if (true === empty(self::$collectionReplacements)) {
+        if (false === self::$collectionReplacements) {
             $ocr  = new Opus_Collection_Replacement($roles_id);
             self::$collectionReplacements = $ocr->getAllReplacements();
         }
