@@ -707,9 +707,9 @@ class Opus_Collection_Information {
 
         self::$linkDocumentsCollections = array();
         // Fetch all links
-        self::$linkDocumentsCollections = $linkDocColl
-                                        ->fetchAll($linkDocColl->select()
-                                        ->from($linkDocColl))
+        self::$linkDocumentsCollections = $link_documents_collections
+                                        ->fetchAll($link_documents_collections->select()
+                                        ->from($link_documents_collections))
                                         ->toArray();
 
 
