@@ -506,8 +506,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
                                               'length' => 255
                                          ))
             ),
-// TODO: What's wrong?
-/*            array(array('name' => 'Testbaum 2')
+            array(array('name' => 'Testbaum 2')
             , true, 0, array(array(
                                               'name' => 'name',
                                               'type' => 'VARCHAR',
@@ -521,7 +520,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
                                               'type' => 'INT',
                                               'length' => 11
                                          ))
-            ),*/
+            ),
         );
     }
 
@@ -541,7 +540,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
         Opus_Collection_Information::newCollectionTree($roleArray, $content_fields, $position, $hidden);
         $post = Opus_Collection_Information::getAllCollectionRoles($hidden);
-        $this->assertGreaterThan(count($pre), count($post), "newCollectionTree didn't insert Role");
+        $this->assertEquals(3, count($post), "newCollectionTree didn't insert Role");
     }
 
     /**
@@ -1105,8 +1104,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             array(3, 222),
             array(4, 333),
             array(5, 444),
-// TODO: What's wrong?
-//            array(6, 555),
             array(7, 666),
             array(8, 777),
             array(9, 888),
@@ -1123,9 +1120,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validAssignDocumentToCollectionDataProvider
      */
     public function testAssignDocumentToCollection($collections_id, $documents_id) {
-        $pre = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id);
+        $pre = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id, false, true);
         Opus_Collection_Information::assignDocumentToCollection($documents_id, 7081, $collections_id);
-        $post = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id);
+        $post = Opus_Collection_Information::getAllCollectionDocuments(7081, $collections_id, false, true);
         $this->assertGreaterThan(count($pre), count($post), "assignDocumentToCollection didn't insert assignment.");
     }
 
