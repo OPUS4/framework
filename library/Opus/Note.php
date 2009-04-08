@@ -64,12 +64,13 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
      */
     protected function _init() {
         $message = new Opus_Model_Field('Message');
+        $message->setTextarea(true);
         $creator = new Opus_Model_Field('Creator');
         $scope = new Opus_Model_Field('Scope');
 
-        $this->addField($message)
-            ->addField($creator)
-            ->addField($scope);
+        $this->addField($creator)
+            ->addField($scope)
+            ->addField($message);
     }
 
 }
