@@ -134,7 +134,7 @@ CREATE  TABLE IF NOT EXISTS `file_hashvalues` (
   CONSTRAINT `fk_file_hashvalues_document_files`
     FOREIGN KEY (`file_id` )
     REFERENCES `document_files` (`id` )
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table for hash values.';
