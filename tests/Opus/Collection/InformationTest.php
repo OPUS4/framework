@@ -537,10 +537,11 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @dataProvider validnewCollectionTreeDataProvider
      */
     public function testnewCollectionTree($roleArray, $hidden, $position, $content_fields) {
-        $pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
-        Opus_Collection_Information::newCollectionTree($roleArray, $content_fields, $position, $hidden);
+        //$pre = Opus_Collection_Information::getAllCollectionRoles($hidden);
+        $roleID = Opus_Collection_Information::newCollectionTree($roleArray, $content_fields, $position, $hidden);
         $post = Opus_Collection_Information::getAllCollectionRoles($hidden);
-        $this->assertEquals(3, count($post), "newCollectionTree didn't insert Role");
+        $this->assertTrue(isset($post[$roleID]));
+        //$this->assertEquals(3, count($post), "newCollectionTree didn't insert Role");
     }
 
     /**
