@@ -265,6 +265,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
             'ServerDateUnlocking',
             'ServerDateValid',
             'ServerState',
+            'IdentifierOpus3',
         );
 
     /**
