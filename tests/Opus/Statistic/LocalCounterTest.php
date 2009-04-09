@@ -45,11 +45,11 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Documenttype for countable documents.
-     * 
+     *
      * @var Opus_Document_Type
      */
     protected $_documentType = null;
-    
+
     /**
      * Document to count on :)
      *
@@ -67,9 +67,9 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_statistics');
         TestHelper::clearTable('documents');
 
-        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';        
+        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
-        
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="counter_test_type"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -80,8 +80,14 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
 
         $this->_document = new Opus_Document(null, $this->_documentType);
         $this->_document->store();
+
+        //setting server globals
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        $_SERVER['HTTP_USER_AGENT'] = 'bla';
+        $_SERVER['REDIRECT_STATUS'] = 200;
+
     }
-    
+
     /**
      * Clean up tables, remove temporary files.
      *
@@ -91,7 +97,7 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_statistics');
         TestHelper::clearTable('documents');
 
-        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';        
+        $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
     }
 
@@ -112,20 +118,46 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCountSingleClick() {
-        $this->markTestIncomplete('Test and CUT still under development.');
-        
+        //$this->markTestIncomplete('Test and CUT still under development.');
+
         $docId = $this->_document->getId();
-        
+
         // issue counting request
         $lc = Opus_Statistic_LocalCounter::getInstance();
-        $lc->count($docId, null);
-        
+        $lc->count($docId, 1, 'files');
+
         // check database table for counting value
         $ods = new Opus_Db_DocumentStatistics();
         $rows = $ods->fetchAll()->toArray();
-        
+
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
-        //...
+
+        foreach ($rows as $row) {
+            //$this->assertFalse(true,print_r($row, true));
+            $this->assertEquals(1, $row['count'], 'Expect exactly one view to this document');
+            $this->assertEquals('files', $row['type'], 'Expect type = \'files\'');
+        }
+    }
+
+    public function testCountSingleFrontdoorClick() {
+        //$this->markTestIncomplete('Test and CUT still under development.');
+
+        $docId = $this->_document->getId();
+
+        // issue counting request
+        $lc = Opus_Statistic_LocalCounter::getInstance();
+        $lc->count($docId, null, 'frontdoor');
+
+        // check database table for counting value
+        $ods = new Opus_Db_DocumentStatistics();
+        $rows = $ods->fetchAll()->toArray();
+
+        $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
+
+        foreach ($rows as $row) {
+            $this->assertEquals(1, $row['count'], 'Expect exactly one view to this document');
+            $this->assertEquals('frontdoor', $row['type'], 'Expect type = \'frontdoor\'');
+        }
     }
 
 }
