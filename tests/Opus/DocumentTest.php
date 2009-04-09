@@ -84,7 +84,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
             <field name="ServerDateUnlocking"/>
             <field name="ServerDateValid"/>
             <field name="Source"/>
-            <field name="SwbId"/>
+            <field name="IdentifierOpac"/>
             <field name="Volume"/>
 
         </documenttype>';
@@ -183,7 +183,6 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
                     'ServerDateUnlocking' => '2008-12-01',
                     'ServerDateValid' => '2008-12-01',
                     'Source' => 'BlaBla',
-                    'SwbId' => '1'
                 )
             )
         );

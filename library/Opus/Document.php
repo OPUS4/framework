@@ -131,6 +131,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'opus3-id')
             ),
+            'IdentifierOpac' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'opac-id')
+            ),
             'ReferenceIsbn' => array(
                 'model' => 'Opus_Reference',
                 'options' => array('type' => 'isbn'),

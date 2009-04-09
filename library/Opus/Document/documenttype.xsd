@@ -167,7 +167,6 @@
 	       <enumeration value="SubjectPsyndex"/>
 	       <enumeration value="SubjectSwd"/>
 	       <enumeration value="SubjectUncontrolled"/>
-	       <enumeration value="SwbId"/>
 	       <enumeration value="TitleAbstract"/>
 	       <enumeration value="TitleMain"/>
 	       <enumeration value="TitleParent"/>
@@ -182,6 +181,7 @@
 	       <enumeration value="IdentifierCrisLink"/>
 	       <enumeration value="IdentifierSplashUrl"/>
 	       <enumeration value="IdentifierOpus3"/>
+	       <enumeration value="IdentifierOpac"/>
 	       <enumeration value="ReferenceIsbn"/>
 	       <enumeration value="ReferenceUrn"/>
 	       <enumeration value="ReferenceDoi"/>

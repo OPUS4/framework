@@ -58,7 +58,6 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `server_date_valid` DATE NULL COMMENT 'Expiration date of the validity of the document.' ,
   `server_state` ENUM('published', 'unpublished','deleted') NOT NULL COMMENT 'Status of publication process in the repository.' ,
   `source` VARCHAR(255) NULL COMMENT 'Bibliographic date from OPUS 3.x (formerly in OPUS 3.x \"source_text\").' ,
-  `swb_id` VARCHAR(255) NULL COMMENT 'Identification number of the online union catalogue of the Cataloguing Union\nin South-Western Germany (SWB).' ,
   `volume` VARCHAR(25) NULL COMMENT 'Volume.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
@@ -71,7 +70,7 @@ COMMENT = 'Document related data (monolingual, unreproducible colums).';
 CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id') NOT NULL COMMENT 'Type of the identifier.' ,
+  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id') NOT NULL COMMENT 'Type of the identifier.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the identifier.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_identifiers_documents` (`document_id` ASC) ,
