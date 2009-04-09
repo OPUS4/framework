@@ -657,6 +657,24 @@ CREATE  TABLE IF NOT EXISTS `translations` (
 ENGINE = InnoDB;
 
 
+--
+-- Table `languages`
+-- Based on http://sil.org/iso639-3/download.asp
+--
+CREATE  TABLE IF NOT EXISTS `languages` (
+  `id` char(3) NOT NULL COMMENT 'The three-letter 639-3 identifier',
+  `part2_b` char(3) default NULL COMMENT 'Equivalent 639-2 identifier of the bibliographic applications code set, if there is one',
+  `part2_t` char(3) default NULL COMMENT 'Equivalent 639-2 identifier of the terminology applications code set, if there is one',
+  `part1` char(2) default NULL COMMENT 'Equivalent 639-1 identifier, if there is one',
+  `scope` ENUM('I', 'M', 'S') NOT NULL COMMENT 'I(ndividual), M(acrolanguage), S(pecial)',
+  `type` ENUM('A', 'C', 'E', 'H', 'L', 'S') NOT NULL COMMENT 'A(ncient), C(onstructed), E(xtinct), H(istorical), L(iving), S(pecial)',
+  `ref_name` varchar(150) NOT NULL COMMENT 'Reference language name',
+  `comment` varchar(150) default NULL COMMENT 'Comment relating to one or more of the columns',
+  `active` TINYINT UNSIGNED NOT NULL default 0 COMMENT 'Is the institute visible? (1=yes, 0=no).' ,
+  PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
