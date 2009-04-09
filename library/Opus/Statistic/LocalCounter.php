@@ -386,7 +386,7 @@ public function countFiles($documentId, $fileId) {
         $ods = new Opus_Db_DocumentStatistics();
 
         $select = $ods->select()
-            ->from('document_statistics', array('count' => 'SUM(stat.count)'))
+            ->from('document_statistics', array('count' => 'SUM(count)'))
             ->where('type = ?', $datatype)
             ->where('document_id = ?', $documentId);
 
