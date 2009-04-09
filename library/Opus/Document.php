@@ -398,8 +398,8 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      *
      * @return array Array of Opus_Document objects.
      */
-    public static function getAll() {
-        return self::getAllFrom('Opus_Document', 'Opus_Db_Documents');
+    public static function getAll(array $ids = null) {
+        return self::getAllFrom('Opus_Document', 'Opus_Db_Documents', $ids);
     }
 
 

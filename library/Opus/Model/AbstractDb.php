@@ -437,8 +437,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 
         // Fetch all entries in one query and pass result table rows
         // directly to models.
-        if (is_null($ids) === true or empty($ids) === true) {
+        if (is_null($ids) === true) {
             $rows = $table->fetchAll();
+        } else if (empty($ids) === true) {
+            $rows = array();
         } else {
             $rows = $table->find($ids);
         }
