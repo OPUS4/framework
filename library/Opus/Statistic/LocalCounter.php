@@ -378,4 +378,27 @@ public function countFiles($documentId, $fileId) {
         }
         return $result;
     }
+
+    public function readTotal($documentId, $datatyle = 'files') {
+        if ($datatype != 'files' && $datatype != 'frontdoor') {
+            $datatype = 'files';
+        }
+        $ods = new Opus_Db_DocumentStatistics();
+
+        $select = $ods->select()
+            ->from('document_statistics', array('count' => 'SUM(stat.count)'))
+            ->where('type = ?', $datatype)
+            ->where('document_id = ?', $documentId);
+
+        $queryResult = $ods->fetchAll($select);
+        unset($result);
+        foreach ($queryResult as $row) {
+            $result = $row->count;
+        }
+
+        if (isset($result) === false) {
+            $result = 0;
+        }
+        return $result;
+    }
 }
