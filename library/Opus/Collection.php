@@ -137,11 +137,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function getEntries() {
         $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role_id, (int) $this->getId());
-        $documents = array();
-        foreach ($docIds as $docId) {
-            $documents[] = new Opus_Document($docId);
-        }
-        return $documents;
+        return Opus_Document::getAll($docIds);
     }
 
     /**
@@ -247,7 +243,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
     /**
      * Overwrites store procedure.
-     * TODO: Implement storing collection structures.
      *
      * @return void
      */
