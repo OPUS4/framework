@@ -160,10 +160,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return Opus_Collection|array Subcollection(s).
      */
     protected function _fetchSubCollection() {
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId(), true);
         $collectionIds = array();
         foreach ($collections as $collection) {
-            $collectionIds[] = $collection['structure']['collections_id'];
+            $collectionIds[] = $collection['collections_id'];
         }
         $result = array();
         if (empty($collectionIds) === false) {
@@ -192,10 +192,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _storeSubCollection() {
         $updatedSubCollections = array();
         // Store subcollections as they were before the update.
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId());
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId(), true);
         $previousCollections = array();
         foreach ($collections as $collection) {
-            $previousCollections[] = $collection['structure']['collections_id'];
+            $previousCollections[] = $collection['collections_id'];
         }
         foreach ($this->getSubCollection() as $index => $subCollection) {
             $subCollection->store();
