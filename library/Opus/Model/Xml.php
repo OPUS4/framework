@@ -73,6 +73,9 @@ class Opus_Model_Xml {
         return $this;
     }
     
+    
+    
+    
     /**
      * Define that empty fields (value===null) shall be excluded.
      *
@@ -144,7 +147,7 @@ class Opus_Model_Xml {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
-        $fields = $this->_model->describe();
+        $fields = $model->describe();
         foreach (array_diff($fields, $excludeFields) as $fieldname) {
         
             $callname = 'get' . $fieldname;
