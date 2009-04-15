@@ -213,7 +213,6 @@ class Opus_Collection_Information {
 
             // Save updated structure to DB
             $ocs->save();
-            $ocs->__destruct();
 
             $db->commit();
         } catch (Exception $e) {
