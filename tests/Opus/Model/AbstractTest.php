@@ -43,22 +43,6 @@
  */
 class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
-
-    /**
-     * Data provider for models and corresponding xml representations.
-     *
-     * @return array
-     */
-    public function xmlModelDataProvider() {
-        $model1 = new Opus_Model_ModelAbstract();
-        $model1->setValue('Foo');
-    
-        return array(
-            array('<Opus_Model_ModelAbstract Value="Foo" />', $model1),
-            array($model1->toXml(), $model1)
-        );
-    }
-
     /**
      * Test if describe() returns the fieldnames of all previosly added fields.
      *
@@ -269,19 +253,5 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
     }
-    
-    /**
-     * Create a model using its XML representation.
-     *
-     * @param DomDocument|string $xml    XML representation of a model.
-     * @param Opus_Model_Abstract $model A model corresponding to the given XML representation.
-     * @return void
-     *
-     * @dataProvider xmlModelDataProvider
-     */
-    public function testCreateFromXml($xml, $model) {
-        $fromXml = Opus_Model_Abstract::fromXml($xml);
-        $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');  
-    }      
 
 }

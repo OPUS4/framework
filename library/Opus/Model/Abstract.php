@@ -385,62 +385,18 @@ abstract class Opus_Model_Abstract
     /**
      * Returns a Dom representation of the model.
      *
+     * @param array $excludeFields Array of fields that shall not be serialized.
      * @return DomDocument A Dom representation of the model.
      */
     public function toXml(array $excludeFields = null) {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
-        $result = new DomDocument;
-        $result->appendChild($result->createElement(get_class($this)));
-        $result = $this->_recurseXml($result, $excludeFields);
-        return $result;
-    }
-
-    /**
-     * Recurses over the model's field to generate a DomDocument.
-     *
-     * @return DomDocument A Dom representation of the model.
-     */
-    protected function _recurseXml(DomDocument $domXml, array $excludeFields = null) {
-        if (is_null($excludeFields) === true) {
-            $excludeFields = array();
-        }
-        foreach (array_diff(array_keys($this->_fields), $excludeFields) as $fieldname) {
-
-            $callname = 'get' . $fieldname;
-            $fieldvalue = $this->$callname();
-
-            if (empty($fieldvalue) === true) continue;
-
-            // Create array from non-multiple fieldvalue.
-            if ($this->getField($fieldname)->hasMultipleValues() === false) {
-                $fieldvalue = array($fieldvalue);
-            }
-
-            foreach($fieldvalue as $value) {
-                if (array_key_exists($fieldname, $this->_externalFields) === true) {
-                    $child = new DomDocument;
-                    $element = $child->createElement($fieldname);
-                    $child->appendChild($element);
-                    if ($value instanceof Opus_Model_Abstract) {
-                        $result = $value->_recurseXml($child, $excludeFields);
-                    } else if (is_null($this->getField($fieldname)->getValueModelClass()) === false) {
-                        $classname = $this->getField($fieldname)->getValueModelClass();
-                        $result = new $classname;
-                        $result = $result->_recurseXml($child, $excludeFields);
-                    } else {
-                        $result = $child;
-                    }
-                    $domXml->documentElement->appendChild($domXml->importNode($result->documentElement, true));
-                } else {
-                    $domXml->documentElement->setAttribute($fieldname, $value);
-                }
-            }
-
-        }
-
-        return $domXml;
+        $xml = new Opus_Model_Xml();
+        $xml->setModel($this)
+            ->exclude($excludeFields)
+            ->excludeEmptyFields();
+        return $xml->getDomDocument();
     }
 
     /**
@@ -451,51 +407,17 @@ abstract class Opus_Model_Abstract
      */
     public static function fromXml($xml) {
         if ($xml instanceof DomDocument) {
-            $domXml = $xml;
+            $xmlHelper = new Opus_Model_Xml();
+            $xmlHelper->setDomDocument($xml);
         } else if (is_string($xml)) {
-            $domXml = new DomDocument('1.0', 'UTF-8');
-            $domXml->loadXml($xml);
+            $xmlHelper = new Opus_Model_Xml();
+            $xmlHelper->setXml($xml);
         } else {
             throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
         }
-        $modelclass = $domXml->documentElement->nodeName;
-        $model = new $modelclass;
-        return Opus_Model_Abstract::_populateModelFromXml($model, $domXml->documentElement);
+        return $xmlHelper->getModel();
     }
 
-    /**
-     * Recursively populates model's fields from an Xml DomElement.
-     *
-     * @param  Opus_Model_Abstract  $model   The model to be populated.
-     * @param  DomElement           $element The DomElement holding the field names and values.
-     * @return Opus_Model_Abstract  $model   The populated model.
-     */
-    protected static function _populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
-        // Internal fields exist as attributes
-        foreach ($element->attributes as $field) {
-            // FIXME: Implement adding values to multi-value internal fields.
-            $callname = 'set' . $field->name;
-            if ($field->value === '') {
-                $model->$callname(null);
-            } else {
-                $model->$callname($field->value);
-            }
-        }
-
-        // External fields exist as child elements
-        foreach ($element->childNodes as $externalField) {
-            $field = $model->getField($externalField->nodeName);
-            if (is_null($field) === true) {
-                throw new Opus_Model_Exception('Field ' . $externalField->nodeName . ' not defined');
-            } else {
-                $modelclass = $field->getValueModelClass();
-            }
-            $submodel = Opus_Model_Abstract::_populateModelFromXml(new $modelclass, $externalField);
-            $callname = 'add' . $externalField->nodeName;
-            $model->$callname($submodel);
-        }
-        return $model;
-    }
 
     /**
      * Loop through all fields and check if they are valid.
