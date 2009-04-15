@@ -55,6 +55,13 @@ class Opus_Collection_Information {
     private static $collectionRoles = array();
 
     /**
+     * container for structure table for avoiding unnecessary DB queries
+     *
+     * @var array
+     */
+    private static $collectionStructure = false;
+
+    /**
      * container for roles table for avoiding unnecessary DB queries
      *
      * @var array
@@ -85,6 +92,8 @@ class Opus_Collection_Information {
 
         // Create an empty role
         $role = new Opus_Collection_Roles();
+
+        self::$collectionStructure = false;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -133,9 +142,10 @@ class Opus_Collection_Information {
             $occ->root();
 
             // Write hidden root node to nested sets structure
-            $ocs = new Opus_Collection_Structure($role->getRolesID());
-            $ocs->create();
-            $ocs->save();
+            self::$collectionStructure =  new Opus_Collection_Structure($role->getRolesID());
+            self::$collectionStructure->create();
+            self::$collectionStructure->save();
+
             $db->commit();
         } catch (Exception $e) {
             $db->rollBack();
@@ -173,6 +183,8 @@ class Opus_Collection_Information {
             $parent_id = 1;
         }
 
+        self::$collectionStructure = false;
+
         // Create a new collection content container
         $occ = new Opus_Collection_Contents($role_id);
 
@@ -191,6 +203,7 @@ class Opus_Collection_Information {
             // Fetch ID of the newely created collection
             $collections_id = $occ->getCollectionsID();
 
+            if (empty(self::$collectionStructure))
             // Load nested sets structure from DB
             $ocs = new Opus_Collection_Structure($role_id);
             $ocs->load();
@@ -200,6 +213,7 @@ class Opus_Collection_Information {
 
             // Save updated structure to DB
             $ocs->save();
+            $ocs->__destruct();
 
             $db->commit();
         } catch (Exception $e) {
@@ -238,6 +252,7 @@ class Opus_Collection_Information {
         if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
             throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
         }
+        self::$collectionStructure = false;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -272,6 +287,8 @@ class Opus_Collection_Information {
      */
     static public function deleteCollectionPosition($role_id, $collection_id, $parent_id) {
         // TODO: Validation
+        self::$collectionStructure = false;
+
         $ocs = new Opus_Collection_Structure($role_id);
         $ocs->load();
         $leftValues = $ocs->IDToleft($collection_id, $parent_id);
@@ -304,6 +321,7 @@ class Opus_Collection_Information {
         if ( (false === is_int($left)) or (0 >= $left) ) {
             throw new InvalidArgumentException('LEFT value must be a positive integer.');
         }
+        self::$collectionStructure = false;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -354,6 +372,7 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
+        self::$collectionStructure = false;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -431,10 +450,11 @@ class Opus_Collection_Information {
         }
 
         $children = array();
-
-        $ocs = new Opus_Collection_Structure($roles_id);
-        $ocs->load();
-        $scstructure = $ocs->getSubCollections($collections_id, $alsoHidden);
+        if (false === self::$collectionStructure) {
+            self::$collectionStructure = new Opus_Collection_Structure($roles_id);
+            self::$collectionStructure->load();
+        }
+        $scstructure = self::$collectionStructure->getSubCollections($collections_id, $alsoHidden);
 
         if (true === $onlyStructure) {
             return $scstructure;
@@ -492,9 +512,11 @@ class Opus_Collection_Information {
             }
             // If !=0 fetch every ID on path to root
             if (true === $ldptr) {
-                $ocs = new Opus_Collection_Structure($roles_id);
-                $ocs->load();
-                $sc = $ocs->getSubCollections($collections_id, false, true);
+                if (false === self::$collectionStructure) {
+                    self::$collectionStructure = new Opus_Collection_Structure($roles_id);
+                    self::$collectionStructure->load();
+                }
+                $sc = self::$collectionStructure->getSubCollections($collections_id, false, true);
 
                 // For every such ID: fetch all related docs recursively
                 foreach ($sc as $index => $record) {
@@ -591,10 +613,12 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getAllParents($roles_id, $collections_id) {
-        // Load collection tree
-        $ocs = new Opus_Collection_Structure($roles_id);
-        $ocs->load();
-        $parents = $ocs->getAllParents($collections_id);
+        if (false === self::$collectionStructure) {
+            self::$collectionStructure = new Opus_Collection_Structure($roles_id);
+            self::$collectionStructure->load();
+        }
+
+        $parents = self::$collectionStructure->getAllParents($collections_id);
         return $parents;
     }
 
@@ -617,10 +641,12 @@ class Opus_Collection_Information {
         // Container for the array of pathes
         $paths = array();
         // Load collection tree
-        $ocs = new Opus_Collection_Structure($roles_id);
-        $ocs->load();
+        if (false === self::$collectionStructure) {
+            self::$collectionStructure = new Opus_Collection_Structure($roles_id);
+            self::$collectionStructure->load();
+        }
 
-        $tree = $ocs->getCollectionStructure();
+        $tree = self::$collectionStructure->getCollectionStructure();
         // Create collection content object
         $occ = new Opus_Collection_Contents($roles_id);
 
@@ -721,6 +747,9 @@ class Opus_Collection_Information {
     static public function replace($roles_id, $collections_id, array $contentArray) {
         // TODO: Verification, Comments, $ocs->load();
         $new_collections_id = 0;
+
+        self::$collectionStructure = false;
+
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);
         $ocs->load();
@@ -762,6 +791,8 @@ class Opus_Collection_Information {
     static public function merge($roles_id, $collections_id1, $collections_id2, array $contentArray) {
         // TODO: Verification, Comments, $ocs->load();
         $new_collections_id = 0;
+        self::$collectionStructure = false;
+
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);
         $ocs->load();
@@ -834,6 +865,7 @@ class Opus_Collection_Information {
      */
     static public function split($roles_id, $collections_id, array $contentArray1, array $contentArray2) {
         // TODO: Verification, Comments, $ocs->load();
+        self::$collectionStructure = false;
 
         // Load collection tree
         $ocs = new Opus_Collection_Structure($roles_id);

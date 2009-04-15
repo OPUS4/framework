@@ -128,15 +128,20 @@ class Opus_Collection_Roles {
     public function load($roles_id) {
         $this->validation = new Opus_Collection_Validation();
         $this->validation->constructorID($roles_id);
-        $cr = $this->collections_roles
-                                    ->fetchAll($this->collections_roles
-                                                    ->select()
-                                                    ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
-                                    ->toArray();
-        if (true === empty($cr)) {
-            throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");
+
+        if ($this->roles_id !== $roles_id) {
+
+            $cr = $this->collections_roles
+                                        ->fetchAll($this->collections_roles
+                                                        ->select()
+                                                        ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
+                                        ->toArray();
+            if (true === empty($cr)) {
+                throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");
+            }
+            $this->collectionRoles = $cr[0];
+
         }
-        $this->collectionRoles = $cr[0];
 
         // Has the collection-role already an ID?
         if ($this->roles_id > 0) {
