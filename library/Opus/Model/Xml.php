@@ -169,7 +169,7 @@ class Opus_Model_Xml {
      * @return DomDocument
      */
     private function makeDomDocument(Opus_Model_Abstract $model, $usename = null) {
-        $result = new DomDocument;
+        $result = new DomDocument('1.0', 'UTF-8');
         
         if (null === $usename) {
             $elementName = get_class($model);

@@ -237,6 +237,19 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('http://www.localhost.de/dbmock/4711', 
             $element->getAttribute('xlink:ref'), 'Wrong xlink:ref reference URI.');
     }
+    
+    /**
+     * Test if the XML encoding is set to UTF 8.
+     *
+     * @return void
+     */
+    public function testXmlEncodingIsUtf8() {
+        $xml = new Opus_Model_Xml;
+        $xml->setModel(new Opus_Model_ModelAbstract);
+        $dom = $xml->getDomDocument();
+        
+        $this->assertEquals('UTF-8', $dom->xmlEncoding, 'XML encoding expected to be UTF-8.');
+    }
 
 }
 
