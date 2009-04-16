@@ -99,6 +99,26 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('FooBar', $value->nodeValue, 'Attribute value is wrong.');
     }
     
+    
+    /**
+     * Test if a submodel serializes to an XML element that has the name
+     * of the supermodels containing field.
+     *
+     * @return void
+     */
+    public function testXmlSubElementsHaveFieldNamesAsDefinedInTheModel() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->getField('Value')->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->setValue(new Opus_Model_ModelAbstract);
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+        
+        // assert that there is a sub element of name Opus_Model_ModelAbstract
+        $child = $dom->documentElement->firstChild;
+        $this->assertEquals('Value', $child->localName, 'Wrong field name.');
+    }
+    
     /**
      * Test if a XML child element os generated for each sub model.
      *
@@ -112,9 +132,9 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
         
-        // assert that there is a sub element of name Opus_Model_ModelAbstract
+        // assert that there is a sub element of name Value
         $child = $dom->documentElement->firstChild;
-        $this->assertEquals('Opus_Model_ModelAbstract', $child->localName);
+        $this->assertEquals('Value', $child->localName, 'Missing XML element for field.');
     }
    
     /**
@@ -165,12 +185,13 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function xmlModelDataProvider() {
+        // one-field model
         $model1 = new Opus_Model_ModelAbstract();
         $model1->setValue('Foo');
     
         return array(
             array('<Opus_Model_ModelAbstract Value="Foo" />', $model1),
-            array($model1->toXml(), $model1)
+            array($model1->toXml(), $model1),
         );
     }
     
@@ -211,7 +232,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $dom = $xml->getDomDocument();
         $element = $dom->documentElement->firstChild;
         
-        $this->assertEquals('Opus_Model_ModelAbstractDbMock', $element->nodeName);
+        $this->assertEquals('Value', $element->nodeName);
         $this->assertTrue($element->hasAttribute('xlink:ref'), 'Missing xlink:ref attribute.');
         $this->assertEquals('http://www.localhost.de/dbmock/4711', 
             $element->getAttribute('xlink:ref'), 'Wrong xlink:ref reference URI.');

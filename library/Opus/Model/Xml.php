@@ -164,12 +164,20 @@ class Opus_Model_Xml {
     /**
      * Create a DomDocument element from a given model.
      *
-     * @param Opus_Model_Abstract $model Model to create DOM representation from.
+     * @param Opus_Model_Abstract $model   Model to create DOM representation from.
+     * @param string              $usename Name for XML element if it differs from Models class name.
      * @return DomDocument
      */
-    private function makeDomDocument(Opus_Model_Abstract $model) {
+    private function makeDomDocument(Opus_Model_Abstract $model, $usename = null) {
         $result = new DomDocument;
-        $element = $result->createElement(get_class($model));
+        
+        if (null === $usename) {
+            $elementName = get_class($model);
+        } else {
+            $elementName = (string) $usename;
+        }
+        
+        $element = $result->createElement($elementName);
         $result->appendChild($element);
 
         // detect wether the model is persistent and shall be represented as xlink
@@ -231,7 +239,7 @@ class Opus_Model_Xml {
                         $classname = $field->getValueModelClass();
                         $value = new $classname;
                     } 
-                    $subDom = $this->makeDomDocument($value);
+                    $subDom = $this->makeDomDocument($value, $fieldname);
                     $domXml->documentElement->appendChild($domXml->importNode($subDom->documentElement, true));
                 } else {
                     // handle flat attribute
@@ -298,7 +306,7 @@ class Opus_Model_Xml {
             } else {
                 $modelclass = $field->getValueModelClass();
             }
-            $submodel = Opus_Model_Abstract::_populateModelFromXml(new $modelclass, $externalField);
+            $submodel = $this->populateModelFromXml(new $modelclass, $externalField);
             $callname = 'add' . $externalField->nodeName;
             $model->$callname($submodel);
         }
