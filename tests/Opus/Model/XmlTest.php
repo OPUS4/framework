@@ -90,11 +90,14 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model->setValue('FooBar');
         $dom = $xml->setModel($model)->getDomDocument();
         
-        // Root element has name of Model class
-        $this->assertEquals(get_class($model), $dom->documentElement->localName, 'Node name does not equal Model class name');
+        // Root element is Opus
+        $this->assertEquals('Opus', $dom->documentElement->localName, 'Root element should be named "Opus".');        
+        
+        // Assert that first child represents serialized model
+        $this->assertEquals(get_class($model), $dom->documentElement->firstChild->localName, 'Node name does not equal Model class name');
         
         // There is an attribute "Value" with the value "FooBar"
-        $value = $dom->documentElement->attributes->getNamedItem('Value');
+        $value = $dom->documentElement->firstChild->attributes->getNamedItem('Value');
         $this->assertNotNull($value, 'Value attribute missing.');
         $this->assertEquals('FooBar', $value->nodeValue, 'Attribute value is wrong.');
     }
@@ -114,8 +117,9 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
         
-        // assert that there is a sub element of name Opus_Model_ModelAbstract
-        $child = $dom->documentElement->firstChild;
+        // assert that there is a sub element of name Value
+        $root = $dom->documentElement->firstChild;
+        $child = $root->firstChild;
         $this->assertEquals('Value', $child->localName, 'Wrong field name.');
     }
     
@@ -133,7 +137,8 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $dom = $xml->getDomDocument();
         
         // assert that there is a sub element of name Value
-        $child = $dom->documentElement->firstChild;
+        $root = $dom->documentElement->firstChild;
+        $child = $root->firstChild;
         $this->assertEquals('Value', $child->localName, 'Missing XML element for field.');
     }
    
@@ -177,8 +182,6 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($attr, 'Empty field has not been excluded.');
     }
 
-
-
     /**
      * Data provider for models and corresponding xml representations.
      *
@@ -190,8 +193,8 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model1->setValue('Foo');
     
         return array(
-            array('<Opus_Model_ModelAbstract Value="Foo" />', $model1),
-            array($model1->toXml(), $model1),
+            array('<Opus><Opus_Model_ModelAbstract Value="Foo" /></Opus>', $model1),
+            array($model1->toXml(), $model1)
         );
     }
     
@@ -230,7 +233,8 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml->setXlinkBaseUri($baseUri)
             ->setResourceNameMap($resourceMap);
         $dom = $xml->getDomDocument();
-        $element = $dom->documentElement->firstChild;
+        $root = $dom->documentElement->firstChild;
+        $element = $root->firstChild;
         
         $this->assertEquals('Value', $element->nodeName);
         $this->assertTrue($element->hasAttribute('xlink:ref'), 'Missing xlink:ref attribute.');
@@ -249,6 +253,21 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $dom = $xml->getDomDocument();
         
         $this->assertEquals('UTF-8', $dom->xmlEncoding, 'XML encoding expected to be UTF-8.');
+    }
+    
+    /**
+     * Test if the xmlns:xlink namespace attribute is set.
+     *
+     * @return void
+     */
+    public function testXlinkNamespaceIsSpecified() {
+        $xml = new Opus_Model_Xml;
+        $xml->setModel(new Opus_Model_ModelAbstract);
+        $dom = $xml->getDomDocument();
+        $root = $dom->documentElement;
+        // workaround for hasAttribute bug
+        // $root->hasAttribute('xmlns:xlink') delivers false thouhg the element is there
+        $this->assertNotNull($root->attributes->getNamedItem('xmlns:xlink'), 'Xlink namespace declaration required.');
     }
 
 }
