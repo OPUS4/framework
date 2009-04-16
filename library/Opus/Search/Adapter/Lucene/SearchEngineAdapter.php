@@ -106,7 +106,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         if (count($hits) > 0) {
                 foreach ($hits as $queryHit) {
                         $document = $queryHit->getDocument();
-                        $docid = str_replace('nr', '', $document->getFieldValue('docid'));
+                        $docid = $document->getFieldValue('docid');
                         if (in_array($docid, $done) === false) {
                                 array_push($done, $docid);
                                 $opusHit = new Opus_Search_Adapter_Lucene_SearchHitAdapter($queryHit);
