@@ -63,6 +63,48 @@ class Opus_Model_Xml {
     protected $_excludeEmtpy = false;
 
     /**
+     * Base URI for xlink:ref elements
+     *
+     * @var string
+     */
+    protected $_baseUri = '';
+    
+    /**
+     * Map of model class names to resource names for URI generation.
+     *
+     * @var array
+     */
+    protected $_resourceNameMap = array();
+    
+    /**
+     * Set up base URI for xlink URI generation.
+     *
+     * @param string $uri Base URI.
+     * @return Opus_Model_Xml Fluent interface
+     */
+    public function setXlinkBaseUri($uri) {
+        $this->_baseUri = $uri;
+        return $this;
+    } 
+    
+    /**
+     * Define the class name to resource name mapping.
+     *
+     * If a submodel is referenced by an xlink this map and the base URI are used
+     * to generate the full URI. E.g. if a model is Opus_Licence, the array may specify
+     * an mapping of this class name to "licence". Assuming a baseURI of "http://pub.service.org"
+     * the full URI for a Licence with ID 4711 looks like this:
+     * "http://pub.service.org/licence/4711"
+     *
+     * @param array $map Map of class names to resource names.
+     * @return Opus_Model_Xml Fluent interface
+     */
+    public function setResourceNameMap(array $map) {
+        $this->_resourceNameMap = $map;
+        return $this;
+    }
+
+    /**
      * Set up list of fields to exclude from serialization.
      *
      * @param array Field list
@@ -72,9 +114,6 @@ class Opus_Model_Xml {
         $this->_excludeFields = $fields;
         return $this;
     }
-    
-    
-    
     
     /**
      * Define that empty fields (value===null) shall be excluded.
@@ -130,8 +169,31 @@ class Opus_Model_Xml {
      */
     private function makeDomDocument(Opus_Model_Abstract $model) {
         $result = new DomDocument;
-        $result->appendChild($result->createElement(get_class($model)));
-        $result = $this->_recurseXml($model, $result, $this->_excludeFields);
+        $element = $result->createElement(get_class($model));
+        $result->appendChild($element);
+
+        // detect wether the model is persistent and shall be represented as xlink
+        $uri = null;        
+        // is there a mapping from class name to resource name?
+        if (true === array_key_exists(get_class($model), $this->_resourceNameMap)) {
+            // is the model a persisted database object?
+            if ($model instanceof Opus_Model_AbstractDb) {
+                $modelId = $model->getId();
+                if (null !== $modelId) {
+                    $resourceName = $this->_resourceNameMap[get_class($model)];
+                    $uri = $this->_baseUri . '/' . $resourceName . '/' . $modelId;
+                }    
+            }
+            
+        }
+        
+        // set up the xlink attribute if an URI is given
+        if (null !== $uri) {
+            $element->setAttribute('xlink:ref', $uri);
+        // insert a serialized submodel if no URI is given
+        } else {
+            $result = $this->_recurseXml($model, $result, $this->_excludeFields);
+        }
         return $result;
     }
 

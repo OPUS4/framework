@@ -188,6 +188,34 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');  
     }      
 
+    /**
+     * Test if a persisted sub model can be referenced by an xlink:ref element
+     * instead of a whole XML tree.
+     *
+     * @return void
+     */
+    public function testReferencePersistedSubModelsWithXlink() {
+        // set up mock models and xml helper
+        $model = new Opus_Model_ModelAbstract;
+        $model->getField('Value')->setValueModelClass('Opus_Model_ModelAbstractDbMock');
+        $model->setValue(new Opus_Model_ModelAbstractDbMock);
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+
+        // set up model URI mapping
+        $baseUri = 'http://www.localhost.de';
+        $resourceMap = array('Opus_Model_ModelAbstractDbMock' => 'dbmock');
+        
+        $xml->setXlinkBaseUri($baseUri)
+            ->setResourceNameMap($resourceMap);
+        $dom = $xml->getDomDocument();
+        $element = $dom->documentElement->firstChild;
+        
+        $this->assertEquals('Opus_Model_ModelAbstractDbMock', $element->nodeName);
+        $this->assertTrue($element->hasAttribute('xlink:ref'), 'Missing xlink:ref attribute.');
+        $this->assertEquals('http://www.localhost.de/dbmock/4711', 
+            $element->getAttribute('xlink:ref'), 'Wrong xlink:ref reference URI.');
+    }
 
 }
 
