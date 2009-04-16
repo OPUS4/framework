@@ -158,27 +158,35 @@ class Opus_Model_Xml {
         if (null === $this->_model) {
             throw new Opus_Model_Exception('No Model given for serialization.');
         }
-        return $this->makeDomDocument($this->_model);
+
+        $dom = new DomDocument('1.0', 'UTF-8');
+        $root = $dom->createElement('Opus');
+        $dom->appendChild($root);
+        $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
+        
+        $element = $this->makeDomElement($this->_model, $dom);
+        $root->appendChild($element);
+        
+        return $dom;
     }
     
     /**
-     * Create a DomDocument element from a given model.
+     * Create a DomElement from a given model.
      *
      * @param Opus_Model_Abstract $model   Model to create DOM representation from.
+     * @param DomDocument         $dom     DomDocument where the root element belongs to.
      * @param string              $usename Name for XML element if it differs from Models class name.
-     * @return DomDocument
+     * @return DomElement
      */
-    private function makeDomDocument(Opus_Model_Abstract $model, $usename = null) {
-        $result = new DomDocument('1.0', 'UTF-8');
-        
+    private function makeDomElement(Opus_Model_Abstract $model, DomDocument $dom, $usename = null) {
+
         if (null === $usename) {
             $elementName = get_class($model);
         } else {
             $elementName = (string) $usename;
         }
         
-        $element = $result->createElement($elementName);
-        $result->appendChild($element);
+        $element = $dom->createElement($elementName);
 
         // detect wether the model is persistent and shall be represented as xlink
         $uri = null;        
@@ -192,7 +200,6 @@ class Opus_Model_Xml {
                     $uri = $this->_baseUri . '/' . $resourceName . '/' . $modelId;
                 }    
             }
-            
         }
         
         // set up the xlink attribute if an URI is given
@@ -200,20 +207,21 @@ class Opus_Model_Xml {
             $element->setAttribute('xlink:ref', $uri);
         // insert a serialized submodel if no URI is given
         } else {
-            $result = $this->_recurseXml($model, $result, $this->_excludeFields);
+            $this->_recurseXml($model, $element, $this->_excludeFields);
         }
-        return $result;
+        return $element;
     }
 
     /**
-     * Recurses over the model's field to generate a DomDocument.
+     * Recurses over the model's field to add attributes for its fields
+     * and sub elements for referenced models.
      *
      * @param Opus_Model_Abstract $model         Model to get serialized
-     * @param DomDocument         $domXml        DomDocument to append generated elements to
+     * @param DomElement          $root          DomElement to append generated elements to
      * @param array               $excludeFields Array of fields to exclude from serialization
-     * @return DomDocument A Dom representation of the model.
+     * @return void
      */
-    private function _recurseXml(Opus_Model_Abstract $model, DomDocument $domXml, array $excludeFields = null) {
+    private function _recurseXml(Opus_Model_Abstract $model, DomElement $root, array $excludeFields = null) {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
@@ -239,17 +247,14 @@ class Opus_Model_Xml {
                         $classname = $field->getValueModelClass();
                         $value = new $classname;
                     } 
-                    $subDom = $this->makeDomDocument($value, $fieldname);
-                    $domXml->documentElement->appendChild($domXml->importNode($subDom->documentElement, true));
+                    $subElement = $this->makeDomElement($value, $root->ownerDocument ,$fieldname);
+                    $root->appendChild($subElement);
                 } else {
                     // handle flat attribute
-                    $domXml->documentElement->setAttribute($fieldname, $value);
+                    $root->setAttribute($fieldname, $value);
                 }
             }
-
         }
-
-        return $domXml;
     }
 
 
@@ -273,9 +278,10 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface.
      */
     public function setDomDocument(DomDocument $dom) {
-        $modelclass = $dom->documentElement->nodeName;
+        $root = $dom->getElementsByTagName('Opus')->item(0);
+        $modelclass = $root->firstChild->nodeName;
         $model = new $modelclass;
-        $this->_model = $this->populateModelFromXml($model, $dom->documentElement); 
+        $this->_model = $this->populateModelFromXml($model, $root->firstChild); 
         return $this;
     }
 
