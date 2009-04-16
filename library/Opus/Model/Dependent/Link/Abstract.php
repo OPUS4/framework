@@ -68,6 +68,15 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
             $this->_model = $model;
         }
     }
+    
+    /**
+     * Get the model class name this link will accept associated models to be instances of.
+     *
+     * @return string Class name of assignable models.
+     */
+    public function getModelClass() {
+        return $this->_modelClass;
+    }
 
     /**
      * Tunnel get/set/add methods to the linked model.

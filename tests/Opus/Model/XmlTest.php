@@ -286,6 +286,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         
         // create mock to track calls
         $link = $this->getMock('Opus_Model_ModelDependentLinkMock', array('getId', 'getLinkedModelId'));
+        $link->setModelClass('Opus_Model_ModelAbstract');
         $model->setLinkField($link);
         
         // expect getLinkedModelId() has been called in instead of getId()
@@ -295,8 +296,39 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         // trigger behavior
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)->setResourceNameMap(
-            array(get_class($link) => 'dbmockresource'));
+            array('Opus_Model_ModelAbstract' => 'dbmockresource'));
         $xml->getDomDocument();
+    }
+    
+    /**
+     * Test if the mapping of model classes to named resources is based on the
+     * classname of an associated class even when it is connected via a linked model.
+     *
+     * @return void
+     */
+    public function testResourceNameMappingUsesAssociatedModelClassWithLinkedModels() {
+        // set up a model with a linked Opus_Model_ModelAbstractDbMock
+        // use linking via Opus_Model_ModelDependentLinkMock
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('LinkField');
+        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->addField($field);
+        $link = new Opus_Model_ModelDependentLinkMock;
+        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
+        $link->setModel(new Opus_Model_ModelAbstractDbMock);
+        $model->setLinkField($link);
+        
+        // generate XML
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model)->setResourceNameMap(
+            array('Opus_Model_ModelAbstractDbMock' => 'dbmockresource'));
+        $dom = $xml->getDomDocument();
+        
+        // assert that there is a LinkField element with an xlink:ref attribute
+        $this->assertEquals(1, $dom->getElementsByTagName('LinkField')->length, 'Element for LinkField field is missing.');
+        
+        $linkField = $dom->getElementsByTagName('LinkField')->item(0);
+        $this->assertNotNull($linkField->attributes->getNamedItem('xlink:ref'), 'Xlink declaration missing.');
     }
 
 }

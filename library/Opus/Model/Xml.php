@@ -190,8 +190,15 @@ class Opus_Model_Xml {
 
         // detect wether the model is persistent and shall be represented as xlink
         $uri = null;        
+        
+        // determine the real model class name (there might be an link model in between)
+        $valueModelClassName = get_class($model);
+        if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
+            $valueModelClassName = $model->getModelClass();
+        }
+        
         // is there a mapping from class name to resource name?
-        if (true === array_key_exists(get_class($model), $this->_resourceNameMap)) {
+        if (true === array_key_exists($valueModelClassName, $this->_resourceNameMap)) {
             // is the model a persisted database object?
             if ($model instanceof Opus_Model_AbstractDb) {
             
@@ -203,7 +210,7 @@ class Opus_Model_Xml {
                 }
                 
                 if (null !== $modelId) {
-                    $resourceName = $this->_resourceNameMap[get_class($model)];
+                    $resourceName = $this->_resourceNameMap[$valueModelClassName];
                     $uri = $this->_baseUri . '/' . $resourceName . '/' . $modelId;
                 }    
             }

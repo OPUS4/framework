@@ -69,5 +69,16 @@ class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Depende
     public function setModel(Opus_Model_Abstract $model) {
         $this->_model = $model;
     }
+    
+    /**
+     * Set the protected model class attribute for testing.
+     *
+     * @param string $modelClass
+     * @return void
+     */
+    public function setModelClass($modelClass) {
+        $this->_modelClass = $modelClass;
+    }
+
 
 }

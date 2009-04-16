@@ -54,4 +54,17 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $this->assertEquals('AbstractTestMockDisplayName', $result, 'Display name of linked model not properly passed.'); 
     }
     
+    /**
+     * Test if the model class name can be retrieved.
+     *
+     * @return void
+     */
+    public function testGetModelClass() {
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model');
+        
+        $result = $link->getModelClass();
+        $this->assertEquals('Opus_Model', $result, 'Given model class name and retrieved name do not match.');
+    }
+    
 }
