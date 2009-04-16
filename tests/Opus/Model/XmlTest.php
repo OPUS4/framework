@@ -270,5 +270,34 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($root->attributes->getNamedItem('xmlns:xlink'), 'Xlink namespace declaration required.');
     }
 
+    /**
+     * Test if using a Opus_Model_Dependent_Link_* as field value get
+     * properly resolved by serialization to the associated model of the link.
+     *
+     * Therefore Opus_Model_Xml needs to call getLinkedModelId() instead of getId() on this model.
+     *
+     * @return void
+     */
+    public function testLinkModelsTunnelGetIdCallsToAssociatedModel() {
+        $model = new Opus_Model_ModelAbstractDbMock;
+        $field = new Opus_Model_Field('LinkField');
+        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->addField($field);
+        
+        // create mock to track calls
+        $link = $this->getMock('Opus_Model_ModelDependentLinkMock', array('getId', 'getLinkedModelId'));
+        $model->setLinkField($link);
+        
+        // expect getLinkedModelId() has been called in instead of getId()
+        $link->expects($this->once())->method('getLinkedModelId');
+        $link->expects($this->never())->method('getId');        
+                
+        // trigger behavior
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model)->setResourceNameMap(
+            array(get_class($link) => 'dbmockresource'));
+        $xml->getDomDocument();
+    }
+
 }
 

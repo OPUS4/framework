@@ -194,7 +194,14 @@ class Opus_Model_Xml {
         if (true === array_key_exists(get_class($model), $this->_resourceNameMap)) {
             // is the model a persisted database object?
             if ($model instanceof Opus_Model_AbstractDb) {
-                $modelId = $model->getId();
+            
+                // return associated model id if $model is a link model
+                if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
+                    $modelId = $model->getLinkedModelId();
+                } else {
+                    $modelId = $model->getId();
+                }
+                
                 if (null !== $modelId) {
                     $resourceName = $this->_resourceNameMap[get_class($model)];
                     $uri = $this->_baseUri . '/' . $resourceName . '/' . $modelId;
