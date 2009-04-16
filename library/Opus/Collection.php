@@ -166,22 +166,20 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $collectionIds[] = $collection['collections_id'];
         }
         $result = array();
+        $resultOut = array();
         if (empty($collectionIds) === false) {
             $result = array();
             $table = new Opus_Db_CollectionsContents($this->__role_id);
-            // Unfortunaley, we cannot use find() here, since it destroys the order of the Ids.
-            // TODO: Find a way to make the query more performant.
-            // $rows = $table->find($collectionIds);
-            $rows = array();
-            foreach ($collectionIds as $id) {
-                $rows[] = $table->fetchRow($table->select()->where('id = ?', $id));
-            }
+            $rows = $table->find($collectionIds);
+            // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[] = new Opus_Collection((int) $this->__role_id, $row);
+                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row);
             }
-
+            foreach ($collectionIds as $id) {
+                $resultOut[] = $result[(int) $id];
+            }
         }
-        return $result;
+        return $resultOut;
     }
 
     /**

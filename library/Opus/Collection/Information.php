@@ -203,7 +203,6 @@ class Opus_Collection_Information {
             // Fetch ID of the newely created collection
             $collections_id = $occ->getCollectionsID();
 
-            if (empty(self::$collectionStructure))
             // Load nested sets structure from DB
             $ocs = new Opus_Collection_Structure($role_id);
             $ocs->load();
