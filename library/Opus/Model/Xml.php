@@ -189,7 +189,7 @@ class Opus_Model_Xml {
         $dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
         
-        $element = $this->makeDomElement($this->_model, $dom);
+        $element = $this->_makeDomElement($this->_model, $dom);
         $root->appendChild($element);
         
         return $dom;
@@ -203,7 +203,7 @@ class Opus_Model_Xml {
      * @param string              $usename Name for XML element if it differs from Models class name.
      * @return DomElement
      */
-    private function makeDomElement(Opus_Model_Abstract $model, DomDocument $dom, $usename = null) {
+    protected function _makeDomElement(Opus_Model_Abstract $model, DomDocument $dom, $usename = null) {
 
         if (null === $usename) {
             $elementName = get_class($model);
@@ -260,7 +260,7 @@ class Opus_Model_Xml {
      * @param array               $excludeFields Array of fields to exclude from serialization
      * @return void
      */
-    private function _recurseXml(Opus_Model_Abstract $model, DomElement $root, array $excludeFields = null) {
+    protected function _recurseXml(Opus_Model_Abstract $model, DomElement $root, array $excludeFields = null) {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
@@ -286,7 +286,7 @@ class Opus_Model_Xml {
                         $classname = $field->getValueModelClass();
                         $value = new $classname;
                     } 
-                    $subElement = $this->makeDomElement($value, $root->ownerDocument ,$fieldname);
+                    $subElement = $this->_makeDomElement($value, $root->ownerDocument ,$fieldname);
                     $root->appendChild($subElement);
                 } else {
                     // handle flat attribute
@@ -332,7 +332,7 @@ class Opus_Model_Xml {
     public function setDomDocument(DomDocument $dom) {
         $root = $dom->getElementsByTagName('Opus')->item(0);
         $model = $this->_createModelFromElement($root->firstChild);
-        $this->_model = $this->populateModelFromXml($model, $root->firstChild); 
+        $this->_model = $this->_populateModelFromXml($model, $root->firstChild); 
         return $this;
     }
     
@@ -379,7 +379,7 @@ class Opus_Model_Xml {
      * @param  DomElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    private function populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
         $fieldList = $model->describe();
 
         // Internal fields exist as attributes
@@ -407,7 +407,7 @@ class Opus_Model_Xml {
             }
 
             $submodel = $this->_createModelFromElement($externalField, $modelclass);
-            $submodel = $this->populateModelFromXml($submodel, $externalField);
+            $submodel = $this->_populateModelFromXml($submodel, $externalField);
             $callname = 'add' . $externalField->nodeName;
             $model->$callname($submodel);
         }
