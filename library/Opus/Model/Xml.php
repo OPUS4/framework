@@ -76,6 +76,31 @@ class Opus_Model_Xml {
      */
     protected $_resourceNameMap = array();
     
+    
+    /**
+     * Map of model class names to constructor attribute lists.
+     *
+     * @var array
+     */
+    protected $_constructionAttributesMap = array();
+    
+    /**
+     * Set up the list of XML attributes that get used for initializing
+     * newly created objects via constructor call rather then calls to set* methods.
+     *
+     * The order in wich the attributes are given must correspond to the order in
+     * wich the particular model constructor accepts the values.
+     *
+     * Such a map may look like: array('Model1' => array('Attr1', 'Attr2'))
+     * assuming the constructor signature of Model1 beeing: __construct($attr1, $attr2).
+     *
+     * @param array $map List of constructor attributes.
+     * @return Opus_Model_Xml Fluent interface
+     */
+    public function setConstructionAttributesMap(array $map) {
+        $this->_constructionAttributesMap = $map;
+    }
+    
     /**
      * Set up base URI for xlink URI generation.
      *
@@ -293,10 +318,40 @@ class Opus_Model_Xml {
      */
     public function setDomDocument(DomDocument $dom) {
         $root = $dom->getElementsByTagName('Opus')->item(0);
-        $modelclass = $root->firstChild->nodeName;
-        $model = new $modelclass;
+        $model = $this->_createModelFromElement($root->firstChild);
         $this->_model = $this->populateModelFromXml($model, $root->firstChild); 
         return $this;
+    }
+    
+    /**
+     * Use the given element to create a model instance. If a constructor attribute map is set
+     * the object creation incorporates using constructor arguments from the XML element.
+     *
+     * @param DomElement $element   Element to use for model creation.
+     * @param string     $classname (Optional) Class name of class to be created. If not given, the node name is used.
+     * @throws Opus_Model_Exception Thrown if the model reffered to by the elements name is unknown.
+     * @return Opus_Model_Abstract Created model
+     */
+    protected function _createModelFromElement(DomElement $element, string $classname = null) {
+        if (null === $classname) {
+            $classname = $element->nodeName;
+        }
+        if (false === class_exists($classname)) {
+            throw new Opus_Model_Exception('Model class ' . $classname . ' not known.');
+        }
+
+        if (true === array_key_exists($classname, $this->_constructionAttributesMap)) {
+            $init = array();
+            foreach ($this->_constructionAttributesMap[$classname] as $constructorAttribute) {
+                $init[] = $element->getAttribute($constructorAttribute);
+            }
+            $creator = new ReflectionClass($classname);
+            $model = $creator->newInstanceArgs($init);
+        } else {
+            $model = new $classname;
+        }
+
+        return $model;
     }
 
     /**
@@ -307,26 +362,34 @@ class Opus_Model_Xml {
      * @return Opus_Model_Abstract  $model   The populated model.
      */
     private function populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
+        $fieldList = $model->describe();
+
         // Internal fields exist as attributes
         foreach ($element->attributes as $field) {
             // FIXME: Implement adding values to multi-value internal fields.
-            $callname = 'set' . $field->name;
-            if ($field->value === '') {
-                $model->$callname(null);
-            } else {
-                $model->$callname($field->value);
+            
+            // ignore unknown attributes
+            if (true === in_array($field->nodeName, $fieldList)) {
+                
+                $callname = 'set' . $field->name;
+                if ($field->value === '') {
+                    $model->$callname(null);
+                } else {
+                    $model->$callname($field->value);
+                }
             }
         }
 
         // External fields exist as child elements
         foreach ($element->childNodes as $externalField) {
-            $field = $model->getField($externalField->nodeName);
-            if (is_null($field) === true) {
+            if (in_array($externalField, $fieldList) === false) {
                 throw new Opus_Model_Exception('Field ' . $externalField->nodeName . ' not defined');
             } else {
                 $modelclass = $field->getValueModelClass();
             }
-            $submodel = $this->populateModelFromXml(new $modelclass, $externalField);
+
+            $submodel = $this->_createModelFromElement($externalField, $modelclass);
+            $submodel = $this->populateModelFromXml($submodel, $externalField);
             $callname = 'add' . $externalField->nodeName;
             $model->$callname($submodel);
         }

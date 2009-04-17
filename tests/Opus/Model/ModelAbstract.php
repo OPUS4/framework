@@ -44,6 +44,23 @@
 class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
 
     /**
+     * Variable holds constructor parameter.
+     *
+     * @var mixed
+     */
+    public $cons;
+
+    /**
+     * Mockup constructor code to test parameter passing.
+     *
+     * @param mixed $cons (Optional) Value to be passed.
+     */
+    public function __construct($cons = null) {
+        parent::__construct();
+        $this->cons = $cons;
+    }
+
+    /**
      * Initialize model with the a single field "value".
      *
      * @return void

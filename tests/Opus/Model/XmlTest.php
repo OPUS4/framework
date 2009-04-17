@@ -330,6 +330,21 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $linkField = $dom->getElementsByTagName('LinkField')->item(0);
         $this->assertNotNull($linkField->attributes->getNamedItem('xlink:ref'), 'Xlink declaration missing.');
     }
+    
+    /**
+     * Test if a given attribute get used for construction of
+     * the new Model object.
+     *
+     * @return void
+     */
+    public function testAttributeCanBeUsedForClassConstruction() {
+        $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
+        $omx = new Opus_Model_Xml;
+        $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array('Cons')));
+        $omx->setXml($xml);
+        $model = $omx->getModel();
+        $this->assertEquals('ByConstructorCall', $model->cons, 'Value has not been set by constructor call.');
+    }
 
 }
 

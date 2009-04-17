@@ -402,15 +402,19 @@ abstract class Opus_Model_Abstract
     /**
      * Instantiates an Opus_Model from xml as delivered by the toXml() method.
      *
-     * @param  DomDocument|string  $xml The xml representing the model.
+     * @param  DomDocument|string  $xml                The xml representing the model.
+     * @param  Opus_Model_Xml      $customDeserializer (Optional) Specify a custom deserializer object.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
-    public static function fromXml($xml) {
+    public static function fromXml($xml, Opus_Model_Xml $customDeserializer = null) {
+        if (null === $customDeserializer) {
+            $xmlHelper = new Opus_Model_Xml;
+        } else {
+            $xmlHelper = $customDeserializer;
+        }
         if ($xml instanceof DomDocument) {
-            $xmlHelper = new Opus_Model_Xml();
             $xmlHelper->setDomDocument($xml);
         } else if (is_string($xml)) {
-            $xmlHelper = new Opus_Model_Xml();
             $xmlHelper->setXml($xml);
         } else {
             throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');

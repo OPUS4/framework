@@ -458,25 +458,19 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      * needs to be passed into the Opus_Document constructor.
      *
      * @param  string|DomDocument  $xml The xml representing the model.
+     * @param  Opus_Model_Xml      $customDeserializer (Optional) Specify a custom deserializer object.
+     *                                                 Please note that the construction attributes setting
+     *                                                 will be overwritten.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
-    public static function fromXml($xml) {
-        if ($xml instanceof DomDocument) {
-            $domXml = $xml;
-        } else if (is_string($xml)) {
-            $domXml = new DomDocument('1.0', 'UTF-8');
-            $domXml->loadXml($xml);
+    public static function fromXml($xml, Opus_Model_Xml $customDeserializer = null) {
+        if (null === $customDeserializer) {
+            $deserializer = new Opus_Model_Xml;
         } else {
-            throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
+            $deserializer = $customDeserializer;
         }
-        $type = $domXml->documentElement->getAttribute('Type');
-        // Remove type attribute, which is only needed for document
-        // construction.
-        $domXml->documentElement->removeAttribute('Type');
-        $document = new Opus_Document(null, $type);
-        $result = Opus_Model_Abstract::_populateModelFromXml($document,
-                $domXml->documentElement);
-        return $result;
+        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array('Type')));
+        return parent::fromXml($xml, $deserializer);
     }
 
     /**
