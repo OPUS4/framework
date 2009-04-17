@@ -891,11 +891,10 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testDocumentImportFromXml() {
-        $this->markTestIncomplete('Pending fields break assertion.');
-        $document = new Opus_Document(null, 'article');
-        $xml = $document->toXml();
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $xml = '<Opus><Opus_Document Type="article"/></Opus>';
         $importedDocument = Opus_Document::fromXml($xml);
-        $this->assertEquals($document, $importedDocument, 'Document did not persist Xml import.');
+        $this->assertEquals('article', $importedDocument->getType(), 'Document did not persist Xml import.');
     }
 
     /**

@@ -353,6 +353,21 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Test if null can be passed as default value to a constructor instead of
+     * querying an XML attribute.
+     *
+     * @return void
+     */
+    public function testNullCanBeUsedAsConstructionAttributeDefault() {
+        $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
+        $omx = new Opus_Model_Xml;
+        $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array(null)));
+        $omx->setXml($xml);
+        $model = $omx->getModel();
+        $this->assertNull($model->cons, 'Null has not been set by constructor call.');
+    }
+    
+    /**
      * Test if an exception is thrown when one tries to deserialize invalid XML.
      *
      * @return void

@@ -469,7 +469,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         } else {
             $deserializer = $customDeserializer;
         }
-        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array('Type')));
+        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         return parent::fromXml($xml, $deserializer);
     }
 

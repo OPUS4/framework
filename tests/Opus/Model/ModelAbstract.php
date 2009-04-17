@@ -55,7 +55,7 @@ class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
      *
      * @param mixed $cons (Optional) Value to be passed.
      */
-    public function __construct($cons = null) {
+    public function __construct($cons = 'default') {
         parent::__construct();
         $this->cons = $cons;
     }

@@ -353,10 +353,15 @@ class Opus_Model_Xml {
             throw new Opus_Model_Exception('Model class ' . $classname . ' not known.');
         }
 
+        // Handle constructor attributes
         if (true === array_key_exists($classname, $this->_constructionAttributesMap)) {
             $init = array();
             foreach ($this->_constructionAttributesMap[$classname] as $constructorAttribute) {
-                $init[] = $element->getAttribute($constructorAttribute);
+                if (null !== $constructorAttribute) {
+                    $init[] = $element->getAttribute($constructorAttribute);
+                } else {
+                    $init[] = null;
+                }
             }
             $creator = new ReflectionClass($classname);
             $model = $creator->newInstanceArgs($init);
