@@ -118,6 +118,12 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 			$this->documentData['year'] = 'No publishing year specified';
 		}
 
+		try {
+			$this->documentData['pubDate'] = $document->getServerDatePublished();
+		} catch (Exception $e) {
+			$this->documentData['pubDate'] = 'No publication date specified';
+		}
+
 		// transfer the URN of this document into the adapter class
 		try {
 			$this->documentData['urn'] = $document->getIdentifierUrn(0)->getValue();
