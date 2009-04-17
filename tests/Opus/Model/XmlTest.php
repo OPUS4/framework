@@ -208,7 +208,13 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
      * @dataProvider xmlModelDataProvider
      */
     public function testCreateFromXml($xml, $model) {
-        $fromXml = Opus_Model_Abstract::fromXml($xml);
+        $xmlHelper = new Opus_Model_Xml;
+        if ($xml instanceof DomDocument) {
+            $xmlHelper->setDomDocument($xml);
+        } else {
+            $xmlHelper->setXml($xml);
+        }
+        $fromXml = $xmlHelper->getModel();
         $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');  
     }      
 
@@ -344,6 +350,17 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $omx->setXml($xml);
         $model = $omx->getModel();
         $this->assertEquals('ByConstructorCall', $model->cons, 'Value has not been set by constructor call.');
+    }
+    
+    /**
+     * Test if an exception is thrown when one tries to deserialize invalid XML.
+     *
+     * @return void
+     */
+    public function testLoadInvalidXmlThrowsException() {
+        $omx = new Opus_Model_Xml;
+        $this->setExpectedException('Opus_Model_Exception');
+        $omx->setXml('<Opus attr/>');
     }
 
 }

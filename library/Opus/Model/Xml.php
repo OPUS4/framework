@@ -301,11 +301,24 @@ class Opus_Model_Xml {
      * Set up a model instance from a given XML string.
      *
      * @param string $xml XML string representing a model.
+     * @throws Opus_Model_Exception Thrown if XML loading failed.
      * @return Opus_Model_Xml Fluent interface.
      */
     public function setXml($xml) {
         $dom = new DomDocument('1.0', 'UTF-8');
-        $dom->loadXml($xml);
+        // Disable libxml error reporting because it generates warnings
+        // wich will be ignored in production but turned into an exception
+        // in PHPUnit environments
+        libxml_use_internal_errors(true);
+        $success = $dom->loadXml($xml);
+        if (false === $success) {
+            $errors = libxml_get_errors();
+            foreach ($errors as $error) {
+                $errmsg = $error->message . "\n";
+            }
+            libxml_clear_errors();
+            throw new Opus_Model_Exception($errmsg);
+        }
         $this->setDomDocument($dom);        
         return $this;
     }
