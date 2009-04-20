@@ -43,6 +43,14 @@
 class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
+     * Holds path to working directory.
+     * TODO: hardcoded path!
+     *
+     * @var string
+     */
+    private $__path = '../workspace/files/';
+
+    /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
@@ -74,7 +82,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * The file models hidden fields for not showing inside form builder.
      *
      * @var array
-     * @see   Opus_Model_Abstract::$_hiddenFields
+     * @see Opus_Model_Abstract::$_hiddenFields
      */
     protected $_hiddenFields = array(
             'FileSize',
@@ -116,11 +124,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->addField($filesize)
             ->addField($documentsid)
             ->addField($hashvalue);
+
     }
 
     /**
      * Copy the uploaded file to it's final destination.
      *
+     * @throws Opus_Model_Exception Thrown if moving or copying failed.
      * @return void
      */
     protected function _storeTempFile() {
@@ -131,7 +141,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashtypes = array('md5', 'sha512');
 
         //FIXME: Hard coded path!
-        $path = '../workspace/files/' . $this->getDocumentId();
+        $path = $this->__path . $this->getDocumentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
@@ -143,10 +153,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->addHashValue($hash);
         }
 
-        if (is_uploaded_file($this->getTempFile())) {
+        if (true === is_uploaded_file($this->getTempFile())) {
             $copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
-        }
-        else {
+        } else {
             $copyResult = copy($this->getTempFile(), $path . '/' . $this->getPathName());
         }
         if ($copyResult === false) {
@@ -164,7 +173,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             // Common workaround for php limitation (2 / 4 GB file size)
             // look at http://de.php.net/manual/en/function.filesize.php
             // more inforamtion
-            $file_size = sprintf("%u", @filesize($this->getTempFile()));
+            $file_size = sprintf('%u', @filesize($this->getTempFile()));
             $this->_primaryTableRow->file_size = $file_size;
         }
     }
@@ -176,6 +185,27 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _fetchTempFile() {
         return $this->_fields['TempFile']->getValue();
+    }
+
+    /**
+     * Deletes a file from filespace and if directory are empty it will be deleted too.
+     *
+     * @see    library/Opus/Model/Opus_Model_AbstractDb#delete()
+     * @throws Exception Thrown if deleting of file failed.
+     * @return void
+     */
+    public function delete() {
+        //FIXME: Hard coded path!
+        $path = $this->__path . $this->getDocumentId();
+        $result = @unlink($path . '/' . $this->getPathName());
+        if (true === $result) {
+            // try to delete empty directory
+            // if empty it will be deleted
+            @rm_dir($path);
+            parent::delete();
+        } else {
+            throw new Exception('Deleting of file "' . $this->getPathName() . '" failed.');
+        }
     }
 
     /**
