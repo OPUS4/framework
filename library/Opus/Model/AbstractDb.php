@@ -345,13 +345,22 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     /**
      * Remove the model instance from the database.
      *
-     * @see    Opus_Model_Interface::delete()
-     * @throws Opus_Model_Exception    If a delete operation could not be performed on this model.
+     * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
      * @return void
      */
     public function delete() {
-        $this->_primaryTableRow->delete();
-        $this->_primaryTableRow = null;
+        // Start transaction
+        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+        $dbadapter->beginTransaction();
+        try {
+            $this->_primaryTableRow->delete();
+            $this->_primaryTableRow = null;
+            $dbadapter->commit();
+        } catch (Exception $e) {
+            $dbadapter->rollback();
+            $msg = $e->getMessage() . ' Model: ' . get_class($this);
+            throw new Opus_Model_Exception($msg);
+        }
     }
 
     /**
