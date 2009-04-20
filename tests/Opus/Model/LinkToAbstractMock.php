@@ -46,7 +46,7 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Model_ModelAbstract';
+    protected $_modelClass = 'Opus_Model_ModelAbstractDbMock';
 
     /**
      * This mockup is not connected to a datastore so fetching and initializing
@@ -63,6 +63,9 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
     protected function _init() {
+    }
+    
+    public function delete() {
     }
 
 }

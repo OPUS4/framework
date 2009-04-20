@@ -279,6 +279,7 @@ class Opus_Model_Field
                 return $this;
             }
         }
+        
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
@@ -293,6 +294,12 @@ class Opus_Model_Field
             $value = array($value);
         }
 
+        // if the value is null and a Opus_Model_Dependent_Abstract object
+        // is the current value, issue an delete() call to that object
+        if ((null === $value) and ($this->_value instanceof Opus_Model_Dependent_Abstract)) {
+            $this->_value->delete();
+        } 
+        
         $this->_value = $value;
         $this->_modified = true;
         return $this;

@@ -33,66 +33,23 @@
  */
 
 /**
- * This class extends Opus_Model_Abstract to be able to test its code.
- * Opus_Model_Abstract is an abstract class.
- * This mock is needed to be able to instantiate Opus_Model_Abstract.
- *
+ * Mockup class used for tracking calls to specific methods in unit tests.
+ * 
  * @category Tests
  * @package Opus_Model
- *
  */
-class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
-
-    /**
-     * Array of field names for wich _loadExternal has been called.
-     *
-     * @var array Array of field names.
-     */
-    public $loadExternalHasBeenCalledOn = array();
-
-
-    /**
-     * Specify then table gateway.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
-     */
-    protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
-
-    /**
-     * Provide a mockup external fields declaration.
-     *
-     * @var array
-     */
-    protected $_externalFields = array(
-        'ExternalModel' => array(
-            'model' => 'Opus_Model_ModelAbstractDbMock',
-            'through' => 'Opus_Model_LinkToAbstractMock',
-            'options' => ''),
-        'LazyExternalModel' => array(
-            'model' => 'Opus_Model_ModelAbstract',
-            'through' => '',
-            'options' => '',
-            'fetch' => 'lazy')
-    );
-
-    /**
-     * Initialize model with the a single field "ExternalModel".
-     *
-     * @return void
-     */
-    protected function _init() {
-        $this->addField(new Opus_Model_Field('ExternalModel'));
-        $this->addField(new Opus_Model_Field('LazyExternalModel'));
+class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
+    
+    public $deleteHasBeenCalled = false;
+    
+    public function __construct() {
+    }
+    
+    public function _init() {
+    }
+    
+    public function delete() {
+        $this->deleteHasBeenCalled = true;
     }
 
-    /**
-     * Mock up function to detect calls to loadExternal.
-     *
-     * @param string $fieldname A fieldname.
-     * @see    library/Opus/Model/Opus_Model_Abstract#_loadExternal()
-     * @return void
-     */
-    protected function _loadExternal($fieldname) {
-        $this->loadExternalHasBeenCalledOn[] = $fieldname;
-    }
 }

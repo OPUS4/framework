@@ -46,6 +46,9 @@ class Opus_Model_ModelAbstractDbMock extends Opus_Model_AbstractDb {
     public function _init() {
     }
     
+    public function delete() {
+    }
+    
     public function getId() {
         return 4711;
     }
