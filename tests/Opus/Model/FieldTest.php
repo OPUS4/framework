@@ -470,4 +470,30 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($depmo->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent model.');
     }  
     
+    /**
+     * Test if setting a multivalue field containing dependent models to "null" issues
+     * a delete() request to all these model.
+     *
+     * @return void
+     */
+    public function testSetDependentModelMultivalueFieldToNullRemovesModelsFromDatabase() {
+        // create field referencing the mockup models
+        $depmo[] = new Opus_Model_ModelDependentMock;
+        $depmo[] = new Opus_Model_ModelDependentMock;
+        $depmo[] = new Opus_Model_ModelDependentMock;
+        
+        $field = new Opus_Model_Field('ExternalModels');
+        $field->setMultiplicity('*');
+        $field->setValueModelClass(get_class($depmo));
+        $field->setValue($depmo);
+        
+        // issue the test
+        $field->setValue(null);
+        
+        // assert that delete() has been called
+        $this->assertTrue($depmo[0]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+        $this->assertTrue($depmo[1]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+        $this->assertTrue($depmo[2]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+    }   
+    
 }

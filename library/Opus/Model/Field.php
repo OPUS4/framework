@@ -296,8 +296,14 @@ class Opus_Model_Field
 
         // if the value is null and a Opus_Model_Dependent_Abstract object
         // is the current value, issue an delete() call to that object
-        if ((null === $value) and ($this->_value instanceof Opus_Model_Dependent_Abstract)) {
-            $this->_value->delete();
+        if (null === $value) {
+            if (is_array($this->_value)) {
+                foreach ($this->_value as $submodel) {
+                    if ($submodel instanceof Opus_Model_Dependent_Abstract) $submodel->delete();
+                }
+            } else {
+                $this->_value->delete();
+            }
         } 
         
         $this->_value = $value;
