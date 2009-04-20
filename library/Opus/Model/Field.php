@@ -262,6 +262,9 @@ class Opus_Model_Field
      * Set the field value. If multiplicity is set to values greater than one
      * only array are valid input values.
      *
+     * This method issues a delete() on dependent models "null" is passed as value. (see rev2514)
+     * @FIXME So deleting all models works. But what about arbitrary models from an assigned set? Are we going to implement garbage collection here?!
+     *
      * @param mixed $value The field value to be set.
      * @throws InvalidArgumentException If Multivalue option and input argument do not match (an array is required but not given).
      * @return Opus_Model_Field Provide fluent interface.
