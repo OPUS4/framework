@@ -81,7 +81,6 @@ class Opus_AllTests {
         $suite->addTest(Opus_Statistic_AllTests::suite());
         $suite->addTest(Opus_Translate_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());
-        $suite->addTest(Opus_Workflow_AllTests::suite());
 
         $suite->addTestSuite('Opus_ConfigurationTest');
         $suite->addTestSuite('Opus_DocumentTest');
