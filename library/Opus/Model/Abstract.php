@@ -107,6 +107,7 @@ abstract class Opus_Model_Abstract
         $this->_init();
         $this->_addValidators();
         $this->_addFilters();
+        $this->_clearFieldsModifiedFlag();
     }
 
     /**
@@ -115,7 +116,6 @@ abstract class Opus_Model_Abstract
      * @return void
      */
     abstract protected function _init();
-
 
     /**
      * Add validators to the fields. Opus_Validate_{fieldname} classes are
@@ -161,6 +161,17 @@ abstract class Opus_Model_Abstract
         }
     }
 
+    /**
+     * Clear the modified flag on all fields.
+     *
+     * @return void
+     */
+    protected function _clearFieldsModifiedFlag() {
+        foreach ($this->_fields as $field) {
+            $field->clearModified();
+        }
+    }    
+    
     /**
      * Magic method to access the models fields via virtual set/get methods.
      *

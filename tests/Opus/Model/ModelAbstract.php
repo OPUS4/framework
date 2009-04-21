@@ -70,6 +70,9 @@ class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
         $this->_filterPrefix[] = 'Opus_Model_FilterTest';
 
         $value = new Opus_Model_Field('Value');
+        // trigger modified flag       
+        $value->setValue('');
+        
         $this->addField($value);
     }
 }

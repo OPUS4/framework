@@ -253,5 +253,17 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
     }
+    
+    /**
+     * Test if a models fields have their modified flag cleared after creation
+     * of the model.
+     *
+     * @return void
+     */
+    public function testFieldsSetToUnmodifiedAfterInit() {
+        $model = new Opus_Model_ModelAbstract;
+        $field = $model->getField('Value');
+        $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
+    }
 
 }
