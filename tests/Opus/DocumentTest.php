@@ -1081,6 +1081,21 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
         $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
     }
+    
+    /**
+     * Test if after creation of a document leaves the fields marked unmodified.
+     *
+     * @return void
+     */
+    public function testNewlyCreatedDocumentsHaveNoModifiedFields() {
+        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
+        $newdoc = new Opus_Document(null, 'article');
+        $fieldnames = $newdoc->describe();
+        foreach ($fieldnames as $fieldname) {
+            $field = $newdoc->getField($fieldname);
+            $this->assertFalse($field->isModified(), 'Field ' . $fieldname . ' marked as modified after creation.');
+        }
+    }
 
 }
 
