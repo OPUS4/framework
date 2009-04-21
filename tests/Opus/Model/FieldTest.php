@@ -450,6 +450,24 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue(empty($value), 'Multivalue field not cleared after setting to null.');
     }
     
+    
+    /**
+     * Test if delete() is not issued if the field value is not an Opus_Model_Dependent_*
+     *
+     * @return void
+     */
+    public function testSetFieldValueToNullDoesNotTriggerDeleteWithNoDependentModel() {
+        $clazz = 'class ClassWithDeleteMethod { public $trigger = false; public function delete() { $this->trigger = true; } }';
+        eval($clazz);
+        $obj = new ClassWithDeleteMethod;
+        $field = new Opus_Model_Field('SomeField');
+        $field->setValue($obj);
+        $field->setValue(null);
+        
+        $this->assertFalse($obj->trigger, 'Delete method has been called on non Opus_Model_Dependent_Abstract class.');
+    }
+    
+    
     /**
      * Test if setting a field containing a dependent model to "null" issues
      * a delete() request on that model.

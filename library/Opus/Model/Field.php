@@ -305,7 +305,7 @@ class Opus_Model_Field
                     if ($submodel instanceof Opus_Model_Dependent_Abstract) $submodel->delete();
                 }
             } else {
-                $this->_value->delete();
+                if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
             }
         } 
         
