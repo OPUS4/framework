@@ -53,12 +53,12 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
     protected $_messageTemplates = array(
         self::MSG_LANGUAGE => "'%value%' is not a valid language shortcut."
     );
-    
+
     /**
-     * Validate the given value. Looks for the language translation list 
+     * Validate the given value. Looks for the language translation list
      * in the registry (key 'Available_Languages'). If this key is not registered
      * the language list is obtained through a call to getLanguageTranslationList()
-     * of Zend_Locale.  
+     * of Zend_Locale.
      *
      * @param string $value An enum string.
      * @return boolean True if the given enum string is known.
@@ -68,6 +68,7 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
         $this->_setValue($value);
 
         if (is_string($value) === false) {
+            $this->_error(self::MSG_LANGUAGE);
             return false;
         }
 
@@ -77,13 +78,13 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
         } else {
             $locale = new Zend_Locale();
             $translationList = $locale->getLanguageTranslationList();
-        }        
+        }
         if (array_key_exists($value, $translationList) === false) {
-            $this->_error();
+            $this->_error(self::MSG_LANGUAGE);
             return false;
         }
 
         return true;
     }
-    
+
 }

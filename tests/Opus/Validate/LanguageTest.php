@@ -122,5 +122,16 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
 
-
+    /**
+     * Test if a error message is set if the validated field has "null" as its value.
+     *
+     * @return void
+     */
+    public function testErrorMessageIsSetIfNullIsGivenAsValue() {
+        $validator = new Opus_Validate_Language();
+        $validator->isValid(NULL);
+        $errorMessage = $validator->getMessages();
+        $this->assertFalse(empty($errorMessage), 'There should be at least one error message.');
+        $this->assertEquals('\'\' is not a valid language shortcut.', $errorMessage['language'], 'Wrong error message set.');
+    }
 }
