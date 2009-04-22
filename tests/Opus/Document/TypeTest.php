@@ -379,19 +379,6 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a document type file can be loaded by inferencing the filename
-     * from a type name containing withespaces.
-     *
-     * @return void
-     */
-    public function testGetDocumentTypeFileByTypeNameWithWhitespaces() {
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $type = new Opus_Document_Type('type test');
-        $this->assertNotNull($type);
-    }
-
-
-    /**
      * Test if a multiplicity value is integer.
      *
      * @return void

@@ -306,10 +306,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         if ($this->getId() === null) {
             if (is_string($this->_type) === true) {
                 $this->_builder = new Opus_Document_Builder(new Opus_Document_Type($this->_type));
-                $this->_primaryTableRow->type = str_replace('_', ' ', $this->_type);
+                $this->_primaryTableRow->type = $this->_type;
             } else if ($this->_type instanceof Opus_Document_Type) {
                 $this->_builder = new Opus_Document_Builder($this->_type);
-                $this->_primaryTableRow->type = str_replace('_', ' ', $this->_type->getName());
+                $this->_primaryTableRow->type = $this->_type->getName();
             } else {
                 throw new Opus_Model_Exception('Unkown document type.');
             }

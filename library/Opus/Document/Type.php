@@ -127,16 +127,13 @@ class Opus_Document_Type {
                 $type = 'filename';
                 $xml = $filename;
             } else {
-                // Try to do inference by replacing "_" with " ".
-                if (self::$_xmlDocTypePath !== '') {
-                    $filename = str_replace(' ', '_', $filename);
-                    $filename = self::$_xmlDocTypePath . '/' . $filename . '.xml';
-                    if (is_file($filename) === true) {
-                        $type = 'filename';
-                        $xml = $filename;
-                    }
+                $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . $filename . '.xml';
+                if (is_file($filename) === true) {
+                    $type = 'filename';
+                    $xml = $filename;
                 }
             }
+
             unset($filename);
 
         } else if ($xml instanceof DOMDocument) {
