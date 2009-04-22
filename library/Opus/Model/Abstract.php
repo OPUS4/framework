@@ -440,6 +440,9 @@ abstract class Opus_Model_Abstract
      * Empty fields (null or empty string) get only validated if they are
      * marked to be mandatory.
      *
+     * If a mandatory field contains models itself, a validation is triggered
+     * on these models.
+     *
      * @return Boolean True if all fields report to be valid, false if
      *                 at least one field fails validation.
      */
@@ -459,6 +462,21 @@ abstract class Opus_Model_Abstract
                 $result = $validator->isValid($field->getValue());
                 $return = ($return and $result);
             }
+            
+            // submodel handling
+            if (true === $field->hasMultipleValues()) {
+                $fieldValues = $field->getValue();
+            } else {
+                $fieldValues = array($field->getValue());
+            }
+            foreach ($fieldValues as $submodel) {
+                if (($submodel instanceof Opus_Model_Abstract)
+                and (true === $field->isMandatory())) {
+                    $result = $submodel->isValid();
+                    $return = ($return and $result);
+                }
+            }
+                        
         }
         return $return;
     }

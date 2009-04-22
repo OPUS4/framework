@@ -280,5 +280,84 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $field = $model->getField('Value');
         $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
     }
+    
+    /**
+     * Test if a submodel gets validated by its supermodel when the containing
+     * field is set to be mandatory.
+     *
+     * @return void
+     */
+    public function testValidationOfSubmodelIfStoredInMandatoryField() {
+        $submodel = $this->getMock('Opus_Model_ModelAbstract');
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('Submodel');
+        $field->setValueModelClass('Opus_Model_ModelAbstract')
+            ->setMandatory(true)
+            ->setValue($submodel);
+        $model->addField($field);
+        
+        // expect call to isValid
+        $submodel->expects($this->once())
+            ->method('isValid');
+            
+        // trigger call
+        $model->isValid();
+    }
+
+
+    /**
+     * Test if validation of submodels gets triggers for each model in
+     * a multivalue field.
+     *
+     * @return void
+     */
+    public function testValidationOfSubmodelsInMultivalueFields() {
+        $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
+        $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
+        $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
+    
+        // expect calls to isValid
+        foreach ($submodels as $submodel) {
+            $submodel->expects($this->once())
+                ->method('isValid');
+        }
+        
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('Submodels');
+        $field->setValueModelClass('Opus_Model_ModelAbstract')
+            ->setMandatory(true)
+            ->setMultiplicity('*')
+            ->setValue($submodels);
+        $model->addField($field);
+        
+        // trigger calls
+        $model->isValid();
+    }
+
+    
+    /**
+     * Test if a submodel validation fault triggers a supermodels validation fault.
+     *
+     * @return void
+     */
+    public function testValidationFailsIfSubmodelValidationDoesSo() {
+        $submodel = $this->getMock('Opus_Model_ModelAbstract');
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('Submodel');
+        $field->setValueModelClass('Opus_Model_ModelAbstract')
+            ->setMandatory(true)
+            ->setValue($submodel);
+        $model->addField($field);
+        
+        // expect call to isValid (wich will return false)
+        $submodel->expects($this->any())
+            ->method('isValid')
+            ->will($this->returnValue(false));
+            
+        $result = $model->isValid();
+        $this->assertFalse($result, 'Validation should fail because submodel validation failes.');
+    }
+    
+    
 
 }
