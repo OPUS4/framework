@@ -146,6 +146,11 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($validator->isValid($languages), 'An array of values should pass validation.');
     }
 
+    /**
+     * Test if an error occurs if a list of language contains a bad language name.
+     *
+     * @return void
+     */
     public function testValidateMultiValueLanguageWithInvalidData() {
         $validator = new Opus_Validate_Language();
         $languages = array('de', 'en', 'fr', 'blablub');
