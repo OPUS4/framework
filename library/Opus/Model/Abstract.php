@@ -170,8 +170,8 @@ abstract class Opus_Model_Abstract
         foreach ($this->_fields as $field) {
             $field->clearModified();
         }
-    }    
-    
+    }
+
     /**
      * Magic method to access the models fields via virtual set/get methods.
      *
@@ -351,6 +351,19 @@ abstract class Opus_Model_Abstract
     }
 
     /**
+     * Get a list of all fields attached to the model.
+     *
+     * @return array List of fields.
+     */
+    public function describeAll() {
+        $result = array();
+        foreach (array_keys($this->_fields) as $fieldname) {
+            $result[] = $fieldname;
+        }
+        return $result;
+    }
+
+    /**
      * By default, the textual representation of a modeled entity is
      * its class name.
      *
@@ -450,19 +463,19 @@ abstract class Opus_Model_Abstract
         $return = true;
         foreach ($this->_fields as $field) {
             // skip optional and empty fields
-            if ((false === $field->isMandatory()) 
+            if ((false === $field->isMandatory())
             and ((null === $field->getValue())
             or ('' === $field->getValue()))) {
                 continue;
             }
-            
+
             // validate
             $validator = $field->getValidator();
             if (is_null($validator) === false) {
                 $result = $validator->isValid($field->getValue());
                 $return = ($return and $result);
             }
-            
+
             // submodel handling
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = $field->getValue();
@@ -476,7 +489,7 @@ abstract class Opus_Model_Abstract
                     $return = ($return and $result);
                 }
             }
-                        
+
         }
         return $return;
     }
