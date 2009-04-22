@@ -170,6 +170,17 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     public function store() {
 
+        // refuse to store if data is not valid
+        if (false === $this->isValid()) {
+            $msg = 'Attempt to store model with invalid data.';
+            foreach ($this->getValidationErrors() as $fieldname=>$err) {
+                if (false === empty($err)) {
+                    $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
+                }
+            }
+            throw new Opus_Model_Exception($msg);
+        }
+
         // Start transaction
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         $dbadapter->beginTransaction();
@@ -455,7 +466,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         }
         $result = array();
         foreach ($rows as $row) {
-            $result[] = new $modelClassName($row);
+            $model = new $modelClassName($row);
+            $result[] = $model;
         }
         return $result;
     }

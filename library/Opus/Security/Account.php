@@ -80,11 +80,13 @@ class Opus_Security_Account extends Opus_Model_AbstractDb {
     protected function _init() {
         $login = new Opus_Model_Field('Login');
         $loginValidator = new Zend_Validate;
-        $loginValidator->addValidator(new Zend_Validate_NotEmpty)
-            ->addValidator(new Zend_Validate_Alnum);
-        $login->setValidator($loginValidator);
+        $loginValidator->addValidator(new Zend_Validate_Alnum);
+        $login->setValidator($loginValidator)
+            ->setMandatory(true);
         
         $password = new Opus_Model_Field('Password');
+        $password->setMandatory(true);
+        
         $this->addField($login)
             ->addField($password);    
     }

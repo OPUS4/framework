@@ -50,11 +50,12 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
 
         // Set up a mock language list.
-        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch');
+        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
         Zend_Registry::set('Available_Languages', $list);
 
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $document = new Opus_Document(null, 'article');
+        $document->setLanguage('de');
 
         $title = $document->addTitleMain();
         $title->setValue('Title');

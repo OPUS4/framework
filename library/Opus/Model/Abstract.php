@@ -437,12 +437,23 @@ abstract class Opus_Model_Abstract
     /**
      * Loop through all fields and check if they are valid.
      *
+     * Empty fields (null or empty string) get only validated if they are
+     * marked to be mandatory.
+     *
      * @return Boolean True if all fields report to be valid, false if
      *                 at least one field fails validation.
      */
     public function isValid() {
         $return = true;
         foreach ($this->_fields as $field) {
+            // skip optional and empty fields
+            if ((false === $field->isMandatory()) 
+            and ((null === $field->getValue())
+            or ('' === $field->getValue()))) {
+                continue;
+            }
+            
+            // validate
             $validator = $field->getValidator();
             if (is_null($validator) === false) {
                 $result = $validator->isValid($field->getValue());
@@ -462,8 +473,10 @@ abstract class Opus_Model_Abstract
         $result = array();
         foreach ($this->_fields as $field) {
             $validator = $field->getValidator();
-            $messages = $validator->getMessages();
-            $result[$field->getName()] = $messages;
+            if (null !== $validator) {
+                $messages = $validator->getMessages();
+                $result[$field->getName()] = $messages;
+            }
         }
         return $result;
     }

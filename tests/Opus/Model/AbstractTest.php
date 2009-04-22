@@ -196,6 +196,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
         $field2 = new Opus_Model_Field('Field2');
         $field2->setValidator(new Zend_Validate_NotEmpty());
+        $field2->setMandatory(true);
 
         $model->addField($field1)->addField($field2);
 
@@ -205,6 +206,19 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         // try successful validation
         $model->setField1('abc123');
         $model->setField2('notempty');
+        $this->assertTrue($model->isValid(), 'Validation should succeed.');
+    }
+    
+    /**
+     * Test if fields that are not marked as mandatory can remain
+     * empty but survive validation.
+     *
+     * @return void
+     */
+    public function testNotMandatoryFieldsValidateEvenIfEmpty() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->getField('Value')->setMandatory(false);
+        $model->setValue('');
         $this->assertTrue($model->isValid(), 'Validation should succeed.');
     }
 
@@ -234,6 +248,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
      */
     public function testValidationErrorsAreObtainable() {
         $model = new Opus_Model_ModelAbstract;
+        $model->getField('Value')->setMandatory(true);
         // Model field "Value" is empty.
         $this->assertFalse($model->isValid(), 'Validation should fail.');
         $this->assertNotNull($model->getValidationErrors(), 'Validation errors are not set.');

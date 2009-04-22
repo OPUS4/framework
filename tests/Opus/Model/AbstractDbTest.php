@@ -216,8 +216,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // Clear modified flag just to be sure
         $mockField->clearModified();
 
-        // Expect getValue not to be called
-        $mockField->expects($this->never())->method('getValue');
+        // Expect getValue to be called only once
+        $mockField->expects($this->once())->method('getValue');
 
         $mock->store();
     }
@@ -245,7 +245,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testFieldsModifiedStatusGetsClearedAfterStore() {
         // A record with id 1 is created by setUp() using AbstractDataSet.xml
         $mock = new Opus_Model_ModelAbstractDb(1);
-        $mock->setValue('Change has come to America!');
+        $mock->setValue('ChangeHasComeToAmericaIn2008');
         $mock->store();
 
         $field = $mock->getField('Value');
@@ -295,17 +295,19 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testGetAllEntities() {
         TestHelper::clearTable('test_testtable');
-        $entities[] = new Opus_Model_ModelAbstractDb();
-        $entities[] = new Opus_Model_ModelAbstractDb();
-        $entities[] = new Opus_Model_ModelAbstractDb();
+        $entities[0] = new Opus_Model_ModelAbstractDb(); $entities[0]->setValue('SatisfyValidator');
+        $entities[1] = new Opus_Model_ModelAbstractDb(); $entities[1]->setValue('SatisfyValidator');
+        $entities[2] = new Opus_Model_ModelAbstractDb(); $entities[2]->setValue('SatisfyValidator');
 
         foreach ($entities as $entity) {
             $entity->store();
         }
 
-        $result = Opus_Model_ModelAbstractDb::getAllFrom('Opus_Model_ModelAbstractDb', 'Opus_Model_AbstractTableProvider');
-        $this->assertEquals(count($entities), count($result), 'Incorrect number of instances delivered.');
-        $this->assertEquals($entities, $result, 'Entities fetched differ from entities stored.');
+        $results = Opus_Model_ModelAbstractDb::getAllFrom('Opus_Model_ModelAbstractDb', 'Opus_Model_AbstractTableProvider');
+        $this->assertEquals(count($entities), count($results), 'Incorrect number of instances delivered.');
+        $this->assertEquals($entities[0]->toArray(), $results[0]->toArray(), 'Entities fetched differ from entities stored.');
+        $this->assertEquals($entities[1]->toArray(), $results[1]->toArray(), 'Entities fetched differ from entities stored.');
+        $this->assertEquals($entities[2]->toArray(), $results[2]->toArray(), 'Entities fetched differ from entities stored.');
     }
 
     /**
@@ -485,5 +487,24 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertEquals($id1, $id2, 'Store function is not idempotend to identifiers.');
         $this->assertEquals($val1, $val2, 'Store function is not idempotend to values.');
     }
+    
+    /**
+     * Test if an Exception is thrown is the model to be stored does not
+     * validiate its data to be correct.
+     *
+     * @return void
+     */
+    public function testStoreThrowsExceptionIfModelHasInvalidData() {
+        // Create persistent model
+        $model = new Opus_Model_ModelAbstractDb;
+        
+        // Inject failing Validator
+        $model->getField('Value')->setValidator(new Zend_Validate_Date());
+        $model->setValue('InvalidDate');
+        
+        // trigger Exception
+        $this->setExpectedException('Opus_Model_Exception');
+        $id = $model->store();
+    }   
  
 }
