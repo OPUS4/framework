@@ -478,10 +478,11 @@ class Opus_Model_Field
      * Set the name of model class if the field holds model instances.
      *
      * @param  string $classname The name of the class that is used as model for this field or null.
-     * @return void
+     * @return Opus_Model_Field Fluent interface.
      */
     public function setValueModelClass($classname) {
         $this->_valueModelClass = $classname;
+        return $this;
     }
 
     /**
@@ -497,10 +498,11 @@ class Opus_Model_Field
      * Set the name of model class if the field holds link model instances.
      *
      * @param  string $classname The name of the class that is used as model for this field or null.
-     * @return void
+     * @return Opus_Model_Field Fluent interface.
      */
     public function setLinkModelClass($classname) {
         $this->_linkModelClass = $classname;
+        return $this;
     }
 
     /**
