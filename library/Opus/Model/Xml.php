@@ -68,22 +68,22 @@ class Opus_Model_Xml {
      * @var string
      */
     protected $_baseUri = '';
-    
+
     /**
      * Map of model class names to resource names for URI generation.
      *
      * @var array
      */
     protected $_resourceNameMap = array();
-    
-    
+
+
     /**
      * Map of model class names to constructor attribute lists.
      *
      * @var array
      */
     protected $_constructionAttributesMap = array();
-    
+
     /**
      * Set up the list of XML attributes that get used for initializing
      * newly created objects via constructor call rather then calls to set* methods.
@@ -100,7 +100,7 @@ class Opus_Model_Xml {
     public function setConstructionAttributesMap(array $map) {
         $this->_constructionAttributesMap = $map;
     }
-    
+
     /**
      * Set up base URI for xlink URI generation.
      *
@@ -110,8 +110,8 @@ class Opus_Model_Xml {
     public function setXlinkBaseUri($uri) {
         $this->_baseUri = $uri;
         return $this;
-    } 
-    
+    }
+
     /**
      * Define the class name to resource name mapping.
      *
@@ -139,7 +139,7 @@ class Opus_Model_Xml {
         $this->_excludeFields = $fields;
         return $this;
     }
-    
+
     /**
      * Define that empty fields (value===null) shall be excluded.
      *
@@ -149,7 +149,7 @@ class Opus_Model_Xml {
         $this->_excludeEmtpy = true;
         return $this;
     }
-    
+
 
     /**
      * Set the Model for XML generation.
@@ -161,7 +161,7 @@ class Opus_Model_Xml {
         $this->_model = $model;
         return $this;
     }
-    
+
     /**
      * Return the current Model instance if there is any.
      *
@@ -170,8 +170,8 @@ class Opus_Model_Xml {
     public function getModel() {
         return $this->_model;
     }
-    
-    
+
+
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
@@ -188,13 +188,13 @@ class Opus_Model_Xml {
         $root = $dom->createElement('Opus');
         $dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
-        
+
         $element = $this->_makeDomElement($this->_model, $dom);
         $root->appendChild($element);
-        
+
         return $dom;
     }
-    
+
     /**
      * Create a DomElement from a given model.
      *
@@ -210,37 +210,37 @@ class Opus_Model_Xml {
         } else {
             $elementName = (string) $usename;
         }
-        
+
         $element = $dom->createElement($elementName);
 
         // detect wether the model is persistent and shall be represented as xlink
-        $uri = null;        
-        
+        $uri = null;
+
         // determine the real model class name (there might be an link model in between)
         $valueModelClassName = get_class($model);
         if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
             $valueModelClassName = $model->getModelClass();
         }
-        
+
         // is there a mapping from class name to resource name?
         if (true === array_key_exists($valueModelClassName, $this->_resourceNameMap)) {
             // is the model a persisted database object?
             if ($model instanceof Opus_Model_AbstractDb) {
-            
+
                 // return associated model id if $model is a link model
                 if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
                     $modelId = $model->getLinkedModelId();
                 } else {
                     $modelId = $model->getId();
                 }
-                
+
                 if (null !== $modelId) {
                     $resourceName = $this->_resourceNameMap[$valueModelClassName];
                     $uri = $this->_baseUri . '/' . $resourceName . '/' . $modelId;
-                }    
+                }
             }
         }
-        
+
         // set up the xlink attribute if an URI is given
         if (null !== $uri) {
             $element->setAttribute('xlink:ref', $uri);
@@ -264,13 +264,13 @@ class Opus_Model_Xml {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
-        $fields = $model->describe();
+        $fields = $model->describeAll();
         foreach (array_diff($fields, $excludeFields) as $fieldname) {
-        
+
             $callname = 'get' . $fieldname;
             $fieldvalue = $model->$callname();
             $field = $model->getField($fieldname);
-    
+
             // skip empty field
             if (($this->_excludeEmtpy) and (empty($fieldvalue) === true)) continue;
 
@@ -285,7 +285,7 @@ class Opus_Model_Xml {
                     if (null === $value) {
                         $classname = $field->getValueModelClass();
                         $value = new $classname;
-                    } 
+                    }
                     $subElement = $this->_makeDomElement($value, $root->ownerDocument ,$fieldname);
                     $root->appendChild($subElement);
                 } else {
@@ -319,10 +319,10 @@ class Opus_Model_Xml {
             libxml_clear_errors();
             throw new Opus_Model_Exception($errmsg);
         }
-        $this->setDomDocument($dom);        
+        $this->setDomDocument($dom);
         return $this;
     }
-    
+
     /**
      * Set up a model instance from a given DomDocument.
      *
@@ -332,10 +332,10 @@ class Opus_Model_Xml {
     public function setDomDocument(DomDocument $dom) {
         $root = $dom->getElementsByTagName('Opus')->item(0);
         $model = $this->_createModelFromElement($root->firstChild);
-        $this->_model = $this->_populateModelFromXml($model, $root->firstChild); 
+        $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
         return $this;
     }
-    
+
     /**
      * Use the given element to create a model instance. If a constructor attribute map is set
      * the object creation incorporates using constructor arguments from the XML element.
@@ -385,10 +385,10 @@ class Opus_Model_Xml {
         // Internal fields exist as attributes
         foreach ($element->attributes as $field) {
             // FIXME: Implement adding values to multi-value internal fields.
-            
+
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
-                
+
                 $callname = 'set' . $field->name;
                 if ($field->value === '') {
                     $model->$callname(null);
