@@ -134,4 +134,24 @@ class Opus_Validate_LanguageTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse(empty($errorMessage), 'There should be at least one error message.');
         $this->assertEquals('\'\' is not a valid language shortcut.', $errorMessage['language'], 'Wrong error message set.');
     }
+
+    /**
+     * Test  if an array of language values could be validated.
+     *
+     * @return void
+     */
+    public function testValidateMultiValueLanguage() {
+        $validator = new Opus_Validate_Language();
+        $languages = array('de', 'en', 'fr');
+        $this->assertTrue($validator->isValid($languages), 'An array of values should pass validation.');
+    }
+
+    public function testValidateMultiValueLanguageWithInvalidData() {
+        $validator = new Opus_Validate_Language();
+        $languages = array('de', 'en', 'fr', 'blablub');
+        $this->assertFalse($validator->isValid($languages), 'Value should not pass validation.');
+        $errorMessage = $validator->getMessages();
+        $this->assertFalse(empty($errorMessage), 'There should be at least one error message.');
+        $this->assertEquals('\'blablub\' is not a valid language shortcut.', $errorMessage['language'], 'Wrong error message set.');
+    }
 }

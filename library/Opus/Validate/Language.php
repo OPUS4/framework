@@ -65,11 +65,8 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
      */
     public function isValid($value)
     {
-        $this->_setValue($value);
-
-        if (is_string($value) === false) {
-            $this->_error(self::MSG_LANGUAGE);
-            return false;
+        if (false === is_array($value)) {
+            $value = array($value);
         }
 
         $registry = Zend_Registry::getInstance();
@@ -79,9 +76,19 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
             $locale = new Zend_Locale();
             $translationList = $locale->getLanguageTranslationList();
         }
-        if (array_key_exists($value, $translationList) === false) {
-            $this->_error(self::MSG_LANGUAGE);
-            return false;
+
+        foreach ($value as $val) {
+            $this->_setValue($val);
+
+            if (is_string($val) === false) {
+                $this->_error(self::MSG_LANGUAGE);
+                return false;
+            }
+
+            if (array_key_exists($val, $translationList) === false) {
+                $this->_error(self::MSG_LANGUAGE);
+                return false;
+            }
         }
 
         return true;
