@@ -51,7 +51,10 @@ class Opus_LicenceTest extends PHPUnit_Framework_TestCase {
         $lics[] = new Opus_Licence();
         $lics[] = new Opus_Licence();
         $lics[] = new Opus_Licence();
+        
         foreach ($lics as $lic) {
+            $lic->setNameLong('LongName');
+            $lic->setLinkLicence('http://long.org/licence');
             $lic->store();
         }
         $result = Opus_Licence::getAll();

@@ -599,9 +599,11 @@ class Opus_Form_BuilderTest extends PHPUnit_Framework_TestCase {
         // It's crucial to call store() to provide an id to each licence model.
         $lica = new Opus_Licence();
         $lica->setNameLong('Long Licence 1');
+        $lica->setLinkLicence('http://long.org/licence/1');
         $lica->store();
         $licb = new Opus_Licence();
         $licb->setNameLong('Short Licence 2');
+        $licb->setLinkLicence('http://short.org/licence/2');
         $licb->store();
 
         // Create a selection field holding licences.

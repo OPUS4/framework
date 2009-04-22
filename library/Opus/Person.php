@@ -65,14 +65,18 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
         $academic_title = new Opus_Model_Field('AcademicTitle');
 
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
+        $date_of_birth->setValidator(new Zend_Validate_Date());
 
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
+        $email->setValidator(new Zend_Validate_EmailAddress());
 
         $first_name = new Opus_Model_Field('FirstName');
 
         $last_name = new Opus_Model_Field('LastName');
+        $last_name->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $name = new Opus_Model_Field('Name');
 

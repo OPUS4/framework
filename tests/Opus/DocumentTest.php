@@ -523,6 +523,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $author = new Opus_Person();
+        $author->setLastName('Gandi');
 
         $doc->addPersonAuthor($author);
         $doc->store();
@@ -547,6 +548,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $licence = new Opus_Licence();
+        $licence->setNameLong('LongName');
+        $licence->setLinkLicence('http://long.org/licence');
 
         $doc->addLicence($licence);
         $doc->store();
@@ -597,6 +600,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $isbn = new Opus_Identifier();
+        $isbn->setValue('ISBN');
 
         $doc->addIdentifierIsbn($isbn);
         $doc->store();
@@ -621,6 +625,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $patent = new Opus_Patent();
+        $patent->setNumber('X0815');
 
         $doc->addPatent($patent);
         $doc->store();
@@ -645,6 +650,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $note = new Opus_Note();
+        $note->setMessage('A note!')
+            ->setCreator('Me');
 
         $doc->addNote($note);
         $doc->store();
@@ -669,6 +676,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $subject = new Opus_Subject();
+        $subject->setValue('Schlagwort');
 
         $doc->addSubjectSwd($subject);
         $doc->store();
@@ -693,6 +701,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $title = new Opus_Title();
+        $title->setValue('Title of a document');
 
         $doc->addTitleMain($title);
         $doc->store();
@@ -717,6 +726,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
         $abstract = new Opus_Title();
+        $abstract->setValue('It is necessary to give an abstract.');
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
@@ -1114,7 +1124,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $urn_model = $doc->addIdentifierUrn();
         $urn_model->setValue($urn_value_1);
 
-        $urn_value_2 = '';
+        $urn_value_2 = 'urn:nbn:de:swb:14-opus-2345';
         $urn_model = $doc->addIdentifierUrn();
         $urn_model->setValue($urn_value_2);
         $id = $doc->store();

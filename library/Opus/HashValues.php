@@ -64,7 +64,12 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      */
     protected function _init() {
         $hashtype = new Opus_Model_Field('Type');
+        $hashtype->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+        
         $hashvalue = new Opus_Model_Field('Value');
+        $hashvalue->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($hashtype)
             ->addField($hashvalue);

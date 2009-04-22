@@ -64,6 +64,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
      */
     protected function _init() {
         $value = new Opus_Model_Field('Value');
+        $value->setMandatory(true);
 
         $this->addField($value);
     }

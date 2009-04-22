@@ -74,10 +74,23 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
      * @return void
      */
     protected function _init() {
-        $this->addField(new Opus_Model_Field('Language'))
-            ->addField(new Opus_Model_Field('Type'))
-            ->addField(new Opus_Model_Field('Value'))
-            ->addField(new Opus_Model_Field('ExternalKey'));
+        $language = new Opus_Model_Field('Language');
+        $language->setDefault(Zend_Registry::get('Available_Languages'))
+            ->setSelection(true);
+            
+        $type = new Opus_Model_Field('Type');
+        $type->setMandatory(true);
+        
+        $value = new Opus_Model_Field('Value');
+        $value->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+        
+        $externalKey = new Opus_Model_Field('ExternalKey');
+    
+        $this->addField($language)
+            ->addField($type)
+            ->addField($value)
+            ->addField($externalKey);
     }
 
 

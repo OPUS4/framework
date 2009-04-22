@@ -91,14 +91,14 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
-        $author->setDateOfBirth('1889-04-26 00:00:00');
+        $author->setDateOfBirth('1889-04-26');
         $author->setPlaceOfBirth('Wien');
         $document->addPersonAuthor($author);
 
         $author = new Opus_Person();
         $author->setFirstName('Ferdinand');
         $author->setLastName('de Saussure');
-        $author->setDateOfBirth('1857-11-26 00:00:00');
+        $author->setDateOfBirth('1857-11-26');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 

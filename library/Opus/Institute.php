@@ -51,9 +51,19 @@ class Opus_Institute extends Opus_Model_Abstract
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
     protected function _init() {
-        $this->addField(new Opus_Model_Field('Name'));
-        $this->addField(new Opus_Model_Field('PostalAddress'));
+        $name = new Opus_Model_Field('Name');
+        $name->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+
+        $postalAddress = new Opus_Model_Field('PostalAddress');
+        $postalAddress->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+
         $this->addField(new Opus_Model_Field('Site'));
+
+        $this->addField($name)
+            ->addField($postalAddress)
+            ->addField($site);
     }
 
 }

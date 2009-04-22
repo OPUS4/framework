@@ -65,6 +65,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      */
     protected function _init() {
         $value = new Opus_Model_Field('Value');
+        $value->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($value);
     }

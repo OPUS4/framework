@@ -64,9 +64,17 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
      */
     protected function _init() {
         $countries = new Opus_Model_Field('Countries');
+
         $dateGranted = new Opus_Model_Field('DateGranted');
+        $dateGranted->setValidator(new Zend_Validate_Date());
+        
         $number = new Opus_Model_Field('Number');
+        $number->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+        
         $yearApplied = new Opus_Model_Field('YearApplied');
+        $yearApplied->setValidator(new Zend_Validate_GreaterThan(1900));
+        
         $application = new Opus_Model_Field('Application');
 
         $this->addField($countries)

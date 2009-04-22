@@ -78,18 +78,30 @@ class Opus_Licence extends Opus_Model_AbstractDbSecure
     protected function _init() {
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
+        
         $comment_internal = new Opus_Model_Field('CommentInternal');
+        
         $desc_markup = new Opus_Model_Field('DescMarkup');
         $desc_text = new Opus_Model_Field('DescText');
+        
         $licence_language = new Opus_Model_Field('Language');
         $licence_language->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
+            
         $link_licence = new Opus_Model_Field('LinkLicence');
+        $link_licence->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+        
         $link_logo = new Opus_Model_Field('LinkLogo');
         $link_sign = new Opus_Model_Field('LinkSign');
         $mime_type = new Opus_Model_Field('MimeType');
+        
         $name_long = new Opus_Model_Field('NameLong');
+        $name_long->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+        
         $sort_order = new Opus_Model_Field('SortOrder');
+        
         $pod_allowed = new Opus_Model_Field('PodAllowed');
         $pod_allowed->setCheckbox(true);
 
