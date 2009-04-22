@@ -434,7 +434,7 @@ class Opus_Mail_SendMail {
     }
 
     /**
-     * Composes the e-mail for multiple recipients from the specified components.
+     * Composes an e-mail for multiple recipients from the specified components.
      *
      * @throws Opus_Mail_Exception Thrown if the number of recipient names and of recipient addresses differ
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent
