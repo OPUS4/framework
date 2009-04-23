@@ -79,17 +79,34 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
 
     /**
-     * Tunnel get/set/add methods to the linked model.
+     * Perform get/set/add calls.
+     
+     * If the requested Field is not owned by this model it tunnels get/set/add methods to the linked model. 
      *
      * @param  mixed $name      The name of the called method.
      * @param  array $arguments The arguments passed in the method call.
      * @return mixed
      */
     public function __call($name, array $arguments) {
-        if (array_key_exists(0, $arguments) === true) {
-            return $this->_model->$name($arguments[0]);
+        $accessor = substr($name, 0, 3);
+
+        // Filter calls to unknown methods and turn them into an exception
+        $validAccessors = array('set', 'get', 'add');
+        if (in_array($accessor, $validAccessors) === false) {
+            throw new BadMethodCallException($name . ' is no method in this object.');
+        }
+
+        $fieldname = substr($name, 3);
+
+        // use own __call method if field is appended to the link model
+        if (true === array_key_exists($fieldname, $this->_fields)) {
+            return parent::__call($name, $arguments);
         } else {
-            return $this->_model->$name();
+            if (array_key_exists(0, $arguments) === true) {
+                return $this->_model->$name($arguments[0]);
+            } else {
+                return $this->_model->$name();
+            }
         }
     }
 
@@ -117,12 +134,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
     
     /**
-     * Return a reference to an actual field in the linked model.
+     * Return a reference to an actual field in the linked model if the field is
+     * not itself appended to this link model.
      *
      * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
+        if (true === array_key_exists($name, $this->_fields)) {
+            return parent::getField($name);
+        }
         return $this->_model->getField($name);
     }
 

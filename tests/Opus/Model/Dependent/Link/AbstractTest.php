@@ -89,4 +89,55 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $this->assertTrue(in_array('LinkField', $result), 'Link models field missing.');
     }
     
+    /**
+     * Test if a Link Model not only tunnels its set/get calls but also
+     * applies them to its very own fields.
+     *
+     * @return void
+     */
+    public function testLinkModelFieldsCanBeAccessedViaGetAndSet() {
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->addField(new Opus_Model_Field('FieldValue'));
+        $link->setFieldValue('FooBar');        
+        $this->assertEquals('FooBar', $link->getFieldValue(), 'Link Model field can not be accessed.');
+    }
+    
+    /**
+     * Test if the fields of an actual linked model can be accessed.
+     *
+     * @return void
+     */   
+    public function testLinkedModelsFieldsCanBeAccessedViaGetAndSet() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+        $model->addField(new Opus_Model_Field('AField'));
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
+        $link->setModel($model);        
+
+        $link->setAField('FooBar');
+        
+        $this->assertEquals('FooBar', $link->getAField(), 'Field access tunneling to model failed.');
+    }
+    
+    /**
+     * Test if the Link Model tunnels add() calls.
+     *
+     * @return void
+     */
+    public function testLinkedModelsFieldsCanBeAccessedViaAdd() {
+        $model = $this->getMock('Opus_Model_Dependent_Link_AbstractTestModel', array('__call'));
+        $model->addField(new Opus_Model_Field('Multi'));
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass(get_class($model));
+        $link->setModel($model);
+        
+        $model->expects($this->once())
+            ->method('__call')
+            ->with($this->equalTo('addMulti', array(null)));
+        
+        $link->addMulti(null);
+    }   
+    
 }
