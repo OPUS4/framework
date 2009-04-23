@@ -79,6 +79,8 @@ class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Depende
     public function setModelClass($modelClass) {
         $this->_modelClass = $modelClass;
     }
+    
+    
 
 
 }

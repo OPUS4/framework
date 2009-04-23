@@ -37,6 +37,8 @@
  *
  * @category    Tests
  * @package     Opus_Model
+ *
+ * @group       DependentLinkAbstractTest
  */
 class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase {
     
@@ -65,6 +67,26 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         
         $result = $link->getModelClass();
         $this->assertEquals('Opus_Model', $result, 'Given model class name and retrieved name do not match.');
+    }
+    
+    /**
+     * Test if a call to describe() on a Link Model not only tunnels the call to its
+     * dependent but also delivers those fields owned by the link model itself.
+     *
+     * @return void
+     */
+    public function testDescribeShowsAdditionalFieldsOfLinkModel() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+        $model->addField(new Opus_Model_Field('AField'));
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
+        $link->setModel($model);        
+        $link->addField(new Opus_Model_Field('LinkField'));
+        
+        $result = $link->describe();
+        $this->assertTrue(in_array('AField', $result), 'Linked models field missing.');
+        $this->assertTrue(in_array('LinkField', $result), 'Link models field missing.');
     }
     
 }

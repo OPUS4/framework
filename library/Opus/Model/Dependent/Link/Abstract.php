@@ -94,15 +94,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
 
     /**
-     * Get a list of all fields attached to the linked model.
-     * Filters all fieldnames that are defined to be hidden
-     * in $_hiddenFields.
+     * Get a list of all fields attached to the linked model plus
+     * all fields attached to this link model itself.
      *
      * @see    Opus_Model_Abstract::_hiddenFields
      * @return array    List of fields
      */
     public function describe() {
-        return $this->_model->describe();
+        $result = $this->_model->describe();
+        $result = array_merge($result, parent::describe());
+        return $result;
     }
 
     
