@@ -177,7 +177,7 @@ class Opus_Model_Xml {
      * DOM representation of it.
      *
      * @throws Opus_Model_Exception Thrown if no Model is given.
-     * @return DomDocument DOM representation of the current Model.
+     * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument() {
         if (null === $this->_model) {
@@ -199,11 +199,11 @@ class Opus_Model_Xml {
      * Create a DomElement from a given model.
      *
      * @param Opus_Model_Abstract $model   Model to create DOM representation from.
-     * @param DomDocument         $dom     DomDocument where the root element belongs to.
+     * @param DOMDocument         $dom     DOMDocument where the root element belongs to.
      * @param string              $usename Name for XML element if it differs from Models class name.
-     * @return DomElement
+     * @return DOMElement
      */
-    protected function _makeDomElement(Opus_Model_Abstract $model, DomDocument $dom, $usename = null) {
+    protected function _makeDomElement(Opus_Model_Abstract $model, DOMDocument $dom, $usename = null) {
 
         if (null === $usename) {
             $elementName = get_class($model);
@@ -256,11 +256,11 @@ class Opus_Model_Xml {
      * and sub elements for referenced models.
      *
      * @param Opus_Model_Abstract $model         Model to get serialized
-     * @param DomElement          $root          DomElement to append generated elements to
+     * @param DOMElement          $root          DOMElement to append generated elements to
      * @param array               $excludeFields Array of fields to exclude from serialization
      * @return void
      */
-    protected function _recurseXml(Opus_Model_Abstract $model, DomElement $root, array $excludeFields = null) {
+    protected function _recurseXml(Opus_Model_Abstract $model, DOMElement $root, array $excludeFields = null) {
         if (is_null($excludeFields) === true) {
             $excludeFields = array();
         }
@@ -305,7 +305,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface.
      */
     public function setXml($xml) {
-        $dom = new DomDocument('1.0', 'UTF-8');
+        $dom = new DOMDocument('1.0', 'UTF-8');
         // Disable libxml error reporting because it generates warnings
         // wich will be ignored in production but turned into an exception
         // in PHPUnit environments
@@ -326,10 +326,10 @@ class Opus_Model_Xml {
     /**
      * Set up a model instance from a given DomDocument.
      *
-     * @param DomDocument $dom DomDocument representing a model.
+     * @param DOMDocument $dom DomDocument representing a model.
      * @return Opus_Model_Xml Fluent interface.
      */
-    public function setDomDocument(DomDocument $dom) {
+    public function setDomDocument(DOMDocument $dom) {
         $root = $dom->getElementsByTagName('Opus')->item(0);
         $model = $this->_createModelFromElement($root->firstChild);
         $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
@@ -340,12 +340,12 @@ class Opus_Model_Xml {
      * Use the given element to create a model instance. If a constructor attribute map is set
      * the object creation incorporates using constructor arguments from the XML element.
      *
-     * @param DomElement $element   Element to use for model creation.
+     * @param DOMElement $element   Element to use for model creation.
      * @param string     $classname (Optional) Class name of class to be created. If not given, the node name is used.
      * @throws Opus_Model_Exception Thrown if the model reffered to by the elements name is unknown.
      * @return Opus_Model_Abstract Created model
      */
-    protected function _createModelFromElement(DomElement $element, string $classname = null) {
+    protected function _createModelFromElement(DOMElement $element, string $classname = null) {
         if (null === $classname) {
             $classname = $element->nodeName;
         }
@@ -376,10 +376,10 @@ class Opus_Model_Xml {
      * Recursively populates model's fields from an Xml DomElement.
      *
      * @param  Opus_Model_Abstract  $model   The model to be populated.
-     * @param  DomElement           $element The DomElement holding the field names and values.
+     * @param  DOMElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DomElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
         $fieldList = $model->describe();
 
         // Internal fields exist as attributes
