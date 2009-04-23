@@ -244,8 +244,10 @@ class Opus_Model_Xml {
         // set up the xlink attribute if an URI is given
         if (null !== $uri) {
             $element->setAttribute('xlink:ref', $uri);
-        // insert a serialized submodel if no URI is given
+            // map Link Model fields to attributes
+            $this->_addAttributesFromModelSimpleFields($model, $element, $this->_excludeFields);
         } else {
+            // insert a serialized submodel if no URI is given
             $this->_recurseXml($model, $element, $this->_excludeFields);
         }
         return $element;

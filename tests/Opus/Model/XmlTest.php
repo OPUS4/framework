@@ -338,6 +338,68 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
     }
     
     /**
+     * Test if link model fields are represented by attributes for linked models.
+     *
+     * @return void
+     */
+    public function testLinkModelFieldAreMappedToAttributesForLinkedModels() {
+        // set up a model with a linked Opus_Model_ModelAbstractDbMock
+        // use linking via Opus_Model_ModelDependentLinkMock
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('LinkField');
+        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->addField($field);
+        $link = new Opus_Model_ModelDependentLinkMock;
+        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
+        $link->setModel(new Opus_Model_ModelAbstractDbMock);
+        $link->addField(new Opus_Model_Field('LinkModelField'));
+        $link->setLinkModelField('SomeValue');
+        $model->setLinkField($link);
+        
+        // generate XML
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+        
+        // assert existence of attributes for link model fields
+        $linkField = $dom->getElementsByTagName('LinkField')->item(0);
+        $this->assertTrue($linkField->hasAttribute('LinkModelField'), 'Missing link model attribute.');
+    }
+    
+
+    /**
+     * Test if link model fields are represented by attributes for linked models
+     * even if these models get represented via xlink.
+     *
+     * @return void
+     */
+    public function testLinkModelFieldAreMappedToAttributesForLinkedModelsWhenXlinked() {
+        // set up a model with a linked Opus_Model_ModelAbstractDbMock
+        // use linking via Opus_Model_ModelDependentLinkMock
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('LinkField');
+        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->addField($field);
+        $link = new Opus_Model_ModelDependentLinkMock;
+        $link->setModelClass('Opus_Model_ModelAbstractDbMock');
+        $link->setModel(new Opus_Model_ModelAbstractDbMock);
+        $link->addField(new Opus_Model_Field('LinkModelField'));
+        $link->setLinkModelField('SomeValue');
+        $model->setLinkField($link);
+        
+        // generate XML
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model)->setResourceNameMap(
+            array('Opus_Model_ModelAbstractDbMock' => 'dbmockresource'));
+        $dom = $xml->getDomDocument();
+
+        // assert existence of attributes for link model fields
+        $linkField = $dom->getElementsByTagName('LinkField')->item(0);
+        $this->assertTrue($linkField->hasAttribute('LinkModelField'), 'Missing link model attribute.');
+    }
+
+    
+    /**
      * Test if a given attribute get used for construction of
      * the new Model object.
      *
