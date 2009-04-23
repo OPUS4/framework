@@ -251,19 +251,40 @@ class Opus_Model_Xml {
         return $element;
     }
 
+
+    /**
+     * Maps all single value fields of a given Model to Attributes of an DOMElement.
+     *
+     * @param Opus_Model_Abstract $model         A Model instance to map attributes out of.
+     * @param DOMElement          $element       A DOMElement instance to append attributes to.
+     * @param array               $excludeFields (Optional) Array of fields to exclude from serialization
+     * @return void
+     */
+    protected function _addAttributesFromModelSimpleFields(Opus_Model_Abstract $model, DOMElement $element, array $excludeFields = array()) {
+        if (is_null($excludeFields) === true) {
+            $excludeFields = array();
+        }
+        $fieldNames = $model->describeAll();
+        $fieldNames = array_diff($fieldNames, $excludeFields);
+        foreach ($fieldNames as $fieldName) {
+            $field = $model->getField($fieldName);
+            if (null === $field->getValueModelClass()) {
+                $value = $field->getValue();
+                $element->setAttribute($fieldName, $value);
+            }
+        }
+    }
+
     /**
      * Recurses over the model's field to add attributes for its fields
      * and sub elements for referenced models.
      *
      * @param Opus_Model_Abstract $model         Model to get serialized
      * @param DOMElement          $root          DOMElement to append generated elements to
-     * @param array               $excludeFields Array of fields to exclude from serialization
+     * @param array               $excludeFields (Optional) Array of fields to exclude from serialization
      * @return void
      */
-    protected function _recurseXml(Opus_Model_Abstract $model, DOMElement $root, array $excludeFields = null) {
-        if (is_null($excludeFields) === true) {
-            $excludeFields = array();
-        }
+    protected function _recurseXml(Opus_Model_Abstract $model, DOMElement $root, array $excludeFields = array()) {
         $fields = $model->describeAll();
         foreach (array_diff($fields, $excludeFields) as $fieldname) {
 
@@ -273,6 +294,9 @@ class Opus_Model_Xml {
 
             // skip empty field
             if (($this->_excludeEmtpy) and (empty($fieldvalue) === true)) continue;
+
+            // Map simple fields to attributes
+            $this->_addAttributesFromModelSimpleFields($model, $root, $excludeFields);
 
             // Create array from non-multiple fieldvalue.
             if (false === $field->hasMultipleValues()) {
@@ -288,9 +312,6 @@ class Opus_Model_Xml {
                     }
                     $subElement = $this->_makeDomElement($value, $root->ownerDocument ,$fieldname);
                     $root->appendChild($subElement);
-                } else {
-                    // handle flat attribute
-                    $root->setAttribute($fieldname, $value);
                 }
             }
         }
@@ -327,10 +348,14 @@ class Opus_Model_Xml {
      * Set up a model instance from a given DomDocument.
      *
      * @param DOMDocument $dom DomDocument representing a model.
+     * @throws Opus_Model_Exception Thrown if parsing the XML data failes.
      * @return Opus_Model_Xml Fluent interface.
      */
     public function setDomDocument(DOMDocument $dom) {
         $root = $dom->getElementsByTagName('Opus')->item(0);
+        if (null === $root) {
+            throw new Opus_Model_Exception('Root element "Opus" not found.');
+        }
         $model = $this->_createModelFromElement($root->firstChild);
         $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
         return $this;
