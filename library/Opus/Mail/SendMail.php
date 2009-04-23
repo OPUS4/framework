@@ -225,9 +225,9 @@ class Opus_Mail_SendMail {
      */
     private function formRecipient(Opus_Person $recipient) {
         $recip = array('address' => '', 'name' => '');
-        $recip['address'] = validateAddress($recipient->getField('EMail'));
-        $firstName = $recipient->getField('FirstName');
-        $lastName = $recipient->getField('LastName');
+        $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
+        $firstName = $recipient->getField('FirstName')->getValue();
+        $lastName = $recipient->getField('LastName')->getValue();
         $recip['name'] = $firstName . ' ' . $lastName;
 
         return $recip;
@@ -293,7 +293,7 @@ class Opus_Mail_SendMail {
 
         $recips = array('recipients' => array('address' => '', 'name' => ''));
         foreach ($recipient as $rec) {
-            $recFormed = formRecipient($rec);
+            $recFormed = $this->formRecipient($rec);
             array_push($recips, $recFormed);
         }
 
@@ -322,7 +322,7 @@ class Opus_Mail_SendMail {
 
         $author = new Opus_Person($document->getField('PersonAuthor'));
         $recips = array('recipients' => array('address' => '', 'name' => ''));
-        $recFormed = formRecipient($author);
+        $recFormed = $this->formRecipient($author);
         array_push($recips, $recFormed);
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
@@ -347,7 +347,6 @@ class Opus_Mail_SendMail {
         } else if (($from === '') xor ($fromName === '')) {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
-
 
         if ((is_array($document) === true) and (is_int($document[0]) === true)) {
             $docs = array();
@@ -383,7 +382,7 @@ class Opus_Mail_SendMail {
             $recips = array('recipients' => array('address', 'name'));
 
             foreach ($connectedPersons as $connected) {
-                $recFormed = formRecipient($connected);
+                $recFormed = $this->formRecipient($connected);
                 array_push($recips, $recFormed);
             }
         }
@@ -426,7 +425,7 @@ class Opus_Mail_SendMail {
         $recips = array('recipients' => array('address', 'name'));
         foreach ($documents as $doc) {
             $author = new Opus_Person($doc->getField('PersonAuthor'));
-            $recFormed = formRecipient($author);
+            $recFormed = $this->formRecipient($author);
             array_push($recips, 'recipients', $recFormed);
         }
 
