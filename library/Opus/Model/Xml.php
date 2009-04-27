@@ -271,7 +271,12 @@ class Opus_Model_Xml {
         foreach ($fieldNames as $fieldName) {
             $field = $model->getField($fieldName);
             if (null === $field->getValueModelClass()) {
-                $value = $field->getValue();
+                // workaround for language field or simple fields with multiple values
+                if (true === $field->hasMultipleValues()) {
+                    $value = implode(',', $field->getValue());
+                } else {
+                    $value = $field->getValue();
+                }
                 $element->setAttribute($fieldName, $value);
             }
         }
