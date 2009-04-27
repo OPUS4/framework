@@ -65,7 +65,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Model_Exception');
         $xml->getDomDocument();
     }
-    
+
     /**
      * Test if getDomDocument() returns a DomDocument object.
      *
@@ -76,9 +76,9 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model = new Opus_Model_ModelAbstract();
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
-        $this->assertType('DomDocument', $dom, 'Returned object is of wrong type.');        
+        $this->assertType('DomDocument', $dom, 'Returned object is of wrong type.');
     }
-    
+
     /**
      * Test if a valid XML representation of a Model gets returned.
      *
@@ -89,20 +89,20 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model = new Opus_Model_ModelAbstract();
         $model->setValue('FooBar');
         $dom = $xml->setModel($model)->getDomDocument();
-        
+
         // Root element is Opus
-        $this->assertEquals('Opus', $dom->documentElement->localName, 'Root element should be named "Opus".');        
-        
+        $this->assertEquals('Opus', $dom->documentElement->localName, 'Root element should be named "Opus".');
+
         // Assert that first child represents serialized model
         $this->assertEquals(get_class($model), $dom->documentElement->firstChild->localName, 'Node name does not equal Model class name');
-        
+
         // There is an attribute "Value" with the value "FooBar"
         $value = $dom->documentElement->firstChild->attributes->getNamedItem('Value');
         $this->assertNotNull($value, 'Value attribute missing.');
         $this->assertEquals('FooBar', $value->nodeValue, 'Attribute value is wrong.');
     }
-    
-    
+
+
     /**
      * Test if a submodel serializes to an XML element that has the name
      * of the supermodels containing field.
@@ -116,13 +116,13 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml = new Opus_Model_Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
-        
+
         // assert that there is a sub element of name Value
         $root = $dom->documentElement->firstChild;
         $child = $root->firstChild;
         $this->assertEquals('Value', $child->localName, 'Wrong field name.');
     }
-    
+
     /**
      * Test if a XML child element os generated for each sub model.
      *
@@ -135,13 +135,13 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml = new Opus_Model_Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
-        
+
         // assert that there is a sub element of name Value
         $root = $dom->documentElement->firstChild;
         $child = $root->firstChild;
         $this->assertEquals('Value', $child->localName, 'Missing XML element for field.');
     }
-   
+
     /**
      * Test if fields that are statet in the exclude list do not show in the XML.
      *
@@ -152,7 +152,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model->addField(new Opus_Model_Field('TestField'));
         $model->setTestField(4711)
             ->setValue('Foo');
-        
+
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)
             ->exclude(array('TestField'));
@@ -171,7 +171,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
     public function testEmptyFieldsAreNotSerialized() {
         $model = new Opus_Model_ModelAbstract;
         $model->setValue(null);
-        
+
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)
             ->excludeEmptyFields();
@@ -191,13 +191,13 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         // one-field model
         $model1 = new Opus_Model_ModelAbstract();
         $model1->setValue('Foo');
-    
+
         return array(
             array('<Opus><Opus_Model_ModelAbstract Value="Foo" /></Opus>', $model1),
             array($model1->toXml(), $model1)
         );
     }
-    
+
     /**
      * Create a model using its XML representation.
      *
@@ -215,8 +215,8 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
             $xmlHelper->setXml($xml);
         }
         $fromXml = $xmlHelper->getModel();
-        $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');  
-    }      
+        $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');
+    }
 
     /**
      * Test if a persisted sub model can be referenced by an xlink:ref element
@@ -235,19 +235,19 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         // set up model URI mapping
         $baseUri = 'http://www.localhost.de';
         $resourceMap = array('Opus_Model_ModelAbstractDbMock' => 'dbmock');
-        
+
         $xml->setXlinkBaseUri($baseUri)
             ->setResourceNameMap($resourceMap);
         $dom = $xml->getDomDocument();
         $root = $dom->documentElement->firstChild;
         $element = $root->firstChild;
-        
+
         $this->assertEquals('Value', $element->nodeName);
         $this->assertTrue($element->hasAttribute('xlink:ref'), 'Missing xlink:ref attribute.');
-        $this->assertEquals('http://www.localhost.de/dbmock/4711', 
+        $this->assertEquals('http://www.localhost.de/dbmock/4711',
             $element->getAttribute('xlink:ref'), 'Wrong xlink:ref reference URI.');
     }
-    
+
     /**
      * Test if the XML encoding is set to UTF 8.
      *
@@ -257,10 +257,10 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml = new Opus_Model_Xml;
         $xml->setModel(new Opus_Model_ModelAbstract);
         $dom = $xml->getDomDocument();
-        
+
         $this->assertEquals('UTF-8', $dom->xmlEncoding, 'XML encoding expected to be UTF-8.');
     }
-    
+
     /**
      * Test if the xmlns:xlink namespace attribute is set.
      *
@@ -289,23 +289,23 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $field = new Opus_Model_Field('LinkField');
         $field->setValueModelClass('Opus_Model_ModelAbstract');
         $model->addField($field);
-        
+
         // create mock to track calls
         $link = $this->getMock('Opus_Model_ModelDependentLinkMock', array('getId', 'getLinkedModelId'));
         $link->setModelClass('Opus_Model_ModelAbstract');
         $model->setLinkField($link);
-        
+
         // expect getLinkedModelId() has been called in instead of getId()
         $link->expects($this->once())->method('getLinkedModelId');
-        $link->expects($this->never())->method('getId');        
-                
+        $link->expects($this->never())->method('getId');
+
         // trigger behavior
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)->setResourceNameMap(
             array('Opus_Model_ModelAbstract' => 'dbmockresource'));
         $xml->getDomDocument();
     }
-    
+
     /**
      * Test if the mapping of model classes to named resources is based on the
      * classname of an associated class even when it is connected via a linked model.
@@ -323,20 +323,20 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $link->setModelClass('Opus_Model_ModelAbstractDbMock');
         $link->setModel(new Opus_Model_ModelAbstractDbMock);
         $model->setLinkField($link);
-        
+
         // generate XML
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)->setResourceNameMap(
             array('Opus_Model_ModelAbstractDbMock' => 'dbmockresource'));
         $dom = $xml->getDomDocument();
-        
+
         // assert that there is a LinkField element with an xlink:ref attribute
         $this->assertEquals(1, $dom->getElementsByTagName('LinkField')->length, 'Element for LinkField field is missing.');
-        
+
         $linkField = $dom->getElementsByTagName('LinkField')->item(0);
         $this->assertNotNull($linkField->attributes->getNamedItem('xlink:ref'), 'Xlink declaration missing.');
     }
-    
+
     /**
      * Test if link model fields are represented by attributes for linked models.
      *
@@ -355,17 +355,17 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $link->addField(new Opus_Model_Field('LinkModelField'));
         $link->setLinkModelField('SomeValue');
         $model->setLinkField($link);
-        
+
         // generate XML
         $xml = new Opus_Model_Xml;
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
-        
+
         // assert existence of attributes for link model fields
         $linkField = $dom->getElementsByTagName('LinkField')->item(0);
         $this->assertTrue($linkField->hasAttribute('LinkModelField'), 'Missing link model attribute.');
     }
-    
+
 
     /**
      * Test if link model fields are represented by attributes for linked models
@@ -386,7 +386,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $link->addField(new Opus_Model_Field('LinkModelField'));
         $link->setLinkModelField('SomeValue');
         $model->setLinkField($link);
-        
+
         // generate XML
         $xml = new Opus_Model_Xml;
         $xml->setModel($model)->setResourceNameMap(
@@ -398,7 +398,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertTrue($linkField->hasAttribute('LinkModelField'), 'Missing link model attribute.');
     }
 
-    
+
     /**
      * Test if a given attribute get used for construction of
      * the new Model object.
@@ -413,7 +413,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model = $omx->getModel();
         $this->assertEquals('ByConstructorCall', $model->cons, 'Value has not been set by constructor call.');
     }
-    
+
     /**
      * Test if null can be passed as default value to a constructor instead of
      * querying an XML attribute.
@@ -428,7 +428,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model = $omx->getModel();
         $this->assertNull($model->cons, 'Null has not been set by constructor call.');
     }
-    
+
     /**
      * Test if an exception is thrown when one tries to deserialize invalid XML.
      *
@@ -440,5 +440,24 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $omx->setXml('<Opus attr/>');
     }
 
-}
+    /**
+     * Test if models with an empty value do not show in the XML.
+     *
+     * @return void
+     */
+    public function testEmptyModelsAreNotSerialized() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->getField('Value')->setValueModelClass('something');
+        $model->setValue(null);
 
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model)
+            ->excludeEmptyFields();
+        $dom = $xml->getDomDocument();
+
+        // assert that testField is not there
+        $value = $dom->getElementsByTagName('Value');
+        $this->assertEquals(0, $value->length, 'Models with empty values should not be shown.');
+    }
+
+}

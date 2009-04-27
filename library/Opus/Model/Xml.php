@@ -189,30 +189,18 @@ class Opus_Model_Xml {
         $dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-        $element = $this->_makeDomElement($this->_model, $dom);
-        $root->appendChild($element);
+        $this->_mapModel($this->_model, $dom, $root);
 
         return $dom;
     }
 
     /**
-     * Create a DomElement from a given model.
+     * If there is a mapping for a model available a xlink:href string is created.
      *
-     * @param Opus_Model_Abstract $model   Model to create DOM representation from.
-     * @param DOMDocument         $dom     DOMDocument where the root element belongs to.
-     * @param string              $usename Name for XML element if it differs from Models class name.
-     * @return DOMElement
+     * @param Opus_Model_Abstract $model Model to link.
+     * @return null|string Returns a string or null if no mapping is available
      */
-    protected function _makeDomElement(Opus_Model_Abstract $model, DOMDocument $dom, $usename = null) {
-
-        if (null === $usename) {
-            $elementName = get_class($model);
-        } else {
-            $elementName = (string) $usename;
-        }
-
-        $element = $dom->createElement($elementName);
-
+    protected function _createXlinkRef(Opus_Model_Abstract $model) {
         // detect wether the model is persistent and shall be represented as xlink
         $uri = null;
 
@@ -240,90 +228,103 @@ class Opus_Model_Xml {
                 }
             }
         }
-
-        // set up the xlink attribute if an URI is given
-        if (null !== $uri) {
-            $element->setAttribute('xlink:ref', $uri);
-            // map Link Model fields to attributes
-            $this->_addAttributesFromModelSimpleFields($model, $element, $this->_excludeFields);
-        } else {
-            // insert a serialized submodel if no URI is given
-            $this->_recurseXml($model, $element, $this->_excludeFields);
-        }
-        return $element;
-    }
-
-
-    /**
-     * Maps all single value fields of a given Model to Attributes of an DOMElement.
-     *
-     * @param Opus_Model_Abstract $model         A Model instance to map attributes out of.
-     * @param DOMElement          $element       A DOMElement instance to append attributes to.
-     * @param array               $excludeFields (Optional) Array of fields to exclude from serialization
-     * @return void
-     */
-    protected function _addAttributesFromModelSimpleFields(Opus_Model_Abstract $model, DOMElement $element, array $excludeFields = array()) {
-        if (is_null($excludeFields) === true) {
-            $excludeFields = array();
-        }
-        $fieldNames = $model->describeAll();
-        $fieldNames = array_diff($fieldNames, $excludeFields);
-        foreach ($fieldNames as $fieldName) {
-            $field = $model->getField($fieldName);
-            if (null === $field->getValueModelClass()) {
-                // workaround for language field or simple fields with multiple values
-                if (true === $field->hasMultipleValues()) {
-                    $value = implode(',', $field->getValue());
-                } else {
-                    $value = $field->getValue();
-                }
-                $element->setAttribute($fieldName, $value);
-            }
-        }
+        return $uri;
     }
 
     /**
-     * Recurses over the model's field to add attributes for its fields
-     * and sub elements for referenced models.
+     * Maps model information to a DOMDocument.
      *
-     * @param Opus_Model_Abstract $model         Model to get serialized
-     * @param DOMElement          $root          DOMElement to append generated elements to
-     * @param array               $excludeFields (Optional) Array of fields to exclude from serialization
+     * @param Opus_Model_Abstract $model    Contains model information of mapping.
+     * @param DOMDocument         $dom      General DOM document.
+     * @param DOMNode             $rootNode Node where to add created structure.
      * @return void
      */
-    protected function _recurseXml(Opus_Model_Abstract $model, DOMElement $root, array $excludeFields = array()) {
+    protected function _mapModel(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
         $fields = $model->describeAll();
-        foreach (array_diff($fields, $excludeFields) as $fieldname) {
+        $excludeFields = $this->_excludeFields;
+        if (count($excludeFields) > 0) {
+            $fields_diff = array_diff($fields, $excludeFields);
+        } else {
+            $fields_diff = $fields;
+        }
 
-            $callname = 'get' . $fieldname;
-            $fieldvalue = $model->$callname();
+        $childNode = $dom->createElement(get_class($model));
+        $rootNode->appendChild($childNode);
+
+        foreach ($fields_diff as $fieldname) {
             $field = $model->getField($fieldname);
+            $this->_mapField($field, $dom, $childNode);
+        }
 
-            // skip empty field
-            if (($this->_excludeEmtpy) and (empty($fieldvalue) === true)) continue;
+    }
 
-            // Map simple fields to attributes
-            $this->_addAttributesFromModelSimpleFields($model, $root, $excludeFields);
+    /**
+     * Map field information to a DOMDocument.
+     *
+     * @param Opus_Model_Field $field    Contains informations about mapping field.
+     * @param DOMDocument      $dom      General DOM document.
+     * @param DOMNode          $rootNode Node where to add created structure.
+     * @return void
+     */
+    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
 
-            // Create array from non-multiple fieldvalue.
-            if (false === $field->hasMultipleValues()) {
-                $fieldvalue = array($fieldvalue);
+        $fieldName = $field->getName();
+        $modelClass = $field->getValueModelClass();
+        $fieldValues = $field->getValue();
+
+        if (null === $modelClass) {
+            $attr = $dom->createAttribute($fieldName);
+            // workaround for simple fields with multiple values
+            if (true === $field->hasMultipleValues()) {
+                $fieldValues = implode(',', $fieldValues);
+            }
+            $attr->value = $fieldValues;
+            $rootNode->appendChild($attr);
+        } else {
+            if (false === is_array($fieldValues)) {
+                $fieldValues = array($fieldValues);
             }
 
-            foreach($fieldvalue as $value) {
-                if (null !== $field->getValueModelClass()) {
-                    // handle sub model
-                    if (null === $value) {
-                        $classname = $field->getValueModelClass();
-                        $value = new $classname;
-                    }
-                    $subElement = $this->_makeDomElement($value, $root->ownerDocument ,$fieldname);
-                    $root->appendChild($subElement);
+            foreach ($fieldValues as $value) {
+                if (true === empty($value)) {
+                    continue;
                 }
+
+                $childNode = $dom->createElement($fieldName);
+                $rootNode->appendChild($childNode);
+
+                // delivers a URI if a mapping for the given model exists
+                $uri = $this->_createXlinkRef($value);
+                if (null !== $uri) {
+                    $childNode->setAttribute('xlink:ref', $uri);
+                }
+                $this->_mapAttributes($value, $dom, $childNode);
             }
         }
     }
 
+    /**
+     * Maps attribute model informations to a DOMDocument.
+     *
+     * @param Opus_Model_Abstract $model    Model informations for attribute mapping.
+     * @param DOMDocument         $dom      General DOM document.
+     * @param DOMNode             $rootNode Node where to add created structure.
+     * @return void
+     */
+    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
+        $fields = $model->describeAll();
+        $excludeFields = $this->_excludeFields;
+        if (count($excludeFields) > 0) {
+            $fields_diff = array_diff($fields, $excludeFields);
+        } else {
+            $fields_diff = $fields;
+        }
+
+        foreach ($fields_diff as $fieldname) {
+            $field = $model->getField($fieldname);
+            $this->_mapField($field, $dom, $rootNode);
+        }
+    }
 
     /**
      * Set up a model instance from a given XML string.
