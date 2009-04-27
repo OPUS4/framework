@@ -45,7 +45,7 @@ class Opus_Collection_Information {
      *
      * @var array
      */
-    private static $linkDocumentsCollections = array();
+    private static $linkDocumentsCollections = false;
 
     /**
      * container for roles table for avoiding unnecessary DB queries
@@ -539,7 +539,7 @@ class Opus_Collection_Information {
 
 
 
-        if (true === empty(self::$linkDocumentsCollections)) {
+        if (false === self::$linkDocumentsCollections) {
             // Fetch all links
             self::$linkDocumentsCollections = $linkDocColl
                                             ->fetchAll($linkDocColl->select()
