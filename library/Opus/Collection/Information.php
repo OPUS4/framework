@@ -68,6 +68,19 @@ class Opus_Collection_Information {
      */
     private static $collectionReplacements = false;
 
+
+    /**
+     * (Re-)initialize static variables.
+     *
+     */
+    static public function cleanup() {
+        self::$linkDocumentsCollections   = false;
+        self::$collectionRoles            = array();
+        self::$collectionStructure        = false;
+        self::$collectionReplacements     = false;
+    }
+
+
     /**
      * Create a complete new collection structure (role).
      *
