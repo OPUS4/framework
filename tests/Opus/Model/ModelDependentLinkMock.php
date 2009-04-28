@@ -65,14 +65,5 @@ class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstra
      */
     protected function _init() {
     }
-    
-    /**
-     * Intentionally empty to mask behaviour.
-     *
-     * @return array Empty array.
-     */
-    public function describe() {
-        return array();
-    }
-     
+
 }

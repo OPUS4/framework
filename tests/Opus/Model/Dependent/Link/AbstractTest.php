@@ -41,10 +41,10 @@
  * @group       DependentLinkAbstractTest
  */
 class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase {
-    
+
     /**
      * Test querying the display name of a linked  model.
-     * 
+     *
      * @return void
      */
     public function testGetDisplayNameThroughLink() {
@@ -53,9 +53,9 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModel($model);
         $result = $link->getDisplayName();
-        $this->assertEquals('AbstractTestMockDisplayName', $result, 'Display name of linked model not properly passed.'); 
+        $this->assertEquals('AbstractTestMockDisplayName', $result, 'Display name of linked model not properly passed.');
     }
-    
+
     /**
      * Test if the model class name can be retrieved.
      *
@@ -64,11 +64,11 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
     public function testGetModelClass() {
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass('Opus_Model');
-        
+
         $result = $link->getModelClass();
         $this->assertEquals('Opus_Model', $result, 'Given model class name and retrieved name do not match.');
     }
-    
+
     /**
      * Test if a call to describe() on a Link Model not only tunnels the call to its
      * dependent but also delivers those fields owned by the link model itself.
@@ -77,18 +77,53 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
      */
     public function testDescribeShowsAdditionalFieldsOfLinkModel() {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
+        $link->setModel($model);
+        $link->addField(new Opus_Model_Field('LinkField'));
+
+        $result = $link->describe();
+        $this->assertTrue(in_array('LinkField', $result), 'Link models field missing.');
+    }
+
+    /**
+     * Test if a call to describe() also returns that fields of the linked Model.
+     *
+     * @return void
+     */
+    public function testDescribeCallReturnsFieldsOfLinkedModel() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $model->addField(new Opus_Model_Field('AField'));
 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
-        $link->setModel($model);        
+        $link->setModel($model);
         $link->addField(new Opus_Model_Field('LinkField'));
-        
+
         $result = $link->describe();
         $this->assertTrue(in_array('AField', $result), 'Linked models field missing.');
-        $this->assertTrue(in_array('LinkField', $result), 'Link models field missing.');
     }
-    
+
+    /**
+     * Test if a call to describeAll() also returns that fields of the linked Model.
+     *
+     * @return void
+     */
+    public function testDescribeAllCallReturnsFieldsOfLinkedModel() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+        $model->addField(new Opus_Model_Field('AField'));
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
+        $link->setModel($model);
+        $link->addField(new Opus_Model_Field('LinkField'));
+
+        $result = $link->describeAll();
+        $this->assertTrue(in_array('AField', $result), 'Linked models field missing.');
+    }
+
+
     /**
      * Test if a Link Model not only tunnels its set/get calls but also
      * applies them to its very own fields.
@@ -98,28 +133,28 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
     public function testLinkModelFieldsCanBeAccessedViaGetAndSet() {
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->addField(new Opus_Model_Field('FieldValue'));
-        $link->setFieldValue('FooBar');        
+        $link->setFieldValue('FooBar');
         $this->assertEquals('FooBar', $link->getFieldValue(), 'Link Model field can not be accessed.');
     }
-    
+
     /**
      * Test if the fields of an actual linked model can be accessed.
      *
      * @return void
-     */   
+     */
     public function testLinkedModelsFieldsCanBeAccessedViaGetAndSet() {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $model->addField(new Opus_Model_Field('AField'));
 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
-        $link->setModel($model);        
+        $link->setModel($model);
 
         $link->setAField('FooBar');
-        
+
         $this->assertEquals('FooBar', $link->getAField(), 'Field access tunneling to model failed.');
     }
-    
+
     /**
      * Test if the Link Model tunnels add() calls.
      *
@@ -132,12 +167,12 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass(get_class($model));
         $link->setModel($model);
-        
+
         $model->expects($this->once())
             ->method('__call')
             ->with($this->equalTo('addMulti', array(null)));
-        
+
         $link->addMulti(null);
-    }   
-    
+    }
+
 }

@@ -68,7 +68,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
             $this->_model = $model;
         }
     }
-    
+
     /**
      * Get the model class name this link will accept associated models to be instances of.
      *
@@ -80,8 +80,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
 
     /**
      * Perform get/set/add calls.
-     
-     * If the requested Field is not owned by this model it tunnels get/set/add methods to the linked model. 
+
+     * If the requested Field is not owned by this model it tunnels get/set/add methods to the linked model.
      *
      * @param  mixed $name      The name of the called method.
      * @param  array $arguments The arguments passed in the method call.
@@ -123,16 +123,28 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         return $result;
     }
 
-    
+    /**
+     * Get a list of all fields no matter if "hidden" or not plus
+     * all fields attached to this LinkModel itself.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#describeAll()
+     * @return array    List of fields
+     */
+    public function describeAll() {
+        $result = $this->_model->describeAll();
+        $result = array_merge($result, parent::describeAll());
+        return $result;
+    }
+
     /**
      * Pass the getDisplayname() calls to linked model.
-     * 
+     *
      * @return string Model class name and identifier (e.g. Opus_Document#4711).
      */
     public function getDisplayName() {
         return $this->_model->getDisplayName();
     }
-    
+
     /**
      * Return a reference to an actual field in the linked model if the field is
      * not itself appended to this link model.

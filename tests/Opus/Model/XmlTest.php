@@ -178,8 +178,26 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $dom = $xml->getDomDocument();
 
         // assert that testField is not there
-        $attr = $dom->documentElement->hasAttribute('Value');
-        $this->assertFalse($attr, 'Empty field has not been excluded.');
+        $element = $dom->getElementsByTagName('Opus_Model_ModelAbstract')->item(0);
+        $this->assertFalse($element->hasAttribute('Value'), 'Empty field has not been excluded.');
+    }
+
+    /**
+     * Test if empty fields can be serialized.
+     *
+     * @return void
+     */
+    public function testEmptyFieldsAreSerializedIfWanted() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->setValue(null);
+
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+
+        // assert that testField is not there
+        $element = $dom->getElementsByTagName('Opus_Model_ModelAbstract')->item(0);
+        $this->assertTrue($element->hasAttribute('Value'), 'Empty field has not been included.');
     }
 
     /**
@@ -291,11 +309,12 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model->addField($field);
 
         // create mock to track calls
-        $link = $this->getMock('Opus_Model_ModelDependentLinkMock', array('getId', 'getLinkedModelId'));
+        $link = $this->getMock('Opus_Model_ModelDependentLinkMock', array('getId', 'getLinkedModelId', 'describeAll'));
         $link->setModelClass('Opus_Model_ModelAbstract');
         $model->setLinkField($link);
 
         // expect getLinkedModelId() has been called in instead of getId()
+        $link->expects($this->any())->method('describeAll')->will($this->returnValue(array()));
         $link->expects($this->once())->method('getLinkedModelId');
         $link->expects($this->never())->method('getId');
 
@@ -458,6 +477,80 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         // assert that testField is not there
         $value = $dom->getElementsByTagName('Value');
         $this->assertEquals(0, $value->length, 'Models with empty values should not be shown.');
+    }
+
+
+    /**
+     * Test if referenced submodel is serialized to an XML child element having
+     * an attribute for each field of the submodel.
+     *
+     * @return void
+     */
+    public function testReferencedSubmodelIsRepresentedByXmlElement() {
+        $model = new Opus_Model_ModelAbstract;
+        $submodel = new Opus_Model_ModelAbstract;
+        $submodel->addField(new Opus_Model_Field('CommodityField'));
+        $submodel->setCommodityField('Value! There is a Value!');
+        $model->getField('Value')->setValueModelClass(get_class($submodel));
+        $model->setValue($submodel);
+
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+
+        // assert that there is a sub element of name Value
+        $valueElement = $dom->getElementsByTagName('Value')->item(0);
+        $this->assertNotNull($valueElement, 'Mapping of "Value" field failed.');
+
+        // assert that the Value element has an attribute called "CommodityField"
+        $this->assertTrue($valueElement->hasAttribute('CommodityField'), 'Submodel field mapping failed (no attribute found).');
+
+        // assert that this attribute has a value
+        $this->assertEquals($submodel->getCommodityField(),
+            $valueElement->getAttribute('CommodityField'), 'Field value has not been mapped correctly.');
+    }
+
+
+    /**
+     * Test if a linked Model is correctly mapped to an XML element.
+     *
+     * @return void
+     */
+    public function testLinkedModelIsRepresentedByXmlElement() {
+        // set up a model with a linked Opus_Model_ModelAbstractDbMock
+        // use linking via Opus_Model_ModelDependentLinkMock
+        $model = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('LinkField');
+        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $model->addField($field);
+
+        $linkedModel = new Opus_Model_ModelAbstract;
+        $linkedModel->setValue('LinkedModelsValue');
+
+        $link = new Opus_Model_ModelDependentLinkMock;
+        $link->setModelClass(get_class($linkedModel));
+        $link->setModel($linkedModel);
+
+        $model->setLinkField($link);
+
+        // generate XML
+        $xml = new Opus_Model_Xml;
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+
+        // assert that there is an element representing the LinkField
+        $linkFieldElement = $dom->getElementsByTagName('LinkField')->item(0);
+        $this->assertNotNull($linkFieldElement, 'Mapping of "LinkField" field failed.');
+
+        // assert that the LinkField element has an attribute representing
+        // the LinkModels field
+        $this->assertTrue($linkFieldElement->hasAttribute('Value'),
+            'Attribute for field of linked Model is missing.');
+
+        // assert that the value of the attribute equals to the value
+        // of the linked Models field "Value"
+        $this->assertEquals($linkedModel->getValue(),
+            $linkFieldElement->getAttribute('Value'), 'Field value has not been mapped correctly.');
     }
 
 }

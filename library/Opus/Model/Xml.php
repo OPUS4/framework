@@ -272,6 +272,10 @@ class Opus_Model_Xml {
         $modelClass = $field->getValueModelClass();
         $fieldValues = $field->getValue();
 
+        if ((true === empty($fieldValues)) and (true === $this->_excludeEmtpy)) {
+            return;
+        }
+
         if (null === $modelClass) {
             $attr = $dom->createAttribute($fieldName);
             // workaround for simple fields with multiple values
@@ -286,10 +290,6 @@ class Opus_Model_Xml {
             }
 
             foreach ($fieldValues as $value) {
-                if (true === empty($value)) {
-                    continue;
-                }
-
                 $childNode = $dom->createElement($fieldName);
                 $rootNode->appendChild($childNode);
 
