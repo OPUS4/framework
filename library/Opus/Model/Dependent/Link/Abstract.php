@@ -137,6 +137,15 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
 
     /**
+     * Returns a list of all current model fields.
+     *
+     * @return array  List of fields
+     */
+    public function describeUntunneled() {
+        return parent::describe();
+    }
+
+    /**
      * Pass the getDisplayname() calls to linked model.
      *
      * @return string Model class name and identifier (e.g. Opus_Document#4711).

@@ -175,4 +175,22 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $link->addMulti(null);
     }
 
+    /**
+     * Test if describeUntunneled returns only link fields instead of all linked fields.
+     *
+     * @return void
+     */
+    public function testDescribeUntunneledReturnsOnlyLinkFields() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass('Opus_Model_Dependent_Link_AbstractTestModel');
+        $link->setModel($model);
+        $link->addField(new Opus_Model_Field('LinkField'));
+
+        $result = $link->describeUntunneled();
+
+        $this->assertEquals(1, count($result), 'Result should only have one array element.');
+        $this->assertEquals('LinkField', $result[0], 'Result should contain only a field "LinkField"');
+    }
 }
