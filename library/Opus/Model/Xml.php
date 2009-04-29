@@ -297,8 +297,10 @@ class Opus_Model_Xml {
                 $uri = $this->_createXlinkRef($value);
                 if (null !== $uri) {
                     $childNode->setAttribute('xlink:ref', $uri);
+                    $this->_mapAttributes($value, $dom, $childNode, true);
+                } else {
+                    $this->_mapAttributes($value, $dom, $childNode);
                 }
-                $this->_mapAttributes($value, $dom, $childNode);
             }
         }
     }
@@ -306,13 +308,21 @@ class Opus_Model_Xml {
     /**
      * Maps attribute model informations to a DOMDocument.
      *
-     * @param Opus_Model_Abstract $model    Model informations for attribute mapping.
-     * @param DOMDocument         $dom      General DOM document.
-     * @param DOMNode             $rootNode Node where to add created structure.
+     * @param Opus_Model_Abstract $model      Model informations for attribute mapping.
+     * @param DOMDocument         $dom        General DOM document.
+     * @param DOMNode             $rootNode   Node where to add created structure.
+     * @param boolean             $unTunneled Should only current (true) or all (false, default) fields shown.
      * @return void
      */
-    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
-        $fields = $model->describeAll();
+    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode, $unTunneled = false) {
+
+        if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Link_Abstract)) {
+            $fields = $model->describeUntunneled();
+        } else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
+            $fields = array();
+        } else {
+            $fields = $model->describeAll();
+        }
         $excludeFields = $this->_excludeFields;
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
