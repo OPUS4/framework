@@ -457,5 +457,97 @@ class Opus_Model_Xml {
         return $model;
     }
 
+        /**
+     * Update a model from a given xml string.
+     *
+     * @param string $xml String of xml structure.
+     * @return void
+     */
+    public function updateFromXml($xml) {
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        // Disable libxml error reporting because it generates warnings
+        // wich will be ignored in production but turned into an exception
+        // in PHPUnit environments
+        libxml_use_internal_errors(true);
+        $success = $dom->loadXml($xml);
+        if (false === $success) {
+            $errors = libxml_get_errors();
+            foreach ($errors as $error) {
+                $errmsg = $error->message . "\n";
+            }
+            libxml_clear_errors();
+            throw new Opus_Model_Exception($errmsg);
+        }
+        $model_element = $dom->getElementsByTagName(get_class($this->_model))->item(0);
+        if (null !== $model_element) {
+            $this->_updateModelFromXml($this->_model, $model_element);
+        }
+    }
+
+    /**
+     *
+     * @param Opus_Model_Abstract $model   Model for updating.
+     * @param DOMElement          $element Element with new data.
+     * @return Opus_Model_Abstract
+     */
+    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+        $fieldList = $model->describe();
+
+        // Internal fields exist as attributes
+        foreach ($element->attributes as $field) {
+            // ignore unknown attributes
+            if (true === in_array($field->nodeName, $fieldList)) {
+
+                $callname = 'set' . $field->name;
+                if ($field->value === '') {
+                    $model->$callname(null);
+                } else {
+                    $model->$callname($field->value);
+                }
+            }
+        }
+
+        $externalFields = array();
+        // collect all external field names
+        foreach ($element->childNodes as $externalField) {
+            $fieldName = $externalField->nodeName;
+            // step unkown fields
+            if (true === in_array($fieldName, $fieldList)) {
+                $externalFields[] = $fieldName;
+            }
+        }
+        // make names unique
+        $externalFields = array_unique($externalFields);
+
+        //
+        foreach ($externalFields as $fieldName) {
+            $field = $model->getField($fieldName);
+            $fieldValue = $field->getValue();
+
+            $subModels = array();
+
+            $domElements = $element->getElementsByTagName($fieldName);
+            $i = 0;
+            foreach ($domElements as $domElement) {
+                if (false === is_array($fieldValue)) {
+                    $modelclass = $fieldValue;
+                } else {
+                    $modelclass = $fieldValue[$i];
+                }
+                $subModels[] = $this->_updateModelFromXml($modelclass, $domElement);
+                $i++;
+            }
+
+            $callName = 'set' . $fieldName;
+            if (1 === count($subModels)) {
+                $model->$callName($subModels[0]);
+            } else {
+                $model->$callName($subModels);
+            }
+        }
+
+        return $model;
+    }
+
 }
 

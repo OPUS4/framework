@@ -585,4 +585,96 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertFalse($linkField->hasAttribute('Value'), 'Link Model field should not be available.');
     }
 
+    /**
+     * Test if updating with an attribute value works.
+     *
+     * @return void
+     */
+    public function testUpdateFromXmlAttributeValues() {
+
+        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1123"/></Opus>';
+        $omx = new Opus_Model_Xml;
+        $model = new Opus_Model_ModelAbstract();
+        $omx->setModel($model);
+        $omx->updateFromXml($xmlData);
+        $this->assertEquals(1123, $model->getValue());
+    }
+
+    /**
+     * Test if updating dependent models works.
+     *
+     * @return void
+     */
+    public function testUpdateFromXmlWithDependentModel() {
+
+        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1">';
+        $xmlData .= '<ModelDependentMock FirstName="Chuck" LastName="Norris" />';
+        $xmlData .= '</Opus_Model_ModelAbstract></Opus>';
+
+
+        $dependentModel = new Opus_Model_ModelDependentMock();
+        $dependentModel->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel->setFirstName('Elvis');
+        $dependentModel->addField(new Opus_Model_Field('LastName'));
+        $dependentModel->setLastName('Presley');
+
+        $field = new Opus_Model_Field('ModelDependentMock');
+        $field->setValueModelClass(get_class($dependentModel));
+        $field->setValue($dependentModel);
+
+        $model = new Opus_Model_ModelAbstract();
+        $model->addField($field);
+
+        $omx = new Opus_Model_Xml;
+        $omx->setModel($model);
+        $omx->updateFromXml($xmlData);
+
+        $this->assertEquals(1, $model->getValue());
+        $this->assertEquals('Chuck', $model->getModelDependentMock()->getFirstName());
+        $this->assertEquals('Norris', $model->getModelDependentMock()->getLastName());
+    }
+
+    /**
+     * Test if updating of a multiple dependent model works.
+     *
+     * @return void
+     */
+    public function testUpdateFromXmlWithDependentModels() {
+
+        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1">';
+        $xmlData .= '<ModelDependentMock FirstName="Chuck" LastName="Norris" />';
+        $xmlData .= '<ModelDependentMock FirstName="Kleiner" LastName="Muck" />';
+        $xmlData .= '</Opus_Model_ModelAbstract></Opus>';
+
+        $dependentModel1 = new Opus_Model_ModelDependentMock();
+        $dependentModel1->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel1->setFirstName('Elvis');
+        $dependentModel1->addField(new Opus_Model_Field('LastName'));
+        $dependentModel1->setLastName('Presley');
+
+        $dependentModel2 = new Opus_Model_ModelDependentMock();
+        $dependentModel2->addField(new Opus_Model_Field('FirstName'));
+        $dependentModel2->setFirstName('Hans');
+        $dependentModel2->addField(new Opus_Model_Field('LastName'));
+        $dependentModel2->setLastName('Glueck');
+
+        $field = new Opus_Model_Field('ModelDependentMock');
+        $field->setValueModelClass(get_class($dependentModel1));
+        $field->setMultiplicity(2);
+        $field->setValue(array($dependentModel1, $dependentModel2));
+
+        $model = new Opus_Model_ModelAbstract();
+        $model->addField($field);
+
+        $omx = new Opus_Model_Xml;
+        $omx->setModel($model);
+        $omx->updateFromXml($xmlData);
+
+        $this->assertEquals(1, $model->getValue());
+        $this->assertEquals('Chuck', $model->getModelDependentMock(0)->getFirstName());
+        $this->assertEquals('Norris', $model->getModelDependentMock(0)->getLastName());
+        $this->assertEquals('Kleiner', $model->getModelDependentMock(1)->getFirstName());
+        $this->assertEquals('Muck', $model->getModelDependentMock(1)->getLastName());
+    }
+
 }
