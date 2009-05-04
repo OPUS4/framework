@@ -334,5 +334,47 @@ class Opus_OrganisationalUnit extends Opus_Model_AbstractDb {
         }
         return $subdivisions;
     }   
+ 
+    /**
+     * Assign a specified document to the organisational unit.
+     *
+     * @param integer|Opus_Document $doc An Opus_Document instance or a valid integer Identifier.
+     * @throws InvalidArgumentException If the specified Document is not a valid and actual persitent model.
+     * @return Opus_OrganisationalUnit Fluent interface.
+     */   
+    public function assignDocument($doc) {
+        if (true === is_int($doc)) {
+            $doc = new Opus_Document($doc);
+        } else if ($doc instanceof Opus_Document) {
+            if (null === $doc->getId()) {
+                throw new InvalidArgumentException('The given document instance has not been persisted.');
+            }
+        } else {
+            throw new InvalidArgumentException('No valid document identifier or instance given.');
+        }
+        
+        $my = $this->__mapId($this->getId());
+        Opus_Collection_Information::assignDocumentToCollection((int) $doc->getId(), 
+            $my['roleId'], $my['collectionId']);
+            
+        return $this;
+    }
+    
+    /**
+     * Return a list of document assigned to this Organisational Unit.
+     *
+     * @return array Array of Opus_Document instances.
+     */
+    public function getAssignedDocuments() {
+        $my = $this->__mapId($this->getId());
+        $docs = Opus_Collection_Information::getAllCollectionDocuments(
+            $my['roleId'], $my['collectionId'], false, false);
+            
+        $result = array();
+        foreach ($docs as $doc) {
+            $result[] = new Opus_Document($doc);
+        }
+        return $result;
+    }
     
 }

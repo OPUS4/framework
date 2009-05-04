@@ -44,6 +44,12 @@
  */
 class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
 
+    /**
+     * Holds a testing document type.
+     *
+     * @var Opus_Document_Type
+     */
+    private $doctype = null;
     
     /**
      * Drop all collection related tables from the database.
@@ -97,6 +103,23 @@ class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
+        TestHelper::clearTable('documents');
+
+        // Setup document type
+        $xmlDoctype =
+            '<?xml version="1.0" encoding="UTF-8" ?>
+            <documenttype name="ou_test_doctype"
+                xmlns="http://schemas.opus.org/documenttype"
+                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <field name="Language"  />
+                <field name="TitleMain"/>
+            </documenttype>';
+        $this->doctype = new Opus_Document_Type($xmlDoctype);
+
+        // Set up a mock language list.
+        $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
+        Zend_Registry::set('Available_Languages', $list);
+        
         $this->__dropCollectionTables();
         Opus_Collection_Information::cleanup();
     }
@@ -108,10 +131,14 @@ class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         $this->__dropCollectionTables();
+        TestHelper::clearTable('documents');
         Opus_Collection_Information::cleanup();        
         $reg = Zend_Registry::getInstance();
         if ($reg->isRegistered('Opus_Db_OaIdMap')) {
             $reg->offsetUnset('Opus_Db_OaIdMap');
+        }
+        if ($reg->isRegistered('Available_Languages')) {
+            $reg->offsetUnset('Available_Languages');
         }
     }
 
@@ -255,6 +282,78 @@ class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(1, count($subs), 'Expect one subdivision object for sub Organisational Unit.');        
         $this->assertEquals(0, count($subsubs), 'Expect no subdivision objects for sub-sub Organisational Unit.');        
     }
+    
+    /**
+     * Test if Document models can be assigned to Organisational Units.
+     *
+     * @return void
+     */
+    public function testAssignDocumentToOrganisationalUnit() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $ou->store();
+
+        $doc = new Opus_Document(null, $this->doctype);
+        $doc->setLanguage('de');
+        $tm = $doc->addTitleMain();        
+        $tm->setValue('A Document\'s Title')->setLanguage('en');
+        $doc->store();
+
+        $ou->assignDocument($doc);
+        $assignedDocs = $ou->getAssignedDocuments();        
+        
+        $this->assertEquals(1, count($assignedDocs), 'Expect one document to be assigned.');
+        $this->assertEquals($doc->getId(), $assignedDocs[0]->getId(), 
+            'Identifier of stored document does not match identifier of retrieved document.');
+    }
+    
+    /**
+     * Test if attempt to assign an unpersisted Opus_Document model throws Exception.
+     *
+     * @return void
+     */
+    public function testAssigningTransientDocumentModelThrowsException() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $ou->store();
+
+        $doc = new Opus_Document(null, $this->doctype);
+        
+        $this->setExpectedException('InvalidArgumentException');
+        $ou->assignDocument($doc);
+    }
+    
+    /**
+     * Test if documents can be assigned to subdivisions and get
+     * listed only for those.
+     *
+     * @return void
+     */
+    public function testListDocumentsAssignedToSubdivision() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $ou->store();
+        $sub = $ou->addSubdivision('SubDivision');
+
+        $doc1 = new Opus_Document(null, $this->doctype);
+        $doc1->store();
+        $doc2 = new Opus_Document(null, $this->doctype);
+        $doc2->store();
+
+        $ou->assignDocument($doc1);
+        $sub->assignDocument($doc2);
+        
+        $ous = $ou->getAssignedDocuments();
+        $subs = $sub->getAssignedDocuments();
+        
+        $this->assertEquals(1, count($ous), 'Expect one document to be assigned.');
+        $this->assertEquals(1, count($subs), 'Expect one document to be assigned.');
+        $this->assertEquals($doc1->getId(), $ous[0]->getId(), 
+            'Identifier of stored document does not match identifier of retrieved document.');
+        $this->assertEquals($doc2->getId(), $subs[0]->getId(), 
+            'Identifier of stored document does not match identifier of retrieved document.');
+    }
+    
 }
 
 
