@@ -353,7 +353,23 @@ class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($doc2->getId(), $subs[0]->getId(), 
             'Identifier of stored document does not match identifier of retrieved document.');
     }
-    
+ 
+    /**
+     * Test if deleting an Organisational Unit hides it in
+     * the collection database. Creation of a new Opus_OrganisationalUnit model
+     * using the Identifier of the deleted-one should fail with an Exception.
+     *
+     * @return void
+     */
+    public function testDelete() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $id = $ou->store();
+        $ou->delete();        
+        
+        $this->setExpectedException('Opus_Model_Exception');
+        $ou = new Opus_OrganisationalUnit($id);
+    }   
 }
 
 

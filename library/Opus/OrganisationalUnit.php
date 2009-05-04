@@ -114,6 +114,17 @@ class Opus_OrganisationalUnit extends Opus_Model_AbstractDb {
     }
     
     /**
+     * Remove the specified Role/Collection Id mapping
+     *
+     * @param integer $id Unique identifier of a mapping.
+     * @return void
+     */
+    private function __removeMapping($id) {
+        $map = $this->__getCollectionMappingTable();
+        $map->delete($id);
+    }
+    
+    /**
      * Map an Identifier to a Role-Collection-Id pair.
      *
      * @param integer $id Identifier.
@@ -270,6 +281,17 @@ class Opus_OrganisationalUnit extends Opus_Model_AbstractDb {
         }
         parent::store();
         return (int) $this->id;
+    }
+    
+    /**
+     * Remove the Organisational Unit by hiding the corresponding collection.
+     *
+     * @return void
+     */
+    public function delete() {
+        $my = $this->__mapId($this->getId());
+        Opus_Collection_Information::deleteCollection($my['roleId'], $my['collectionId']);
+        $this->__removeMapping($this->getId());
     }
     
     /**
