@@ -124,8 +124,24 @@ class Opus_OrganisationalUnit extends Opus_Model_AbstractDb {
         $map = $this->__getCollectionMappingTable();
         $row = $map->find($id)->current();
         if (null === $row) return null;
-        return array('roleId' => $row->role_id, 'collectionId' => $row->collection_id);
+        return array('roleId' => (int) $row->role_id, 'collectionId' => (int) $row->collection_id);
     }
+    
+    /**
+     * Map an Collection and Role Id pair to an unique identifier.
+     *
+     * @param integer $roleId
+     * @param integer $collectionId
+     * @return integer Unique identifier for the specified collection.
+     */
+    private function __mapCollectionId($roleId, $collectionId) {
+        $map = $this->__getCollectionMappingTable();
+        $row = $map->fetchRow($map->select()
+            ->where('role_id = ?', $roleId)
+            ->where('collection_id = ?', $collectionId));
+        if (null === $row) return null;
+        return $row->id;
+    }    
 
     /**
      * Retrieve the identifier of the CollectionRole named "Organisational Units" 
@@ -263,6 +279,60 @@ class Opus_OrganisationalUnit extends Opus_Model_AbstractDb {
      */
     public function getId() {
         return $this->id;
+    }   
+    
+    /**
+     * Creates a new Organisational Unit and adds it as subdivision.
+     * Note that the new subdevision element is instantly persisted in the collection database.
+     *
+     * @param string $name Name of the subdivision to append.
+     * @return Opus_OrganisationalUnit The newly created Organisational Unit
+     */
+    public function addSubdivision($name) {
+        // creates a new collection under the root collection element
+        $subdivision = new Opus_OrganisationalUnit();
+        $subdivision->setName($name);
+        $subdivision->store();
+    
+        // this is "creating" a new position for the given Collection
+        $my = $this->__mapId($this->getId());
+        $sub = $this->__mapId($subdivision->getId());
+        $colpos = Opus_Collection_Information::newCollectionPosition(
+            $my['roleId'], $sub['collectionId'], $my['collectionId'], 1);
+        // this is "removing" the old collection position,
+        // assuming that the collection is been located in the
+        // internal root collection (#1).
+        Opus_Collection_Information::deleteCollectionPosition(
+            $my['roleId'], $sub['collectionId'], 1);
+    
+        return $subdivision;
+    }   
+    
+    /**
+     * Returns an array containing all appended subdivision objects.
+     *
+     * @return array Array of all appended subdivisions models.
+     */
+    public function getSubdivisions() {
+    
+        // this returnes all collection of the Organisational Unit role
+        $my = $this->__mapId($this->getId());
+        $subcollections = Opus_Collection_Information::getSubCollections(
+            $my['roleId'], $my['collectionId']);
+    
+        $subdivisions = array();
+        foreach ($subcollections as $subcoll) {
+            $subcolid = $subcoll['content'][0]['id'];
+            // the root collection itself may be part of this list
+            // so only instanciate a collection object if its id
+            // differs from the collection id of $this object
+            if ($subcolid !== $my['collectionId']) {
+                $uid = $this->__mapCollectionId($this->__getRoleId(), $subcolid);
+                $subdivision = new Opus_OrganisationalUnit($uid);
+                $subdivisions[$subdivision->getName()] = $subdivision;
+            }
+        }
+        return $subdivisions;
     }   
     
 }

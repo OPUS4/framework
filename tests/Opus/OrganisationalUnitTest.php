@@ -192,7 +192,69 @@ class Opus_OrganisationalUnitTest extends PHPUnit_Framework_TestCase {
         $roles = Opus_Collection_Information::getAllCollectionRoles();
         $this->assertEquals(1, count($roles), 'More than one CollectionRole object dynamicly created.');        
     }
+    
+    /**
+     * Test if adding a child Organisational Unit works.
+     *
+     * @return void
+     */
+    public function testAddSubdivision() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1')->store();
+        $child = $ou->addSubdivision('SubDivision');
 
+        $subs = $ou->getSubdivisions();
+        $this->assertNotNull($subs, 'No subdivisions returned.');
+        $this->assertEquals(1, count($subs), 'Expect exactly one subdivision.');
+        $this->assertArrayHasKey('SubDivision', $subs, 'Returned array is missing key for added subdivision.');
+
+        $sub = $subs['SubDivision'];
+        $this->assertTrue($sub instanceof Opus_OrganisationalUnit, 'Returned subdivision model has wrong type.');
+    }
+    
+    /**
+     * Test if appended subdivision is still appended after storing the Organisational Unit model.
+     *
+     * @return void
+     */
+    public function testGetSubdivisionsFromDatabase() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $id = $ou->store();
+
+        $child = $ou->addSubdivision('SubDivision');
+
+        $ou = new Opus_OrganisationalUnit($id);
+        $subs = $ou->getSubdivisions();
+        $this->assertNotNull($subs, 'No subdivisions returned.');
+        $this->assertEquals(1, count($subs), 'Expect exactly one subdivision.');
+        $this->assertArrayHasKey('SubDivision', $subs, 'Returned array is missing key for added subdivision.');
+
+        $sub = $subs['SubDivision'];
+        $this->assertTrue($sub instanceof Opus_OrganisationalUnit, 'Returned subdivision model has wrong type.');
+    }
+    
+    /**
+     * Test if multiple sub-sub devisions can be appended.
+     *
+     * @return void
+     */
+    public function testAddSubSubDivision() {
+        $ou = new Opus_OrganisationalUnit;
+        $ou->setName('Org1');
+        $ou->store();
+
+        $sub = $ou->addSubdivision('SubDivision');
+        $subsub = $sub->addSubdivision('SubSubDivision');
+        
+        $ous = $ou->getSubdivisions();
+        $subs = $sub->getSubdivisions();
+        $subsubs = $subsub->getSubdivisions();
+        
+        $this->assertEquals(1, count($ous), 'Expect one subdivision object for root Organisational Unit.');        
+        $this->assertEquals(1, count($subs), 'Expect one subdivision object for sub Organisational Unit.');        
+        $this->assertEquals(0, count($subsubs), 'Expect no subdivision objects for sub-sub Organisational Unit.');        
+    }
 }
 
 
