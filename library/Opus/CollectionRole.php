@@ -101,7 +101,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             ->addField($visible)
             ->addField($subcollection)
             ->addField($collectionsContentSchema);
-
+        Opus_Collection_Information::cleanup();
   }
 
   /**
