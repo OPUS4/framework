@@ -268,7 +268,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
             'ServerDatePublished',
             'ServerDateUnlocking',
             'ServerDateValid',
-            'ServerState',
             'IdentifierOpus3',
         );
 
@@ -341,6 +340,19 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $documentType = new Opus_Model_Field('Type');
         $documentType->setValue($this->_type);
         $this->addField($documentType);
+
+        /** Add the server (publication) state as a field
+         *
+         * FIXME: Serveral of fields of this sort (Server*) should be available
+         * for every document type. Should they be added in the init() method?
+         * Or should we provide a base document type that can be included in
+         * document type definitions? Or should they be expicitly defined in
+         * each and every document type definition?
+         */
+        $serverState = new Opus_Model_Field('ServerState');
+        $serverState->setDefault(array('published', 'unpublished', 'deleted'));
+        $serverState->setSelection(true);
+        $this->addField($serverState);
     }
 
     /**
@@ -402,6 +414,22 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         return self::getAllFrom('Opus_Document', 'Opus_Db_Documents', $ids);
     }
 
+    /**
+     * Returns all document that are in a specific server (publication) state.
+     *
+     * @param  string  $state The state to check for.
+     * @throws Opus_Model_Exception Thrown if an unknown state is encountered.
+     * @return array The list of documents in the specified state.
+     */
+    public static function getAllByState($state) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $rows = $table->fetchAll($table->select()->where('server_state = ?', $state));
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_Document($row);
+        }
+        return $result;
+    }
 
     /**
      * Retrieve an array of all document titles associated with the corresponding

@@ -1149,6 +1149,55 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         }
     }
 
+    /**
+     * Test retrieving a document list based on server (publication) states.
+     *
+     * @return void
+     */
+    public function testGetByServerStateReturnsCorrectDocuments() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="TitleMain" />
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+
+        $publishedDoc1 = new Opus_Document(null, $type);
+        $publishedDoc1->setServerState('published');
+        $publishedDoc1->store();
+
+        $publishedDoc2 = new Opus_Document(null, $type);
+        $publishedDoc2->setServerState('published');
+        $publishedDoc2->store();
+
+        $unpublishedDoc1 = new Opus_Document(null, $type);
+        $unpublishedDoc1->setServerState('unpublished');
+        $unpublishedDoc1->store();
+
+        $unpublishedDoc2 = new Opus_Document(null, $type);
+        $unpublishedDoc2->setServerState('unpublished');
+        $unpublishedDoc2->store();
+
+        $deletedDoc1 = new Opus_Document(null, $type);
+        $deletedDoc1->setServerState('deleted');
+        $deletedDoc1->store();
+
+        $deletedDoc2 = new Opus_Document(null, $type);
+        $deletedDoc2->setServerState('deleted');
+        $deletedDoc2->store();
+
+        $publishedDocs = Opus_Document::getAllByState('published');
+        $unpublishedDocs = Opus_Document::getAllByState('unpublished');
+        $deletedDocs = Opus_Document::getAllByState('deleted');
+
+        $this->assertEquals(2, count($publishedDocs));
+        $this->assertEquals(2, count($unpublishedDocs));
+        $this->assertEquals(2, count($deletedDocs));
+
+    }
+
 }
 
 

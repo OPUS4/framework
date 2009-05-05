@@ -162,6 +162,7 @@
 	       <enumeration value="ServerDatePublished"/>
 	       <enumeration value="ServerDateUnlocking"/>
 	       <enumeration value="ServerDateValid"/>
+	       <enumeration value="ServerState"/>
 	       <enumeration value="Source"/>
 	       <enumeration value="SubjectDdc"/>
 	       <enumeration value="SubjectPsyndex"/>
