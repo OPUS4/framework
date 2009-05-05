@@ -388,7 +388,7 @@ class Opus_Model_Xml {
      * @throws Opus_Model_Exception Thrown if the model reffered to by the elements name is unknown.
      * @return Opus_Model_Abstract Created model
      */
-    protected function _createModelFromElement(DOMElement $element, string $classname = null) {
+    protected function _createModelFromElement(DOMElement $element, $classname = null) {
         if (null === $classname) {
             $classname = $element->nodeName;
         }
@@ -443,10 +443,11 @@ class Opus_Model_Xml {
 
         // External fields exist as child elements
         foreach ($element->childNodes as $externalField) {
-            if (in_array($externalField, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $externalField->nodeName . ' not defined');
+            $fieldName = $externalField->nodeName;
+            if (in_array($fieldName, $fieldList) === false) {
+                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
             } else {
-                $modelclass = $field->getValueModelClass();
+                $modelclass = $model->getField($fieldName)->getValueModelClass();
             }
 
             $submodel = $this->_createModelFromElement($externalField, $modelclass);

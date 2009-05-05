@@ -677,4 +677,49 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('Muck', $model->getModelDependentMock(1)->getLastName());
     }
 
+    /**
+     * Test if creating a Model from XML document leads to correct Model values
+     * for single value fields.
+     *
+     * @return void
+     */
+    public function testCreateModelFromXmlFillsCorrectAttributeValues() {
+        $xmlData = '<Opus><Opus_Model_ModelAbstract Value="1123"/></Opus>';
+        $omx = new Opus_Model_Xml;
+        $omx->setXml($xmlData);
+        $model = $omx->getModel();
+        $this->assertEquals(1123, $model->getValue(), 'Created model has wrong attribute value.');
+    }
+    
+    
+    /**
+     * Test if creating a Model from XML document leads to correct Model values
+     * for submodel value fields.
+     *
+     * @return void
+     */
+    public function testCreateModelFromXmlAssignsCorrectSubmodels() {
+        eval(
+            'class testCreateModelFromXmlAssignsCorrectSubmodels extends Opus_Model_Abstract {
+                protected function _init() {
+                    $link = new Opus_Model_Field(\'Link\');
+                    $link->setValueModelClass(\'Opus_Model_ModelAbstract\');
+                    $this->addField($link);
+                }
+            }');
+    
+        $xmlData = 
+            '<Opus><testCreateModelFromXmlAssignsCorrectSubmodels>' .
+            '<Link Value="4711" />' .
+            '</testCreateModelFromXmlAssignsCorrectSubmodels></Opus>';
+        
+        $omx = new Opus_Model_Xml;
+        $omx->setXml($xmlData);
+        $model = $omx->getModel();
+
+        $this->assertNotNull($model->getLink(), 'No linked model assigned.');
+        $this->assertType('Opus_Model_ModelAbstract', $model->getLink(), 'Wrong model type.');
+        $this->assertEquals(4711, $model->getLink()->getValue(), 'Sub model initialised incorrectly.');
+    }
+
 }
