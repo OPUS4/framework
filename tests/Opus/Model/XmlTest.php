@@ -241,7 +241,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a persisted sub model can be referenced by an xlink:ref element
+     * Test if a persisted sub model can be referenced by an xlink:href element
      * instead of a whole XML tree.
      *
      * @return void
@@ -265,9 +265,11 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $element = $root->firstChild;
 
         $this->assertEquals('Value', $element->nodeName);
-        $this->assertTrue($element->hasAttribute('xlink:ref'), 'Missing xlink:ref attribute.');
+        $this->assertTrue($element->hasAttribute('xlink:type'), 'Missing xlink:type attribute.');
+        $this->assertEquals('simple', $element->getAttribute('xlink:type'), 'Wrong xlink:type value.');
+        $this->assertTrue($element->hasAttribute('xlink:href'), 'Missing xlink:href attribute.');
         $this->assertEquals('http://www.localhost.de/dbmock/4711',
-            $element->getAttribute('xlink:ref'), 'Wrong xlink:ref reference URI.');
+            $element->getAttribute('xlink:href'), 'Wrong xlink:href reference URI.');
     }
 
     /**
@@ -353,11 +355,11 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
             array('Opus_Model_ModelAbstractDbMock' => 'dbmockresource'));
         $dom = $xml->getDomDocument();
 
-        // assert that there is a LinkField element with an xlink:ref attribute
+        // assert that there is a LinkField element with an xlink:href attribute
         $this->assertEquals(1, $dom->getElementsByTagName('LinkField')->length, 'Element for LinkField field is missing.');
 
         $linkField = $dom->getElementsByTagName('LinkField')->item(0);
-        $this->assertNotNull($linkField->attributes->getNamedItem('xlink:ref'), 'Xlink declaration missing.');
+        $this->assertNotNull($linkField->attributes->getNamedItem('xlink:href'), 'Xlink declaration missing.');
     }
 
     /**
@@ -581,7 +583,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $xml->setResourceNameMap(array('Opus_Model_ModelAbstractDbMock' => 'dbmockresource'));
         $dom = $xml->getDomDocument();
 
-        // assert that there is a LinkField element with an xlink:ref attribute
+        // assert that there is a LinkField element with an xlink:href attribute
         $elements = $dom->getElementsByTagName('LinkField');
         $this->assertEquals(1, $elements->length, 'Element for LinkField field is missing.');
 
@@ -733,7 +735,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels() {
         $mockResolver = $this->getMock('Opus_Uri_Resolver', array('get'));
-        $xmlData = '<Opus><Opus_Model_ModelAbstract xlink:ref="www.example.org/item/12" /></Opus>';
+        $xmlData = '<Opus><Opus_Model_ModelAbstract xlink:href="www.example.org/item/12" /></Opus>';
 
         $mockResolver->expects($this->once())
             ->method('get')
@@ -769,7 +771,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         // XML for update
         $xmlData = 
             '<Opus><testCallToResolverWhenXlinkIsEncounteredForUpdatingModels>' .
-            '<Link xlink:ref="www.example.org/mockitem" />' .
+            '<Link xlink:href="www.example.org/mockitem" />' .
             '</testCallToResolverWhenXlinkIsEncounteredForUpdatingModels></Opus>';
     
         // Mock resolver and model

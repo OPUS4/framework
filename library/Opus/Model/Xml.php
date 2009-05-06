@@ -371,7 +371,8 @@ class Opus_Model_Xml {
                 // delivers a URI if a mapping for the given model exists
                 $uri = $this->_createXlinkRef($value);
                 if (null !== $uri) {
-                    $childNode->setAttribute('xlink:ref', $uri);
+                    $childNode->setAttribute('xlink:type', 'simple');
+                    $childNode->setAttribute('xlink:href', $uri);
                     $this->_mapAttributes($value, $dom, $childNode, true);
                 } else {
                     $this->_mapAttributes($value, $dom, $childNode);
@@ -432,7 +433,7 @@ class Opus_Model_Xml {
         }
 
         // When xlink:href given use resolver to obtain model
-        $ref = $element->attributes->getNamedItem('ref');
+        $ref = $element->attributes->getNamedItem('href');
         if ((null !== $this->_xlinkResolver) and (null !== $ref)) {
             $model = $this->_xlinkResolver->get($ref->value);
             return $model;
@@ -522,7 +523,7 @@ class Opus_Model_Xml {
      */
     protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
         // When xlink:href given use resolver to obtain model
-        $ref = $element->attributes->getNamedItem('ref');
+        $ref = $element->attributes->getNamedItem('href');
         if ((null !== $this->_xlinkResolver) and (null !== $ref)) {
             $model = $this->_xlinkResolver->get($ref->value);
         }
