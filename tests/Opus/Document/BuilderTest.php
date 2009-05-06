@@ -102,7 +102,8 @@ class Opus_Document_BuilderTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($this->_xml);
         $builder = new Opus_Document_Builder($type);
         $document = $builder->create();
-        $this->assertEquals(array('Language'), $document->describe(), 'Document creating failed.');
+        $fields = $document->describe();
+        $this->assertTrue(in_array('Language', $fields), 'Document creating failed: Missing field.');
     }
 
     /**
@@ -114,9 +115,14 @@ class Opus_Document_BuilderTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($this->_xml_complex);
         $builder = new Opus_Document_Builder();
         $document = $builder->create($type);
-        $this->assertEquals(array('Language', 'TitleMain'), $document->describe(), 'Document creating failed.');
+        $fields = $document->describe();
+        
+        $this->assertEquals(in_array('Language', $fields), 'Document creating failed: Missing field.'); 
+        $this->assertEquals(in_array('TitleMain', $fields), 'Document creating failed: Missing field.');
+        
         $mandatory = $document->getField('Language')->isMandatory();
         $this->assertTrue($mandatory, 'Language should be mandatory.');
+        
         $mult = $document->getField('TitleMain')->getMultiplicity();
         $this->assertEquals(2, $mult, 'TitleMain should has a mulitplicity of 2.');
     }
