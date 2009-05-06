@@ -504,5 +504,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         }
     }
 
+    /**
+     * Returns whether model is a new record.
+     *
+     * @return boolean
+     */
+    public function isNewRecord() {
+        return $this->_isNewRecord;
+    }
 
 }
