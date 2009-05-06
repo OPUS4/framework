@@ -507,21 +507,8 @@ class Opus_Model_Xml {
      * @return void
      */
     public function updateFromXml($xml) {
-        $dom = new DOMDocument('1.0', 'UTF-8');
-        // Disable libxml error reporting because it generates warnings
-        // wich will be ignored in production but turned into an exception
-        // in PHPUnit environments
-        libxml_use_internal_errors(true);
-        $success = $dom->loadXml($xml);
-        if (false === $success) {
-            $errors = libxml_get_errors();
-            foreach ($errors as $error) {
-                $errmsg = $error->message . "\n";
-            }
-            libxml_clear_errors();
-            throw new Opus_Model_Exception($errmsg);
-        }
-        $model_element = $dom->getElementsByTagName(get_class($this->_model))->item(0);
+        $this->setXml($xml);
+        $model_element = $this->_dom->getElementsByTagName(get_class($this->_model))->item(0);
         if (null !== $model_element) {
             $this->_updateModelFromXml($this->_model, $model_element);
         }
