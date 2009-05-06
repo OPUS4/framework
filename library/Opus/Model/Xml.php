@@ -345,6 +345,7 @@ class Opus_Model_Xml {
      */
     public function setXml($xml) {
         $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
         // Disable libxml error reporting because it generates warnings
         // wich will be ignored in production but turned into an exception
         // in PHPUnit environments

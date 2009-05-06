@@ -211,21 +211,25 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $model1->setValue('Foo');
 
         return array(
-            array('<Opus><Opus_Model_ModelAbstract Value="Foo" /></Opus>', $model1),
-            array($model1->toXml(), $model1)
+            array('<Opus><Opus_Model_ModelAbstract Value="Foo" /></Opus>', $model1, 'Model array representations differ.'),
+            array('<Opus>
+                    <Opus_Model_ModelAbstract Value="Foo" />
+                   </Opus>', $model1, 'Incorrect handling of XML containing spaces and line breaks.'),
+            array($model1->toXml(), $model1, 'Build invalid model from before generated XML representation.')
         );
     }
 
     /**
      * Create a model using its XML representation.
      *
-     * @param DomDocument|string $xml    XML representation of a model.
+     * @param DomDocument|string  $xml   XML representation of a model.
      * @param Opus_Model_Abstract $model A model corresponding to the given XML representation.
+     * @param string              $msg   Error message given on test failure.    
      * @return void
      *
      * @dataProvider xmlModelDataProvider
      */
-    public function testCreateFromXml($xml, $model) {
+    public function testCreateFromXml($xml, $model, $msg) {
         $xmlHelper = new Opus_Model_Xml;
         if ($xml instanceof DomDocument) {
             $xmlHelper->setDomDocument($xml);
@@ -233,7 +237,7 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
             $xmlHelper->setXml($xml);
         }
         $fromXml = $xmlHelper->getModel();
-        $this->assertEquals($model->toArray(), $fromXml->toArray(), 'Models array representations differ.');
+        $this->assertEquals($model->toArray(), $fromXml->toArray(), $msg);
     }
 
     /**
