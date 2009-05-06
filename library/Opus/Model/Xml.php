@@ -68,6 +68,14 @@ class Opus_Model_Xml {
      * @var string
      */
     protected $_baseUri = '';
+    
+    /**
+     * Holds Resolver instance to get contents of xlink referenced resources.
+     *
+     * @var Opus_Uri_Resolver
+     */
+    protected $_xlinkResolver = null;
+    
 
     /**
      * Map of model class names to resource names for URI generation.
@@ -109,6 +117,17 @@ class Opus_Model_Xml {
      */
     public function setXlinkBaseUri($uri) {
         $this->_baseUri = $uri;
+        return $this;
+    }
+    
+    /**
+     * Set up Xlink-Resolver called to obtain contents of Xlink referenced resources.
+     *
+     * @param Opus_Uri_Resolver $resolver Resolver implementation that gets called for xlink:ref content.
+     * @return Opus_Model_Xml Fluent interface
+     */
+    public function setXlinkResolver(Opus_Uri_Resolver $resolver) {
+        $this->_xlinkResolver = $resolver;
         return $this;
     }
 
@@ -384,6 +403,9 @@ class Opus_Model_Xml {
      * Use the given element to create a model instance. If a constructor attribute map is set
      * the object creation incorporates using constructor arguments from the XML element.
      *
+     * If an Xlink Resolver is configured an occurance of xlink:href will be used to fetch
+     * a Model instance from the specified URL.
+     *
      * @param DOMElement $element   Element to use for model creation.
      * @param string     $classname (Optional) Class name of class to be created. If not given, the node name is used.
      * @throws Opus_Model_Exception Thrown if the model reffered to by the elements name is unknown.
@@ -395,6 +417,13 @@ class Opus_Model_Xml {
         }
         if (false === class_exists($classname)) {
             throw new Opus_Model_Exception('Model class ' . $classname . ' not known.');
+        }
+
+        // When xlink:href given use resolver to obtain model
+        $ref = $element->attributes->getNamedItem('ref');
+        if ((null !== $this->_xlinkResolver) and (null !== $ref)) {
+            $model = $this->_xlinkResolver->get($ref->value);
+            return $model;
         }
 
         // Handle constructor attributes
@@ -459,7 +488,7 @@ class Opus_Model_Xml {
         return $model;
     }
 
-        /**
+    /**
      * Update a model from a given xml string.
      *
      * @param string $xml String of xml structure.
@@ -493,6 +522,12 @@ class Opus_Model_Xml {
      * @return Opus_Model_Abstract
      */
     protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+        // When xlink:href given use resolver to obtain model
+        $ref = $element->attributes->getNamedItem('ref');
+        if ((null !== $this->_xlinkResolver) and (null !== $ref)) {
+            $model = $this->_xlinkResolver->get($ref->value);
+        }
+
         $fieldList = $model->describe();
 
         // Internal fields exist as attributes
@@ -529,14 +564,15 @@ class Opus_Model_Xml {
             $subModels = array();
 
             $domElements = $element->getElementsByTagName($fieldName);
+
             $i = 0;
             foreach ($domElements as $domElement) {
                 if (false === is_array($fieldValue)) {
-                    $modelclass = $fieldValue;
+                    $submodel = $fieldValue;
                 } else {
-                    $modelclass = $fieldValue[$i];
+                    $submodel = $fieldValue[$i];
                 }
-                $subModels[] = $this->_updateModelFromXml($modelclass, $domElement);
+                $subModels[] = $this->_updateModelFromXml($submodel, $domElement);
                 $i++;
             }
 

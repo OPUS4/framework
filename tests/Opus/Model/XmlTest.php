@@ -726,4 +726,69 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(4711, $model->getLink()->getValue(), 'Sub model initialised incorrectly.');
     }
 
+    /**
+     * Test if a given XlinkResolver instance is called to resolve xlink attribute content.
+     *
+     * @return void
+     */
+    public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels() {
+        $mockResolver = $this->getMock('Opus_Uri_Resolver', array('get'));
+        $xmlData = '<Opus><Opus_Model_ModelAbstract xlink:ref="www.example.org/item/12" /></Opus>';
+
+        $mockResolver->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('www.example.org/item/12'))
+            ->will($this->returnValue(new Opus_Model_ModelAbstract));
+
+        $omx = new Opus_Model_Xml;
+        $omx->setXlinkResolver($mockResolver)
+            ->setXml($xmlData);
+    }
+    
+    /**
+     * Test if a given XlinkResolver instance is called to resolve xlink attribute content
+     * in updateFromXml().
+     *
+     * @return void
+     */
+    public function testCallToResolverWhenXlinkIsEncounteredForUpdatingSubModels() {
+        // Mock model class with external field
+        eval(
+            'class testCallToResolverWhenXlinkIsEncounteredForUpdatingModels extends Opus_Model_Abstract {
+                protected function _init() {
+                    $link = new Opus_Model_Field(\'Link\');
+                    $link->setValueModelClass(\'Opus_Model_ModelAbstract\');
+                    $this->addField($link);
+                }
+            }');
+        $preModel = new testCallToResolverWhenXlinkIsEncounteredForUpdatingModels;
+        $preModel->setLink(new Opus_Model_ModelAbstract);
+        $preModel->getLink()->setValue('before');
+    
+        // XML for update
+        $xmlData = 
+            '<Opus><testCallToResolverWhenXlinkIsEncounteredForUpdatingModels>' .
+            '<Link xlink:ref="www.example.org/mockitem" />' .
+            '</testCallToResolverWhenXlinkIsEncounteredForUpdatingModels></Opus>';
+    
+        // Mock resolver and model
+        $mockModel = new Opus_Model_ModelAbstract;
+        $mockModel->setValue('after');
+        
+        $mockResolver = $this->getMock('Opus_Uri_Resolver', array('get'));
+        $mockResolver->expects($this->once())
+            ->method('get')
+            ->with($this->equalTo('www.example.org/mockitem'))
+            ->will($this->returnValue($mockModel));
+    
+        // perform update
+        $omx = new Opus_Model_Xml;
+        $omx->setXlinkResolver($mockResolver)
+            ->setModel($preModel)
+            ->updateFromXml($xmlData);
+    
+        // check updated model
+        $this->assertEquals('after', $preModel->getLink()->getValue(), 'Sub model has not been updated correctly.');
+    }
+
 }
