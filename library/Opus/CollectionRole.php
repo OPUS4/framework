@@ -88,11 +88,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $name = new Opus_Model_Field('Name');
         $position = new Opus_Model_Field('Position');
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
+        $links_docs_path_to_root->setCheckbox(true);
         $visible = new Opus_Model_Field('Visible');
+        $visible->setCheckbox(true);
         $subcollection = new Opus_Model_Field('SubCollection');
         $subcollection->setMultiplicity('*');
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
-//        $collectionsContentSchema->setMultiplicity('*');
+        $collectionsContentSchema->setMultiplicity('*');
 
 
         $this->addField($name)
@@ -185,7 +187,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeCollectionsContentSchema() {
-        if ($this->_isNewRecord === false) return;
+        if ($this->_isNewRecord === false) {
+            return;
+        }
         $schema = array();
         // FIXME: As soon as the document builder supports multiple
         // values for atomic field types, remove artificial array
@@ -258,4 +262,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return parent::toXml(array('ParentCollection'));
     }
 
+    /**
+     * Extend standard deletion to delete collection roles tables.
+     *
+     * @return void
+     */
+    public function delete() {
+        $dbadapter = Zend_Db_Table::getDefaultAdapter();
+        $id = $this->getId();
+        $collectionsContentsTable = $dbadapter->quoteIdentifier("collections_contents_$id");
+        $collectionsStructureTable = $dbadapter->quoteIdentifier("collections_structure_$id");
+        $collectionsReplacementTable = $dbadapter->quoteIdentifier("collections_replacement_$id");
+        $collectionsLinkTable = $dbadapter->quoteIdentifier("link_documents_collections_$id");
+        $dbadapter->query("DROP TABLE $collectionsStructureTable");
+        $dbadapter->query("DROP TABLE $collectionsReplacementTable");
+        $dbadapter->query("DROP TABLE $collectionsLinkTable");
+        $dbadapter->query("DROP TABLE $collectionsContentsTable");
+        parent::delete();
+    }
 }
