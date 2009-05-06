@@ -46,6 +46,13 @@ class Opus_Model_Xml {
      * @var Opus_Model_Abstract
      */
     protected $_model = null;
+    
+    /**
+     * Holds the current DOM representation.
+     *
+     * @var DOMDocument
+     */
+    protected $_dom = null;
 
     /**
      * List of fields to skip on serialization.
@@ -169,6 +176,43 @@ class Opus_Model_Xml {
         return $this;
     }
 
+    /**
+     * Set XML model representation.
+     *
+     * @param string $xml XML string representing a model.
+     * @throws Opus_Model_Exception Thrown if XML loading failed.
+     * @return Opus_Model_Xml Fluent interface.
+     */
+    public function setXml($xml) {
+        $dom = new DOMDocument('1.0', 'UTF-8');
+        $dom->preserveWhiteSpace = false;
+        // Disable libxml error reporting because it generates warnings
+        // wich will be ignored in production but turned into an exception
+        // in PHPUnit environments
+        libxml_use_internal_errors(true);
+        $success = $dom->loadXml($xml);
+        if (false === $success) {
+            $errors = libxml_get_errors();
+            foreach ($errors as $error) {
+                $errmsg = $error->message . "\n";
+            }
+            libxml_clear_errors();
+            throw new Opus_Model_Exception($errmsg);
+        }
+        $this->setDomDocument($dom);
+        return $this;
+    }
+
+    /**
+     * Set a DomDocument instance.
+     *
+     * @param DOMDocument $dom DomDocument representing a model.
+     * @return Opus_Model_Xml Fluent interface.
+     */
+    public function setDomDocument(DOMDocument $dom) {
+        $this->_dom = $dom;
+        return $this;
+    }
 
     /**
      * Set the Model for XML generation.
@@ -182,11 +226,23 @@ class Opus_Model_Xml {
     }
 
     /**
-     * Return the current Model instance if there is any.
+     * Return the current Model instance if there is any. If there is an XML representation set up,
+     * a new model is created by unserialising it from the XML data.
      *
-     * @return Opus_Model_Abstract Deserialized or previously set Model.
+     * @throws Opus_Model_Exception If an error occured during deserialisation
+     * @return Opus_Model_Abstract Deserialised or previously set Model.
      */
     public function getModel() {
+    
+        if (null !== $this->_dom) {
+            $root = $this->_dom->getElementsByTagName('Opus')->item(0);
+            if (null === $root) {
+                throw new Opus_Model_Exception('Root element "Opus" not found.');
+            }
+            $model = $this->_createModelFromElement($root->firstChild);
+            $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
+        }
+    
         return $this->_model;
     }
 
@@ -203,14 +259,14 @@ class Opus_Model_Xml {
             throw new Opus_Model_Exception('No Model given for serialization.');
         }
 
-        $dom = new DomDocument('1.0', 'UTF-8');
-        $root = $dom->createElement('Opus');
-        $dom->appendChild($root);
+        $this->_dom = new DomDocument('1.0', 'UTF-8');
+        $root = $this->_dom->createElement('Opus');
+        $this->_dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-        $this->_mapModel($this->_model, $dom, $root);
+        $this->_mapModel($this->_model, $this->_dom, $root);
 
-        return $dom;
+        return $this->_dom;
     }
 
     /**
@@ -353,50 +409,6 @@ class Opus_Model_Xml {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $rootNode);
         }
-    }
-
-    /**
-     * Set up a model instance from a given XML string.
-     *
-     * @param string $xml XML string representing a model.
-     * @throws Opus_Model_Exception Thrown if XML loading failed.
-     * @return Opus_Model_Xml Fluent interface.
-     */
-    public function setXml($xml) {
-        $dom = new DOMDocument('1.0', 'UTF-8');
-        $dom->preserveWhiteSpace = false;
-        // Disable libxml error reporting because it generates warnings
-        // wich will be ignored in production but turned into an exception
-        // in PHPUnit environments
-        libxml_use_internal_errors(true);
-        $success = $dom->loadXml($xml);
-        if (false === $success) {
-            $errors = libxml_get_errors();
-            foreach ($errors as $error) {
-                $errmsg = $error->message . "\n";
-            }
-            libxml_clear_errors();
-            throw new Opus_Model_Exception($errmsg);
-        }
-        $this->setDomDocument($dom);
-        return $this;
-    }
-
-    /**
-     * Set up a model instance from a given DomDocument.
-     *
-     * @param DOMDocument $dom DomDocument representing a model.
-     * @throws Opus_Model_Exception Thrown if parsing the XML data failes.
-     * @return Opus_Model_Xml Fluent interface.
-     */
-    public function setDomDocument(DOMDocument $dom) {
-        $root = $dom->getElementsByTagName('Opus')->item(0);
-        if (null === $root) {
-            throw new Opus_Model_Exception('Root element "Opus" not found.');
-        }
-        $model = $this->_createModelFromElement($root->firstChild);
-        $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
-        return $this;
     }
 
     /**

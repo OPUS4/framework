@@ -742,7 +742,8 @@ class Opus_Model_XmlTest extends PHPUnit_Framework_TestCase {
 
         $omx = new Opus_Model_Xml;
         $omx->setXlinkResolver($mockResolver)
-            ->setXml($xmlData);
+            ->setXml($xmlData)
+            ->getModel();
     }
     
     /**
