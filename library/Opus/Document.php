@@ -432,10 +432,34 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Retrieve an array of all document titles of a document in a certain server
+     * (publication) state associated with the corresponding document id.
+     *
+     * @return array Associative array with id=>array(titles) entries.
+     */
+    public static function getAllDocumentTitlesByState($state) {
+        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
+        $select = $db->select()
+            ->from(array('d' => 'documents'),
+                    array())
+            ->join(array('t' => 'document_title_abstracts'),
+                    't.document_id = d.id')
+            ->where('d.server_state = ?', $state)
+            ->where('t.type = ?', 'main');
+        $rows = $db->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row['document_id']][] = $row['value'];
+        }
+        return $result;
+    }
+
+    /**
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
      *
-     * @return array Associative array with title=>id entries.
+     * @return array Associative array with id=>arary(titles) entries.
      */
     public static function getAllDocumentTitles() {
         $table = new Opus_Db_DocumentTitleAbstracts();
@@ -446,7 +470,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
 
         $result = array();
         foreach ($rows as $row) {
-            $result[$row->value] = $row->document_id;
+            $result[$row->document_id][] = $row->value;
         }
         return $result;
     }

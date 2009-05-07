@@ -788,18 +788,18 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
-        $doc1->store();
+        $id1 = $doc1->store();
 
         $doc2 = new Opus_Document(null, 'test_type');
         $title2 = $doc2->addTitleMain();
         $title2->setLanguage('en');
         $title2->setValue('An english titel');
-        $doc2->store();
+        $id2 = $doc2->store();
 
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertEquals(2, count($result), 'Wrong number of title entries.');
-        $this->assertArrayHasKey($title1->getValue(), $result, 'Expected title is not in the list.');
-        $this->assertArrayHasKey($title2->getValue(), $result, 'Expected title is not in the list.');
+        $this->assertEquals($title1->getValue(), $result[$id1][0], 'Expected title is not in the list.');
+        $this->assertEquals($title2->getValue(), $result[$id2][0], 'Expected title is not in the list.');
     }
 
     /**
@@ -812,7 +812,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         <documenttype name="test_type"
             xmlns="http://schemas.opus.org/documenttype"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" />
+            <field name="TitleMain" multiplicity="*" />
         </documenttype>';
         $type = new Opus_Document_Type($xml);
 
@@ -820,18 +820,22 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
+        $title2 = $doc1->addTitleMain();
+        $title2->setLanguage('en');
+        $title2->setValue('Ein englischer Titel');
         $id1 = $doc1->store();
 
         $doc2 = new Opus_Document(null, 'test_type');
-        $title2 = $doc2->addTitleMain();
-        $title2->setLanguage('en');
-        $title2->setValue('An english titel');
+        $title3 = $doc2->addTitleMain();
+        $title3->setLanguage('en');
+        $title3->setValue('An english titel');
         $id2 = $doc2->store();
 
         $result = Opus_Document::getAllDocumentTitles();
 
-        $this->assertEquals($id1, $result[$title1->getValue()], 'Wrong document id for title.');
-        $this->assertEquals($id2, $result[$title2->getValue()], 'Wrong document id for title.');
+        $this->assertEquals($title1->getValue(), $result[$id1][0], 'Wrong document id for title.');
+        $this->assertEquals($title2->getValue(), $result[$id1][1], 'Wrong document id for title.');
+        $this->assertEquals($title3->getValue(), $result[$id2][0], 'Wrong document id for title.');
     }
 
     /**
