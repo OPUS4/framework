@@ -104,6 +104,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             ->addField($subcollection)
             ->addField($collectionsContentSchema);
         Opus_Collection_Information::cleanup();
+
+        // Only display the field that defines the schema of
+        // the role's collections for new CollectionRoles.
+        // TODO: Allow altering of collection table schema.
+        if (false === $this->_isNewRecord) {
+            $this->_hiddenFields[] = 'CollectionsContentSchema';
+        }
   }
 
   /**
@@ -141,6 +148,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeSubCollection() {
+        if (false === $this->getField('SubCollection', true)->isModified()) {
+            return;
+        }
         $updatedSubCollections = array();
         // Store subcollections as they were before the update.
         $collections = Opus_Collection_Information::getSubCollections((int) $this->getId(), 1, true);
@@ -157,19 +167,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             } else {
                 $leftSibling = (int) $this->getSubCollection($index - 1)->getId();
             }
-            Opus_Collection_Information::deleteCollectionPosition((int) $this->getId(), $id, 1);
             Opus_Collection_Information::newCollectionPosition((int) $this->getId(), $id, 1, $leftSibling);
-            // FIXME: Resolve calling store() twice issue.
-            // It's due to the nature of deleteCollectionPosition, which
-            // removes subcollections as well.
-            $subCollection->store();
         }
         // Remove subcollections that are not supposed to be there any more.
         $removeCollections = array_diff($previousCollections, $updatedSubCollections);
         foreach ($removeCollections as $removeCollection) {
             Opus_Collection_Information::deleteCollectionPosition((int) $this->getId(), $removeCollection, 1);
         }
-
     }
 
     /**
@@ -191,14 +195,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             return;
         }
         $schema = array();
-        // FIXME: As soon as the document builder supports multiple
-        // values for atomic field types, remove artificial array
-        // construction.
-        if (is_array($this->_fields['CollectionsContentSchema']->getValue()) === false) {
-            $tablecolumns = array('name', $this->_fields['CollectionsContentSchema']->getValue());
-        } else {
-            $tablecolumns = $this->_fields['CollectionsContentSchema']->getValue();
-        }
+        $tablecolumns = $this->_fields['CollectionsContentSchema']->getValue();
+        $tablecolumns[] = 'Name';
+        $tablecolumns = array_unique($tablecolumns);
         foreach ($tablecolumns as $tablecolumn) {
             $schema[] = array('name' => $tablecolumn, 'type' => 'VARCHAR', 'length' => 255);
         }
