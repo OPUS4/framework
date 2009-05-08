@@ -158,14 +158,15 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * Return a reference to an actual field in the linked model if the field is
      * not itself appended to this link model.
      *
-     * @param string $name Name of the requested field.
+     * @param string $name           Name of the requested field.
+     * @param bool   $ignore_pending If a pending field's values should be fetched, or not.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name) {
+    public function getField($name, $ignore_pending = false) {
         if (true === array_key_exists($name, $this->_fields)) {
-            return parent::getField($name);
+            return parent::getField($name, $ignore_pending);
         }
-        return $this->_model->getField($name);
+        return $this->_model->getField($name, $ignore_pending);
     }
 
     /**

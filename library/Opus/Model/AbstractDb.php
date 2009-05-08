@@ -476,7 +476,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * Return a reference to an actual field. If an external field yet has to be fetched
      * _loadExternal is called.
      *
-     * @param string $name Name of the requested field.
+     * @param string $name           Name of the requested field.
+     * @param bool   $ignore_pending If a pending field's values should be fetched, or not.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name, $ignore_pending = false) {
