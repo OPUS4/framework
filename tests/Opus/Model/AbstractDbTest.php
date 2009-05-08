@@ -506,5 +506,52 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->setExpectedException('Opus_Model_Exception');
         $id = $model->store();
     }   
+    
+    /**
+     * Test if modified flags of external fields get not cleared while
+     * storing internal fields.
+     *
+     * @return void
+     */   
+    public function testDontClearExternalFieldsModifiedFlagBeforeStoring() {
+        // construct mockup class
+        $clazz = '
+            class testStoreClearsModifiedFlagOfInternalFieldsOnly
+            extends Opus_Model_AbstractDb {
+                
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+                
+                protected $_externalFields = array(
+                    \'ExternalField\' => array(
+                        \'model\' => \'Opus_Model_ModelAbstractDbMock\')
+                );
+                
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field(\'Value\'));
+                }
+
+            }';
+        eval($clazz);
+        
+        // instanciate mockup
+        $model = new testStoreClearsModifiedFlagOfInternalFieldsOnly;
+        
+        // mock external field
+        $mockFieldExternalModel = $this->getMock('Opus_Model_Field', 
+            array('clearModified'), array('ExternalField'));
+        $model->addField($mockFieldExternalModel);
+        
+        // clear and set modified flags respectivly
+        $model->getField('ExternalField')->clearModified();
+        $model->setValue('XYZ');
+        
+        // expect clearModified to be called only once on external field
+        $mockFieldExternalModel->expects($this->once())
+            ->method('clearModified');
+            
+        // trigger behavior
+        $model->store();
+    }
+    
  
 }

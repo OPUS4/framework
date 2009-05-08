@@ -477,14 +477,16 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * _loadExternal is called.
      *
      * @param string $name           Name of the requested field.
-     * @param bool   $ignore_pending If a pending field's values should be fetched, or not.
+     * @param bool   $ignore_pending (Optional) If true is given currently pending fields are ignored. 
+     *                               Default is false.
+     * @param string $name           Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name, $ignore_pending = false) {
+    public function getField($name, $ignorePending = false) {
         if (array_key_exists($name, $this->_fields) === true) {
 
             // Check if the field is in suspended fetch state
-            if (in_array($name, $this->_pending) === true and $ignore_pending === false) {
+            if (in_array($name, $this->_pending) === true and $ignorePending === false) {
                 // Ensure that _loadExternal is called only on external fields
                 if (array_key_exists($name, $this->_externalFields)) {
                     $this->_loadExternal($name);
