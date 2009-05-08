@@ -225,15 +225,9 @@ class Opus_Mail_SendMail {
      */
     private function formRecipient(Opus_Person $recipient) {
         $recip = array('address' => '', 'name' => '');
-<<<<<<< .mine
-        $recip['address'] = $this->validateAddress($recipient->getField('Email'));
-        $firstName = $recipient->getField('FirstName');
-        $lastName = $recipient->getField('LastName');
-=======
         $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
         $firstName = $recipient->getField('FirstName')->getValue();
         $lastName = $recipient->getField('LastName')->getValue();
->>>>>>> .r2626
         $recip['name'] = $firstName . ' ' . $lastName;
 
 
