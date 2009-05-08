@@ -195,7 +195,7 @@ class Opus_Mail_SendMail {
     * @return void
     */
     private function createSmtpTransport() {
-        $transport = new Zend_Mail_Transport_Smtp('mail.example.com');
+        $transport = new Zend_Mail_Transport_Smtp('127.0.0.1');
         Zend_Mail::setDefaultTransport($transport);
     }
 
@@ -225,10 +225,17 @@ class Opus_Mail_SendMail {
      */
     private function formRecipient(Opus_Person $recipient) {
         $recip = array('address' => '', 'name' => '');
+<<<<<<< .mine
+        $recip['address'] = $this->validateAddress($recipient->getField('Email'));
+        $firstName = $recipient->getField('FirstName');
+        $lastName = $recipient->getField('LastName');
+=======
         $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
         $firstName = $recipient->getField('FirstName')->getValue();
         $lastName = $recipient->getField('LastName')->getValue();
+>>>>>>> .r2626
         $recip['name'] = $firstName . ' ' . $lastName;
+
 
         return $recip;
     }
@@ -272,8 +279,7 @@ class Opus_Mail_SendMail {
             $config = Zend_Registry::get('Zend_Config');
             $from = $config->mail->opus->address;
             $fromName = $config->mail->opus->name;
-        }
-        else if (($from === '') xor ($fromName === '')) {
+        } else if (($from === '') xor ($fromName === '')) {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
