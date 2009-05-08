@@ -188,6 +188,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _storeSubCollection() {
+        if (false === $this->getField('SubCollection', true)->isModified()) {
+            return;
+        }
         $updatedSubCollections = array();
         // Store subcollections as they were before the update.
         $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId(), true);
@@ -204,12 +207,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             } else {
                 $leftSibling = (int) $this->getSubCollection($index - 1)->getId();
             }
-            Opus_Collection_Information::deleteCollectionPosition((int) $this->__role_id, $id, (int) $this->getId());
             Opus_Collection_Information::newCollectionPosition((int) $this->__role_id, $id, (int) $this->getId(), $leftSibling);
-            // FIXME: Resolve calling store() twice issue.
-            // It's due to the nature of deleteCollectionPosition, which
-            // removes subcollections as well.
-            $subCollection->store();
         }
         // Remove subcollections that are not supposed to be there any more.
         $removeCollections = array_diff($previousCollections, $updatedSubCollections);
