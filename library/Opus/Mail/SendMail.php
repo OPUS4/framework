@@ -219,6 +219,9 @@ class Opus_Mail_SendMail {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
+        // Change the content of $recipient, if it isn't yet an array of person objects
+
+        // If recipient is an array of person IDs, build a new array with the corresponding person objects
         if (is_array($recipient) === true and is_int($recipient[0]) === true) {
             $recs = array();
             $recipient = array_unique($recipient);
@@ -227,8 +230,10 @@ class Opus_Mail_SendMail {
                 array_push($recs, $recipient);
             }
             $recipient = $recs;
+        // If recipient is a person ID, build an array with the corresponding person object
         } else if (is_int($recipient) === true) {
             $recipient = array(new Opus_Person($recipient));
+        // If recipient is a person object, build an array around it
         } else if (is_object($recipient) === true) {
             $recipient = array($recipient);
         }
@@ -258,11 +263,12 @@ class Opus_Mail_SendMail {
         $toName = $config->mail->opus->name;
         $recips = array('recipients' => array('address' => $to, 'name' => $toName));
 
+        // If $document is a document ID, build an array with the corresponding document object
         if (is_int($document) === true) {
             $document = new Opus_Document($document);
         }
 
-        $author = new Opus_Person($document->getField('PersonAuthor'));
+        $author = new Opus_Person($document->getField('PersonAuthor')->getValue());
         $recips = array('recipients' => array('address' => '', 'name' => ''));
         $recFormed = $this->formRecipient($author);
         array_push($recips, $recFormed);
@@ -290,6 +296,9 @@ class Opus_Mail_SendMail {
             throw new Opus_Mail_Exception('Sender is not well-defined.');
         }
 
+        // Change the content of $document, if it isn't yet an array of document objects
+
+        // If document is an array of document IDs, build a new array with the corresponding document objects
         if ((is_array($document) === true) and (is_int($document[0]) === true)) {
             $docs = array();
             $document = array_unique($document);
@@ -298,20 +307,23 @@ class Opus_Mail_SendMail {
                 array_push($docs, $myDoc);
             }
             $document = $docs;
+        // If document is a document ID, build an array with the corresponding document object
         } else if (is_int($document) === true) {
             $document = array(new Opus_Document($document));
+        // If document is a document object, build an array around it
         } else if (is_object($document) === true) {
             $document = array($document);
         }
 
         foreach ($document as $doc) {
-            $advisor = new Opus_Person($doc->getField('PersonAdvisor'));
-            $author = new Opus_Person($doc->getField('PersonAuthor'));
-            $contributor = new Opus_Person($doc->getField('PersonContributor'));
-            $editor = new Opus_Person($doc->getField('PersonEditor'));
-            $referee = new Opus_Person($doc->getField('PersonReferee'));
-            $other = new Opus_Person($doc->getField('PersonOther'));
-            $translator = new Opus_Person($doc->getField('PersonTranslator'));
+            // Get all persons related to the document
+            $advisor = new Opus_Person($doc->getField('PersonAdvisor')->getValue());
+            $author = new Opus_Person($doc->getField('PersonAuthor')->getValue());
+            $contributor = new Opus_Person($doc->getField('PersonContributor')->getValue());
+            $editor = new Opus_Person($doc->getField('PersonEditor')->getValue());
+            $referee = new Opus_Person($doc->getField('PersonReferee')->getValue());
+            $other = new Opus_Person($doc->getField('PersonOther')->getValue());
+            $translator = new Opus_Person($doc->getField('PersonTranslator')->getValue());
 
             $connectedPersons = array('advisor' => $advisor,
                                 'author' => $author,
@@ -345,6 +357,9 @@ class Opus_Mail_SendMail {
         $from = $config->mail->opus->address;
         $fromName = $config->mail->opus->name;
 
+        // Change the content of $collection, if it isn't yet an array of collection objects
+
+        // If $collection is an array of collection IDs, build a new array with the corresponding collection objects
         if ((is_array($collection) === true) and (is_int($collection[0]) === true)) {
             $collections = array();
             $collection = array_unique($collection);
@@ -353,12 +368,15 @@ class Opus_Mail_SendMail {
                 array_push($collections, $myCollection);
             }
             $collections = $collections;
+        // If $collection is a collection ID, build an array with the corresponding collection object
         } else if (is_int($collection) === true) {
             $collection = array(new Opus_Collection($collection));
+        // If $collection is a collection object, build an array around it
         } else if (is_object($collection) === true) {
             $collection = array($collection);
         }
 
+        // Get all documents of the selected collections
         $documents = array();
         foreach ($collection as $collect) {
             array_push($documents, $collect->getEntries());
@@ -366,7 +384,7 @@ class Opus_Mail_SendMail {
 
         $recips = array('recipients' => array('address', 'name'));
         foreach ($documents as $doc) {
-            $author = new Opus_Person($doc->getField('PersonAuthor'));
+            $author = new Opus_Person($doc->getField('PersonAuthor')->getValue());
             $recFormed = $this->formRecipient($author);
             array_push($recips, 'recipients', $recFormed);
         }
