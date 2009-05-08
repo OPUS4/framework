@@ -92,6 +92,17 @@ class Opus_Mail_SendMail {
         $this->_mail = new Zend_Mail();
     }
 
+   /**
+    * Creates and registers the SMTP transport.
+    * The SMTP server address should be sourced out to a configuration file.
+    *
+    * @return void
+    */
+    private function createSmtpTransport() {
+        $transport = new Zend_Mail_Transport_Smtp('127.0.0.1');
+        Zend_Mail::setDefaultTransport($transport);
+    }
+
     /**
      * Set the recipients
      *
@@ -186,75 +197,6 @@ class Opus_Mail_SendMail {
      */
     public function getBodyText() {
         return $this->_bodyText;
-    }
-
-   /**
-    * Creates and registers the SMTP transport.
-    * The SMTP server address should be sourced out to a configuration file.
-    *
-    * @return void
-    */
-    private function createSmtpTransport() {
-        $transport = new Zend_Mail_Transport_Smtp('127.0.0.1');
-        Zend_Mail::setDefaultTransport($transport);
-    }
-
-    /**
-     * Validates an e-mail address
-     *
-     * @param   string $address Address
-     * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
-     * @return  string              Address
-     */
-    private function validateAddress($address) {
-        $validator = new Zend_Validate_EmailAddress();
-        if ($validator->isValid($address) === false) {
-            foreach ($validator->getMessages() as $message) {
-                throw new Opus_Mail_Exception($message);
-            }
-        }
-
-        return $address;
-    }
-
-    /**
-     * Forms an array with address and composed name from a user object.
-     *
-     * @param   Opus_Person $recipient Recipient
-     * @return  array                        Recipients' addresses and names
-     */
-    private function formRecipient(Opus_Person $recipient) {
-        $recip = array('address' => '', 'name' => '');
-        $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
-        $firstName = $recipient->getField('FirstName')->getValue();
-        $lastName = $recipient->getField('LastName')->getValue();
-        $recip['name'] = $firstName . ' ' . $lastName;
-
-
-        return $recip;
-    }
-
-    /**
-     * Creates and sends an e-mail to the specified recipient using the SMTP transport.
-     * This method should be used carefully, particularly with regard to the possibility
-     * of sending mails anonymously to user-defined recipients.
-     * Recommendation:  Please use the "sendMailTo..." methods
-     *
-     * @param   string $from       Sender address
-     * @param   string $fromName   Sender name
-     * @param   string $subject    Subject
-     * @param   string $bodyText   Text
-     * @param   array  $recipients Recipients
-     * @return  boolean            True if mail was sent
-     */
-    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
-        $this->setRecipients($recipients);
-        $this->setSubject($subject);
-        $this->setBodyText($bodyText);
-        $this->setFrom($from);
-        $this->setFromName($fromName);
-
-        return $this->send();
     }
 
     /**
@@ -430,6 +372,63 @@ class Opus_Mail_SendMail {
         }
 
         return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
+    }
+
+    /**
+     * Forms an array with address and composed name from a user object.
+     *
+     * @param   Opus_Person $recipient Recipient
+     * @return  array                        Recipients' addresses and names
+     */
+    private function formRecipient(Opus_Person $recipient) {
+        $recip = array('address' => '', 'name' => '');
+        $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
+        $firstName = $recipient->getField('FirstName')->getValue();
+        $lastName = $recipient->getField('LastName')->getValue();
+        $recip['name'] = $firstName . ' ' . $lastName;
+
+        return $recip;
+    }
+
+    /**
+     * Validates an e-mail address
+     *
+     * @param   string $address Address
+     * @throws  Opus_Mail_Exception Thrown if the e-mail address is not valid
+     * @return  string              Address
+     */
+    private function validateAddress($address) {
+        $validator = new Zend_Validate_EmailAddress();
+        if ($validator->isValid($address) === false) {
+            foreach ($validator->getMessages() as $message) {
+                throw new Opus_Mail_Exception($message);
+            }
+        }
+
+        return $address;
+    }
+
+    /**
+     * Creates and sends an e-mail to the specified recipient using the SMTP transport.
+     * This method should be used carefully, particularly with regard to the possibility
+     * of sending mails anonymously to user-defined recipients.
+     * Recommendation:  Please use the "sendMailTo..." methods
+     *
+     * @param   string $from       Sender address
+     * @param   string $fromName   Sender name
+     * @param   string $subject    Subject
+     * @param   string $bodyText   Text
+     * @param   array  $recipients Recipients
+     * @return  boolean            True if mail was sent
+     */
+    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
+        $this->setRecipients($recipients);
+        $this->setSubject($subject);
+        $this->setBodyText($bodyText);
+        $this->setFrom($from);
+        $this->setFromName($fromName);
+
+        return $this->send();
     }
 
     /**
