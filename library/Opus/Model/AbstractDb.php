@@ -201,9 +201,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                         $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
                         $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
                     }
+                    // Clear modification status of successfully stored field.
+                    $field->clearModified();
                 }
-                // Clear modification status of successfully stored field.
-                $field->clearModified();
             }
 
             // Save the row.
@@ -479,11 +479,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name) {
+    public function getField($name, $ignore_pending = false) {
         if (array_key_exists($name, $this->_fields) === true) {
 
             // Check if the field is in suspended fetch state
-            if (in_array($name, $this->_pending) === true) {
+            if (in_array($name, $this->_pending) === true and $ignore_pending === false) {
                 // Ensure that _loadExternal is called only on external fields
                 if (array_key_exists($name, $this->_externalFields)) {
                     $this->_loadExternal($name);
