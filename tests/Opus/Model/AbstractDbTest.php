@@ -243,12 +243,45 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      */
     public function testFieldsModifiedStatusGetsClearedAfterStore() {
-        // A record with id 1 is created by setUp() using AbstractDataSet.xml
-        $mock = new Opus_Model_ModelAbstractDb(1);
-        $mock->setValue('ChangeHasComeToAmericaIn2008');
+        $clazz = '
+            class testFieldsModifiedStatusGetsClearedAfterStore
+                extends Opus_Model_AbstractDb {
+
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+
+                protected $_externalFields = array(
+                    \'ExternalField1\' => array(),
+                    \'ExternalField2\' => array(),
+                );
+
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field(\'Value\'));
+                    $this->addField(new Opus_Model_Field(\'ExternalField1\'));
+                    $this->addField(new Opus_Model_Field(\'ExternalField2\'));
+                }
+
+                public function getId() {
+                    return 1;
+                }
+
+                public function _storeExternalField1() {}
+                public function _storeExternalField2() {}
+                public function _fetchExternalField1() {}
+                public function _fetchExternalField2() {}
+
+            }';
+        eval($clazz);
+        $mock = new testFieldsModifiedStatusGetsClearedAfterStore;
+        $mock->setValue('foobar');
+        $mock->setExternalField1('foo');
+        $mock->setExternalField2('bar');
         $mock->store();
 
         $field = $mock->getField('Value');
+        $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
+        $field = $mock->getField('ExternalField1');
+        $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
+        $field = $mock->getField('ExternalField2');
         $this->assertFalse($field->isModified(), 'Field should not be marked as modified after storing to database.');
     }
 

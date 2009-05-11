@@ -226,9 +226,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                         }
                         $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
                     }
+                    // Clear modification status of successfully stored field.
+                    $this->_fields[$fieldname]->clearModified();
                 }
-                // Clear modification status of successfully stored field.
-                $field->clearModified();
             }
             $dbadapter->commit();
         } catch (Exception $e) {
