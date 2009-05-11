@@ -39,8 +39,7 @@
  * @category Framework
  * @package  Opus_Model
  */
-class Opus_Model_Field
-{
+class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
     /**
      * Hold validator.
@@ -282,7 +281,7 @@ class Opus_Model_Field
                 return $this;
             }
         }
-        
+
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
@@ -307,8 +306,8 @@ class Opus_Model_Field
             } else {
                 if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
             }
-        } 
-        
+        }
+
         $this->_value = $value;
         $this->_modified = true;
         return $this;
@@ -511,6 +510,11 @@ class Opus_Model_Field
      * @return boolean
      */
     public function isModified() {
+        if ($this->_value instanceof Opus_Model_ModificationTracking) {
+            if (true === $this->_value->isModified()) {
+                $this->_modified = true;
+            }
+        }
         return $this->_modified;
     }
 
@@ -522,6 +526,16 @@ class Opus_Model_Field
     public function clearModified() {
         $this->_modified = false;
     }
+
+    /**
+     * Trigger indication of modification.
+     *
+     * @return void
+     */
+    public function setModified() {
+        $this->_modified = true;
+    }
+
 
     /**
      * Set the checkbox property. Override other properties if checkbox is

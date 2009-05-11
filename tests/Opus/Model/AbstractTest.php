@@ -208,7 +208,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $model->setField2('notempty');
         $this->assertTrue($model->isValid(), 'Validation should succeed.');
     }
-    
+
     /**
      * Test if fields that are not marked as mandatory can remain
      * empty but survive validation.
@@ -268,7 +268,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
     }
-    
+
     /**
      * Test if a models fields have their modified flag cleared after creation
      * of the model.
@@ -280,7 +280,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $field = $model->getField('Value');
         $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
     }
-    
+
     /**
      * Test if a submodel gets validated by its supermodel when the containing
      * field is set to be mandatory.
@@ -295,11 +295,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
             ->setMandatory(true)
             ->setValue($submodel);
         $model->addField($field);
-        
+
         // expect call to isValid
         $submodel->expects($this->once())
             ->method('isValid');
-            
+
         // trigger call
         $model->isValid();
     }
@@ -315,13 +315,13 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
-    
+
         // expect calls to isValid
         foreach ($submodels as $submodel) {
             $submodel->expects($this->once())
                 ->method('isValid');
         }
-        
+
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('Submodels');
         $field->setValueModelClass('Opus_Model_ModelAbstract')
@@ -329,12 +329,12 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
             ->setMultiplicity('*')
             ->setValue($submodels);
         $model->addField($field);
-        
+
         // trigger calls
         $model->isValid();
     }
 
-    
+
     /**
      * Test if a submodel validation fault triggers a supermodels validation fault.
      *
@@ -348,16 +348,86 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
             ->setMandatory(true)
             ->setValue($submodel);
         $model->addField($field);
-        
+
         // expect call to isValid (wich will return false)
         $submodel->expects($this->any())
             ->method('isValid')
             ->will($this->returnValue(false));
-            
+
         $result = $model->isValid();
         $this->assertFalse($result, 'Validation should fail because submodel validation failes.');
     }
-    
-    
+
+
+    /**
+     * Test if the modified flag of a field is set to false if no field has changed.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsNotSetInitially() {
+        $model = new Opus_Model_ModelAbstract;
+        $result = $model->isModified();
+        $this->assertFalse($result, 'Modified flag is initially true.');
+    }
+
+    /**
+     * Test if modified flag can be triggered by setModified().
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdViaSetModified() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->clearModified();
+        $model->setModified();
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
+    }
+
+    /**
+     * Test if modified flag can be triggered by changing a fields value.
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdCallToSetMethod() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->clearModified();
+        $model->setValue('new value');
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
+    }
+
+    /**
+     * Test if modified flag can be triggered by changing  field values of
+     * sub models.
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdByChangingSubmodel() {
+        $model = new Opus_Model_ModelAbstract;
+        $submodel = new Opus_Model_ModelAbstract;
+        $field = new Opus_Model_Field('Submodel');
+        $field->setValueModelClass(get_class($submodel));
+        $field->setValue($submodel);
+        $model->addField($field);
+        $model->clearModified();
+
+        $model->getSubmodel()->setValue('new value');
+
+        $this->assertTrue($model->getSubmodel()->isModified(), 'Modified flag has not changed for field.');
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed for model.');
+    }
+
+
+    /**
+     * Test if the modified flag can be set back to false again.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsClearable() {
+        $model = new Opus_Model_ModelAbstract;
+        $model->setValue('new value');
+        $model->clearModified();
+        $after = $model->isModified();
+        $this->assertFalse($after, 'Modified flag has has not been cleared.');
+    }
+
 
 }

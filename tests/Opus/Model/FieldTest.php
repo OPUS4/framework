@@ -227,6 +227,18 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if modified flag can be triggered.
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdViaSetModified() {
+        $field = new Opus_Model_Field('MyField');
+        $field->clearModified();
+        $field->setModified();
+        $this->assertTrue($field->isModified(), 'Modified flag has not changed.');
+    }
+
+    /**
      * Test setting of default values
      *
      * @return void
@@ -449,8 +461,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $value = $field->getValue();
         $this->assertTrue(empty($value), 'Multivalue field not cleared after setting to null.');
     }
-    
-    
+
+
     /**
      * Test if delete() is not issued if the field value is not an Opus_Model_Dependent_*
      *
@@ -463,11 +475,11 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field = new Opus_Model_Field('SomeField');
         $field->setValue($obj);
         $field->setValue(null);
-        
+
         $this->assertFalse($obj->trigger, 'Delete method has been called on non Opus_Model_Dependent_Abstract class.');
     }
-    
-    
+
+
     /**
      * Test if setting a field containing a dependent model to "null" issues
      * a delete() request on that model.
@@ -480,14 +492,14 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $field = new Opus_Model_Field('ExternalModel');
         $field->setValueModelClass(get_class($depmo));
         $field->setValue($depmo);
-        
+
         // issue the test
         $field->setValue(null);
-        
+
         // assert that delete() has been called
         $this->assertTrue($depmo->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent model.');
-    }  
-    
+    }
+
     /**
      * Test if setting a multivalue field containing dependent models to "null" issues
      * a delete() request to all these model.
@@ -499,19 +511,38 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         $depmo[] = new Opus_Model_ModelDependentMock;
         $depmo[] = new Opus_Model_ModelDependentMock;
         $depmo[] = new Opus_Model_ModelDependentMock;
-        
+
         $field = new Opus_Model_Field('ExternalModels');
         $field->setMultiplicity('*');
         $field->setValueModelClass(get_class($depmo));
         $field->setValue($depmo);
-        
+
         // issue the test
         $field->setValue(null);
-        
+
         // assert that delete() has been called
         $this->assertTrue($depmo[0]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
         $this->assertTrue($depmo[1]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
         $this->assertTrue($depmo[2]->deleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
-    }   
-    
+    }
+
+    /**
+     * Test if Field reports modification if contained Model is modified.
+     *
+     * @return void
+     */
+    public function testIsModifiedReturnsTrueIfReferencedModelHasBeenModified() {
+        $model = new Opus_Model_ModelAbstract();
+        $field = new Opus_Model_Field('myfield');
+        $field->setValueModelClass(get_class($model));
+        $field->setValue($model);
+        $field->clearModified();
+
+        // set modification
+        $model->setModified();
+
+        // assert modified field
+        $this->assertTrue($field->isModified(), 'Field is not marked as modified.');
+    }
+
 }

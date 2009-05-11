@@ -42,8 +42,7 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_Abstract
-{
+abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
     /**
      * Holds all fields of the domain model.
@@ -510,6 +509,44 @@ abstract class Opus_Model_Abstract
             }
         }
         return $result;
+    }
+
+
+
+    /**
+     * Tell whether there is a modified field.
+     *
+     * @return boolean
+     */
+    public function isModified() {
+        foreach ($this->_fields as $field) {
+            if (true === $field->isModified()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set the modified flags for all fields back to false.
+     *
+     * @return void
+     */
+    public function clearModified() {
+        foreach ($this->_fields as $field) {
+            $field->clearModified();
+        }
+    }
+
+    /**
+     * Trigger indication of modification for all fields.
+     *
+     * @return void
+     */
+    public function setModified() {
+        foreach ($this->_fields as $field) {
+            $field->setModified();
+        }
     }
 
 }
