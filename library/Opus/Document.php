@@ -350,7 +350,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
          * each and every document type definition?
          */
         $serverState = new Opus_Model_Field('ServerState');
-        $serverState->setDefault(array('published', 'unpublished', 'deleted'));
+        $serverState->setDefault(array('unpublished', 'published', 'deleted'));
         $serverState->setSelection(true);
         $this->addField($serverState);
     }
