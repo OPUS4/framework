@@ -75,6 +75,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         );
 
     /**
+     * Track from where on subCollections have to be stored. Blindly calling
+     * store on all subCollections leads to performance issues.
+     *
+     * @var mixed  Defaults to null.
+     */
+    private $__updateBelow = null;
+
+    /**
      * Initialize model with the following fields:
      * - Name
      * - Position
@@ -147,7 +155,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _storeSubCollection() {
+    protected function _storeSubCollection($subCollections) {
         if (false === $this->getField('SubCollection', true)->isModified()) {
             return;
         }
@@ -158,14 +166,17 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         foreach ($collections as $collection) {
             $previousCollections[] = $collection['collections_id'];
         }
-        foreach ($this->getSubCollection() as $index => $subCollection) {
+        foreach ($subCollections as $index => $subCollection) {
             $subCollection->store();
             $id = (int) $subCollection->getId();
             $updatedSubCollections[] = $id;
+            if ($index < $this->__updateBelow) {
+                continue;
+            }
             if ($index === 0) {
                 $leftSibling = 0;
             } else {
-                $leftSibling = (int) $this->getSubCollection($index - 1)->getId();
+                $leftSibling = (int) $subCollections[$index - 1]->getId();
             }
             Opus_Collection_Information::newCollectionPosition((int) $this->getId(), $id, 1, $leftSibling);
         }
@@ -173,6 +184,37 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $removeCollections = array_diff($previousCollections, $updatedSubCollections);
         foreach ($removeCollections as $removeCollection) {
             Opus_Collection_Information::deleteCollectionPosition((int) $this->getId(), $removeCollection, 1);
+        }
+        $this->getField('SubCollection', true)->clearModified();
+    }
+
+    /**
+     * Extend standard adder function to track changes in multivalue field.
+     *
+     * @return void
+     */
+    public function addSubCollection($subCollection) {
+        // FIXME: Workaround for parent::addSubCollection($subCollection)
+        parent::__call('addSubCollection', array($subCollection));
+        $this->__updateBelow = count($this->getSubCollection()) - 1;
+    }
+
+    /**
+     * Insert a subcollection at a specific position.
+     *
+     * @param  integer          $position      Where to insert the subcollection.
+     * @param  Opus_Collection  $subCollection The subcollection to insert.
+     *
+     * @return void
+     */
+    public function insertSubCollectionAt($position, Opus_Collection $subCollection) {
+        $subCollections = $this->getSubCollection();
+        if ($position > count($subCollections)) {
+            $this->addSubCollection($subCollection);
+        } else {
+            array_splice($subCollections, $position, 0, array($subCollection));
+            $this->setSubCollection($subCollections);
+            $this->__updateBelow = $position;
         }
     }
 
