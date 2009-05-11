@@ -18,8 +18,7 @@ Das Konzept der Collections in Opus 4 sieht vor, eine möglichst umfassende Abde
 Konzept
 ^^^^^^^
 
-Aus diesen Anforderungen ergaben sich einige Hinweise zur technischen Umsetzung. Aufgrund der Anforderung, betreiberindividuelle Collectionbäume anlegen zu können, erschien es vernünftig, das für einen Tree nötige Datenbankunterschema administrationsinitiiert anlegen lassen zu können. Das Ablegen einer hierarchischen Struktur in einer Datenbank geschieht im Falle häufiger Lese- und seltener Schreibvorgänge sinnvollerweise als so genannte Nested Sets (siehe XXX). Da Collections mehrfach innerhalb eines Baumes auftreten können, sollten die Inhaltsdaten (Metadaten) der Collections
-in einer von der Nested Sets Struktur getrennten Tabelle abgelegt werden, um redundante Datenhaltung zu vermeiden. Die Tabellen mit den Inhaltsdaten zu Collections erhalten kein im Vorfeld festgelegtes Tabellenschema; die Entscheidung über die verwendeten Felder wird beim Anlegen des Collection Baumes getroffen. Der historische Verlauf einzelner Collections muss in der Datenbank abgelegt werden.
+Aus diesen Anforderungen ergaben sich einige Hinweise zur technischen Umsetzung. Aufgrund der Anforderung, betreiberindividuelle Collectionbäume anlegen zu können, erschien es vernünftig, das für einen Tree nötige Datenbankunterschema administrationsinitiiert anlegen lassen zu können. Das Ablegen einer hierarchischen Struktur in einer Datenbank geschieht im Falle häufiger Lese- und seltener Schreibvorgänge sinnvollerweise als so genannte Nested Sets (siehe XXX). Da Collections mehrfach innerhalb eines Baumes auftreten können, sollten die Inhaltsdaten (Metadaten) der Collections in einer von der Nested Sets Struktur getrennten Tabelle abgelegt werden, um redundante Datenhaltung zu vermeiden. Die Tabellen mit den Inhaltsdaten zu Collections erhalten kein im Vorfeld festgelegtes Tabellenschema; die Entscheidung über die verwendeten Felder wird beim Anlegen des Collection Baumes getroffen. Der historische Verlauf einzelner Collections muss in der Datenbank abgelegt werden.
 
 Das Datenbankschema
 ^^^^^^^^^^^^^^^^^^^^
@@ -27,26 +26,27 @@ Das Datenbankschema
 Die Eigenschaften eines jeden Collection Baumes sind abhängig von der Bedeutung (Institution, Fachklassifikation, Schriftenreihe, Konferenz, ...), die er einnimmt. Diese Daten bestimmen sich also über die Rolle, die der Baum einnimmt. Die Ablage dieser Rolleneigenschaften erfolgt in der baumübergreifenden Tabelle collection_roles:
 
 [grid="all"]
-.-----------.-----------.---------
-Feldname    Typ         Bedeutung
-----------------------------------
-id          Integer     Primärschlüssel
-name        Varchar     Bezeichnung der Rolle, z.B. "Sachgruppen DDC" oder "PACS"
-position    Integer     Position der Rolle innerhalb von Auflistungen aller Rollen, z.B. beim Browsen oder in der Administration.
-visible     Integer     Bestimmt, ob die Rolle beim Browsen angezeigt wird.
-display     Varchar     Bestimmung der Felder der Collection-Inhaltsdaten, die angezeigt werden.
-----------------------------------
+.-----------------------.-------------------------------.---------
+Feldname    		Typ         Bedeutung
+-----------------------------------------------------------------
+id          		Integer     			Primärschlüssel
+name        		Varchar     			Bezeichnung der Rolle, z.B. "Sachgruppen DDC" oder "PACS"
+position    		Integer     			Position der Rolle innerhalb von Auflistungen aller Rollen, z.B. beim Browsen oder in der Administration.
+link_docs_path_to_root	{none, count, display, both}	Bestimmt, ob die Zugehörigkeit eines Dokuments zu einer Collection auch seine Zugehörigkeit zu allen übergeordneten Collections impliziert. Dabei wird nach Kontext (Dokumentzählung oder Dokumentauflistung)unterschieden.
+visible     		Integer     			Bestimmt, ob die Rolle beim Browsen angezeigt wird.
+display     		Varchar     			Bestimmung der Felder der Collection-Inhaltsdaten, die angezeigt werden.
+--------------------------------------------------------------------
 
 Für jeden Collectionbaum wird desweiteren ein eigenes Datenbankunterschema angelegt. Zur Identifikation, welche Unterschematabellen zu welcher Rolle gehören, wird den entsprechenden Tabellen der Wert des Primärschlüssels der collection_roles-Tabelle angehängt. Für folgende Zeile in der collection_roles
 
 [grid="all"]
-.---.-------.-----------.-------.----------
-id  name    position    visible display
-----------------------------------
-5  MSC      4           1       name,type
--------------------------------------------
+.---.-------.-----------.----------------------.-------.----------
+id  name    position    link_docs_path_to_root visible display
+--------------------------------------------------------------
+5  MSC      4           count                  1       name,type
+------------------------------------------------------------------
 
-existieren vier weitere Tabellen. Für die Inhaltsdaten der einzelnen Collections existiert die Tabelle collection_contents_5:
+existieren vier weitere Tabellen. Für die Inhaltsdaten der einzelnen Collections der MSC existiert die Tabelle collection_contents_5:
 
 [grid="all"]
 .--------.-------.---------
@@ -58,7 +58,7 @@ number   Integer Individuell
 type     Integer Individuell
 ----------------------------
 
-Für die Nested-Sets-Repräsentation des Baumes gibt es die Tabelle collection_structure_5:
+Für die Nested-Sets-Repräsentation der Baumstruktur der MSC gibt es die Tabelle collection_structure_5:
 
 [grid="all"]
 .--------------.-------.---------------------
@@ -77,11 +77,29 @@ Für die Repräsentation des historischen Verlaufs einzelner Collections gibt es
 Feldname           Typ     Bedeutung
 --------------------------------------------
 id                 Integer Primärschlüssel
-collections_id     Integer Fremdschlüssel auf die ID der collection_contents_5.
-replacement_for_id Integer Fremdschlüssel auf die ID der collection_contents_5. Gibt an, welche Collection durch collections_id ersetzt wird.
-replacement_by_id  Integer Fremdschlüssel auf die ID der collection_contents_5. Gibt an, von welcher Collection collections_id ersetzt wurde.
+collections_id     Integer Fremdschlüssel auf die ID einer Collection C in der collection_contents_5.
+replacement_for_id Integer Fremdschlüssel auf die ID der collection_contents_5. Gibt an, welche Collection durch C ersetzt wird.
+replacement_by_id  Integer Fremdschlüssel auf die ID der collection_contents_5. Gibt an, von welcher Collection C ersetzt wurde.
+--------------------------------------------
+
+Schließlich gibt es noch die Link-Tabelle links_documents_collections_5 zur Zuweisung von Dokumenten zu einzelnen Collections:
+[grid="all"]
+.------------------.-------.----------------
+Feldname           Typ     Bedeutung
+--------------------------------------------
+id                 Integer Primärschlüssel
+collections_id     Integer Fremdschlüssel auf die ID der Collection in der collection_contents_5.
+documents_id 	   Integer Fremdschlüssel auf die ID des Dokuments in der documents.
 --------------------------------------------
 
 
+Die Collection-Klassen
+^^^^^^^^^^^^^^^^^^^^^^
 
+Zur Wahrung der tabellenübergreifenden Konsistenz des Collection-Datenmodells erfolgt der Zugriff über zwei Abstraktionsschichten. Auf unterer Ebene gibt es folgende Klassen:
+- Opus_Collection_Roles: Liefert CRUD-Methoden für einen Collection-Tree. Abgesehen von der Methode createDatabaseTables, die alle für einen Collection-Tree nötigen DB-Tabellen anlegt, wird ausschließlich auf die Tabelle collections_roles zugegriffen.
+- Opus_Collection_Contents: Liefert CRUD-Methoden für Inhaltsdaten von Collections. Es wird ausschließlich auf collections_contents_x zugegriffen.
+- Opus_Collection_Structure: Liefert CRUD-Methoden für Strukturdaten von Collectionbäumen. Es wird ausschließlich auf collections_structure_x zugegriffen.
+- Opus_Collection_Replacement: Liefert CRUD-Methoden für Verlaufsdaten von Collections. Es wird ausschließlich auf collections_replacement_x zugegriffen.
 
+Auf diesen drei Klassen aufbauend liefert die Klasse Opus_Collection_Information Methoden komplexere CRUD-Methoden. 
