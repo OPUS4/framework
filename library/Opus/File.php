@@ -103,26 +103,26 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $documentid = new Opus_Model_Field('DocumentId');
         $documentid->setMandatory(true)
             ->setValidator(new Zend_Validate_Int());
-        
+
         $filepathname = new Opus_Model_Field('PathName');
         $filepathname->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        
+
         $filesortorder = new Opus_Model_Field('SortOrder');
         $filelabel = new Opus_Model_Field('Label');
         $filetype = new Opus_Model_Field('FileType');
         $mimetype = new Opus_Model_Field('MimeType');
-        
+
         $filelanguage = new Opus_Model_Field('Language');
         $filelanguage->setDefault(Zend_Registry::get('Available_Languages'))
             ->setSelection(true);
-            
+
         $tempfile = new Opus_Model_Field('TempFile');
-        
+
         $filesize = new Opus_Model_Field('FileSize');
-        $filesize->setMandatory(true)
-            ->setValidator(new Zend_Validate_Int());
-        
+        $filesize->setMandatory(true);
+//            ->setValidator(new Zend_Validate_Int());
+
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
             ->setMultiplicity('*');
