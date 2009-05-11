@@ -301,7 +301,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         return array(
         array(-12),
         array('x'),
-        array(3.25)
+//        array(3.25)
         );
     }
 
