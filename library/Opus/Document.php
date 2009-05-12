@@ -341,18 +341,19 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $documentType->setValue($this->_type);
         $this->addField($documentType);
 
-        /** Add the server (publication) state as a field
-         *
-         * FIXME: Serveral of fields of this sort (Server*) should be available
-         * for every document type. Should they be added in the init() method?
-         * Or should we provide a base document type that can be included in
-         * document type definitions? Or should they be expicitly defined in
-         * each and every document type definition?
-         */
+        // Add the server (publication) state as a field
         $serverState = new Opus_Model_Field('ServerState');
         $serverState->setDefault(array('unpublished' => 'unpublished', 'published' => 'published', 'deleted' => 'deleted'));
         $serverState->setSelection(true);
         $this->addField($serverState);
+
+        // Add the server modification date as a field
+        $serverDateModified = new Opus_Model_Field('ServerDateModified');
+        $this->addField($serverDateModified);
+
+        // Add the server publication date as a field
+        $serverDatePublished = new Opus_Model_Field('ServerDatePublished');
+        $this->addField($serverDatePublished);
     }
 
     /**
