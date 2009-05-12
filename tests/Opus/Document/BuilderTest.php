@@ -116,14 +116,118 @@ class Opus_Document_BuilderTest extends PHPUnit_Framework_TestCase {
         $builder = new Opus_Document_Builder();
         $document = $builder->create($type);
         $fields = $document->describe();
-        
-        $this->assertEquals(in_array('Language', $fields), 'Document creating failed: Missing field.'); 
+
+        $this->assertEquals(in_array('Language', $fields), 'Document creating failed: Missing field.');
         $this->assertEquals(in_array('TitleMain', $fields), 'Document creating failed: Missing field.');
-        
+
         $mandatory = $document->getField('Language')->isMandatory();
         $this->assertTrue($mandatory, 'Language should be mandatory.');
-        
+
         $mult = $document->getField('TitleMain')->getMultiplicity();
         $this->assertEquals(2, $mult, 'TitleMain should has a mulitplicity of 2.');
     }
+
+
+    /**
+     * Test if no validator is assigned to a field when the there is no
+     * Opus_Validate_<Fieldname> class.
+     *
+     * @return void
+     */
+    public function testNoDefaultValidatorForFields() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $builder = new Opus_Document_Builder($type);
+        $doc = $builder->create();
+        $field = $doc->getField('Language');
+
+        $this->assertNull($field->getValidator(), 'No validator expected.');
+    }
+
+    /**
+     * Test if no filter is assigned to a field when the there is no
+     * Opus_Filter_<Fieldname> class.
+     *
+     * @return void
+     */
+    public function testNoDefaultFilterForFields() {
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $builder = new Opus_Document_Builder($type);
+        $doc = $builder->create();
+
+        $field = $doc->getField('Language');
+        $this->assertNull($field->getFilter(), 'No filter expected.');
+    }
+
+    /**
+     * Test if validators get added to a Documents fields via inflection.
+     *
+     * @return void
+     */
+    public function testValidatorsGetAddedViaInflection() {
+        $validator =
+            'class Opus_Document_ValidateTest_Language
+                extends Zend_Validate_Abstract {
+                    public function isValid($value) {}
+            }';
+        eval($validator);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $builder = new Opus_Document_Builder($type);
+        $builder->setValidatorClassNamespaces(array('Opus_Document_ValidateTest'));
+        $doc = $builder->create();
+
+        $field = $doc->getField('Language');
+        $this->assertNotNull($field->getValidator(), 'No Validator assigned.');
+        $this->assertType('Opus_Document_ValidateTest_Language' ,$field->getValidator(),
+            'Wrong validator type assigned.');
+    }
+
+    /**
+     * Test if filters get added to a Documents fields via inflection.
+     *
+     * @return void
+     */
+    public function testFiltersGetAddedViaInflection() {
+        $filter =
+            'class Opus_Document_FilterTest_Language
+                implements Zend_Filter_Interface {
+                    public function filter($value) {}
+            }';
+        eval($filter);
+
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+                <documenttype name="doctoral_thesis"
+                    xmlns="http://schemas.opus.org/documenttype"
+                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <field name="Language" />
+                </documenttype>';
+        $type = new Opus_Document_Type($xml);
+        $builder = new Opus_Document_Builder($type);
+        $builder->setFilterClassNamespaces(array('Opus_Document_FilterTest'));
+        $doc = $builder->create();
+
+        $field = $doc->getField('Language');
+        $this->assertNotNull($field->getFilter(), 'No Filter assigned.');
+        $this->assertType('Opus_Document_FilterTest_Language' ,$field->getFilter(),
+            'Wrong filter type assigned.');
+     }
+
 }

@@ -57,67 +57,6 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
     }
 
 
-    /**
-     * Test if no validator is assigned to a field when the there is no
-     * Opus_Validate_<Fieldname> class.
-     *
-     * @return void
-     */
-    public function testNoDefaultValidatorForFields() {
-        $mock = new Opus_Model_ModelAbstract;
-        $mock->addField(new Opus_Model_Field('NoVal'));
-        $field = $mock->getField('NoVal');
-        $this->assertNull($field->getValidator(), 'No validator expected.');
-    }
-
-    /**
-     * Test if custom validator instances can be added to fields.
-     *
-     * @return void
-     */
-    public function testAddingCustomValidators() {
-        $mock = new Opus_Model_ModelAbstract;
-        $field = $mock->getField('Value');
-        $this->assertNotNull($field->getValidator(), 'Validator instance missing.');
-        $this->assertType('Opus_Model_ValidateTest_Value', $field->getValidator(), 'Validator is of wrong type.');
-    }
-
-    /**
-     * Test if no filter is assigned to a field when the there is no
-     * Opus_Filter_<Fieldname> class.
-     *
-     * @return void
-     */
-    public function testNoDefaultFilterForFields() {
-        $mock = new Opus_Model_ModelAbstract;
-        $mock->addField(new Opus_Model_Field('NoFil'));
-        $field = $mock->getField('NoFil');
-        $this->assertNull($field->getFilter(), 'No filter expected.');
-    }
-
-    /**
-     * Test if custom filter instances can be added to fields.
-     *
-     * @return void
-     */
-    public function testAddingCustomFilters() {
-        $mock = new Opus_Model_ModelAbstract;
-        $field = $mock->getField('Value');
-        $this->assertNotNull($field->getFilter(), 'Filter instance missing.');
-    }
-
-    /**
-     * Test if an added filter gets executed within it filter chain.
-     *
-     * @return void
-     */
-    public function testIfFilterIsExecuted() {
-        $mock = new Opus_Model_ModelAbstract;
-        $field = $mock->getField('Value');
-        $filterChain = $field->getFilter();
-        $result = $filterChain->filter('ABC');
-        $this->assertEquals('abc', $result, 'Filter has propably not been executed.');
-    }
 
     /**
      * Test if a field can be marked as hidden thus it gets not reported by
@@ -249,6 +188,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
     public function testValidationErrorsAreObtainable() {
         $model = new Opus_Model_ModelAbstract;
         $model->getField('Value')->setMandatory(true);
+        $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
         // Model field "Value" is empty.
         $this->assertFalse($model->isValid(), 'Validation should fail.');
         $this->assertNotNull($model->getValidationErrors(), 'Validation errors are not set.');
@@ -262,10 +202,11 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
      */
     public function testValidationErrorsAreObtainablePerField() {
         $model = new Opus_Model_ModelAbstract;
-
+        $model->getField('Value')->setMandatory(true);
+        $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
         $model->isValid();
-        $errors = $model->getValidationErrors();
 
+        $errors = $model->getValidationErrors();
         $this->assertArrayHasKey('Value', $errors, 'Field "Value" is missing in error listing.');
     }
 
@@ -428,6 +369,5 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $after = $model->isModified();
         $this->assertFalse($after, 'Modified flag has has not been cleared.');
     }
-
 
 }
