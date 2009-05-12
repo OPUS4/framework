@@ -80,6 +80,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      */
     public function setModel(Opus_Model_Abstract $model) {
         $this->model = $model;
+        return $this;
     }
 
     /**
@@ -90,6 +91,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      */
     public function setBlacklist(array $list) {
         $this->blacklist = $list;
+        return $this;
     }
 
     /**
@@ -100,6 +102,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      */
     public function setSortOrder(array $sort) {
         $this->sortorder = $sort;
+        return $this;
     }
 
     /**
