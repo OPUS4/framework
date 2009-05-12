@@ -15,7 +15,7 @@ einheitlichen Interface zu kapseln, und zwar unabhängig davon, wie die
 tatsächliche Tabellenstruktur dahinter aussieht. Der Ansatz orientiert sich
 damit am http://en.wikipedia.org/wiki/Domain_model[Domain model] pattern.
 
-[Martin Fowler, http://martinfowler.com/eaaCatalog/domainModel.html]
+Martin Fowler, http://martinfowler.com/eaaCatalog/domainModel.html
 ________________________________________________________________________________
 At its worst business logic can be very complex. Rules and logic describe many
 different cases and slants of behavior, and it's this complexity that objects
@@ -272,3 +272,4 @@ abhängigen Feldern zur Verfügung steht.
 gesetzt.
 .. Die abhängigen Modelle werden (ohne eigene Transaktion) gespeichert.
 . Die Transaktion wird beendet.
+

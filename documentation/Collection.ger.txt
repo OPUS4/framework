@@ -83,6 +83,7 @@ replacement_by_id  Integer Fremdschlüssel auf die ID der collection_contents_5.
 --------------------------------------------
 
 Schließlich gibt es noch die Link-Tabelle links_documents_collections_5 zur Zuweisung von Dokumenten zu einzelnen Collections:
+
 [grid="all"]
 .------------------.-------.----------------
 Feldname           Typ     Bedeutung
@@ -102,4 +103,5 @@ Zur Wahrung der tabellenübergreifenden Konsistenz des Collection-Datenmodells e
 - Opus_Collection_Structure: Liefert CRUD-Methoden für Strukturdaten von Collectionbäumen. Es wird ausschließlich auf collections_structure_x zugegriffen.
 - Opus_Collection_Replacement: Liefert CRUD-Methoden für Verlaufsdaten von Collections. Es wird ausschließlich auf collections_replacement_x zugegriffen.
 
-Auf diesen drei Klassen aufbauend liefert die Klasse Opus_Collection_Information Methoden komplexere CRUD-Methoden. 
+Auf diesen drei Klassen aufbauend liefert die Klasse Opus_Collection_Information Methoden komplexere CRUD-Methoden.
+ 
