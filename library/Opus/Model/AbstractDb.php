@@ -440,10 +440,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @param string $tableGatewayClassName Name of the table gateway class
      *                                      to determine the table entities shall
      *                                      be fetched from.
+     * @param array  $ids                   A list of ids to fetch.
+     * @param string $orderBy               A column name to order by.
+     *
      * @return array List of all known model entities.
      * @throws InvalidArgumentException When not passing class names.
      */
-    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null) {
+    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null, $orderBy = null) {
 
         // As we are in static context, we have no chance to retrieve
         // those class names.
@@ -458,11 +461,18 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         // Fetch all entries in one query and pass result table rows
         // directly to models.
         if (is_null($ids) === true) {
-            $rows = $table->fetchAll();
+            $rows = $table->fetchAll(null, $orderBy);
         } else if (empty($ids) === true) {
             $rows = array();
         } else {
-            $rows = $table->find($ids);
+            $rowset = $table->find($ids);
+            if (false === is_null($orderBy)) {
+                foreach($rowset as $key => $row) {
+                    $vals[$key] = $row->$orderBy;
+                    $rows[] = $row;
+                }
+                array_multisort($vals, SORT_ASC, $rows);
+            }
         }
         $result = array();
         foreach ($rows as $row) {
