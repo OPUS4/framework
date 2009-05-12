@@ -38,6 +38,6 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_CompletedDate extends Zend_Validate_Date {
+class Opus_Validate_CompletedDate extends Opus_Validate_Date {
 
 }
