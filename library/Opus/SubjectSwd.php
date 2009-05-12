@@ -47,7 +47,7 @@ class Opus_SubjectSwd extends Opus_Subject
      *
      * @var array 
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
         'Type',
         'Language'
     );

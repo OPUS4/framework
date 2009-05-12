@@ -261,7 +261,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      *
      * @var array  Defaults to array('File').
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
             'File',
             'Type',
             'ServerDateModified',

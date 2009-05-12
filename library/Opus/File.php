@@ -82,9 +82,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * The file models hidden fields for not showing inside form builder.
      *
      * @var array
-     * @see Opus_Model_Abstract::$_hiddenFields
+     * @see Opus_Model_Abstract::$_internalFields
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
             'FileSize',
         );
 

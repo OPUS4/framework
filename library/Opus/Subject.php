@@ -60,7 +60,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
      *
      * @var array  Defaults to array('Type').
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
         'Type',
     );
 

@@ -85,7 +85,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @var array  Defaults to array('SubCollection', 'ParentCollection').
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
             'SubCollection',
             'ParentCollection',
         );

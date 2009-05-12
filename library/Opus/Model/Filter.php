@@ -106,7 +106,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are listed on the blacklist.
      *
-     * @see    Opus_Model_Abstract::_hiddenFields
+     * @see    Opus_Model_Abstract::_internalFields
      * @return array    List of fields
      */
     public function describe() {

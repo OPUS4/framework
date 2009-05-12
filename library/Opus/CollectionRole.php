@@ -70,7 +70,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @var array  Defaults to array('SubCollection').
      */
-    protected $_hiddenFields = array(
+    protected $_internalFields = array(
             'SubCollection',
         );
 
@@ -117,7 +117,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // the role's collections for new CollectionRoles.
         // TODO: Allow altering of collection table schema.
         if (false === $this->_isNewRecord) {
-            $this->_hiddenFields[] = 'CollectionsContentSchema';
+            $this->_internalFields[] = 'CollectionsContentSchema';
         }
   }
 

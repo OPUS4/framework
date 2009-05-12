@@ -114,7 +114,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * Get a list of all fields attached to the linked model plus
      * all fields attached to this link model itself.
      *
-     * @see    Opus_Model_Abstract::_hiddenFields
+     * @see    Opus_Model_Abstract::_internalFields
      * @return array    List of fields
      */
     public function describe() {

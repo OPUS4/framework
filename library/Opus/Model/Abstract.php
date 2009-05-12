@@ -284,7 +284,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are defined to be inetrnal in $_internalFields.
      *
-     * @see    Opus_Model_Abstract::_hiddenFields
+     * @see    Opus_Model_Abstract::_internalFields
      * @return array    List of fields
      */
     public function describe() {
