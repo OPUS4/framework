@@ -232,4 +232,32 @@ class Opus_Collection_Contents {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
+
+    /**
+     * TODO: ...
+     *
+     * @param integer $collections_id Number identifying the specific collection-content.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    public function fetchClassification($number) {
+        $classifications = $this->collections_contents
+                                    ->fetchAll($this->collections_contents
+                                                    ->select()
+                                                    ->where('number = ?', $number))
+                                    ->toArray();
+        if (true === empty($classifications)) {
+            throw new InvalidArgumentException("Classification collection with number '$number' not found.");
+        }
+        $output = 0;
+        foreach ($classifications as $classification) {
+            $output = max($output, $classification['id']);
+        }
+
+        return $output;
+
+    }
+
+
+
 }

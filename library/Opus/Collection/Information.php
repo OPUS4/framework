@@ -935,4 +935,25 @@ class Opus_Collection_Information {
 
         return array($new_collections_id1, $new_collections_id2);
     }
+
+    /**
+     * TODO...
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $number   Identifies the classification.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getClassification($roles_id, $number) {
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+
+        // Create collection content object and load information from DB
+        $occ = new Opus_Collection_Contents($roles_id);
+        $classification = $occ->fetchClassification($number);
+        return $classification;
+    }
+
+
 }
