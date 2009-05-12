@@ -263,17 +263,28 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     }
 
     /**
-     * Return a reference to an actual field.
+     * Return a reference to an actual field but only allow access to public fields.
      *
      * @param string $name Name of the requested field.
      * @throws Opus_Model_Exception If the field is internal.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
+        if (true === in_array($name, $this->_internalFields)) {
+            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
+        }
+        return $this->_getField($name);
+    }
+
+    /**
+     * Return a reference to an actual field.
+     *
+     * @param string $name Name of the requested field.
+     * @throws Opus_Model_Exception If the field is internal.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    protected function _getField($name) {
         if (array_key_exists($name, $this->_fields) === true) {
-            if (true === in_array($name, $this->_internalFields)) {
-                throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
-            }
             return $this->_fields[$name];
         } else {
             return null;
@@ -316,10 +327,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         $result = array();
         foreach (array_keys($this->_fields) as $fieldname) {
 
-            $callname = 'get' . $fieldname;
-            $fieldvalue = $this->$callname();
+            $field = $this->_getField($fieldname);
+            $fieldvalue = $field->getValue();
 
-            if ($this->getField($fieldname)->hasMultipleValues()) {
+            if ($field->hasMultipleValues()) {
                 $fieldvalues = array();
                 foreach($fieldvalue as $value) {
                     if ($value instanceof Opus_Model_Abstract) {

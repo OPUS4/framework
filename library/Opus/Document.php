@@ -571,4 +571,12 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
     }
 
+    /**
+     * Provide read access to internal type field.
+     *
+     * @return string
+     */
+    public function getType() {
+        return $this->_getField('Type')->getValue();
+    }
 }

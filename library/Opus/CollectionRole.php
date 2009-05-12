@@ -156,7 +156,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeSubCollection($subCollections) {
-        if (false === $this->getField('SubCollection', true)->isModified()) {
+        if (false === $this->_getField('SubCollection', true)->isModified()) {
             return;
         }
         $updatedSubCollections = array();

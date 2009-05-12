@@ -492,7 +492,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @param string $name           Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name, $ignorePending = false) {
+    protected function _getField($name, $ignorePending = false) {
         if (array_key_exists($name, $this->_fields) === true) {
 
             // Check if the field is in suspended fetch state
