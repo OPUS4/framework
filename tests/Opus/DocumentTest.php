@@ -79,8 +79,6 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
             </mandatory>
 
             <field name="Reviewed"/>
-            <field name="ServerDateModified"/>
-            <field name="ServerDatePublished"/>
             <field name="ServerDateUnlocking"/>
             <field name="ServerDateValid"/>
             <field name="Source"/>
@@ -192,8 +190,6 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
                     'CompletedYear' => 1960,
                     'CompletedDate' => '1901-01-01',
                     'Reviewed' => 'peer',
-                    'ServerDateModified' => '2008-12-01',
-                    'ServerDatePublished' => '2008-12-01',
                     'ServerDateUnlocking' => '2008-12-01',
                     'ServerDateValid' => '2008-12-01',
                     'Source' => 'BlaBla',

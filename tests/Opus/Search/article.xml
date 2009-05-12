@@ -70,8 +70,6 @@ value for "name". It must be declared.
         <field name="CompletedDate"/>
     </mandatory>
     <field name="Reviewed"/>
-    <field name="ServerDateModified"/>
-    <field name="ServerDatePublished"/>
     <field name="ServerDateUnlocking"/>
     <field name="ServerDateValid"/>
     <field name="Source"/>
