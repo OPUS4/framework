@@ -157,6 +157,7 @@ class Opus_Security_Acl extends Zend_Acl {
     protected function _getRoleRegistry()
     {
         if (null === $this->_roleRegistry) {
+            // FIXME: load RoleRegistry dynamicly.
             $this->_roleRegistry = new Opus_Security_RoleRegistry();
         }
         return $this->_roleRegistry;
@@ -198,6 +199,67 @@ class Opus_Security_Acl extends Zend_Acl {
         }
 
         return $result;
+    }
+
+   /**
+     * Removes a Resource and all of its children
+     *
+     * The $resource parameter can either be a Resource or a Resource identifier.
+     *
+     * @param  Zend_Acl_Resource_Interface|string $resource
+     * @throws Zend_Acl_Exception
+     * @return Zend_Acl Provides a fluent interface
+     */
+    public function remove($resource)
+    {
+        try {
+            $resourcename = $this->get($resource)->getResourceId();
+        } catch (Zend_Acl_Exception $e) {
+            throw $e;
+        }
+
+        // check if the resource exists, load resource if it's not loaded yet
+        if ($this->_resourceExists($resource) === false) {
+            return $this;
+        }
+
+        // load the database id of the resource
+        $resourceDbId = $this->_resourcesTable->fetchRow($this->_resourcesTable->select()->where('name = ?', $resourcename))->id;
+
+        // load children
+        // FIXME: ZEND
+        $tablename = $this->_resourcesTable->info(Zend_Db_Table::NAME);
+        $db = $this->_resourcesTable->getAdapter();
+        $select = $db->select()->from($tablename, 'name')->where('parent_id = ?', $resourceDbId);
+        $children = $this->_resourcesTable->getAdapter()->fetchCol($select);
+        // remove all children
+        foreach($children as $child) {
+            $this->remove($child);
+        }
+
+        // remove the resource
+        $foo = $this->_resourcesTable->delete($this->_resourcesTable->getAdapter()->quoteInto('id = ?', $resourceDbId));
+        // remove from the list of laded Resources
+        unset($this->_loadedResources[$resourcename]);
+
+        parent::remove($resource);
+
+        return $this;
+    }
+
+   /**
+     * Removes all Resources
+     *
+     * @return Zend_Acl Provides a fluent interface
+     */
+    public function removeAll()
+    {
+        $db = Zend_Registry::get('db_adapter');
+        $db->delete($this->_resourcesTable->info(Zend_Db_Table::NAME));
+        $this->_loadedResources = array();
+
+        parent::removeAll();
+        return $this;
     }
 
     /**
@@ -264,8 +326,8 @@ class Opus_Security_Acl extends Zend_Acl {
 
         return $resourceInstance;
     }
-    
-    
+
+
     /**
      * Fetch all persisted privileges for a given role and merge them into
      * the objects internal array privileges registry.
@@ -286,20 +348,20 @@ class Opus_Security_Acl extends Zend_Acl {
             } else {
                 // Ensure Resource loading through get() call
                 $resource = $this->get($resourceRow->name);
-            }        
+            }
             // Allow or deny access on Resource for Role
             if (true === ((bool) $row->granted)) {
                 $this->allow($role, $resource, $row->privilege);
             } else {
-                $this->deny($role, $resource, $row->privilege);   
+                $this->deny($role, $resource, $row->privilege);
             }
         }
 
     }
-    
+
     /**
      * Visits an $role in order to look for a rule allowing/denying $role access to all privileges upon $resource.
-     * 
+     *
      * Before passing the original request to the parent Zend_Acl method, it tries to query all privileges
      * corresponding with the given Role from the database.
      *
@@ -313,12 +375,12 @@ class Opus_Security_Acl extends Zend_Acl {
      */
     protected function _roleDFSVisitAllPrivileges(Zend_Acl_Role_Interface $role,
         Zend_Acl_Resource_Interface $resource = null, &$dfs = null) {
-        
-        $this->_fetchRolePrivileges($role); 
-       
+
+        $this->_fetchRolePrivileges($role);
+
         return parent::_roleDFSVisitAllPrivileges($role, $resource, $dfs);
     }
-    
+
     /**
      * Performs a depth-first search of the Role DAG, starting at $role, in order to find a rule
      * allowing/denying $role access to a $privilege upon $resource
@@ -335,8 +397,8 @@ class Opus_Security_Acl extends Zend_Acl {
     protected function _roleDFSOnePrivilege(Zend_Acl_Role_Interface $role,
         Zend_Acl_Resource_Interface $resource = null, $privilege = null) {
 
-        $this->_fetchRolePrivileges($role); 
-        
+        $this->_fetchRolePrivileges($role);
+
         return parent::_roleDFSOnePrivilege($role, $resource, $privilege);
     }
 }
