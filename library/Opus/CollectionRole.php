@@ -256,6 +256,35 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $ocs->save();
     }
 
+    /**
+     * Overwrite standard storage procedure to shift positions.
+     *
+     * @return void
+     */
+    protected function _storePosition($to) {
+        $from = $this->_primaryTableRow->position;
+        $table = $this->_primaryTableRow->getTable();
+        $roles = $table->fetchAll();
+        if ($to > count($roles)) {
+            $to = count($roles);
+        }
+        if ($from < $to) {
+            foreach ($roles as $role) {
+                if ($role->position <= $to and $role->position > $from) {
+                    $role->position--;
+                    $role->save();
+                }
+            }
+        } else if ($to < $from) {
+            foreach ($roles as $role) {
+                if ($role->position < $from and $role->position >= $to) {
+                    $role->position++;
+                    $role->save();
+                }
+            }
+        }
+        $this->_primaryTableRow->position = $to;
+    }
 
     /**
      * Returns long name.
@@ -272,7 +301,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array Array of Opus_CollectionRole objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_CollectionRole', 'Opus_Db_CollectionsRoles');
+        return self::getAllFrom('Opus_CollectionRole', 'Opus_Db_CollectionsRoles', null, 'position');
     }
 
     /**
