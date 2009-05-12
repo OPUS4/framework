@@ -119,7 +119,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $link->setModel($model);
         $link->addField(new Opus_Model_Field('LinkField'));
 
-        $result = $link->describeAll();
+        $result = $link->describe();
         $this->assertTrue(in_array('AField', $result), 'Linked models field missing.');
     }
 

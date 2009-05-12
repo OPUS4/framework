@@ -118,7 +118,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return array    List of fields
      */
     public function describe() {
-        $result = $this->_model->describe();
+        $result = array();
+        if (null !== $this->_model) {
+            $result = $this->_model->describe();
+        }
         $result = array_merge($result, parent::describe());
         return $result;
     }

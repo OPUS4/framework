@@ -74,6 +74,7 @@ class Opus_Model_AllTests {
         $suite->addTestSuite('Opus_Model_AbstractDbTest');
         $suite->addTestSuite('Opus_Model_AbstractTest');
         $suite->addTestSuite('Opus_Model_FieldTest');
+        $suite->addTestSuite('Opus_Model_FilterTest');
         $suite->addTestSuite('Opus_Model_Dependent_Link_AbstractTest');
         $suite->addTestSuite('Opus_Model_XmlTest');
         return $suite;

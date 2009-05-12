@@ -45,6 +45,22 @@ class Opus_Document_Builder {
      */
     private $_type = null;
 
+
+    /**
+     * Array of validator prefixes used to instanciate validator classes for fields.
+     *
+     * @var array
+     */
+    protected $_validatorPrefix = array();
+
+    /**
+     * Array of filter prefixes used to instanciate filter classes for fields.
+     *
+     * @var array
+     */
+    protected $_filterPrefix = array();
+
+
     /**
      * Contructor of class.
      *
@@ -94,8 +110,70 @@ class Opus_Document_Builder {
             $field = new Opus_Model_Field($fieldname);
             $field->setMandatory($fieldinfo['mandatory']);
             $field->setMultiplicity($fieldinfo['multiplicity']);
+
+            $this->_addValidator($field);
+            $this->_addFilter($field);
+
             $document->addField($field);
         }
         return $document;
     }
+
+
+    /**
+     * Add inflected validators to the given fields. Opus_Validate_{fieldname} classes are
+     * expected to exist. The base classname prefixes are defined in $_validatorPrefix.
+     *
+     * @return void
+     */
+    protected function _addValidator(Opus_Model_Field $field) {
+        $fieldname = $field->getName();
+        foreach ($this->_validatorPrefix as $prefix) {
+            $classname = $prefix . '_' . $fieldname;
+            // suppress warnings about not existing classes
+            if (@class_exists($classname) === true) {
+                $field->setValidator(new $classname);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Add inflected filters to the given fields. Opus_Filter_{fieldname} classes are
+     * expected to exist. The base classname prefixes are defined in $_filterPrefix.
+     *
+     * @return void
+     */
+    protected function _addFilter(Opus_Model_Field $field) {
+        $fieldname = $field->getName();
+        foreach ($this->_filterPrefix as $prefix) {
+            $classname = $prefix . '_' . $fieldname;
+            // suppress warnings about not existing classes
+            if (@class_exists($classname) === true) {
+                $field->setFilter(new $classname);
+                break;
+            }
+        }
+    }
+
+    /**
+     * Set the class name prefix for validator inflection.
+     *
+     * @param array $namespaces Array class prefix for Validator inflection.
+     * @return Opus_Document_Builder Fluent interface.
+     */
+    public function setValidatorClassNamespaces(array $namespaces) {
+        $this->_validatorPrefix = $namespaces;
+    }
+
+    /**
+     * Set the class name prefix for filter inflection.
+     *
+     * @param array $namespaces Array class prefix for Filter inflection.
+     * @return Opus_Document_Builder Fluent interface.
+     */
+    public function setfilterClassNamespaces(array $namespaces) {
+        $this->_filterPrefix = $namespaces;
+    }
+
 }

@@ -59,16 +59,62 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * Test if a field can be marked as hidden thus it gets not reported by
+     * Test if a field can be defined as internal thus it gets not reported by
      * describe().
      *
      * @return void
      */
-    public function testFieldDescriptionHideable() {
+    public function testHideInternalField() {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $result = $model->describe();
         $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');
     }
+
+    /**
+     * Test if an internal field can not be set.
+     *
+     * @return void
+     */
+    public function testSetCallToInternalFieldThrowsException() {
+        $model = new Opus_Model_ModelWithHiddenField(null);
+        $this->setExpectedException('Opus_Model_Exception');
+        $model->setHiddenField('value');
+    }
+
+    /**
+     * Test if an internal field can not be queried.
+     *
+     * @return void
+     */
+    public function testGetCallToInternalFieldThrowsException() {
+        $model = new Opus_Model_ModelWithHiddenField(null);
+        $this->setExpectedException('Opus_Model_Exception');
+        $model->getHiddenField();
+    }
+
+    /**
+     * Test if an internal field can not be added to.
+     *
+     * @return void
+     */
+    public function testAddCallToInternalFieldThrowsException() {
+        $model = new Opus_Model_ModelWithHiddenField(null);
+        $this->setExpectedException('Opus_Model_Exception');
+        $model->addHiddenField();
+    }
+
+    /**
+     * Test if an internal field can not be retrieved.
+     *
+     * @return void
+     */
+    public function testGetInternalFieldThrowsException() {
+        $model = new Opus_Model_ModelWithHiddenField(null);
+        $this->setExpectedException('Opus_Model_Exception');
+        $model->getField('HiddenField');
+    }
+
+
     /**
      * Test if the default display name of a model is returned.
      *
@@ -369,5 +415,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $after = $model->isModified();
         $this->assertFalse($after, 'Modified flag has has not been cleared.');
     }
+
+
 
 }

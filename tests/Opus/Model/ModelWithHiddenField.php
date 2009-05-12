@@ -46,7 +46,7 @@ class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
      *
      * @var array
      */
-    protected $_hiddenFields = array('HiddenField');
+    protected $_internalFields = array('HiddenField');
 
     /**
      * Initialize model with the both an visible and a hidden field.

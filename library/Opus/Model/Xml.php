@@ -46,7 +46,7 @@ class Opus_Model_Xml {
      * @var Opus_Model_Abstract
      */
     protected $_model = null;
-    
+
     /**
      * Holds the current DOM representation.
      *
@@ -75,14 +75,14 @@ class Opus_Model_Xml {
      * @var string
      */
     protected $_baseUri = '';
-    
+
     /**
      * Holds Resolver instance to get contents of xlink referenced resources.
      *
      * @var Opus_Uri_Resolver
      */
     protected $_xlinkResolver = null;
-    
+
 
     /**
      * Map of model class names to resource names for URI generation.
@@ -126,7 +126,7 @@ class Opus_Model_Xml {
         $this->_baseUri = $uri;
         return $this;
     }
-    
+
     /**
      * Set up Xlink-Resolver called to obtain contents of Xlink referenced resources.
      *
@@ -233,7 +233,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Abstract Deserialised or previously set Model.
      */
     public function getModel() {
-    
+
         if (null !== $this->_dom) {
             $root = $this->_dom->getElementsByTagName('Opus')->item(0);
             if (null === $root) {
@@ -242,7 +242,7 @@ class Opus_Model_Xml {
             $model = $this->_createModelFromElement($root->firstChild);
             $this->_model = $this->_populateModelFromXml($model, $root->firstChild);
         }
-    
+
         return $this->_model;
     }
 
@@ -315,7 +315,7 @@ class Opus_Model_Xml {
      * @return void
      */
     protected function _mapModel(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
-        $fields = $model->describeAll();
+        $fields = $model->describe();
         $excludeFields = $this->_excludeFields;
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
@@ -397,7 +397,7 @@ class Opus_Model_Xml {
         } else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
             $fields = array();
         } else {
-            $fields = $model->describeAll();
+            $fields = $model->describe();
         }
         $excludeFields = $this->_excludeFields;
         if (count($excludeFields) > 0) {

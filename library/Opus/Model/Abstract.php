@@ -52,20 +52,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     protected $_fields = array();
 
     /**
-     * Array of validator prefixes used to instanciate validator classes for fields.
-     *
-     * @var array
-     */
-    protected $_validatorPrefix = array('Opus_Validate');
-
-    /**
-     * Array of filter prefixes used to instanciate filter classes for fields.
-     *
-     * @var array
-     */
-    protected $_filterPrefix = array('Opus_Filter');
-
-    /**
      * @TODO: Change name of this array to somewhat more general.
      * @TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
      *
@@ -85,11 +71,12 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     /**
      * @TODO: This should be an option in externalFields[].
      *
-     * Fields to be not reported by describe().
+     * Fields to be not reported by describe() and not accessable
+     * via get/set/add methods.
      *
      * @var array
      */
-    protected $_hiddenFields = array();
+    protected $_internalFields = array();
 
     /**
      * @TODO: Provide a more fine grained workflow by implementing pre and post operations.
@@ -104,8 +91,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      */
     public function __construct() {
         $this->_init();
-        $this->_addValidators();
-        $this->_addFilters();
         $this->_clearFieldsModifiedFlag();
     }
 
@@ -115,50 +100,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * @return void
      */
     abstract protected function _init();
-
-    /**
-     * Add validators to the fields. Opus_Validate_{fieldname} classes are
-     * expected to exist. The base classname prefixes are defined in $_validatorPrefix.
-     *
-     * @return void
-     */
-    protected function _addValidators() {
-        foreach ($this->_fields as $fieldname => $field) {
-            foreach ($this->_validatorPrefix as $prefix) {
-                $classname = $prefix . '_' . $fieldname;
-                // suppress warnings about not existing classes
-                if (@class_exists($classname) === true) {
-                    $field->setValidator(new $classname);
-                    break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Add filters to the fields. Opus_Filter_{fieldname} classes are
-     * expected to exist. The base classname prefixes are defined in $_filterPrefix.
-     *
-     * @return void
-     */
-    protected function _addFilters() {
-        foreach ($this->_fields as $fieldname => $field) {
-            foreach ($this->_filterPrefix as $prefix) {
-                $classname = $prefix . '_' . $fieldname;
-                // suppress warnings about not existing classes
-                if (@class_exists($classname) === true) {
-
-                    $filter = $field->getFilter();
-                    if (is_null($filter) === true) {
-                        $filter = new Zend_Filter();
-                        $field->setFilter($filter);
-                    }
-                    $filter->addFilter(new $classname);
-                    break;
-                }
-            }
-        }
-    }
 
     /**
      * Clear the modified flag on all fields.
@@ -201,6 +142,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
         if (array_key_exists($fieldname, $this->_fields) === false) {
             throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
+        }
+
+        if (true === in_array($fieldname, $this->_internalFields)) {
+            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname);
         }
 
         $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
@@ -321,11 +266,14 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * Return a reference to an actual field.
      *
      * @param string $name Name of the requested field.
-     * @throws Opus_Security_Exception  If the current role has no permission for the 'read' operation.
+     * @throws Opus_Model_Exception If the field is internal.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
         if (array_key_exists($name, $this->_fields) === true) {
+            if (true === in_array($name, $this->_internalFields)) {
+                throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
+            }
             return $this->_fields[$name];
         } else {
             return null;
@@ -334,7 +282,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
     /**
      * Get a list of all fields attached to the model. Filters all fieldnames
-     * that are defined to be hidden in $_hiddenFields.
+     * that are defined to be inetrnal in $_internalFields.
      *
      * @see    Opus_Model_Abstract::_hiddenFields
      * @return array    List of fields
@@ -342,22 +290,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     public function describe() {
         $result = array();
         foreach (array_keys($this->_fields) as $fieldname) {
-            if (in_array($fieldname, $this->_hiddenFields) === false) {
+            if (in_array($fieldname, $this->_internalFields) === false) {
                 $result[] = $fieldname;
             }
-        }
-        return $result;
-    }
-
-    /**
-     * Get a list of all fields attached to the model.
-     *
-     * @return array List of fields.
-     */
-    public function describeAll() {
-        $result = array();
-        foreach (array_keys($this->_fields) as $fieldname) {
-            $result[] = $fieldname;
         }
         return $result;
     }
@@ -417,8 +352,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
-            ->exclude($excludeFields)
-            ->excludeEmptyFields();
+        ->exclude($excludeFields)
+        ->excludeEmptyFields();
         return $xml->getDomDocument();
     }
 
