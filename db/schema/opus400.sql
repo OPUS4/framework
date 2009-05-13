@@ -601,7 +601,7 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `role_id` INT UNSIGNED NOT NULL ,
+  `role_id` INT UNSIGNED ,
   `resource_id` INT UNSIGNED ,
   `privilege` VARCHAR(15) ,
   `granted` TINYINT(1) NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
