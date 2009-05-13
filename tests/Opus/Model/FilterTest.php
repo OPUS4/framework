@@ -230,4 +230,21 @@ class Opus_Model_FilterTest extends PHPUnit_Framework_TestCase {
         $field = $this->filter->setField2('value');
     }
 
+    /**
+     * Test if toArray() call returnes properly filtered result.
+     *
+     * @return void
+     */
+    public function testToArrayReturnesFilteredResult() {
+        $blacklist = array('Field2');
+        $this->filter
+            ->setBlacklist($blacklist)
+            ->setSortOrder(array('Field3', 'Field2', 'Field1'));
+
+        $this->assertEquals(
+            array('Field3' => array(), 'Field1' => NULL),
+            $this->filter->toArray(),
+            'Filter result is wrong for toArray().');
+    }
+
 }

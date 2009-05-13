@@ -164,5 +164,23 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         return $result;
     }
 
+    /**
+     * Get a nested associative array representation of the model.
+     *
+     * @return array A (nested) array representation of the model.
+     */
+    public function toArray() {
+        $modelArray = $this->model->toArray();
+
+        $filteredFields = $this->describe();
+        $result = array();
+        foreach ($filteredFields as $filteredField) {
+            $result[$filteredField] = $modelArray[$filteredField];
+        }
+
+        return $result;
+    }
+
+
 
 }
