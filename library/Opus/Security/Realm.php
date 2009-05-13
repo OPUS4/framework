@@ -157,24 +157,6 @@ class Opus_Security_Realm {
         return null;
     }
 
-    /**
-     * Get the roles thar are assigned to the specified IP.
-     *
-     * @param $ip string The ip of the client accessing the repository.
-     * @throws Opus_Security_Exception Thrown if the supplied ip could not be found.
-     * @return string|array
-     *
-     * TODO: implement tablegateways for ip ranges and substitute stub.
-     */
-    public function getRoleByIp($ip) {
-        if ($ip === "127.0.0.1" || $ip === "212.201.61.33") {
-            return "testuser";
-        } else  {
-            throw new Opus_Security_Exception("An identity assigned to the ip $ip could not be found.");
-        }
-        return null;
-    }
-
     /********************************************************************************************/
     /* Singleton code below                                                                     */
     /********************************************************************************************/
