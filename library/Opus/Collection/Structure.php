@@ -225,8 +225,7 @@ class Opus_Collection_Structure {
                     if (($this->collectionStructure[$index1]['right'] === $this->collectionStructure[$index1]['left']+1) or
                         ($leftSibling === 0)) {
                         // LEFT of new node is RIGHT of the parent
-                        //$new_left = (int) $this->collectionStructure[$index1]['right'];
-                        $new_left = (int) $this->collectionStructure[$index1]['left'] + 1;
+                        $new_left = ((int) $this->collectionStructure[$index1]['left'] + 1);
                     } else {
                         // If parent has other children
                         // Find designated left sibling below designated parent
@@ -256,11 +255,11 @@ class Opus_Collection_Structure {
 
         foreach ($toDoList as $leftValue) {
 
-            if (in_array($leftValue, $deletionLeft)) {
+            if (true === in_array($leftValue, $deletionLeft)) {
                 $this->delete($leftValue);
             }
 
-            if (in_array($leftValue, $insertionLeft)) {
+            if (true === in_array($leftValue, $insertionLeft)) {
                 foreach ($insertionLeft as $leftValue) {
                     foreach ($this->collectionStructure as $index3 => $nested_set3) {
                         if ((int) $this->collectionStructure[$index3]['left'] >= $leftValue) {
@@ -292,7 +291,7 @@ class Opus_Collection_Structure {
                             $left++;
                             $this->leftOrder();
                             $subcollection_id = (int) $this->collectionStructure[$left][$this->collectionsIdentifier];
-                            $insertionArray[] = array ($subcollection_id, $collections_id, $leftSibling);
+                            $insertionArray[] = array($subcollection_id, $collections_id, $leftSibling);
                             $leftSibling = $subcollection_id;
                             $left = $this->collectionStructure[$left]['right'];
                         }
@@ -300,14 +299,18 @@ class Opus_Collection_Structure {
                         foreach ($insertionArray as $record) {
                             $this->insert($record[0], $record[1], $record[2]);
                         }
-                    } // if ((false === $subTreeFound) AND ...
-                } // foreach ($this->collectionStructure as $index => $nested_set)
-            } // if (in_array($leftValue, $insertionLeft))
-        } //foreach ($toDoList as $leftValue)
+                    }
+                    // if ((false === $subTreeFound) AND ...
+                }
+                // foreach ($this->collectionStructure as $index => $nested_set)
+            }
+            // if (in_array($leftValue, $insertionLeft))
+        }
+        // foreach ($toDoList as $leftValue)
 
         $this->leftOrder();
         if ($parentNodeFound === false) {
-            throw new InvalidArgumentException("Parent node $parent not found for insertion.");
+            throw new InvalidArgumentException('Parent node "' . $parent . '" not found for insertion.');
         }
     }
 
@@ -315,9 +318,9 @@ class Opus_Collection_Structure {
     /**
      * Fetch all child collections of a collection.
      *
-     * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id (Optional) Identifies the collection.
      * @param boolean $alsoHidden     (Optional) Return also hidden collections?
+     * @param boolean $recursive      (Optional) Recurse into tree?
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
@@ -338,7 +341,7 @@ class Opus_Collection_Structure {
          */
         foreach ($this->collectionStructure as $node) {
             if ((int) $node['collections_id'] === (int) $collections_id) {
-                if ((int) $node['left'] === (int) $node['right'] - 1) {
+                if ((int) $node['left'] === ((int) $node['right'] - 1)) {
                     return $children;
                 }
                 $left  = $node['left'];
@@ -358,7 +361,7 @@ class Opus_Collection_Structure {
                         $left++;
                     } while ((false === isset($this->collectionStructure[$left])) and ($left < ($right-1)));
                 } else {
-                    $left = $this->collectionStructure[$left]['right'] + 1;
+                    $left = ($this->collectionStructure[$left]['right'] + 1);
                 }
             }
         }
@@ -433,7 +436,7 @@ class Opus_Collection_Structure {
             throw new InvalidArgumentException('Left value ' . $left . ' not found in tree.');
         }
 
-        $right = $left+1;
+        $right = ($left + 1);
 
         while ((int) $this->collectionStructure[$left]['right'] !== ($right)) {
             $this->delete($right);

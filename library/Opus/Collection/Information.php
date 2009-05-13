@@ -41,28 +41,28 @@
 class Opus_Collection_Information {
 
     /**
-     * container for link table for avoiding unnecessary DB queries
+     * Container for link table for avoiding unnecessary DB queries
      *
      * @var array
      */
     private static $linkDocumentsCollections = false;
 
     /**
-     * container for roles table for avoiding unnecessary DB queries
+     * Container for roles table for avoiding unnecessary DB queries
      *
      * @var array
      */
     private static $collectionRoles = array();
 
     /**
-     * container for structure table for avoiding unnecessary DB queries
+     * Container for structure table for avoiding unnecessary DB queries
      *
      * @var array
      */
     private static $collectionStructure = false;
 
     /**
-     * container for roles table for avoiding unnecessary DB queries
+     * Container for roles table for avoiding unnecessary DB queries
      *
      * @var array
      */
@@ -70,8 +70,8 @@ class Opus_Collection_Information {
 
 
     /**
-     * (Re-)initialize static variables.
-     *
+     * Re-initialize static variables.
+     * @return void
      */
     static public function cleanup() {
         self::$linkDocumentsCollections   = false;
@@ -173,7 +173,7 @@ class Opus_Collection_Information {
      * @param integer                                  $role_id        Identifies tree for new collection.
      * @param integer                                  $parent_id      Parent node of collection.
      * @param integer                                  $leftSibling_id Left sibling node of collection.
-     * @param array(string => array(string => string)) $contentArray   Array with collection_content database records.
+     * @param array(string => array(string => string)) $contentArray   (Optional) Array with collection_content database records.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @throws Exception Is thrown on DB errors.
      * @return integer $collections_id ID of the newely created Collection
@@ -185,7 +185,7 @@ class Opus_Collection_Information {
         $validation->constructorID($role_id);
 
         if ( (false === is_int($parent_id)) or (0 > $parent_id) ) {
-            throw new InvalidArgumentException("Parent ID must be a non-negative integer but is $parent_id");
+            throw new InvalidArgumentException('Parent ID must be a non-negative integer but is ' . $parent_id);
         }
 
         if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
@@ -297,15 +297,25 @@ class Opus_Collection_Information {
      * @return void
      */
     static public function deleteCollectionPosition($role_id, $collection_id, $parent_id) {
-        // TODO: Validation
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+
+        if ( (false === is_int($collection_id)) or (0 >= $collection_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        if ( (false === is_int($parent_id)) or (0 >= $parent_id) ) {
+            throw new InvalidArgumentException('Parent ID must be a positive integer.');
+        }
+
         self::$collectionStructure = false;
 
         $ocs = new Opus_Collection_Structure($role_id);
         $ocs->load();
         $leftValues = $ocs->IDToleft($collection_id, $parent_id);
-        // TODO: Throw exception
+
         if (false === is_array($leftValues)) {
-            return;
+            throw new Exception('No left value found.');
         }
         rsort($leftValues);
         foreach ($leftValues as $left) {
@@ -447,6 +457,7 @@ class Opus_Collection_Information {
      *
      * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id (Optional) Identifies the collection.
+     * @param boolean $onlyStructure  (Optional) Return no content data?
      * @param boolean $alsoHidden     (Optional) Return also hidden collections?
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
@@ -486,6 +497,8 @@ class Opus_Collection_Information {
      *
      * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id (Optional) Identifies the collection.
+     * @param boolean $counting       (Optional) Are we in counting context?
+     * @param boolean $recursive      (Optional) Recurse into the tree?
      * @throws InvalidArgumentException Is thrown on invalid arguments.
      * @return array
      */
@@ -502,7 +515,6 @@ class Opus_Collection_Information {
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);
 
-
         // DB table gateway for the linking table between collections and documents
         $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
         // Container array for the raw collection ID array and the reformatted collection ID array
@@ -511,10 +523,6 @@ class Opus_Collection_Information {
 
         if (true === $recursive) {
             // Look for 'link_docs_path_to_root' attribute
-            /*
-            $ocr  = new Opus_Collection_Roles();
-            $ocr->load($roles_id);
-            $cr = $ocr->getCollectionRoles();*/
             $cr = self::getCollectionRole($roles_id);
             if (false === $counting) {
                 $ldptr = (('both' === $cr['link_docs_path_to_root']) or ('display' === $cr['link_docs_path_to_root'])) ? true : false;
@@ -550,8 +558,6 @@ class Opus_Collection_Information {
             }
         }
 
-
-
         if (false === self::$linkDocumentsCollections) {
             // Fetch all links
             self::$linkDocumentsCollections = $linkDocColl
@@ -566,8 +572,6 @@ class Opus_Collection_Information {
             }
         }
         return array_unique($allCollectionDocumentsOut);
-
-
     }
 
 
@@ -580,7 +584,6 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function countAllCollectionDocuments($roles_id, $collections_id = 1) {
-
         $allCollectionDocumentsOut = self::getAllCollectionDocuments($roles_id, $collections_id, true);
         return count($allCollectionDocumentsOut);
     }
@@ -611,7 +614,7 @@ class Opus_Collection_Information {
         if (false === empty(self::$collectionRoles[$roles_id])) {
             return self::$collectionRoles[$roles_id];
         } else {
-            throw new InvalidArgumentException("Roles ID $roles_id not found.");
+            throw new InvalidArgumentException('Roles ID ' . $roles_id . ' not found.');
         }
     }
 
@@ -687,7 +690,7 @@ class Opus_Collection_Information {
             }
         }
         if (true === empty($paths)) {
-            throw new InvalidArgumentException("Collection ID $collections_id not found in Structure.");
+            throw new InvalidArgumentException('Collection ID ' . $collections_id . ' not found in Structure.');
         }
         return $paths;
     }
@@ -748,15 +751,24 @@ class Opus_Collection_Information {
                                         ->fetchAll($link_documents_collections->select()
                                         ->from($link_documents_collections))
                                         ->toArray();
-
-
     }
 
     /**
+     * Replace a collection by a new one.
      *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @param array   $contentArray   Content data for the new collection.
+     * @return void
      */
     static public function replace($roles_id, $collections_id, array $contentArray) {
-        // TODO: Verification, Comments, $ocs->load();
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
         $new_collections_id = 0;
 
         self::$collectionStructure = false;
@@ -797,10 +809,25 @@ class Opus_Collection_Information {
     }
 
     /**
+     * Replace two collections by a new one.
      *
+     * @param integer $roles_id        Identifies tree for collection.
+     * @param integer $collections_id1 Identifies the first collection.
+     * @param integer $collections_id2 Identifies the second collection.
+     * @param array   $contentArray    Content data for the new collection.
+     * @return void
      */
     static public function merge($roles_id, $collections_id1, $collections_id2, array $contentArray) {
-        // TODO: Verification, Comments, $ocs->load();
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ( (false === is_int($collections_id1)) or (0 >= $collections_id1) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        if ( (false === is_int($collections_id2)) or (0 >= $collections_id2) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
         $new_collections_id = 0;
         self::$collectionStructure = false;
 
@@ -872,10 +899,22 @@ class Opus_Collection_Information {
     }
 
     /**
+     * Replace a collection by two new collections.
      *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @param array   $contentArray1  Content data for the first new collection.
+     * @param array   $contentArray2  Content data for the second new collection.
+     * @return void
      */
     static public function split($roles_id, $collections_id, array $contentArray1, array $contentArray2) {
-        // TODO: Verification, Comments, $ocs->load();
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
         self::$collectionStructure = false;
 
         // Load collection tree
@@ -937,12 +976,11 @@ class Opus_Collection_Information {
     }
 
     /**
-     * TODO...
+     * Return collection id of classification with given number.
      *
      * @param integer $roles_id Identifies tree for collection.
      * @param integer $number   Identifies the classification.
-     * @throws InvalidArgumentException Is thrown on invalid arguments.
-     * @return array
+     * @return integer
      */
     static public function getClassification($roles_id, $number) {
         $validation = new Opus_Collection_Validation();

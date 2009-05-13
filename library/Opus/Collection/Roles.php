@@ -110,7 +110,7 @@ class Opus_Collection_Roles {
             if (in_array($attribute, $this->collections_roles_info['primary']) === true) {
                 throw new InvalidArgumentException('Primary key attributes may not be updated.');
             } else if (in_array($attribute, $this->collections_roles_info['cols']) === false) {
-                throw new InvalidArgumentException("Unknown attribute '$attribute'.");
+                throw new InvalidArgumentException('Unknown attribute "' . $attribute . '".');
             }
             $this->collectionRoles[$attribute] = $content;
         }
@@ -137,7 +137,7 @@ class Opus_Collection_Roles {
                                                         ->where($this->collections_roles_info['primary'][1] . ' = ?', $roles_id))
                                         ->toArray();
             if (true === empty($cr)) {
-                throw new InvalidArgumentException("Collection Role with ID $roles_id not found.");
+                throw new InvalidArgumentException('Collection Role with ID "' . $roles_id . '" not found.');
             }
             $this->collectionRoles = $cr[0];
 
@@ -223,7 +223,7 @@ class Opus_Collection_Roles {
      * "collections_structure_X" where X is the current roles_id.
      *
      * @param array(array) $content_fields (Optional) Array with collection_role database records.
-     * @param int          $roles_id       (Optional) The database table postfix.
+     * @param integer      $roles_id       (Optional) The database table postfix.
      * @throws  Exception On failed database access.
      * @return void
      */

@@ -49,13 +49,6 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
     protected $_name;
 
     /**
-     * DB table primary key name.
-     *
-     * @var string
-     */
-    //protected $_primary = 'id';
-
-    /**
      * Constructor.
      *
      * @param integer $ID Number identifying the collection tree (role)

@@ -100,13 +100,11 @@ class Opus_Collection_Contents {
         $this->validation->constructorID($ID);
         $this->collectionsIdentifier    = 'id';
         if ($ID === 'institute') {
-            //$this->collectionsIdentifier    = 'id';
             $this->collections_contents     = new Opus_Db_InstitutesContents();
         } else {
             // For throwing Inv Arg Exception on non existing roles IDs
             $ocr  = new Opus_Collection_Roles();
             $ocr->load($ID);
-            //$this->collectionsIdentifier    = 'collections_id';
             $this->collections_contents     = new Opus_Db_CollectionsContents((int) $ID);
         }
         $this->collectionContents           = array();
@@ -148,7 +146,7 @@ class Opus_Collection_Contents {
             if (in_array($attribute, $this->collections_contents_info['primary']) === true) {
                 throw new InvalidArgumentException('Primary key attributes may not be updated.');
             } else if (in_array($attribute, $this->collections_contents_info['cols']) === false) {
-                throw new InvalidArgumentException("Unknown attribute '$attribute'.");
+                throw new InvalidArgumentException('Unknown attribute \'' . $attribute . '\'.');
             }
             $this->collectionContents[$attribute] = $content;
         }
@@ -172,7 +170,7 @@ class Opus_Collection_Contents {
                                                     ->where($this->collections_contents_info['primary'][1] . ' = ?', $collections_id))
                                     ->toArray();
         if (true === empty($this->collectionContents)) {
-            throw new InvalidArgumentException("Collection with ID '$collections_id' not found.");
+            throw new InvalidArgumentException('Collection with ID \'' . $collections_id . '\' not found.');
         }
 
         // Has the collection-content already an ID?
@@ -201,9 +199,6 @@ class Opus_Collection_Contents {
             throw new Exception('Database error: ' . $e->getMessage());
         }
     }
-
-
-
 
     /**
      * Save collection-content to database.
@@ -234,30 +229,27 @@ class Opus_Collection_Contents {
     }
 
     /**
-     * TODO: ...
+     * Return collection id of classification with given number.
      *
-     * @param integer $collections_id Number identifying the specific collection-content.
+     * @param integer $number Number identifying the classification.
      * @throws InvalidArgumentException Is thrown on invalid arguments.
-     * @return void
+     * @return integer
      */
     public function fetchClassification($number) {
         $classifications = $this->collections_contents
-                                    ->fetchAll($this->collections_contents
-                                                    ->select()
-                                                    ->where('number = ?', $number))
-                                    ->toArray();
+                                ->fetchAll($this->collections_contents
+                                                ->select()
+                                                ->where('number = ?', $number))
+                                ->toArray();
         if (true === empty($classifications)) {
-            throw new InvalidArgumentException("Classification collection with number '$number' not found.");
+            throw new InvalidArgumentException('Classification collection with number \'' . $number . '\' not found.');
         }
+        // If more than one id found (see DDC) use the max one.
+        // That should be the deepest in the tree.
         $output = 0;
         foreach ($classifications as $classification) {
             $output = max($output, $classification['id']);
         }
-
         return $output;
-
     }
-
-
-
 }

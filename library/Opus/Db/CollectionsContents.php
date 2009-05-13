@@ -49,21 +49,6 @@ class Opus_Db_CollectionsContents extends Opus_Db_TableGateway {
     protected $_name;
 
     /**
-     * DB table primary key name.
-     * Important: First element is the numeric part, second element is the language part of the key!
-     *
-     * @var array <string, string>
-     */
-    //protected $_primary = 'id';
-
-    /**
-     * Primary key values cannot be generated automatically.
-     *
-     * @var boolean
-     */
-    //protected $_sequence = false;
-
-    /**
      * Constructor.
      *
      * @param integer $ID Number identifying the collection tree (role)

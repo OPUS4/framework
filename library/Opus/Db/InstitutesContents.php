@@ -50,13 +50,6 @@ class Opus_Db_InstitutesContents extends Opus_Db_TableGateway {
     protected $_name = 'institutes_contents';
 
     /**
-     * Primary key values cannot be generated automatically.
-     *
-     * @var boolean
-     *      */
-    //protected $_sequence = false;
-
-    /**
      * All dependant Tables,
      * i.e. those that contain a licenses_id as a foreign key.
      *

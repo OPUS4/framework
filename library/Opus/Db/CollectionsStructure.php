@@ -66,8 +66,7 @@ class Opus_Db_CollectionsStructure extends Opus_Db_TableGateway {
 
     /**
      * Truncate structure table.
-     *
-     * @param integer $ID Number identifying the collection tree (role)
+     * @return void
      */
     public function truncate() {
         $db = Zend_Registry::get('db_adapter');
