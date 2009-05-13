@@ -155,7 +155,13 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         if (in_array($fieldname, $this->blacklist)) {
             throw new Opus_Model_Exception('Requested field is hidden by the blacklist.');
         }
-        return $this->model->__call($name, $arguments);
+        foreach ($arguments as $i => $argument) {
+            if (true === is_string($argument)) {
+                $arguments[$i] = '\'' . $argument . '\'';
+            }
+        }
+        eval('$result = $this->model->$name('. implode($arguments, ',') . ');');
+        return $result;
     }
 
 
