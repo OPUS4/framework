@@ -87,6 +87,8 @@ class Opus_Mail_SendMail {
     /**
      * Create a new SendMail instance
      */
+    // @todo Der Konstruktor soll den SMTP-Server als Parameter entgegennehmen, um Unittests
+    // mit dem Fake-SMTP-Server zu ermöglichen. Wird ein leerer String übergeben, siehe Z.104
     public function __construct() {
         $this->createSmtpTransport();
         $this->_mail = new Zend_Mail();
@@ -99,7 +101,9 @@ class Opus_Mail_SendMail {
     * @return void
     */
     private function createSmtpTransport() {
-        $transport = new Zend_Mail_Transport_Smtp('127.0.0.1');
+        // @todo IP-Adresse des SMTP-Servers und Port müssen noch in config.ini / Bootstrap ausgelagert werden.
+        // Port 25000 braucht man, um SendMail mit dem Fake-SMTP-Server benutzen zu können.
+        $transport = new Zend_Mail_Transport_Smtp('localhost', array('port' => 25000));
         Zend_Mail::setDefaultTransport($transport);
     }
 
@@ -471,7 +475,7 @@ class Opus_Mail_SendMail {
             throw new Opus_Mail_Exception('No text given.');
         }
 
-        $error = false;
+        $error = '';
         foreach ($recipients as $recip) {
             $this->_mail->addTo($recip['address'], $recip['name']);
             $this->_mail->setFrom($from, $fromName);
@@ -481,11 +485,11 @@ class Opus_Mail_SendMail {
             try {
                 $this->_mail->send();
             } catch (Exception $e) {
-                $error = true;
+                $error .= $e . ' ';
             }
         }
-        if ($error === true) {
-            throw new Opus_Mail_Exception('One or more mails could not be sent.');
+        if (!$error === '') {
+            throw new Opus_Mail_Exception('One or more mails could not be sent: ' . $error);
         }
 
         return true;
