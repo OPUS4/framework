@@ -108,6 +108,7 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
      * @return string
      */
     public function _fetchName() {
+        return $this->getName();
     }
 
     /**
