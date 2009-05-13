@@ -44,11 +44,11 @@
 class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
 
     /**
-     * Table adapter to privileges table.
+     * Table adapter to rules table.
      *
      * @var Zend_Db_Table
      */
-    protected $_privileges = null;
+    protected $_rules = null;
 
     /**
      * Table adapter to resources table.
@@ -70,8 +70,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        TestHelper::clearTable('privileges');
-        $this->_privileges = new Opus_Db_Privileges();
+        TestHelper::clearTable('rules');
+        $this->_rules = new Opus_Db_Rules();
         TestHelper::clearTable('resources');
         $this->_resources = new Opus_Db_Resources();
         TestHelper::clearTable('roles');
@@ -84,18 +84,18 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
-        TestHelper::clearTable('privileges');
+        TestHelper::clearTable('rules');
         TestHelper::clearTable('resources');
     }
 
     /**
-     * Test if privileges table is initially empty.
+     * Test if rules table is initially empty.
      *
      * @return void
      */
-    public function testPrivilegeTableIsInitiallyEmpty() {
-        $rowset = $this->_privileges->fetchAll();
-        $this->assertEquals(0, $rowset->count(), 'Privileges table is not initially empty.');
+    public function testRulesTableIsInitiallyEmpty() {
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(0, $rowset->count(), 'Rules table is not initially empty.');
     }
 
     /**
@@ -373,12 +373,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a granted privileg gets persisted.
+     * Test if a rule gets persisted.
      *
      * @return
      */
-    public function testPrivilegGetsPersisted() {
-        $this->markTestSkipped('not yet implemented in Opus_Security_Acl.');
+    public function testRuleGetsPersisted() {
         // Set up role and resource
         $role = new Zend_Acl_Role('me');
         $resource = new Zend_Acl_Resource('MyResource');
@@ -392,16 +391,16 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $acl->allow($role, $resource, 'sendToMars');
 
         // Expect permisson to be persisted
-        $rowset = $this->_privileges->fetchAll();
-        $this->assertEquals(1, $rowset->count(), 'Privileg has not been persisted.');
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(1, $rowset->count(), 'Rule has not been persisted.');
     }
 
     /**
-     * Test if a privilege gets loaded from the database.
+     * Test if a rule gets loaded from the database.
      *
      * @return void
      */
-    public function testPrivilegeGetLoadedFromDatabase() {
+    public function testRuleGetLoadedFromDatabase() {
         // Set up role
         $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
 
@@ -410,8 +409,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $row->name = 'BadGuy';
         $resourceId = $row->save();
 
-        // Set up privilege entry
-        $row = $this->_privileges->createRow();
+        // Set up rule entry
+        $row = $this->_rules->createRow();
         $row->role_id = $roleId;
         $row->resource_id = $resourceId;
         $row->privilege = 'kill';
@@ -427,11 +426,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a privilege on a resource gets inherited to child resources.
+     * Test if a rule on a resource gets inherited to child resources.
      *
      * @return void
      */
-    public function testHasPrivilegeResourceInheritance() {
+    public function testHasRuleResourceInheritance() {
         // Set up role
         $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
 
@@ -445,8 +444,8 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $row->parent_id = $rid;
         $row->save();
 
-        // Set up privilege entry on 'BadGuy'
-        $row = $this->_privileges->createRow();
+        // Set up rule entry on 'BadGuy'
+        $row = $this->_rules->createRow();
         $row->role_id = $roleId;
         $row->resource_id = $rid;
         $row->privilege = 'kill';
@@ -462,11 +461,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
    }
 
    /**
-    * Test if all privileges can be granted to a Role
+    * Test if rules will be inherited between resources
     *
     * @return void
     */
-   public function testAllPrivilegesGrantedToSuperrole() {
+   public function testIfResourcesInheritsRules() {
         // Set up role
         $this->_roles->insert(array('name' => 'ChuckNorris'));
 
@@ -475,27 +474,25 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
 
         // Resources
         $timeAndSpace = new Zend_Acl_Resource('TimeAndSpace');
-        $earthWindAndFire = new Zend_Acl_Resource('EarthWindAndFire', $timeAndSpace);
+        $earthWindAndFire = new Zend_Acl_Resource('EarthWindAndFire');
         $acl->add($timeAndSpace);
-        $acl->add($earthWindAndFire);
+        $acl->add($earthWindAndFire, $timeAndSpace);
 
-        // This would not be necessary if Chuck Norris runs the script
-        // because he is already allowed everything
-        $acl->allow('ChuckNorris');
+        $acl->allow('ChuckNorris', $timeAndSpace);
 
         // Expect Chuck Norris to have control over time and space...
         $this->assertTrue($acl->isAllowed('ChuckNorris', $timeAndSpace), 'Access to resource has not been granted.');
         // ...and earth, wind and fire as well :)
-        $this->assertTrue($acl->isAllowed('ChuckNorris', $earthWindAndFire), 'Access to resource has not been granted.');
+        $this->assertTrue($acl->isAllowed('ChuckNorris', $earthWindAndFire), 'Access to child resource has not been granted.');
    }
 
 
    /**
-    * Test if all privileges can be granted to a Role
+    * Test if everything can be granted to a Superrole
     *
     * @return void
     */
-   public function testAllPrivilegesGrantedToSuperroleIfResourcIsInDatabase() {
+   public function testEverythingGrantedToSuperroleIfResourcIsInDatabase() {
         // Set up role
         $this->_roles->insert(array('name' => 'JamesBond'));
 
@@ -520,7 +517,7 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
 
 
     /**
-     * Helper function for complex resource and privileges setting.
+     * Helper function for complex resource and rules setting.
      *
      * @return void
      */
@@ -539,11 +536,11 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         $clientId = $this->_roles->insert(array('name' => 'client'));
         $adminId = $this->_roles->insert(array('name' => 'admin'));
 
-        $this->_privileges->insert(array('role_id' => $guestId, 'resource_id' => $pubDocumentsId,
+        $this->_rules->insert(array('role_id' => $guestId, 'resource_id' => $pubDocumentsId,
             'privilege' => 'read', 'granted' => true));
-        $this->_privileges->insert(array('role_id' => $clientId, 'resource_id' => $clnDocumentsId,
+        $this->_rules->insert(array('role_id' => $clientId, 'resource_id' => $clnDocumentsId,
             'privilege' => 'read', 'granted' => true));
-        $this->_privileges->insert(array('role_id' => $adminId, 'resource_id' => $allDocumentsId,
+        $this->_rules->insert(array('role_id' => $adminId, 'resource_id' => $allDocumentsId,
             'privilege' => 'read', 'granted' => true));
     }
 

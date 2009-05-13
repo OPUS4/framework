@@ -594,12 +594,12 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `privileges`
+-- Table `rules`
 -- 
--- The columns role_id, privilege and resource may be changed to allow NULL.
--- Zend_Acl uses null to define default rules.
+-- The columns role_id, privilege and resource may be NULL,
+-- beacause Zend_Acl uses NULL to define default rules.
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `privileges` (
+CREATE  TABLE IF NOT EXISTS `rules` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED ,
   `resource_id` INT UNSIGNED ,

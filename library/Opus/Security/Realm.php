@@ -56,15 +56,15 @@ class Opus_Security_Realm {
      * @var Zend_Acl_Role_Interface
      */
     protected $_role = null;
-    
-    
+
+
     /**
      * The current master resource all newly created resources shall belong to.
      *
      * @var Zend_Acl_Resource_Interface
      */
     protected $_resource = null;
-    
+
     /**
      * Set the current Acl instance.
      *
@@ -74,7 +74,7 @@ class Opus_Security_Realm {
     public function setAcl($acl) {
         $this->_acl = $acl;
     }
-    
+
     /**
      * Return the current Acl.
      *
@@ -94,7 +94,7 @@ class Opus_Security_Realm {
     public function setRole($role) {
         $this->_role = $role;
     }
-    
+
     /**
      * Return the current Role.
      *
@@ -114,7 +114,7 @@ class Opus_Security_Realm {
     public function setResourceMaster(Zend_Acl_Resource_Interface $master) {
         $this->_resource = $master;
     }
-    
+
     /**
      * Return the current Master Resource.
      *
@@ -123,8 +123,8 @@ class Opus_Security_Realm {
     public function getResourceMaster() {
         return $this->_resource;
     }
-    
-    
+
+
     /**
      * Get the roles that are assigned to the specified identity.
      *
@@ -134,7 +134,7 @@ class Opus_Security_Realm {
      */
     public function getIdentityRole($identity) {
         $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));        
+        $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
         if (null === $account) {
             throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
         }
@@ -142,7 +142,7 @@ class Opus_Security_Realm {
         $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
         $assignedRoles = $account->findManyToManyRowset($roles, $link);
-        
+
         if (1 === $assignedRoles->count()) {
             // return the role name
             return $assignedRoles->current()->name;
@@ -153,12 +153,30 @@ class Opus_Security_Realm {
             }
             return $result;
         }
-    
+
         return null;
     }
-    
+
+    /**
+     * Get the roles thar are assigned to the specified IP.
+     *
+     * @param $ip string The ip of the client accessing the repository.
+     * @throws Opus_Security_Exception Thrown if the supplied ip could not be found.
+     * @return string|array
+     *
+     * TODO: implement tablegateways for ip ranges and substitute stub.
+     */
+    public function getRoleByIp($ip) {
+        if ($ip === "127.0.0.1" || $ip === "212.201.61.33") {
+            return "testuser";
+        } else  {
+            throw new Opus_Security_Exception("An identity assigned to the ip $ip could not be found.");
+        }
+        return null;
+    }
+
     /********************************************************************************************/
-    /* Singleton code below                                                                     */    
+    /* Singleton code below                                                                     */
     /********************************************************************************************/
 
     /**
@@ -167,7 +185,7 @@ class Opus_Security_Realm {
      * @var Opus_Security_Realm.
      */
     private static $instance = null;
-    
+
      /**
      * Delivers the singleton instance.
      *
@@ -178,15 +196,15 @@ class Opus_Security_Realm {
             self::$instance = new Opus_Security_Realm;
         }
         return self::$instance;
-    }   
-    
+    }
+
     /**
      * Disallow construction.
      *
      */
     final private function __construct() {
     }
-    
+
     /**
      * Singleton classes cannot be cloned!
      *
@@ -202,5 +220,5 @@ class Opus_Security_Realm {
      */
     final private function __sleep() {
     }
-    
+
 }
