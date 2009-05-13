@@ -94,14 +94,15 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $subcollection->setMultiplicity('*');
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
         $collectionsContentSchema->setMultiplicity('*');
-
+        $displayBrowsing = new Opus_Model_Field('DisplayBrowsing');
 
         $this->addField($name)
             ->addField($position)
             ->addField($links_docs_path_to_root)
             ->addField($visible)
             ->addField($subcollection)
-            ->addField($collectionsContentSchema);
+            ->addField($collectionsContentSchema)
+            ->addField($displayBrowsing);
         Opus_Collection_Information::cleanup();
 
   }
@@ -287,6 +288,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Retrieve all Opus_CollectionRole instances from the database.
      *
      * @return array Array of Opus_CollectionRole objects.
+     *
+     * TODO: Parametrize query to account for hidden collection roles.
      */
     public static function getAll() {
         return self::getAllFrom('Opus_CollectionRole', 'Opus_Db_CollectionsRoles', null, 'position');

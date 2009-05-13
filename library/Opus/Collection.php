@@ -323,4 +323,26 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function delete() {
         Opus_Collection_Information::deleteCollection($this->__role_id, (int) $this->getId());
     }
+
+    /**
+     * Returns custom string representation depending on role settings.
+     *
+     * @return string
+     */
+    public function getDisplayName() {
+        $role = new Opus_CollectionRole($this->__role_id);
+        $fieldnames = $role->getDisplayBrowsing();
+        $display = '';
+        if (false === empty($fieldnames)) {
+            foreach (explode(',', $fieldnames) as $fieldname) {
+                $field = $this->_getField(trim($fieldname));
+                if (false === is_null($field)) {
+                    $display .= $field->getValue() . ' ';
+                }
+            }
+        } else {
+            $display = $this->getName();
+        }
+        return $display;
+    }
 }
