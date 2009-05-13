@@ -101,7 +101,7 @@ class Opus_Security_Acl extends Zend_Acl {
 
         // The next 4 lines are quite important to stop recursion once.
         if (true === $this->_resourceExists($resourceId)) {
-            throw new Zend_Acl_Exception("Resource id '$resourceId' already exists in the ACL");
+            throw new Zend_Acl_Exception('Resource id \'' . $resourceId . '\' already exists in the ACL.');
         }
         $this->_loadedResources[] = $resourceId;
 
@@ -117,7 +117,7 @@ class Opus_Security_Acl extends Zend_Acl {
             // Fetch database identifier
             $parentId = $this->getId($parentResourceId);
             if (is_null($parentId) === true) {
-                throw new Opus_Security_Exception("Acl is corrupt. A resource parent is missing!");
+                throw new Opus_Security_Exception('Acl is corrupt. A resource parent is missing!');
             }
         } else {
             $parentId = null;
@@ -126,6 +126,8 @@ class Opus_Security_Acl extends Zend_Acl {
         $this->_resourcesTable->insert(array(
             'name' => $resourceId,
             'parent_id' => $parentId));
+
+        return $this;
     }
 
     /**
@@ -200,7 +202,7 @@ class Opus_Security_Acl extends Zend_Acl {
         return $result;
     }
 
-   /**
+    /**
      * Removes a Resource and all of its children
      *
      * The $resource parameter can either be a Resource or a Resource identifier.
@@ -231,14 +233,13 @@ class Opus_Security_Acl extends Zend_Acl {
         $select = $db->select()->from($tablename, 'name')->where('parent_id = ?', $resourceDbId);
         $children = $this->_resourcesTable->getAdapter()->fetchCol($select);
         // remove all children
-        foreach($children as $child) {
+        foreach ($children as $child) {
             $this->remove($child);
         }
 
         // remove the resource
-        $this->_resourcesTable->delete(
-                $this->_resourcesTable->getAdapter()
-                ->quoteInto('id = ?', $resourceDbId));
+        $this->_resourcesTable->delete($this->_resourcesTable
+            ->getAdapter()->quoteInto('id = ?', $resourceDbId));
         // remove from the list of laded Resources
         unset($this->_loadedResources[$resourcename]);
 
@@ -265,23 +266,23 @@ class Opus_Security_Acl extends Zend_Acl {
     }
 
     /**
-     * @param  string                                   $operation  either Zend_Acl::OP_ADD or Zend_Acl::OP_REMOVE
-     * @param  string                                   $type       either Zend_Acl::TYPE_ALLOW or Zend_Acl::TYPE_REMOVE
-     * @param  Zend_Acl_Role_Interface|string|array     $roles
-     * @param  Zend_Acl_Resource_Interface|string|array $resources
-     * @param  string|array                             $privileges
-     * @param  Zend_Acl_Assert_Interface                $assert
-     * @throws Zend_Acl_Exception
-     * @uses   Zend_Acl_Role_Registry::get()
-     * @uses   Zend_Acl::get()
-     * @return Zend_Acl Provides a fluent interface
+     * Adds or deletes a rule.
      *
-     * @see Zend_Acl::setRule
+     * @see    Zend_Acl::setRule
+     * @param  string                                   $operation  Either Zend_Acl::OP_ADD or Zend_Acl::OP_REMOVE
+     * @param  string                                   $type       Either Zend_Acl::TYPE_ALLOW or Zend_Acl::TYPE_REMOVE
+     * @param  Zend_Acl_Role_Interface|string|array     $roles      Role(s) to which the rule belong to.
+     * @param  Zend_Acl_Resource_Interface|string|array $resources  Resources the rule covers.
+     * @param  string|array                             $privileges Which privilege should be allowed or denied?
+     * @param  Zend_Acl_Assert_Interface                $assert     Is not supported by Opus_Securty_Acl, leave always blank!
+     * @throws Zend_Acl_Exception
+     * @throws Opus_Security_Exception
+     * @return Zend_Acl Provides a fluent interface
      */
     public function setRule($operation, $type, $roles = null, $resources = null, $privileges = null,
                             Zend_Acl_Assert_Interface $assert = null) {
         if (is_null($assert) === false) {
-            throw new Opus_Security_Exception("Use of assertion prohibited, can not save assertion to database yet.");
+            throw new Opus_Security_Exception('Use of assertion prohibited, can not save assertion to database yet.');
         }
 
         // add rule to the acl
@@ -301,7 +302,7 @@ class Opus_Security_Acl extends Zend_Acl {
         } else if ($type === Zend_Acl::TYPE_DENY) {
             $type = 0;
         } else {
-            throw new Zend_Acl_Exception("Unkown type $type!");
+            throw new Zend_Acl_Exception('Unkown type: ' . $type);
         }
 
         // normalize operation
@@ -318,7 +319,7 @@ class Opus_Security_Acl extends Zend_Acl {
             } else {
                 $roleId = $this->_getRoleRegistry()->getId($role);
                 if (is_null($roleId) === true) {
-                    throw new Opus_Security_Exception("Error getting roleId.");
+                    throw new Opus_Security_Exception('Error getting roleId.');
                 }
                 $roles_id[] = $roleId;
             }
@@ -348,7 +349,7 @@ class Opus_Security_Acl extends Zend_Acl {
         if (is_array($privileges) === false) {
             $privileges = array($privileges);
         }
-        foreach ($privileges as $i=>$privilege) {
+        foreach ($privileges as $i => $privilege) {
             if (is_null($privilege) === false) {
             $privileges[$i] = mb_strtolower(trim($privilege));
             }
@@ -356,7 +357,7 @@ class Opus_Security_Acl extends Zend_Acl {
 
         if ($operation === Zend_Acl::OP_ADD) {
             // for each ressource we need a rule
-            foreach($resources_id as $resourceId) {
+            foreach ($resources_id as $resourceId) {
                 // for each role we need a rule
                 foreach ($roles_id as $roleId) {
                     // for each privilege we need a rule
@@ -400,13 +401,13 @@ class Opus_Security_Acl extends Zend_Acl {
                                     ));
                             return $this;
                         }
-                    } // foreach privileges
-                } // foreach roles
-            } // foreach roles
+                    } //foreach privileges
+                } //foreach roles
+            } //foreach roles
         } else if ($operation === Zend_Acl::OP_REMOVE) {
             return $this;
         } else {
-            throw new Zend_Acl_Exception("Unknown operation $operation!");
+            throw new Zend_Acl_Exception('Unknown operation: ' . $operation);
         }
 
         return $this;
@@ -414,8 +415,8 @@ class Opus_Security_Acl extends Zend_Acl {
 
     /**
      * Returns the database ID of given resource.
-     * @param $resource     string|Zend_Acl_Resource_Interface  resource to look db id for.
-     * @return              string|null                         db id of the resource of null if resource could not be found in the db.
+     * @param $resource string|Zend_Acl_Resource_Interface Resource to look db id for.
+     * @return          string|null                        Database id of the resource of null if resource could not be found in the db.
      */
     public function getId($resource) {
         // get resource name
@@ -426,10 +427,8 @@ class Opus_Security_Acl extends Zend_Acl {
         }
 
         // find resource in table
-        $row = $this->_resourcesTable->fetchRow(
-                        $this->_resourcesTable->select()
-                        ->where('name = ?', $resourceId)
-        );
+        $row = $this->_resourcesTable->fetchRow($this->_resourcesTable
+            ->select()->where('name = ?', $resourceId));
 
         // if resource does not exists
         if (is_null($row) === true) {
@@ -445,8 +444,8 @@ class Opus_Security_Acl extends Zend_Acl {
      * This method ist needed to stop recursion between the methods
      * _loadResource an parent::add.
      *
-     * @param $resource
-     * @return unknown_type
+     * @param $resource string|Zend_Acl_Resource_Interface Resource to look for in the database.
+     * @return boolean True if and only if the resource exists in the database.
      */
     protected function _resourceExists($resource) {
         // Get Resource identifier
@@ -465,7 +464,7 @@ class Opus_Security_Acl extends Zend_Acl {
     /**
      * Loads an resource from the db an ads it to the acl.
      *
-     * @param $resource Zend_Acl_Resource_Interface|string RessourceId from the resource to load.
+     * @param $resource Zend_Acl_Resource_Interface|string Ressource to load from database.
      * @return Zend_Acl_Resource_Interface|null Instance of Zend_Acl_Resource containing the
      *                                          ResourceId or null if the resource can not be
      *                                          found in the db.
@@ -543,13 +542,12 @@ class Opus_Security_Acl extends Zend_Acl {
      * Before passing the original request to the parent Zend_Acl method, it tries to query all rules
      * corresponding with the given Role from the database.
      *
-     * @see Zend_Acl::_roleDFSVisitAllPrivileges
-     *
+     * @see    Zend_Acl::_roleDFSVisitAllPrivileges
      * @param  Zend_Acl_Role_Interface     $role
      * @param  Zend_Acl_Resource_Interface $resource
      * @param  array                       $dfs
-     * @return boolean|null
      * @throws Zend_Acl_Exception
+     * @return boolean|null
      */
     protected function _roleDFSVisitAllPrivileges(Zend_Acl_Role_Interface $role,
         Zend_Acl_Resource_Interface $resource = null, &$dfs = null) {
@@ -569,8 +567,8 @@ class Opus_Security_Acl extends Zend_Acl {
      * @param  Zend_Acl_Role_Interface     $role
      * @param  Zend_Acl_Resource_Interface $resource
      * @param  string                      $privilege
-     * @return boolean|null
      * @throws Zend_Acl_Exception
+     * @return boolean|null
      */
     protected function _roleDFSOnePrivilege(Zend_Acl_Role_Interface $role,
         Zend_Acl_Resource_Interface $resource = null, $privilege = null) {
