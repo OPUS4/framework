@@ -148,7 +148,7 @@ class Opus_Form_Builder {
                 continue;
             }
 
-            $this->_setPostData($field, $value);
+            $this->_setPostData($field, $value, $model);
         }
     }
 
@@ -719,12 +719,14 @@ class Opus_Form_Builder {
     /**
      * Set post data into model.
      *
-     * @param Opus_Model_Field $field      Field
-     * @param mixed            &$postvalue PostData
+     * @param Opus_Model_Field    $field      Field
+     * @param mixed               &$postvalue PostData
+     * @param Opus_Model_Abstract $model      (Optional) If given the Models native setter and adder methods are used
+     *                                        to set values to fields.
      * @throws Opus_Form_Exception Thrown if a action is requested which is not available.
      * @return void
      */
-    protected function _setPostData(Opus_Model_Field $field, &$postvalue) {
+    protected function _setPostData(Opus_Model_Field $field, &$postvalue, Opus_Model_Abstract $model = null) {
 
         $elementToSave = $this->__determinateFieldAction($field);
 
@@ -737,7 +739,13 @@ class Opus_Form_Builder {
             case 'SingleElementSelection':
                 // Break intentionally omitted
             case 'SingleElementTextarea':
-                $field->setValue($postvalue);
+                // FIXME Workaround to set values for simple fields via $model->set...
+                if (null === $model) {
+                    $field->setValue($postvalue);
+                } else {
+                    $callname = 'set' . $field->getName();
+                    $model->$callname($postvalue);
+                }
                 break;
 
             case 'SingleModelSelection':
