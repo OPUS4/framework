@@ -71,6 +71,7 @@ class Opus_Collection_Information {
 
     /**
      * Re-initialize static variables.
+     *
      * @return void
      */
     static public function cleanup() {
@@ -759,7 +760,8 @@ class Opus_Collection_Information {
      * @param integer $roles_id       Identifies tree for collection.
      * @param integer $collections_id Identifies the collection.
      * @param array   $contentArray   Content data for the new collection.
-     * @return void
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return integer
      */
     static public function replace($roles_id, $collections_id, array $contentArray) {
         $validation = new Opus_Collection_Validation();
@@ -815,7 +817,8 @@ class Opus_Collection_Information {
      * @param integer $collections_id1 Identifies the first collection.
      * @param integer $collections_id2 Identifies the second collection.
      * @param array   $contentArray    Content data for the new collection.
-     * @return void
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return integer
      */
     static public function merge($roles_id, $collections_id1, $collections_id2, array $contentArray) {
         $validation = new Opus_Collection_Validation();
@@ -905,7 +908,8 @@ class Opus_Collection_Information {
      * @param integer $collections_id Identifies the collection.
      * @param array   $contentArray1  Content data for the first new collection.
      * @param array   $contentArray2  Content data for the second new collection.
-     * @return void
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
      */
     static public function split($roles_id, $collections_id, array $contentArray1, array $contentArray2) {
         $validation = new Opus_Collection_Validation();

@@ -65,6 +65,7 @@ class Opus_Db_InstitutesStructure extends Opus_Db_TableGateway {
 
     /**
      * Truncate structure table.
+     *
      * @return void
      */
     public function truncate() {
