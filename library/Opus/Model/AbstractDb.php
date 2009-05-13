@@ -445,6 +445,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      *
      * @return array List of all known model entities.
      * @throws InvalidArgumentException When not passing class names.
+     *
+     * TODO: Include options array to parametrize query.
      */
     public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null, $orderBy = null) {
 
@@ -467,11 +469,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         } else {
             $rowset = $table->find($ids);
             if (false === is_null($orderBy)) {
+                // Sort manually, since find() does not support order by clause.
                 foreach($rowset as $key => $row) {
                     $vals[$key] = $row->$orderBy;
                     $rows[] = $row;
                 }
                 array_multisort($vals, SORT_ASC, $rows);
+            } else {
+                $rows = $rowset;
             }
         }
         $result = array();
