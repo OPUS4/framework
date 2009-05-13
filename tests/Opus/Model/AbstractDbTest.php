@@ -110,7 +110,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // Instantiate the Zend_Db_Table
         $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
     }
-    
+
     /**
      * Remove temporary table.
      *
@@ -164,6 +164,91 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $model->getField('ExternalModel');
         $fieldvalue = $field->getValue();
         $this->assertTrue($fieldvalue instanceof Opus_Model_Dependent_Link_Abstract, 'Field value is not a link model.');
+    }
+
+    /**
+     * Test if a linkes model can be retrieved if the standard
+     * get<Fieldname>() accessor is called on the containing model.
+     *
+     * @return void
+     */
+    public function testGetLinkedModelWhenQueryModel() {
+        // construct mockup class
+        $clazzez = '
+
+        class testGetLinkedModelWhenQueryModel_Link
+            extends Opus_Model_Dependent_Link_Abstract {
+            protected $_modelClass = \'Opus_Model_ModelAbstractDbMock\';
+            public function __construct() {}
+            protected function _init() {}
+            public function delete() {}
+        }
+
+        class testGetLinkedModelWhenQueryModel
+            extends Opus_Model_AbstractDb {
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+                protected $_externalFields = array(
+                    \'LinkField\' => array(
+                        \'model\' => \'Opus_Model_ModelAbstractDbMock\',
+                        \'through\' => \'testGetLinkedModelWhenQueryModel_Link\')
+                );
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field(\'LinkField\'));
+                }
+            }
+
+        ';
+        eval($clazzez);
+
+        $mock = new testGetLinkedModelWhenQueryModel;
+        $linkedModel = new Opus_Model_ModelAbstractDbMock();
+        $mock->setLinkField($linkedModel);
+
+        $this->assertType(get_class($linkedModel), $mock->getLinkField(), 'Returned linked model has wrong type.');
+    }
+
+    /**
+     * Test if a linkes model can be retrieved if the standard
+     * get<Fieldname>() accessor is called on the containing model.
+     *
+     * @return void
+     */
+    public function testGetMultipleLinkedModelWhenQueryModel() {
+        // construct mockup class
+        $clazzez = '
+
+        class testGetMultipleLinkedModelWhenQueryModel_Link
+            extends Opus_Model_Dependent_Link_Abstract {
+            protected $_modelClass = \'Opus_Model_ModelAbstractDbMock\';
+            public function __construct() {}
+            protected function _init() {}
+            public function delete() {}
+        }
+
+        class testGetMultipleLinkedModelWhenQueryModel
+            extends Opus_Model_AbstractDb {
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+                protected $_externalFields = array(
+                    \'LinkField\' => array(
+                        \'model\' => \'Opus_Model_ModelAbstractDbMock\',
+                        \'through\' => \'testGetMultipleLinkedModelWhenQueryModel_Link\')
+                );
+                protected function _init() {
+                    $field = new Opus_Model_Field(\'LinkField\');
+                    $field->setMultiplicity(2);
+                    $this->addField($field);
+                }
+            }
+
+        ';
+        eval($clazzez);
+
+        $mock = new testGetMultipleLinkedModelWhenQueryModel;
+        $linkedModel = new Opus_Model_ModelAbstractDbMock();
+        $mock->addLinkField($linkedModel);
+
+        $this->assertTrue(is_array($mock->getLinkField()), 'Returned value is not an array.');
+        $this->assertType(get_class($linkedModel), $mock->getLinkField(0), 'Returned linked model has wrong type.');
     }
 
 
@@ -494,7 +579,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // Check that _loadExternal has been called
         $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
     }
-    
+
     /**
      * Test if multiple calls to store do not change the record.
      *
@@ -505,22 +590,22 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
         $id1 = $model->store();
-        
+
         // Retrieve stored model value from the database table
         $row = $this->dbProvider->find($id1)->current();
-        $val1 = $row->value; 
-       
+        $val1 = $row->value;
+
         // Trigger a new store
         $id2 = $model->store();
-        
+
         // Check the value again
         $row = $this->dbProvider->find($id2)->current();
-        $val2 = $row->value; 
-       
+        $val2 = $row->value;
+
         $this->assertEquals($id1, $id2, 'Store function is not idempotend to identifiers.');
         $this->assertEquals($val1, $val2, 'Store function is not idempotend to values.');
     }
-    
+
     /**
      * Test if an Exception is thrown is the model to be stored does not
      * validiate its data to be correct.
@@ -530,61 +615,61 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testStoreThrowsExceptionIfModelHasInvalidData() {
         // Create persistent model
         $model = new Opus_Model_ModelAbstractDb;
-        
+
         // Inject failing Validator
         $model->getField('Value')->setValidator(new Zend_Validate_Date());
         $model->setValue('InvalidDate');
-        
+
         // trigger Exception
         $this->setExpectedException('Opus_Model_Exception');
         $id = $model->store();
-    }   
-    
+    }
+
     /**
      * Test if modified flags of external fields get not cleared while
      * storing internal fields.
      *
      * @return void
-     */   
+     */
     public function testDontClearExternalFieldsModifiedFlagBeforeStoring() {
         // construct mockup class
         $clazz = '
             class testStoreClearsModifiedFlagOfInternalFieldsOnly
             extends Opus_Model_AbstractDb {
-                
+
                 protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
-                
+
                 protected $_externalFields = array(
                     \'ExternalField\' => array(
                         \'model\' => \'Opus_Model_ModelAbstractDbMock\')
                 );
-                
+
                 protected function _init() {
                     $this->addField(new Opus_Model_Field(\'Value\'));
                 }
 
             }';
         eval($clazz);
-        
+
         // instanciate mockup
         $model = new testStoreClearsModifiedFlagOfInternalFieldsOnly;
-        
+
         // mock external field
-        $mockFieldExternalModel = $this->getMock('Opus_Model_Field', 
+        $mockFieldExternalModel = $this->getMock('Opus_Model_Field',
             array('clearModified'), array('ExternalField'));
         $model->addField($mockFieldExternalModel);
-        
+
         // clear and set modified flags respectivly
         $model->getField('ExternalField')->clearModified();
         $model->setValue('XYZ');
-        
+
         // expect clearModified to be called only once on external field
         $mockFieldExternalModel->expects($this->once())
             ->method('clearModified');
-            
+
         // trigger behavior
         $model->store();
     }
-    
- 
+
+
 }

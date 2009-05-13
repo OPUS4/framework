@@ -156,11 +156,38 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
         switch ($accessor) {
             case 'get':
+
+                $index = null;
                 if (empty($arguments) === false) {
-                    return $field->getValue($arguments[0]);
-                } else {
-                    return $field->getValue();
+                    $index = $arguments[0];
                 }
+
+                $fieldvalue = $field->getValue();
+                if (false === is_array($fieldvalue)) {
+                    $fieldvalue = array($fieldvalue);
+                }
+
+                foreach ($fieldvalue as $key => $value) {
+                    if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
+                        $fieldvalue[$key] = $value->getModel();
+                    }
+                }
+
+                if (true === $field->hasMultipleValues()) {
+
+                    if (empty($arguments) === false) {
+                        $index = $arguments[0];
+                        $result =  $fieldvalue[$index];
+                    } else {
+                        $result =  $fieldvalue;
+                    }
+
+                } else {
+                    $result = $fieldvalue[0];
+                }
+
+                return $result;
+
                 break;
 
             case 'set':
