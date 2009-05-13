@@ -494,6 +494,35 @@ class Opus_Collection_Information {
     }
 
     /**
+     * Fetch all collection IDs belonging to a document.
+     *
+     * @param integer $documents_id Identifies document.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    static public function getAllDocumentCollectionIDs($documents_id) {
+        $roles_ids = self::getAllCollectionRoles();
+        // DB table gateway for the linking table between collections and documents
+        foreach ($roles_ids as $roles_id=>$record) {
+            $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
+            $id_records = $linkDocColl->fetchAll($linkDocColl->select()
+                                        ->from($linkDocColl, array('collections_id'))
+                                        ->where('documents_id = ?', $documents_id)
+                                   )->toArray();
+            if (false === empty($id_records)) {
+                $ids = array();
+                foreach($id_records as $id_record) {
+                    $ids[] = $id_record['collections_id'];
+                }
+                $colls[] = array('roles_id' => $roles_id, 'collections_id' => $ids);
+            }
+        }
+        return $colls;
+    }
+
+
+
+    /**
      * Fetch all document IDs belonging to a collection.
      *
      * @param integer $roles_id       Identifies tree for collection.

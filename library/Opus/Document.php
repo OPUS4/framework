@@ -28,6 +28,7 @@
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -503,6 +504,26 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $collection = new Opus_Collection($role_id, $collection_id);
         $collection->addEntry($this);
     }
+
+    /**
+     * Get all collections this document is assigned to.
+     * TODO: komplette Pfade zur Wurzel zurckgeben
+     *
+     * @return array
+     */
+    public function getCollections() {
+        $coll_ids = Opus_Collection_Information::getAllDocumentCollectionIDs($this->getId());
+        foreach ($coll_ids as $role) {
+            $roles_id = $role['roles_id'];
+            foreach ($role['collections_id'] as $index => $collection) {
+                $collections_id = $collection;
+                $collections[] = new Opus_Collection($roles_id, $collections_id);
+            }
+        }
+        return $collections;
+    }
+
+
 
     /**
      * Instantiates an Opus_Document from xml as delivered by the toXml()
