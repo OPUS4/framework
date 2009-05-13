@@ -46,8 +46,11 @@ class Opus_Validate_Date extends Zend_Validate_Date{
      *
      */
     public function __construct() {
-        $setlocale = Zend_Registry::get('Zend_Translate')->getLocale();
-        $localeFormat = Zend_Locale_Format::getDateFormat($setlocale);
+        $localeFormat = null;
+        if (Zend_Registry::isRegistered('Zend_Translate')) {
+            $locale = Zend_Registry::get('Zend_Translate')->getLocale();
+            $localeFormat = Zend_Locale_Format::getDateFormat($locale);
+        }
         parent::__construct($localeFormat);
     }
 
