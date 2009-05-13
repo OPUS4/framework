@@ -193,7 +193,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    public function insertSubCollectionAt($position, Opus_Collection $subCollection) {
+    public function insertSubCollectionAt($position, $subCollection) {
         $subCollections = $this->_getField('SubCollection')->getValue();
         if ($position > count($subCollections)) {
             $this->addSubCollection($subCollection);

@@ -222,7 +222,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @return void
      */
-    public function addSubCollection(Opus_Collection $subCollection) {
+    public function addSubCollection($subCollection) {
         // FIXME: Workaround for parent::addSubCollection($subCollection)
         parent::__call('addSubCollection', array($subCollection));
         $this->__updateBelow = count($this->_getField('SubCollection')->getValue()) - 1;
@@ -236,7 +236,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @return void
      */
-    public function insertSubCollectionAt($position, Opus_Collection $subCollection) {
+    public function insertSubCollectionAt($position, $subCollection) {
         $subCollections = $this->_getField('SubCollection')->getValue();
         if ($position > count($subCollections)) {
             $this->addSubCollection($subCollection);
