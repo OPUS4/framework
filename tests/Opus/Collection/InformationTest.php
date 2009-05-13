@@ -58,7 +58,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
         $adapter->query("INSERT INTO `collections_roles`
         (`id`,  `name`, `position`, `link_docs_path_to_root`, `visible`)
-        VALUES (7081,  'Just to shift test area', 2, 'display', 1)
+        VALUES (7081,  'Just to shift test area', 2, 'both', 1)
         ;");
 
         $adapter->query('DROP TABLE IF EXISTS collections_contents_7081;');
@@ -209,6 +209,8 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         (2, 106)
         ;');
 
+
+        Opus_Collection_Information::cleanup();
     }
 
     /**
@@ -324,14 +326,14 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function validgetSubCollectionsDataProvider() {
-        return array(array(2,2),
-                    array(3,1),
-                    array(4,0),
-                    array(5,0),
-                    array(6,3),
-                    array(7,0),
-                    array(8,0),
-                    array(9,1),
+        return array(array(2,true, true, 2),
+                    array(3,true, false,1),
+                    array(4,false, true,0),
+                    array(5,false, false,0),
+                    array(6,true, true,3),
+                    array(7,true, true,0),
+                    array(8,true, true,0),
+                    array(9,true, true,1),
         );
     }
 
@@ -344,8 +346,8 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider validgetSubCollectionsDataProvider
      */
-    public function testgetSubCollections($collections_id, $expected) {
-        $sc = Opus_Collection_Information::getSubCollections(7081, $collections_id);
+    public function testgetSubCollections($collections_id, $onlyStructure, $alsoHidden, $expected) {
+        $sc = Opus_Collection_Information::getSubCollections(7081, $collections_id, $onlyStructure, $alsoHidden);
         $this->assertTrue(is_array($sc), "getSubCollections(7081, $collections_id) didnt return array");
         $this->assertEquals(count($sc), $expected, "getSubCollections(7081, $collections_id) didnt return expected amount of hits ($expected)");
     }
@@ -422,13 +424,31 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $sc = Opus_Collection_Information::getPathToRoot($roles_id, 4);
     }
 
+
+
+
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidgetPathToRootDataProvider() {
+        return array(
+        array(-12),
+        array('x'),
+        array(10),
+        );
+    }
+
+
     /**
      * Test function
      *
      * @param integer $collections_id No comment, use your brain.
      * @return void
      *
-     * @dataProvider invalidgetCollectionRoleDataProvider
+     * @dataProvider invalidgetPathToRootDataProvider
      */
     public function testgetPathToRootInvArg($collections_id) {
         $this->setExpectedException('InvalidArgumentException');
@@ -591,7 +611,13 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
                     ), false, -7
             ),
 
-        );
+            array(array('name' => 'Testbaum'), false, -1
+            ),
+            array(array('name' => 'Testbaum'), 3, 0
+            ),
+            array(array('name' => 'Testbaum'), 'true', 0
+            ),
+            );
     }
 
     /**
@@ -623,7 +649,10 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
             array(6, 7,  array('name' => 'Testinput 2',
                                'number' =>  '666')
             ),
-        );
+            array(0, 7,  array('name' => 'Testinput 3',
+                               'number' =>  '666')
+            ),
+            );
     }
 
     /**
@@ -640,6 +669,7 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
         $pre_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
         $coll_id = Opus_Collection_Information::newCollection(7081, $parent_id, $leftSibling_id, $contentArray);
+        $parent_id = (0 === $parent_id) ? 1 : $parent_id;
         $this->assertTrue(is_int($coll_id), "newCollection didn't return integer");
 
         $post_subColls = Opus_Collection_Information::getSubCollections(7081, $parent_id);
@@ -963,16 +993,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      */
     public function invalidLeftDeleteCollectionPositionDataProvider() {
         return array(
-            array(13),
-            array(10),
-            array(32),
-            array(30),
-/*          array(5, 'l'),
-            array(5, 3.1415926),
-            array(5, -32),
-            array('l', 5),
-            array(3.1415926, 5),
-            array(-32, 5),*/
+            array(5,3),
+            array(6,6),
+
             );
     }
 
@@ -984,8 +1007,40 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
      *
      * @dataProvider invalidLeftDeleteCollectionPositionDataProvider
      */
-    public function testDeleteCollectionPositionInvLeft($collection_id) {
+    public function testDeleteCollectionPositionInvLeft($collection_id, $parent_id) {
         $this->setExpectedException('Exception');
+        Opus_Collection_Information::deleteCollectionPosition(7081, $collection_id, $parent_id);
+    }
+
+    /**
+     * Data Provider
+     *
+     * @return array
+     */
+    public function invalidArgDeleteCollectionPositionDataProvider() {
+        return array(
+            array(0, 1),
+            array(-1, 1),
+            array(true, 1),
+            array('x', 1),
+            array(1, 0, 1),
+            array(1, -1, 1),
+            array(1, true, 1),
+            array(1, 'x'),
+
+            );
+    }
+    /**
+     * Test function
+     *
+     * @param integer $collection_id No comment, use your brain.
+     * @param integer $parent_id     No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider invalidArgDeleteCollectionPositionDataProvider
+     */
+    public function testDeleteCollectionPositionInvArg($collection_id, $parent_id) {
+        $this->setExpectedException('InvalidArgumentException');
         Opus_Collection_Information::deleteCollectionPosition(7081, $collection_id, $parent_id);
     }
 
@@ -1054,8 +1109,6 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
 
 
 
-
-
     /**
      * Data Provider
      *
@@ -1064,6 +1117,9 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
     public function validGetAllCollectionDocumentsDataProvider() {
         return array(
             array(1, 27),
+            array('x', 27),
+            array(false, 27),
+            array(1.4, 27),
             array(2, 16),
             array(3, 8),
             array(4, 3),
@@ -1089,10 +1145,19 @@ class Opus_Collection_InformationTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($expected, count($acd), "getAllCollectionDocuments didn't return expected amount of doc IDs.");
     }
 
-
-
-
-
+    /**
+     * Test function
+     *
+     * @param integer $coll_id  No comment, use your brain.
+     * @param integer $expected No comment, use your brain.
+     * @return void
+     *
+     * @dataProvider validGetAllCollectionDocumentsDataProvider
+     */
+    public function testCountAllCollectionDocuments($coll_id, $expected) {
+        $acd = Opus_Collection_Information::countAllCollectionDocuments(7081, $coll_id);
+        $this->assertEquals($expected, $acd, "countAllCollectionDocuments didn't return expected amount of doc IDs.");
+    }
 
     /**
      * Data Provider

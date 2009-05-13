@@ -508,7 +508,7 @@ class Opus_Collection_Information {
         $collections_id = (int) $collections_id;
         $roles_id = (int) $roles_id;
 
-        if (false === is_int($collections_id)) {
+        if (1 > $collections_id) {
             $collections_id = 1;
         }
 
@@ -977,6 +977,52 @@ class Opus_Collection_Information {
         $ocr->split($collections_id, $new_collections_id1, $new_collections_id2);
 
         return array($new_collections_id1, $new_collections_id2);
+    }
+
+    /**
+     * Erases a collection completely.
+     *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
+     * @return void
+     */
+    static public function killCollection($roles_id, $collections_id) {
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ( (false === is_int($collection_id)) or (0 >= $collection_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
+        self::$collectionStructure = false;
+
+        // Following operations are atomic
+        $db = Zend_Registry::get('db_adapter');
+        $db->beginTransaction();
+
+        $ocs = new Opus_Collection_Structure($role_id);
+        $ocs->load();
+        try {
+            $leftValues = $ocs->IDToleft($collection_id, $parent_id);
+
+            if (false === is_array($leftValues)) {
+                throw new Exception('No left value found.');
+            }
+            rsort($leftValues);
+            foreach ($leftValues as $left) {
+                $ocs->delete($left);
+            }
+            $ocs->save();
+
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
+
     }
 
     /**
