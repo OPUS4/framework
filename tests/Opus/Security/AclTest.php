@@ -396,6 +396,128 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if acl deletes allow rule from database.
+     *
+     * @return void
+     */
+    public function testAllowRuleGetsDeletedInDatabase() {
+        $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
+
+        // ...and resource
+        $row = $this->_resources->createRow();
+        $row->name = 'BadGuy';
+        $resourceId = $row->save();
+
+        // Set up rule entry
+        $row = $this->_rules->createRow();
+        $row->role_id = $roleId;
+        $row->resource_id = $resourceId;
+        $row->privilege = 'kill';
+        $row->granted = true;
+        $row->save();
+
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+        $acl->removeAllow('JamesBond', 'BadGuy', 'kill');
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(0, $rowset->count(), 'Rules was not delete in database.');
+    }
+
+    /**
+     * Test if acl deletes deny rule from database.
+     *
+     * @return void
+     */
+    public function testDenyRuleGetsDeletedInDatabase() {
+        $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
+
+        // ...and resource
+        $row = $this->_resources->createRow();
+        $row->name = 'BadGuy';
+        $resourceId = $row->save();
+
+        // Set up rule entry
+        $row = $this->_rules->createRow();
+        $row->role_id = $roleId;
+        $row->resource_id = $resourceId;
+        $row->privilege = 'kill';
+        $row->granted = false;
+        $row->save();
+
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+        $acl->removeDeny('JamesBond', 'BadGuy', 'kill');
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(0, $rowset->count(), 'Rules was not delete in database.');
+    }
+
+    /**
+     * Test if a allow rule for resource null, role null and privilege null is persisted.
+     * This test is important to test, if null values are handled well.
+     *
+     * @return void
+     */
+    public function testAddNullAllowRule() {
+        $acl = new Opus_Security_Acl();
+        $acl->allow(null, null, null);
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(1, $rowset->count(), 'Rule was not persisted.');
+    }
+
+    /**
+     * Test if a deny rule for resource null, role null and privilege null is persisted.
+     * This test is important to test, if null values are handled well.
+     *
+     * @return void
+     */
+    public function testAddNullDenyRule() {
+        $acl = new Opus_Security_Acl();
+        $acl->deny(null, null, null);
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(1, $rowset->count(), 'Rule was not persisted.');
+    }
+
+    /**
+     * Test if a allow rule for resource null, role null and privilege null is deleted.
+     * This test is important to test, if null values are handled well.
+     * @return unknown_type
+     */
+    public function testDeleteNullAllowRule() {
+        // Set up rule entry
+        $row = $this->_rules->createRow();
+        $row->granted = true;
+        $row->save();
+
+        $acl = new Opus_Security_Acl();
+        $acl->removeAllow(null, null, null);
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(0, $rowset->count(), 'Rule was not deleted.');
+    }
+
+    /**
+     * Test if a deny rule for resource null, role null and privilege null is deleted.
+     * This test is important to test, if null values are handled well.
+     * @return unknown_type
+     */
+    public function testDeleteNullDenyRule() {
+        // Set up rule entry
+        $row = $this->_rules->createRow();
+        $row->granted = false;
+        $row->save();
+
+        $acl = new Opus_Security_Acl();
+        $acl->removeDeny(null, null, null);
+
+        $rowset = $this->_rules->fetchAll();
+        $this->assertEquals(0, $rowset->count(), 'Rule was not deleted.');
+    }
+
+    /**
      * Test if a rule gets loaded from the database.
      *
      * @return void

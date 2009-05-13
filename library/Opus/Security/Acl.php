@@ -389,7 +389,6 @@ class Opus_Security_Acl extends Zend_Acl {
                                 // update rule
                                 $row->granted = $type;
                                 $row->save();
-                                return $this;
                             }
                         } else {
                             // Rule ist not persisted yet
@@ -399,13 +398,59 @@ class Opus_Security_Acl extends Zend_Acl {
                                     'privilege'     => $privilege,
                                     'granted'       => $type
                                     ));
-                            return $this;
                         }
                     } //foreach privileges
                 } //foreach roles
             } //foreach roles
         } else if ($operation === Zend_Acl::OP_REMOVE) {
-            return $this;
+            // for each ressource we need a rule
+            foreach ($resources_id as $resourceId) {
+                // for each role we need a rule
+                foreach ($roles_id as $roleId) {
+                    // for each privilege we need a rule
+                    foreach ($privileges as $privilege) {
+                        // check if rule exists already
+                        $where = '';
+                        if (is_null($roleId) === true) {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= 'role_id IS NULL';
+                        } else {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= $this->_rulesTable->getAdapter()
+                                ->quoteInto('role_id = ?', $roleId);
+                        }
+                        if (is_null($resourceId) === true) {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= 'resource_id IS NULL';
+                        } else {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= $this->_rulesTable->getAdapter()
+                                ->quoteInto('resource_id = ?', $resourceId);
+                        }
+                        if (is_null($privilege) === true) {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= 'privilege IS NULL';
+                        } else {
+                            if (mb_strlen($where) > 0) {
+                                $where .= ' AND ';
+                            }
+                            $where .= $this->_rulesTable->getAdapter()
+                                ->quoteInto('privilege = ?', $privilege);
+                        }
+                        $this->_rulesTable->delete($where);
+                    } //foreach privileges
+                } //foreach roles
+            } //foreach roles
         } else {
             throw new Zend_Acl_Exception('Unknown operation: ' . $operation);
         }
