@@ -81,16 +81,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
         );
 
     /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('SubCollection', 'ParentCollection').
-     */
-    protected $_internalFields = array(
-            'SubCollection',
-            'ParentCollection',
-        );
-
-    /**
      * Fetches existing or creates new collection.
      *
      * @param  int|string  $role           The role that this collection is in.
@@ -235,7 +225,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function addSubCollection(Opus_Collection $subCollection) {
         // FIXME: Workaround for parent::addSubCollection($subCollection)
         parent::__call('addSubCollection', array($subCollection));
-        $this->__updateBelow = count($this->getSubCollection()) - 1;
+        $this->__updateBelow = count($this->_getField('SubCollection')->getValue()) - 1;
     }
 
     /**
@@ -247,7 +237,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return void
      */
     public function insertSubCollectionAt($position, Opus_Collection $subCollection) {
-        $subCollections = $this->getSubCollection();
+        $subCollections = $this->_getField('SubCollection')->getValue();
         if ($position > count($subCollections)) {
             $this->addSubCollection($subCollection);
         } else {
@@ -294,7 +284,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function toArray() {
         $result = array();
-        foreach ($this->getSubCollection() as $subCollection) {
+        foreach ($this->_getField('SubCollection')->getValue() as $subCollection) {
             $result[] = array(
                     'Id' => $subCollection->getId(),
                     'Name' => $subCollection->getName(),

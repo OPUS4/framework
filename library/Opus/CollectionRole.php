@@ -66,15 +66,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         );
 
     /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('SubCollection').
-     */
-    protected $_internalFields = array(
-            'SubCollection',
-        );
-
-    /**
      * Track from where on subCollections have to be stored. Blindly calling
      * store on all subCollections leads to performance issues.
      *
@@ -113,12 +104,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             ->addField($collectionsContentSchema);
         Opus_Collection_Information::cleanup();
 
-        // Only display the field that defines the schema of
-        // the role's collections for new CollectionRoles.
-        // TODO: Allow altering of collection table schema.
-        if (false === $this->_isNewRecord) {
-            $this->_internalFields[] = 'CollectionsContentSchema';
-        }
   }
 
   /**
@@ -196,7 +181,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     public function addSubCollection($subCollection) {
         // FIXME: Workaround for parent::addSubCollection($subCollection)
         parent::__call('addSubCollection', array($subCollection));
-        $this->__updateBelow = count($this->getSubCollection()) - 1;
+        $this->__updateBelow = count($this->_getField('SubCollection')->getValue()) - 1;
     }
 
     /**
@@ -208,7 +193,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     public function insertSubCollectionAt($position, Opus_Collection $subCollection) {
-        $subCollections = $this->getSubCollection();
+        $subCollections = $this->_getField('SubCollection')->getValue();
         if ($position > count($subCollections)) {
             $this->addSubCollection($subCollection);
         } else {
@@ -262,6 +247,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storePosition($to) {
+        if ($to < 1) {
+            return;
+        }
         $from = $this->_primaryTableRow->position;
         $table = $this->_primaryTableRow->getTable();
         $roles = $table->fetchAll();
@@ -311,7 +299,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public function toArray() {
         $result = array();
-        foreach ($this->getSubCollection() as $subCollection) {
+        foreach ($this->_getField('SubCollection')->getValue() as $subCollection) {
             $result[] = array(
                     'Id' => $subCollection->getId(),
                     'Name' => $subCollection->getName(),
