@@ -65,7 +65,7 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
         $academic_title = new Opus_Model_Field('AcademicTitle');
 
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setValidator(new Zend_Validate_Date());
+        $date_of_birth->setValidator(new Opus_Validate_Date());
 
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
