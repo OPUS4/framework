@@ -39,13 +39,19 @@
  * @package     Opus_Security
  */
 class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
-
+    /**
+     * Table gateway to roles Table.
+     *
+     * @var Zend_Db_Table
+     */
+    protected $_rolesTable = null;
 
     /**
      * Load all Roles from the database.
      *
      */
     public function __construct() {
+        $this->_rolesTable = new Opus_Db_Roles();
         // Query all Roles from the database beginning with the parents
         $db = Zend_Db_Table::getDefaultAdapter();
         $select = $db->select()
@@ -53,13 +59,13 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
             ->joinLeft(array('r2' => 'roles'), 'r2.id = r1.parent', array('name AS parent'))
             ->order(array('r1.parent ASC'));
         $rowset = $db->fetchAll($select);
-        
+
         foreach ($rowset as $row) {
             $role = new Zend_Acl_Role($row['name']);
             parent::add($role, $row['parent']);
             $roleId = $role->getRoleId();
             $this->_roles[$roleId]['dbid'] = $row['id'];
-        }        
+        }
     }
 
     /**
@@ -79,7 +85,27 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
         }
         return null;
     }
-    
+
+    /**
+     * Returns the name of a role.
+     *
+     * @param $roleId Database id of the role.
+     * @return string|null The name of the role or null if no role with given databse id exists.
+     */
+    public function getRoleByDbId($roleId) {
+        // find role in table
+        $row = $this->_rolesTable->fetchRow($this->_rolesTable
+            ->select()->where('id = ?', $roleId));
+
+        // if resource does not exists
+        if (is_null($row) === true) {
+            return null;
+        }
+
+        // return name
+        return $row->name;
+    }
+
     /**
      * Adds a Role having an identifier unique to the registry.
      * The added Role gets stored to the roles table in the database.
@@ -92,19 +118,19 @@ class Opus_Security_RoleRegistry extends Zend_Acl_Role_Registry {
      */
     public function add(Zend_Acl_Role_Interface $role, $parents = null) {
         parent::add($role, $parents);
-        
+
         // Determine a parent Role id
         $parentId = null;
         if (false === empty($this->_roles[$role->getRoleId()]['parents'])) {
             $parentId = $this->getId(current($this->_roles[$role->getRoleId()]['parents']));
         }
-        
+
         $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $id = $roles->insert(array(
             'name' => $role->getRoleId(),
             'parent' => $parentId));
         $this->_roles[$role->getRoleId()]['dbid'] = $id;
-        
+
         return $this;
     }
 
