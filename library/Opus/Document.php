@@ -715,17 +715,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setServerDateModified($value) {
-        $this->setterForDate('ServerDateModified', $value);
-    }
-
-    /**
      * Fetch ISO 8601 string from database and
      * return its value as a Zend_Date object.
      *
@@ -748,17 +737,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
             $result = Zend_Date::now()->getIso();
             $this->_primaryTableRow->server_date_published = $result;
         }
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setServerDatePublished($value) {
-        $this->setterForDate('ServerDatePublished', $value);
     }
 
     /**
