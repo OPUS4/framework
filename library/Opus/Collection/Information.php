@@ -1137,5 +1137,25 @@ class Opus_Collection_Information {
         return $classification;
     }
 
+    /**
+     * Fetch visibility state
+     *
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection
+     * @return integer
+     */
+    static public function getVisibility($roles_id, $collections_id) {
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
+        $ocs = new Opus_Collection_Structure($roles_id);
+        $ocs->load();
+        $visibility = $ocs->fetchVisibility((int) $collections_id);
+        return (1 === $visibility)?true:false;
+    }
 
 }

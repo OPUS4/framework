@@ -117,7 +117,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
    * @return Opus_Collection|array Collection(s).
    */
     protected function _fetchSubCollection() {
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->getId(), 1, true);
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->getId(), 1, true, true);
         $collectionIds = array();
         foreach ($collections as $collection) {
             $collectionIds[] = $collection['collections_id'];

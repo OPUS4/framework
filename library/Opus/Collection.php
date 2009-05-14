@@ -78,7 +78,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
         'ParentCollection' => array(
             'fetch' => 'lazy',
             'model' => 'Opus_Collection'),
-        );
+        'Visibility' => array(
+            'fetch' => 'lazy',
+            'model' => 'Opus_Collection'),
+    );
 
     /**
      * Fetches existing or creates new collection.
@@ -126,6 +129,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $parentCollectionField = new Opus_Model_Field('ParentCollection');
         $parentCollectionField->setMultiplicity('*');
         $this->addField($parentCollectionField);
+
+        // Add a field to hold visibility
+        $visibility = new Opus_Model_Field('Visibility');
+        $this->addField($visibility);
     }
 
     /**
@@ -153,12 +160,30 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns visibility.
+     *
+     * @return Opus_Collection|array Subcollection(s).
+     */
+    protected function _fetchVisibility() {
+        return Opus_Collection_Information::getVisibility((int) $this->__role_id, (int) $this->getId());
+    }
+
+    /**
+     * Returns visibility.
+     *
+     * @return Opus_Collection|array Subcollection(s).
+     */
+    protected function _storeVisibility() {
+
+    }
+
+    /**
      * Returns subcollections.
      *
      * @return Opus_Collection|array Subcollection(s).
      */
     protected function _fetchSubCollection() {
-        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId(), true);
+        $collections = Opus_Collection_Information::getSubCollections((int) $this->__role_id, (int) $this->getId(), true, true);
         $collectionIds = array();
         foreach ($collections as $collection) {
             $collectionIds[] = $collection['collections_id'];

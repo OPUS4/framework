@@ -475,6 +475,23 @@ class Opus_Collection_Structure {
     }
 
     /**
+     * Get visibility state
+     *
+     * @param integer $collections_id ID identifying collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    public function fetchVisibility($collections_id) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id);
+        foreach ($this->collectionStructure as $index => $record) {
+            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
+                return (int) $this->collectionStructure[$index]['visible'];
+            }
+        }
+    }
+
+    /**
      * Count occurrences of a collection in the tree.
      *
      * @param   integer $collections_id ID identifying collection.
