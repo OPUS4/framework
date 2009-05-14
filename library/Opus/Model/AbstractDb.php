@@ -567,6 +567,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      *
      * @param string $fieldname Name of field to be set.
      * @param mixed  $value     Date value (Zend_Date object or localized string).
+     * @throws Opus_Model_Exception Thrown if a field would be set which is not in current type.
      * @return void
      */
     protected function setterForDate($fieldname, $value) {
