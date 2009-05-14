@@ -76,11 +76,12 @@ class Opus_AllTests {
         $suite->addTest(Opus_Licence_AllTests::suite());
         $suite->addTest(Opus_Mail_AllTests::suite());
         $suite->addTest(Opus_Model_AllTests::suite());
-        $suite->addTest(Opus_Search_AllTests::suite());
         $suite->addTest(Opus_Security_AllTests::suite());
         $suite->addTest(Opus_Statistic_AllTests::suite());
         $suite->addTest(Opus_Translate_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());
+        // FIXME: Moved Search_Test to end because it could cause segmentation faults.
+        $suite->addTest(Opus_Search_AllTests::suite());
 
         $suite->addTestSuite('Opus_ConfigurationTest');
         $suite->addTestSuite('Opus_DocumentTest');
