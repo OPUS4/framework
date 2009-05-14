@@ -157,6 +157,11 @@ class Opus_Security_Realm {
         return null;
     }
 
+    public function getIpaddressRole($ipaddress) {
+        // FIXME
+        return null;
+    }
+
     /********************************************************************************************/
     /* Singleton code below                                                                     */
     /********************************************************************************************/
