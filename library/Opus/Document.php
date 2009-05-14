@@ -451,6 +451,18 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         foreach ($rows as $row) {
             $result[$row['document_id']][] = $row['value'];
         }
+        // Check if there are documents without title
+        $select = $db->select()
+            ->from('documents')
+            ->where('server_state = ?', $state);
+        $rows = $db->fetchAll($select);
+
+        foreach ($rows as $row) {
+            if (array_key_exists($row['id'], $result) === false) {
+                $result[$row['id']][] = 'No title specified for ID ' . $row['id'];
+            }
+        }
+
         return $result;
     }
 
@@ -470,6 +482,16 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $result = array();
         foreach ($rows as $row) {
             $result[$row->document_id][] = $row->value;
+        }
+
+        // Check for further results without title
+        $table = new Opus_Db_Documents();
+        $rows = $table->fetchAll();
+
+        foreach ($rows as $row) {
+            if (array_key_exists($row->id, $result) === false) {
+                $result[$row->id][] = 'No title specified for ID ' . $row->id;
+            }
         }
         return $result;
     }
