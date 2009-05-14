@@ -357,6 +357,9 @@ class Opus_Model_Xml {
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
             }
+            if ($fieldValues instanceOf Zend_Date) {
+                $fieldValues = $fieldValues->getIso();
+            }
             $attr->value = $fieldValues;
             $rootNode->appendChild($attr);
         } else {

@@ -102,7 +102,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-    
+
         TestHelper::clearTable('document_identifiers');
         TestHelper::clearTable('link_persons_documents');
         TestHelper::clearTable('link_institutes_documents');
@@ -115,7 +115,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_licences');
         TestHelper::clearTable('institutes_contents');
         TestHelper::clearTable('persons');
-    
+
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);
         $adapter = Zend_Db_Table::getDefaultAdapter();
 
@@ -394,7 +394,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
     public function testDocumentFieldsPersistDatabaseStorage(array $documentDataset) {
         // FIXME Fix date field problem
         $this->markTestSkipped('Invalid scheme for storing date fields breaks test.');
-        
+
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $document = new Opus_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
@@ -622,6 +622,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc = new Opus_Document(null, $type);
         $patent = new Opus_Patent();
         $patent->setNumber('X0815');
+        $patent->setDateGranted('01-01-2001');
 
         $doc->addPatent($patent);
         $doc->store();
@@ -751,7 +752,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         foreach ($docs as $doc) {
             $doc->store();
         }
-        
+
         $result = Opus_Document::getAll();
         $this->assertEquals(count($docs), count($result), 'Wrong number of objects retrieved.');
     }
@@ -1133,7 +1134,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals($urn_value_1, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
         $this->assertEquals($urn_value_2, $doc2->getIdentifierUrn(1)->getValue(), 'Stored and expected URN value did not match.');
     }
-    
+
     /**
      * Test if after creation of a document leaves the fields marked unmodified.
      *

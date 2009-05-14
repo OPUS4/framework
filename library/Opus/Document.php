@@ -591,11 +591,251 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchCompletedDate() {
+        // should be an ISO_8601 string
+        $completedDate = $this->_primaryTableRow->completed_date;
+        return $this->getZendDate($completedDate);
+    }
+
+    /**
+     * Stores a date value (Zend_Date object or localized string)
+     * to database as an ISO 8601 string.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function _storeCompletedDate($value) {
+        $this->_primaryTableRow->completed_date = $this->dateToIso($value);
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setCompletedDate($value) {
+        $this->setterForDate('CompletedDate', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchDateAccepted() {
+        // should be an ISO_8601 string
+        $dateAccepted = $this->_primaryTableRow->date_accepted;
+        return $this->getZendDate($dateAccepted);
+    }
+
+    /**
+     * Stores a date value (Zend_Date object or localized string)
+     * to database as an ISO 8601 string.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function _storeDateAccepted($value) {
+        $this->_primaryTableRow->date_accepted = $this->dateToIso($value);
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setDateAccepted($value) {
+        $this->setterForDate('DateAccepted', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchPublishedDate() {
+        // should be an ISO_8601 string
+        $publishedDate = $this->_primaryTableRow->published_date;
+        return $this->getZendDate($publishedDate);
+    }
+
+    /**
+     * Stores a date value (Zend_Date object or localized string)
+     * to database as an ISO 8601 string.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function _storePublishedDate($value) {
+        $this->_primaryTableRow->published_date = $this->dateToIso($value);
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setPublishedDate($value) {
+        $this->setterForDate('PublishedDate', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchServerDateModified() {
+        // should be an ISO_8601 string
+        $serverDateModified = $this->_primaryTableRow->server_date_modified;
+        return $this->getZendDate($serverDateModified);
+    }
+
+    /**
+     * Set current date and time if a document is modified.
+     *
+     * @return void
+     */
+    protected function _storeServerDateModified() {
+        $result = Zend_Date::now()->getIso();
+        $this->_primaryTableRow->server_date_modified = $result;
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setServerDateModified($value) {
+        $this->setterForDate('ServerDateModified', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchServerDatePublished() {
+        // should be an ISO_8601 string
+        $serverDatePublished = $this->_primaryTableRow->server_date_published;
+        return $this->getZendDate($serverDatePublished);
+    }
+
+    /**
+     * Store date and time of a new document.
+     *
+     * @return void
+     */
+    protected function _storeServerDatePublished() {
+        // store only if and only if this is a new record
+        if (true === $this->isNewRecord()) {
+            $result = Zend_Date::now()->getIso();
+            $this->_primaryTableRow->server_date_published = $result;
+        }
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setServerDatePublished($value) {
+        $this->setterForDate('ServerDatePublished', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchServerDateUnlocking() {
+        // should be an ISO_8601 string
+        $serverDateUnlocking = $this->_primaryTableRow->server_date_unlocking;
+        return $this->getZendDate($serverDateUnlocking);
+    }
+
+    /**
+     * Stores a date value (Zend_Date object or localized string)
+     * to database as an ISO 8601 string.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function _storeServerDateUnlocking($value) {
+        $this->_primaryTableRow->server_date_unlocking = $this->dateToIso($value);
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setServerDateUnlocking($value) {
+        $this->setterForDate('ServerDateUnlocking', $value);
+    }
+
+    /**
+     * Fetch ISO 8601 string from database and
+     * return its value as a Zend_Date object.
+     *
+     * @return Zend_Date
+     */
+    protected function _fetchServerDateValid() {
+        // should be an ISO_8601 string
+        $serverDateValid = $this->_primaryTableRow->server_date_valid;
+        return $this->getZendDate($serverDateValid);
+    }
+
+    /**
+     * Stores a date value (Zend_Date object or localized string)
+     * to database as an ISO 8601 string.
+     *
+     * @param mixed $value
+     * @return void
+     */
+    protected function _storeServerDateValid($value) {
+        $this->_primaryTableRow->server_date_valid = $this->dateToIso($value);
+    }
+
+    /**
+     * Override general setter method because we need to transform
+     * input value to a Zend_Date object.
+     *
+     * @param mixed $value Date value as string.
+     * @return void
+     */
+    public function setServerDateValid($value) {
+        $this->setterForDate('ServerDateValid', $value);
+    }
+
+    /**
      * Provide read access to internal type field.
      *
      * @return string
      */
     public function getType() {
-        return $this->_getField('Type')->getValue();
+        return $this->getField('Type')->getValue();
     }
+
 }

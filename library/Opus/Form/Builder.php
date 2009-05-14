@@ -524,7 +524,19 @@ class Opus_Form_Builder {
         $element->setLabel($fieldname);
         $fieldvalue = $field->getValue();
         if ((is_array($fieldvalue) === true) or (is_object($fieldvalue) === true)) {
-            $fieldvalue = '';
+            // FIXME: Workaround for date fields
+            if ($fieldvalue instanceOf Zend_Date) {
+                $dateFormat = null;
+                if (true === Zend_Registry::isRegistered('Zend_Translate')) {
+                    $locale = Zend_Registry::get('Zend_Translate')->getLocale();
+                    $date = new Zend_Date($fieldvalue, null, $locale);
+                    $dateFormat = Zend_Locale_Format::getDateFormat($locale);
+                }
+                $fieldvalue = $date->toString($dateFormat);
+            } else {
+                $fieldvalue = '';
+            }
+
         }
         $element->setValue($fieldvalue);
         $container->addElement($element);

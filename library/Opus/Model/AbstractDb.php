@@ -492,7 +492,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * _loadExternal is called.
      *
      * @param string $name           Name of the requested field.
-     * @param bool   $ignore_pending (Optional) If true is given currently pending fields are ignored. 
+     * @param bool   $ignore_pending (Optional) If true is given currently pending fields are ignored.
      *                               Default is false.
      * @param string $name           Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
@@ -529,6 +529,78 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     public function isNewRecord() {
         return $this->_isNewRecord;
+    }
+
+    /**
+     * Determinate current locale from Zend_Translate adapter
+     * or null if no one is available.
+     *
+     * @return mixed
+     */
+    private function getCurrentLocale() {
+        $locale = null;
+        if (true === Zend_Registry::isRegistered('Zend_Translate')) {
+            $locale = Zend_Registry::get('Zend_Translate')->getLocale();
+        }
+        return $locale;
+    }
+
+    /**
+     * Try to interpretate a string as ISO 8601 date.
+     *
+     * @param string $value Value which should be a ISO 8601 string.
+     * @return Zend_Date Return a Zend_Date object if a non
+     *                   empty string is submitted or null if not.
+     */
+    protected function getZendDate($value) {
+        $date = null;
+        if (false === empty($value)) {
+            $locale = $this->getCurrentLocale();
+            $date = new Zend_Date($value, Zend_Date::ISO_8601, $locale);
+        }
+        return $date;
+    }
+
+    /**
+     * Set a date value (Zend_Date object or a localized date string)
+     * into proper field.
+     *
+     * @param string $fieldname Name of field to be set.
+     * @param mixed  $value     Date value (Zend_Date object or localized string).
+     * @return void
+     */
+    protected function setterForDate($fieldname, $value) {
+        if (false === array_key_exists($fieldname, $this->_fields)) {
+            throw new Opus_Model_Exception('Invalid field: ' . $fieldname);
+        }
+        $result = null;
+        if (false === empty($value)) {
+            if (true === is_string($value)) {
+                $locale = $this->getCurrentLocale();
+                $result = new Zend_Date($value, null, $locale);
+            } else if ($value instanceOf Zend_Date) {
+                $result = $value;
+            }
+        }
+        $this->_getField($fieldname)->setValue($result);
+    }
+
+    /**
+     * Convert a localized string or a Zend_Date object to ISO 8601.
+     *
+     * @param mixed $value Date value (Zend_Date object or localized string) for converting into ISO 8601.
+     * @return mixed Returns a ISO 8601 string or null.
+     */
+    protected function dateToIso($value) {
+        $result = null;
+        if ((true === is_string($value)) and (false === empty($value))) {
+            $locale = $this->getCurrentLocale();
+            $date = new Zend_Date($value, null, $locale);
+            $result = $date->getIso();
+        } else if ($value instanceOf Zend_Date) {
+            $result = $value->getIso();
+        }
+        return $result;
     }
 
 }

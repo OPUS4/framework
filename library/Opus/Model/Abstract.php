@@ -362,6 +362,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
                 foreach($fieldvalue as $value) {
                     if ($value instanceof Opus_Model_Abstract) {
                         $fieldvalues[] = $value->toArray();
+                    } else if ($value instanceOf Zend_Date) {
+                        $fieldvalues[] = $value->toArray();
                     } else {
                         $fieldvalues[] = $value;
                     }

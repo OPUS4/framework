@@ -79,7 +79,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
         $patent = $document->addPatent();
         $patent->setCountries('Lummerland');
-        $patent->setDateGranted('2008-12-05');
+        // FIXME: setting DateGranted  caused a segmentation fault
+        // if running all tests. Works if tested alone.
+        $patent->setDateGranted('01-01-2001');
         $patent->setNumber('123456789');
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
@@ -91,14 +93,14 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
-        $author->setDateOfBirth('1889-04-26');
+        $author->setDateOfBirth('26-04-1889');
         $author->setPlaceOfBirth('Wien');
         $document->addPersonAuthor($author);
 
         $author = new Opus_Person();
         $author->setFirstName('Ferdinand');
         $author->setLastName('de Saussure');
-        $author->setDateOfBirth('1857-11-26');
+        $author->setDateOfBirth('26-11-1857');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
 
