@@ -145,7 +145,18 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
     public static function getAllIdsByRole($role) {
-        return array();
+        $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
+        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
+        $db = $documentsLinkTable->getAdapter();
+        $select = $db->select()->from($tablename, array('person_id'))
+            ->where('role = ? ', $role);
+        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+
+        if (is_null($personIds) === true) {
+            $personIds = array();
+        }
+
+        return $personIds;
     }
 
 

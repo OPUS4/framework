@@ -146,14 +146,13 @@ class Opus_PersonTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testGetAllPersonIdsByRole() {
-        $this->markTestSkipped('Not implemented.');
-
         $ids = Opus_Person::getAllIdsByRole('author');
 
         $this->assertTrue(is_array($ids), 'No array returned.');
 
         foreach ($this->_authors as $author) {
-            $this->assertTrue(in_array($author->getId(), $this->_authors),
+            $this->assertTrue(
+                in_array($author->getId(), $ids),
                 'Author id not found.');
         }
 
