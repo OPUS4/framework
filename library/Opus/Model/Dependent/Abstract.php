@@ -40,7 +40,8 @@
  * @package     Opus_Model_Dependent
  */
 
-abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
+abstract class Opus_Model_Dependent_Abstract
+    extends Opus_Model_AbstractDbSecure
 {
 
     /**
