@@ -1190,6 +1190,56 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
     }
 
+    /**
+     * Test setting and getting date values on different ways and fields.
+     *
+     * @return void
+     */
+    public function testSettingAndGettingDateValues() {
+        Zend_Locale::setDefault('de_DE');
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="PublishedDate" />
+            <field name="ServerDateUnlocking" />
+            <field name="Patent" />
+            <field name="PersonAuthor" />
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $doc->setPublishedDate('05.10.2008');
+
+        $date = new Zend_Date('05.04.2009');
+        $doc->setServerDateUnlocking($date);
+
+        $personAuthor = new Opus_Person();
+        $personAuthor->setLastName('Tester');
+        $personAuthor->setDateOfBirth('23.06.1965');
+        $doc->addPersonAuthor($personAuthor);
+
+        $patent = new Opus_Patent();
+        $patent->setNumber('08 15');
+        $locale = new Zend_Locale('en');
+        $dateGranted = new Zend_Date('11.10.1999');
+        $patent->setDateGranted($dateGranted);
+        $doc->addPatent($patent);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $publishedDate = $doc->getPublishedDate();
+        $serverDateUnlocking = $doc->getServerDateUnlocking();
+        $personAuthor = $doc->getPersonAuthor();
+        $patent = $doc->getPatent();
+        $this->assertEquals('05.10.2008', $publishedDate->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date through string does not work.');
+        $this->assertEquals('05.04.2009', $serverDateUnlocking->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date through Zend_Date does not work.');
+        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date on a model doesn not work.');
+        $this->assertEquals('11.10.1999', $patent->getDateGranted()->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date on a dependent model doesn not work.');
+    }
+
 }
 
 
