@@ -232,6 +232,9 @@ class Opus_Security_Acl extends Zend_Acl {
         $db = $this->_resourcesTable->getAdapter();
         $select = $db->select()->from($tablename, 'name')->where('parent_id = ?', $resourceDbId);
         $children = $this->_resourcesTable->getAdapter()->fetchCol($select);
+        if (is_null($children) === true) {
+            $children = array();
+        }
         // remove all children
         foreach ($children as $child) {
             $this->remove($child);
