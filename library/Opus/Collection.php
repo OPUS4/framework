@@ -282,17 +282,55 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @return array A (nested) array representation of the model.
      */
-    public function toArray() {
-        $result = array();
-        foreach ($this->_getField('SubCollection')->getValue() as $subCollection) {
-            $result[] = array(
-                    'Id' => $subCollection->getId(),
-                    'Name' => $subCollection->getName(),
-                    'Parent' => $this->getId(),
-                    'SubCollection' => $subCollection->toArray(),
-                );
+    public function toArray($call = null) {
+
+        $result = array(
+                    'Id' => $this->getId(),
+                  );
+
+        foreach (array_keys($this->_fields) as $fieldname) {
+            $field = $this->_getField($fieldname);
+            $fieldvalue = $field->getValue();
+
+            if ('SubCollection' === $call AND ('SubCollection' === $fieldname
+                                                OR 'ParentCollection' === $fieldname)
+                OR 'ParentCollection' === $call AND 'SubCollection' === $fieldname
+                ) {
+                continue;
+            }
+            if ('ParentCollection' === $call AND '1' === $this->getId()) {
+                return false;
+            }
+
+            if ($field->hasMultipleValues()) {
+                $fieldvalues = array();
+                foreach($fieldvalue as $value) {
+                    if ($value instanceof Opus_Collection) {
+                            $val = $value->toArray($fieldname);
+                            if (false !== $val) {
+                                $fieldvalues[] = $val;
+                            }
+                    } else {
+                        $fieldvalues[] = $value;
+                    }
+                }
+                if (false === empty($fieldvalues)) {
+                    $result[$fieldname] = $fieldvalues;
+                }
+            } else {
+                if ($fieldvalue instanceof Opus_Collection) {
+                    $val = $fieldvalue->toArray($fieldname);
+                    if (false !== $val) {
+                        $result[$fieldname] = $val;
+                    }
+                } else {
+                    $result[$fieldname] = $fieldvalue;
+                }
+            }
+
         }
         return $result;
+
     }
 
     /**
