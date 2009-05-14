@@ -95,6 +95,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
         $collectionsContentSchema->setMultiplicity('*');
         $displayBrowsing = new Opus_Model_Field('DisplayBrowsing');
+        $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
+        $displayDoclist = new Opus_Model_Field('DisplayDoclist');
 
         $this->addField($name)
             ->addField($position)
@@ -102,7 +104,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             ->addField($visible)
             ->addField($subcollection)
             ->addField($collectionsContentSchema)
-            ->addField($displayBrowsing);
+            ->addField($displayBrowsing)
+            ->addField($displayFrontdoor)
+            ->addField($displayDoclist);
         Opus_Collection_Information::cleanup();
 
   }

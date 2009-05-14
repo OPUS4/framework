@@ -295,7 +295,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
                     'Id' => $this->getId(),
                     'RoleId' => $this->__role_id,
                     'RoleName' => $role->getDisplayName(),
-                  );
+                    'DisplayBrowsing' => $this->getDisplayName('browsing'),
+                    'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
+                    'DisplayDoclist' => $this->getDisplayName('doclist'),
+        );
 
         foreach (array_keys($this->_fields) as $fieldname) {
             $field = $this->_getField($fieldname);
@@ -376,9 +379,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @return string
      */
-    public function getDisplayName() {
+    public function getDisplayName($context = 'browsing') {
         $role = new Opus_CollectionRole($this->__role_id);
-        $fieldnames = $role->getDisplayBrowsing();
+        $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
         $display = '';
         if (false === empty($fieldnames)) {
             foreach (explode(',', $fieldnames) as $fieldname) {
