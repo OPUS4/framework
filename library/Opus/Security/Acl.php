@@ -598,8 +598,11 @@ class Opus_Security_Acl extends Zend_Acl {
         }
 
         if (is_null($resource) === false) {
+            $resourceId = $this->getId($resource);
+        }
+        if (is_null($resourceId) === false) {
             // look for rules matching this resource
-            $rowset = $this->_rulesTable->fetchAll($select->where('resource_id = ?', $this->getId($resource)));
+            $rowset = $this->_rulesTable->fetchAll($select->where('resource_id = ?', $resourceId));
             foreach($rowset as $row) {
                 if ($row->granted == 1) {
                     $type = Zend_Acl::TYPE_ALLOW;
