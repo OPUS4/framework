@@ -289,9 +289,12 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function toArray($call = null) {
 
+        $role = new Opus_CollectionRole($this->__role_id);
+
         $result = array(
                     'Id' => $this->getId(),
                     'RoleId' => $this->__role_id,
+                    'RoleName' => $role->getDisplayName(),
                   );
 
         foreach (array_keys($this->_fields) as $fieldname) {
