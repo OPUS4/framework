@@ -1,7 +1,7 @@
 <?php
 /**
  * Converter for PDF documents
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -38,7 +38,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
 {
   /**
    * Converts a PDF file to plain text
-   * 
+   *
    * @param string $filepath Path to the file that should be converted to text
    * @return string Fulltext
    */
@@ -47,11 +47,15 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    		$config = new Zend_Config_Ini('../config/config.ini');
 
 		$pdftotextPath = $config->searchengine->pdftotext->path;
-   		
+
    		if (false === file_exists($pdftotextPath . '/pdftotext'))
    		{
    			throw new Exception('Cannot index document: PDF-Converter not found! Please check configuration.');
    		}
+        if (false === file_exists($filepath))
+        {
+            throw new Exception('Cannot index document: Document not found!');
+        }
 
         exec("$pdftotextPath/pdftotext -enc UTF-8 ".$filepath." -", $return, $returnval);
         $volltext = implode(' ', $return);

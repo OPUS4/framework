@@ -1,7 +1,7 @@
 <?php
 /**
  * Converter for Text documents
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -38,7 +38,7 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
 {
   /**
    * Converts a text file to UTF8 plain text
-   * 
+   *
    * @param string $filepath Path to the file that should be converted to text
    * @return string Fulltext
    */
@@ -56,8 +56,12 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
             }
             else {
                 $volltext = $fileContent;
-            }        	
+            }
+        }
+        else
+        {
+            throw new Exception('Cannot index document: Document not found!');
         }
         return $volltext;
-    }	
+    }
 }

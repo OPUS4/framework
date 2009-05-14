@@ -67,10 +67,10 @@ class Opus_Search_Index_Indexer {
 	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
 	 * @return void
 	 */
-	public function addDocumentToEntryIndex(Opus_Document $doc) 
+	public function addDocumentToEntryIndex(Opus_Document $doc)
 	{
     	$returnarray = array();
-    	
+
     	try {
     	    $analyzedDocs = $this->analyzeDocument($doc);
             foreach ($analyzedDocs as $analyzedDoc) {
@@ -88,9 +88,29 @@ class Opus_Search_Index_Indexer {
 		} catch (Exception $e) {
 			throw $e;
         }
-        
+
         return $returnarray;
 	}
+
+    /**
+     * Removes a document from the Search Engine Index
+     *
+     * @param Opus_Document $doc Model of the document that should be removed to the index
+     * @throws Exception Exceptions from Zend_Search_Lucene are thrown
+     * @return void
+     */
+    public function removeDocumentFromEntryIndex(Opus_Document $doc)
+    {
+        try {
+            $hits = $this->entryindex->find('docid:' . $doc->getId());
+            foreach ($hits as $hit) {
+                $this->entryindex->delete($hit->id);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+        $this->finalize();
+    }
 
 	/**
 	 * Finalizes the entry in Search Engine Index
@@ -104,129 +124,41 @@ class Opus_Search_Index_Indexer {
 	}
 
 	private function analyzeDocument(Opus_Document $doc) {
-        $docarray = array();
         $returnarray = array();
         $langarray = array();
 
-        $document['docid'] = $doc->getId();
-        $document['year'] = $doc->getField('CompletedYear')->getValue();
-        $document['urn'] = '';
-        if (true === is_array($doc->getField('IdentifierUrn')->getValue())) {
-            $urnCount = count($doc->getField('IdentifierUrn'));
-            if ($urnCount > 0)
-            {
-                // Does the field have content?
-                if (count($doc->getField('IdentifierUrn')->getValue()) > 0)
-                {
-                    for ($n = 0; $n < $urnCount; $n++)
-                    {
-            	        $document['urn'] .= $doc->getIdentifierUrn($n)->getValue() . ' ';
-                    }
-                }
-            }
-        }
-        else {
-        	$document['urn'] .= $doc->getIdentifierUrn()->getValue() . ' ';
-        }
-        $document['isbn'] = '';
-        if (true === is_array($doc->getField('IdentifierIsbn')->getValue())) {
-            $isbnCount = count($doc->getField('IdentifierIsbn'));
-            if ($isbnCount > 0)
-            {
-                // Does the field have content?
-                if (count($doc->getField('IdentifierIsbn')->getValue()) > 0)
-                {
-                    for ($n = 0; $n < $isbnCount; $n++)
-                    {
-            	        $document['isbn'] .= $doc->getIdentifierIsbn($n)->getValue() . ' ';
-                    }
-                }
-            }
-        }
-        else {
-        	$document['isbn'] .= $doc->getIdentifierIsbn()->getValue() . ' ';
-        }
- 
-        $document['author'] = '';
-        // Does the field exist?
-        if (count($doc->getField('PersonAuthor')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonAuthor')->getValue()) > 0)
-            {
-                $document['author'] = $this->getAuthors($doc->getField('PersonAuthor')->getValue());
-            }
-        }
-        $document['persons'] = '';
-        // Does the field exist?
-        if (count($doc->getField('PersonContributor')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonContributor')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonContributor')->getValue());
-            }
-        }
-        // Does the field exist?
-        if (count($doc->getField('PersonAdvisor')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonAdvisor')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonAdvisor')->getValue());
-            }
-        }
-        // Does the field exist?
-        if (count($doc->getField('PersonEditor')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonEditor')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonEditor')->getValue());
-            }
-        }
-        // Does the field exist?
-        if (count($doc->getField('PersonReferee')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonReferee')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonReferee')->getValue());
-            }
-        }
-        // Does the field exist?
-        if (count($doc->getField('PersonOther')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonOther')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonOther')->getValue());
-            }
-        }
-        // Does the field exist?
-        if (count($doc->getField('PersonTranslator')) > 0)
-        {
-            // Does the field have content?
-            if (count($doc->getField('PersonTranslator')->getValue()) > 0)
-            {
-        	    $document['persons'] .= $this->getAuthors($doc->getField('PersonTranslator')->getValue());
-            }
-        }
-        
-        $document['doctype'] = $doc->getType();
+	    $docarray = $doc->toArray();
+	    $document['docid'] = $doc->getId();
+	    $document['year'] = $docarray['CompletedYear'];
+	    $document['doctype'] = $docarray['Type'];
 
-        $titles = $doc->getField('TitleMain')->getValue();
-        $title_count = count($titles);
-        $abstracts = $doc->getField('TitleAbstract')->getValue();
+	    $document['urn'] = $this->getValue($docarray, 'IdentifierUrn');
+	    $document['isbn'] = $this->getValue($docarray, 'IdentifierIsbn');
+
+
+        $document['author'] = $this->getPersons($docarray, 'Author');
+
+        $document['persons'] = '';
+        $document['persons'] .= $this->getPersons($docarray, 'Contributor');
+        $document['persons'] .= $this->getPersons($docarray, 'Editor');
+        $document['persons'] .= $this->getPersons($docarray, 'Other');
+        $document['persons'] .= $this->getPersons($docarray, 'Referee');
+        $document['persons'] .= $this->getPersons($docarray, 'Translator');
 
         // Look at all titles of the document
+        if (is_array($docarray['TitleMain']) === true) {
+            $titles = $docarray['TitleMain'];
+        }
+        if (is_array($docarray['TitleAbstract']) === true) {
+            $abstracts = $docarray['TitleAbstract'];
+        }
         $document['title'] = '';
         $document['abstract'] = '';
         $document['language'] = '';
         foreach ($titles as $title)
         {
-            $document['title'] .= ' ' . $title->getValue();
-            $lang = $title->getLanguage();
+            $document['title'] .= ' ' . $title['Value'];
+            $lang = $title['Language'];
             $document['language'] .= ' ' . $lang;
             $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
             array_push($langarray, $lang);
@@ -237,24 +169,25 @@ class Opus_Search_Index_Indexer {
             $document['abstract'] .= ' ' . $abstract;
         }
 
+
         // Missing fields
         $document['subject'] = '';
         $document['institute'] = '';
 
         // index files (each file will get one data set)
-        $files = $doc->getField('File')->getValue();
+        $files = $docarray['File'];
         $file_count = count($files);
         $numberOfIndexableFiles = $file_count;
         foreach ($files as $file)
         {
         	try {
        	        $document['content'] = $this->getFileContent($file);
-       	        $document['source'] = $file->getPathName();
+       	        $document['source'] = $file['PathName'];
        	        unset($document['exception']);
    	        	array_push($returnarray, $document);
             }
             catch (Exception $e) {
-        	    $document['source'] = $file->getPathName();
+        	    $document['source'] = $file['PathName'];
         	    $document['content'] = '';
         	    $document['exception'] = $e->getMessage();
         	    $numberOfIndexableFiles--;
@@ -278,8 +211,8 @@ class Opus_Search_Index_Indexer {
 	private function getAbstract($abstracts, $language) {
         foreach ($abstracts as $abstract)
         {
-            if ($abstract->getLanguage() === $language) {
-                return $abstract->getValue();
+            if ($abstract['Language'] === $language) {
+                return $abstract['Value'];
             }
         }
         return null;
@@ -289,30 +222,57 @@ class Opus_Search_Index_Indexer {
         $not_processed = array();
 	    foreach ($abstracts as $abstract)
         {
-            if (false === in_array($abstract->getLanguage(), $languages)) {
-                array_push($not_processed, $abstract->getValue());
+            if (false === in_array($abstract['Language'], $languages)) {
+                array_push($not_processed, $abstract['Value']);
             }
         }
         return $not_processed;
 	}
 
-	private function getAuthors($authors) {
-	    $aut = array();
-	    foreach ($authors as $author)
-	    {
-	        array_push($aut, $author->getLastName() . ', ' . $author->getFirstName());
-	    }
-	    if (count($aut) > 0) {
-	       return implode('; ', $aut);
-	    }
-	    return null;
-	}
-	
-	private function getFileContent($file) {
+	private function getPersons($docarray, $roleName) {
+	    $returnValue = '';
+	    $persons = $docarray['Person' . $roleName];
+        if (true === @is_array($persons[0])) {
+            $person = $persons;
+        }
+        else {
+            $person[0] = array($persons);
+        }
+        foreach ($person as $trans) {
+            if (true === array_key_exists('Name', $trans)) {
+                $returnValue .= $trans['Name'];
+                if (count($person) > 1) {
+                   $returnValue .= '; ';
+                }
+            }
+        }
+
+        return $returnValue;
+    }
+
+    private function getValue($docarray, $roleName) {
+        $returnValue = '';
+        $persons = $docarray[$roleName];
+        if (true === @is_array($persons[0])) {
+            $person = $persons;
+        }
+        else {
+            $person[0] = array($persons);
+        }
+        foreach ($person as $trans) {
+            if (true === array_key_exists('Value', $trans)) {
+                $returnValue .= $trans['Value'] . ' ';
+            }
+        }
+
+        return $returnValue;
+    }
+
+    private function getFileContent($file) {
         $fulltext = '';
         //FIXME: Hard coded path!
-        $path_prefix = '../workspace/files/' . $file->getDocumentId();
-		$mimeType = $file->getMimeType();
+        $path_prefix = '../workspace/files/' . $file['DocumentId'];
+		$mimeType = $file['MimeType'];
 		if (substr($mimeType, 0, 9) === 'text/html') {
 			$mimeType = 'text/html';
 		}
@@ -320,16 +280,16 @@ class Opus_Search_Index_Indexer {
 		    switch ($mimeType)
 		    {
 			    case 'application/pdf':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
 				    break;
 			    case 'application/postscript':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
 				    break;
 			    case 'text/html':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
+    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
 	    			break;
 			    case 'text/plain':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . addslashes($file->getPathName())); 
+    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
 	    			break;
 		    	default:
 			    	throw new Exception('No converter for MIME-Type ' . $mimeType);

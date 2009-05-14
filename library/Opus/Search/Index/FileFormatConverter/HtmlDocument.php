@@ -1,7 +1,7 @@
 <?php
 /**
  * Converter for HTML documents
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -38,13 +38,16 @@ class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_
 {
   /**
    * Converts a HTML file to plain text
-   * 
+   *
    * @param string $filepath Path to the file that should be converted to text
    * @return string Fulltext
    */
    public static function toText($filepath)
     {
-   		// TODO check filepath on existance
+        if (false === file_exists($filepath))
+        {
+            throw new Exception('Cannot index document: Document not found!');
+        }
         $volltext = html_entity_decode(strip_tags(implode(' ', file($filepath))));
         return $volltext;
     }

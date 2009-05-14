@@ -69,7 +69,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         // remove + at the end of a query (given from metager for quoted strings) - its useless anyway
         $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
         try {
-        		$lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
+            $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
                 #Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
                 #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
         		$index = new Zend_Search_Lucene($lucenePath);

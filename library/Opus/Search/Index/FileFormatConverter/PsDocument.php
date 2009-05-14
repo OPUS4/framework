@@ -1,7 +1,7 @@
 <?php
 /**
  * Converter for PS documents
- * 
+ *
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -38,7 +38,7 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
 {
   /**
    * Converts a PDF file to plain text
-   * 
+   *
    * @param string $filepath Path to the file that should be converted to text
    * @return string Fulltext
    */
@@ -47,11 +47,15 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
    		$config = new Zend_Config_Ini('../config/config.ini');
 
 		$ps2asciiPath = $config->searchengine->ps2ascii->path;
-   		
+
    		if (false === file_exists($ps2asciiPath . '/ps2ascii'))
    		{
    			throw new Exception('Cannot index document: PS-Converter not found! Please check configuration.');
    		}
+        if (false === file_exists($filepath))
+        {
+            throw new Exception('Cannot index document: Document not found!');
+        }
 
         exec("$ps2asciiPath/ps2ascii ".$filepath, $return, $returnval);
         $volltext = implode(' ', $return);

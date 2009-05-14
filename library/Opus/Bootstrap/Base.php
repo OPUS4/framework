@@ -305,6 +305,7 @@ class Opus_Bootstrap_Base {
         $lucenePath = $this->_applicationWorkspaceDirectory . '/lucene_index';
         $registry = Zend_Registry::getInstance();
         Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+        #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Opus_Search_Adapter_Lucene_NumberFinder());
         Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
         $registry->set('Zend_LuceneIndexPath', $lucenePath);
         $personslucenePath = $this->_applicationWorkspaceDirectory . '/persons_index';

@@ -37,14 +37,14 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
 
     /* Index structure
      *   title  Titel  UnStored
-     *   author  Autor als Nachname, Vorname  UnStored 
+     *   author  Autor als Nachname, Vorname  UnStored
      *   persons  sonstige beteiligte Personen als Nachname, Vorname  UnStored
-     *   contents  Aus der bzw. den Volltextdateien indizierter Volltext  UnStored 
+     *   contents  Aus der bzw. den Volltextdateien indizierter Volltext  UnStored
      *   abstract  Kurzfassung  UnStored
      *   subject  Alle Klassen und Schlagworte als leerzeichenseparierte Liste  UnStored
-     *   doctype  Dokumenttyp (auch über Browsing zugänglich, sollte aber auch als Eingrenzungskriterium suchbar sein)  UnStored 
-     *   year  Erscheinungsjahr  Keyword 
-     *   institute  Alle mit dem Dokument assoziierten Institutionen als leerzeichenseparierte Liste  Text 
+     *   doctype  Dokumenttyp (auch über Browsing zugänglich, sollte aber auch als Eingrenzungskriterium suchbar sein)  UnStored
+     *   year  Erscheinungsjahr  Keyword
+     *   institute  Alle mit dem Dokument assoziierten Institutionen als leerzeichenseparierte Liste  Text
      *   docid  dient zur Verknüpfung mit dem DBMS, muss nicht durchsucht werden  UnIndexed
      *   source  Dateiname des Dokuments, das den zu diesem Datensatz indizierten Volltext enthält, muss nicht durchsucht werden, sondern nur angezeigt  UnIndexed
      */
@@ -64,7 +64,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
     public function __construct(array &$documentdata)
     {
         $this->addField(Zend_Search_Lucene_Field::UnIndexed('source', $documentdata['source'], $this->__encoding));
-        $this->addField(Zend_Search_Lucene_Field::UnIndexed('docid', $documentdata['docid'], $this->__encoding));
+        $this->addField(Zend_Search_Lucene_Field::Keyword('docid', $documentdata['docid'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('year', $documentdata['year'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $documentdata['urn'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('isbn', $documentdata['isbn'], $this->__encoding));
