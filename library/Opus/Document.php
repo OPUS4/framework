@@ -266,9 +266,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     protected $_internalFields = array(
             'Type',
             'ServerDateModified',
-            'ServerDatePublished',
-            'ServerDateUnlocking',
-            'ServerDateValid'
+            'ServerDatePublished'
         );
 
     /**
