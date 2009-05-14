@@ -102,7 +102,9 @@ class Opus_Search_Index_Indexer {
     public function removeDocumentFromEntryIndex(Opus_Document $doc)
     {
         try {
-            $hits = $this->entryindex->find('docid:' . $doc->getId());
+            // Weird: some IDs are only found with adding whitespace behind the query...
+            // So let's add a space behind the ID.
+            $hits = $this->entryindex->find('docid:' . $doc->getId() . ' ');
             foreach ($hits as $hit) {
                 $this->entryindex->delete($hit->id);
             }
@@ -238,12 +240,14 @@ class Opus_Search_Index_Indexer {
         else {
             $person[0] = array($persons);
         }
+        $index = 1;
         foreach ($person as $trans) {
             if (true === array_key_exists('Name', $trans)) {
                 $returnValue .= $trans['Name'];
-                if (count($person) > 1) {
+                if (count($person) > 1 && $index !== count($person)) {
                    $returnValue .= '; ';
                 }
+                $index++;
             }
         }
 
