@@ -34,19 +34,27 @@
  */
 
 /**
- * Extends generic collection to act as institute.
+ * Extends generic collection role to act as organisation unit container.
  *
  */
-class Opus_Institute extends Opus_Collection {
+class Opus_OrganisationalUnits extends Opus_CollectionRole {
 
     /**
-     * Holds the role of the collection.
+     * Overwrite constructor to set fixed id.
      *
-     * @var int
+     * @return void
      */
-    private $__role_id = 'institute';
-
-    public function __construct($institute_id = null) {
-        parent::__construct($this->__role_id, $institute_id);
+    public function __construct() {
+        parent::__construct(1);
     }
+
+    /**
+     * Overwrite delete to prevent deletion of organisational unit role.
+     *
+     * @return void
+     */
+    public function delete() {
+        throw new Opus_Model_Exception('Cannot delete institute role.');
+    }
+
 }
