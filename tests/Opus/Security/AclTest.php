@@ -548,12 +548,28 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Test if a rule on a resource gets inherited to child resources.
+     * Test if rules will be inherited between roles.
      *
      * @return void
      */
-    public function testHasRuleResourceInheritance() {
-        // Set up role
+    public function testIfRolesIhneritsRules() {
+        // Set up db
+        $this->__setUpComplexResourceSetting();
+
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+
+        // Expect permission to be granted on child resource
+        $granted = $acl->isAllowed('anonymous', 'PublicDocuments', 'read');
+        $this->assertTrue($granted, 'Expect inherited permission to be granted by Acl.');
+   }
+
+   /**
+    * Test if rules will be inherited between resources
+    *
+    * @return void
+    */
+   public function testIfResourcesInheritsRules() {        // Set up role
         $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
 
         // Resources
@@ -576,10 +592,13 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
 
         // Create Acl
         $acl = new Opus_Security_Acl;
+        // check resource
+        $this->assertTrue($acl->isAllowed('JamesBond', 'BadGuy', 'kill'), 'Access to resource has not been granted.');
 
-        // Expect permission to be granted on child resource
-        $granted = $acl->isAllowed('JamesBond', 'VeryBadGuy', 'kill');
-        $this->assertTrue($granted, 'Expect inherited permission to be granted by Acl.');
+        // forget rules
+        $acl = new Opus_Security_Acl;
+        // check child resource
+        $this->assertTrue($acl->isAllowed('JamesBond', 'VeryBadGuy', 'kill'), 'Access to child resource has not been granted.');
    }
 
    /**
@@ -587,25 +606,31 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
     *
     * @return void
     */
-   public function testIfResourcesInheritsRules() {
-        // Set up role
-        $this->_roles->insert(array('name' => 'ChuckNorris'));
-
-        // Acl
-        $acl = new Opus_Security_Acl;
+   public function testIfResourcesInheritsDefaultRule() {        // Set up role
+        $roleId = $this->_roles->insert(array('name' => 'JamesBond'));
 
         // Resources
-        $timeAndSpace = new Zend_Acl_Resource('TimeAndSpace');
-        $earthWindAndFire = new Zend_Acl_Resource('EarthWindAndFire');
-        $acl->add($timeAndSpace);
-        $acl->add($earthWindAndFire, $timeAndSpace);
+        $row = $this->_resources->createRow();
+        $row->name = 'BadGuy';
+        $rid = $row->save();
 
-        $acl->allow('ChuckNorris', $timeAndSpace);
+        // Licence to kill
+        $row = $this->_rules->createRow();
+        $row->role_id = $roleId;
+        // resource_id is per default NULL
+        $row->privilege = 'kill';
+        $row->granted = true;
+        $row->save();
 
-        // Expect Chuck Norris to have control over time and space...
-        $this->assertTrue($acl->isAllowed('ChuckNorris', $timeAndSpace), 'Access to resource has not been granted.');
-        // ...and earth, wind and fire as well :)
-        $this->assertTrue($acl->isAllowed('ChuckNorris', $earthWindAndFire), 'Access to child resource has not been granted.');
+        // Create Acl
+        $acl = new Opus_Security_Acl;
+        // check default rule
+        $this->assertTrue($acl->isAllowed('JamesBond', null, 'kill'), 'Access to resource has not been granted.');
+
+        // forget rules
+        $acl = new Opus_Security_Acl;
+        // check resource rule
+        $this->assertTrue($acl->isAllowed('JamesBond', 'BadGuy', 'kill'), 'Access to child resource has not been granted.');
    }
 
 
@@ -655,8 +680,10 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
         }
 
         $guestId  = $this->_roles->insert(array('name' => 'guest'));
+        $anonymousId = $this->_roles->insert(array('name'   => 'anonymous', 'parent' => $guestId));
         $clientId = $this->_roles->insert(array('name' => 'client'));
         $adminId = $this->_roles->insert(array('name' => 'admin'));
+
 
         $this->_rules->insert(array('role_id' => $guestId, 'resource_id' => $pubDocumentsId,
             'privilege' => 'read', 'granted' => true));
@@ -664,44 +691,5 @@ class Opus_Security_AclTest extends PHPUnit_Framework_TestCase {
             'privilege' => 'read', 'granted' => true));
         $this->_rules->insert(array('role_id' => $adminId, 'resource_id' => $allDocumentsId,
             'privilege' => 'read', 'granted' => true));
-    }
-
-    /**
-     * Test that Acl queries to the database are not issued more then once.
-     *
-     * @return void
-     */
-    public function testTablesGetQueriedOnlyOnce() {
-        $this->markTestSkipped('Fix yet not implemented in Opus_Security_Acl.');
-
-        $this->__setUpComplexResourceSetting();
-
-        // Set up Acl and ask for permission of guest to read Opus/Document/3 which should be permitted
-        $acl = new Opus_Security_Acl();
-
-        // Turn on database profiler
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->getProfiler()->setEnabled(true)
-            ->setFilterQueryType(Zend_Db_Profiler::SELECT);
-
-        // Submit the query
-        $granted = $acl->isAllowed('guest', 'Opus/Document/3', 'read');
-
-        // Count SELECT queries to "resources" table
-        $profiles = $db->getProfiler()->getQueryProfiles();
-        $selects = array();
-        foreach ($profiles as $profile) {
-            $query = $profile->getQuery();
-            if (true === array_key_exists($query, $selects)) {
-                $selects[$query]++;
-            } else {
-                $selects[$query] = 1;
-            }
-        }
-
-        // Assert call-once for each query
-        foreach ($selects as $stm => $calls) {
-            $this->assertEquals(1, $calls, "More then one call to $stm.");
-        }
     }
 }

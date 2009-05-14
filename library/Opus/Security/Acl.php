@@ -285,22 +285,12 @@ class Opus_Security_Acl extends Zend_Acl {
             throw new Opus_Security_Exception('Use of assertion prohibited, can not save assertion to database yet.');
         }
 
-        // add rule to the acl
-        try {
-            parent::setRule($operation, $type, $roles, $resources, $privileges);
-        } catch (Exception $e) {
-            throw $e;
-        }
-        // acl excepted type and operation, no exception was thrown.
-        // So we can expect they are consistend with Zend_Acl::TYPE_ALLOW, TYPE_DENY
-        // OP_ADD or OP_REMOVE
-
         // normalize type
         $type = strtoupper($type);
         if ($type === Zend_Acl::TYPE_ALLOW) {
-            $type = 1;
+            $int_type = 1;
         } else if ($type === Zend_Acl::TYPE_DENY) {
-            $type = 0;
+            $int_type = 0;
         } else {
             throw new Zend_Acl_Exception('Unkown type: ' . $type);
         }
@@ -382,12 +372,12 @@ class Opus_Security_Acl extends Zend_Acl {
                         $row = $this->_rulesTable->fetchRow($select);
                         if (is_null($row) === false) {
                             // rule exists already
-                            if ($row->granted === $type) {
+                            if ($row->granted === $int_type) {
                                 // nothing to do: rule is persited already
                                 return $this;
                             } else {
                                 // update rule
-                                $row->granted = $type;
+                                $row->granted = $int_type;
                                 $row->save();
                             }
                         } else {
@@ -396,7 +386,7 @@ class Opus_Security_Acl extends Zend_Acl {
                                     'role_id'       => $roleId,
                                     'resource_id'   => $resourceId,
                                     'privilege'     => $privilege,
-                                    'granted'       => $type
+                                    'granted'       => $int_type
                                     ));
                         }
                     } //foreach privileges
@@ -455,13 +445,21 @@ class Opus_Security_Acl extends Zend_Acl {
             throw new Zend_Acl_Exception('Unknown operation: ' . $operation);
         }
 
+        // add/delete rule in acl
+        try {
+            parent::setRule($operation, $type, $roles, $resources, $privileges);
+        } catch (Exception $e) {
+            throw $e;
+        }
+
         return $this;
     }
 
     /**
      * Returns the database ID of given resource.
+     *
      * @param $resource string|Zend_Acl_Resource_Interface Resource to look db id for.
-     * @return          string|null                        Database id of the resource of null if resource could not be found in the db.
+     * @return string|null Database id of the resource of null if resource could not be found in the db.
      */
     public function getId($resource) {
         // get resource name
@@ -482,6 +480,26 @@ class Opus_Security_Acl extends Zend_Acl {
 
         // return id
         return $row->id;
+    }
+
+    /**
+     * Returns the name of the given resource.
+     *
+     * @param $resourceId string Database id to look up for the resource name.
+     * @return string|null The name of the resource or null if no resource with this id exists in the database.
+     */
+    public function getByDbId($resourceId) {
+        // find resource in table
+        $row = $this->_resourcesTable->fetchRow($this->_resourcesTable
+            ->select()->where('id = ?', $resourceId));
+
+        // if resource does not exists
+        if (is_null($row) === true) {
+            return null;
+        }
+
+        // return name
+        return $row->name;
     }
 
     /**
@@ -549,6 +567,94 @@ class Opus_Security_Acl extends Zend_Acl {
         return $resourceInstance;
     }
 
+    public function isAllowed($role = null, $resource = null, $privilege = null) {
+        $this->_loadRulesByResource($resource, $privilege);
+        $result = parent::isAllowed($role, $resource, $privilege);
+        return $result;
+    }
+
+    /**
+     * Loads all rules of a resource, the resource ancestor and the default rule from database.
+     *
+     * @param $resource  string|Zend_Acl_Resource_Interface|null The resource to load the rules for or null for default-rules.
+     * @param $privilege string|null                             Give privilege if you want to load rule for a privilege or null if you want to load the default rules.
+     * @return void
+     */
+    protected function _loadRulesByResource($resource = null, $privilege = null) {
+        if (is_null($resource === false) && $resource instanceof Zend_Acl_Resource_Interface) {
+            $resource = $resource->getResourceId();
+        }
+        $select = $this->_rulesTable->select();
+        if (is_null($privilege) === false) {
+            // normalize it
+            $privilege = mb_strtolower(trim($privilege));
+            // add where
+            $select = $select->where('privilege = ?', $privilege);
+        } else {
+            $select = $select->where('privilege IS NULL');
+        }
+
+        if (is_null($resource) === false) {
+            // look for rules matching this resource
+            $rowset = $this->_rulesTable->fetchAll($select->where('resource_id = ?', $this->getId($resource)));
+            foreach($rowset as $row) {
+                if ($row->granted == 1) {
+                    $type = Zend_Acl::TYPE_ALLOW;
+                } else {
+                    $type = Zend_Acl::TYPE_DENY;
+                }
+                $role = null;
+                if (is_null($row->role_id) === false) {
+                    $role = $this->_getRoleRegistry()->getRoleByDbId($row->role_id);
+                }
+                $resource2insert = null;
+                if (is_null($row->resource_id) === false) {
+                    $resource2insert = $this->getByDbId($row->resource_id);
+                }
+                parent::setRule(Zend_Acl::OP_ADD, $type, $role, $resource2insert, $privilege);
+            }
+            // look for parent
+            $parent = $this->getParentDbId($resource);
+            if (is_null($parent) === true) {
+                $this->_loadRulesByResource(null, $privilege);
+            } else {
+                $this->_loadRulesByResource($this->getByDbId($parent), $privilege);
+            }
+
+        } else {
+            $select = $select->where('resource_id IS NULL');
+            $rowset = $this->_rulesTable->fetchAll($select);
+            foreach ($rowset as $row) {
+                if ($row->granted == 1) {
+                    $type = Zend_Acl::TYPE_ALLOW;
+                } else {
+                    $type = Zend_Acl::TYPE_DENY;
+                }
+                $role = null;
+                if (is_null($row->role_id) === false) {
+                    $role = $this->_getRoleRegistry()->getRoleByDbId($row->role_id);
+                }
+                parent::setRule(Zend_Acl::OP_ADD, $type, $role, $resource, $privilege);
+            }
+        }
+
+
+    }
+
+    /**
+     * Looks up database id of the parent of given resource.
+     *
+     * @param $resource Zend_Acl_Resource_Interface|string resourceId or resource
+     * @return string|null Returns the ParentDbId of a resource or null, if the resource is a whiteness.
+     */
+    public function getParentDbId($resource) {
+        if ($resource instanceof Zend_Acl_Resource_Interface) {
+            $resource = $resource->getResourceId();
+        }
+        $select = $this->_resourcesTable->select()->where('name = ?', $resource);
+        $row = $this->_resourcesTable->fetchRow($select);
+        return $row->parent_id;
+    }
 
     /**
      * Fetch all persisted rules for a given role and merge them into
@@ -558,6 +664,7 @@ class Opus_Security_Acl extends Zend_Acl {
      * @return void
      */
     protected function _fetchRoleRules(Zend_Acl_Role_Interface $role) {
+        // FIXME: use arrays to now wich rules where loaded already. Do not load every rule every time.
         // Fetch corresponding rules records
         $roleId = $this->_getRoleRegistry()->getId($role);
         $select = $this->_rulesTable->select()->where('role_id = ?', $roleId);
