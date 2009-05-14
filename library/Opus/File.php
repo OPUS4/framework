@@ -211,15 +211,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         //FIXME: Hard coded path!
         $path = $this->__path . $this->getDocumentId();
         $result = @unlink($path . '/' . $this->getPathName());
-        if (true === $result) {
+        if (file_exists($path . '/' . $this->getPathName()) === false) {
+            parent::delete();
             // try to delete empty directory
             // if empty it will be deleted
-            @rm_dir($path);
-            parent::delete();
+            @rmdir($path);
         } else {
             throw new Exception('Deleting of file "' . $this->getPathName() . '" failed.');
         }
     }
+
 
     /**
      * Populate fields from array.
