@@ -138,6 +138,18 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Get a list of IDs for Persons that have the specified role for
+     * certain documents.
+     *
+     * @param string $role Role name.
+     * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
+     */
+    public static function getAllIdsByRole($role) {
+        return array();
+    }
+
+
+    /**
      * Retrieve all Opus_Person instances from the database.
      *
      * @return array Array of Opus_Person objects.

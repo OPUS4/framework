@@ -255,7 +255,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
 
         $doc->addLicence(new Opus_Licence());
-        $value = $doc->getLicence();
+        $value = $doc->getField('Licence')->getValue();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
         $this->assertType('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
@@ -523,10 +523,13 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addPersonAuthor($author);
         $doc->store();
-        $id = $doc->getPersonAuthor()->getId();
+
+        $linkId = $doc->getField('PersonAuthor')->getValue()->getId();
+
         $doc->delete();
+
         $this->setExpectedException('Opus_Model_Exception');
-        $link = new Opus_Model_Dependent_Link_DocumentPerson($id);
+        $link = new Opus_Model_Dependent_Link_DocumentPerson($linkId);
     }
 
     /**
@@ -549,11 +552,11 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->addLicence($licence);
         $doc->store();
-        $id = $doc->getLicence()->getId();
+        $linkid = $doc->getField('Licence')->getValue()->getId();
         $doc->delete();
 
         $this->setExpectedException('Opus_Model_Exception');
-        $link = new Opus_Model_Dependent_Link_DocumentLicence($id);
+        $link = new Opus_Model_Dependent_Link_DocumentLicence($linkid);
     }
 
     /**
@@ -902,7 +905,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $document = new Opus_Document(null, $type);
         $licence = new Opus_Licence;
         $document->setLicence($licence);
-        $licence = $document->getLicence();
+        $licence = $document->getField('Licence')->getValue();
 
         $this->assertTrue($licence instanceof Opus_Model_Dependent_Link_Abstract,
                 'Getting a field value containing a link model failed.');
@@ -936,18 +939,6 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
             'Value' => 'Ein deutscher Titel'
             );
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
-    }
-
-    /**
-     * Test if a document's fields come out of an Xml-import as they went in.
-     *
-     * @return void
-     */
-    public function testDocumentImportFromXml() {
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $xml = '<Opus><Opus_Document Type="article"/></Opus>';
-        $importedDocument = Opus_Document::fromXml($xml);
-        $this->assertEquals('article', $importedDocument->getType(), 'Document did not persist Xml import.');
     }
 
     /**
