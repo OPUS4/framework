@@ -257,15 +257,20 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $result = array();
         $collectionIds = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->getId());
         $result = array();
+        $resultOut = array();
         if (empty($collectionIds) === false) {
             $result = array();
             $table = new Opus_Db_CollectionsContents($this->__role_id);
             $rows = $table->find($collectionIds);
+            // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[] = new Opus_Collection((int) $this->__role_id, $row);
+                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row);
+            }
+            foreach ($collectionIds as $id) {
+                $resultOut[] = $result[(int) $id];
             }
         }
-        return $result;
+        return $resultOut;
     }
 
     /**
@@ -286,6 +291,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         $result = array(
                     'Id' => $this->getId(),
+                    'RoleId' => $this->__role_id,
                   );
 
         foreach (array_keys($this->_fields) as $fieldname) {

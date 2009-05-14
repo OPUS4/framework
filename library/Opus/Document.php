@@ -507,11 +507,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
 
     /**
      * Get all collections this document is assigned to.
-     * TODO: komplette Pfade zur Wurzel zurckgeben
      *
      * @return array
      */
     public function getCollections() {
+        $collections = array();
         $coll_ids = Opus_Collection_Information::getAllDocumentCollectionIDs($this->getId());
         foreach ($coll_ids as $role) {
             $roles_id = $role['roles_id'];

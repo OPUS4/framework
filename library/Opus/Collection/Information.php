@@ -35,6 +35,8 @@
 /**
  * Provides functions to add, remove, alter and retrieve collection information.
  *
+ * TODO: Refactoring - Make methods non-static
+ *
  * @category Framework
  * @package  Opus_Collections
  */
@@ -67,6 +69,13 @@ class Opus_Collection_Information {
      * @var array
      */
     private static $collectionReplacements = false;
+
+    /**
+     * Container for roles_id
+     *
+     * @var array
+     */
+    private static $roles_id = false;
 
 
     /**
@@ -165,6 +174,7 @@ class Opus_Collection_Information {
             $db->rollBack();
             throw new Exception($e->getMessage());
         }
+        self::$roles_id = $role;
         return $role->getRolesID();
     }
 
@@ -197,7 +207,8 @@ class Opus_Collection_Information {
             $parent_id = 1;
         }
 
-        self::$collectionStructure = false;
+        self::cleanup();
+        self::$roles_id = $role_id;
 
         // Create a new collection content container
         $occ = new Opus_Collection_Contents($role_id);
@@ -264,7 +275,8 @@ class Opus_Collection_Information {
         if ( (false === is_int($leftSibling_id)) or (0 > $leftSibling_id) ) {
             throw new InvalidArgumentException('Left Sibling ID must be a non-negative integer.');
         }
-        self::$collectionStructure = false;
+        self::cleanup();
+        self::$roles_id = $role_id;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -309,7 +321,8 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Parent ID must be a positive integer.');
         }
 
-        self::$collectionStructure = false;
+        self::cleanup();
+        self::$roles_id = $role_id;
 
         $ocs = new Opus_Collection_Structure($role_id);
         $ocs->load();
@@ -343,7 +356,9 @@ class Opus_Collection_Information {
         if ( (false === is_int($left)) or (0 >= $left) ) {
             throw new InvalidArgumentException('LEFT value must be a positive integer.');
         }
-        self::$collectionStructure = false;
+
+        self::cleanup();
+        self::$roles_id = $role_id;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -394,7 +409,9 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
-        self::$collectionStructure = false;
+
+        self::cleanup();
+        self::$roles_id = $role_id;
 
         // Following operations are atomic
         $db = Zend_Registry::get('db_adapter');
@@ -471,6 +488,10 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 > $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a non-negative integer.');
         }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
 
         $children = array();
         if (false === self::$collectionStructure) {
@@ -539,6 +560,10 @@ class Opus_Collection_Information {
 
         if (1 > $collections_id) {
             $collections_id = 1;
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
         }
 
         // Argument validation
@@ -626,6 +651,10 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getCollectionRole($roles_id) {
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
         $roles_id = (int) $roles_id;
         if (true === empty(self::$collectionRoles[$roles_id])) {
 
@@ -657,6 +686,10 @@ class Opus_Collection_Information {
      * @return array
      */
     static public function getAllParents($roles_id, $collections_id) {
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
         if (false === self::$collectionStructure) {
             self::$collectionStructure = new Opus_Collection_Structure($roles_id);
             self::$collectionStructure->load();
@@ -680,6 +713,10 @@ class Opus_Collection_Information {
 
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
         }
 
         // Container for the array of pathes
@@ -740,6 +777,10 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
 
         // Create collection content object and load information from DB
         $occ = new Opus_Collection_Contents($roles_id);
@@ -767,6 +808,10 @@ class Opus_Collection_Information {
 
         if ( (false === is_int($documents_id)) or (0 >= $documents_id) ) {
             throw new InvalidArgumentException('Document ID must be a positive integer.');
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
         }
 
         // DB table gateway for the documents-collections linking table
@@ -798,6 +843,10 @@ class Opus_Collection_Information {
 
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
         }
 
         $new_collections_id = 0;
@@ -858,6 +907,10 @@ class Opus_Collection_Information {
         }
         if ( (false === is_int($collections_id2)) or (0 >= $collections_id2) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
         }
 
         $new_collections_id = 0;
@@ -947,6 +1000,10 @@ class Opus_Collection_Information {
         if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
 
         self::$collectionStructure = false;
 
@@ -1026,6 +1083,10 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
 
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
         self::$collectionStructure = false;
 
         // Following operations are atomic
@@ -1065,6 +1126,10 @@ class Opus_Collection_Information {
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);
 
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
 
         // Create collection content object and load information from DB
         $occ = new Opus_Collection_Contents($roles_id);
