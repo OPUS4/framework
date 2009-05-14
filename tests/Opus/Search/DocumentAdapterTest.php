@@ -79,8 +79,6 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
 
         $patent = $document->addPatent();
         $patent->setCountries('Lummerland');
-        // FIXME: setting DateGranted  caused a segmentation fault
-        // if running all tests. Works if tested alone.
         $patent->setDateGranted('01-01-2001');
         $patent->setNumber('123456789');
         $patent->setYearApplied('2008');
