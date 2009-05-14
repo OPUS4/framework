@@ -158,7 +158,7 @@ class Opus_Security_Acl extends Zend_Acl {
     protected function _getRoleRegistry()
     {
         if (null === $this->_roleRegistry) {
-            // FIXME: load RoleRegistry dynamicly.
+            // FIXME: load RoleRegistry dynamicly (make configurable whicht RoleRegistry to use).
             $this->_roleRegistry = new Opus_Security_RoleRegistry();
         }
         return $this->_roleRegistry;
@@ -597,9 +597,12 @@ class Opus_Security_Acl extends Zend_Acl {
             $select = $select->where('privilege IS NULL');
         }
 
+        $resourceId = null;
+        // try to load resourceId (returns null if resource does not exists)
         if (is_null($resource) === false) {
             $resourceId = $this->getId($resource);
         }
+
         if (is_null($resourceId) === false) {
             // look for rules matching this resource
             $rowset = $this->_rulesTable->fetchAll($select->where('resource_id = ?', $resourceId));
