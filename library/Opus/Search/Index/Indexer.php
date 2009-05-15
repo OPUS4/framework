@@ -154,6 +154,7 @@ class Opus_Search_Index_Indexer {
         $document['author'] = $this->getPersons(&$docarray, 'Author');
 
         $document['persons'] = '';
+        $document['persons'] .= $this->getPersons(&$docarray, 'Advisor');
         $document['persons'] .= $this->getPersons(&$docarray, 'Contributor');
         $document['persons'] .= $this->getPersons(&$docarray, 'Editor');
         $document['persons'] .= $this->getPersons(&$docarray, 'Other');
