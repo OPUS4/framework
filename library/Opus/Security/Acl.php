@@ -158,7 +158,7 @@ class Opus_Security_Acl extends Zend_Acl {
     protected function _getRoleRegistry()
     {
         if (null === $this->_roleRegistry) {
-            // FIXME: load RoleRegistry dynamicly (make configurable whicht RoleRegistry to use).
+            // FIXME: load RoleRegistry dynamicly (make configurable which RoleRegistry to use).
             $this->_roleRegistry = new Opus_Security_RoleRegistry();
         }
         return $this->_roleRegistry;

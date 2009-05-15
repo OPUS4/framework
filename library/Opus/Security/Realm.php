@@ -157,8 +157,39 @@ class Opus_Security_Realm {
         return null;
     }
 
-    public function getIpaddressRole($ipaddress) {
-        // FIXME
+    /**
+     * Map an IP address to Roles.
+     *
+     * @param string $ipaddress IP address.
+     * @return string|array|null The assigned role name or array of role names.
+     *                           Null if no Role is assigned to the given IP address.
+     */
+    public function getIpaddressRole(string $ipaddress) {
+        if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/') === false) {
+            return null;
+        }
+
+        $ipTable = new Opus_Db_Ipaddresses();
+        $iprow = $ipTable->fetchRow($ipTable->select()->where('ipaddress = ?', $ipaddress));
+        if ($iprow === null) {
+            return null;
+        }
+
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
+        $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
+
+        if (1 === $assignedRoles->count()) {
+            // return the role name
+            return $assignedRoles->current()->name;
+        } else if ($assignedRoles->count() > 1) {
+            $result = array();
+            foreach ($assignedRoles as $arole) {
+                $result[] = $arole->name;
+            }
+            return $result;
+        }
+
         return null;
     }
 

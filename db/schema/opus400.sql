@@ -419,6 +419,39 @@ CREATE  TABLE IF NOT EXISTS `accounts` (
 ENGINE = InnoDB
 COMMENT = 'Table for system user accounts.';
 
+-- -----------------------------------------------------
+-- Table `ipaddresses`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `ipaddresses` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `ipaddress` VARCHAR(15) NOT NULL COMMENT 'ipaddress' ,
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `UNIQUE_IP` (`ipaddress` ASC) )
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `link_ipaddresses_roles`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `link_ipaddresses_roles` (
+  `role_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: roles.id.' ,
+  `ipaddress_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: ipaddresses.id.' ,
+  PRIMARY KEY (`role_id`, `ipaddress_id`) ,
+  INDEX `fk_ipaddress_has_roles` (`role_id` ASC) ,
+  INDEX `fk_role_has_ipadresses` (`ipaddress_id` ASC) ,
+  CONSTRAINT `fk_ipaddress_has_role`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_role_has_ipadress`
+    FOREIGN KEY (`ipaddress_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+COMMENT = 'Relation table (roles, ipaddress).';
+
 
 -- -----------------------------------------------------
 -- Table `collections_roles`
