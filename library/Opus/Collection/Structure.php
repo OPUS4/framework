@@ -475,6 +475,23 @@ class Opus_Collection_Structure {
     }
 
     /**
+     * Un-Hide nodes with the given collections_id.
+     *
+     * @param integer $collections_id ID identifying collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    public function unhide($collections_id) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id);
+        foreach ($this->collectionStructure as $index => $record) {
+            if ((int) $record[$this->collectionsIdentifier] === $collections_id) {
+                $this->collectionStructure[$index]['visible'] = 1;
+            }
+        }
+    }
+
+    /**
      * Get visibility state
      *
      * @param integer $collections_id ID identifying collection.

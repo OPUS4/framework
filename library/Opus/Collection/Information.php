@@ -392,6 +392,39 @@ class Opus_Collection_Information {
     }
 
     /**
+     * More than one appearance of a collection in tree?
+     *
+     * @param integer $role_id        Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
+     * @return void
+     */
+    static public function severalAppearances($role_id, $collections_id) {
+
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
+        self::cleanup();
+        self::$roles_id = $role_id;
+
+        // Load nested sets structure from DB
+        $ocs = new Opus_Collection_Structure($role_id);
+        $ocs->load();
+
+        if ($ocs->count($collections_id) < 2) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Delete a collection (not really).
      *
      * @param integer $role_id        Identifies tree for collection.
@@ -428,6 +461,50 @@ class Opus_Collection_Information {
             // Make history entry in replacement table
             $ocr = new Opus_Collection_Replacement($role_id);
             $ocr->delete($collections_id);
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            throw new Exception($e->getMessage());
+        }
+    }
+
+    /**
+     * Un-Delete a collection (really!).
+     *
+     * @param integer $role_id        Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @throws Exception Is thrown on DB errors.
+     * @return void
+     */
+    static public function undeleteCollection($role_id, $collections_id) {
+
+        // Argument validation
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($role_id);
+
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
+        self::cleanup();
+        self::$roles_id = $role_id;
+
+        // Following operations are atomic
+        $db = Zend_Registry::get('db_adapter');
+        $db->beginTransaction();
+        try {
+            // Load nested sets structure from DB
+            $ocs = new Opus_Collection_Structure($role_id);
+            $ocs->load();
+
+            // Hide given collection and save structure to DB
+            $ocs->unhide($collections_id);
+            $ocs->save();
+
+            // Make history entry in replacement table
+            $ocr = new Opus_Collection_Replacement($role_id);
+            $ocr->undelete($collections_id);
             $db->commit();
         } catch (Exception $e) {
             $db->rollBack();

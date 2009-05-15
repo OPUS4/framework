@@ -81,6 +81,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
         'Visibility' => array(
             'fetch' => 'lazy',
             'model' => 'Opus_Collection'),
+        'SeveralAppearances' => array(
+            'fetch' => 'lazy',
+            'model' => 'Opus_Collection'),
     );
 
     /**
@@ -133,6 +136,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
         // Add a field to hold visibility
         $visibility = new Opus_Model_Field('Visibility');
         $this->addField($visibility);
+
+        // Add a field to hold SeveralAppearances
+        $severalAppearances = new Opus_Model_Field('SeveralAppearances');
+        $this->addField($severalAppearances);
     }
 
     /**
@@ -169,11 +176,29 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns SeveralAppearances.
+     *
+     * @return Opus_Collection|array Subcollection(s).
+     */
+    protected function _fetchSeveralAppearances() {
+        return Opus_Collection_Information::severalAppearances((int) $this->__role_id, (int) $this->getId());
+    }
+
+    /**
      * Returns visibility.
      *
      * @return Opus_Collection|array Subcollection(s).
      */
     protected function _storeVisibility() {
+
+    }
+
+    /**
+     * SeveralAppearances.
+     *
+     * @return Opus_Collection|array Subcollection(s).
+     */
+    protected function _storeSeveralAppearances() {
 
     }
 
@@ -397,6 +422,24 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function delete() {
         Opus_Collection_Information::deleteCollection($this->__role_id, (int) $this->getId());
+    }
+
+    /**
+     * Un-deleting a collection.
+     *
+     * @return void
+     */
+    public function undelete() {
+        Opus_Collection_Information::undeleteCollection($this->__role_id, (int) $this->getId());
+    }
+
+    /**
+     * Overwrite standard deletion in favour of collections history tracking.
+     *
+     * @return void
+     */
+    public function deletePosition($parentCollId) {
+        Opus_Collection_Information::deleteCollectionPosition($this->__role_id, (int) $this->getId(), (int) $parentCollId);
     }
 
     /**

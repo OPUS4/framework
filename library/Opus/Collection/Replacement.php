@@ -105,6 +105,28 @@ class Opus_Collection_Replacement {
     }
 
     /**
+     * Deletes a database entry for a deleted collection.
+     *
+     * @param integer $collections_id Number identifying the deleted collection.
+     * @throws Exception Is thrown on invalid arguments.
+     * @return void
+     */
+    public function undelete($collections_id) {
+        $this->validation = new Opus_Collection_Validation();
+        $this->validation->ID($collections_id);
+        try {
+            $where[] = Zend_Registry::get('db_adapter')->quoteInto('collections_id = ?', $collections_id);
+            $where[] = 'replacement_for_id IS NULL';
+            $where[] = 'replacement_by_id IS NULL';
+            $where[] = 'current_replacement_id IS NULL';
+            $this->collections_replacement
+                 ->delete($where);
+        } catch (Exception $e) {
+            throw new Exception('Database error: ' . $e->getMessage());
+        }
+    }
+
+    /**
      * Getter for $collectionsIdentifier.
      *
      * @return string
