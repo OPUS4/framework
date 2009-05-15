@@ -532,20 +532,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     }
 
     /**
-     * Determinate current locale from Zend_Translate adapter
-     * or null if no one is available.
-     *
-     * @return mixed
-     */
-    private function getCurrentLocale() {
-        $locale = null;
-        if (true === Zend_Registry::isRegistered('Zend_Translate')) {
-            $locale = Zend_Registry::get('Zend_Translate')->getLocale();
-        }
-        return $locale;
-    }
-
-    /**
      * Try to interpretate a string as ISO 8601 date.
      *
      * @param string $value Value which should be a ISO 8601 string.
@@ -555,8 +541,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     protected function getZendDate($value) {
         $date = null;
         if (false === empty($value)) {
-            $locale = $this->getCurrentLocale();
-            $date = new Zend_Date($value, Zend_Date::ISO_8601, $locale);
+            $date = new Zend_Date($value, Zend_Date::ISO_8601);
         }
         return $date;
     }
@@ -577,8 +562,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         $result = null;
         if (false === empty($value)) {
             if (true === is_string($value)) {
-                $locale = $this->getCurrentLocale();
-                $result = new Zend_Date($value, null, $locale);
+                $result = new Zend_Date($value);
             } else if ($value instanceOf Zend_Date) {
                 $result = $value;
             }
@@ -595,8 +579,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     protected function dateToIso($value) {
         $result = null;
         if ((true === is_string($value)) and (false === empty($value))) {
-            $locale = $this->getCurrentLocale();
-            $date = new Zend_Date($value, null, $locale);
+            $date = new Zend_Date($value);
             $result = $date->getIso();
         } else if ($value instanceOf Zend_Date) {
             $result = $value->getIso();

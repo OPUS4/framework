@@ -1196,7 +1196,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSettingAndGettingDateValues() {
-        Zend_Locale::setDefault('de_DE');
+        $locale = new Zend_Locale('de_DE');
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="meintest"
             xmlns="http://schemas.opus.org/documenttype"
@@ -1212,7 +1212,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->setPublishedDate('05.10.2008');
 
-        $date = new Zend_Date('05.04.2009');
+        $date = new Zend_Date('05.04.2009', null, $locale);
+
         $doc->setServerDateUnlocking($date);
 
         $personAuthor = new Opus_Person();
@@ -1222,8 +1223,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $patent = new Opus_Patent();
         $patent->setNumber('08 15');
-        $locale = new Zend_Locale('en');
-        $dateGranted = new Zend_Date('11.10.1999');
+        $dateGranted = new Zend_Date('11.10.1999', null, $locale);
         $patent->setDateGranted($dateGranted);
         $doc->addPatent($patent);
 
@@ -1234,10 +1234,39 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $serverDateUnlocking = $doc->getServerDateUnlocking();
         $personAuthor = $doc->getPersonAuthor();
         $patent = $doc->getPatent();
-        $this->assertEquals('05.10.2008', $publishedDate->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date through string does not work.');
-        $this->assertEquals('05.04.2009', $serverDateUnlocking->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date through Zend_Date does not work.');
-        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date on a model doesn not work.');
-        $this->assertEquals('11.10.1999', $patent->getDateGranted()->toString(Zend_Locale_Format::getDateFormat()), 'Setting a date on a dependent model doesn not work.');
+        $localeFormatDate = Zend_Locale_Format::getDateFormat($locale);
+        $this->assertEquals('05.10.2008', $publishedDate->toString($localeFormatDate), 'Setting a date through string does not work.');
+        $this->assertEquals('05.04.2009', $serverDateUnlocking->toString($localeFormatDate), 'Setting a date through Zend_Date does not work.');
+        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
+        $this->assertEquals('11.10.1999', $patent->getDateGranted()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
+    }
+
+    /**
+     * TODO
+     *
+     * @return void
+     */
+    public function testSetEnglishLocaleOnDependentModelDateBreaksPhp() {
+        $this->markTestSkipped();
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="Patent" />
+            <field name="PersonAuthor" />
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
+
+        $patent = new Opus_Patent();
+        $patent->setNumber('08 15');
+        $locale = new Zend_Locale('en_US');
+        $date = new Zend_Date('Oct 10, 1999', Zend_Locale_Format::getDateFormat($locale), $locale);
+        $patent->setDateGranted($date);
+        $doc->addPatent($patent);
+// valditor call isValid inside Zend_Validate_Date caused segfault.
+        $doc->store();
     }
 
 }
