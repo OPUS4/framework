@@ -77,13 +77,20 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      */
     public function describePermissions() {
         return array(
-            self::PERM_CREATE   =>  'Permission to create a new persistent representation of the model.',
-            self::PERM_READ     =>  'Permisson to read (deserialize) a persisted model from.',
-            self::PERM_UPDATE   =>  'Permisson to update a persisted model.',
-            self::PERM_DELETE   =>  'Permisson to delete a persisted model.',
+        self::PERM_CREATE   =>  'Permission to create a new persistent representation of the model.',
+        self::PERM_READ     =>  'Permisson to read (deserialize) a persisted model from.',
+        self::PERM_UPDATE   =>  'Permisson to update a persisted model.',
+        self::PERM_DELETE   =>  'Permisson to delete a persisted model.',
         );
     }
 
+    /**
+     * Holds the resource that is assigned as parent resource when
+     * persisted.
+     *
+     * @var Zend_Acl_Resource_Interface
+     */
+    private $_masterAclResource = null;
 
     /**
      * Returns class name and the id of the model instance if an id is
@@ -99,12 +106,12 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             // Return, no id to append
             return $result;
         }
-        
+
         // Prepare for id appending
         if (false === is_array($id)) {
             $ids = array($id);
         }
-        
+
         // Append ids in URL style
         foreach ($ids as $id) {
             $result .= "/" . $id;
@@ -130,6 +137,17 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
     }
 
     /**
+     * Set up the Acl Resource that gets used as parent resource when
+     * the model is stored
+     *
+     * @param Zend_Acl_Resource_Interface $resource Acl resource to be registered as parent resource.
+     * @return void
+     */
+    public function setMasterResource(Zend_Acl_Resource_Interface $resource) {
+        $this->_masterAclResource = $resource;
+    }
+
+    /**
      * Persist all the models information to its database locations
      * after checking if all required permissions are granted.
      *
@@ -140,7 +158,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
-    
+
         // Check permissions
         $registerResource = false;
         if (null === $this->getId()) {
@@ -151,19 +169,36 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             // probably update, needs PERM_UPDATE
             $this->_ensure(self::PERM_UPDATE);
         }
-        
+
+        // set up this object as master resource for all child elements
+        foreach ($this->_fields as $field) {
+            $value = $field->getValue();
+            if (false === is_array($value)) {
+                $value = array($value);
+            }
+            foreach ($value as $item) {
+                if ($item instanceof Opus_Model_Dependent_Abstract) {
+                    $item->setMasterResource($this);
+                }
+            }
+
+        }
+
         $id = parent::store();
-        
+
         // Register model as resource
         if (true === $registerResource) {
             $acl = Opus_Security_Realm::getInstance()->getAcl();
             if (null !== $acl) {
                 if (false === $acl->has($this)) {
-                    $acl->add($this, Opus_Security_Realm::getInstance()->getResourceMaster());
+                    if (null === $this->_masterAclResource) {
+                        $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
+                    }
+                    $acl->add($this, $this->_masterAclResource);
                 }
             }
         }
-        
+
         return $id;
     }
 
@@ -204,7 +239,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             return;
         }
         $role = Opus_Security_Realm::getInstance()->getRole();
-    
+
         if (false === $acl->isAllowed($role, $this, $privilege)) {
             if (null !== $role) {
                 $roleId = $role->getRoleId();
@@ -214,6 +249,6 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             $resourceId = $this->getResourceId();
             throw new Opus_Security_Exception("Operation $privilege is not allowed for $roleId on $resourceId.");
         }
-    }   
+    }
 
 }

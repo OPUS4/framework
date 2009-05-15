@@ -43,6 +43,15 @@ class Opus_Model_ModelAbstractDbSecure extends Opus_Model_AbstractDbSecure {
 
 
     /**
+     * Provide a mockup external fields declaration.
+     *
+     * @var array
+     */
+    protected $_externalFields = array(
+        'ExternalModel' => array('model' => 'Opus_Model_ModelAbstractDbMock')
+    );
+
+    /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
@@ -57,5 +66,8 @@ class Opus_Model_ModelAbstractDbSecure extends Opus_Model_AbstractDbSecure {
     protected function _init() {
         $value = new Opus_Model_Field('Value');
         $this->addField($value);
+
+        $externalModel = new Opus_Model_Field('ExternalModel');
+        $this->addField($externalModel);
     }
 }
