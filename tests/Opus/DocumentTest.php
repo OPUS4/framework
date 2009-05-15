@@ -1241,34 +1241,4 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('11.10.1999', $patent->getDateGranted()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
     }
 
-    /**
-     * TODO
-     *
-     * @return void
-     */
-    public function testSetEnglishLocaleOnDependentModelDateBreaksPhp() {
-        $this->markTestSkipped();
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Patent" />
-            <field name="PersonAuthor" />
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
-
-        $patent = new Opus_Patent();
-        $patent->setNumber('08 15');
-        $locale = new Zend_Locale('en_US');
-        $date = new Zend_Date('Oct 10, 1999', Zend_Locale_Format::getDateFormat($locale), $locale);
-        $patent->setDateGranted($date);
-        $doc->addPatent($patent);
-// valditor call isValid inside Zend_Validate_Date caused segfault.
-        $doc->store();
-    }
-
 }
-
-
