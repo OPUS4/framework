@@ -57,7 +57,13 @@ class Opus_Search_Index_Indexer {
 	public function __construct() {
         $registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
-        $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+        try
+        {
+            $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
+        }
+        catch (Exception $e) {
+            $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+        }
 	}
 
 	/**
@@ -73,22 +79,27 @@ class Opus_Search_Index_Indexer {
 
     	try {
     	    $analyzedDocs = $this->analyzeDocument($doc);
-            foreach ($analyzedDocs as $analyzedDoc) {
-            	$doc = new Opus_Search_Index_Document($analyzedDoc);
+            unset($doc);
+    	    foreach ($analyzedDocs as $analyzedDoc) {
 			 	if (true === array_key_exists('exception', $analyzedDoc))
 			 	{
 			 		$returnarray[] = $analyzedDoc['source'] . ' in document ID ' . $analyzedDoc['docid'] . ': ' . $analyzedDoc['exception'];
 			 	}
 			 	else
 			 	{
-			 		$this->entryindex->addDocument($doc);
+            	    $indexDoc = new Opus_Search_Index_Document($analyzedDoc);
+			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
+            	    $this->entryindex->addDocument($indexDoc);
+			 		unset($indexDoc);
+			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
 			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
 			 	}
             }
 		} catch (Exception $e) {
 			throw $e;
         }
-
+        unset($analyzedDoc);
+        unset($analyzedDocs);
         return $returnarray;
 	}
 
@@ -99,7 +110,7 @@ class Opus_Search_Index_Indexer {
      * @throws Exception Exceptions from Zend_Search_Lucene are thrown
      * @return void
      */
-    public function removeDocumentFromEntryIndex(Opus_Document $doc)
+    public function removeDocumentFromEntryIndex(Opus_Document &$doc)
     {
         try {
             // Weird: some IDs are only found with adding whitespace behind the query...
@@ -111,7 +122,8 @@ class Opus_Search_Index_Indexer {
         } catch (Exception $e) {
             throw $e;
         }
-        $this->finalize();
+        $this->entryindex->commit();
+        $this->entryindex->optimize();
     }
 
 	/**
@@ -131,44 +143,51 @@ class Opus_Search_Index_Indexer {
 
 	    $docarray = $doc->toArray();
 	    $document['docid'] = $doc->getId();
-	    $document['year'] = $docarray['CompletedYear'];
-	    $document['doctype'] = $docarray['Type'];
+	    unset($doc);
+	    $document['year'] = $this->getKeyValue(&$docarray, 'CompletedYear');
+	    $document['doctype'] = $this->getKeyValue(&$docarray, 'Type');
 
-	    $document['urn'] = $this->getValue($docarray, 'IdentifierUrn');
-	    $document['isbn'] = $this->getValue($docarray, 'IdentifierIsbn');
+	    $document['urn'] = $this->getValue(&$docarray, 'IdentifierUrn');
+	    $document['isbn'] = $this->getValue(&$docarray, 'IdentifierIsbn');
 
 
-        $document['author'] = $this->getPersons($docarray, 'Author');
+        $document['author'] = $this->getPersons(&$docarray, 'Author');
 
         $document['persons'] = '';
-        $document['persons'] .= $this->getPersons($docarray, 'Contributor');
-        $document['persons'] .= $this->getPersons($docarray, 'Editor');
-        $document['persons'] .= $this->getPersons($docarray, 'Other');
-        $document['persons'] .= $this->getPersons($docarray, 'Referee');
-        $document['persons'] .= $this->getPersons($docarray, 'Translator');
+        $document['persons'] .= $this->getPersons(&$docarray, 'Contributor');
+        $document['persons'] .= $this->getPersons(&$docarray, 'Editor');
+        $document['persons'] .= $this->getPersons(&$docarray, 'Other');
+        $document['persons'] .= $this->getPersons(&$docarray, 'Referee');
+        $document['persons'] .= $this->getPersons(&$docarray, 'Translator');
 
         // Look at all titles of the document
-        if (is_array($docarray['TitleMain']) === true) {
-            $titles = $docarray['TitleMain'];
+        $titles = '';
+        $abstracts = '';
+        if (is_array($this->getKeyValue(&$docarray, 'TitleMain')) === true) {
+            $titles = $this->getKeyValue(&$docarray, 'TitleMain');
         }
-        if (is_array($docarray['TitleAbstract']) === true) {
-            $abstracts = $docarray['TitleAbstract'];
+        if (is_array($this->getKeyValue(&$docarray, 'TitleAbstract')) === true) {
+            $abstracts = $this->getKeyValue(&$docarray, 'TitleAbstract');
         }
         $document['title'] = '';
         $document['abstract'] = '';
         $document['language'] = '';
-        foreach ($titles as $title)
-        {
-            $document['title'] .= ' ' . $title['Value'];
-            $lang = $title['Language'];
-            $document['language'] .= ' ' . $lang;
-            $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
-            array_push($langarray, $lang);
+        if ($titles !== '') {
+            foreach ($titles as $title)
+            {
+                $document['title'] .= ' ' . $title['Value'];
+                $lang = $title['Language'];
+                $document['language'] .= ' ' . $lang;
+                $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
+                array_push($langarray, $lang);
+            }
         }
         // Look if there are non-indexed abstracts left
-        $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
-        foreach ($not_processed_abstracts as $abstract) {
-            $document['abstract'] .= ' ' . $abstract;
+        if ($abstracts !== '') {
+            $not_processed_abstracts = $this->checkAbstractLanguage($abstracts, $langarray);
+            foreach ($not_processed_abstracts as $abstract) {
+                $document['abstract'] .= ' ' . $abstract;
+            }
         }
 
 
@@ -205,6 +224,8 @@ class Opus_Search_Index_Indexer {
             array_push($returnarray, $document);
         }
 
+        unset($document);
+        unset($docarray);
         #print_r($returnarray);
         // return array of documents to index
         return $returnarray;
@@ -231,8 +252,11 @@ class Opus_Search_Index_Indexer {
         return $not_processed;
 	}
 
-	private function getPersons($docarray, $roleName) {
+	private function getPersons(&$docarray, $roleName) {
 	    $returnValue = '';
+        if (array_key_exists('Person' . $roleName, $docarray) === false) {
+            return $returnValue;
+        }
 	    $persons = $docarray['Person' . $roleName];
         if (true === @is_array($persons[0])) {
             $person = $persons;
@@ -254,8 +278,11 @@ class Opus_Search_Index_Indexer {
         return $returnValue;
     }
 
-    private function getValue($docarray, $roleName) {
+    private function getValue(&$docarray, $roleName) {
         $returnValue = '';
+        if (array_key_exists($roleName, $docarray) === false) {
+            return $returnValue;
+        }
         $persons = $docarray[$roleName];
         if (true === @is_array($persons[0])) {
             $person = $persons;
@@ -267,6 +294,15 @@ class Opus_Search_Index_Indexer {
             if (true === array_key_exists('Value', $trans)) {
                 $returnValue .= $trans['Value'] . ' ';
             }
+        }
+
+        return $returnValue;
+    }
+
+    private function getKeyValue(&$docarray, $key) {
+        $returnValue = '';
+        if (true === array_key_exists($key, $docarray)) {
+            $returnValue = $docarray[$key];
         }
 
         return $returnValue;
