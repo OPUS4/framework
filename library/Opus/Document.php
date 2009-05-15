@@ -835,7 +835,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      * @return void
      */
     protected  function _storeServerState($value) {
-        if ((true === $this->isNewRecord()) or (true === empty($value))) {
+        if (true === empty($value)) {
             $value = 'unpublished';
         }
         $this->_primaryTableRow->server_state = $value;
