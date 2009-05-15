@@ -461,6 +461,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
         } else {
             $display = $this->getName();
         }
-        return $display;
+        return trim($display);
     }
 }
