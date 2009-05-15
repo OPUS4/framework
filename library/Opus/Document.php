@@ -828,6 +828,20 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Set document server state to unpublished if new record or
+     * no value is set.
+     *
+     * @param string $value Server state of document.
+     * @return void
+     */
+    protected  function _storeServerState($value) {
+        if ((true === $this->isNewRecord()) or (true === empty($value))) {
+            $value = 'unpublished';
+        }
+        $this->_primaryTableRow->server_state = $value;
+    }
+
+    /**
      * Provide read access to internal type field.
      *
      * @return string
