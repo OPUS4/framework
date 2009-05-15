@@ -309,39 +309,20 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
 ENGINE = InnoDB
 COMMENT = 'Table for notes to documents.';
 
-
--- -----------------------------------------------------
--- Table `type_enrichments`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `type_enrichments` (
-  `id` INT UNSIGNED NOT NULL ,
-  `name` VARCHAR(100) NOT NULL ,
-  `type` VARCHAR(100) NOT NULL ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB;
-
-
 -- -----------------------------------------------------
 -- Table `document_enrichments`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `type_enrichment_id` INT UNSIGNED NOT NULL ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the enrichment.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichment_document` (`document_id` ASC) ,
-  INDEX `fk_document_enrichments_type_enrichments` (`type_enrichment_id` ASC) ,
   CONSTRAINT `fk_document_enrichment_document`
     FOREIGN KEY (`document_id` )
     REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_document_enrichments_type_enrichments`
-    FOREIGN KEY (`type_enrichment_id` )
-    REFERENCES `type_enrichments` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Key-value table for database scheme enhancements.';
 
