@@ -62,8 +62,8 @@ class Opus_Db_Resources extends Opus_Db_TableGateway {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
-            'Documents' => array(
-                'columns' => 'parent',
+            'Resources' => array(
+                'columns' => 'parent_id',
                 'refTableClass' => 'Opus_Db_Resources',
                 'refColumns' => 'id',
                 ),

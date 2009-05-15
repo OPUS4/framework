@@ -62,7 +62,7 @@ class Opus_Db_Roles extends Opus_Db_TableGateway {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
-            'Documents' => array(
+            'Roles' => array(
                 'columns' => 'parent',
                 'refTableClass' => 'Opus_Db_Roles',
                 'refColumns' => 'id',
