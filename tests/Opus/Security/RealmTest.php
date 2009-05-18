@@ -192,6 +192,35 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('role', $result, 'Wrong role returned.');
     }
 
+   /**
+     * Test if a given IP address can be mapped correctly to its assigned roles.
+     *
+     * @return void
+     */
+    public function testIpCanBeMappedToMultipleRoles() {
+        // create ip address
+        $ip = new Opus_Db_Ipaddresses;
+        $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
+        
+        // create role
+        $rol = new Opus_Db_Roles;
+        $rolId[0] = $rol->insert(array('name' => 'role1'));
+        $rolId[1] = $rol->insert(array('name' => 'role2'));
+        
+        // connect role and ip
+        $lar = new Opus_Db_LinkIpaddressesRoles;
+        $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId[0]));
+        $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId[1]));
+        
+        // query Realm
+        $realm = Opus_Security_Realm::getInstance();
+        $result = $realm->getIpaddressRole('127.0.0.1');
+        
+        $this->assertNotNull($result, 'Expect assigned role.');
+        $this->assertTrue(is_array($result), 'Expect result to be an array of roles.');
+        $this->assertTrue(in_array('role1', $result), 'Wrong set of roles returned.');
+        $this->assertTrue(in_array('role2', $result), 'Wrong set of roles returned.');
+   }
 
 
 }
