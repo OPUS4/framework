@@ -847,7 +847,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      * @return string
      */
     public function getType() {
-        return $this->getField('Type')->getValue();
+        return $this->_getField('Type')->getValue();
     }
 
 }
