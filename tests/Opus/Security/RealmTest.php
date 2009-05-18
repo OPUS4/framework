@@ -49,9 +49,11 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
+        TestHelper::clearTable('link_ipaddresses_roles');
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
+        TestHelper::clearTable('ipaddresses');        
     }
     
     /**
@@ -60,9 +62,11 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
+        TestHelper::clearTable('link_ipaddresses_roles');
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
+        TestHelper::clearTable('ipaddresses');        
     }    
 
     /**
@@ -161,6 +165,33 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Security_Exception');
         $result = $realm->getIdentityRole('user');
    }
+   
+   /**
+     * Test if a given IP address can be mapped correctly to its assigned role.
+     *
+     * @return void
+     */
+    public function testIpCanBeMappedToSingleRole() {
+        // create ip address
+        $ip = new Opus_Db_Ipaddresses;
+        $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
+        
+        // create role
+        $rol = new Opus_Db_Roles;
+        $rolId = $rol->insert(array('name' => 'role'));
+        
+        // connect role and ip
+        $lar = new Opus_Db_LinkIpaddressesRoles;
+        $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId));
+        
+        // query Realm
+        $realm = Opus_Security_Realm::getInstance();
+        $result = $realm->getIpaddressRole('127.0.0.1');
+        
+        $this->assertNotNull($result, 'Expect assigned role.');
+        $this->assertEquals('role', $result, 'Wrong role returned.');
+    }
+
 
 
 }

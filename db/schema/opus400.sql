@@ -438,15 +438,15 @@ CREATE  TABLE IF NOT EXISTS `link_ipaddresses_roles` (
   `ipaddress_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: ipaddresses.id.' ,
   PRIMARY KEY (`role_id`, `ipaddress_id`) ,
   INDEX `fk_ipaddress_has_roles` (`role_id` ASC) ,
-  INDEX `fk_role_has_ipadresses` (`ipaddress_id` ASC) ,
+  INDEX `fk_role_has_ipaddresses` (`ipaddress_id` ASC) ,
   CONSTRAINT `fk_ipaddress_has_role`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_role_has_ipadress`
+  CONSTRAINT `fk_role_has_ipaddress`
     FOREIGN KEY (`ipaddress_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `ipaddresses` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB

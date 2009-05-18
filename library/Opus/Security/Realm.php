@@ -164,8 +164,8 @@ class Opus_Security_Realm {
      * @return string|array|null The assigned role name or array of role names.
      *                           Null if no Role is assigned to the given IP address.
      */
-    public function getIpaddressRole(string $ipaddress) {
-        if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/') === false) {
+    public function getIpaddressRole($ipaddress) {
+        if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
             return null;
         }
 

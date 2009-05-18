@@ -63,7 +63,7 @@ class Opus_Db_LinkIpaddressesRoles extends Opus_Db_TableGateway {
     protected $_referenceMap = array(
             'Ipaddresses' => array(
                 'columns' => 'ipaddress_id',
-                'refTableClass' => 'Opus_Db_Ipadresses',
+                'refTableClass' => 'Opus_Db_Ipaddresses',
                 'refColumns' => 'id',
                 ),
             'Roles' => array(
