@@ -115,9 +115,9 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         // Append ids in URL style
         for ($i = 0; $i < count($id); $i++) {
             if ($i === 0) {
-                $result .= "/" . $id;
+                $result .= "/" . $id[$i];
             } else {
-                $result .= "-" . $id;
+                $result .= "-" . $id[$i];
             }
         }
         return $result;
