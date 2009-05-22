@@ -71,7 +71,6 @@ class Opus_AllTests {
         $suite->addTest(Opus_Collection_AllTests::suite());
         $suite->addTest(Opus_Db_AllTests::suite());
         $suite->addTest(Opus_Document_AllTests::suite());
-        $suite->addTest(Opus_Form_AllTests::suite());
         $suite->addTest(Opus_Identifier_AllTests::suite());
         $suite->addTest(Opus_Licence_AllTests::suite());
         $suite->addTest(Opus_Mail_AllTests::suite());
@@ -80,13 +79,14 @@ class Opus_AllTests {
         $suite->addTest(Opus_Statistic_AllTests::suite());
         $suite->addTest(Opus_Translate_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());
-        // FIXME: Moved Search_Test to end because it could cause segmentation faults.
-        $suite->addTest(Opus_Search_AllTests::suite());
 
         $suite->addTestSuite('Opus_ConfigurationTest');
         $suite->addTestSuite('Opus_DocumentTest');
         $suite->addTestSuite('Opus_LicenceTest');
         $suite->addTestSuite('Opus_PersonTest');
+
+        // FIXME: Moved Search_Test to end because it could cause segmentation faults.
+        $suite->addTest(Opus_Search_AllTests::suite());
 
         return $suite;
     }
