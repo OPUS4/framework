@@ -109,12 +109,16 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
 
         // Prepare for id appending
         if (false === is_array($id)) {
-            $ids = array($id);
+            $id = array($id);
         }
 
         // Append ids in URL style
-        foreach ($ids as $id) {
-            $result .= "/" . $id;
+        for ($i = 0; $i < count($id); $i++) {
+            if ($i === 0) {
+                $result .= "/" . $id;
+            } else {
+                $result .= "-" . $id;
+            }
         }
         return $result;
     }
@@ -242,7 +246,11 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
 
         if (false === $acl->isAllowed($role, $this, $privilege)) {
             if (null !== $role) {
-                $roleId = $role->getRoleId();
+                if ($role instanceOf Zend_Acl_Role_Interface) {
+                    $roleId = $role->getRoleId();
+                } else {
+                    $roleId = $role;
+                }
             } else {
                 $roleId = 'everyone';
             }
