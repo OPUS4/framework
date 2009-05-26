@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: AbstractDb.php 2214 2009-03-18 14:43:32Z claussnitzer $
@@ -162,6 +163,16 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
+        // refuse to store if data is not valid
+        if (false === $this->isValid()) {
+            $msg = 'Attempt to store model with invalid data.';
+            foreach ($this->getValidationErrors() as $fieldname=>$err) {
+                if (false === empty($err)) {
+                    $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
+                }
+            }
+            throw new Opus_Model_Exception($msg);
+        }
 
         // Check permissions
         $registerResource = false;
@@ -174,6 +185,29 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             $this->_ensure(self::PERM_UPDATE);
         }
 
+        // Start transaction
+        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+        $dbadapter->beginTransaction();
+
+        // store internal fields, get id
+        try {
+            $id = $this->_storeInternalFields();
+        } catch (Exception $e) {
+            throw $e;
+        }
+
+        // Register model as resource
+        if (true === $registerResource) {
+            $acl = Opus_Security_Realm::getInstance()->getAcl();
+            if (null !== $acl) {
+                if (false === $acl->has($this)) {
+                    if (null === $this->_masterAclResource) {
+                        $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
+                    }
+                    $acl->add($this, $this->_masterAclResource);
+                }
+            }
+        }
         // set up this object as master resource for all child elements
         foreach ($this->_fields as $field) {
             $value = $field->getValue();
@@ -188,21 +222,17 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
 
         }
 
-        $id = parent::store();
-
-        // Register model as resource
-        if (true === $registerResource) {
-            $acl = Opus_Security_Realm::getInstance()->getAcl();
-            if (null !== $acl) {
-                if (false === $acl->has($this)) {
-                    if (null === $this->_masterAclResource) {
-                        $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
-                    }
-                    $acl->add($this, $this->_masterAclResource);
-                }
-            }
+        // store external fields
+        try {
+            $this->_storeExternalFields();
+        } catch (Exception $e) {
+            throw $e;
         }
 
+        // commit transaction
+        $dbadapter->commit();
+
+        $this->_isNewRecord = false;
         return $id;
     }
 
