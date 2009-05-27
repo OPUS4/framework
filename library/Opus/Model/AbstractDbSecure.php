@@ -189,44 +189,24 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         $dbadapter->beginTransaction();
 
-        // store internal fields, get id
+        // store internal and external fields
         try {
+            // store internal fields, get id
             $id = $this->_storeInternalFields();
-        } catch (Exception $e) {
-            throw $e;
-        }
 
-        // Register model as resource
-        if (true === $registerResource) {
-            $acl = Opus_Security_Realm::getInstance()->getAcl();
-            if (null !== $acl) {
-                if (false === $acl->has($this)) {
-                    if (null === $this->_masterAclResource) {
-                        $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
-                    }
-                    $acl->add($this, $this->_masterAclResource);
-                }
-            }
-        }
-        // set up this object as master resource for all child elements
-        foreach ($this->_fields as $field) {
-            $value = $field->getValue();
-            if (false === is_array($value)) {
-                $value = array($value);
-            }
-            foreach ($value as $item) {
-                if ($item instanceof Opus_Model_Dependent_Abstract) {
-                    $item->setMasterResource($this);
-                }
+            // set up this object as master resource for all child elements
+            $this->_setupMasterResourceForSubModels();
+            
+            // Register model as resource
+            if (true === $registerResource) {
+                $this->_registerModelAsResource();
             }
 
-        }
-
-        // store external fields
-        try {
+            // store external fields
             $this->_storeExternalFields();
-        } catch (Exception $e) {
-            throw $e;
+        } catch (Exception $ex) {
+            $dbadapter->rollBack();
+            throw $ex;
         }
 
         // commit transaction
@@ -237,6 +217,42 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
     }
 
 
+    /**
+     * Set this object as master resource for all sub models. 
+     *
+     * @return void
+     */
+    protected function _setupMasterResourceForSubModels() {
+        foreach ($this->_fields as $field) {
+            $value = $field->getValue();
+            if (false === is_array($value)) {
+                $value = array($value);
+            }
+            foreach ($value as $item) {
+                if ($item instanceof Opus_Model_Dependent_Abstract) {
+                    $item->setMasterResource($this);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Register this model as Acl Resource if an Acl is set in the current active Realm.
+     *
+     * @return void
+     */
+    protected function _registerModelAsResource() {
+        $acl = Opus_Security_Realm::getInstance()->getAcl();
+        if (null !== $acl) {
+            if (false === $acl->has($this)) {
+                if (null === $this->_masterAclResource) {
+                    $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
+                }
+                $acl->add($this, $this->_masterAclResource);
+            }
+        }
+    }
+    
     /**
      * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
      *

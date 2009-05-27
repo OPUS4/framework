@@ -185,17 +185,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         $dbadapter->beginTransaction();
 
-        // store internal fields
+        // store internal and external fields
         try {
             $id = $this->_storeInternalFields();
+            $this->_storeExternalFields();    
         } catch (Exception $e) {
-            throw $e;
-        }
-
-        // store external fields
-        try {
-            $this->_storeExternalFields();
-        } catch (Exception $e) {
+            $dbadapter->rollBack();
             throw $e;
         }
 
@@ -237,7 +232,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
         } catch (Exception $e) {
-            $dbadapter->rollback();
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
             // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
             // workaround:
@@ -276,7 +270,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 }
             }
         } catch (Exception $e) {
-            $dbadapter->rollback();
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
             // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
             // workaround:
