@@ -193,4 +193,55 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $this->assertEquals(1, count($result), 'Result should only have one array element.');
         $this->assertEquals('LinkField', $result[0], 'Result should contain only a field "LinkField"');
     }
+    
+    /**
+     * Test if the identifier of a newly created link model is null
+     * if it has not been persisted yet.
+     *
+     * @return void
+     */
+    public function testPrimaryKeyOfTransientLinkModelIsNull() {
+        if (false === class_exists('Opus_Model_Dependent_Link_Mock')) {
+            eval('
+                class Opus_Model_Dependent_Link_Mock
+                extends Opus_Model_Dependent_Link_Abstract {
+                    protected function _init() { }
+                }
+            ');
+        }
+        if (false === class_exists('Opus_Model_Dependent_Link_MockTableRow')) {
+            eval('
+                class Opus_Model_Dependent_Link_MockTableRow
+                extends Zend_Db_Table_Row {
+                    public $id1 = 1000;
+                    public $id2 = 2000;
+                }
+            ');
+        }
+        
+        if (false === class_exists('Opus_Model_Dependent_Link_MockTableGateway')) {
+            eval('
+                class Opus_Model_Dependent_Link_MockTableGateway
+                extends Zend_Db_Table {
+                    protected function _setup() {}
+                    protected function _init() {}
+                    public function createRow(array $data = array()) {
+                        $row = new Opus_Model_Dependent_Link_MockTableRow(array(\'table\' => $this));
+                        return $row;
+                    }
+                    public function info($key = null) {
+                        return array(\'primary\' => array(\'id1\',\'id2\'));
+                    }
+                }
+            ');
+        }
+        
+        $mockTableGateway = new Opus_Model_Dependent_Link_MockTableGateway;
+        $link = new Opus_Model_Dependent_Link_Mock(null, $mockTableGateway);
+
+        $this->assertTrue($link->isNewRecord(), 'Link Model should be based on a new record after creation.');
+        $this->assertNull($link->getId(), 'Id of Link Model should be null if the Link Model is new,
+            no matter what its primary key fields are set up to.');
+    }
+    
 }

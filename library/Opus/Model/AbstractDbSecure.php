@@ -129,11 +129,11 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      *
      * @see Opus_Model_AbstractDb::__construct()
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param Zend_Db_Table             $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
      * @throws Opus_Security_Exception  Thrown if read permisson is needed but not granted.
      */
-    public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
-        parent::__construct($id);
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+        parent::__construct($id, $tableGatewayModel);
         // Check for permission to read the model
         // if an id is given
         if (null !== $id) {

@@ -61,9 +61,9 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return void
      */
     public function setModel(Opus_Model_Abstract $model) {
-        if ($model instanceof $this->_modelClass === false) {
+        if (($model instanceof $this->_modelClass) === false) {
             throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target, ' .
-                    get_class($model) . 'given.');
+                    get_class($model) . ' given.');
         } else {
             $this->_model = $model;
         }
@@ -208,5 +208,23 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     protected function _recurseXml(DomDocument $domXml, array $excludeFields = null) {
         return $this->_model->_recurseXml($domXml, $excludeFields);
     }
+   
+   /**
+    * Return the primary key of the Link Model if it has been persisted.
+    *
+    * @return array|null Primary key or Null if the Linked Model has not been persisted.
+    */
+   public function getId() {
+       // The given id consists of the ids of the referenced linked models,
+       // but there is no evidence that the LinkModel itself has been persisted yet.
+       // We so have to validate, if the LinkModel is persistent or still transient.
+       if (true === $this->isNewRecord()) {
+           // its a new record, so return null
+           return null;
+       }
+       
+       // its not a new record, so we can hand over to the parent method
+       return parent::getId();
+   }
 
 }

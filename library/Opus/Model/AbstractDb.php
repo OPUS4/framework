@@ -81,12 +81,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * via a call to _store().
      *
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
-     * @param Zend_Db_Table             $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
      * @throws Opus_Model_Exception     Thrown if passed id is invalid.
      */
-    public function __construct($id = null, Opus_Db_TableGateway $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
         // Ensure that a default table gateway class is set
-        if (is_null($this->getTableGatewayClass()) === true and is_null($tableGatewayModel) === true) {
+        if ((is_null($this->getTableGatewayClass()) === true) and (is_null($tableGatewayModel) === true)) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
 
