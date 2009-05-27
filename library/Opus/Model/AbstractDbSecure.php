@@ -245,7 +245,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      * @return void
      */
     public function delete() {
-        $this->_ensure(self::PERM_UPDATE);
+        $this->_ensure(self::PERM_DELETE);
 
         parent::delete();
 
