@@ -42,6 +42,18 @@
  */
 class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase {
 
+
+
+    /**
+     * Remove Acl from security Realm to disable security
+     * after tests.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        Opus_Security_Realm::getInstance()->setAcl(null);
+    }
+
     /**
      * Test querying the display name of a linked  model.
      *
@@ -243,5 +255,85 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $this->assertNull($link->getId(), 'Id of Link Model should be null if the Link Model is new,
             no matter what its primary key fields are set up to.');
     }
+    
+    /**
+     * Test if the LinkModel gets registered as an Acl Resource when stored.
+     *
+     * @return void
+     */
+    public function testLinkModelGetsRegisteredAsResourceOnStore() {
+        // create mockup classes
+        eval('
+            class Opus_Model_Dependent_Link_MockTableGateway2
+            extends Zend_Db_Table_Abstract {
+                public $mockRow;
+                public function mockSetup($adapter, $row) {
+                    $this->mockRow = $row;
+                    $this->_db = $adapter;
+                }
+                protected function _setup() {}
+                protected function _init() {}
+                public function createRow(array $data = array()) {
+                    return $this->mockRow;
+                }
+            }
+        ');
+        eval('
+            class Opus_Model_Dependent_Link_MockTableRow2
+            extends Zend_Db_Table_Row_Abstract {
+                protected $_data = array(\'id\' => null, \'to_id\' => null);
+                public function setTable(Zend_Db_Table_Abstract $table = null) {
+                    $this->_table = $table;
+                }
+                public function save() {}
+            }
+        ');
+
+        // create mockup instance of a TableGateway
+        $tableGatewayMock = new Opus_Model_Dependent_Link_MockTableGateway2;
+        
+        // create mockup instance of a TableRow
+        $mockRow = new Opus_Model_Dependent_Link_MockTableRow2;
+        $mockRow->setTable($tableGatewayMock);
+
+        // create mockup database adapter        
+        $mockDbAdapter = $this->getMock('Zend_Db_Adapter_Abstract',
+            array('_beginTransaction', '_commit', '_rollBack', 'describeTable', '_connect',
+                'closeConnection', 'prepare', 'lastInsertId', 'setFetchMode', 'limit',
+                'supportsParameters', 'listTables'),
+            array(
+                array('dbname' => 'mock_db',
+                    'password' => 'mock',
+                    'username' => 'mock')));
+        
+        // initialise TableGateway mockup with mock DbAdapter and mock Row
+        $tableGatewayMock->mockSetup($mockDbAdapter, $mockRow);
+  
+        // setup Acl and Realm with artifical Role instance
+        $acl = new Zend_Acl();
+        $role = new Zend_Acl_Role('testLinkModelGetsRegisteredAsResourceOnStore');
+        $acl->addRole($role);
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setAcl($acl);
+        $realm->setRole($role);
+  
+        // create mock instance for class under test
+        $linkMock = $this->getMock('Opus_Model_Dependent_Link_Abstract',
+            array('_init', '_registerModelAsResource'),
+            array(null, $tableGatewayMock));
+
+        // add transient LinkModel as basis resource to the Acl
+        $acl->add($linkMock);
+        // and allow the above created Role to create instances of this type
+        $acl->allow($role, $linkMock, Opus_Model_AbstractDbSecure::PERM_CREATE);
+        
+        // setup link mock with id values
+        $linkMock->setParentId(12);
+        $linkMock->setParentIdColumn('to_id');
+        // trigger store
+        $linkMock->store();
+        
+        $this->assertTrue($acl->has($linkMock), 'Link Model has not been registered after store.');
+    }   
     
 }

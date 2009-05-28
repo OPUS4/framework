@@ -175,11 +175,9 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         }
 
         // Check permissions
-        $registerResource = false;
         if (null === $this->getId()) {
             // probably creation of new record, needs PERM_CREATE
             $this->_ensure(self::PERM_CREATE);
-            $registerResource = true;
         } else {
             // probably update, needs PERM_UPDATE
             $this->_ensure(self::PERM_UPDATE);
@@ -198,9 +196,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             $this->_setupMasterResourceForSubModels();
             
             // Register model as resource
-            if (true === $registerResource) {
-                $this->_registerModelAsResource();
-            }
+            $this->_registerModelAsResource();
 
             // store external fields
             $this->_storeExternalFields();

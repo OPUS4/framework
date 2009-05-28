@@ -68,6 +68,17 @@ abstract class Opus_Model_Dependent_Abstract
     public function setParentId($parentId) {
         $this->_parentId = $parentId;
     }
+    
+    /**
+     * Set the name of the column holding the parent id
+     * of the linked model.
+     *
+     * @param string $column Name of the parent id column.
+     * @return void
+     */
+    public function setParentIdColumn($column) {
+        $this->_parentColumn = $column;
+    }
 
     /**
      * Set up the foreign key of the parent before storing.
@@ -76,11 +87,14 @@ abstract class Opus_Model_Dependent_Abstract
      * @return void
      */
     public function store() {
-        if (is_null($this->_parentId) === true or is_null($this->_parentColumn)
-                === true) {
+        if (null === $this->_parentId) {
             throw new Opus_Model_Exception('Dependent Model ' . get_class($this)
                     . ' without parent cannot be persisted.');
-        }
+        } 
+        if (null === $this->_parentColumn) {
+            throw new Opus_Model_Exception('Dependent Model ' . get_class($this)
+                    . ' needs to know name of the parent-id column.');
+        } 
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
         parent::store();
     }

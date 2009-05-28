@@ -53,6 +53,14 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @var string
      */
     protected $_modelClass = '';
+    
+    
+    /**
+     * Backup for isNewRecord flag.
+     *
+     * @var boolean
+     */
+    private $_isNewFlagBackup = null;
 
     /**
      * Set the model that is linked to.
@@ -208,6 +216,31 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     protected function _recurseXml(DomDocument $domXml, array $excludeFields = null) {
         return $this->_model->_recurseXml($domXml, $excludeFields);
     }
+   
+   
+   /**
+    * Set internal isNewRecord flag to false to enable
+    * correct Acl resource identifier creation on store.
+    *
+    * @return void
+    */
+   protected function _storeInternalFields() {
+       $result = parent::_storeInternalFields();
+       $this->_isNewFlagBackup = $this->_isNewRecord;
+       $this->_isNewRecord = false;
+       return $result;
+   }
+   
+   /**
+    * Reset internal isNewRecord flag before storing external fields
+    * to enable correct Exception handling.
+    *
+    * @return void
+    */
+   protected function _storeExternalFields() {
+       $this->_isNewRecord = $this->_isNewFlagBackup;
+       return parent::_storeExternalFields();
+   }   
    
    /**
     * Return the primary key of the Link Model if it has been persisted.
