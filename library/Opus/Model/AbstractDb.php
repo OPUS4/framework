@@ -207,7 +207,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return string The id of the primary table row is returned.
      */
     protected function _storeInternalFields() {
-        $dbadapter = $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         try {
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
@@ -232,7 +231,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
         } catch (Exception $e) {
-            $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
+            $msg = $e->getMessage() . ' Model: ' . get_class($this);
             // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
@@ -247,7 +246,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return void
      */
     protected function _storeExternalFields() {
-        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         try {
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
