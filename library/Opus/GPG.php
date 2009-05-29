@@ -53,7 +53,7 @@ class Opus_GPG extends Crypt_GPG
 		$config = new Zend_Config_Ini('../config/config.ini');
 
 		try {
-			parent::__construct(array('homedir' => $config->gpg->keyring->path, 'binary' => $config->gpg->path, 'debug' => false));
+			parent::__construct(array('homedir' => $config->production->gpg->keyring->path, 'binary' => $config->production->gpg->path, 'debug' => false));
 		}
 		catch (Exception $e) {
 			throw $e;

@@ -46,7 +46,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
     {
    		$config = new Zend_Config_Ini('../config/config.ini');
 
-		$pdftotextPath = $config->searchengine->pdftotext->path;
+		$pdftotextPath = $config->production->searchengine->pdftotext->path;
 
    		if (false === file_exists($pdftotextPath . '/pdftotext'))
    		{

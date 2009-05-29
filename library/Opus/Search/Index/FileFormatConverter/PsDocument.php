@@ -46,7 +46,7 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
     {
    		$config = new Zend_Config_Ini('../config/config.ini');
 
-		$ps2asciiPath = $config->searchengine->ps2ascii->path;
+		$ps2asciiPath = $config->production->searchengine->ps2ascii->path;
 
    		if (false === file_exists($ps2asciiPath . '/ps2ascii'))
    		{
