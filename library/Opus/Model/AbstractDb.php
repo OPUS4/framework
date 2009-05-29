@@ -170,6 +170,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
+    
+        // do not perfom storing actions when
+        // model is not modified
+        if (false === $this->isModified()) {
+            return $this->getId();
+        }
+    
         // refuse to store if data is not valid
         if (false === $this->isValid()) {
             $msg = 'Attempt to store model with invalid data.';
