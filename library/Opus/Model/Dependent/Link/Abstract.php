@@ -54,16 +54,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     protected $_modelClass = '';
     
-    
     /**
-     * Backup for isNewRecord flag.
-     *
-     * @var boolean
-     */
-    private $_isNewFlagBackup = null;
-    
-    /**
-     * Bad design workaround for modification tracking.
+     * FIXME:Bad design workaround for modification tracking.
      * The linked model is not hold by a native field, so there is no modification
      * tracking for it. Thus we have to track the modification of this using
      * a special private variable.
@@ -228,30 +220,20 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         return $this->_model->_recurseXml($domXml, $excludeFields);
     }
    
-   
    /**
-    * Set internal isNewRecord flag to false to enable
-    * correct Acl resource identifier creation on store.
+    * Perform security resoure registration.
     *
     * @return void
     */
-   protected function _storeInternalFields() {
-       $result = parent::_storeInternalFields();
-       $this->_isNewFlagBackup = $this->_isNewRecord;
+   protected function _postStoreInternalFields() {
+       $isNewFlagBackup = $this->_isNewRecord;
        $this->_isNewRecord = false;
-       return $result;
+
+       parent::_postStoreInternalFields();
+
+       $this->_isNewRecord = $isNewFlagBackup;
    }
-   
-   /**
-    * Reset internal isNewRecord flag before storing external fields
-    * to enable correct Exception handling.
-    *
-    * @return void
-    */
-   protected function _storeExternalFields() {
-       $this->_isNewRecord = $this->_isNewFlagBackup;
-       return parent::_storeExternalFields();
-   }   
+
    
    /**
     * Return the primary key of the Link Model if it has been persisted.

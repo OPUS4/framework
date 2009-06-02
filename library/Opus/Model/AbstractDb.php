@@ -163,14 +163,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     }
 
     /**
-     * Persist all the models information to its database locations.
+     * Perform any actions needed to provide storing.
+     * 
+     * Currently modification checking and validation.
      *
-     * @see    Opus_Model_Interface::store()
-     * @throws Opus_Model_Exception     Thrown if the store operation could not be performed.
-     * @return mixed $id    Primary key of the models primary table row.
+     * @return mixed Anything else then null will cancel the storage process.
      */
-    public function store() {
-    
+    protected function _preStore() {
         // do not perfom storing actions when model is not modified and not new
         if ((false === $this->_isNewRecord) and (false === $this->isModified())) {
             return $this->getId();
@@ -186,6 +185,43 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             }
             throw new Opus_Model_Exception($msg);
         }
+    }
+    
+    /**
+     * Perform any actions needed after storing.
+     * 
+     * Sets _isNewRecord to false.
+     *
+     * @return void
+     */
+    protected function _postStore() {
+        $this->_isNewRecord = false;
+    }
+
+    /**
+     * Perform any actions needed after storing internal fields.
+     *
+     * @return void
+     */
+    protected function _postStoreInternalFields() {
+    }
+
+
+    /**
+     * Persist all the models information to its database locations.
+     *
+     * Storage logic is surrounded by _preStore() and _postStore() calls
+     * to enable custom implementations.
+     *
+     * @see    Opus_Model_Interface::store()
+     * @throws Opus_Model_Exception     Thrown if the store operation could not be performed.
+     * @return mixed $id    Primary key of the models primary table row.
+     */
+    public function store() {
+        $pre = $this->_preStore();
+        if (null !== $pre) {
+            return $pre;
+        }
 
         // Start transaction
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
@@ -194,6 +230,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         // store internal and external fields
         try {
             $id = $this->_storeInternalFields();
+            $this->_postStoreInternalFields();
             $this->_storeExternalFields();    
         } catch (Exception $e) {
             $dbadapter->rollBack();
@@ -203,7 +240,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         // commit transaction
         $dbadapter->commit();
 
-        $this->_isNewRecord = false;
+        $this->_postStore();
         return $id;
     }
 

@@ -152,34 +152,14 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         $this->_masterAclResource = $resource;
     }
 
-    /**
-     * Persist all the models information to its database locations
-     * after checking if all required permissions are granted.
-     *
-     * If a new model is created, it gets registered as a resource in the current acl.
-     *
-     * @see    Opus_Model_Interface::store()
-     * @throws Opus_Security_Exception  If the current role has no permission for the 'update' or the 'create' operation respectivly.
-     * @return mixed $id    Primary key of the models primary table row.
-     */
-    public function store() {
-    
-        // do not perfom storing actions when model is not modified and not new
-        if ((false === $this->_isNewRecord) and (false === $this->isModified())) {
-            return $this->getId();
-        }
-    
-        // refuse to store if data is not valid
-        if (false === $this->isValid()) {
-            $msg = 'Attempt to store model with invalid data.';
-            foreach ($this->getValidationErrors() as $fieldname=>$err) {
-                if (false === empty($err)) {
-                    $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
-                }
-            }
-            throw new Opus_Model_Exception($msg);
-        }
 
+    /**
+     * Check permissions before storing.
+     *
+     * @throws Opus_Security_Exception Thrown if the needed privileges are not granted.
+     * @return mixed Anything else then null will cancel the storage process.
+     */
+    protected function _preStore() {
         // Check permissions
         if (null === $this->getId()) {
             // probably creation of new record, needs PERM_CREATE
@@ -189,35 +169,23 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             $this->_ensure(self::PERM_UPDATE);
         }
 
-        // Start transaction
-        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
-        $dbadapter->beginTransaction();
-
-        // store internal and external fields
-        try {
-            // store internal fields, get id
-            $id = $this->_storeInternalFields();
-
-            // set up this object as master resource for all child elements
-            $this->_setupMasterResourceForSubModels();
-            
-            // Register model as resource
-            $this->_registerModelAsResource();
-
-            // store external fields
-            $this->_storeExternalFields();
-        } catch (Exception $ex) {
-            $dbadapter->rollBack();
-            throw $ex;
-        }
-
-        // commit transaction
-        $dbadapter->commit();
-
-        $this->_isNewRecord = false;
-        return $id;
+        return parent::_preStore();
     }
 
+    /**
+     * Perform security resoure registration.
+     *
+     * @return void
+     */
+    protected function _postStoreInternalFields() {
+        // set up this object as master resource for all child elements
+        $this->_setupMasterResourceForSubModels();
+        
+        // Register model as resource
+        $this->_registerModelAsResource();
+        
+        parent::_postStoreInternalFields();
+    }
 
     /**
      * Set this object as master resource for all sub models. 
