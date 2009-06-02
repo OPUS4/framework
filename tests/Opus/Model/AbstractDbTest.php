@@ -667,5 +667,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model->store();
     }
 
+    /**
+     * Test if a new model can be stored even is no modification happend to the instance.
+     *
+     * @return void
+     */
+    public function testNewlyCreatedModelCanBeStoredWhenNotModified() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $id = $model->store();
+        $this->assertNotNull($id, 'Expect newly created but unmodified model to be stored.');  
+    }
 
 }

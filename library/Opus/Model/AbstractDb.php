@@ -171,9 +171,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     public function store() {
     
-        // do not perfom storing actions when
-        // model is not modified
-        if (false === $this->isModified()) {
+        // do not perfom storing actions when model is not modified and not new
+        if ((false === $this->_isNewRecord) and (false === $this->isModified())) {
             return $this->getId();
         }
     
