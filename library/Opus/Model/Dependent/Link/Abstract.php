@@ -61,6 +61,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @var boolean
      */
     private $_isNewFlagBackup = null;
+    
+    /**
+     * Bad design workaround for modification tracking.
+     * The linked model is not hold by a native field, so there is no modification
+     * tracking for it. Thus we have to track the modification of this using
+     * a special private variable.
+     *
+     * @var boolean
+     */
+    private $_isModified = false;
 
     /**
      * Set the model that is linked to.
@@ -74,6 +84,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
                     get_class($model) . ' given.');
         } else {
             $this->_model = $model;
+            $this->_isModified = true;
         }
     }
 
@@ -260,4 +271,34 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
        return parent::getId();
    }
 
+
+    /**
+     * Tell whether there is a modified field or if the linked
+     * model has been newly set via setModel().
+     *
+     * @return boolean
+     */
+    public function isModified() {
+        return ($this->_isModified) or (parent::isModified());
+    }
+
+    /**
+     * Set the modified flags for all fields back to false.
+     *
+     * @return void
+     */
+    public function clearModified() {
+        parent::clearModified();
+        $this->_isModified = false;
+    }
+
+    /**
+     * Trigger indication of modification for all fields.
+     *
+     * @return void
+     */
+    public function setModified() {
+        parent::setModified();
+        $this->_isModified = true;
+    }
 }
