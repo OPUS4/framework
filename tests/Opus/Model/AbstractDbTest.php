@@ -282,27 +282,23 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
-     * Test if a call to store() does not happen when it has not been modified.
+     * Test if a call to store() does not happen when the Model has not been modified.
      *
      * @return void
      */
-    public function testIfFieldIsNotStoredWhenUnmodified() {
+    public function testIfModelIsNotStoredWhenUnmodified() {
         // A record with id 1 is created by setUp() using AbstractDataSet.xml
-        $mock = new Opus_Model_ModelAbstractDb(1);
-        $field = $mock->getField('Value');
-        $oldval = $mock->getValue();
-
-        // Override the original field "Value" with a mocked version
-        // to detect calls to getValue()
-        $fieldClassName = get_class($field);
-        $mockField = $this->getMock($fieldClassName, array('getValue'), array('Value'));
-        $mock->addField($mockField);
+        // So create a mocked Model to detect certain calls
+        $mock = $this->getMock('Opus_Model_ModelAbstractDb', 
+            array('_storeInternalFields', '_storeExternalFields'),
+            array(1));
 
         // Clear modified flag just to be sure
-        $mockField->clearModified();
+        $mock->clearModified();
 
-        // Expect getValue to be called only once
-        $mockField->expects($this->once())->method('getValue');
+        // Expect getValue never to be called
+        $mock->expects($this->never())->method('_storeInternalFields');
+        $mock->expects($this->never())->method('_storeExternalFields');
 
         $mock->store();
     }
