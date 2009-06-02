@@ -63,6 +63,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $model = new Opus_Model_Dependent_Link_AbstractTestModel();
         $model->setDisplayName('AbstractTestMockDisplayName');
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass(get_class($model));
         $link->setModel($model);
         $result = $link->getDisplayName();
         $this->assertEquals('AbstractTestMockDisplayName', $result, 'Display name of linked model not properly passed.');
@@ -335,5 +336,20 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         
         $this->assertTrue($acl->has($linkMock), 'Link Model has not been registered after store.');
     }   
+ 
+    /**
+    * Test if setting a model changes the modifification status of the link model.
+    *
+    * @return void
+    */
+    public function testSettingAModelMarksLinkModelToBeModified() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel();
+        $model->setDisplayName('AbstractTestMockDisplayName');
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass(get_class($model));
+        $link->setModel($model);
+        
+        $this->assertTrue($link->isModified(), 'Call to setModel() does not set modification flag.');
+    }
     
 }
