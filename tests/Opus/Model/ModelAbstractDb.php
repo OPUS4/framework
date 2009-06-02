@@ -43,6 +43,7 @@
  */
 class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
 
+    public $postStoreHasBeenCalled = false;
 
     /**
      * Specify then table gateway.
@@ -62,5 +63,10 @@ class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
 
         $value = new Opus_Model_Field('Value');
         $this->addField($value);
+    }
+    
+    public function _postStore() {
+        parent::_postStore();
+        $this->postStoreHasBeenCalled = true;
     }
 }

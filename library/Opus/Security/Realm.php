@@ -88,7 +88,7 @@ class Opus_Security_Realm {
     /**
      * Set the current Role instance.
      *
-     * @param Zend_Acl_Role_Interface Role instance to be set.
+     * @param Zend_Acl_Role_Interface $role Role instance to be set.
      * @return Opus_Security_Realm Fluent interface.
      */
     public function setRole($role) {
@@ -108,10 +108,10 @@ class Opus_Security_Realm {
     /**
      * Set the current Master Resource instance.
      *
-     * @param Zend_Acl_Resource_Interface Resource instance to be set.
+     * @param Zend_Acl_Resource_Interface $master Resource instance to be set.
      * @return Opus_Security_Realm Fluent interface.
      */
-    public function setResourceMaster(Zend_Acl_Resource_Interface $master) {
+    public function setResourceMaster($master) {
         $this->_resource = $master;
     }
 

@@ -87,6 +87,7 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         Opus_Security_Realm::getInstance()->setAcl(null);
+        Opus_Security_Realm::getInstance()->setResourceMaster(null);
         TestHelper::dropTable('test_testtable');
     }
 
@@ -344,4 +345,24 @@ class Opus_Model_AbstractDbSecureTest extends PHPUnit_Framework_TestCase {
 
         $model->store();
     }
+    
+    /**
+     * Test if a second call to store() directly after a successful store()
+     * does not execute anything.
+     *
+     * @return void
+     */
+    public function testIfStoreTwiceAttemptDoesNotRaiseAnUpdateException() {
+         // Grant create permission
+        $this->_realm->getAcl()->allow('anybody', 'Opus/Model/ModelAbstractDbSecure', 'create');
+        $model = new Opus_Model_ModelAbstractDbSecure;
+
+        try {
+            $id = $model->store();
+            $id = $model->store();
+        } catch (Opus_Security_Exception $ex) {
+            $this->fail('Second store() call should not be executed for unmodified model.');
+        }
+    }   
+    
 }

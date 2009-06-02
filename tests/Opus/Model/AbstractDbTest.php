@@ -302,7 +302,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         $mock->store();
     }
-
+    
     /**
      * Test if fields get their modified status set back to false after beeing
      * filled with values from the database.
@@ -677,5 +677,31 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $id = $model->store();
         $this->assertNotNull($id, 'Expect newly created but unmodified model to be stored.');  
     }
+
+    /**
+     * Test is isNewRecord() returns false after successful store.
+     *
+     * @return void
+     */
+    public function testIsNewRecordIsFalseAfterStore() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $id = $model->store();
+        $this->assertFalse($model->isNewRecord(), 'Expect stored model not to be marked as new record.');  
+    }
+
+ 
+    /**
+     * Test if a second call to store() directly after a successful store()
+     * does not execute anything.
+     *
+     * @return void
+     */
+    public function testIfStoreTwiceAttemptDoesNotExecuteASecondStore() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $id = $model->store();
+        $model->postStoreHasBeenCalled = false;
+        $id = $model->store();
+        $this->assertFalse($model->postStoreHasBeenCalled, 'Second store issued on non modified model.');
+    }   
 
 }

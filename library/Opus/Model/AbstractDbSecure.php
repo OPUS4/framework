@@ -160,6 +160,11 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
      * @return mixed Anything else then null will cancel the storage process.
      */
     protected function _preStore() {
+        $result = parent::_preStore();
+        if (null !== $result) {
+            return $result;
+        }
+        
         // Check permissions
         if (null === $this->getId()) {
             // probably creation of new record, needs PERM_CREATE
@@ -168,8 +173,6 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             // probably update, needs PERM_UPDATE
             $this->_ensure(self::PERM_UPDATE);
         }
-
-        return parent::_preStore();
     }
 
     /**

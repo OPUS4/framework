@@ -171,7 +171,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      */
     protected function _preStore() {
         // do not perfom storing actions when model is not modified and not new
-        if ((false === $this->_isNewRecord) and (false === $this->isModified())) {
+        if ((false === $this->isNewRecord()) and (false === $this->isModified())) {
             return $this->getId();
         }
     
@@ -185,6 +185,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             }
             throw new Opus_Model_Exception($msg);
         }
+        
+        return null;
     }
     
     /**
