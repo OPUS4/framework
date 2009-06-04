@@ -85,9 +85,11 @@ class Opus_Licence extends Opus_Model_AbstractDbSecure
         $desc_text = new Opus_Model_Field('DescText');
         
         $licence_language = new Opus_Model_Field('Language');
-        $licence_language->setDefault(Zend_Registry::get('Available_Languages'))
-            ->setSelection(true);
-            
+        if (Zend_Registry::isRegistered('Available_Languages') === true) {
+            $licence_language->setDefault(Zend_Registry::get('Available_Languages'));
+        }
+        $licence_language->setSelection(true);
+
         $link_licence = new Opus_Model_Field('LinkLicence');
         $link_licence->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());

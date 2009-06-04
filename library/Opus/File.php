@@ -114,8 +114,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $mimetype = new Opus_Model_Field('MimeType');
 
         $filelanguage = new Opus_Model_Field('Language');
-        $filelanguage->setDefault(Zend_Registry::get('Available_Languages'))
-            ->setSelection(true);
+        if (Zend_Registry::isRegistered('Available_Languages') === true) {
+            $filelanguage->setDefault(Zend_Registry::get('Available_Languages'));
+        }
+        $filelanguage->setSelection(true);
 
         $tempfile = new Opus_Model_Field('TempFile');
 

@@ -65,8 +65,10 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
      */
     protected function _init() {
         $language = new Opus_Model_Field('Language');
-        $language->setDefault(Zend_Registry::get('Available_Languages'))
-            ->setSelection(true);
+        if (Zend_Registry::isRegistered('Available_Languages') === true) {
+            $language->setDefault(Zend_Registry::get('Available_Languages'));
+        }
+        $language->setSelection(true);
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
