@@ -410,14 +410,22 @@ class Opus_Collection_Information {
             throw new InvalidArgumentException('Collection ID must be a positive integer.');
         }
 
-        self::cleanup();
-        self::$roles_id = $role_id;
+        if ((int) $role_id !== (int) self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = (int) $role_id;
+        }
+        //self::cleanup();
+        //self::$roles_id = $role_id;
+        if (false === self::$collectionStructure) {
+            self::$collectionStructure = new Opus_Collection_Structure($role_id);
+            self::$collectionStructure->load();
+        }
 
         // Load nested sets structure from DB
-        $ocs = new Opus_Collection_Structure($role_id);
-        $ocs->load();
+        //$ocs = new Opus_Collection_Structure($role_id);
+        //$ocs->load();
 
-        if ($ocs->count($collections_id) < 2) {
+        if (self::$collectionStructure->count($collections_id) < 2) {
             return false;
         } else {
             return true;
@@ -1225,13 +1233,18 @@ class Opus_Collection_Information {
         $validation = new Opus_Collection_Validation();
         $validation->constructorID($roles_id);
 
-        if ($roles_id !== self::$roles_id) {
+        if ((int) $roles_id !== (int) self::$roles_id) {
             self::cleanup();
-            self::$roles_id = $roles_id;
+            self::$roles_id = (int) $roles_id;
         }
-        $ocs = new Opus_Collection_Structure($roles_id);
-        $ocs->load();
-        $visibility = $ocs->fetchVisibility((int) $collections_id);
+        if (false === self::$collectionStructure) {
+            self::$collectionStructure = new Opus_Collection_Structure($roles_id);
+            self::$collectionStructure->load();
+        }
+
+        //$ocs = new Opus_Collection_Structure($roles_id);
+        //$ocs->load();
+        $visibility = self::$collectionStructure->fetchVisibility((int) $collections_id);
         return (1 === $visibility)?true:false;
     }
 

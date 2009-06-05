@@ -134,7 +134,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 $rows[] = $table->fetchRow($table->select()->where('id = ?', $id));
             }
             foreach ($rows as $row) {
-                $result[] = new Opus_Collection((int) $this->getId(), $row);
+                $result[] = new Opus_Collection((int) $this->getId(), $row, $this);
             }
         }
         return $result;

@@ -50,11 +50,18 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_CollectionsContents';
 
     /**
-     * Holds the role of the collection.
+     * Holds the role id of the collection.
      *
      * @var int
      */
     private $__role_id = null;
+
+    /**
+     * Holds the role model of the collection.
+     *
+     * @var int
+     */
+    private $__role = null;
 
     /**
      * Track from where on subCollections have to be stored. Blindly calling
@@ -94,8 +101,14 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param  int         $parent         (Optional) parent Id of a new collection.
      * @param  int         $left_sibling   (Optional) left sibling Id of a new collection.
      */
-    public function __construct($role_id, $collection_id = null) {
+    public function __construct($role_id, $collection_id = null, $role = null) {
         $this->__role_id = $role_id;
+        if (null === $role) {
+            $this->__role = new Opus_CollectionRole($this->__role_id);
+        } else {
+            $this->__role = $role;
+        }
+
         parent::__construct($collection_id, new Opus_Db_CollectionsContents($role_id));
     }
 
@@ -221,7 +234,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $rows = $table->find($collectionIds);
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row);
+                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];
@@ -314,7 +327,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $rows = $table->find($collectionIds);
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row);
+                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];
@@ -339,7 +352,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function toArray($call = null) {
 
-        $role = new Opus_CollectionRole($this->__role_id);
+        $role = $this->__role;
 
         $result = array(
                     'Id' => $this->getId(),
@@ -448,7 +461,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return string
      */
     public function getDisplayName($context = 'browsing') {
-        $role = new Opus_CollectionRole($this->__role_id);
+        $role = $this->__role;
         $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
         $display = '';
         if (false === empty($fieldnames)) {
