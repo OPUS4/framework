@@ -37,11 +37,11 @@
 // PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
 // AllTests:main() to run the suite.
 if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Search_AllTests::main');
+    define('PHPUnit_MAIN_METHOD', 'Opus_Search_Index_AllTests::main');
 }
 
 // Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+require_once dirname(dirname(dirname(dirname(__FILE__)))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
 
 /**
  * Main test suite for testing database access and models.
@@ -49,7 +49,7 @@ require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHe
  * @category    Tests
  * @package     Opus_Search
  */
-class Opus_Search_AllTests {
+class Opus_Search_Index_AllTests {
 
     /**
      * If the test class is called directly via php command the test
@@ -69,16 +69,14 @@ class Opus_Search_AllTests {
      * @return PHPUnit_Framework_TestSuite The suite.
      */
     public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Search');
-        $suite->addTestSuite('Opus_Search_DocumentAdapterTest');
-        $suite->addTestSuite('Opus_Search_Adapter_PersonAdapterTest');
-        $suite->addTest(Opus_Search_Index_AllTests::suite());
+        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Search_Index');
+        $suite->addTestSuite('Opus_Search_Index_IndexerTest');
         return $suite;
     }
 
 }
 
 // Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Search_AllTests::main') {
-    Opus_Search_AllTests::main();
+if (PHPUnit_MAIN_METHOD === 'Opus_Search_Index_AllTests::main') {
+    Opus_Search_Index_AllTests::main();
 }
