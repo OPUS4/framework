@@ -176,7 +176,7 @@ class Opus_Search_Index_Indexer {
         if ($titles !== '') {
             foreach ($titles as $title)
             {
-                $document['title'] .= ' ' . $title['Value'];
+                $document['title'] .=  ' ' . $title['Value'];
                 $lang = $title['Language'];
                 $document['language'] .= ' ' . $lang;
                 $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
@@ -197,24 +197,28 @@ class Opus_Search_Index_Indexer {
         $document['institute'] = '';
 
         // index files (each file will get one data set)
-        $files = $docarray['File'];
-        $file_count = count($files);
-        $numberOfIndexableFiles = $file_count;
-        foreach ($files as $file)
-        {
-        	try {
-       	        $document['content'] = $this->getFileContent($file);
-       	        $document['source'] = $file['PathName'];
-       	        unset($document['exception']);
-   	        	array_push($returnarray, $document);
+        if (true === array_key_exists('File', $docarray)) {
+            $files = $docarray['File'];
+            $file_count = count($files);
+            $numberOfIndexableFiles = $file_count;
+            foreach ($files as $file)
+            {
+            	try {
+           	        $document['content'] = $this->getFileContent($file);
+           	        $document['source'] = $file['PathName'];
+           	        unset($document['exception']);
+       	        	array_push($returnarray, $document);
+                }
+                catch (Exception $e) {
+            	    $document['source'] = $file['PathName'];
+            	    $document['content'] = '';
+            	    $document['exception'] = $e->getMessage();
+            	    $numberOfIndexableFiles--;
+            	    array_push($returnarray, $document);
+                }
             }
-            catch (Exception $e) {
-        	    $document['source'] = $file['PathName'];
-        	    $document['content'] = '';
-        	    $document['exception'] = $e->getMessage();
-        	    $numberOfIndexableFiles--;
-        	    array_push($returnarray, $document);
-            }
+        } else {
+            $numberOfIndexableFiles = 0;
         }
         // if there is no file (or only non-readable ones) associated with the document, index only metadata
         if ($numberOfIndexableFiles === 0)
