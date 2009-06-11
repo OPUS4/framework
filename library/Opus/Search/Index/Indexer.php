@@ -143,23 +143,23 @@ class Opus_Search_Index_Indexer {
 
 	    $docarray = $doc->toArray();
 	    $document['docid'] = $doc->getId();
-	    unset($doc);
-	    $document['year'] = $this->getKeyValue(&$docarray, 'CompletedYear');
-	    $document['doctype'] = $this->getKeyValue(&$docarray, 'Type');
+	    #unset($doc);
+	    $document['year'] = $this->getValue($doc, 'CompletedYear');
+	    $document['doctype'] = $this->getValue($doc, 'Type');
 
-	    $document['urn'] = $this->getValue(&$docarray, 'IdentifierUrn');
-	    $document['isbn'] = $this->getValue(&$docarray, 'IdentifierIsbn');
+	    $document['urn'] = $this->getValue($doc, 'IdentifierUrn', 'Value');
+	    $document['isbn'] = $this->getValue($doc, 'IdentifierIsbn', 'Value');
 
 
-        $document['author'] = $this->getPersons(&$docarray, 'Author');
+        $document['author'] = $this->getValue($doc, 'PersonAuthor', 'Name');
 
         $document['persons'] = '';
-        $document['persons'] .= $this->getPersons(&$docarray, 'Advisor');
-        $document['persons'] .= $this->getPersons(&$docarray, 'Contributor');
-        $document['persons'] .= $this->getPersons(&$docarray, 'Editor');
-        $document['persons'] .= $this->getPersons(&$docarray, 'Other');
-        $document['persons'] .= $this->getPersons(&$docarray, 'Referee');
-        $document['persons'] .= $this->getPersons(&$docarray, 'Translator');
+        $document['persons'] .= $this->getValue($doc, 'PersonAdvisor', 'Name');
+        $document['persons'] .= $this->getValue($doc, 'PersonContributor', 'Name');
+        $document['persons'] .= $this->getValue($doc, 'PersonEditor', 'Name');
+        $document['persons'] .= $this->getValue($doc, 'PersonOther', 'Name');
+        $document['persons'] .= $this->getValue($doc, 'PersonReferee', 'Name');
+        $document['persons'] .= $this->getValue($doc, 'PersonTranslator', 'Name');
 
         // Look at all titles of the document
         $titles = '';
@@ -257,50 +257,35 @@ class Opus_Search_Index_Indexer {
         return $not_processed;
 	}
 
-	private function getPersons(&$docarray, $roleName) {
-	    $returnValue = '';
-        if (array_key_exists('Person' . $roleName, $docarray) === false) {
-            return $returnValue;
-        }
-	    $persons = $docarray['Person' . $roleName];
-        if (true === @is_array($persons[0])) {
-            $person = $persons;
-        }
-        else {
-            $person[0] = array($persons);
-        }
-        $index = 1;
-        foreach ($person as $trans) {
-            if (true === array_key_exists('Name', $trans)) {
-                $returnValue .= $trans['Name'];
-                if (count($person) > 1 && $index !== count($person)) {
-                   $returnValue .= '; ';
-                }
-                $index++;
-            }
-        }
-
-        return $returnValue;
-    }
-
-    private function getValue(&$docarray, $roleName) {
+    private function getValue($doc, $roleName, $attName = '') {
         $returnValue = '';
-        if (array_key_exists($roleName, $docarray) === false) {
-            return $returnValue;
-        }
-        $persons = $docarray[$roleName];
-        if (true === @is_array($persons[0])) {
-            $person = $persons;
-        }
-        else {
-            $person[0] = array($persons);
-        }
-        foreach ($person as $trans) {
-            if (true === array_key_exists('Value', $trans)) {
-                $returnValue .= $trans['Value'] . ' ';
-            }
-        }
 
+   	    // check existance of modelField
+        $field = $doc->getField($roleName);
+        // if the field does not exist, proceed with next field
+       	if ($field === null) {
+       		return '';
+       	}
+       	if ($field->hasMultipleValues() === true) {
+       		// there can be multiple values in this field, its always returned as an array
+       		$values = $field->getValue();
+       		foreach ($values as $value) {
+       		    if ($attName !== '') {
+       			    $returnValue = $value->getField($attName)->getValue() . ' ';
+       		    }
+       		    else {
+           		    $returnValue .= $value . ' ';
+           		}       			
+       		}
+       	}
+       	else {
+       		if ($attName !== '' && $field->getValue() !== null) {
+       			$returnValue = $field->getValue()->getField($attName)->getValue();
+       		}
+       		else {
+       		    $returnValue = $field->getValue();
+       		}
+       	}
         return $returnValue;
     }
 
