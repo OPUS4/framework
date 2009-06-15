@@ -164,11 +164,19 @@ class Opus_Search_Index_Indexer {
         // Look at all titles of the document
         $titles = '';
         $abstracts = '';
-        if (is_array($this->getKeyValue(&$docarray, 'TitleMain')) === true) {
-            $titles = $this->getKeyValue(&$docarray, 'TitleMain');
+        if (true === array_key_exists('Value', $docarray['TitleMain'])) {
+        	// only one title
+            $titles = array($docarray['TitleMain']);
         }
-        if (is_array($this->getKeyValue(&$docarray, 'TitleAbstract')) === true) {
-            $abstracts = $this->getKeyValue(&$docarray, 'TitleAbstract');
+        else {
+        	$titles = $docarray['TitleMain'];
+        }
+        if (true === array_key_exists('Value', $docarray['TitleAbstract'])) {
+        	// only one abstract
+            $abstracts = array($docarray['TitleAbstract']);
+        }
+        else {
+        	$abstracts = $docarray['TitleAbstract'];
         }
         $document['title'] = '';
         $document['abstract'] = '';
@@ -286,15 +294,6 @@ class Opus_Search_Index_Indexer {
        		    $returnValue = $field->getValue();
        		}
        	}
-        return $returnValue;
-    }
-
-    private function getKeyValue(&$docarray, $key) {
-        $returnValue = '';
-        if (true === array_key_exists($key, $docarray)) {
-            $returnValue = $docarray[$key];
-        }
-
         return $returnValue;
     }
 
