@@ -164,19 +164,23 @@ class Opus_Search_Index_Indexer {
         // Look at all titles of the document
         $titles = '';
         $abstracts = '';
-        if (true === array_key_exists('Value', $docarray['TitleMain'])) {
-        	// only one title
-            $titles = array($docarray['TitleMain']);
+        if (true === is_array($docarray['TitleMain']) && true === array_key_exists('TitleMain', $docarray)) {
+            if (true === array_key_exists('Value', $docarray['TitleMain'])) {
+        	    // only one title
+                $titles = array($docarray['TitleMain']);
+            }
+            else {
+            	$titles = $docarray['TitleMain'];
+            }
         }
-        else {
-        	$titles = $docarray['TitleMain'];
-        }
-        if (true === array_key_exists('Value', $docarray['TitleAbstract'])) {
-        	// only one abstract
-            $abstracts = array($docarray['TitleAbstract']);
-        }
-        else {
-        	$abstracts = $docarray['TitleAbstract'];
+        if (true === is_array($docarray['TitleAbstract']) && true === array_key_exists('TitleAbstract', $docarray)) {
+            if (true === array_key_exists('Value', $docarray['TitleAbstract'])) {
+        	    // only one abstract
+                $abstracts = array($docarray['TitleAbstract']);
+            }
+            else {
+            	$abstracts = $docarray['TitleAbstract'];
+            }
         }
         $document['title'] = '';
         $document['abstract'] = '';
