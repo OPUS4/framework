@@ -66,12 +66,44 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
         $hashtype = new Opus_Model_Field('Type');
         $hashtype->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        
+
         $hashvalue = new Opus_Model_Field('Value');
         $hashvalue->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($hashtype)
             ->addField($hashvalue);
+    }
+
+    /**
+     * Perform security resoure registration.
+     *
+     * @return void
+     */
+    protected function _postStoreInternalFields() {
+        $isNewFlagBackup = $this->_isNewRecord;
+        $this->_isNewRecord = false;
+
+        parent::_postStoreInternalFields();
+
+        $this->_isNewRecord = $isNewFlagBackup;
+    }
+
+    /**
+     * Return the primary key of the Link Model if it has been persisted.
+     *
+     * @return array|null Primary key or Null if the Linked Model has not been persisted.
+     */
+    public function getId() {
+        // The given id consists of the ids of the referenced linked models,
+        // but there is no evidence that the LinkModel itself has been persisted yet.
+        // We so have to validate, if the LinkModel is persistent or still transient.
+        if (true === $this->isNewRecord()) {
+            // its a new record, so return null
+            return null;
+        }
+
+        // its not a new record, so we can hand over to the parent method
+        return parent::getId();
     }
 }
