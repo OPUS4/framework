@@ -274,16 +274,18 @@ class Opus_Search_Index_Indexer {
 
    	    // check existance of modelField
         $field = $doc->getField($roleName);
+        $roleCaller = 'get' . $roleName;
         // if the field does not exist, proceed with next field
        	if ($field === null) {
        		return '';
        	}
        	if ($field->hasMultipleValues() === true) {
        		// there can be multiple values in this field, its always returned as an array
-       		$values = $field->getValue();
+            $values = $doc->$roleCaller();
        		foreach ($values as $value) {
        		    if ($attName !== '') {
-       			    $returnValue = $value->getField($attName)->getValue() . ' ';
+       			    $attCaller = 'get' . $attName;
+                    $returnValue = $value->$attCaller(); 
        		    }
        		    else {
            		    $returnValue .= $value . ' ';
@@ -291,11 +293,12 @@ class Opus_Search_Index_Indexer {
        		}
        	}
        	else {
-       		if ($attName !== '' && $field->getValue() !== null) {
-       			$returnValue = $field->getValue()->getField($attName)->getValue();
+       		if ($attName !== '' && $doc->$roleCaller() !== null) {
+   			    $attCaller = 'get' . $attName;
+                $returnValue = $doc->$roleCaller()->$attCaller(); 
        		}
        		else {
-       		    $returnValue = $field->getValue();
+       		    $returnValue = $doc->$roleCaller();
        		}
        	}
         return $returnValue;
