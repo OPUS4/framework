@@ -164,7 +164,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         if (null !== $result) {
             return $result;
         }
-        
+
         // Check permissions
         if (null === $this->getId()) {
             // probably creation of new record, needs PERM_CREATE
@@ -183,15 +183,15 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
     protected function _postStoreInternalFields() {
         // set up this object as master resource for all child elements
         $this->_setupMasterResourceForSubModels();
-        
+
         // Register model as resource
         $this->_registerModelAsResource();
-        
+
         parent::_postStoreInternalFields();
     }
 
     /**
-     * Set this object as master resource for all sub models. 
+     * Set this object as master resource for all sub models.
      *
      * @return void
      */
@@ -208,7 +208,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             }
         }
     }
-    
+
     /**
      * Register this model as Acl Resource if an Acl is set in the current active Realm.
      *
@@ -220,12 +220,16 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
             if (false === $acl->has($this)) {
                 if (null === $this->_masterAclResource) {
                     $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
+                    // if master resource is not set in realm, set default value
+                    if (null === $this->_masterAclResource) {
+                        $this->masterAclResource = str_replace('_', '/', get_class($this));
+                    }
                 }
                 $acl->add($this, $this->_masterAclResource);
             }
         }
     }
-    
+
     /**
      * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
      *
