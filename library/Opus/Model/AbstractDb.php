@@ -164,7 +164,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 
     /**
      * Perform any actions needed to provide storing.
-     * 
+     *
      * Currently modification checking and validation.
      *
      * @return mixed Anything else then null will cancel the storage process.
@@ -174,7 +174,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         if ((false === $this->isNewRecord()) and (false === $this->isModified())) {
             return $this->getId();
         }
-    
+
         // refuse to store if data is not valid
         if (false === $this->isValid()) {
             $msg = 'Attempt to store model with invalid data.';
@@ -185,13 +185,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             }
             throw new Opus_Model_Exception($msg);
         }
-        
+
         return null;
     }
-    
+
     /**
      * Perform any actions needed after storing.
-     * 
+     *
      * Sets _isNewRecord to false.
      *
      * @return void
@@ -233,7 +233,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         try {
             $id = $this->_storeInternalFields();
             $this->_postStoreInternalFields();
-            $this->_storeExternalFields();    
+            $this->_storeExternalFields();
         } catch (Exception $e) {
             $dbadapter->rollBack();
             throw $e;
@@ -441,6 +441,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return void
      */
     public function delete() {
+        // if no primary key is set the model has
+        // not been stored yet, so delete gets skipped
+        if (null === $this->getId()) {
+            return;
+        }
+
         // Start transaction
         $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
         $dbadapter->beginTransaction();
