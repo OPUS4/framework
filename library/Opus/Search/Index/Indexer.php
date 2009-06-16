@@ -64,6 +64,7 @@ class Opus_Search_Index_Indexer {
         catch (Exception $e) {
             $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
         }
+        $this->entryindex->setMaxBufferedDocs(3);
 	}
 
 	/**
