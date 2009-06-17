@@ -47,6 +47,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    		$config = new Zend_Config_Ini('../config/config.ini');
 
 		$pdftotextPath = $config->production->searchengine->pdftotext->path;
+		$maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
 
    		if (false === file_exists($pdftotextPath . '/pdftotext'))
    		{
@@ -58,7 +59,13 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
         }
 
         exec("$pdftotextPath/pdftotext -enc UTF-8 ".$filepath." -", $return, $returnval);
+        
         $volltext = implode(' ', $return);
+        
+        if ($maxIndexFileSize > 0) {
+            $volltext = mb_substr($volltext, 0, $maxIndexFileSize);
+        }
+        
         return $volltext;
     }
 }

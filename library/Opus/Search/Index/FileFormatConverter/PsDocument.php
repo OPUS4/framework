@@ -47,7 +47,8 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
    		$config = new Zend_Config_Ini('../config/config.ini');
 
 		$ps2asciiPath = $config->production->searchengine->ps2ascii->path;
-
+        $maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
+        
    		if (false === file_exists($ps2asciiPath . '/ps2ascii'))
    		{
    			throw new Exception('Cannot index document: PS-Converter not found! Please check configuration.');
@@ -58,7 +59,13 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
         }
 
         exec("$ps2asciiPath/ps2ascii ".$filepath, $return, $returnval);
+        
         $volltext = implode(' ', $return);
+        
+        if ($maxIndexFileSize > 0) {
+            $volltext = mb_substr($volltext, 0, $maxIndexFileSize);
+        }
+        
         return $volltext;
     }
 }

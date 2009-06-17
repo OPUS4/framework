@@ -45,6 +45,9 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
     public static function toText($filepath)
     {
         $volltext = null;
+        $config = new Zend_Config_Ini('../config/config.ini');
+        $maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
+        
         // check filepath on existance
         if (true === file_exists($filepath))
         {
@@ -62,6 +65,11 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
         {
             throw new Exception('Cannot index document: Document not found!');
         }
+        
+        if ($maxIndexFileSize > 0) {
+            $volltext = mb_substr($volltext, 0, $maxIndexFileSize);
+        }
+        
         return $volltext;
     }
 }

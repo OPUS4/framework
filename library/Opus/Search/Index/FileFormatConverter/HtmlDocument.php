@@ -44,11 +44,27 @@ class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_
    */
    public static function toText($filepath)
     {
+        $config = new Zend_Config_Ini('../config/config.ini');
+        $maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
+        
         if (false === file_exists($filepath))
         {
             throw new Exception('Cannot index document: Document not found!');
         }
-        $volltext = html_entity_decode(strip_tags(implode(' ', file($filepath))));
+        
+        $fileContent = implode(' ', file($filepath));
+        
+        if (mb_detect_encoding($fileContent) !== 'UTF-8')
+        {
+          	$fileContent = utf8_encode($fileContent);
+        }
+        
+        if ($maxIndexFileSize > 0) {
+            $volltext = mb_substr(html_entity_decode(strip_tags($fileContent)), 0, $maxIndexFileSize);
+        }
+        else {
+        	$volltext = html_entity_decode(strip_tags($fileContent));
+        }
         return $volltext;
     }
 }
