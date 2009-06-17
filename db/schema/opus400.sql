@@ -146,7 +146,7 @@ CREATE  TABLE IF NOT EXISTS `document_subjects` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the subject heading.' ,
-  `type` ENUM('swd', 'psyndex', 'uncontrolled') NOT NULL COMMENT 'Subject type, i. e. a specific authority file.' ,
+  `type` VARCHAR(30) NULL COMMENT 'Subject type, i. e. a specific authority file.' ,
   `value` VARCHAR(255) NOT NULL COMMENT 'Value of the subject heading, i. e. text, notation etc.' ,
   `external_key` VARCHAR(255) NULL COMMENT 'Identifier for linking the subject heading to external systems such as authority files.' ,
   PRIMARY KEY (`id`) ,
