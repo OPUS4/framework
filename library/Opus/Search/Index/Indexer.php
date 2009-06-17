@@ -150,23 +150,19 @@ class Opus_Search_Index_Indexer {
 	    $document['doctype'] = $this->getValue($doc, 'Type');
 
         // if there is no year set, search in other fields for a usable year
-        if ('0000' === $document['year']) {
+        if ('0000' === $document['year'] && true === array_key_exists('year', $document)) {
             // set up a priority list of dates for indexing
             $dateList = array(
                 'CompletedDate',
                 'PublishedDate',
-                'DateAccepted',
-                'ServerDatePublished'
+                'DateAccepted'
                 );
             $result = null;
             foreach ($dateList as $dateField) {
                 $iterim = $this->getValue($doc, $dateField);
                 if (null !== $iterim) {
-                    $result = $iterim->getZendDate()->get('YYYYMMdd');
-                    // if year has only default database value (0000) then override it
-                    if ((true === array_key_exists('year', $document))) {
-                        $document['year'] = $iterim->getYear();
-                    }
+                    // set another year than CompletedYear
+                    $document['year'] = $iterim->get('YYYY'); 
                     break;
                 }
             }
