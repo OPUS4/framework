@@ -219,13 +219,7 @@ abstract class Opus_Model_AbstractDbSecure extends Opus_Model_AbstractDb impleme
         if (null !== $acl) {
             if (false === $acl->has($this)) {
                 if (null === $this->_masterAclResource) {
-                    $realmResourceMaster = Opus_Security_Realm::getInstance()->getResourceMaster();
-                    if (null !== $realmResourceMaster) {
-                        $this->_masterAclResource = $realmResourceMaster;
-                    } else {
-                        // if master resource is not set in realm, set default value
-                        $this->_masterAclResource = new Zend_Acl_Resource(str_replace('_', '/', get_class($this)));
-                    }
+                    $this->_masterAclResource = Opus_Security_Realm::getInstance()->getResourceMaster();
                 }
                 $acl->add($this, $this->_masterAclResource);
             }
