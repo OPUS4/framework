@@ -44,7 +44,7 @@ class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_
    */
    public static function toText($filepath)
     {
-        $config = new Zend_Config_Ini('../config/config.ini');
+        $conf = Zend_Registry::get('Zend_Config');
         $maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
         
         if (false === file_exists($filepath))
