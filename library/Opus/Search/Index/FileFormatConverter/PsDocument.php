@@ -46,8 +46,8 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
     {
    		$config = Zend_Registry::get('Zend_Config');
 
-		$ps2asciiPath = $config->production->searchengine->ps2ascii->path;
-        $maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
+		$ps2asciiPath = $config->searchengine->ps2ascii->path;
+        $maxIndexFileSize = $config->searchengine->index->maxFileSize;
         
    		if (false === file_exists($ps2asciiPath . '/ps2ascii'))
    		{
