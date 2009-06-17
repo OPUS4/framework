@@ -149,6 +149,29 @@ class Opus_Search_Index_Indexer {
 	    $document['year'] = $this->getValue($doc, 'CompletedYear');
 	    $document['doctype'] = $this->getValue($doc, 'Type');
 
+        // if there is no year set, search in other fields for a usable year
+        if ('0000' === $document['year']) {
+            // set up a priority list of dates for indexing
+            $dateList = array(
+                'CompletedDate',
+                'PublishedDate',
+                'DateAccepted',
+                'ServerDatePublished'
+                );
+            $result = null;
+            foreach ($dateList as $dateField) {
+                $iterim = $this->getValue($doc, $dateField);
+                if (null !== $iterim) {
+                    $result = $iterim->getZendDate()->get('YYYYMMdd');
+                    // if year has only default database value (0000) then override it
+                    if ((true === array_key_exists('year', $document))) {
+                        $document['year'] = $iterim->getYear();
+                    }
+                    break;
+                }
+            }
+        }
+
 	    $document['urn'] = $this->getValue($doc, 'IdentifierUrn', 'Value');
 	    $document['isbn'] = $this->getValue($doc, 'IdentifierIsbn', 'Value');
 
@@ -205,10 +228,40 @@ class Opus_Search_Index_Indexer {
             }
         }
 
-
-        // Missing fields
+        $subjectTypeList = array(
+            'SubjectSwd',
+            'SubjectPsyndex',
+            'SubjectUncontrolled'
+        );        
         $document['subject'] = '';
+        foreach ($subjectTypeList as $subjectType) {
+            $subjectValue = $this->getValue($doc, $subjectType, 'Value');
+            if (false === empty($subjectValue)) {
+                $document['subject'] .= ' ' . $subjectValue;
+            }
+        }
+        // Add Collections to Subjects and find institutes 
         $document['institute'] = '';
+        $collections = $doc->getCollections();
+        $collection_pathes = array();
+        foreach ($collections as $coll_index=>$collection) {
+            // Use collectionrole 1 for institutes
+            if ($coll_index === 1) {
+                $doc_index = 'institute';
+            }
+            else {
+            	$doc_index = 'subject';
+            }
+            $coll_data = $collection->toArray();
+            $document[$doc_index] .= ' ' . $coll_data['DisplayFrontdoor'];
+            $parent = $coll_data;
+            while (true === array_key_exists('ParentCollection', $parent)) {
+                // TODO: There can be more than one parent
+                $parent = $parent['ParentCollection'][0];
+                $document[$doc_index] .= ' ' . $parent['DisplayFrontdoor'];
+            }
+        }
+        
 
         // index files (each file will get one data set)
         if (true === array_key_exists('File', $docarray)) {
