@@ -44,7 +44,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    */
     public static function toText($filepath)
     {
-   		$conf = Zend_Registry::get('Zend_Config');
+   		$config = Zend_Registry::get('Zend_Config');
 
 		$pdftotextPath = $config->production->searchengine->pdftotext->path;
 		$maxIndexFileSize = $config->production->searchengine->index->maxFileSize;
