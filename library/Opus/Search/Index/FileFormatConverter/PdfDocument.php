@@ -58,7 +58,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
             throw new Exception('Cannot index document: Document "' . $filepath . '" not found!');
         }
 
-        exec("$pdftotextPath/pdftotext -enc UTF-8 ".$filepath." -", $return, $returnval);
+        exec("$pdftotextPath/pdftotext -enc UTF-8 \"".$filepath."\" -", $return, $returnval);
         
         $volltext = implode(' ', $return);
         
