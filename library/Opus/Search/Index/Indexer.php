@@ -364,19 +364,20 @@ class Opus_Search_Index_Indexer {
 			$mimeType = 'text/html';
 		}
 		try {
+			$fileToConvert = '"' . realpath($path_prefix . '/' . addslashes($file['PathName'])) . '"';
 		    switch ($mimeType)
 		    {
 			    case 'application/pdf':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($fileToConvert);
 				    break;
 			    case 'application/postscript':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
+				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($fileToConvert);
 				    break;
 			    case 'text/html':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
+    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($fileToConvert);
 	    			break;
 			    case 'text/plain':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($path_prefix . '/' . addslashes($file['PathName']));
+    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($fileToConvert);
 	    			break;
 		    	default:
 			    	throw new Exception('No converter for MIME-Type ' . $mimeType);
