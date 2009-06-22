@@ -608,6 +608,7 @@ class Opus_Collection_Information {
      */
     static public function getAllDocumentCollectionIDs($documents_id) {
         $roles_ids = self::getAllCollectionRoles();
+        $colls = array();
         // DB table gateway for the linking table between collections and documents
         foreach ($roles_ids as $roles_id=>$record) {
             $linkDocColl  = new Opus_Db_LinkDocumentsCollections($roles_id);
@@ -1246,6 +1247,45 @@ class Opus_Collection_Information {
         //$ocs->load();
         $visibility = self::$collectionStructure->fetchVisibility((int) $collections_id);
         return (1 === $visibility)?true:false;
+    }
+
+    /**
+     * Returns false if inserting given collection under given destination would result in a cycle
+     *
+     * @param integer $roles_id Identifies tree for collection.
+     * @param integer $collection_id ID identifying collection.
+     * @param integer $parent_id     ID identifying parent collection.
+     * @param integer $destination_id     ID identifying destination parent collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return array
+     */
+    public function allowedPastePosition($roles_id, $collection_id, $parent_id, $destination_id) {
+        // TODO: Validation
+
+        $rootPaths = self::getPathToRoot($roles_id, $collections_id);
+        foreach ($rootPaths as $path) {
+            foreach ($path as $node) {
+                if ($node['id'] === $destination_id) {
+                    return false;
+                }
+            }
+        }
+        return true;
+        /*
+        $this->leftOrder();
+        foreach ($this->collectionStructure as $index => $nested_set) {
+            $parent_set = $this->parent($index);
+            if (((int) $nested_set[$this->collectionsIdentifier] === (int) $collection_id)
+                AND ((int) $parent_set[$this->collectionsIdentifier] === (int) $parent_id)) {
+                $left_array[] = $nested_set['left'];
+            }
+        }
+        if (true === isset($left_array)) {
+            return $left_array;
+        } else {
+            return false;
+        }
+        */
     }
 
 }

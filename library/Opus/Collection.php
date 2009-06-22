@@ -456,6 +456,16 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns false if inserting given collection under this collection would result in a cycle.
+     *
+     * @return void
+     */
+    public function allowedPastePosition($collection_id, $parent_id) {
+        return Opus_Collection_Information::allowedPastePosition($this->__role_id, $collection_id, $parent_id, (int) $this->getId());
+    }
+
+
+    /**
      * Returns custom string representation depending on role settings.
      *
      * @return string
