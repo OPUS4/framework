@@ -55,7 +55,7 @@ class Opus_Search_Index_FileFormatConverter_PsDocument implements Opus_Search_In
    		}
         if (false === file_exists($filepath))
         {
-            throw new Exception('Cannot index document: Document not found!');
+            throw new Exception('Cannot index document: Document "' . $filepath . '" not found!');
         }
 
         exec("$ps2asciiPath/ps2ascii ".$filepath, $return, $returnval);

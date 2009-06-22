@@ -63,7 +63,7 @@ class Opus_Search_Index_FileFormatConverter_TextDocument implements Opus_Search_
         }
         else
         {
-            throw new Exception('Cannot index document: Document not found!');
+            throw new Exception('Cannot index document: Document "' . $filepath . '" not found!');
         }
         
         if ($maxIndexFileSize > 0) {

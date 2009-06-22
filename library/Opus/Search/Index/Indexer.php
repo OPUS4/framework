@@ -364,7 +364,7 @@ class Opus_Search_Index_Indexer {
 			$mimeType = 'text/html';
 		}
 		try {
-			$fileToConvert = '"' . realpath($path_prefix . '/' . addslashes($file['PathName'])) . '"';
+			$fileToConvert = realpath($path_prefix . '/' . addslashes($file['PathName']));
 		    switch ($mimeType)
 		    {
 			    case 'application/pdf':

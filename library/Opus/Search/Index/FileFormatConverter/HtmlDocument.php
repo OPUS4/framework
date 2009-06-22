@@ -49,7 +49,7 @@ class Opus_Search_Index_FileFormatConverter_HtmlDocument implements Opus_Search_
         
         if (false === file_exists($filepath))
         {
-            throw new Exception('Cannot index document: Document not found!');
+            throw new Exception('Cannot index document: Document "' . $filepath . '" not found!');
         }
         
         $fileContent = implode(' ', file($filepath));
