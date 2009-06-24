@@ -92,6 +92,7 @@ class Opus_Search_Index_Indexer {
             	    $indexDoc = new Opus_Search_Index_Document($analyzedDoc);
 			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
             	    $this->entryindex->addDocument($indexDoc);
+            	    $this->entryindex->commit();
 			 		unset($indexDoc);
 			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
 			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
