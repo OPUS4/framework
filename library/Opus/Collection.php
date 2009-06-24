@@ -72,6 +72,19 @@ class Opus_Collection extends Opus_Model_AbstractDb
     private $__updateBelow = null;
 
     /**
+     * Path to location of available themes.
+     *
+     * @var string
+     */
+    protected static $_themesPath = '';
+
+    /**
+     * Name of the default theme.
+     *
+     */
+    const DEFAULT_THEME_NAME = 'default';
+
+    /**
      * The collections external fields, i.e. those not mapped directly to the
      * Opus_Db_CollectionsContents table gateway.
      *
@@ -85,12 +98,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
         'ParentCollection' => array(
             'fetch' => 'lazy',
             'model' => 'Opus_Collection'),
-        'Visibility' => array(
-            'fetch' => 'lazy',
-            'model' => 'Opus_Collection'),
-        'SeveralAppearances' => array(
-            'fetch' => 'lazy',
-            'model' => 'Opus_Collection'),
+        'Visibility' => array(),
+        'SeveralAppearances' => array(),
+        'Theme' => array(),
     );
 
     /**
@@ -153,6 +163,18 @@ class Opus_Collection extends Opus_Model_AbstractDb
         // Add a field to hold SeveralAppearances
         $severalAppearances = new Opus_Model_Field('SeveralAppearances');
         $this->addField($severalAppearances);
+
+        // Add a field to hold collection specific theme
+        $theme = new Opus_Model_Field('Theme');
+        $themes = array();
+        foreach (glob(self::$_themesPath . '/*') as $entry) {
+            if (true === is_dir($entry)) {
+                $themes[basename($entry)] = basename($entry);
+            }
+        }
+        $theme->setDefault($themes);
+        $theme->setSelection(true);
+        $this->addField($theme);
     }
 
     /**
@@ -213,6 +235,55 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     protected function _storeSeveralAppearances() {
 
+    }
+
+    /**
+     * Set location of available themes.
+     *
+     * @param  string $path
+     */
+    public static function setThemesPath($path) {
+        if (is_dir($path) === false) {
+            throw new InvalidArgumentException("Argument should be a valid path.");
+        }
+        self::$_themesPath = $path;
+    }
+
+    /**
+     * Fetch the name of the theme that is associated with this collection.
+     *
+     * @return string The name of the theme.
+     */
+    protected function _fetchTheme() {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
+        $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
+        if (true === is_null($row)) {
+            return self::DEFAULT_THEME_NAME;
+        } else {
+            return $row->theme;
+        }
+    }
+
+    /**
+     * Store the name of the theme that is associated with this collection.
+     *
+     * @param string The name of the theme.
+     */
+    protected function _storeTheme($theme) {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
+        $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
+        if (true === is_null($row)) {
+            $row = $table->createRow();
+        }
+        if (self::DEFAULT_THEME_NAME === $theme) {
+            // No need to store default theme setting.
+            $row->delete();
+        } else {
+            $row->role_id = $this->__role_id;
+            $row->collection_id = $this->getId();
+            $row->theme = $theme;
+            $row->save();
+        }
     }
 
     /**

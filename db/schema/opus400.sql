@@ -689,6 +689,17 @@ CREATE  TABLE IF NOT EXISTS `languages` (
 )
 ENGINE=InnoDB;
 
+-- -----------------------------------------------------
+-- Table `collections_themes`
+-- -----------------------------------------------------
+CREATE  TABLE `collections_themes` (
+  `role_id` INT UNSIGNED NOT NULL,
+  `collection_id` INT UNSIGNED NOT NULL,
+  `theme` TEXT NOT NULL,
+  PRIMARY KEY (`role_id`, `collection_id`)
+)
+ENGINE=InnoDB;
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

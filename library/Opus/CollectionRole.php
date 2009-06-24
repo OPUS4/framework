@@ -355,4 +355,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $dbadapter->query("DROP TABLE $collectionsContentsTable");
         parent::delete();
     }
+
+    /**
+     * TODO: Implement theme handling for collection roles.
+     *
+     * @return string
+     */
+    public function getTheme() {
+        return 'default';
+    }
 }
