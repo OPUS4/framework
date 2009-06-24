@@ -80,6 +80,10 @@ class Opus_Search_Index_Indexer {
     	$returnarray = array();
 
     	try {
+    	    // remove existing entries
+    	    if (count($this->entryindex->find('docid:' . $doc->getId() . ' ')) > 0) {
+    	        $this->removeDocumentFromEntryIndex($doc);
+    	    }
     	    $analyzedDocs = $this->analyzeDocument($doc);
             unset($doc);
     	    foreach ($analyzedDocs as $analyzedDoc) {
