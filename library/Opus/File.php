@@ -237,4 +237,90 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setTempFile($info['tmp_name']);
     }
 
+    /**
+     * Get the hash value of the file
+     *
+     * @param string $type Type of the hash value
+     * @return string hash value
+     */
+    public function getRealHash($type) {
+        $path = $this->__path . $this->getDocumentId();
+        $completePath = $path . '/' . $this->getPathName();
+        return hash_file($type, $completePath);
+    }
+
+    /**
+     * Perform a verification on a checksum
+     *
+     * @return boolean true if the checksum is valid, false if not
+     */
+    public function verify($type, $value = null) {
+        if ($value === null) {
+            $hashes = $this->getHashValue();
+            foreach ($hashes as $hash) {
+                if ($type === $hash->getType()) {
+                    $value = $hash->getValue();
+                }
+            }
+        }
+        if ($this->getRealHash($type) === $value) return true;
+        return false;
+    }
+
+    /**
+     * Perform a verification on all checksums
+     *
+     * @return array boolean values of all checksums: true (valid) or false (invalid)
+     */
+    public function verifyAll() {
+        $hashes = $this->getHashValue();
+        $return = array();
+        foreach ($hashes as $hash) {
+            $type = $hash->getType();
+            $value = $hash->getValue();
+            $return[$type] = $this->verify($type, $value);
+        }
+        return $return;
+    }
+
+    /**
+     * Gets the verification file size limit from configuration
+     *
+     * @return int limit to that files should get verified
+     */
+    private function getMaxVerifyFilesize() {
+    	$config = Zend_Registry::get('Zend_Config');
+
+		$maxVerifyFilesize = $config->checksum->maxVerificationSize;
+		$maxVerifyFilesize = str_replace(' ', '', strtolower($maxVerifyFilesize));
+    	$returnVerifyFilesize = $maxVerifyFilesize;
+    	if (stristr($maxVerifyFilesize, 'k') !== false) {
+    		$maxVerifyFilesize = str_replace('k', '', strtolower($maxVerifyFilesize));
+    		$returnVerifyFilesize = $maxVerifyFilesize*1024;
+    	}
+    	if (stristr($maxVerifyFilesize, 'm') !== false) {
+    		$maxVerifyFilesize = str_replace('m', '', strtolower($maxVerifyFilesize));
+    		$returnVerifyFilesize = $maxVerifyFilesize*1024*1024;
+    	}
+    	if (stristr($maxVerifyFilesize, 'g') !== false) {
+    		$maxVerifyFilesize = str_replace('g', '', strtolower($maxVerifyFilesize));
+    		$returnVerifyFilesize = $maxVerifyFilesize*1024*1024*1024;
+    	}
+
+        return $returnVerifyFilesize;
+    }
+
+    /**
+     * Check if this file should perform live checksum verification
+     *
+     * @return boolean True if verification can get performed
+     */
+    public function canVerify() {
+    	$path = $this->__path . $this->getDocumentId();
+        $completePath = $path . '/' . $this->getPathName();
+    	if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
+    		return true;
+    	}
+        return false;
+    }
 }
