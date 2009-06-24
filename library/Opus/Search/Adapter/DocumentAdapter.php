@@ -112,14 +112,18 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 		}
 
 		// transfer the year of publication of this document into the adapter class
+		$noyear = false;
 		try {
 			$this->documentData['year'] = $document->getCreatedYear();
 		} catch (Exception $e) {
+			$noyear = true;
 			$this->documentData['year'] = 'No publishing year specified';
 		}
 
 		try {
-			$this->documentData['pubDate'] = $document->getServerDatePublished();
+            $docArray = $document->toArray();
+            $this->documentData['pubDate'] = $docArray['ServerDatePublished']['day'] . '.' . $docArray['ServerDatePublished']['month'] . '.' . $docArray['ServerDatePublished']['year'];
+            if ($noyear === true && $docArray['ServerDatePublished']['year'] > 0) $this->documentData['year'] = $docArray['ServerDatePublished']['year'];
 		} catch (Exception $e) {
 			$this->documentData['pubDate'] = 'No publication date specified';
 		}
