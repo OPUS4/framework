@@ -180,12 +180,12 @@ class Opus_Search_Index_Indexer {
         $document['author'] = $this->getValue($doc, 'PersonAuthor', 'Name');
 
         $document['persons'] = '';
-        $document['persons'] .= $this->getValue($doc, 'PersonAdvisor', 'Name');
-        $document['persons'] .= $this->getValue($doc, 'PersonContributor', 'Name');
-        $document['persons'] .= $this->getValue($doc, 'PersonEditor', 'Name');
-        $document['persons'] .= $this->getValue($doc, 'PersonOther', 'Name');
-        $document['persons'] .= $this->getValue($doc, 'PersonReferee', 'Name');
-        $document['persons'] .= $this->getValue($doc, 'PersonTranslator', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonAdvisor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonContributor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonEditor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonOther', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonReferee', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonTranslator', 'Name');
 
         // Look at all titles of the document
         $titles = '';
