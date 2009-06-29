@@ -341,7 +341,7 @@ class Opus_Search_Index_Indexer {
        		foreach ($values as $value) {
        		    if ($attName !== '') {
        			    $attCaller = 'get' . $attName;
-                    $returnValue = $value->$attCaller(); 
+                    $returnValue .= $value->$attCaller() . ' '; 
        		    }
        		    else {
            		    $returnValue .= $value . ' ';
