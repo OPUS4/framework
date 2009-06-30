@@ -62,6 +62,28 @@ class Opus_Document_Type {
     );
 
     /**
+     * Holds the blacklists for frontdoor, publish form and admin form.
+     *
+     * @var array
+     */
+    protected $_blacklist = array(
+        'frontdoor' => array(),
+        'publishform' => array(),
+        'adminform' => array(),
+    );
+
+    /**
+     * Holds the sortorder for frontdoor, publish form and admin form.
+     *
+     * @var array
+     */
+    protected $_sortorder = array(
+        'frontdoor' => array(),
+        'publishform' => array(),
+        'adminform' => array(),
+    );
+
+    /**
      * Name of the document type.
      *
      * @var string
@@ -230,6 +252,9 @@ class Opus_Document_Type {
             $fieldname = $field->attributes->getNamedItem('name')->value;
             $mandatory =  $field->attributes->getNamedItem('mandatory');
             $multiplicity = $field->attributes->getNamedItem('multiplicity');
+            $frontdoorweight = $field->attributes->getNamedItem('frontdoorweight');
+            $publishformweight = $field->attributes->getNamedItem('publishformweight');
+            $adminformweight = $field->attributes->getNamedItem('adminformweight');
 
             // Add the field.
             $fieldsdef[$fieldname] = array();
@@ -251,6 +276,30 @@ class Opus_Document_Type {
                 $fieldsdef[$fieldname]['mandatory'] = $mandval;
             } else {
                 $fieldsdef[$fieldname]['mandatory'] = false;
+            }
+
+            if (is_null($frontdoorweight) === false) {
+                if ($frontdoorweight->value > 0) {
+                    $this->_sortorder['frontdoor'][$frontdoorweight->value] = $fieldname;
+                } else {
+                    $this->_blacklist['frontdoor'][] = $fieldname;
+                }
+            }
+
+            if (is_null($publishformweight) === false) {
+                if ($publishformweight->value > 0) {
+                    $this->_sortorder['publishform'][$publishformweight->value] = $fieldname;
+                } else {
+                    $this->_blacklist['publishform'][] = $fieldname;
+                }
+            }
+
+            if (is_null($adminformweight) === false) {
+                if ($adminformweight->value > 0) {
+                    $this->_sortorder['adminform'][$adminformweight->value] = $fieldname;
+                } else {
+                    $this->_blacklist['adminform'][] = $fieldname;
+                }
             }
         }
     }
@@ -275,5 +324,58 @@ class Opus_Document_Type {
         return $this->_definition['fields'];
     }
 
+    /**
+     * Return the names of all fields that should not be displayed in the frontdoor.
+     *
+     * @return array Array of field names.
+     */
+    public function getFrontdoorBlackList() {
+        return $this->_blacklist['frontdoor'];
+    }
+
+    /**
+     * Returns a sorted array of field names as they should be displayed in the frontdoor.
+     *
+     * @return array Sorted array of field names.
+     */
+    public function getFrontdoorSortOrder() {
+        return $this->_sortorder['frontdoor'];
+    }
+
+    /**
+     * Return the names of all fields that should not be displayed in the publish form.
+     *
+     * @return array Array of field names.
+     */
+    public function getPublishFormBlackList() {
+        return $this->_blacklist['publishform'];
+    }
+
+    /**
+     * Returns a sorted array of field names as they should be displayed in the publish form.
+     *
+     * @return array Sorted array of field names.
+     */
+    public function getPublishFormSortOrder() {
+        return $this->_sortorder['publishform'];
+    }
+
+    /**
+     * Return the names of all fields that should not be displayed in the admin form.
+     *
+     * @return array Array of field names.
+     */
+    public function getAdminFormBlackList() {
+        return $this->_blacklist['adminform'];
+    }
+
+    /**
+     * Returns a sorted array of field names as they should be displayed in the admin form.
+     *
+     * @return array Sorted array of field names.
+     */
+    public function getAdminFormSortOrder() {
+        return $this->_sortorder['adminform'];
+    }
 
 }
