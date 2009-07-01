@@ -297,7 +297,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
-        if (true === in_array($name, $this->_internalFields)) {
+        if (true === in_array($name, $this->_internalFields, true)) {
             throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
         }
         return $this->_getField($name);
