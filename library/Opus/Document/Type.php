@@ -280,7 +280,7 @@ class Opus_Document_Type {
 
             if (is_null($frontdoorweight) === false) {
                 if ($frontdoorweight->value > 0) {
-                    $this->_sortorder['frontdoor'][$frontdoorweight->value] = $fieldname;
+                    $this->_sortorder['frontdoor'][$fieldname] = $frontdoorweight->value;
                 } else {
                     $this->_blacklist['frontdoor'][] = $fieldname;
                 }
@@ -288,7 +288,7 @@ class Opus_Document_Type {
 
             if (is_null($publishformweight) === false) {
                 if ($publishformweight->value > 0) {
-                    $this->_sortorder['publishform'][$publishformweight->value] = $fieldname;
+                    $this->_sortorder['publishform'][$fieldname] = $publishformweight->value;
                 } else {
                     $this->_blacklist['publishform'][] = $fieldname;
                 }
@@ -296,12 +296,15 @@ class Opus_Document_Type {
 
             if (is_null($adminformweight) === false) {
                 if ($adminformweight->value > 0) {
-                    $this->_sortorder['adminform'][$adminformweight->value] = $fieldname;
+                    $this->_sortorder['adminform'][$fieldname] = $adminformweight->value;
                 } else {
                     $this->_blacklist['adminform'][] = $fieldname;
                 }
             }
         }
+        asort($this->_sortorder['frontdoor']);
+        asort($this->_sortorder['publishform']);
+        asort($this->_sortorder['adminform']);
     }
 
 
@@ -339,7 +342,7 @@ class Opus_Document_Type {
      * @return array Sorted array of field names.
      */
     public function getFrontdoorSortOrder() {
-        return $this->_sortorder['frontdoor'];
+        return array_keys($this->_sortorder['frontdoor']);
     }
 
     /**
@@ -357,7 +360,7 @@ class Opus_Document_Type {
      * @return array Sorted array of field names.
      */
     public function getPublishFormSortOrder() {
-        return $this->_sortorder['publishform'];
+        return array_keys($this->_sortorder['publishform']);
     }
 
     /**
@@ -375,7 +378,7 @@ class Opus_Document_Type {
      * @return array Sorted array of field names.
      */
     public function getAdminFormSortOrder() {
-        return $this->_sortorder['adminform'];
+        return array_keys($this->_sortorder['adminform']);
     }
 
 }
