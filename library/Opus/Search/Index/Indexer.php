@@ -130,7 +130,7 @@ class Opus_Search_Index_Indexer {
             throw $e;
         }
         $this->entryindex->commit();
-        $this->entryindex->optimize();
+        #$this->entryindex->optimize();
     }
 
 	/**

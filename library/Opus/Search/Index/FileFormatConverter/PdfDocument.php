@@ -47,7 +47,16 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
    		$config = Zend_Registry::get('Zend_Config');
 
 		$pdftotextPath = $config->searchengine->pdftotext->path;
+		$ocrEnabled = $config->searchengine->ocr->enable;
 		$maxIndexFileSize = $config->searchengine->index->maxFileSize;
+
+		if ($ocrEnabled === '1')
+		{
+			$pdfimages = $config->searchengine->ocr->pdfimages->path . '/pdfimages';
+			if (file_exists($pdfimages) === false) echo "Warning: pdfimages not found!\n";
+			$ocropus = $config->searchengine->ocr->ocropus->path . '/ocropus';
+			if (file_exists($ocropus) === false) echo "Warning: ocropus not found!\n";
+		}
 
    		if (false === file_exists($pdftotextPath . '/pdftotext'))
    		{
@@ -59,8 +68,32 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
         }
 
         exec("$pdftotextPath/pdftotext -enc UTF-8 \"".$filepath."\" -", $return, $returnval);
-        
+                
         $volltext = implode(' ', $return);
+        
+        // if fulltext does not include anything but Spaces, try to ocr it (if its enabled)
+        if ($ocrEnabled === '1' &&
+            strlen(str_replace(' ', '', $volltext)) === 0 &&  
+            file_exists($ocropus) === true && 
+            file_exists($pdfimages) === true) 
+        {
+        	echo "Fulltext not extractable, trying to OCR $filepath...\n";
+        	$ocrdir = '../workspace/tmp/ocr' . basename($filepath);
+            if (file_exists($ocrdir) === false) {
+                mkdir($ocrdir);
+            }
+            // extract images from PDF
+            exec("$pdfimages \"$filepath\" $ocrdir/file");
+            $ocrdirHandle = opendir($ocrdir);
+            while (false !== ($file = readdir($ocrdirHandle))) {
+            	if ($file !== '.' && $file !== '..') {
+            	    exec("$ocropus page \"$ocrdir/$file\"", $fulltext, $returnvalue);
+            	    $volltext .= ' ' . $fulltext;
+            	    unlink($ocrdir . '/' . $file);
+            	}
+            }
+            rmdir($ocrdir);
+        }
         
         if ($maxIndexFileSize > 0) {
             $volltext = mb_substr($volltext, 0, $maxIndexFileSize);
