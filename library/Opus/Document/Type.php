@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Document
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -58,7 +59,8 @@ class Opus_Document_Type {
      * @var array
      */
     protected $_definition = array(
-        'fields' => array()
+        'fields' => array(),
+        'pages' => array(),
     );
 
     /**
@@ -305,6 +307,16 @@ class Opus_Document_Type {
         asort($this->_sortorder['frontdoor']);
         asort($this->_sortorder['publishform']);
         asort($this->_sortorder['adminform']);
+
+        // Parse pages.
+        $pages = $dom->getElementsByTagName('page');
+        foreach ($pages as $page) {
+            $fields = array();
+            foreach ($page->getElementsByTagName('field') as $field) {
+               $fields[] = $field->attributes->getNamedItem('name')->value;
+            }
+            $this->_definition['pages'][] = $fields;
+        }
     }
 
 
@@ -325,6 +337,15 @@ class Opus_Document_Type {
      */
     public function getFields() {
         return $this->_definition['fields'];
+    }
+
+    /**
+     * Return page definitions.
+     *
+     * @return array Nested array of pages with corresponding field names.
+     */
+    public function getPages() {
+        return $this->_definition['pages'];
     }
 
     /**

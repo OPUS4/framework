@@ -57,6 +57,7 @@
 			<choice maxOccurs="unbounded">
 				<element name="field" type="opus:FieldType" />
 				<element name="mandatory" type="opus:Mandatory" />
+				<element name="page" type="opus:Page" />
 			</choice>
 		</sequence>
 		<attribute name="name" type="opus:validname" use="required" />
@@ -81,6 +82,12 @@
 				</restriction>
 			</simpleType>
 		</attribute>
+	</complexType>
+
+	<complexType name="Page">
+		<sequence>
+			<element name="field" type="opus:FieldType" maxOccurs="unbounded" />
+		</sequence>
 	</complexType>
 
 	<complexType name="FieldType">
