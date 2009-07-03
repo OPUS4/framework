@@ -85,8 +85,11 @@
 	</complexType>
 
 	<complexType name="Page">
-		<sequence>
-			<element name="field" type="opus:FieldType" maxOccurs="unbounded" />
+		<sequence maxOccurs="unbounded">
+			<choice maxOccurs="unbounded">
+				<element name="field" type="opus:FieldType" />
+				<element name="mandatory" type="opus:Mandatory" />
+			</choice>
 		</sequence>
 	</complexType>
 
