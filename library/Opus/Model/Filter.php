@@ -95,6 +95,17 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
     }
 
     /**
+     * Set list of fields to allow access to.
+     *
+     * @param array $list Array of fields that shall be allowed to be accessed.
+     * @return Opus_Model_Filter Fluent interface.
+     */
+    public function setWhitelist(array $list) {
+        $this->blacklist = array_diff($this->model->describe(), $list);
+        return $this;
+    }
+
+    /**
      * Define field sort order for result of describe().
      *
      * @param array $sort Array of field names specifying the order.
@@ -184,6 +195,30 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         return $result;
     }
 
+    /**
+     * Returns a Dom representation of the filtered model.
+     *
+     * @param array $excludeFields Array of fields that shall not be serialized.
+     * @return DomDocument A Dom representation of the model.
+     */
+    public function toXml(array $excludeFields = null) {
+        if (is_null($excludeFields) === true) {
+            $excludeFields = array();
+        }
+        $xml = new Opus_Model_Xml();
+        $xml->setModel($this)
+        ->exclude($excludeFields)
+        ->excludeEmptyFields();
+        return $xml->getDomDocument();
+    }
 
+    /**
+     * Returns the filtered model.
+     *
+     * @return Opus_Model_Abstract The filtered model.
+     */
+    public function getModel() {
+        return $this->model;
+    }
 
 }
