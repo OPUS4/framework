@@ -238,7 +238,7 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
     ON UPDATE CASCADE,
   CONSTRAINT `fk_link_persons_publications_institutes_contents`
     FOREIGN KEY (`institute_id` )
-    REFERENCES `institutes_contents` (`id` )
+    REFERENCES `collections_contents_1` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_persons_documents_documents`
