@@ -61,6 +61,16 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      */
     protected static $_tableGatewayClass = 'Opus_Db_LinkPersonsDocuments';
 
+    /**
+     * Fields that should not be displayed on a form.
+     *
+     * @var array  Defaults to array('File').
+     */
+    protected $_internalFields = array(
+            'Role',
+            'SortOrder',
+        );
+
 
 //    /**
 //     * The models external fields, i.e. those not mapped directly to the
@@ -93,6 +103,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $role = new Opus_Model_Field('Role');
         $sortOrder = new Opus_Model_Field('SortOrder');
         $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
+        $allowEmailContact->setCheckbox(true);
 
         $this->addField($role)
             ->addField($sortOrder)
