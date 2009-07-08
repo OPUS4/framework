@@ -91,6 +91,7 @@
 				<element name="mandatory" type="opus:Mandatory" />
 			</choice>
 		</sequence>
+		<attribute name="caption" type="string" />
 	</complexType>
 
 	<complexType name="FieldType">

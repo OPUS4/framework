@@ -311,11 +311,12 @@ class Opus_Document_Type {
         // Parse pages.
         $pages = $dom->getElementsByTagName('page');
         foreach ($pages as $page) {
+            $caption = $page->getAttribute('caption');
             $fields = array();
             foreach ($page->getElementsByTagName('field') as $field) {
                $fields[] = $field->attributes->getNamedItem('name')->value;
             }
-            $this->_definition['pages'][] = $fields;
+            $this->_definition['pages'][] = array('caption' => $caption, 'fields' => $fields);
         }
     }
 
