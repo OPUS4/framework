@@ -544,5 +544,35 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
         // assert modified field
         $this->assertTrue($field->isModified(), 'Field is not marked as modified.');
     }
+    
+    /**
+     * Test if an excpetion occurs if value of unexpected type is set.
+     *
+     * @return void
+     */
+    public function testValueOfUnexpectedTypeThrowsException() {
+        $field = new Opus_Model_Field('myfield');
+        $field->setValueModelClass('Zend_Date');
+        $this->setExpectedException('Opus_Model_Exception');
+        $field->setValue('Foo');
+    }
+    
+    /**
+     * Test if a value gets casted to the fields valueModelClass if possible.
+     *
+     * @return void
+     */
+    public function testSetterValueGetsCasted() {
+        $field = new Opus_Model_Field('myfield');
+        $field->setValueModelClass('Zend_Date');
+        try {
+            $field->setValue('10.11.1979');
+        } catch (Opus_Model_Exception $ome) {
+            $this->fail('No type check excpetion expected: ' . $ome->getMessage());
+        }
+        $result = $field->getValue();        
+
+        $this->assertTrue($result instanceof Zend_Date, 'Value has not been casted to valueModelClass object.');
+    }
 
 }

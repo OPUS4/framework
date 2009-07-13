@@ -282,6 +282,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
 
+        // if null is given, delete dependent objects
+        if (null === $value) {
+            $this->_deleteDependentModels();
+        }
+
         $multiValueCondition = $this->hasMultipleValues();
         $arrayCondition = is_array($value);
 
@@ -289,45 +294,39 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         if (($multiValueCondition === false) and ($arrayCondition === true)) {
             throw new InvalidArgumentException('Multivalue option and input argument do not match.');
         }
-
-        // Embed passed value in an array if multivalue condition is given
-        // but value is not an array and value is not null.
-        if (($multiValueCondition === true) and ($arrayCondition === false) and is_null($value) === false) {
-            $value = array($value);
+        
+        // arrayfy value
+        $values = $value;
+        if (false === $arrayCondition) {
+            $values = array($value);
         }
 
-        // if the value is null and a Opus_Model_Dependent_Abstract object
-        // is the current value, issue an delete() call to that object
-        if (null === $value) {
-            if (is_array($this->_value)) {
-                foreach ($this->_value as $submodel) {
-                    if ($submodel instanceof Opus_Model_Dependent_Abstract) $submodel->delete();
-                }
-            } else {
-                if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
-            }
-        } 
-
-
-        // try to cast string values if valueModelClass is Opus_Date
-        if (('Opus_Date' === $this->_valueModelClass) 
-        and (true === is_string($value))) {
-            $od = new Opus_Date;
-            $od->setFromString($value);
-            $value = $od;
-        }    
+        // try to cast non-object values to model instance if valueModelClass is set
+        $values = $this->_tryCastValuesToModel($values);
 
         // Check type of the values if _valueModelClass is set
         // and reject any input that is not of this type
-        if (null !== $this->_valueModelClass) {
-            // "arrayfy" value
-            $valarray = $value;
-            if (false === is_array($value)) {
-                $valarray = array($value);
-            }
+        $this->_typeCheckValues($values);
+        
+        // remove wrapper array if multivalue condition is not given
+        if (false === $multiValueCondition) {
+            $value = $values[0];
+        }
 
+        $this->_value = $value;
+        $this->_modified = true;
+        return $this;
+    }
+
+    /**
+     * Check if the values have the correct type.
+     *
+     * @return void
+     */
+    private function _typeCheckValues(array $values) {
+        if (null !== $this->_valueModelClass) {
             // typecheck each array element
-            foreach ($valarray as $v) {
+            foreach ($values as $v) {
                 // skip null values
                 if (null === $v) {
                     continue;
@@ -354,11 +353,48 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 }
             }
         }
-
-        $this->_value = $value;
-        $this->_modified = true;
-        return $this;
     }
+
+    /**
+     * Issue delete calls to all dependent models stored in this field.
+     *
+     * @return void
+     */
+    private function _deleteDependentModels() {
+        if (is_array($this->_value)) {
+            foreach ($this->_value as $submodel) {
+                if ($submodel instanceof Opus_Model_Dependent_Abstract) $submodel->delete();
+            }
+        } else {
+            if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
+        }
+    }
+
+    /**
+     * If a value model class is set for this field,
+     * try to cast the given value to this model class.
+     *
+     * If casting is not possible, it returns the value.
+     *
+     * @param array $values Set of values.
+     * @return array Set of new models of type _valueModelClass or the given values.
+     */
+    private function _tryCastValuesToModel(array $values) {
+        if (null !== $this->_valueModelClass) {
+            foreach ($values as $i => $value) {
+                if ((false === is_object($value)) and (null !== $value)) {
+                    try {
+                        $valueObj = new $this->_valueModelClass($value);
+                        $values[$i] = $valueObj;
+                    } catch (Exception $ex) {
+                        $values[$i] = $value;
+                    }
+                }
+            }
+        }
+        return $values;
+    }
+
 
 
     /**
