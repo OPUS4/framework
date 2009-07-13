@@ -70,6 +70,15 @@ abstract class Opus_Model_Dependent_Abstract
     }
     
     /**
+     * Return the identifier of this models parent model.
+     *
+     * @return mixed Identifier of the parent model or Null if not set.
+     */
+    public function getParentId() {
+        return $this->_parentId;
+    }
+    
+    /**
      * Set the name of the column holding the parent id
      * of the linked model.
      *
