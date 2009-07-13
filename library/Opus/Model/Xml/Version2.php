@@ -26,7 +26,6 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Ralf ClauÃnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,9 +33,9 @@
  */
 
 /**
- * First implementation of Opus XML representation.
+ * Second implementation of Opus XML representation.
  */
-class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
+class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
     /**
      * Holds current configuration.
@@ -50,7 +49,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
      *
      * @var string
      */
-    private $_version = '1.0';
+    private $_version = '2.0';
 
     /**
      * Use the given element to create a model instance. If a constructor attribute map is set
@@ -82,9 +81,19 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         // Handle constructor attributes
         if (true === array_key_exists($classname, $this->_config->_constructionAttributesMap)) {
             $init = array();
-            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorAttribute) {
-                if (null !== $constructorAttribute) {
-                    $init[] = $element->getAttribute($constructorAttribute);
+            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorElement) {
+                if (null !== $constructorElement) {
+                    // get child node that has nodeName equal to constructor element
+                    $childElements = $element->childNodes;
+                    foreach ($childElements as $childElement) {
+                        if (XML_ELEMENT_NODE === $childElement->nodeType) {
+                            if ($constructorElement === $childElement->nodeName) {
+                                $init[] = $childElement->nodeValue;
+                                // remove constructor element from element list
+                                $element->removeChild($childElement);
+                            }
+                        }
+                    }
                 } else {
                     $init[] = null;
                 }
@@ -98,7 +107,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         return $model;
     }
 
-    /**
+        /**
      * If there is a mapping for a model available a xlink:href string is created.
      *
      * @param Opus_Model_Abstract $model Model to link.
@@ -185,7 +194,8 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         if (null === $modelClass) {
-            $attr = $dom->createAttribute($fieldName);
+            // create a new element
+            $element = $dom->createElement($fieldName);
             // workaround for simple fields with multiple values
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
@@ -193,8 +203,10 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             if ($fieldValues instanceOf Zend_Date) {
                 $fieldValues = $fieldValues->getIso();
             }
-            $attr->value = $fieldValues;
-            $rootNode->appendChild($attr);
+            // set value
+            //if (empty($fieldValues) === false)
+                $element->nodeValue = $fieldValues;
+            $rootNode->appendChild($element);
         } else {
             if (false === is_array($fieldValues)) {
                 $fieldValues = array($fieldValues);
@@ -253,109 +265,31 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
     protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
         $fieldList = $model->describe();
 
-        // Internal fields exist as attributes
-        foreach ($element->attributes as $field) {
-            // FIXME: Implement adding values to multi-value internal fields.
+        // fields exist as child elements
+        foreach ($element->childNodes as $fieldNode) {
 
-            // ignore unknown attributes
-            if (true === in_array($field->nodeName, $fieldList)) {
-
-                $callname = 'set' . $field->name;
-                if ($field->value === '') {
-                    $model->$callname(null);
-                } else {
-                    $model->$callname($field->value);
-                }
+            // skip non-element nodes
+            if (XML_ELEMENT_NODE !== $fieldNode->nodeType) {
+                continue;
             }
-        }
 
-        // External fields exist as child elements
-        foreach ($element->childNodes as $externalField) {
-            $fieldName = $externalField->nodeName;
+            $fieldName = $fieldNode->nodeName;
+            $fieldValue = $fieldNode->nodeValue;
             if (in_array($fieldName, $fieldList) === false) {
                 throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
             } else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
-            }
-
-            $submodel = $this->_createModelFromElement($externalField, $modelclass);
-            $submodel = $this->_populateModelFromXml($submodel, $externalField);
-            $callname = 'add' . $externalField->nodeName;
-            $model->$callname($submodel);
-        }
-        return $model;
-    }
-
-    /**
-     * Update a model from a given xml structure.
-     *
-     * @param Opus_Model_Abstract $model   Model for updating.
-     * @param DOMElement          $element Element with new data.
-     * @return Opus_Model_Abstract
-     */
-    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
-        // When xlink:href given use resolver to obtain model
-        $ref = $element->attributes->getNamedItem('href');
-        if ((null !== $this->_config->_xlinkResolver) and (null !== $ref)) {
-            $model = $this->_config->_xlinkResolver->get($ref->value);
-        }
-
-        $fieldList = $model->describe();
-
-        // Internal fields exist as attributes
-        foreach ($element->attributes as $field) {
-            // ignore unknown attributes
-            if (true === in_array($field->nodeName, $fieldList)) {
-
-                $callname = 'set' . $field->name;
-                if ($field->value === '') {
-                    $model->$callname(null);
+                if (null !== $modelclass) {
+                    $submodel = $this->_createModelFromElement($fieldNode, $modelclass);
+                    $callname = 'add' . $fieldName;
+                    $submodel = $model->$callname($submodel);
+                    $this->_populateModelFromXml($submodel, $fieldNode);
                 } else {
-                    $model->$callname($field->value);
+                    $callname = 'add' . $fieldName;
+                    $model->$callname($fieldValue);
                 }
             }
         }
-
-        $externalFields = array();
-        // collect all external field names
-        foreach ($element->childNodes as $externalField) {
-            $fieldName = $externalField->nodeName;
-            // step unkown fields
-            if (true === in_array($fieldName, $fieldList)) {
-                $externalFields[] = $fieldName;
-            }
-        }
-        // make names unique
-        $externalFields = array_unique($externalFields);
-
-        //
-        foreach ($externalFields as $fieldName) {
-            $field = $model->getField($fieldName);
-            $fieldValue = $field->getValue();
-
-            $subModels = array();
-
-            $domElements = $element->getElementsByTagName($fieldName);
-
-            $i = 0;
-            foreach ($domElements as $domElement) {
-                if (false === is_array($fieldValue)) {
-                    $submodel = $fieldValue;
-                } else {
-                    $submodel = $fieldValue[$i];
-                }
-                $subModels[] = $this->_updateModelFromXml($submodel, $domElement);
-                $i++;
-            }
-
-            $callName = 'set' . $fieldName;
-            if (1 === count($subModels)) {
-                $model->$callName($subModels[0]);
-            } else {
-                $model->$callName($subModels);
-            }
-        }
-
         return $model;
     }
 
@@ -377,13 +311,13 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
 
         $this->_config->_dom = new DomDocument('1.0', 'UTF-8');
         $root = $this->_config->_dom->createElement('Opus');
+        $root->setAttribute('version', $this->_version);
         $this->_config->_dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
         $this->_mapModel($this->_config->_model, $this->_config->_dom, $root);
 
         return $this->_config->_dom;
-
     }
 
     /**
@@ -404,12 +338,19 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
     }
 
     /**
-     * Return version value of current xml representation.
-     *
+     * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getVersion()
      */
     public function getVersion() {
         return floor($this->_version);
+    }
+
+    /**
+     * (non-PHPdoc)
+     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
+     */
+    public function setDomDocument(DomDocument $dom) {
+        $this->_config->_dom = $dom;
     }
 
     /**
@@ -445,22 +386,9 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
 
     /**
      * (non-PHPdoc)
-     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
-     */
-    public function setDomDocument(DOMDocument $dom) {
-        $this->_config->_dom = $dom;
-    }
-
-    /**
-     * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
     public function updateFromXml($xml) {
-        $this->setXml($xml);
-        $model_element = $this->_config->_dom->getElementsByTagName(get_class($this->_config->_model))->item(0);
-        if (null !== $model_element) {
-            $this->_updateModelFromXml($this->_config->_model, $model_element);
-        }
+        //
     }
-
 }

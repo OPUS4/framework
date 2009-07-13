@@ -218,5 +218,13 @@ class Opus_Model_Xml {
         $this->_strategy->updateFromXml($xml);
     }
 
+    /**
+     * Returns used strategy main version aka XML Opus version.
+     *
+     * @return integer
+     */
+    public function getStrategyVersion() {
+        return $this->_strategy->getVersion();
+    }
 }
 

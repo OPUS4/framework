@@ -58,7 +58,7 @@ interface Opus_Model_Xml_Strategy {
     /**
      * Returns version of current xml representation.
      *
-     * @return int
+     * @return integer
      */
     public function getVersion();
 
