@@ -216,8 +216,15 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
                 $childNode = $dom->createElement($fieldName);
                 $rootNode->appendChild($childNode);
 
+                // if a field has no value then is nothing more to do
+                // TODO maybe must be there an other solution
+                if (null === $value) {
+                    continue;
+                }
+
                 // delivers a URI if a mapping for the given model exists
                 $uri = $this->_createXlinkRef($value);
+
                 if (null !== $uri) {
                     $childNode->setAttribute('xlink:type', 'simple');
                     $childNode->setAttribute('xlink:href', $uri);
@@ -275,8 +282,9 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
             $fieldName = $fieldNode->nodeName;
             $fieldValue = $fieldNode->nodeValue;
+
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined. Model class: ' 
+                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined. Model class: '
                     . get_class($model));
             } else {
                 $fieldObj = $model->getField($fieldName);
@@ -287,15 +295,27 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
                 } else {
                     $accessor = 'set';
                 }
-                // set value
-                if (null !== $modelclass) {
-                    $submodel = $this->_createModelFromElement($fieldNode, $modelclass);
-                    $callname = 'add' . $fieldName;
-                    $submodel = $model->$callname($submodel);
-                    $this->_populateModelFromXml($submodel, $fieldNode);
-                } else {
-                    $callname = $accessor . $fieldName;
-                    $model->$callname($fieldValue);
+
+                // omit setting values if XML node has no child nodes
+                // neither XML_ELEMENT_TEXT nor XML_ELEMENT_NODE
+                if (true === $fieldNode->hasChildNodes()) {
+                    if (null !== $modelclass) {
+                        $submodel = $this->_createModelFromElement($fieldNode, $modelclass);
+                        $callname = $accessor . $fieldName;
+                        // TODO better handling of accessor methods
+                        if ('add' === $accessor) {
+                            // if we add values then we need to do this on the returned model
+                            $tempModel = $model->$callname($submodel);
+                            $this->_populateModelFromXml($tempModel, $fieldNode);
+                        } else {
+                            // setting of values should be done on submodel
+                            $model->$callname($submodel);
+                            $this->_populateModelFromXml($submodel, $fieldNode);
+                        }
+                    } else {
+                        $callname = $accessor . $fieldName;
+                        $model->$callname($fieldValue);
+                    }
                 }
             }
         }
