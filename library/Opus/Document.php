@@ -259,16 +259,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         );
 
     /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('File').
-     */
-    protected $_internalFields = array(
-            'ServerDateModified',
-            'ServerDatePublished'
-        );
-
-    /**
      * Constructor.
      *
      * @param  integer|string $id   (Optional) Id an existing document.
@@ -364,6 +354,20 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 $result = implode(',', $this->_fields['Language']->getValue());
             } else {
                 $result = $this->_fields['Language']->getValue();
+        
+        // Initialize available date fields and set up Opus_Date as model for them
+        // if the particular field is present
+        $dateFields = array(
+            'DateAccepted', 'CompletedDate', 'PublishedDate', 
+            'ServerDateModified', 'ServerDatePublished',
+            'ServerDateUnlocking', 'ServerDateValid');
+        foreach ($dateFields as $fieldName) {
+            $field = $this->_getField($fieldName);
+            if (null !== $field ) {
+                $field->setValueModelClass('Opus_Date');
+            }
+        }
+        
             }
         } else {
             $result = null;
@@ -610,223 +614,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchCompletedDate() {
-        // should be an ISO_8601 string
-        $completedDate = $this->_primaryTableRow->completed_date;
-        return $this->getZendDate($completedDate);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeCompletedDate($value) {
-        $this->_primaryTableRow->completed_date = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setCompletedDate($value) {
-        $this->setterForDate('CompletedDate', $value);
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchDateAccepted() {
-        // should be an ISO_8601 string
-        $dateAccepted = $this->_primaryTableRow->date_accepted;
-        return $this->getZendDate($dateAccepted);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeDateAccepted($value) {
-        $this->_primaryTableRow->date_accepted = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setDateAccepted($value) {
-        $this->setterForDate('DateAccepted', $value);
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchPublishedDate() {
-        // should be an ISO_8601 string
-        $publishedDate = $this->_primaryTableRow->published_date;
-        return $this->getZendDate($publishedDate);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storePublishedDate($value) {
-        $this->_primaryTableRow->published_date = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setPublishedDate($value) {
-        $this->setterForDate('PublishedDate', $value);
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchServerDateModified() {
-        // should be an ISO_8601 string
-        $serverDateModified = $this->_primaryTableRow->server_date_modified;
-        return $this->getZendDate($serverDateModified);
-    }
-
-    /**
-     * Set current date and time if a document is modified.
-     *
-     * @return void
-     */
-    protected function _storeServerDateModified() {
-        $result = Zend_Date::now()->getIso();
-        $this->_primaryTableRow->server_date_modified = $result;
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchServerDatePublished() {
-        // should be an ISO_8601 string
-        $serverDatePublished = $this->_primaryTableRow->server_date_published;
-        return $this->getZendDate($serverDatePublished);
-    }
-
-    /**
-     * Store date and time of a new document.
-     *
-     * @return void
-     */
-    protected function _storeServerDatePublished() {
-        // store only if and only if this is a new record
-        if (true === $this->isNewRecord()) {
-            $result = Zend_Date::now()->getIso();
-            $this->_primaryTableRow->server_date_published = $result;
-        }
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchServerDateUnlocking() {
-        // should be an ISO_8601 string
-        $serverDateUnlocking = $this->_primaryTableRow->server_date_unlocking;
-        return $this->getZendDate($serverDateUnlocking);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeServerDateUnlocking($value) {
-        $this->_primaryTableRow->server_date_unlocking = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setServerDateUnlocking($value) {
-        $this->setterForDate('ServerDateUnlocking', $value);
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchServerDateValid() {
-        // should be an ISO_8601 string
-        $serverDateValid = $this->_primaryTableRow->server_date_valid;
-        return $this->getZendDate($serverDateValid);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeServerDateValid($value) {
-        $this->_primaryTableRow->server_date_valid = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setServerDateValid($value) {
-        $this->setterForDate('ServerDateValid', $value);
-    }
-
-    /**
      * Set document server state to unpublished if new record or
      * no value is set.
      *
@@ -847,6 +634,22 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      */
     public function getType() {
         return $this->_getField('Type')->getValue();
+    }
+
+    /**
+     * Set internal fields ServerDatePublished and ServerDateModified.
+     *
+     * @return mixed Anything else then null will cancel the storage process.
+     */
+    protected function _preStore() {
+        parent::_preStore();
+        $now = new Opus_Date;
+        if (true === $this->isNewRecord()) {
+            if (null === $this->getServerDatePublished()) {
+                $this->setServerDatePublished($now);
+            }
+        }        
+        $this->setServerDateModified($now);
     }
 
 }

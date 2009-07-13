@@ -66,7 +66,7 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
         $countries = new Opus_Model_Field('Countries');
 
         $dateGranted = new Opus_Model_Field('DateGranted');
-        $dateGranted->setValidator(new Opus_Validate_Date());
+        $dateGranted->setValueModelClass('Opus_Date');
 
         $number = new Opus_Model_Field('Number');
         $number->setMandatory(true)
@@ -82,40 +82,6 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
             ->addField($number)
             ->addField($yearApplied)
             ->addField($application);
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchDateGranted() {
-        // should be an ISO_8601 string
-        $dateGranted = $this->_primaryTableRow->date_granted;
-        return $this->getZendDate($dateGranted);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeDateGranted($value) {
-        $this->_primaryTableRow->date_granted = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setDateGranted($value) {
-        $this->setterForDate('DateGranted', $value);
     }
 
 }

@@ -65,7 +65,7 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
         $academic_title = new Opus_Model_Field('AcademicTitle');
 
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setValidator(new Opus_Validate_Date());
+        $date_of_birth->setValueModelClass('Opus_Date');
 
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
@@ -167,40 +167,6 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
      */
     public static function getAll() {
         return self::getAllFrom('Opus_Person', 'Opus_Db_Persons');
-    }
-
-    /**
-     * Fetch ISO 8601 string from database and
-     * return its value as a Zend_Date object.
-     *
-     * @return Zend_Date
-     */
-    protected function _fetchDateOfBirth() {
-        // should be an ISO_8601 string
-        $dateOfBirth = $this->_primaryTableRow->date_of_birth;
-        return $this->getZendDate($dateOfBirth);
-    }
-
-    /**
-     * Stores a date value (Zend_Date object or localized string)
-     * to database as an ISO 8601 string.
-     *
-     * @param mixed $value
-     * @return void
-     */
-    protected function _storeDateOfBirth($value) {
-        $this->_primaryTableRow->date_of_birth = $this->dateToIso($value);
-    }
-
-    /**
-     * Override general setter method because we need to transform
-     * input value to a Zend_Date object.
-     *
-     * @param mixed $value Date value as string.
-     * @return void
-     */
-    public function setDateOfBirth($value) {
-        $this->setterForDate('DateOfBirth', $value);
     }
 
 }

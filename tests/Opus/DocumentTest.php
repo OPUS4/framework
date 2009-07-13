@@ -725,7 +725,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
-        $abstract = new Opus_Title();
+        $abstract = new Opus_Abstract();
         $abstract->setValue('It is necessary to give an abstract.');
 
         $doc->addTitleAbstract($abstract);
@@ -985,7 +985,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
-        $urn_value = $doc2->getIdentifierUrn()->getValue();
+        $urn_value = $doc2->getIdentifierUrn(0)->getValue();
 
         $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
         $this->assertEquals($urn->getUrn($id), $urn_value, 'Stored and expected URN value did not match.');
@@ -1039,7 +1039,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
 
-        $this->assertEquals($urn_value, $doc2->getIdentifierUrn()->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urn_value, $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
@@ -1061,9 +1061,9 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc->setIdentifierUrn($urn_model);
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
-        $this->assertNotNull($doc2->getIdentifierUrn()->getValue(), 'URN value should not be empty.');
+        $this->assertNotNull($doc2->getIdentifierUrn(0)->getValue(), 'URN value should not be empty.');
         $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
-        $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn()->getValue(), 'Stored and expected URN value did not match.');
+        $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
     }
 
     /**
@@ -1212,8 +1212,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $doc->setPublishedDate('05.10.2008');
 
-        $date = new Zend_Date('05.04.2009', null, $locale);
-
+        $date = new Opus_Date;
+        $date->setZendDate(new Zend_Date('05.04.2009', null, $locale));
         $doc->setServerDateUnlocking($date);
 
         $personAuthor = new Opus_Person();
@@ -1223,7 +1223,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         $patent = new Opus_Patent();
         $patent->setNumber('08 15');
-        $dateGranted = new Zend_Date('11.10.1999', null, $locale);
+        $dateGranted = new Opus_Date;
+        $dateGranted->setZendDate(new Zend_Date('11.10.1999', null, $locale));
         $patent->setDateGranted($dateGranted);
         $doc->addPatent($patent);
 
@@ -1232,13 +1233,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $doc = new Opus_Document($docId);
         $publishedDate = $doc->getPublishedDate();
         $serverDateUnlocking = $doc->getServerDateUnlocking();
-        $personAuthor = $doc->getPersonAuthor();
-        $patent = $doc->getPatent();
+        $personAuthor = $doc->getPersonAuthor(0);
+        $patent = $doc->getPatent(0);
+        
         $localeFormatDate = Zend_Locale_Format::getDateFormat($locale);
-        $this->assertEquals('05.10.2008', $publishedDate->toString($localeFormatDate), 'Setting a date through string does not work.');
-        $this->assertEquals('05.04.2009', $serverDateUnlocking->toString($localeFormatDate), 'Setting a date through Zend_Date does not work.');
-        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
-        $this->assertEquals('11.10.1999', $patent->getDateGranted()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
+        $this->assertEquals('05.10.2008', $publishedDate->getZendDate()->toString($localeFormatDate), 'Setting a date through string does not work.');
+        $this->assertEquals('05.04.2009', $serverDateUnlocking->getZendDate()->toString($localeFormatDate), 'Setting a date through Zend_Date does not work.');
+        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getZendDate()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
+        $this->assertEquals('11.10.1999', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
     }
 
 }
