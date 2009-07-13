@@ -154,7 +154,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                     $field->setValue($this->$callname());
                 } else {
                     $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                    $field->setValue($this->_primaryTableRow->$colname);
+                    $fieldval = $this->_primaryTableRow->$colname;
+                    // explicitly set null if the field represents a model
+                    if (null !== $field->getValueModelClass()) {
+                        if (true === empty($fieldval)) {
+                            $fieldval = null;
+                        }
+                    }
+                    $field->setValue($fieldval);
                 }
             }
             // Clear the modified flag for the just loaded field
