@@ -64,7 +64,7 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $document = new Opus_Document(null, $type);
 
         $document->setLanguage(array('deu', 'eng'));
-        $document->setPublishedDate(new Zend_Date());
+        $document->setPublishedDate(new Opus_Date);
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
@@ -84,7 +84,6 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);
-
 
         $omx = new Opus_Model_Xml();
         $omx->setModel($document);
@@ -134,7 +133,7 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $document = new Opus_Document(null, $type);
 
         $document->setLanguage(array('deu', 'eng'));
-        $document->setPublishedDate(new Zend_Date());
+        $document->setPublishedDate(new Opus_Date());
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
@@ -161,12 +160,14 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $omx->setModel($document);
         $omx->setStrategy($strategy);
         $dom = $omx->getDomDocument();
+        
         // serialize
         $xmlData = $dom->saveXML();
 
         $omx = new Opus_Model_Xml();
         // take first serialize data as source
         $omx->setXml($xmlData);
+        
         $omx->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         $omx->setStrategy($strategy);
         // build a model from xml

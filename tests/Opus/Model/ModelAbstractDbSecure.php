@@ -48,7 +48,7 @@ class Opus_Model_ModelAbstractDbSecure extends Opus_Model_AbstractDbSecure {
      * @var array
      */
     protected $_externalFields = array(
-        'ExternalModel' => array('model' => 'Opus_Model_ModelAbstractDbMock')
+        'ExternalModel' => array('model' => 'Opus_Model_ModelDependentMock')
     );
 
     /**

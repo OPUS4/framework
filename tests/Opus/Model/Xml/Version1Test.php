@@ -342,7 +342,7 @@ class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
         // use linking via Opus_Model_ModelDependentLinkMock
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
         $model->addField($field);
         $link = new Opus_Model_ModelDependentLinkMock;
         $link->setModelClass('Opus_Model_ModelAbstractDbMock');
@@ -372,7 +372,7 @@ class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
         // use linking via Opus_Model_ModelDependentLinkMock
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
         $model->addField($field);
         $link = new Opus_Model_ModelDependentLinkMock;
         $link->setModelClass('Opus_Model_ModelAbstractDbMock');
@@ -402,7 +402,7 @@ class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
         // use linking via Opus_Model_ModelDependentLinkMock
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
         $model->addField($field);
         $link = new Opus_Model_ModelDependentLinkMock;
         $link->setModelClass('Opus_Model_ModelAbstractDbMock');
@@ -563,7 +563,7 @@ class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
     public function testLinkModelFieldNotShown() {
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('LinkField');
-        $field->setValueModelClass('Opus_Model_ModelAbstract');
+        $field->setValueModelClass('Opus_Model_ModelAbstractDbMock');
         $model->addField($field);
         $link = new Opus_Model_ModelDependentLinkMock;
         $link->setModelClass('Opus_Model_ModelAbstractDbMock');

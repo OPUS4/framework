@@ -306,6 +306,53 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             } else {
                 if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
             }
+        } 
+
+
+        // try to cast string values if valueModelClass is Opus_Date
+        if (('Opus_Date' === $this->_valueModelClass) 
+        and (true === is_string($value))) {
+            $od = new Opus_Date;
+            $od->setFromString($value);
+            $value = $od;
+        }    
+
+        // Check type of the values if _valueModelClass is set
+        // and reject any input that is not of this type
+        if (null !== $this->_valueModelClass) {
+            // "arrayfy" value
+            $valarray = $value;
+            if (false === is_array($value)) {
+                $valarray = array($value);
+            }
+
+            // typecheck each array element
+            foreach ($valarray as $v) {
+                // skip null values
+                if (null === $v) {
+                    continue;
+                }
+                
+                // determine expected type            
+                $etype = $this->_valueModelClass;
+                
+                // determine actual type
+                if ($v instanceof Opus_Model_Dependent_Link_Abstract) {
+                    $vtype = $v->getModelClass();
+                } else {
+                    $vtype = get_class($v);
+                }
+                
+                // perform typecheck
+                if (false === is_object($v)) {
+                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given');
+                }
+                if ($vtype !== $etype) {
+                    if (false === is_subclass_of($vtype, $etype)) {
+                        throw new Opus_Model_Exception("Value of type $vtype given but expected $etype.");
+                    }
+                }
+            }
         }
 
         $this->_value = $value;
@@ -370,6 +417,18 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             // If the value is not an array, make one
             if (is_array($this->_value) === false) {
                 $this->_value = array($this->_value);
+            }
+        }
+
+        // Check type of the values if _valueModelClass is set
+        // and reject any input that is not of this type
+        if (null !== $this->_valueModelClass) {
+            foreach ($value as $v) {
+                $vtype = get_class($v);
+                $etype = $this->_valueModelClass;
+                if (get_class($v) !== $etype) {
+                    throw new Opus_Model_Exception("Value of type $vtype given but expected $etype.");
+                }
             }
         }
 

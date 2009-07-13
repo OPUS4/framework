@@ -514,7 +514,7 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
 
         $field = new Opus_Model_Field('ExternalModels');
         $field->setMultiplicity('*');
-        $field->setValueModelClass(get_class($depmo));
+        $field->setValueModelClass('Opus_Model_ModelDependentMock');
         $field->setValue($depmo);
 
         // issue the test

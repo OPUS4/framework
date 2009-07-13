@@ -107,7 +107,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         return $model;
     }
 
-        /**
+    /**
      * If there is a mapping for a model available a xlink:href string is created.
      *
      * @param Opus_Model_Abstract $model Model to link.
@@ -205,7 +205,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             }
             // set value
             //if (empty($fieldValues) === false)
-                $element->nodeValue = $fieldValues;
+            $element->nodeValue = $fieldValues;
             $rootNode->appendChild($element);
         } else {
             if (false === is_array($fieldValues)) {
@@ -276,16 +276,25 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             $fieldName = $fieldNode->nodeName;
             $fieldValue = $fieldNode->nodeValue;
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
+                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined. Model class: ' 
+                    . get_class($model));
             } else {
-                $modelclass = $model->getField($fieldName)->getValueModelClass();
+                $fieldObj = $model->getField($fieldName);
+                $modelclass = $fieldObj->getValueModelClass();
+                // determine accessor function
+                if (true === $fieldObj->hasMultipleValues()) {
+                    $accessor = 'add';
+                } else {
+                    $accessor = 'set';
+                }
+                // set value
                 if (null !== $modelclass) {
                     $submodel = $this->_createModelFromElement($fieldNode, $modelclass);
                     $callname = 'add' . $fieldName;
                     $submodel = $model->$callname($submodel);
                     $this->_populateModelFromXml($submodel, $fieldNode);
                 } else {
-                    $callname = 'add' . $fieldName;
+                    $callname = $accessor . $fieldName;
                     $model->$callname($fieldValue);
                 }
             }
