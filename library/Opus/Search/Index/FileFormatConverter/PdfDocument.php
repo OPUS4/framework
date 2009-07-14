@@ -98,7 +98,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
         if ($maxIndexFileSize > 0) {
             $volltext = mb_substr($volltext, 0, $maxIndexFileSize);
         }
-        echo $volltext;
+        #echo $volltext;
         return $volltext;
     }
 }
