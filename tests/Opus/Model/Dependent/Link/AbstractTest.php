@@ -352,4 +352,27 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
         $this->assertTrue($link->isModified(), 'Call to setModel() does not set modification flag.');
     }
     
+    /**
+     * Test if toArray() on a Opus_Model_Dependent_Link_Abstract instance
+     * returns all fields of the linked Model and fields of the LinkModel as well.
+     *
+     * @return void
+     */   
+    public function testToArrayShowsLinkModelFields() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel;
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel;
+        $link->setModelClass(get_class($model));
+        $link->setModel($model);
+        
+        $model->addField(new Opus_Model_Field('Value'));
+        $model->setValue(4711);
+        
+        $link->addField(new Opus_Model_Field('LinkModelField'));
+        $link->setLinkModelField('Foo');
+    
+        $result = $link->toArray();
+        $this->assertArrayHasKey('Value', $result, 'Linked Model field is missing.');
+        $this->assertArrayHasKey('LinkModelField', $result, 'LinkModel field is missing.');
+    }
+    
 }

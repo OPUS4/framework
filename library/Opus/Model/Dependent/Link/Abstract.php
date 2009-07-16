@@ -208,8 +208,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return array A (nested) array representation of the linked model.
      */
     public function toArray() {
-        return $this->_model->toArray();
+        return array_merge($this->_model->toArray(), parent::toArray());
     }
+    
+    
 
     /**
      * Recurses over the linked model's field to generate a Dom.
