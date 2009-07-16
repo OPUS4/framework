@@ -212,16 +212,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
     
     
-
-    /**
-     * Recurses over the linked model's field to generate a Dom.
-     *
-     * @return DomDocument A Dom representation of the model.
-     */
-    protected function _recurseXml(DomDocument $domXml, array $excludeFields = null) {
-        return $this->_model->_recurseXml($domXml, $excludeFields);
-    }
-   
    /**
     * Perform security resoure registration.
     *
