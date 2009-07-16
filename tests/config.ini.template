@@ -41,3 +41,5 @@ db.params.dbname =
 
 [test : production]
 db.params.dbname = 
+
+sql.schema.path =

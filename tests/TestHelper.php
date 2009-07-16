@@ -72,9 +72,13 @@ class TestHelper extends Opus_Bootstrap_Base {
     protected function _setupDatabase() {
         parent::_setupDatabase();
         $log = Zend_Registry::get('Zend_Log');
-        
+        $conf = Zend_Registry::get('Zend_Config');
+
         // Determine current schema revision from opus400.sql
         $sqlFile = dirname(dirname(__FILE__)) . '/db/schema/opus400.sql';
+        if (true === isset($conf->sql->schema->path)) {
+            $sqlFile = $conf->sql->schema->path;
+        }
         if (false === is_file($sqlFile)) {
             $log->warn('Schema file ' . $sqlFile . ' not found.');
             return;
