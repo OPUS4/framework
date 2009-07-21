@@ -517,6 +517,18 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Returns the earliest date (server_date_published) of all documents.
+     *
+     * @return int
+     */
+    public static function getEarliestPublicationDate() {
+        $table = new Opus_Db_Documents();
+        $select = $table->select()->from($table, 'min(server_date_published)');
+        $timestamp = $table->fetchRow($select)->toArray();
+        return $timestamp['min(server_date_published)'];
+    }
+
+    /**
      * Adds the document to a collection.
      *
      * @param  int  $role Role of the collection.
