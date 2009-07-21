@@ -112,6 +112,21 @@ class Opus_Document_Type {
     }
 
     /**
+     * Returns the names of all available document types.
+     *
+     * @return array An array of strings.
+     */
+    public static function getAvailableTypeNames() {
+        $typeList = array();
+        foreach (glob(self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . '*.xml') as $filename) {
+            $docType = new DomDocument;
+            $docType->load($filename);
+            $typeList[] = $docType->getElementsByTagName('documenttype')->item(0)->attributes->getNamedItem('name')->value;
+        }
+        return $typeList;
+    }
+
+    /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
      * @param string|DOMDocument $xml XML string, a filename, type name or
