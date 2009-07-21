@@ -547,6 +547,46 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Returns an array of ids for all documents published between two dates.
+     *
+     * @param  string  $from    (Optional) The earliest publication date to include.
+     * @param  string  $until   (Optional) The latest publication date to include.
+     * @return array Array of document ids.
+     */
+    public static function getIdsForDateRange($from = null, $until = null) {
+        try {
+            if (true === is_null($from)) {
+                $from = new Zend_Date(self::getEarliestPublicationDate());
+            } else {
+                $from = new Zend_Date($from);
+            }
+        } catch (Exception $e) {
+            throw new Exception('Invalid date string supplied: ' . $from);
+        }
+        try {
+            if (true === is_null($until)) {
+                $until = new Zend_Date;
+            } else {
+                $until = new Zend_Date($until);
+            }
+        } catch (Exception $e) {
+            throw new Exception('Invalid date string supplied: ' . $until);
+        }
+
+        $table = new Opus_Db_Documents();
+        $select = $table->select()
+            ->from($table, array('id'))
+            ->where('server_date_published >= ?', $from->toString('yyyy-MM-dd HH:mm:ss'))
+            ->where('server_date_published <= ?', $until->toString('yyyy-MM-dd HH:mm:ss'));
+        $rows = $table->fetchAll($select)->toArray();
+        $ids = array();
+        foreach ($rows as $row) {
+            $ids[] = $row['id'];
+        }
+        return $ids;
+    }
+
+    /**
      * Adds the document to a collection.
      *
      * @param  int  $role Role of the collection.
