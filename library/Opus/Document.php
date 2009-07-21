@@ -529,6 +529,24 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Returns an array of ids for all document of the specified type.
+     *
+     * @param  string  $typename The name of the document type.
+     * @return array Array of document ids.
+     */
+    public static function getIdsForDocType($typename) {
+        $table = new Opus_Db_Documents();
+        $select = $table->select()
+            ->from($table, array('id'))->where('type = ?', $typename);
+        $rows = $table->fetchAll($select)->toArray();
+        $ids = array();
+        foreach ($rows as $row) {
+            $ids[] = $row['id'];
+        }
+        return $ids;
+    }
+
+    /**
      * Adds the document to a collection.
      *
      * @param  int  $role Role of the collection.
