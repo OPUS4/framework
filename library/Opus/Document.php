@@ -576,8 +576,8 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $table = new Opus_Db_Documents();
         $select = $table->select()
             ->from($table, array('id'))
-            ->where("server_date_published >= '" . $from->toString('yyyy-MM-dd HH:mm:ss') . "' or server_date_modified >= '" . $from->toString('yyyy-MM-dd HH:mm:ss') . "'")
-            ->where("server_date_published <= '" . $until->toString('yyyy-MM-dd HH:mm:ss') . "' or server_date_modified <= '" . $until->toString('yyyy-MM-dd HH:mm:ss') . "'");
+            ->where("server_date_published BETWEEN '" . $from->toString('yyyy-MM-dd HH:mm:ss') . "' AND '" . $until->toString('yyyy-MM-dd HH:mm:ss') . "'")
+            ->orWhere("server_date_modified BETWEEN '" . $from->toString('yyyy-MM-dd HH:mm:ss') . "' AND '" .  $until->toString('yyyy-MM-dd HH:mm:ss') . "'");
         $rows = $table->fetchAll($select)->toArray();
         $ids = array();
         foreach ($rows as $row) {
