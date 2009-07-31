@@ -936,7 +936,8 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $result = $iterim_result['TitleMain'][0];
         $expected = array(
             'Language' => 'de',
-            'Value' => 'Ein deutscher Titel'
+            'Value' => 'Ein deutscher Titel',
+            'SortOrder' => null
             );
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
     }
