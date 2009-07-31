@@ -166,9 +166,10 @@ COMMENT = 'Table for subject heading related data.';
 CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` ENUM('main', 'parent', 'abstract') NOT NULL COMMENT 'Type of title or abstract.' ,
+  `type` ENUM('main', 'parent', 'abstract', 'sub', 'additional') NOT NULL COMMENT 'Type of title or abstract.' ,
   `value` TEXT NOT NULL COMMENT 'Value of title or abstract.' ,
   `language` VARCHAR(3) NOT NULL COMMENT 'Language of the title or abstract.' ,
+  `sort_order` TINYINT UNSIGNED NULL COMMENT 'Sort order of the titles related to the document.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_title_abstracts_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_title_abstracts_documents`

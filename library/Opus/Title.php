@@ -72,9 +72,11 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
+        $sortOrder = new Opus_Model_Field('SortOrder');
 
         $this->addField($language)
-            ->addField($value);
+            ->addField($value)
+            ->addField($sortOrder);
     }
 
 }

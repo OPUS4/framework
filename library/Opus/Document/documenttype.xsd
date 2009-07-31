@@ -182,6 +182,8 @@
 	       <enumeration value="TitleAbstract"/>
 	       <enumeration value="TitleMain"/>
 	       <enumeration value="TitleParent"/>
+	       <enumeration value="TitleSub"/>
+	       <enumeration value="TitleAdditional"/>
 	       <enumeration value="Volume"/>
 	       <enumeration value="IdentifierIsbn"/>
 	       <enumeration value="IdentifierUrn"/>

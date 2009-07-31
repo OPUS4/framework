@@ -91,6 +91,16 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'options' => array('type' => 'parent'),
                 'fetch' => 'lazy'
             ),
+            'TitleSub' => array(
+                'model' => 'Opus_Title',
+                'options' => array('type' => 'sub'),
+                'fetch' => 'lazy'
+            ),
+            'TitleAdditional' => array(
+                'model' => 'Opus_Title',
+                'options' => array('type' => 'additional'),
+                'fetch' => 'lazy'
+            ),
             'IdentifierIsbn' => array(
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'isbn'),
