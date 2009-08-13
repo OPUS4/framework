@@ -193,7 +193,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             if ($fieldValues instanceOf Zend_Date) {
                 $fieldValues = $fieldValues->getIso();
             }
-            $attr->value = $fieldValues;
+            $attr->value = htmlspecialchars($fieldValues);
             $rootNode->appendChild($attr);
         } else {
             if (false === is_array($fieldValues)) {

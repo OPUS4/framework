@@ -205,7 +205,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             }
             // set value
             //if (empty($fieldValues) === false)
-            $element->nodeValue = $fieldValues;
+            $element->nodeValue = htmlspecialchars($fieldValues);
             $rootNode->appendChild($element);
         } else {
             if (false === is_array($fieldValues)) {
