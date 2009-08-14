@@ -134,6 +134,15 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @var boolean Saves the state of the field.
      */
     protected $_modified = false;
+    
+    
+    /**
+     * Set of pending delete operations for dependent Models.
+     *
+     * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
+     */
+    protected $_pendingDeletes = array();
+    
 
     /**
      * Create an new field instance and set the given name.
@@ -261,8 +270,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * Set the field value. If multiplicity is set to values greater than one
      * only array are valid input values.
      *
-     * This method issues a delete() on dependent models "null" is passed as value. (see rev2514)
-     * @FIXME So deleting all models works. But what about arbitrary models from an assigned set? Are we going to implement garbage collection here?!
+     * This method issues a delete() on dependent models when "null" is passed as value. (see rev2514)
+     * It also calls delete() on models that appear to be in the value list, but not in the given argument. (see #434)
      *
      * @param mixed $value The field value to be set.
      * @throws InvalidArgumentException If Multivalue option and input argument do not match (an array is required but not given).
@@ -285,37 +294,68 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         // if null is given, delete dependent objects
         if (null === $value) {
             $this->_deleteDependentModels();
+        } else {
+            // otherwise process the given value(s)
+            $multiValueCondition = $this->hasMultipleValues();
+            $arrayCondition = is_array($value);
+
+            // Reject input if an array is required but not is given
+            if (($multiValueCondition === false) and ($arrayCondition === true)) {
+                throw new InvalidArgumentException('Multivalue option and input argument do not match.');
+            }
+            
+            // arrayfy value
+            $values = $value;
+            if (false === $arrayCondition) {
+                $values = array($value);
+            }
+
+            // try to cast non-object values to model instance if valueModelClass is set
+            $values = $this->_tryCastValuesToModel($values);
+
+            // Check type of the values if _valueModelClass is set
+            // and reject any input that is not of this type
+            $this->_typeCheckValues($values);
+
+            // determine Opus_Model_Dependent_Abstract instances that
+            // are in the current value set but not in the given
+            $this->_deleteUnreferencedDependentModels($values);
+            
+            // remove wrapper array if multivalue condition is not given
+            if (false === $multiValueCondition) {
+                $value = $values[0];
+            }
         }
-
-        $multiValueCondition = $this->hasMultipleValues();
-        $arrayCondition = is_array($value);
-
-        // Reject input if an array is required but not is given
-        if (($multiValueCondition === false) and ($arrayCondition === true)) {
-            throw new InvalidArgumentException('Multivalue option and input argument do not match.');
-        }
-        
-        // arrayfy value
-        $values = $value;
-        if (false === $arrayCondition) {
-            $values = array($value);
-        }
-
-        // try to cast non-object values to model instance if valueModelClass is set
-        $values = $this->_tryCastValuesToModel($values);
-
-        // Check type of the values if _valueModelClass is set
-        // and reject any input that is not of this type
-        $this->_typeCheckValues($values);
-        
-        // remove wrapper array if multivalue condition is not given
-        if (false === $multiValueCondition) {
-            $value = $values[0];
-        }
-
         $this->_value = $value;
         $this->_modified = true;
         return $this;
+    }
+
+    /**
+     * Determines Opus_Model_Dependent_Abstract instances that are in the fields current value
+     * but not in the given in the update value and issue delete() to these Models.
+     *
+     * @param array &$values Reference to value update set.
+     * @return void
+     */
+    private function _deleteUnreferencedDependentModels(array &$values) {
+        // arrayfy field value for iteration
+        $fvals = $this->_value;
+        if (false === is_array($fvals)) {
+            $fvals = array($fvals);
+        }
+
+        // collect removal candidates    
+        $removees = array();
+        foreach ($fvals as $victim) {
+            if ($victim instanceof Opus_Model_Dependent_Abstract) {
+                if (false === in_array($victim, $values)) {
+                    $removees[] = $victim;
+                }
+            }
+        }
+        // delete obsolete dependent models
+        $this->_deleteDependentModels($removees);
     }
 
     /**
@@ -356,19 +396,52 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     }
 
     /**
-     * Issue delete calls to all dependent models stored in this field.
+     * Prepare delete calls to all dependent models stored in this field.
+     * To actually delete those dependent model doPendingDeleteOperations() has to be called.
      *
+     * @param array $removees (Optional) Array of Opus_Model_Dependent_Abstract instances to be deleted.
      * @return void
      */
-    private function _deleteDependentModels() {
-        if (is_array($this->_value)) {
-            foreach ($this->_value as $submodel) {
-                if ($submodel instanceof Opus_Model_Dependent_Abstract) $submodel->delete();
+    private function _deleteDependentModels(array $removees = null) {
+        if (null === $removees) {
+            if (is_array($this->_value)) {
+                foreach ($this->_value as $submodel) {
+                    if ($submodel instanceof Opus_Model_Dependent_Abstract) {
+                        $token = $submodel->delete();
+                        $objhash = spl_object_hash($submodel);
+                        $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
+                    }
+                }
+            } else {
+                if ($this->_value instanceof Opus_Model_Dependent_Abstract) {
+                    $submodel = $this->_value;
+                    $token = $submodel->delete();
+                    $objhash = spl_object_hash($submodel);
+                    $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
+                }
             }
         } else {
-            if ($this->_value instanceof Opus_Model_Dependent_Abstract) $this->_value->delete();
+            foreach ($removees as $submodel) {
+                if ($submodel instanceof Opus_Model_Dependent_Abstract) {
+                    $token = $submodel->delete();
+                    $objhash = spl_object_hash($submodel);
+                    $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
+                }
+            }
         }
     }
+    
+    /**
+     * Perform all pending delete operations for dependent Models.
+     *
+     * @return void
+     */   
+    public function doPendingDeleteOperations() {
+        foreach (array_values($this->_pendingDeletes) as $info) {
+            $info['model']->doDelete($info['token']);
+        }
+    }
+     
 
     /**
      * If a value model class is set for this field,
@@ -656,4 +729,5 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     public function isCheckbox() {
         return $this->_checkbox;
     }
+    
 }

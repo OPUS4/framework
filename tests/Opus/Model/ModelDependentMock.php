@@ -42,6 +42,8 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
     
     public $deleteHasBeenCalled = false;
     
+    public $doDeleteHasBeenCalled = false;
+
     public function __construct() {
     }
     
@@ -50,6 +52,10 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
     
     public function delete() {
         $this->deleteHasBeenCalled = true;
+    }
+    
+    public function doDelete() {
+        $this->doDeleteHasBeenCalled = true;
     }
 
 }

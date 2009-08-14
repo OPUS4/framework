@@ -315,6 +315,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                         }
                         $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
                     }
+                    // trigger any pending delete operations
+                    $this->_fields[$fieldname]->doPendingDeleteOperations();
                     // Clear modification status of successfully stored field.
                     $this->_fields[$fieldname]->clearModified();
                 }

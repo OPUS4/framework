@@ -574,5 +574,62 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($result instanceof Zend_Date, 'Value has not been casted to valueModelClass object.');
     }
+    
+    /**
+     * Test if a pending delete operation is collected on every delete of a
+     * dependent Model.
+     *
+     * @return void
+     */
+    public function testDeleteCollectsPendingOperations() {
+        // create field referencing the mockup model
+        $depmo = new Opus_Model_ModelDependentMock;
+        
+        $clazz ='
+            class Opus_Model_FieldTest_Inspector extends Opus_Model_Field {
+                public function getPendingDeletes() {
+                    return $this->_pendingDeletes;
+                }
+            }
+        ';
+        eval($clazz);
+        
+        $field = new Opus_Model_FieldTest_Inspector('ExternalModel');
+        $field->setValueModelClass(get_class($depmo));
+        $field->setValue($depmo);
+
+        // issue the test
+        $field->setValue(null);
+
+        // assert that there is a pending operation
+        $deletes = $field->getPendingDeletes();
+        $this->assertFalse(empty($deletes), 'No pending delete operations generated.');
+    }
+    
+    /**
+     * Test if pending deletes get executed. 
+     *
+     * @return void
+     */
+    public function testDoPendingDeletesLoopsModelsAndDoesDelete() {
+        // create field referencing the mockup models
+        $depmo[] = new Opus_Model_ModelDependentMock;
+        $depmo[] = new Opus_Model_ModelDependentMock;
+        $depmo[] = new Opus_Model_ModelDependentMock;
+
+        $field = new Opus_Model_Field('ExternalModels');
+        $field->setMultiplicity('*');
+        $field->setValueModelClass('Opus_Model_ModelDependentMock');
+        $field->setValue($depmo);
+
+        // issue the test
+        $field->setValue(null);
+        $field->doPendingDeleteOperations();
+
+        // assert that delete() has been called
+        $this->assertTrue($depmo[0]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+        $this->assertTrue($depmo[1]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+        $this->assertTrue($depmo[2]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
+    }   
 
 }

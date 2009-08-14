@@ -59,6 +59,17 @@ abstract class Opus_Model_Dependent_Abstract
      */
     protected $_parentColumn = null;
 
+
+    /**
+     * Holds the current valid deletion token.
+     *
+     * Calls to doDelete() will only succeed if this token is passed.
+     * A call to delete() will return the next valid token.
+     * 
+     * @var string
+     */
+    private $_deletionToken = null;
+
     /**
      * Setter for $_parentId.
      *
@@ -107,4 +118,36 @@ abstract class Opus_Model_Dependent_Abstract
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
         parent::store();
     }
+    
+    /**
+     * Register dependent Model for deletion in its parent Model.
+     *
+     * This method does not delete the dependent Model. It is in the
+     * responsibility of the parent Model to call doDelete() with the
+     * delete Token returned by this method.
+     *
+     * @return string Token to be passed to doDelete() method to actually confirm deletion request.
+     */   
+    public function delete() {
+        $this->_deletionToken = uniqid();
+        return $this->_deletionToken;
+    }
+    
+    /**
+     * Perform actual delete operation if the correct token has been provided.
+     *
+     * @param string $token Delete token as returned by previous call to delete()
+     * @return void
+     */
+    public function doDelete($token) {
+        if ($this->_deletionToken === null) {
+            throw new Opus_Model_Exception('No deletion token set. Call delete() prior to doDelete().');
+        }
+        if ($this->_deletionToken !== $token) {
+            throw new Opus_Model_Exception('Invalid deletion token passed.');
+        }
+        parent::delete();
+    }
+    
+    
 }
