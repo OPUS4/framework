@@ -256,12 +256,17 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     protected function _fetchTheme() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
-        $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
-        if (true === is_null($row)) {
-            return self::DEFAULT_THEME_NAME;
+        if (false === $this->isNewRecord()) {
+            $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
+            if (true === is_null($row)) {
+                $theme = self::DEFAULT_THEME_NAME;
+            } else {
+                $theme = $row->theme;
+            }
         } else {
-            return $row->theme;
+            $theme = self::DEFAULT_THEME_NAME;
         }
+        return $theme;
     }
 
     /**
@@ -270,6 +275,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param string The name of the theme.
      */
     protected function _storeTheme($theme) {
+        if (true === is_null($theme)) {
+            return;
+        }
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
         $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
         if (true === is_null($row)) {
