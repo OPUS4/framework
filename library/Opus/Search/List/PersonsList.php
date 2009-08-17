@@ -111,4 +111,16 @@ class Opus_Search_List_PersonsList extends Opus_Search_List_BasicList {
   public function get($index) {
     return $this->persons[$index];
   }
+
+  /**
+   * Sorts the list
+   * Possible sort criteria are:
+   * not defined yet
+   * 
+   * @param string $criteria Criteria the list should be sorted with
+   * @return void
+   */
+  public function sort() {
+		usort($this->persons, array("Opus_Search_Adapter_PersonAdapter", "cmp_person"));
+  }
 }

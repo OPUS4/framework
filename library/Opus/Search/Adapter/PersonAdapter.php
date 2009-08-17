@@ -92,4 +92,35 @@ class Opus_Search_Adapter_PersonAdapter
 	{
 		return $this->personData;
 	}
+
+    /**
+     * Compare method to sort persons list (descending)
+     */
+    static function cmp_person_desc($a, $b)
+    {
+    	$a1 = $a->get();
+    	$aName = $a1['lastName'];
+        $b1 = $b->get();
+        $bName = $b1['lastName'];
+        if ($aName == $bName) {
+            return 0;
+        }
+        return ($aName < $bName) ? +1 : -1;
+    }
+
+    /**
+     * Compare method to sort persons list (ascending)
+     */
+    static function cmp_person($a, $b)
+    {
+    	$a1 = $a->get();
+    	$aName = $a1['lastName'];
+        $b1 = $b->get();
+        $bName = $b1['lastName'];
+        if ($aName == $bName) {
+            return 0;
+        }
+        return ($aName > $bName) ? +1 : -1;
+    }
+
 }
