@@ -128,7 +128,6 @@ class Opus_GPG extends Crypt_GPG
     		// FIXME: hardcoded path
     		$filepath = '../workspace/files/' . $file->getDocumentId() . '/';
     		$hashes = $file->getHashValue();
-    		$result = array();
     		if (true === is_array($hashes))
     		{
     		    foreach ($hashes as $hash)
@@ -149,6 +148,7 @@ class Opus_GPG extends Crypt_GPG
     		{
     			if (substr($hashes->getType(), 0, 3) === 'gpg')
     			{
+    				$result[] = array();
     			    try {
     			        $result[] = $this->verifyFile($filepath . $file->getPathName(), $hashes->getValue());
     			    }
