@@ -136,10 +136,10 @@ class Opus_GPG extends Crypt_GPG
     			    {
     				    try
     				    {
-    				        $result[] = $this->verifyFile($filepath . $file->getPathName(), $hash->getValue());
+    				        $result[] = array('result' => $this->verifyFile($filepath . $file->getPathName(), $hash->getValue()), 'signature' => $hash->getValue());
     				    }
     				    catch (Exception $e) {
-    				    	$result[] = array($e->getMessage());
+    				    	$result[] = array('result' => array($e->getMessage()), 'signature' => $hash->getValue());
     				    }
     			    }
     		    }
@@ -150,10 +150,10 @@ class Opus_GPG extends Crypt_GPG
     			{
     				$result[] = array();
     			    try {
-    			        $result[] = $this->verifyFile($filepath . $file->getPathName(), $hashes->getValue());
+    			        $result[] = array('result' => $this->verifyFile($filepath . $file->getPathName(), $hashes->getValue()), 'signature' => $hashes->getValue());
     			    }
     			    catch (Exception $e) {
-    			    	$result[] = array($e->getMessage());
+    			    	$result[] = array('result' => array($e->getMessage()), 'signature' => $hashes->getValue());
     			    }
     			}
     		}
