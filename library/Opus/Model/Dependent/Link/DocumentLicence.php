@@ -90,7 +90,11 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      */
     public function store() {
         $this->_primaryTableRow->licence_id = $this->_model->store();
-        parent::store();
+        // only store if something has changed
+        // this avoids duplicate entries
+        if ($this->getId() !== $this->_primaryTableRow->licence_id) {            
+            parent::store();
+        }
     }
 
 }
