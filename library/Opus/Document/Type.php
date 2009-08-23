@@ -178,7 +178,7 @@ class Opus_Document_Type {
         } else if ($xml instanceof DOMDocument) {
             $type = 'domdocument';
         }
-
+       
         // Apply XML loading method respectivly
         try {
             switch ($type) {

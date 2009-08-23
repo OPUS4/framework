@@ -334,7 +334,21 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
 
         // Add the document's type as a normal field
+        //$documentType = new Opus_Model_Field('Type');
+        //$documentType->setValue($this->_type);
+        //$this->addField($documentType);
+
+        // Add the document's type as a selection
         $documentType = new Opus_Model_Field('Type');
+        $doctypes = Opus_Document_Type::getAvailableTypeNames();
+        $doctypeList = array();
+        // transfer the type list given by Opus_Document_Type::getAvailableTypeNames()
+        // into a list with associated index key names
+        foreach($doctypes as $dt) {
+        	$doctypeList[$dt] = $dt;
+        }
+        $documentType->setDefault($doctypeList)
+                ->setSelection(true);
         $documentType->setValue($this->_type);
         $this->addField($documentType);
 
