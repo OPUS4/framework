@@ -1247,4 +1247,17 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $this->assertEquals('11.10.1999', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
     }
 
+    /**
+     * Test if ServerState becomes value unpublished if not set and document is stored.
+     *
+     * @return void
+     */
+    public function testCheckIfDefaultServerStateValueIsSetCorrectAfterStoringModel() {
+        
+        $doc = new Opus_Document();
+        $doc->store();
+        
+        $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');    
+    }
+
 }
