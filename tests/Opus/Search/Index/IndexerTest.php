@@ -137,7 +137,7 @@ class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
         $indexdoc = $index->getDocument(0);
         $this->assertEquals(' Gegen die Wand und noch viel weiter', $indexdoc->getFieldValue('title'), 'Title not correct.');
         $this->assertEquals(' Eine kleine Nachtgeschichte.', $indexdoc->getFieldValue('abstract'), 'Abstract not correct.');
-        $this->assertEquals('Tester, Gustav', $indexdoc->getFieldValue('author'), 'Author not correct.');
+        $this->assertEquals(' Tester, Gustav', $indexdoc->getFieldValue('author'), 'Author not correct.');
 
     }
 }

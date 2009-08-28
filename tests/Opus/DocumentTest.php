@@ -1253,8 +1253,18 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCheckIfDefaultServerStateValueIsSetCorrectAfterStoringModel() {
-        
-        $doc = new Opus_Document();
+        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
+        <documenttype name="meintest"
+            xmlns="http://schemas.opus.org/documenttype"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <field name="PublishedDate" />
+            <field name="ServerDateUnlocking" />
+            <field name="Patent" />
+            <field name="PersonAuthor" />
+        </documenttype>';
+
+        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document(null, $type);
         $doc->store();
         
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');    
