@@ -43,6 +43,24 @@
 class Opus_LicenceTest extends PHPUnit_Framework_TestCase {
 
     /**
+     * Do some stuff before running a test.
+     *
+     * @return void
+     */
+    public function setUp() {
+        TestHelper::clearTable('document_licences');
+    }
+
+    /**
+     * Do some stuff after run a test.
+     *
+     * @return void
+     */
+    public function tearDown() {
+        TestHelper::clearTable('document_licences');
+    }
+
+    /**
      * Test if a set of licences can be retrieved by getAll().
      *
      * @return void
