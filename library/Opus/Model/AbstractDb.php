@@ -263,17 +263,27 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
                 if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
+                    
+                    // analyze field values
+                    $fieldValues = $this->_fields[$fieldname]->getValue();
+                    if (is_array($fieldValues) === true) {
+                    	// internal fields can never be a array, just concatenate
+                    	$fieldValue = implode(';', $fieldValues);
+                    } else {
+                    	$fieldValue = $fieldValues;
+                    }
+                    
                     // Check if the store mechanism for the field is overwritten in model.
                     $callname = '_store' . $fieldname;
                     if (method_exists($this, $callname) === true) {
                         // Call custom store method
-                        $this->$callname($this->_fields[$fieldname]->getValue());
+                        $this->$callname($fieldValue);
                     } else if ($field->isModified() === false) {
                         // Skip non-modified field.
                         continue;
                     } else {
                         $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                        $this->_primaryTableRow->{$colname} = $this->_fields[$fieldname]->getValue();
+                        $this->_primaryTableRow->{$colname} = $fieldValue;
                     }
                     // Clear modification status of successfully stored field.
                     $field->clearModified();

@@ -255,7 +255,9 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
 
         // Internal fields exist as attributes
         foreach ($element->attributes as $field) {
-            // FIXME: Implement adding values to multi-value internal fields.
+            // Implement adding values to multi-value internal fields.
+            // This is implemented in store-procedure, not here
+            // multi-value internal fields should hold values concatenated because they have only one field in database
 
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
