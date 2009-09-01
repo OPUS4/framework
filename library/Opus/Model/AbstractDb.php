@@ -161,6 +161,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                             $fieldval = null;
                         }
                     }
+                    if (true === $field->hasMultipleValues()) {
+                        $fieldval = json_decode($fieldval);
+                    }
                     $field->setValue($fieldval);
                 }
             }
@@ -267,10 +270,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                     // analyze field values
                     $fieldValues = $this->_fields[$fieldname]->getValue();
                     if (is_array($fieldValues) === true) {
-                    	// internal fields can never be a array, just concatenate
-                    	$fieldValue = implode(';', $fieldValues);
+                        // internal fields can never be a array, encode as json
+                        $fieldValue = json_encode($fieldValues);
                     } else {
-                    	$fieldValue = $fieldValues;
+                        $fieldValue = $fieldValues;
                     }
                     
                     // Check if the store mechanism for the field is overwritten in model.
