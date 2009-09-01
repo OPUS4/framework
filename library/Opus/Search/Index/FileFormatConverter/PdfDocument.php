@@ -91,7 +91,7 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
             $ocrStart = time();
             while (false !== ($file = readdir($ocrdirHandle))) {
             	if ($file !== '.' && $file !== '..') {
-            		if (time <= $ocrStart+$ocrTimeout) {
+            		if (time() <= $ocrStart+$ocrTimeout) {
                 		// Failure output can be redirected to /dev/null
                 	    exec("$ocropus page \"$ocrdir/$file\" 2> /dev/null", $fulltext, $returnvalue);
                 	    $volltext .= implode(' ', $fulltext);
