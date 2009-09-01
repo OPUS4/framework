@@ -52,6 +52,8 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
 
 		if ($ocrEnabled === '1')
 		{
+			$ocrTimeout = $config->searchengine->ocr->timeout;
+			if (empty($ocrTimeout) === true) $ocrTimeout = 60;
 			$pdfimages = $config->searchengine->ocr->pdfimages->path . '/pdfimages';
 			if (file_exists($pdfimages) === false) echo "Warning: pdfimages not found!\n";
 			$ocropus = $config->searchengine->ocr->ocropus->path . '/ocropus';
@@ -67,7 +69,8 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
             throw new Exception('Cannot index document: Document "' . $filepath . '" not found!');
         }
 
-        exec("$pdftotextPath/pdftotext -enc UTF-8 \"".$filepath."\" -", $return, $returnval);
+        // Failure output can be redirected to /dev/null
+        exec("$pdftotextPath/pdftotext -enc UTF-8 \"".$filepath."\" - 2> /dev/null", $return, $returnval);
                 
         $volltext = implode(' ', $return);
         
@@ -85,11 +88,14 @@ class Opus_Search_Index_FileFormatConverter_PdfDocument implements Opus_Search_I
             // extract images from PDF
             exec("$pdfimages \"$filepath\" $ocrdir/file");
             $ocrdirHandle = opendir($ocrdir);
+            $ocrStart = time();
             while (false !== ($file = readdir($ocrdirHandle))) {
             	if ($file !== '.' && $file !== '..') {
-            		// Failure output can be redirected to /dev/null
-            	    exec("$ocropus page \"$ocrdir/$file\" 2> /dev/null", $fulltext, $returnvalue);
-            	    $volltext .= implode(' ', $fulltext);
+            		if (time <= $ocrStart+$ocrTimeout) {
+                		// Failure output can be redirected to /dev/null
+                	    exec("$ocropus page \"$ocrdir/$file\" 2> /dev/null", $fulltext, $returnvalue);
+                	    $volltext .= implode(' ', $fulltext);
+            		}
             	    unlink($ocrdir . '/' . $file);
             	}
             }
