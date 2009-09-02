@@ -54,15 +54,20 @@ class Opus_Search_Index_Indexer {
 	 *
 	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
 	 */
-	public function __construct($bufferedDocs = 3) {
+	public function __construct($createIndex = false, $bufferedDocs = 3) {
         $registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
         try
         {
-            $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
+            if ($createIndex === true) {
+            	$this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+            }
+            else {
+                $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
+            }
         }
         catch (Exception $e) {
-            $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+            throw $e;
         }
         // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index 
         $this->entryindex->setMaxBufferedDocs($bufferedDocs);
