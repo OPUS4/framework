@@ -66,8 +66,13 @@ class Opus_Search_Index_Indexer {
                 $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
             }
         }
-        catch (Exception $e) {
-            throw $e;
+        catch (Zend_Search_Lucene_Exception $zsle) {
+            if (false !== strpos($zsle->getMessage(), 'Index doesn\'t exists in the specified directory.')) {
+                // re-creating could cause deleting existing lucene search index
+                $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+            } else {
+                throw $zsle;
+            }
         }
         // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index 
         $this->entryindex->setMaxBufferedDocs($bufferedDocs);
