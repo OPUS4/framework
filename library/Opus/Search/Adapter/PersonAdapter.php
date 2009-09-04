@@ -81,6 +81,9 @@ class Opus_Search_Adapter_PersonAdapter
             $this->personData['lastName'] = $person->getLastName();
             $this->personData['firstName'] = $person->getFirstName();
   		}
+  		// Remove trailing spaces
+  		$this->personData['firstName'] = preg_replace("/^(\ )*/", "", $this->personData['firstName']);
+        $this->personData['lastName'] = preg_replace("/^(\ )*/", "", $this->personData['lastName']);
 	}
 
   /**
