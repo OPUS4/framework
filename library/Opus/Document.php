@@ -723,6 +723,19 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
+     *
+     * @see    Opus_Model_AbstractDbSecure::delete()
+     * @return void
+     */
+    public function delete() {
+        // Remove from index
+        $indexer = new Opus_Search_Index_Indexer();
+        $indexer->removeDocumentFromEntryIndex($this);
+        parent::delete();        
+    }
+
+    /**
      * Provide read access to internal type field.
      *
      * @return string
