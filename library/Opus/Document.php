@@ -365,20 +365,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         // Add the server publication date as a field
         $serverDatePublished = new Opus_Model_Field('ServerDatePublished');
         $this->addField($serverDatePublished);
-    }
 
-    /**
-     * Store multiple languages as a comma seperated string.
-     *
-     * @return void
-     */
-    protected function _storeLanguage() {
-        if ($this->_fields['Language']->getValue() !== null) {
-            if ($this->_fields['Language']->hasMultipleValues()) {
-                $result = implode(',', $this->_fields['Language']->getValue());
-            } else {
-                $result = $this->_fields['Language']->getValue();
-        
         // Initialize available date fields and set up Opus_Date as model for them
         // if the particular field is present
         $dateFields = array(
@@ -392,6 +379,19 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
             }
         }
         
+    }
+
+    /**
+     * Store multiple languages as a comma seperated string.
+     *
+     * @return void
+     */
+    protected function _storeLanguage() {
+        if ($this->_fields['Language']->getValue() !== null) {
+            if ($this->_fields['Language']->hasMultipleValues()) {
+                $result = implode(',', $this->_fields['Language']->getValue());
+            } else {
+                $result = $this->_fields['Language']->getValue();
             }
         } else {
             $result = null;
