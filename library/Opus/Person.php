@@ -109,6 +109,15 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Returns name.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     */
+    public function getDisplayName() {
+       return $this->getName();
+    }
+
+    /**
      * Virtual field to deliver uniform representation of names.
      *
      * @return string
