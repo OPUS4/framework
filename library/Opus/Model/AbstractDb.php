@@ -109,7 +109,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         } else {
             $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
             if ($this->_primaryTableRow === null) {
-                throw new Opus_Model_Exception('No ' . get_class($tableGatewayModel) . " with id $id in database.");
+                throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id in database.");
             }
             $this->_isNewRecord = false;
         }
