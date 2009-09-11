@@ -122,8 +122,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 
 		try {
             $docArray = $document->toArray();
-            $this->documentData['pubDate'] = $docArray['ServerDatePublished']['day'] . '.' . $docArray['ServerDatePublished']['month'] . '.' . $docArray['ServerDatePublished']['year'];
-            if ($noyear === true && $docArray['ServerDatePublished']['year'] > 0) $this->documentData['year'] = $docArray['ServerDatePublished']['year'];
+            $this->documentData['pubDate'] = $docArray['ServerDatePublished']['Day'] . '.' . $docArray['ServerDatePublished']['Month'] . '.' . $docArray['ServerDatePublished']['Year'];
+            if ($noyear === true && $docArray['ServerDatePublished']['Year'] > 0) $this->documentData['year'] = $docArray['ServerDatePublished']['Year'];
 		} catch (Exception $e) {
 			$this->documentData['pubDate'] = 'No publication date specified';
 		}
