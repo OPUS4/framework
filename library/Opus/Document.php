@@ -101,6 +101,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'options' => array('type' => 'additional'),
                 'fetch' => 'lazy'
             ),
+            'IdentifierUuid' => array(
+                'model' => 'Opus_Identifier',
+                'options' => array('type' => 'uuid'),
+                'fetch' => 'lazy'
+            ),
             'IdentifierIsbn' => array(
                 'model' => 'Opus_Identifier',
                 'options' => array('type' => 'isbn'),
@@ -378,7 +383,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 $field->setValueModelClass('Opus_Date');
             }
         }
-        
+
+        // Add UUID field to be used as an external identifier.
+        $uuidField = new Opus_Model_Field('IdentifierUuid');
+        $uuidField->setMultiplicity(1);
+        $this->addField($uuidField);
     }
 
     /**
@@ -705,6 +714,25 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
 
         $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
+    }
+
+    /**
+     * Add UUID identifier if none has been added.
+     *
+     * @return void
+     */
+    protected function _storeIdentifierUuid() {
+        if (true === is_null($this->_fields['IdentifierUuid']->getValue())) {
+            $uuid_model = new Opus_Identifier;
+            $uuid_model->setValue(Opus_Identifier_UUID::generate());
+            $this->setIdentifierUuid($uuid_model);
+        }
+        if (array_key_exists('options', $this->_externalFields['IdentifierUuid']) === true) {
+            $options = $this->_externalFields['IdentifierUuid']['options'];
+        } else {
+            $options = null;
+        }
+        $this->_storeExternal($this->_fields['IdentifierUuid']->getValue(), $options);
     }
 
     /**
