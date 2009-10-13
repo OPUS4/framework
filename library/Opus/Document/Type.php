@@ -269,7 +269,6 @@ class Opus_Document_Type {
             $fieldname = $field->attributes->getNamedItem('name')->value;
             $mandatory =  $field->attributes->getNamedItem('mandatory');
             $multiplicity = $field->attributes->getNamedItem('multiplicity');
-            $frontdoorweight = $field->attributes->getNamedItem('frontdoorweight');
             $publishformweight = $field->attributes->getNamedItem('publishformweight');
             $adminformweight = $field->attributes->getNamedItem('adminformweight');
 
@@ -293,14 +292,6 @@ class Opus_Document_Type {
                 $fieldsdef[$fieldname]['mandatory'] = $mandval;
             } else {
                 $fieldsdef[$fieldname]['mandatory'] = false;
-            }
-
-            if (is_null($frontdoorweight) === false) {
-                if ($frontdoorweight->value > 0) {
-                    $this->_sortorder['frontdoor'][$fieldname] = $frontdoorweight->value;
-                } else {
-                    $this->_blacklist['frontdoor'][] = $fieldname;
-                }
             }
 
             if (is_null($publishformweight) === false) {
@@ -362,24 +353,6 @@ class Opus_Document_Type {
      */
     public function getPages() {
         return $this->_definition['pages'];
-    }
-
-    /**
-     * Return the names of all fields that should not be displayed in the frontdoor.
-     *
-     * @return array Array of field names.
-     */
-    public function getFrontdoorBlackList() {
-        return $this->_blacklist['frontdoor'];
-    }
-
-    /**
-     * Returns a sorted array of field names as they should be displayed in the frontdoor.
-     *
-     * @return array Sorted array of field names.
-     */
-    public function getFrontdoorSortOrder() {
-        return array_keys($this->_sortorder['frontdoor']);
     }
 
     /**

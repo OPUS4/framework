@@ -99,7 +99,6 @@
 		<attribute name="multiplicity" type="opus:multiplicity"
 			default="1" />
 		<attribute name="mandatory" type="opus:yesno" default="no" />
-		<attribute name="frontdoorweight" type="integer" />
 		<attribute name="adminformweight" type="integer" />
 		<attribute name="publishformweight" type="integer" />
 	</complexType>
