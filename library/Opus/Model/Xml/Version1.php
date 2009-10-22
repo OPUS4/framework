@@ -202,6 +202,17 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
 
             foreach ($fieldValues as $value) {
                 $childNode = $dom->createElement($fieldName);
+                if ($value instanceof Opus_Model_AbstractDb) {
+                    if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
+                        $modelId = $value->getLinkedModelId();
+                    } else {
+                        $modelId = $value->getId();
+                    }
+                    // Ignore compound keys.
+                    if (false === is_array($modelId)) {
+                        $childNode->setAttribute('Id', $modelId);
+                    }
+                }
                 $rootNode->appendChild($childNode);
 
                 // delivers a URI if a mapping for the given model exists
@@ -235,6 +246,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         $childNode = $dom->createElement(get_class($model));
+        $childNode->setAttribute('Id', $model->getId());
         $rootNode->appendChild($childNode);
 
         foreach ($fields_diff as $fieldname) {
