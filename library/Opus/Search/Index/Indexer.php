@@ -253,7 +253,7 @@ class Opus_Search_Index_Indexer {
         }
         // Add Collections to Subjects and find institutes 
         $document['institute'] = '';
-        $collections = $doc->getCollections();
+        $collections = $doc->getCollection();
         $collection_pathes = array();
         foreach ($collections as $coll_index=>$collection) {
             // Use collectionrole 1 for institutes

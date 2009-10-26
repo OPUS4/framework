@@ -271,6 +271,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'model' => 'Opus_File',
                 'fetch' => 'lazy'
             ),
+            'Collection' => array(
+                'model' => 'Opus_Collection',
+                'fetch' => 'lazy'
+            ),
         );
 
     /**
@@ -388,6 +392,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         $uuidField = new Opus_Model_Field('IdentifierUuid');
         $uuidField->setMultiplicity(1);
         $this->addField($uuidField);
+
+        // Add collection field.
+        $collectionField = new Opus_Model_Field('Collection');
+        $collectionField->setMultiplicity('*');
+        $this->addField($collectionField);
     }
 
     /**
@@ -620,23 +629,11 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
-     * Adds the document to a collection.
+     * Use custom fetching supplied by Opus_Collection_Information
      *
-     * @param  int  $role Role of the collection.
-     * @param  int  $id   Id of the collection
-     * @return void
+     * @return array An array of Opus_Collection objects.
      */
-    public function addToCollection($role_id, $collection_id) {
-        $collection = new Opus_Collection($role_id, $collection_id);
-        $collection->addEntry($this);
-    }
-
-    /**
-     * Get all collections this document is assigned to.
-     *
-     * @return array
-     */
-    public function getCollections() {
+    protected function _fetchCollection() {
         $collections = array();
         $coll_ids = Opus_Collection_Information::getAllDocumentCollectionIDs($this->getId());
         foreach ($coll_ids as $role) {
@@ -648,8 +645,6 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
         return $collections;
     }
-
-
 
     /**
      * Instantiates an Opus_Document from xml as delivered by the toXml()
