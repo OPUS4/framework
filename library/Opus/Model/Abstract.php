@@ -390,7 +390,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      */
     public function toXml(array $excludeFields = null) {
         if (is_null($excludeFields) === true) {
-            $excludeFields = array();
+            // FIXME: Hard coded definition of standard exclude fields.
+            $excludeFields = array('ParentCollection', 'SubCollection');
         }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
