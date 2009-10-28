@@ -634,16 +634,18 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      * @return array An array of Opus_Collection objects.
      */
     protected function _fetchCollection() {
-        $collections = array();
-        $coll_ids = Opus_Collection_Information::getAllDocumentCollectionIDs($this->getId());
-        foreach ($coll_ids as $role) {
-            $roles_id = $role['roles_id'];
-            foreach ($role['collections_id'] as $index => $collection) {
-                $collections_id = $collection;
-                $collections[] = new Opus_Collection($roles_id, $collections_id);
+        if (false === $this->isNewRecord()) {
+            $collections = array();
+            $coll_ids = Opus_Collection_Information::getAllDocumentCollectionIDs($this->getId());
+            foreach ($coll_ids as $role) {
+                $roles_id = $role['roles_id'];
+                foreach ($role['collections_id'] as $index => $collection) {
+                    $collections_id = $collection;
+                    $collections[] = new Opus_Collection($roles_id, $collections_id);
+                }
             }
+            return $collections;
         }
-        return $collections;
     }
 
     /**
