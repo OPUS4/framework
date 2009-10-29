@@ -758,12 +758,26 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     }
 
     /**
+     * Remove the model instance from the database.
+     * This only means: set state to deleted
+     *
+     * @return void
+     */
+    public function delete() {
+        // Remove from index
+        $indexer = new Opus_Search_Index_Indexer();
+        $indexer->removeDocumentFromEntryIndex($this);
+        $this->setServerState('deleted');
+        $this->store();
+    }
+
+    /**
      * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
      *
      * @see    Opus_Model_AbstractDbSecure::delete()
      * @return void
      */
-    public function delete() {
+    public function deletePermanent() {
         // Remove from index
         $indexer = new Opus_Search_Index_Indexer();
         $indexer->removeDocumentFromEntryIndex($this);
