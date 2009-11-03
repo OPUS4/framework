@@ -156,6 +156,14 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $parentCollectionField->setMultiplicity('*');
         $this->addField($parentCollectionField);
 
+        // Add a field to hold the collection role's name
+        $collectionRoleNameField = new Opus_Model_Field('RoleName');
+        $this->addField($collectionRoleNameField);
+
+        // Add a field to hold the collection role's id
+        $collectionRoleIdField = new Opus_Model_Field('RoleId');
+        $this->addField($collectionRoleIdField);
+
         // Add a field to hold visibility
         $visibility = new Opus_Model_Field('Visibility');
         $this->addField($visibility);
@@ -423,6 +431,38 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _storeParentCollection() {
 
     }
+
+    /**
+     * Returns the name of the collection's role name.
+     *
+     * @return string The name of the collection's role.
+     */
+    protected function _fetchRoleName() {
+        return $this->__role->getName();
+    }
+
+    /**
+     * Returns the name of the collection's role id.
+     *
+     * @return string The id of the collection's role.
+     */
+    protected function _fetchRoleId() {
+        return $this->__role_id;
+    }
+
+    /**
+     * Overwrites store procedure.
+     *
+     * @return void
+     */
+    protected function _storeRoleName() {}
+
+    /**
+     * Overwrites store procedure.
+     *
+     * @return void
+     */
+    protected function _storeRoleId() {}
 
     /**
      * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
