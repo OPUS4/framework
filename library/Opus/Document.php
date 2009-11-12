@@ -524,6 +524,48 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
+     *
+     * @return array Associative array with id=>array(titles) entries.
+     */
+    public static function getAllDocumentsByDoctypeByState($state) {
+        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
+        $select = $db->select()
+            ->from(array('d' => 'documents'),
+                    array('id', 'type'))
+            ->where('d.server_state = ?', $state);
+        $rows = $db->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row['id']] = $row['type'];
+        }
+
+        return $result;
+    }
+    /**
+     * Retrieve an array of all document titles of a document in a certain server
+     * (publication) state associated with the corresponding document id.
+     *
+     * @return array Associative array with id=>array(titles) entries.
+     */
+    public static function getAllDocumentsByDoctype() {
+        $db = Opus_Db_Documents;
+        $select = $db->select()
+            ->from(array('d' => 'documents'),
+                    array('id', 'type'));
+        $rows = $db->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row['id']] = $row['type'];
+        }
+
+        return $result;
+    }
+
+    /**
+     * Retrieve an array of all document titles of a document in a certain server
+     * (publication) state associated with the corresponding document id.
      * This array is sorted by authors (first one only)
      *
      * @return array Associative array with id=>array(titles) entries.
@@ -567,13 +609,49 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
 
         return $result;
     }
-/*SELECT d.id, p.last_name, p.first_name, t.value FROM documents as d
-JOIN persons as p
-JOIN document_title_abstracts as t ON t.document_id = d.id 
-JOIN link_persons_documents as pd ON pd.person_id = p.id and pd.document_id = d.id
-WHERE pd.role='author' and t.type = 'main' 
-group by d.id
-order by p.last_name*/
+
+    /**
+     * Retrieve an array of all document titles associated with the corresponding
+     * document id.
+     *
+     * @return array Associative array with id=>arary(titles) entries.
+     */
+    public static function getAllDocumentAuthors() {
+        $table = new Opus_Db_DocumentTitleAbstracts();
+        $select = $db->select()
+            ->from(array('d' => 'documents'),
+                    array('id'))
+            ->join(array('t' => 'document_title_abstracts'),
+                    't.document_id = d.id',
+                    array('value'))
+            ->join(array('p' => 'persons'),
+                    NULL,
+                    array('last_name', 'first_name'))
+            ->join(array('pd' => 'link_persons_documents'),
+                   'pd.document_id = d.id and pd.person_id = p.id')
+            ->where('t.type = ?', 'main')
+            ->where('pd.role = ?', 'author')
+            ->group('d.id')
+            ->order('p.last_name');
+        $rows = $table->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[$row->document_id][] = $row->value;
+        }
+
+        // Check for further results without title
+        $table = new Opus_Db_Documents();
+        $rows = $table->fetchAll();
+
+        foreach ($rows as $row) {
+            if (array_key_exists($row->id, $result) === false) {
+                $result[$row->id][] = 'No title specified for ID ' . $row->id;
+            }
+        }
+        return $result;
+    }
+
     /**
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
