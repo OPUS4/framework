@@ -264,16 +264,19 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     protected function _fetchTheme() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
+        $config = Zend_Registry::get('Zend_Config');
+                
+        // Find default theme: if not set in config file, set to default.
+        $theme = isset($config->theme) === true ? $config->theme : self::DEFAULT_THEME_NAME;
+
+        // Search for theme in database and, if exists, overwrite default theme.
         if (false === $this->isNewRecord()) {
             $row = $table->fetchRow($table->select()->where('role_id = ?', $this->__role_id)->where('collection_id = ?', $this->getId()));
-            if (true === is_null($row)) {
-                $theme = self::DEFAULT_THEME_NAME;
-            } else {
+            if (false === is_null($row)) {
                 $theme = $row->theme;
             }
-        } else {
-            $theme = self::DEFAULT_THEME_NAME;
         }
+
         return $theme;
     }
 

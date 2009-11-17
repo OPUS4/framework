@@ -362,6 +362,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return string
      */
     public function getTheme() {
-        return 'default';
+        // FIXME: As hot-fix, we take the theme which is assigned to the root collection,
+        // FIXME: i.e. the collection we get by omitting the collection_id parameter.
+        // FIXME: Please check and remove TODO-tag if fixed properly.
+        $collection = new Opus_Collection( $this->getId() );
+        return $collection->getTheme();
     }
 }
