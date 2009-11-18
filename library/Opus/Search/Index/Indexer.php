@@ -177,7 +177,7 @@ class Opus_Search_Index_Indexer {
                 $iterim = $this->getValue($doc, $dateField);
                 if (null !== $iterim && true === is_object($iterim)) {
                     // set another year than CompletedYear
-                    $document['year'] = $iterim->get('YYYY'); 
+                    $document['year'] = $iterim->getYear();
                     break;
                 }
             }
