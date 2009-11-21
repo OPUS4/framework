@@ -392,6 +392,13 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 $options = null;
             }
 
+            // Get declared sort order if any
+            if (array_key_exists('sort_order', $this->_externalFields[$fieldname]) === true) {
+                $sort_order = $this->_externalFields[$fieldname]['sort_order'];
+            } else {
+                $sort_order = null;
+            }
+
             // Determine the class of the field values model
             if (array_key_exists('through', $this->_externalFields[$fieldname])) {
                 // If handling a link model, fetch modelclass from 'through' option.
@@ -432,6 +439,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 }
             } else {
                 $select = null;
+            }
+
+            if (is_null($sort_order) === false && is_null($select) === false) {
+                foreach ($sort_order as $column => $order) {
+                    $select = $select->order("$column $order");
+                }
             }
 
             // Get dependent rows
