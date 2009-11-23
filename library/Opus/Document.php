@@ -492,6 +492,8 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      * (publication) state associated with the corresponding document id.
      *
      * @return array Associative array with id=>array(titles) entries.
+     *
+     * TODO: replace more flexible *and* more efficent getAllDocumentIdsByStateSorted(...)
      */
     public static function getAllDocumentTitlesByState($state) {
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
@@ -534,7 +536,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
      *
      * @return array Array with IDs returned by database.  No additional information.
      *
-     * FXIME: Limit number of hits
+     * TODO: Limit number of hits
      */
      public static function getAllDocumentIdsByStateSorted($state, $sort_options) {
          $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
