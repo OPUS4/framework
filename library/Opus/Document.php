@@ -29,6 +29,7 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -507,7 +508,12 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         foreach ($rows as $row) {
             $result[$row['document_id']][] = $row['value'];
         }
+
         // Check if there are documents without title
+        // FIXME: This statement is obsolete, if we use a left-join between
+        // FIXME: (documents, document_title_abstracts).  Fetching *all*
+        // FIXME: entries from documents, just toi make this check is not
+        // FIXME: reasonable!
         $select = $db->select()
             ->from('documents')
             ->where('server_state = ?', $state);
@@ -520,6 +526,42 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
 
         return $result;
+    }
+
+    /**
+     * Retrieve an array of all document indices of a document in a certain server
+     * (publication) state.  The list can be sorted by the given sort keys.
+     *
+     * @return array Array with IDs returned by database.  No additional information.
+     *
+     * FXIME: Limit number of hits
+     */
+     public static function getAllDocumentIdsByStateSorted($state, $sort_options) {
+         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
+         $select = $db->select()
+             ->from(array('d' => 'documents'), array('id', 'published_date AS date', 'server_date_published'))
+             ->joinLeft(array('t' => 'document_title_abstracts'), 't.document_id = d.id', array('t.value AS title'))
+             ->where('t.type = ?', 'main')
+             ->where('d.server_state = ?', $state);
+
+         if (is_array($sort_options)) {
+            foreach ($sort_options as $sort_order => $sort_reverse) {
+               if (is_null($sort_reverse)) {
+                  $sort_reverse = false;
+               }
+
+               $select = $select->order( "$sort_order " . ($sort_reverse === true ? 'DESC' : 'ASC') );
+            }
+         }
+
+         $result = array();
+         $rows = $db->fetchAll($select);
+     
+         foreach ($rows as $row) {
+            $result[] = $row['id'];
+         }
+
+         return $result;
     }
 
     /**
@@ -543,6 +585,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
 
         return $result;
     }
+
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
@@ -596,7 +639,12 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         foreach ($rows as $row) {
             $result[$row['document_id']][] = $row['value'];
         }
+
         // Check if there are documents without title
+        // FIXME: This statement is obsolete, if we use a left-join between
+        // FIXME: (documents, document_title_abstracts).  Fetching *all*
+        // FIXME: entries from documents, just toi make this check is not
+        // FIXME: reasonable!
         $select = $db->select()
             ->from('documents')
             ->where('server_state = ?', $state);
@@ -642,6 +690,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
 
         // Check for further results without title
+        // FIXME: This statement is obsolete, if we use a left-join between
+        // FIXME: (documents, document_title_abstracts).  Fetching *all*
+        // FIXME: entries from documents, just toi make this check is not
+        // FIXME: reasonable!
         $table = new Opus_Db_Documents();
         $rows = $table->fetchAll();
 
@@ -672,6 +724,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
         }
 
         // Check for further results without title
+        // FIXME: This statement is obsolete, if we use a left-join between
+        // FIXME: (documents, document_title_abstracts).  Fetching *all*
+        // FIXME: entries from documents, just toi make this check is not
+        // FIXME: reasonable!
         $table = new Opus_Db_Documents();
         $rows = $table->fetchAll();
 
