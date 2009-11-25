@@ -96,7 +96,7 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
      */
     public function getName() {
         $name = '';
-        if (false === is_null($this->getAcademicTitle())) {
+        if (false === is_null($this->getAcademicTitle()) && ! $this->getAcademicTitle() === '') {
             $name .= $this->getAcademicTitle() . ' ';
         }
         $name .= $this->getShortName();
