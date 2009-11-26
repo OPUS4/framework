@@ -390,14 +390,10 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
             }
         }
 
-        // Add Identifier fields to be used as an external identifier.
-        $identFields = array( 'IdentifierUuid', 'IdentifierIsbn',
-            'IdentifierIssn', 'IdentifierDoi' );
-        foreach ($identFields as $fieldName) {
-            $field = new Opus_Model_Field($fieldName);
-            # $uuidField->setMultiplicity(1);
-            $this->addField($field);
-        }
+        // Add UUID field to be used as an external identifier.
+        $uuidField = new Opus_Model_Field('IdentifierUuid');
+        $uuidField->setMultiplicity(1);
+        $this->addField($uuidField);
 
         // Add collection field.
         $collectionField = new Opus_Model_Field('Collection');
