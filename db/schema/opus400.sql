@@ -229,7 +229,7 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Sort order of the persons related to the document.' ,
   `allow_email_contact` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Is e-mail contact in the actual document-person context allowed? (1=yes, 0=no).' ,
   INDEX `fk_link_documents_persons_persons` (`person_id` ASC) ,
-  PRIMARY KEY (`person_id`, `document_id`) ,
+  PRIMARY KEY (`person_id`, `document_id`, `role`) ,
   INDEX `fk_link_persons_publications_institutes_contents` (`institute_id` ASC) ,
   INDEX `fk_link_persons_documents_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_link_documents_persons_persons`
