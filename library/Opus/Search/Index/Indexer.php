@@ -49,6 +49,12 @@ class Opus_Search_Index_Indexer {
 	 */
 	private $indexPath;
 
+    /**
+     * Document that should get indexed by this object
+     * This should spare memory at all
+     */
+    private $docToIndex = null;
+
 	/**
 	 * Constructor
 	 *
@@ -87,15 +93,17 @@ class Opus_Search_Index_Indexer {
 	 */
 	public function addDocumentToEntryIndex(Opus_Document $doc)
 	{
+        $this->docToIndex = $doc;
+        unset($doc);
+
     	$returnarray = array();
 
     	try {
     	    // remove existing entries
-    	    if (count($this->entryindex->find('docid:' . $doc->getId() . ' ')) > 0) {
-    	        $this->removeDocumentFromEntryIndex($doc);
+    	    if (count($this->entryindex->find('docid:' . $this->docToIndex->getId() . ' ')) > 0) {
+    	        $this->removeDocumentFromEntryIndex($this->docToIndex);
     	    }
-    	    $analyzedDocs = $this->analyzeDocument($doc);
-            unset($doc);
+    	    $analyzedDocs = $this->analyzeDocument();
     	    foreach ($analyzedDocs as $analyzedDoc) {
 			 	if (true === array_key_exists('exception', $analyzedDoc))
 			 	{
@@ -127,12 +135,16 @@ class Opus_Search_Index_Indexer {
      * @throws Exception Exceptions from Zend_Search_Lucene are thrown
      * @return void
      */
-    public function removeDocumentFromEntryIndex(Opus_Document &$doc)
+    public function removeDocumentFromEntryIndex(Opus_Document $doc = null)
     {
+    	if ($doc !== null) {
+    		$this->docToIndex = $doc;
+    		unset ($doc);
+    	}
         try {
             // Weird: some IDs are only found with adding whitespace behind the query...
             // So let's add a space behind the ID.
-            $hits = $this->entryindex->find('docid:' . $doc->getId() . ' ');
+            $hits = $this->entryindex->find('docid:' . $this->docToIndex->getId() . ' ');
             foreach ($hits as $hit) {
                 $this->entryindex->delete($hit->id);
             }
@@ -154,15 +166,15 @@ class Opus_Search_Index_Indexer {
     	flush();
 	}
 
-	private function analyzeDocument(Opus_Document $doc) {
+	private function analyzeDocument() {
         $returnarray = array();
         $langarray = array();
 
-	    $docarray = $doc->toArray();
-	    $document['docid'] = $doc->getId();
+	    $docarray = $this->docToIndex->toArray();
+	    $document['docid'] = $this->docToIndex->getId();
 	    #unset($doc);
-	    $document['year'] = $this->getValue($doc, 'CompletedYear');
-	    $document['doctype'] = $this->getValue($doc, 'Type');
+	    $document['year'] = $this->getValue($this->docToIndex, 'CompletedYear');
+	    $document['doctype'] = $this->getValue($this->docToIndex, 'Type');
 
         // if there is no year set, search in other fields for a usable year
         if ('0000' === $document['year'] && true === array_key_exists('year', $document)) {
@@ -174,7 +186,7 @@ class Opus_Search_Index_Indexer {
                 );
             $result = null;
             foreach ($dateList as $dateField) {
-                $iterim = $this->getValue($doc, $dateField);
+                $iterim = $this->getValue($this->docToIndex, $dateField);
                 if (null !== $iterim && true === is_object($iterim)) {
                     // set another year than CompletedYear
                     $document['year'] = $iterim->getYear();
@@ -183,19 +195,19 @@ class Opus_Search_Index_Indexer {
             }
         }
 
-	    $document['urn'] = $this->getValue($doc, 'IdentifierUrn', 'Value');
-	    $document['isbn'] = $this->getValue($doc, 'IdentifierIsbn', 'Value');
+	    $document['urn'] = $this->getValue($this->docToIndex, 'IdentifierUrn', 'Value');
+	    $document['isbn'] = $this->getValue($this->docToIndex, 'IdentifierIsbn', 'Value');
 
 
-        $document['author'] = $this->getValue($doc, 'PersonAuthor', 'Name');
+        $document['author'] = $this->getValue($this->docToIndex, 'PersonAuthor', 'Name');
 
         $document['persons'] = '';
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonAdvisor', 'Name');
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonContributor', 'Name');
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonEditor', 'Name');
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonOther', 'Name');
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonReferee', 'Name');
-        $document['persons'] .= ' ' . $this->getValue($doc, 'PersonTranslator', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonAdvisor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonContributor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonEditor', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonOther', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonReferee', 'Name');
+        $document['persons'] .= ' ' . $this->getValue($this->docToIndex, 'PersonTranslator', 'Name');
 
         // Look at all titles of the document
         $titles = '';
@@ -246,14 +258,14 @@ class Opus_Search_Index_Indexer {
         );        
         $document['subject'] = '';
         foreach ($subjectTypeList as $subjectType) {
-            $subjectValue = $this->getValue($doc, $subjectType, 'Value');
+            $subjectValue = $this->getValue($this->docToIndex, $subjectType, 'Value');
             if (false === empty($subjectValue)) {
                 $document['subject'] .= ' ' . $subjectValue;
             }
         }
         // Add Collections to Subjects and find institutes 
         $document['institute'] = '';
-        $collections = $doc->getCollection();
+        $collections = $this->docToIndex->getCollection();
         $collection_pathes = array();
         foreach ($collections as $coll_index=>$collection) {
             // Use collectionrole 1 for institutes
