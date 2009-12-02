@@ -82,21 +82,6 @@ CREATE  TABLE IF NOT EXISTS `document_identifiers` (
 ENGINE = InnoDB
 COMMENT = 'Table for identifiers  related to the document.';
 
-
--- -----------------------------------------------------
--- Table `institutes_contents`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `institutes_contents` (
-  `id` INT UNSIGNED NOT NULL COMMENT 'Primary key.' ,
-  `type` VARCHAR(50) NOT NULL COMMENT 'Type of institute.' ,
-  `name` VARCHAR(255) NOT NULL COMMENT 'Name or description of the institute.' ,
-  `postal_address` TEXT NULL COMMENT 'Postal address.' ,
-  `site` TEXT NULL COMMENT 'URI to the website of the institute.' ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-COMMENT = '(Relation) table for institute related data.';
-
-
 -- -----------------------------------------------------
 -- Table `document_files`
 -- -----------------------------------------------------
@@ -349,65 +334,6 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
 ENGINE = InnoDB
 COMMENT = 'Table for licence related data.';
 
-
--- -----------------------------------------------------
--- Table `institutes_structure`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `institutes_structure` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: institutes_contents.institutes_id.' ,
-  `left` INT UNSIGNED NOT NULL COMMENT 'The left value of the nested set node.' ,
-  `right` INT UNSIGNED NOT NULL COMMENT 'The right value of the nested set node.' ,
-  `visible` TINYINT NOT NULL COMMENT 'Is the institute visible? (1=yes, 0=no).' ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_institutes_structure_institutes_contents` (`institutes_id` ASC) ,
-  CONSTRAINT `fk_institutes_structure_institutes_contents`
-    FOREIGN KEY (`institutes_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-COMMENT = 'Table for the structure of the institutes hierarchy.';
-
-
--- -----------------------------------------------------
--- Table `institutes_replacement`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `institutes_replacement` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `institutes_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to actual displayed/processed institute.' ,
-  `replacement_for_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to replaced institute.' ,
-  `replacement_by_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to replacing institute.' ,
-  `current_replacement_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id. Reference to direct succeeding institute.' ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_link_institute` (`institutes_id` ASC) ,
-  INDEX `fk_link_institute_replacement_for` (`replacement_for_id` ASC) ,
-  INDEX `fk_link_institute_replacement_by` (`replacement_by_id` ASC) ,
-  INDEX `fk_link_institute_current_replacement` (`current_replacement_id` ASC) ,
-  CONSTRAINT `fk_link_institute`
-    FOREIGN KEY (`institutes_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_link_institute_replacement_for`
-    FOREIGN KEY (`replacement_for_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_link_institute_replacement_by`
-    FOREIGN KEY (`replacement_by_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_link_institute_current_replacement`
-    FOREIGN KEY (`current_replacement_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-COMMENT = 'Table for the institutes history related data.';
-
-
 -- -----------------------------------------------------
 -- Table `accounts`
 -- -----------------------------------------------------
@@ -494,30 +420,6 @@ CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, document_licences).';
-
-
--- -----------------------------------------------------
--- Table `link_institutes_documents`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `link_institutes_documents` (
-  `institute_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: institutes_contents.institutes_id.' ,
-  `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
-  `role` ENUM('publisher','creator','other') NOT NULL COMMENT 'Role of the institute in the actual institute-document context.' ,
-  PRIMARY KEY (`institute_id`, `document_id`) ,
-  INDEX `fk_institutes_contents_has_documents_institutes_contents` (`institute_id` ASC) ,
-  INDEX `fk_institutes_contents_has_documents_documents` (`document_id` ASC) ,
-  CONSTRAINT `fk_institutes_contents_has_documents_institutes_contents`
-    FOREIGN KEY (`institute_id` )
-    REFERENCES `institutes_contents` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_institutes_contents_has_documents_documents`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `documents` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-COMMENT = 'Relation table (documents, institutes_contents).';
 
 
 -- -----------------------------------------------------
