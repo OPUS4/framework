@@ -85,6 +85,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     protected function _init() {
         $name = new Opus_Model_Field('Name');
+        $oaiName = new Opus_Model_Field('OaiName');
         $position = new Opus_Model_Field('Position');
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
         $links_docs_path_to_root->setCheckbox(true);
@@ -97,8 +98,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $displayBrowsing = new Opus_Model_Field('DisplayBrowsing');
         $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
         $displayDoclist = new Opus_Model_Field('DisplayDoclist');
+        $displayOai = new Opus_Model_Field('DisplayOai');
 
         $this->addField($name)
+            ->addField($oaiName)
             ->addField($position)
             ->addField($links_docs_path_to_root)
             ->addField($visible)
@@ -106,7 +109,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             ->addField($collectionsContentSchema)
             ->addField($displayBrowsing)
             ->addField($displayFrontdoor)
-            ->addField($displayDoclist);
+            ->addField($displayDoclist)
+            ->addField($displayOai);
         Opus_Collection_Information::cleanup();
 
   }
