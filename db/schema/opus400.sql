@@ -386,15 +386,18 @@ COMMENT = 'Relation table (roles, ipaddress).';
 CREATE  TABLE IF NOT EXISTS `collections_roles` (
   `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
+  `oai_name` VARCHAR(255) NOT NULL COMMENT 'Shortname identifying role in oai context.' ,
   `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
   `link_docs_path_to_root` ENUM('none', 'count', 'display', 'both') default 'none' COMMENT 'Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree for document counting, document diplaying, none or both.',
   `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Is the collection visible? (1=yes, 0=no).' ,
-  `display_browsing` VARCHAR(512) NULL ,
-  `display_doclist` VARCHAR(512) NULL ,
-  `display_col_front` VARCHAR(512) NULL ,
-  `display_frontdoor` VARCHAR(512) NULL ,
+  `display_browsing` VARCHAR(512) NULL COMMENT 'Comma separated list of collection_contents_x-fields to display in browsing context.' ,
+  `display_doclist` VARCHAR(512) NULL COMMENT 'Comma separated list of collection_contents_x-fields to display in document list context.' ,
+  `display_col_front` VARCHAR(512) NULL COMMENT 'Comma separated list of collection_contents_x-fields to display in collection frontdoor context.' ,
+  `display_frontdoor` VARCHAR(512) NULL COMMENT 'Comma separated list of collection_contents_x-fields to display in frontdoor context.' ,
+  `display_oai` VARCHAR(512) NULL COMMENT 'collection_contents_x-field to display in oai context.' ,
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) )
+  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
+  UNIQUE INDEX `UNIQUE_OAI_NAME` (`oai_name` ASC) )
 ENGINE = InnoDB
 COMMENT = 'Administration table for the indivdual collection trees.';
 
