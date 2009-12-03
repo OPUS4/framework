@@ -53,8 +53,6 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
     /**
      * Initialize model with the following fields:
      * - AcademicTitle
-     * - DateOfBirth
-     * - PlaceOfBirth
      * - Email
      * - FirstName
      * - LastName
@@ -63,11 +61,6 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
      */
     protected function _init() {
         $academic_title = new Opus_Model_Field('AcademicTitle');
-
-        $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setValueModelClass('Opus_Date');
-
-        $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
         $email->setValidator(new Zend_Validate_EmailAddress());
@@ -81,8 +74,6 @@ class Opus_Person extends Opus_Model_AbstractDbSecure
         $name = new Opus_Model_Field('Name');
 
         $this->addField($academic_title)
-            ->addField($date_of_birth)
-            ->addField($place_of_birth)
             ->addField($email)
             ->addField($first_name)
             ->addField($last_name)

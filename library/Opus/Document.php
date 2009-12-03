@@ -218,8 +218,8 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
                 'fetch' => 'lazy'
             ),
             'PersonAuthor' => array(
-                'model' => 'Opus_Person',
-                'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'model' => 'Opus_PersonLong',
+                'through' => 'Opus_Model_Dependent_Link_DocumentPersonLong',
                 'options'  => array('role' => 'author'),
                 'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                 'fetch' => 'lazy'
