@@ -42,7 +42,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Document extends Opus_Model_AbstractDbSecure
+class Opus_Document extends Opus_Model_AbstractDb
 {
 
 
@@ -964,7 +964,7 @@ class Opus_Document extends Opus_Model_AbstractDbSecure
     /**
      * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
      *
-     * @see    Opus_Model_AbstractDbSecure::delete()
+     * @see    Opus_Model_AbstractDb::delete()
      * @return void
      */
     public function deletePermanent() {

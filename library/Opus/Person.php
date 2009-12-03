@@ -40,7 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Person extends Opus_Model_AbstractDbSecure
+class Opus_Person extends Opus_Model_AbstractDb
 {
 
     /**
