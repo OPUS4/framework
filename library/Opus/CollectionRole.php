@@ -323,9 +323,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // FIXME: Move exclusion to database query.
         $result = array();
         foreach ($roles as $role) {
-//            if ($role->getId() != 1) {
+            if ($role->getId() != 1) {
                 $result[] = $role;
-//            }
+            }
         }
         return $result;
 
