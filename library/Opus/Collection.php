@@ -265,7 +265,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _fetchTheme() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
         $config = Zend_Registry::get('Zend_Config');
-                
+
         // Find default theme: if not set in config file, set to default.
         $theme = isset($config->theme) === true ? $config->theme : self::DEFAULT_THEME_NAME;
 
@@ -482,7 +482,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
                     'RoleName' => $role->getDisplayName(),
                     'DisplayBrowsing' => $this->getDisplayName('browsing'),
                     'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
-                    'DisplayDoclist' => $this->getDisplayName('doclist'),
+                    'DisplayOai' => $this->getDisplayName('oai'),
         );
 
         foreach (array_keys($this->_fields) as $fieldname) {

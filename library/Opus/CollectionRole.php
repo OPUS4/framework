@@ -84,32 +84,43 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _init() {
+        //$allRoles = self::getAll();
+        //$countRoles = count($allRoles);
+
         $name = new Opus_Model_Field('Name');
         $oaiName = new Opus_Model_Field('OaiName');
         $position = new Opus_Model_Field('Position');
+        //$position->setDefault(array_combine(range(1,$countRoles+1),range(1,$countRoles+1)))->setSelection(true);
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
-        $links_docs_path_to_root->setCheckbox(true);
+        $links_docs_path_to_root->setDefault(array('none'=>'none', 'count'=>'count', 'display'=>'display', 'both'=>'both'))->setSelection(true);
         $visible = new Opus_Model_Field('Visible');
         $visible->setCheckbox(true);
+        $visibleBrowsingStart = new Opus_Model_Field('VisibleBrowsingStart');
+        $visibleBrowsingStart->setCheckbox(true);
         $subcollection = new Opus_Model_Field('SubCollection');
         $subcollection->setMultiplicity('*');
         $collectionsContentSchema = new Opus_Model_Field('CollectionsContentSchema');
         $collectionsContentSchema->setMultiplicity('*');
         $displayBrowsing = new Opus_Model_Field('DisplayBrowsing');
         $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
-        $displayDoclist = new Opus_Model_Field('DisplayDoclist');
+        $visibleFrontdoor = new Opus_Model_Field('VisibleFrontdoor');
+        $visibleFrontdoor->setCheckbox(true);
         $displayOai = new Opus_Model_Field('DisplayOai');
+        $visibleOai = new Opus_Model_Field('VisibleOai');
+        $visibleOai->setCheckbox(true);
 
         $this->addField($name)
             ->addField($oaiName)
             ->addField($position)
             ->addField($links_docs_path_to_root)
             ->addField($visible)
+            ->addField($visibleBrowsingStart)
             ->addField($subcollection)
             ->addField($collectionsContentSchema)
             ->addField($displayBrowsing)
+            ->addField($visibleFrontdoor)
             ->addField($displayFrontdoor)
-            ->addField($displayDoclist)
+            ->addField($visibleOai)
             ->addField($displayOai);
         Opus_Collection_Information::cleanup();
 
@@ -259,12 +270,19 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         if ($to < 1) {
             return;
         }
-        $from = $this->_primaryTableRow->position;
         $table = $this->_primaryTableRow->getTable();
         $roles = $table->fetchAll();
-        if ($to > count($roles)) {
+        $from = $this->_primaryTableRow->position;
+
+        if (true === empty($from)) {
+            $from = PHP_INT_MAX ;
+            if ($to > (count($roles)+1)) {
+                $to = count($roles);
+            }
+        } else if ($to > (count($roles))) {
             $to = count($roles);
         }
+
         if ($from < $to) {
             foreach ($roles as $role) {
                 if ($role->position <= $to and $role->position > $from) {
@@ -305,9 +323,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // FIXME: Move exclusion to database query.
         $result = array();
         foreach ($roles as $role) {
-            if ($role->getId() != 1) {
+//            if ($role->getId() != 1) {
                 $result[] = $role;
-            }
+//            }
         }
         return $result;
 
