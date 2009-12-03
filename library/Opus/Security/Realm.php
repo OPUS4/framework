@@ -26,6 +26,7 @@
  *
  * @category    Framework
  * @package     Opus_Model
+ * @author		Pascal-Nicolas Becker <becker@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -34,8 +35,8 @@
  */
 
 /**
- * This singleton class encapsulates all security secific information
- * like the current User, Role and Acl.
+ * This singleton class encapsulates all security specific information
+ * like the current User, IP address, and method to check rights.
  *
  * @category    Framework
  * @package     Opus_Security
@@ -44,120 +45,106 @@ class Opus_Security_Realm {
 
 
     /**
-     * The current access control list.
+     * The current user roles.
      *
-     * @var Zend_Acl
+	 * @var array
      */
-    protected $_acl = null;
+    protected $_roles = array();
+
+	/**
+	 * The current username.
+	 * 
+	 * @var string
+	 */
+	protected $_username = 'guest';
+
+	/**
+	 * Thre current ip address
+	 *
+	 * @var string
+	 */
+	protected $_ipaddress = null;
+
+	/**
+	 * Set the current username.
+	 *
+	 * @param string username username to be set.
+	 * @return Opus_Security_Realm Fluent interface.
+	 */
+	public function setUser($username) {
+		if (true === is_null($username)) {
+			$username = 'guest';
+		}
+		$this->_username = $username;
+		$this->_setRoles();
+		return $this;
+	}
+
+	/**
+	 * Set the current ip address.
+	 *
+	 * @param string ipaddress ip address to be set.
+	 * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
+	 * @return Opus_Security_Realm Fluent interface.
+	 */
+	public function setIp($ipaddress) {
+		$regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+		 		 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+				 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+				 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
+		if (false === is_null($ipaddress) && 1 !== preg_match($regex, $ipaddress)) {
+			throw new Opus_Security_Exception("$ipaddress is not a valid IP address!");
+		}
+		$this->_ipaddress = $ipaddress;
+		$this->_setRoles();
+		return $this;
+	}
+
+	/**
+	 * Set internal roles from current username/ipaddress.
+	 *
+	 * @return Opus_Security_Realm Fluent interface.
+	 */
+	private function _setRoles() {
+		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles();
+		return $this;
+	}
 
     /**
-     * The current user role.
+	 * FIXME
+     * Get the roles that are assigned to the specified username.
      *
-     * @var Zend_Acl_Role_Interface
-     */
-    protected $_role = null;
-
-
-    /**
-     * The current master resource all newly created resources shall belong to.
-     *
-     * @var Zend_Acl_Resource_Interface
-     */
-    protected $_resource = null;
-
-    /**
-     * Set the current Acl instance.
-     *
-     * @param Zend_Acl Acl instance to be set.
-     * @return Opus_Security_Realm Fluent interface.
-     */
-    public function setAcl($acl) {
-        $this->_acl = $acl;
-    }
-
-    /**
-     * Return the current Acl.
-     *
-     * @return Zend_Acl Current Acl instance.
-     */
-    public function getAcl() {
-        return $this->_acl;
-    }
-
-
-    /**
-     * Set the current Role instance.
-     *
-     * @param Zend_Acl_Role_Interface $role Role instance to be set.
-     * @return Opus_Security_Realm Fluent interface.
-     */
-    public function setRole($role) {
-        $this->_role = $role;
-    }
-
-    /**
-     * Return the current Role.
-     *
-     * @return Zend_Acl_Role_Interface Current Role instance.
-     */
-    public function getRole() {
-        return $this->_role;
-    }
-
-
-    /**
-     * Set the current Master Resource instance.
-     *
-     * @param Zend_Acl_Resource_Interface $master Resource instance to be set.
-     * @return Opus_Security_Realm Fluent interface.
-     */
-    public function setResourceMaster($master) {
-        $this->_resource = $master;
-    }
-
-    /**
-     * Return the current Master Resource.
-     *
-     * @return Zend_Acl_Resource_Interface Current Master Resource instance.
-     */
-    public function getResourceMaster() {
-        return $this->_resource;
-    }
-
-
-    /**
-     * Get the roles that are assigned to the specified identity.
-     *
-     * @param string $identity The name of the queried identity.
+     * @param string $username The name of the queried username.
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return string|array
      */
-    public function getIdentityRole($identity) {
-        $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
-        if (null === $account) {
-            throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
-        }
+    public function getUsernameRoles($username) {
+        // $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
+        // $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
+        // if (null === $account) {
+        //     throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
+        // }
 
-        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
-        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
-        $assignedRoles = $account->findManyToManyRowset($roles, $link);
+        // $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        // $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
+        // $assignedRoles = $account->findManyToManyRowset($roles, $link);
 
-        if (1 === $assignedRoles->count()) {
-            // return the role name
-            return $assignedRoles->current()->name;
-        } else if ($assignedRoles->count() > 1) {
-            $result = array();
-            foreach ($assignedRoles as $arole) {
-                $result[] = $arole->name;
-            }
-            return $result;
-        }
+        // if (1 === $assignedRoles->count()) {
+        //     // return the role name
+        //     return $assignedRoles->current()->name;
+        // } else if ($assignedRoles->count() > 1) {
+        //     $result = array();
+        //     foreach ($assignedRoles as $arole) {
+        //         $result[] = $arole->name;
+        //     }
+        //     return $result;
+        // }
 
         return null;
     }
 
     /**
+	 * FIXME
      * Map an IP address to Roles.
      *
      * @param string $ipaddress IP address.
@@ -165,30 +152,30 @@ class Opus_Security_Realm {
      *                           Null if no Role is assigned to the given IP address.
      */
     public function getIpaddressRole($ipaddress) {
-        if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
-            return null;
-        }
+        // if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
+        //     return null;
+        // }
 
-        $ipTable = new Opus_Db_Ipaddresses();
-        $iprow = $ipTable->fetchRow($ipTable->select()->where('ipaddress = ?', $ipaddress));
-        if ($iprow === null) {
-            return null;
-        }
+        // $ipTable = new Opus_Db_Ipaddresses();
+        // $iprow = $ipTable->fetchRow($ipTable->select()->where('ipaddress = ?', $ipaddress));
+        // if ($iprow === null) {
+        //     return null;
+        // }
 
-        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
-        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
-        $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
+        // $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        // $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
+        // $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
 
-        if (1 === $assignedRoles->count()) {
-            // return the role name
-            return $assignedRoles->current()->name;
-        } else if ($assignedRoles->count() > 1) {
-            $result = array();
-            foreach ($assignedRoles as $arole) {
-                $result[] = $arole->name;
-            }
-            return $result;
-        }
+        // if (1 === $assignedRoles->count()) {
+        //     // return the role name
+        //     return $assignedRoles->current()->name;
+        // } else if ($assignedRoles->count() > 1) {
+        //     $result = array();
+        //     foreach ($assignedRoles as $arole) {
+        //         $result[] = $arole->name;
+        //     }
+        //     return $result;
+        // }
 
         return null;
     }
