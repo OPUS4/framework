@@ -80,7 +80,7 @@ class Opus_Search_Index_Indexer {
                 throw $zsle;
             }
         }
-        // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index 
+        // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index
         $this->entryindex->setMaxBufferedDocs($bufferedDocs);
 	}
 
@@ -255,7 +255,7 @@ class Opus_Search_Index_Indexer {
             'SubjectSwd',
             'SubjectPsyndex',
             'SubjectUncontrolled'
-        );        
+        );
         $document['subject'] = '';
         foreach ($subjectTypeList as $subjectType) {
             $subjectValue = $this->getValue($this->docToIndex, $subjectType, 'Value');
@@ -263,7 +263,7 @@ class Opus_Search_Index_Indexer {
                 $document['subject'] .= ' ' . $subjectValue;
             }
         }
-        // Add Collections to Subjects and find institutes 
+        // Add Collections to Subjects and find institutes
         $document['institute'] = '';
         $collections = $this->docToIndex->getCollection();
         $collection_pathes = array();
@@ -284,7 +284,7 @@ class Opus_Search_Index_Indexer {
                 $document[$doc_index] .= ' ' . $parent['DisplayFrontdoor'];
             }
         }
-        
+
 
         // index files (each file will get one data set)
         if (true === array_key_exists('File', $docarray)) {
@@ -363,22 +363,24 @@ class Opus_Search_Index_Indexer {
        		foreach ($values as $value) {
        		    if ($attName !== '') {
        			    $attCaller = 'get' . $attName;
-                    $returnValue .= $value->$attCaller() . ' '; 
+                    $returnValue .= $value->$attCaller() . '; ';
        		    }
        		    else {
-           		    $returnValue .= $value . ' ';
-           		}       			
+           		    $returnValue .= $value . '; ';
+           		}
        		}
        	}
        	else {
        		if ($attName !== '' && $doc->$roleCaller() !== null) {
    			    $attCaller = 'get' . $attName;
-                $returnValue = $doc->$roleCaller()->$attCaller(); 
+                $returnValue = $doc->$roleCaller()->$attCaller();
        		}
        		else {
        		    $returnValue = $doc->$roleCaller();
        		}
        	}
+       	// remove trailing space and ;
+       	$returnValue = preg_replace('/(;\ )$/', '', $returnValue);
         return $returnValue;
     }
 
