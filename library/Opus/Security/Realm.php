@@ -76,7 +76,7 @@ class Opus_Security_Realm {
 			$username = 'guest';
 		}
 		$this->_username = $username;
-		$this->__setRoles();
+		$this->_setRoles();
 		return $this;
 	}
 
@@ -96,7 +96,7 @@ class Opus_Security_Realm {
 			throw new Opus_Security_Exception("$ipaddress is not a valid IP address!");
 		}
 		$this->_ipaddress = $ipaddress;
-		$this->__setRoles();
+		$this->_setRoles();
 		return $this;
 	}
 
@@ -105,7 +105,7 @@ class Opus_Security_Realm {
 	 *
 	 * @return Opus_Security_Realm Fluent interface.
 	 */
-	private function __setRoles() {
+	protected function _setRoles() {
 		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles());
 		return $this;
 	}
@@ -118,7 +118,7 @@ class Opus_Security_Realm {
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return string|array
      */
-    public function getUsernameRoles($username) {
+    protected function _getUsernameRoles($username) {
         // $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         // $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
         // if (null === $account) {
@@ -151,7 +151,7 @@ class Opus_Security_Realm {
      * @return string|array|null The assigned role name or array of role names.
      *                           Null if no Role is assigned to the given IP address.
      */
-    public function getIpaddressRole($ipaddress) {
+    protected function _getIpaddressRoles($ipaddress) {
         // if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
         //     return null;
         // }
