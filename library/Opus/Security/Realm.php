@@ -106,7 +106,7 @@ class Opus_Security_Realm {
 	 * @return Opus_Security_Realm Fluent interface.
 	 */
 	private function _setRoles() {
-		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles();
+		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles());
 		return $this;
 	}
 
