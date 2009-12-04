@@ -669,7 +669,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @return array Associative array with id=>arary(titles) entries.
      */
     public static function getAllDocumentAuthors() {
-        $table = new Opus_Db_DocumentTitleAbstracts();
+        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
             ->from(array('d' => 'documents'),
                     array('id'))
@@ -685,11 +685,11 @@ class Opus_Document extends Opus_Model_AbstractDb
             ->where('pd.role = ?', 'author')
             ->group('d.id')
             ->order('p.last_name');
-        $rows = $table->fetchAll($select);
+        $rows = $db->fetchAll($select);
 
         $result = array();
         foreach ($rows as $row) {
-            $result[$row->document_id][] = $row->value;
+            $result[$row['document_id']][] = $row['value'];
         }
 
         // Check for further results without title
@@ -697,12 +697,13 @@ class Opus_Document extends Opus_Model_AbstractDb
         // FIXME: (documents, document_title_abstracts).  Fetching *all*
         // FIXME: entries from documents, just toi make this check is not
         // FIXME: reasonable!
-        $table = new Opus_Db_Documents();
-        $rows = $table->fetchAll();
+        $select = $db->select()
+            ->from('documents');
+        $rows = $db->fetchAll($select);
 
         foreach ($rows as $row) {
-            if (array_key_exists($row->id, $result) === false) {
-                $result[$row->id][] = 'No title specified for ID ' . $row->id;
+            if (array_key_exists($row['id'], $result) === false) {
+                $result[$row['id']][] = 'No title specified for ID ' . $row['id'];
             }
         }
         return $result;
