@@ -145,7 +145,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 		try {
 			$c = count($document->getPersonAuthor());
 			for ($n = 0; $n < $c; $n++) {
-				array_push($authors, $document->getPersonAuthor($n));
+			    $author = $document->getPersonAuthor($n);
+				array_push($authors, $author->getName());
 			}
 		} catch (Exception $e) {
 			// do nothing, as there is the exception that no author is specified
@@ -156,6 +157,8 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 			}
 		}
 		// make a persons list out of the authors
+		$this->documentData['author'] = join('; ', $authors);
+		/*
 		$this->documentData['author'] = new Opus_Search_List_PersonsList();
 		if (count($authors) > 0) {
 			foreach ($authors as $authorId) {
@@ -166,7 +169,7 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 		} else {
 			$this->documentData['author']->add(new Opus_Search_Adapter_PersonAdapter(array('id' => 0, 'firstName' => 'Unknown', 'lastName' => 'Unknown')));
 		}
-
+        */
 		// set the URLs for this document
 		// is this to be done here?
 		// for compatibility reasons left here at the moment

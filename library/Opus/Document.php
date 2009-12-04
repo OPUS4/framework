@@ -380,7 +380,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         // Initialize available date fields and set up Opus_Date as model for them
         // if the particular field is present
         $dateFields = array(
-            'DateAccepted', 'CompletedDate', 'PublishedDate', 
+            'DateAccepted', 'CompletedDate', 'PublishedDate',
             'ServerDateModified', 'ServerDatePublished',
             'ServerDateUnlocking', 'ServerDateValid');
         foreach ($dateFields as $fieldName) {
@@ -544,7 +544,8 @@ class Opus_Document extends Opus_Model_AbstractDb
              ->from(array('d' => 'documents'), array('id', 'published_date AS date', 'server_date_published'))
              ->joinLeft(array('t' => 'document_title_abstracts'), 't.document_id = d.id', array('t.value AS title'))
              ->where('t.type = ?', 'main')
-             ->where('d.server_state = ?', $state);
+             ->where('d.server_state = ?', $state)
+             ->group('d.id');
 
          if (is_array($sort_options)) {
             foreach ($sort_options as $sort_order => $sort_reverse) {
@@ -558,7 +559,7 @@ class Opus_Document extends Opus_Model_AbstractDb
 
          $result = array();
          $rows = $db->fetchAll($select);
-     
+
          foreach ($rows as $row) {
             $result[] = $row['id'];
          }
@@ -971,7 +972,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         // Remove from index
         $indexer = new Opus_Search_Index_Indexer();
         $indexer->removeDocumentFromEntryIndex($this);
-        parent::delete();        
+        parent::delete();
     }
 
     /**
@@ -995,7 +996,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($now);
             }
-        }        
+        }
         $this->setServerDateModified($now);
     }
 
