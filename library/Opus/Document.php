@@ -596,7 +596,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @return array Associative array with id=>array(titles) entries.
      */
     public static function getAllDocumentsByDoctype() {
-        $db = Opus_Db_Documents;
+        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
             ->from(array('d' => 'documents'),
                     array('id', 'type'));
