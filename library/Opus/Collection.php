@@ -608,4 +608,17 @@ class Opus_Collection extends Opus_Model_AbstractDb
         }
         return trim($display);
     }
+
+    /**
+     * Returns the OAI set name that corresponds with this collection.
+     *
+     * @return string The name of the OAI set.
+     */
+    public function getOaiSetName() {
+        $oaiPrefix = $this->__role->getOaiName();
+        $oaiPostfixColumn = $this->__role->getDisplayOai();
+        $accessor = 'get' . ucfirst($oaiPostfixColumn);
+        $oaiPostfix = $this->$accessor();
+        return $oaiPrefix . ':' . $oaiPostfix;
+    }
 }

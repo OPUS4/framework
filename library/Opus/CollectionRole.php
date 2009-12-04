@@ -390,4 +390,52 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $collection = new Opus_Collection( $this->getId() );
         return $collection->getTheme();
     }
+
+    /**
+     * Returns all valid oai set names (i.e. for those collections
+     * that contain at least one document).
+     *
+     * @return array An array of strings containing oai set names.
+     */
+    public function getOaiSetNames() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $id = $this->getId();
+        $oaiSetNames = array();
+        $oaiPrefix = $this->getOaiName();
+        $oaiPostfixColumn = $this->getDisplayOai();
+        $collectionsContentsTable = $db->quoteIdentifier("collections_contents_$id");
+        $collectionsLinkTable = $db->quoteIdentifier("link_documents_collections_$id");
+        $result = $db->fetchCol("SELECT DISTINCT CONCAT('$oaiPrefix:', c.$oaiPostfixColumn)
+                                 FROM $collectionsContentsTable AS c
+                                 JOIN $collectionsLinkTable AS l
+                                 ON (c.id = l.collections_id)
+                                 ");
+        return $result;
+    }
+
+    /**
+     * Return the ids of documents in an oai set.
+     *
+     * @param  string $oaiSetName The name of the oai set.
+     * @return array The ids of the documents in the set.
+     */
+    public static function getDocumentIdsInSet($oaiSetName) {
+        $oaiPrefix = substr($oaiSetName, 0, strrpos($oaiSetName, ':'));
+        $oaiPostfix = substr($oaiSetName, strrpos($oaiSetName, ':') + 1);
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $role = $db->fetchRow('SELECT id, display_oai FROM collections_roles WHERE oai_name = ?', $oaiPrefix);
+        if (true === is_null($role)) {
+            return null;
+        }
+        $roleId = $role['id'];
+        $oaiPostfixColumn = $role['display_oai'];
+        $collectionsContentsTable = $db->quoteIdentifier("collections_contents_$roleId");
+        $collectionsLinkTable = $db->quoteIdentifier("link_documents_collections_$roleId");
+        $result = $db->fetchCol("SELECT DISTINCT documents_id
+                                 FROM $collectionsLinkTable
+                                 WHERE collections_id IN (
+                                     SELECT id FROM $collectionsContentsTable WHERE $oaiPostfixColumn = $oaiPostfix
+                                 )");
+        return $result;
+    }
 }
