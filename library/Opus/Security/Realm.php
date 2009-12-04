@@ -76,7 +76,7 @@ class Opus_Security_Realm {
 			$username = 'guest';
 		}
 		$this->_username = $username;
-		$this->_setRoles();
+		$this->__setRoles();
 		return $this;
 	}
 
@@ -96,7 +96,7 @@ class Opus_Security_Realm {
 			throw new Opus_Security_Exception("$ipaddress is not a valid IP address!");
 		}
 		$this->_ipaddress = $ipaddress;
-		$this->_setRoles();
+		$this->__setRoles();
 		return $this;
 	}
 
@@ -105,7 +105,7 @@ class Opus_Security_Realm {
 	 *
 	 * @return Opus_Security_Realm Fluent interface.
 	 */
-	private function _setRoles() {
+	private function __setRoles() {
 		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles());
 		return $this;
 	}
@@ -179,6 +179,34 @@ class Opus_Security_Realm {
 
         return null;
     }
+
+	/**
+	 * FIXME
+	 */
+	public function readFile($file) {
+		return true;
+	}
+
+	/**
+	 * FIXME
+	 */
+	public function administrate()  {
+		return true;
+	}
+
+	/**
+	 * FIXME
+	 */
+	public function readMetadata($document) {
+		return true;
+	}
+
+	/**
+	 * FIXME
+	 */
+	public function publish() {
+		return true;
+	}
 
     /********************************************************************************************/
     /* Singleton code below                                                                     */
