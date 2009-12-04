@@ -118,7 +118,7 @@ class Opus_Security_Realm {
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return string|array
      */
-    protected function _getUsernameRoles($username) {
+    protected function _getUsernameRoles() {
         // $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         // $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
         // if (null === $account) {
@@ -151,7 +151,7 @@ class Opus_Security_Realm {
      * @return string|array|null The assigned role name or array of role names.
      *                           Null if no Role is assigned to the given IP address.
      */
-    protected function _getIpaddressRoles($ipaddress) {
+    protected function _getIpaddressRoles() {
         // if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
         //     return null;
         // }
