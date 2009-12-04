@@ -140,7 +140,7 @@ class Opus_Security_Realm {
         //     return $result;
         // }
 
-        return null;
+        return array();
     }
 
     /**
@@ -177,7 +177,7 @@ class Opus_Security_Realm {
         //     return $result;
         // }
 
-        return null;
+        return array();
     }
 
 	/**
