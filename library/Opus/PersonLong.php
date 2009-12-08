@@ -52,7 +52,7 @@ class Opus_PersonLong extends Opus_Person
     protected function _init() {
         parent::_init();
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setValueModelClass('Opus_Date');
+        $date_of_birth->setValidator(new Zend_Validate_Date);
 
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 

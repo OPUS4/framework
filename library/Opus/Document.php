@@ -377,7 +377,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $serverDatePublished = new Opus_Model_Field('ServerDatePublished');
         $this->addField($serverDatePublished);
 
-        // Initialize available date fields and set up Opus_Date as model for them
+        // Initialize available date fields and set up date validator
         // if the particular field is present
         $dateFields = array(
             'DateAccepted', 'CompletedDate', 'PublishedDate',
@@ -386,7 +386,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
             if (null !== $field ) {
-                $field->setValueModelClass('Opus_Date');
+                $field->setValidator(new Zend_Validate_Date);
             }
         }
 
@@ -992,7 +992,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected function _preStore() {
         parent::_preStore();
-        $now = new Opus_Date;
+        $now = date('Y-m-d');
         if (true === $this->isNewRecord()) {
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($now);
