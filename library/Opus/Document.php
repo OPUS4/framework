@@ -1029,74 +1029,82 @@ class Opus_Document extends Opus_Model_AbstractDb
      * - ServerState: a list of document states
      * - Type: a list of document types
      * - Date: an array with keys and values:
-     * -- from: null or given from date format
-     * -- until: null or given until date format until
-     * -- dateformat: date format from from and until
+     * -- from: given from date format (YYYY-MM-DD)
+     * -- until: given until date format until (YYYY-MM-DD)
      *
-     * @param array &$restriction
+     * example call:
+     * Opus_Document::getIdsOfOaiRequest('ServerState' => array('published'),
+     *                                   'Type' => array('article'),
+     *                                   'Date' => array(
+     *                                      'from' => '2009-11-11'
+     *                                      )
+     *                                   );
+     *
+     * @param array $restriction
      * @return array
      */
-    public static function getIdsOfOaiRequest(array &$restriction) {
+    public static function getIdsOfOaiRequest(array $restriction) {
 
         $table = new Opus_Db_Documents();
         $select = $table->select()->from($table, array('id'));
 
         // add server state restrictions
-        $stateRestr = array();
-        foreach ($restriction['ServerState'] as $state) {
-            $stateRestr[] = 'server_state = "' . $state . '"';
-        }
-        if (false === empty($stateRestr)) {
+        if (true === array_key_exists('ServerState', $restriction) and
+            true === is_array($restriction['ServerState'])) {
+            $stateRestr = array();
+            foreach ($restriction['ServerState'] as $state) {
+                $stateRestr[] = 'server_state = "' . $state . '"';
+            }
             $stateWhere = implode(' OR ', $stateRestr);
             $select->where($stateWhere);
         }
 
         // add possible type / set restrictions
-        $typeRestr = array();
-        foreach ($restriction['Type'] as $pubType) {
-            $typeRestr[] = 'type = "' . $pubType . '"';
-        }
-        if (false === empty($typeRestr)) {
+        if (true === array_key_exists('Type', $restriction) and
+            true === is_array($restriction['Type'])) {
+            $typeRestr = array();
+            foreach ($restriction['Type'] as $pubType) {
+                $typeRestr[] = 'type = "' . $pubType . '"';
+            }
             $typeWhere = implode(' OR ', $typeRestr);
             $select->where($typeWhere);
         }
 
         // date restrictions
-        $from = $restriction['Date']['from'];
-        $until = $restriction['Date']['until'];
-        $usedDateFormat = $restriction['Date']['dateFormat'];
+        if (true === array_key_exists('Date', $restriction) and
+            true === is_array($restriction['Date'])) {
 
-        if (true === is_null($from)) {
-            $from = new Zend_Date(self::getEarliestPublicationDate());
-        } else {
-            $from = new Zend_Date($from, $usedDateFormat);
+            if (false === array_key_exists('from', $restriction['Date'])) {
+                $from = new Zend_Date(self::getEarliestPublicationDate());
+            } else {
+                $from = new Zend_Date($restriction['Date']['from']);
+            }
+
+            if (false === array_key_exists('until', $restriction['Date'])) {
+                $until = new Zend_Date;
+            } else {
+                $from = new Zend_Date($restriction['Date']['until']);
+            }
+
+            if (true === $from->equals($until)) {
+                $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
+            } else {
+                // TODO FIXME
+                //
+                // For some strange reason a between does not include the
+                // latest day. E.g. if until date is 2009-05-10 then the
+                // result does not include data sets with 2009-05-10 only newer dates.
+                //
+                // If we add one day then is result as expected but maybe wrong?
+                //
+                // Between range looks like $from < $until and not $from <= $until
+                $until->addDay(1);
+                $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd') . '%"';
+            }
+
+            $dateWhere = 'server_date_published ' . $searchRange . ' OR server_date_modified ' . $searchRange;
+            $select->where($dateWhere);
         }
-
-        if (true === is_null($until)) {
-            $until = new Zend_Date;
-        } else {
-            $until = new Zend_Date($until, $usedDateFormat);
-        }
-
-        if (true === $from->equals($until)) {
-            $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
-        } else {
-            // TODO FIXME
-            //
-            // For some strange reason a between does not include the
-            // latest day. E.g. if until date is 2009-05-10 then the
-            // result does not include data sets with 2009-05-10 only newer dates.
-            //
-            // If we add one day then is result as expected but maybe wrong?
-            //
-            // Between range looks like $from < $until and not $from <= $until
-            $until->addDay(1);
-            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd') . '%"';
-        }
-
-        $dateWhere = 'server_date_published ' . $searchRange . ' OR server_date_modified ' . $searchRange;
-        $select->where($dateWhere);
-
         $rows = $table->fetchAll($select)->toArray();
 
         $result = array();
