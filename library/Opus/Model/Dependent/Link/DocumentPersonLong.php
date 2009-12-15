@@ -85,36 +85,14 @@ class Opus_Model_Dependent_Link_DocumentPersonLong extends Opus_Model_Dependent_
             $this->setModel(new Opus_PersonLong($this->_primaryTableRow->person_id));
         }
 
-        $institute = new Opus_Model_Field('InstituteId');
-        $institute->setSelection(true);
-
-        // Custom MySQL-Query for the sake of speed.
-        // We might want to consider something like
-        // this for collection drop-down lists.
-        $db = Zend_Registry::get('db_adapter');
-        $collections = array();
-        if (true === in_array('collections_structure_1', $db->listTables())) {
-            $query = "SELECT c.name, n.collections_id, COUNT(*)-1 AS level FROM collections_structure_1 AS n JOIN
-                collections_contents_1 AS c ON c.id = n.collections_id, collections_structure_1 AS p WHERE n.left BETWEEN
-                p.left AND p.right GROUP BY n.left ORDER BY n.left";
-            $collections = $db->query($query)->fetchAll();
-        }
-        $instDefaults = array();
-        foreach ($collections as $collection) {
-            $levelString = str_repeat('-', $collection['level']);
-            $instDefaults[$collection['collections_id']] = $levelString . ' ' . $collection['name'];
-        }
-        $institute->setDefault($instDefaults);
-
         $role = new Opus_Model_Field('Role');
         $sortOrder = new Opus_Model_Field('SortOrder');
         $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
-        $allowEmailContact->setCheckbox(true);
+        $allowEmailContact->setCheckbox(true)->setMandatory(true);
 
         $this->addField($role)
             ->addField($sortOrder)
-            ->addField($allowEmailContact)
-            ->addField($institute);
+            ->addField($allowEmailContact);
     }
 
     /**
