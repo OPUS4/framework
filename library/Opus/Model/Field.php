@@ -291,6 +291,12 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
 
+        if (true === is_array($value) and 1 === count($value)) {
+            $value = array_pop($value);
+        } else if (true === is_array($value) and 0 === count($value)) {
+            $value = null;
+        }
+
         // if null is given, delete dependent objects
         if (null === $value) {
             $this->_deleteDependentModels();
@@ -303,7 +309,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             if (($multiValueCondition === false) and ($arrayCondition === true)) {
                 throw new InvalidArgumentException('Multivalue option and input argument do not match.');
             }
-            
+
             // arrayfy value
             $values = $value;
             if (false === $arrayCondition) {

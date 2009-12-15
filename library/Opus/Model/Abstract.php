@@ -194,25 +194,29 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
                 if (empty($arguments) === true) {
                     throw new Opus_Model_Exception('Argument required for setter function!');
                 }
+                if (false === is_array($arguments[0])) {
+                    $values = array($arguments[0]);
+                } else {
+                    $values = $arguments[0];
+                }
+
                 if (($fieldIsExternal === true)
                 and ($fieldHasThroughOption === true)
                 and ($argumentModelGiven === true)) {
+                    foreach ($values as $i => $value) {
+                        $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+                        $linkmodel = new $linkmodelclass;
 
-                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
-                    $linkmodel = new $linkmodelclass;
-
-                    if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                        $linkmodel->setModel($arguments[0]->_model);
-                    } else {
-                        $linkmodel->setModel($arguments[0]);
-                    }
-                    $model = $linkmodel;
-
-                } else {
-                    $model = $arguments[0];
+                        if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                            $linkmodel->setModel($value->_model);
+                        } else {
+                            $linkmodel->setModel($value);
+                        }
+                        $values[$i] = $linkmodel;
+                        }
                 }
 
-                $field->setValue($model);
+                $field->setValue($values);
                 return $this;
 
                 break;
