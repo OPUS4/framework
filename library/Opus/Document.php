@@ -1070,7 +1070,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             if (false === array_key_exists('until', $restriction['Date'])) {
                 $until = new Zend_Date;
             } else {
-                $from = new Zend_Date($restriction['Date']['until']);
+                $until = new Zend_Date($restriction['Date']['until']);
             }
 
             if (true === $from->equals($until)) {
