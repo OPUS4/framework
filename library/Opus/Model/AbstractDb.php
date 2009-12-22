@@ -314,6 +314,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         try {
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
+                // dont store Collections here since they are not stored as external fields!
+                if ($fieldname === 'Collection') { continue; }
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     // Check if the store mechanism for the field is overwritten in model.
                     $callname = '_store' . $fieldname;
