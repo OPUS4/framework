@@ -351,11 +351,23 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             $fvals = array($fvals);
         }
 
+        $nids = array();
+        if (false === is_null($this->_valueModelClass)) {
+            foreach ($values as $val) {
+                if (false === $val instanceof Opus_Model_Dependent_Abstract
+                    or true === is_null($val->getId())) {
+                    continue;
+                }
+                $nids[] = $val->getId();
+            }
+        }
+
         // collect removal candidates    
         $removees = array();
         foreach ($fvals as $victim) {
             if ($victim instanceof Opus_Model_Dependent_Abstract) {
-                if (false === in_array($victim, $values)) {
+                $vid = $victim->getId();
+                if (false === is_null($vid) and false === in_array($vid, $nids)) {
                     $removees[] = $victim;
                 }
             }
