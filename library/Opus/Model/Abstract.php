@@ -133,13 +133,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
         $fieldname = substr($name, 3);
 
-        $argumentModelGiven = false;
-        if (empty($arguments) === false) {
-            if (is_null($arguments[0]) === false) {
-                $argumentModelGiven = true;
-            }
-        };
-
         if (array_key_exists($fieldname, $this->_fields) === false) {
             throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
         }
@@ -148,116 +141,18 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
             throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname);
         }
 
-        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
-        if ($fieldIsExternal === true) {
-            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
-        }
-        $field = $this->getField($fieldname);
-
         switch ($accessor) {
             case 'get':
-
-                $index = null;
-                if (empty($arguments) === false) {
-                    $index = $arguments[0];
-                }
-
-                $fieldvalue = $field->getValue();
-                if (false === is_array($fieldvalue)) {
-                    $fieldvalue = array($fieldvalue);
-                }
-
-                foreach ($fieldvalue as $key => $value) {
-                    if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
-                        $fieldvalue[$key] = $value->getModel();
-                    }
-                }
-
-                if (true === $field->hasMultipleValues()) {
-
-                    if (empty($arguments) === false) {
-                        $index = $arguments[0];
-                        $result =  $fieldvalue[$index];
-                    } else {
-                        $result =  $fieldvalue;
-                    }
-
-                } else {
-                    $result = $fieldvalue[0];
-                }
-
-                return $result;
-
+                return $this->_get($fieldname, $arguments);
                 break;
 
             case 'set':
-                if (empty($arguments) === true) {
-                    throw new Opus_Model_Exception('Argument required for setter function!');
-                }
-                if (false === is_array($arguments[0])) {
-                    $values = array($arguments[0]);
-                } else {
-                    $values = $arguments[0];
-                }
-
-                if (($fieldIsExternal === true)
-                and ($fieldHasThroughOption === true)
-                and ($argumentModelGiven === true)) {
-                    foreach ($values as $i => $value) {
-                        $linkmodelclass = $this->_externalFields[$fieldname]['through'];
-                        $linkmodel = new $linkmodelclass;
-
-                        if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                            $linkmodel->setModel($value->_model);
-                        } else {
-                            $linkmodel->setModel($value);
-                        }
-                        $values[$i] = $linkmodel;
-                        }
-                }
-
-                $field->setValue($values);
+                $this->_set($fieldname, $arguments);
                 return $this;
-
                 break;
 
             case 'add':
-                // get Modelclass if model is linked
-                if ($fieldIsExternal and $fieldHasThroughOption === true) {
-
-                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
-
-                    // Check if $linkmodelclass is a known class name
-                    if (class_exists($linkmodelclass) === false) {
-                        throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
-                    }
-                    $linkmodel = new $linkmodelclass;
-
-                    if ((count($arguments) === 1)) {
-                        if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                            $linkmodel->setModel($arguments[0]->_model);
-                        } else {
-                            $linkmodel->setModel($arguments[0]);
-                        }
-                    } else {
-                        throw new InvalidArgumentException('Argument required when adding to a link field.');
-                    }
-                    $model = $linkmodel;
-
-                } else {
-                    if ((count($arguments) === 1)) {
-                        $model = $arguments[0];
-                    } else {
-                        if (is_null($field->getValueModelClass()) === true) {
-                            throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
-                        }
-                        $modelclass = $field->getValueModelClass();
-                        $model = new $modelclass;
-                    }
-                }
-
-                $field->addValue($model);
-                return $model;
+                return $this->_add($fieldname, $arguments);
                 break;
 
             default:
@@ -265,6 +160,150 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
                 break;
         }
 
+    }
+
+    /**
+     * Implements field getter mechanism.
+     *
+     * @param string $fieldname The name of the field.
+     * @param mixed  $arguments Arguments passed in the get-call.
+     *
+     * @return mixed    The value of the field.
+     */
+    protected function _get($fieldname, $arguments) {
+        $field = $this->getField($fieldname);
+        $index = null;
+        if (empty($arguments) === false) {
+            $index = $arguments[0];
+        }
+
+        $fieldvalue = $field->getValue();
+        if (false === is_array($fieldvalue)) {
+            $fieldvalue = array($fieldvalue);
+        }
+
+        foreach ($fieldvalue as $key => $value) {
+            if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
+                $fieldvalue[$key] = $value->getModel();
+            }
+        }
+
+        if (true === $field->hasMultipleValues()) {
+
+            if (empty($arguments) === false) {
+                $index = $arguments[0];
+                $result =  $fieldvalue[$index];
+            } else {
+                $result =  $fieldvalue;
+            }
+
+        } else {
+            $result = $fieldvalue[0];
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * Implements setter mechanism.
+     *
+     * @param string $fieldname The name of the field.
+     * @param mixed  $arguments Arguments passed in the get-call.
+     *
+     * @return void
+     */
+    protected function _set($fieldname, $arguments) {
+        $field = $this->getField($fieldname);
+        if (empty($arguments) === true) {
+            throw new Opus_Model_Exception('Argument required for setter function!');
+        } else if (is_null($arguments[0]) === false) {
+            $argumentModelGiven = true;
+        } else {
+            $argumentModelGiven = false;
+        }
+
+        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
+        if ($fieldIsExternal === true) {
+            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
+        }
+
+        if (false === is_array($arguments[0])) {
+            $values = array($arguments[0]);
+        } else {
+            $values = $arguments[0];
+        }
+
+        if (($fieldIsExternal === true)
+                and ($fieldHasThroughOption === true)
+                and ($argumentModelGiven === true)) {
+            foreach ($values as $i => $value) {
+                if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                    $linkmodel = $value;
+                } else {
+                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+                    $linkmodel = new $linkmodelclass;
+                    $linkmodel->setModel($value);
+                }
+                $values[$i] = $linkmodel;
+            }
+        }
+
+        $field->setValue($values);
+
+    }
+
+    /**
+     * Implements adder mechanism.
+     *
+     * @param string $fieldname The name of the field.
+     * @param mixed  $arguments Arguments passed in the get-call.
+     *
+     * @return Opus_Model_Abstract The added model (can be a new model).
+     */
+    protected function _add($fieldname, $arguments) {
+        $field = $this->getField($fieldname);
+        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
+        if ($fieldIsExternal === true) {
+            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
+        }
+
+        // get Modelclass if model is linked
+        if ($fieldIsExternal and $fieldHasThroughOption === true) {
+
+            $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+
+            // Check if $linkmodelclass is a known class name
+            if (class_exists($linkmodelclass) === false) {
+                throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
+            }
+
+            if ((count($arguments) === 1)) {
+                if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                    $linkmodel = $arguments[0];
+                } else {
+                    $linkmodel = new $linkmodelclass;
+                    $linkmodel->setModel($arguments[0]);
+                }
+            } else {
+                throw new InvalidArgumentException('Argument required when adding to a link field.');
+            }
+            $model = $linkmodel;
+
+        } else {
+            if ((count($arguments) === 1)) {
+                $model = $arguments[0];
+            } else {
+                if (is_null($field->getValueModelClass()) === true) {
+                    throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
+                }
+                $modelclass = $field->getValueModelClass();
+                $model = new $modelclass;
+            }
+        }
+
+        $field->addValue($model);
+        return $model;
     }
 
     /**
