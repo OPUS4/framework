@@ -655,4 +655,56 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         return $this->_isNewRecord;
     }
 
+    /**
+     * Overwrited setter mechanism to handle link retrieval properly.
+     *
+     * @param string $fieldname The name of the field.
+     * @param mixed  $arguments Arguments passed in the get-call.
+     *
+     * @return void
+     */
+    protected function _set($fieldname, $arguments) {
+        $field = $this->getField($fieldname);
+        if (empty($arguments) === true) {
+            throw new Opus_Model_Exception('Argument required for setter function!');
+        } else if (is_null($arguments[0]) === false) {
+            $argumentModelGiven = true;
+        } else {
+            $argumentModelGiven = false;
+        }
+
+        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
+        if ($fieldIsExternal === true) {
+            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
+        }
+
+        if (false === is_array($arguments[0])) {
+            $values = array($arguments[0]);
+        } else {
+            $values = $arguments[0];
+        }
+
+        if (($fieldIsExternal === true)
+                and ($fieldHasThroughOption === true)
+                and ($argumentModelGiven === true)) {
+            foreach ($values as $i => $value) {
+                if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                    $linkmodel = $value;
+                } else {
+                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+                    try {
+                        $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
+                    } catch (Exception $e) {
+                        $linkmodel = new $linkmodelclass;
+
+                    }
+                    $linkmodel->setModel($value);
+                }
+                $values[$i] = $linkmodel;
+            }
+        }
+
+        $field->setValue($values);
+
+    }
 }
