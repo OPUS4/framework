@@ -424,18 +424,20 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $oaiPostfix = substr($oaiSetName, strrpos($oaiSetName, ':') + 1);
         $db = Zend_Db_Table::getDefaultAdapter();
         $role = $db->fetchRow('SELECT id, display_oai FROM collections_roles WHERE oai_name = ?', $oaiPrefix);
-        if (true === is_null($role)) {
-            return null;
+        if (false === ($role)) {
+            return array();
         }
         $roleId = $role['id'];
-        $oaiPostfixColumn = $role['display_oai'];
-        $collectionsContentsTable = $db->quoteIdentifier("collections_contents_$roleId");
+        $oaiPostfixColumn = $db->quoteIdentifier($role['display_oai']);
+        $oaiPostfix = $db->quote($oaiPostfix);
+        $collectionsContentsTableName = $db->quoteIdentifier("collections_contents_$roleId");
         $collectionsLinkTable = $db->quoteIdentifier("link_documents_collections_$roleId");
-        $result = $db->fetchCol("SELECT DISTINCT documents_id
-                                 FROM $collectionsLinkTable
-                                 WHERE collections_id IN (
-                                     SELECT id FROM $collectionsContentsTable WHERE $oaiPostfixColumn = $oaiPostfix
-                                 )");
+        $query = "SELECT DISTINCT documents_id
+                      FROM $collectionsLinkTable
+                      WHERE collections_id IN (
+                          SELECT id FROM $collectionsContentsTableName WHERE $oaiPostfixColumn = $oaiPostfix
+                      )";
+        $result = $db->fetchCol($query);
         return $result;
     }
 }
