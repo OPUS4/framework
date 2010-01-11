@@ -61,7 +61,7 @@ class Opus_Search_Index_SolrIndexer {
 	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
 	 */
 	public function __construct($createIndex = false, $bufferedDocs = 3) {
-        $registry = Zend_Registry::getInstance();
+        /*$registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
         try
         {
@@ -82,6 +82,7 @@ class Opus_Search_Index_SolrIndexer {
         }
         // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index 
         $this->entryindex->setMaxBufferedDocs($bufferedDocs);
+        */
 	}
 
 	/**
@@ -115,9 +116,9 @@ class Opus_Search_Index_SolrIndexer {
 			 	//{
             	    //$indexDoc = new Opus_Search_Index_Document($analyzedDoc);
 			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
-            	    $this->addDocument($analyzedDoc);
+            	    echo $this->addDocument($analyzedDoc);
 			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
-			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
+			 		$returnarray[] = "indexed document " . $analyzedDoc;
 			 	//}
             }
 		} catch (Exception $e) {
@@ -192,16 +193,16 @@ class Opus_Search_Index_SolrIndexer {
             foreach ($files as $file)
             {
             	try {
-           	        $proc->setParameter('', 'content', $this->getFileContent($file));
+           	        $proc->setParameter('', 'fulltext', $this->getFileContent($file));
            	        $proc->setParameter('', 'source', $file->getPathName());
            	        $document = $proc->transformToXML($xml);
        	        	array_push($docArray, $document);
                 }
                 catch (Exception $e) {
-            	    $proc->setParameter('', 'source', $file->getPathName());
-            	    $proc->setParameter('', 'content', '');
-            	    $document = $proc->transformToXML($xml);
-            	    #$document['exception'] = $e->getMessage();
+            	    #$proc->setParameter('', 'source', $file->getPathName());
+            	    #$proc->setParameter('', 'content', '');
+            	    #$document = $proc->transformToXML($xml);
+            	    $document = $e->getMessage();
             	    $numberOfIndexableFiles--;
             	    array_push($docArray, $document);
                 }
@@ -213,7 +214,7 @@ class Opus_Search_Index_SolrIndexer {
         if ($numberOfIndexableFiles === 0)
         {
             $proc->setParameter('', 'source', 'metadata');
-            $proc->setParameter('', 'fulltext', ' ');
+            $proc->setParameter('', 'fulltext', '');
             $document = $proc->transformToXML($xml);
             array_push($docArray, $document);
         }
@@ -224,13 +225,13 @@ class Opus_Search_Index_SolrIndexer {
     private function getFileContent($file) {
         $fulltext = '';
         //FIXME: Hard coded path!
-        $path_prefix = '../workspace/files/' . $file['DocumentId'];
-		$mimeType = $file['MimeType'];
+        $path_prefix = '../workspace/files/' . $file->getDocumentId();
+		$mimeType = $file->getMimeType();
 		if (substr($mimeType, 0, 9) === 'text/html') {
 			$mimeType = 'text/html';
 		}
 		try {
-			$fileToConvert = realpath($path_prefix . '/' . addslashes($file['PathName']));
+			$fileToConvert = realpath($path_prefix . '/' . addslashes($file->getPathName()));
 		    switch ($mimeType)
 		    {
 			    case 'application/pdf':

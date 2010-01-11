@@ -92,68 +92,62 @@
                     <xsl:text> </xsl:text>
                 </xsl:for-each>
             </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">abstract</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
+            <xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
+                <xsl:element name="field">
+                    <xsl:attribute name="name">abstract</xsl:attribute>
                     <xsl:value-of select="@Value" />
-                    <xsl:text> </xsl:text>
-                </xsl:for-each>
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">title</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
+                </xsl:element>
+            </xsl:for-each>
+            <xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
+                <xsl:element name="field">
+                    <xsl:attribute name="name">title</xsl:attribute>
                     <xsl:value-of select="@Value" />
-                    <xsl:text> </xsl:text>
-                </xsl:for-each>
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">author</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/PersonAuthor">
+                </xsl:element>
+            </xsl:for-each>
+            <xsl:for-each select="/Opus/Opus_Model_Filter/PersonAuthor">
+                <xsl:element name="field">
+                    <xsl:attribute name="name">author</xsl:attribute>
                     <xsl:value-of select="@Name" />
-                    <xsl:text> </xsl:text>
-                </xsl:for-each>
-            </xsl:element>
+                </xsl:element>
+            </xsl:for-each>
             <xsl:element name="field">
                 <xsl:attribute name="name">fulltext</xsl:attribute>
                 <xsl:value-of select="$fulltext" />
             </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">persons</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/*">
-                    <xsl:if test="substring(name(), 1, 6)='Person'">
-                        <xsl:if test="name()!='PersonAuthor'">
+            <xsl:for-each select="/Opus/Opus_Model_Filter/*">
+                <xsl:if test="substring(name(), 1, 6)='Person'">
+                    <xsl:if test="name()!='PersonAuthor'">
+                        <xsl:element name="field">
+                            <xsl:attribute name="name">persons</xsl:attribute>
                             <xsl:value-of select="@Name" />
-                            <xsl:text> </xsl:text>
-                        </xsl:if>
+                        </xsl:element>
                     </xsl:if>
-                </xsl:for-each>
-            </xsl:element>
+                </xsl:if>
+            </xsl:for-each>
             <xsl:element name="field">
                 <xsl:attribute name="name">language</xsl:attribute>
                 <xsl:value-of select="/Opus/Opus_Model_Filter/@Language" />
             </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">subject</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                    <xsl:if test="@RoleId != 1">
+            <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
+                <xsl:if test="@RoleId != 1">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">subject</xsl:attribute>
                         <xsl:value-of select="@Name" />
-                        <xsl:text> </xsl:text>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:element>
+                    </xsl:element>
+                </xsl:if>
+            </xsl:for-each>
             <xsl:element name="field">
                 <xsl:attribute name="name">doctype</xsl:attribute>
                 <xsl:value-of select="/Opus/Opus_Model_Filter/@Type" />
             </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">institute</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                    <xsl:if test="@RoleId = 1">
+            <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
+                <xsl:if test="@RoleId = 1">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">institute</xsl:attribute>
                         <xsl:value-of select="@Name" />
-                        <xsl:text> </xsl:text>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:element>
+                    </xsl:element>
+                </xsl:if>
+             </xsl:for-each>
         </xsl:element>
     </xsl:element>
     </xsl:template>
