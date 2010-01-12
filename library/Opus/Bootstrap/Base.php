@@ -91,8 +91,10 @@ class Opus_Bootstrap_Base {
         $this->_applicationRootDirectory = $applicationRootDirectory;
         $this->_applicationWorkspaceDirectory = $this->_applicationRootDirectory . '/workspace';
 
-        include_once 'Zend/Loader.php';
-        Zend_Loader::registerAutoload();
+        include_once 'Zend/Loader/Autoloader.php';
+        $autoloader = Zend_Loader_Autoloader::getInstance();
+        $autoloader->registerNamespace('Opus_');
+        $autoloader->setFallbackAutoloader(true);
 
         $this->_setupEnvironment();
         $this->_setupConfiguration($configLevel, $configPath);
