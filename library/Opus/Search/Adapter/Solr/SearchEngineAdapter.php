@@ -58,35 +58,50 @@ class Opus_Search_Adapter_Solr_SearchEngineAdapter implements Opus_Search_Adapte
    * Search function: Gives the query to Solr
    *
    * @param string $query Complete query typed by the user, to be analysed in this function
-   * @return Opus_Search_Adapter_Lucene_SearchHitAdapter
+   * @return Opus_Search_Adapter_Solr_SearchHitAdapter
    */
   public function find($query) {
-        echo $result = $this->postSearch($query);
+        $result = $this->postSearch($query);
+        // get the content of the HTTP-packet
+        $contentStart = strpos($result, '<');
+        $content = substr($result, $contentStart);
+        $dom = new DOMDocument();
+        $dom->loadXml($content);
+
+        $hits = $dom->getElementsByTagName('doc');
         // We need an OPUS-compliant result list to return
-        /*$hitlist = new Opus_Search_List_HitList();
+        $hitlist = new Opus_Search_List_HitList();
         $done = array();
         $hitlistarray = array();
-        if (count($hits) > 0) {
+        if ($hits->length > 0) {
+        	$count = 0;
                 foreach ($hits as $queryHit) {
-                        $document = $queryHit->getDocument();
-                        $docid = $document->getFieldValue('docid');
+                        $elements = $hits->item($count)->getElementsByTagName('str');
+                        $k = 0;
+                        foreach ($elements as $str) {
+        	                if ($elements->item($k)->getAttribute('name') === 'docid') {
+        		                $docid = $elements->item($k)->nodeValue;
+        	                }
+        	                $k++;
+                        }
                         if (in_array($docid, $done) === false) {
                                 array_push($done, $docid);
-                                $opusHit = new Opus_Search_Adapter_Lucene_SearchHitAdapter($queryHit);
-                                $curdoc = $opusHit->convertToSearchHit($lucenequery);
+                                $opusHit = new Opus_Search_Adapter_Solr_SearchHitAdapter($dom->saveXml($hits->item($count)));
+                                $curdoc = $opusHit->convertToSearchHit($query);
                                 if ($curdoc !== false) {
                                 	array_push($hitlistarray, $curdoc);
                                 }
                         } else {
                                 $key = array_search($docid, $done);
                         }
+                    $count++;
                 }
         }
         $hitlist->query = $query;
         foreach ($hitlistarray as $singlehit) {
         	$hitlist->add($singlehit);
-        }*/
-    //return $hitlist;
+        }
+    return $hitlist;
   }
   
   private function postSearch($query) {

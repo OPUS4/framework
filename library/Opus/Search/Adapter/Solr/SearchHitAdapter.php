@@ -36,13 +36,13 @@
  * class Opus_Search_Adapter_Lucene_LuceneSearchHitAdapter
  * adapts a search hit from Lucene to the Opus-compliant format
  */
-class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter_SearchHitAdapterInterface
+class Opus_Search_Adapter_Solr_SearchHitAdapter implements Opus_Search_Adapter_SearchHitAdapterInterface
 {
 
   /**
-   * Attribute holding the original query hit from Lucene
+   * Attribute holding the original query hit from Solr
    *
-   * @var Zend_Search_Lucene_Search_QueryHit QueryHit in Lucene format
+   * @var DomDocument QueryHit in Solr (XML) format
    * @access private
    */
   private $_parent = null;
@@ -50,36 +50,73 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
   /**
    * Constructor
    *
-   * @param Zend_Search_Lucene_Search_QueryHit $luceneHit QueryHit to be adapted into OPUS format
+   * @param DomNode $solrHit QueryHit to be adapted into OPUS format
    */
-  public function __construct(Zend_Search_Lucene_Search_QueryHit $luceneHit) {
-        $this->_parent = $luceneHit;
+  public function __construct($solrHit) {
+        $this->_parent = $solrHit;
   }
 
   /**
-   * Converts a Lucene search hit from the index to a Opus-compliant Hit to fit into the HitList
+   * Converts a Solr search hit from the index to a Opus-compliant Hit to fit into the HitList
    *
    * @return SearchHit
    */
   public function convertToSearchHit($query = null) {
     	// make the Zend_Lucene_Search_QueryHit to a Opus-SearchHit
 	    // Ranking and other attributes are taken from the Lucene class
-        $document = $this->_parent->getDocument();
-        $docid = str_replace('nr', '', $document->getFieldValue('docid'));
-        #$qhit = new Opus_Search_SearchHit($docid);
+        $document = new DOMDocument();
+        $document->loadXml($this->_parent);
         $qhit = new Opus_Search_SearchHit();
-        $qhit->setRelevance($this->_parent->score);
+        // relevance ranking not supported by solr by default
+        #$qhit->setRelevance($this->_parent->score);
 
-        // highlightMatches needs HTML-Input with charset-meta-line
-        // workaround: set charset to ISO, otherwise Zend_Search_Lucene (1.6.2) will encode double
-        $highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=iso-8859-1">' . $document->getFieldValue('abstract'), 27);
-        // hold b-Tags (highlighted text), remove all others
-        $highlighted = strip_tags($highlighter, '<b>');
-        // Without Syntax Highlighting
-        // $highlighted = $document->getFieldValue('abstract');
-
-        // set the query hit by fields from lucene index
-        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year')));
+        // set the query hit by fields from solr index
+        $strelements = $document->getElementsByTagName('str');
+        $intelements = $document->getElementsByTagName('int');
+        $arrelements = $document->getElementsByTagName('arr');
+        $k = 0;
+        foreach ($strelements as $str) {
+        	if ($strelements->item($k)->getAttribute('name') === 'docid') {
+        		$id = $strelements->item($k)->nodeValue;
+        	}
+        	$k++;
+        }
+        $l = 0;
+        foreach ($intelements as $int) {
+        	if ($intelements->item($l)->getAttribute('name') === 'year') {
+        		$year = $intelements->item($l)->nodeValue;
+        	}
+        	$l++;
+        }
+        $m = 0;
+        foreach ($arrelements as $arr) {
+        	if ($arrelements->item($m)->getAttribute('name') === 'title') {
+        		$titleelements = $arrelements->item($m)->getElementsByTagName('str');
+        		$n = 0;
+        		foreach ($titleelements as $t) {
+        		    $title .= $titleelements->item($n)->nodeValue;
+        		    $n++;
+        		}
+        	}
+         	if ($arrelements->item($m)->getAttribute('name') === 'abstract') {
+        		$abstractelements = $arrelements->item($m)->getElementsByTagName('str');
+        		$n = 0;
+        		foreach ($abstractelements as $a) {
+        		    $abstract .= $abstractelements->item($n)->nodeValue;
+        		    $n++;
+        		}
+        	}
+         	if ($arrelements->item($m)->getAttribute('name') === 'author') {
+        		$authorelements = $arrelements->item($m)->getElementsByTagName('str');
+        		$n = 0;
+        		foreach ($authorelements as $b) {
+        		    $author .= $authorelements->item($n)->nodeValue;
+        		    $n++;
+        		}
+        	}
+        	$m++;
+        }
+        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $id, 'title' => $title, 'abstract' => $abstract, 'author' => $author, 'year' => $year));
         $qhit->setDocument($opusdoc);
         return $qhit;
   }
