@@ -70,6 +70,12 @@ class Opus_Search_Adapter_Solr_SearchHitAdapter implements Opus_Search_Adapter_S
         // relevance ranking not supported by solr by default
         #$qhit->setRelevance($this->_parent->score);
 
+        // initialize variables
+        $year = '';
+        $title = '';
+        $abstract = '';
+        $author = '';
+
         // set the query hit by fields from solr index
         $strelements = $document->getElementsByTagName('str');
         $intelements = $document->getElementsByTagName('int');
@@ -94,7 +100,7 @@ class Opus_Search_Adapter_Solr_SearchHitAdapter implements Opus_Search_Adapter_S
         		$titleelements = $arrelements->item($m)->getElementsByTagName('str');
         		$n = 0;
         		foreach ($titleelements as $t) {
-        		    $title .= $titleelements->item($n)->nodeValue;
+        		    $title .= $titleelements->item($n)->nodeValue . ' ';
         		    $n++;
         		}
         	}
@@ -102,17 +108,19 @@ class Opus_Search_Adapter_Solr_SearchHitAdapter implements Opus_Search_Adapter_S
         		$abstractelements = $arrelements->item($m)->getElementsByTagName('str');
         		$n = 0;
         		foreach ($abstractelements as $a) {
-        		    $abstract .= $abstractelements->item($n)->nodeValue;
+        		    $abstract .= $abstractelements->item($n)->nodeValue . ' ';
         		    $n++;
         		}
         	}
          	if ($arrelements->item($m)->getAttribute('name') === 'author') {
         		$authorelements = $arrelements->item($m)->getElementsByTagName('str');
         		$n = 0;
+        		$authors = array();
         		foreach ($authorelements as $b) {
-        		    $author .= $authorelements->item($n)->nodeValue;
+        		    array_push($authors, $authorelements->item($n)->nodeValue);
         		    $n++;
         		}
+        		$author = join('; ', $authors);
         	}
         	$m++;
         }
