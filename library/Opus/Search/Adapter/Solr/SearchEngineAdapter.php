@@ -65,8 +65,16 @@ class Opus_Search_Adapter_Solr_SearchEngineAdapter implements Opus_Search_Adapte
         // get the content of the HTTP-packet
         $contentStart = strpos($result, '<');
         $content = substr($result, $contentStart);
+        if (empty($content) === true) {
+        	return new Opus_Search_List_HitList();
+        }
         $dom = new DOMDocument();
         $dom->loadXml($content);
+        
+        $result = $dom->getElementsByTagName('result');
+        if (is_object($result) === false || $result->item(0)->getAttribute('numFound') === 0) {
+        	return new Opus_Search_List_HitList();
+        }
 
         $hits = $dom->getElementsByTagName('doc');
         // We need an OPUS-compliant result list to return
