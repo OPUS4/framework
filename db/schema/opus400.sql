@@ -447,24 +447,6 @@ COMMENT = 'Table for identifiers referencing to related documents.';
 
 
 -- -----------------------------------------------------
--- Table `link_metadocument_collection`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `link_metadocument_collection` (
-  `content_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific collection' ,
-  `role_id` INT(11) UNSIGNED NOT NULL COMMENT 'Primary key of a specific role' ,
-  `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key of a document' ,
-  PRIMARY KEY (`content_id`, `role_id`) ,
-  INDEX `fk_link_documents_collection_documents` (`document_id` ASC) ,
-  CONSTRAINT `fk_link_documents_collection_documents`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `documents` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-COMMENT = 'Reference to a metadata document for a collection.';
-
-
--- -----------------------------------------------------
 -- Table `configurations`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `configurations` (
