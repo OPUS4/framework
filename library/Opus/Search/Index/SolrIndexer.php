@@ -94,6 +94,13 @@ class Opus_Search_Index_SolrIndexer {
 	 */
 	public function addDocumentToEntryIndex(Opus_Document $doc)
 	{
+        $solr = new Apache_Solr_Service( 'localhost', '8983', '/solr' );
+  
+        if ( ! $solr->ping() ) {
+            echo 'Solr service not responding.';
+            exit;
+        }
+        
         $this->docToIndex = $doc;
         unset($doc);
     	$returnarray = array();
@@ -114,13 +121,26 @@ class Opus_Search_Index_SolrIndexer {
 			 	//}
 			 	//else
 			 	//{
+            	try {
             	    //$indexDoc = new Opus_Search_Index_Document($analyzedDoc);
 			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
-            	    echo $this->addDocument($analyzedDoc);
+          	        if (is_array($analyzedDoc) === true) {
+           	            $solr->addDocuments($analyzedDoc);
+           	            $solr->commit();
+           	        }
+           	        else {
+           	    	    $solr->addDocument($analyzedDoc);
+           	    	    $solr->commit();
+            	    }
 			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
-			 		$returnarray[] = "indexed document " . $analyzedDoc;
+			 		$returnarray[] = "indexed " . $analyzedDoc->getField('source') . ' for document id ' . $analyzedDoc->getField('id');
+            	}
+            	catch (Exception $e) {
+            		throw $e;
+            	}
 			 	//}
             }
+            
 		} catch (Exception $e) {
 			throw $e;
         }
@@ -152,19 +172,26 @@ class Opus_Search_Index_SolrIndexer {
         } catch (Exception $e) {
             throw $e;
         }
-        $this->entryindex->commit();
-        #$this->entryindex->optimize();
+        $this->commit();
+        $this->optimize();
     }
 
 	/**
-	 * Finalizes the entry in Search Engine Index
+	 * Commits Search Engine Index
 	 *
 	 * @return void
 	 */
-	public function finalize() {
-		$this->entryindex->commit();
-    	$this->entryindex->optimize();
-    	flush();
+	public function commit() {
+		$this->addDocument('<commit/>');
+	}
+
+	/**
+	 * Optimizes Search Engine Index
+	 *
+	 * @return void
+	 */
+	public function optimize() {
+		$this->addDocument('<optimize/>');
 	}
 
 	private function analyzeDocument() {
@@ -183,6 +210,27 @@ class Opus_Search_Index_SolrIndexer {
         // Set up XSLT-Processor
         $proc = new XSLTProcessor;
         $proc->importStyleSheet($xslt);
+        $xmlDocument = $proc->transformToXML($xml);
+        
+        $dom = new DomDocument();
+        $dom->loadXml($xmlDocument);
+        
+        $fields = $dom->getElementsByTagName('field');
+        $solrDocument = new Apache_Solr_Document();
+        $count = 0;
+        $elements = array();
+        foreach ($fields as $key) {
+            $element = $fields->item($count)->getAttribute('name');
+            $k = 0;
+            if (in_array($element, $elements) === true) {
+            	$solrDocument->setMultiValue( $element, $fields->item($count)->nodeValue );
+            }
+            else {
+            	$solrDocument->$element = $fields->item($count)->nodeValue;
+            }
+            array_push($elements, $element); 
+            $count++;
+        }
 
         $docArray = array();
         // index files (each file will get one data set)
@@ -193,18 +241,14 @@ class Opus_Search_Index_SolrIndexer {
             foreach ($files as $file)
             {
             	try {
-           	        $proc->setParameter('', 'fulltext', $this->getFileContent($file));
-           	        $proc->setParameter('', 'source', $file->getPathName());
-           	        $document = $proc->transformToXML($xml);
-       	        	array_push($docArray, $document);
+           	        $solrDocument->fulltext = $this->getFileContent($file);
+           	        $solrDocument->source = $file->getPathName();
+       	        	array_push($docArray, $solrDocument);
                 }
                 catch (Exception $e) {
-            	    #$proc->setParameter('', 'source', $file->getPathName());
-            	    #$proc->setParameter('', 'content', '');
-            	    #$document = $proc->transformToXML($xml);
             	    $document = $e->getMessage();
             	    $numberOfIndexableFiles--;
-            	    array_push($docArray, $document);
+            	    #array_push($docArray, $document);
                 }
             }
         } else {
@@ -213,10 +257,9 @@ class Opus_Search_Index_SolrIndexer {
         // if there is no file (or only non-readable ones) associated with the document, index only metadata
         if ($numberOfIndexableFiles === 0)
         {
-            $proc->setParameter('', 'source', 'metadata');
-            $proc->setParameter('', 'fulltext', '');
-            $document = $proc->transformToXML($xml);
-            array_push($docArray, $document);
+           	$solrDocument->fulltext = '';
+           	$solrDocument->source = 'metadata';
+            array_push($docArray, $solrDocument);
         }
 
         return ($docArray);
