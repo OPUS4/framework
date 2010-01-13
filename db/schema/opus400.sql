@@ -446,23 +446,6 @@ ENGINE = InnoDB
 COMMENT = 'Table for identifiers referencing to related documents.';
 
 -- -----------------------------------------------------
--- Table `resources`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `resources` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `parent_id` INT UNSIGNED NULL ,
-  `name` VARCHAR(255) NULL ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
-  INDEX `fk_resources_resources` (`parent_id` ASC) ,
-  CONSTRAINT `fk_resources_resources`
-    FOREIGN KEY (`parent_id` )
-    REFERENCES `resources` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
--- -----------------------------------------------------
 -- Table `roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `roles` (
@@ -474,35 +457,6 @@ CREATE  TABLE IF NOT EXISTS `roles` (
   CONSTRAINT `fk_roles_roles`
     FOREIGN KEY (`parent` )
     REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `rules`
--- 
--- The columns role_id, privilege and resource may be NULL,
--- beacause Zend_Acl uses NULL to define default rules.
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `rules` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `role_id` INT UNSIGNED ,
-  `resource_id` INT UNSIGNED ,
-  `privilege` VARCHAR(15) ,
-  `granted` TINYINT(1) NOT NULL COMMENT 'Flag: is the privilege allowed or disallowed? (0=disallowed, 1=allowed)?' ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_ROLE_ID_RESOURCE_ID_PRIVILEGE` (`role_id` ASC, `resource_id` ASC, `privilege` ASC) ,
-  INDEX `fk_privileges_roles` (`role_id` ASC) ,
-  CONSTRAINT `fk_privileges_roles`
-    FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE ,
-  INDEX `fk_privileges_resources` (`resource_id`ASC) ,
-  CONSTRAINT `fk_privileges_resources`
-    FOREIGN KEY (`resource_id`)
-    REFERENCES `resources` (`id`)
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB;
