@@ -32,7 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_Search_Index_Indexer {
+class Opus_Search_Index_Lucene_Indexer {
 	/**
 	 * Index variable
 	 *

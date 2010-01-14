@@ -32,7 +32,7 @@
  * @version     $Id: Indexer.php 3834 2009-11-18 16:28:06Z becker $
  */
 
-class Opus_Search_Index_SolrIndexer {
+class Opus_Search_Index_Solr_Indexer {
 	/**
 	 * Index variable
 	 *
