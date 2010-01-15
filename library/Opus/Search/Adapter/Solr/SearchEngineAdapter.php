@@ -61,53 +61,62 @@ class Opus_Search_Adapter_Solr_SearchEngineAdapter implements Opus_Search_Adapte
    * @return Opus_Search_Adapter_Solr_SearchHitAdapter
    */
   public function find($query) {
-        $result = $this->postSearch($query);
-        // get the content of the HTTP-packet
-        $contentStart = strpos($result, '<');
-        $content = substr($result, $contentStart);
-        if (empty($content) === true) {
-        	return new Opus_Search_List_HitList();
-        }
-        $dom = new DOMDocument();
-        $dom->loadXml($content);
-        
-        $result = $dom->getElementsByTagName('result');
-        if (is_object($result) === false || $result->item(0)->getAttribute('numFound') === 0) {
-        	return new Opus_Search_List_HitList();
-        }
+      $limit = 10;
+      $results = false;
 
-        $hits = $dom->getElementsByTagName('doc');
-        // We need an OPUS-compliant result list to return
+      if ($query)
+      {
+          $solr = new Apache_Solr_Service('localhost', 8180, '/solr/');
+
+          // if magic quotes is enabled then stripslashes will be needed
+          if (get_magic_quotes_gpc() == 1)
+          {
+              $query = stripslashes($query);
+          }
+          
+          try
+          {
+              $results = $solr->search($query, 0, $limit);
+          }
+          catch (Exception $e)
+          {
+          	throw $e;
+          }
+       }
+        
         $hitlist = new Opus_Search_List_HitList();
         $done = array();
         $hitlistarray = array();
-        if ($hits->length > 0) {
-        	$count = 0;
-                foreach ($hits as $queryHit) {
-                        $elements = $hits->item($count)->getElementsByTagName('str');
-                        $k = 0;
-                        foreach ($elements as $str) {
-        	                if ($elements->item($k)->getAttribute('name') === 'docid') {
-        		                $docid = $elements->item($k)->nodeValue;
-        	                }
-        	                $k++;
-                        }
-                        if (in_array($docid, $done) === false) {
-                                array_push($done, $docid);
-                                $opusHit = new Opus_Search_Adapter_Solr_SearchHitAdapter($dom->saveXml($hits->item($count)));
-                                $curdoc = $opusHit->convertToSearchHit($query);
-                                if ($curdoc !== false) {
-                                	array_push($hitlistarray, $curdoc);
-                                }
-                        } else {
-                                $key = array_search($docid, $done);
-                        }
-                    $count++;
+        // display results
+        if ($results)
+        {
+            $total = (int) $results->response->numFound;
+            $start = min(1, $total);
+            $end = min($limit, $total);
+            foreach ($results->response->docs as $doc)
+            {
+                $docid = $doc['docid'];
+                if (in_array($docid, $done) === false) {
+                    array_push($done, $docid);
+                    $opusHit = new Opus_Search_Adapter_Solr_SearchHitAdapter($doc);
+                    $curdoc = $opusHit->convertToSearchHit($query);
+                    if ($curdoc !== false) {
+                      	array_push($hitlistarray, $curdoc);
+                    }
+                } else {
+                    $key = array_search($docid, $done);
                 }
+             }
+        }
+        else {
+        	return new Opus_Search_List_HitList();
         }
         $hitlist->query = $query;
         foreach ($hitlistarray as $singlehit) {
         	$hitlist->add($singlehit);
+        }
+        if ($total === 0) {
+        	return new Opus_Search_List_HitList();
         }
     return $hitlist;
   }

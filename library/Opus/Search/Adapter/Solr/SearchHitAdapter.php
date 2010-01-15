@@ -62,68 +62,26 @@ class Opus_Search_Adapter_Solr_SearchHitAdapter implements Opus_Search_Adapter_S
    * @return SearchHit
    */
   public function convertToSearchHit($query = null) {
-    	// make the Zend_Lucene_Search_QueryHit to a Opus-SearchHit
-	    // Ranking and other attributes are taken from the Lucene class
-        $document = new DOMDocument();
-        $document->loadXml($this->_parent);
         $qhit = new Opus_Search_SearchHit();
-        // relevance ranking not supported by solr by default
-        #$qhit->setRelevance($this->_parent->score);
-
+        // $qhit->setRelevance($this->_parent->score);
         // initialize variables
         $year = '';
         $title = '';
         $abstract = '';
         $author = '';
-
-        // set the query hit by fields from solr index
-        $strelements = $document->getElementsByTagName('str');
-        $intelements = $document->getElementsByTagName('int');
-        $arrelements = $document->getElementsByTagName('arr');
-        $k = 0;
-        foreach ($strelements as $str) {
-        	if ($strelements->item($k)->getAttribute('name') === 'docid') {
-        		$id = $strelements->item($k)->nodeValue;
+        $id = $this->_parent['docid'];
+        $year = $this->_parent['year'];
+        $authors = array();
+        // iterate document fields / values
+        foreach ($this->_parent as $field => $value)
+        {
+        	if ($field === 'title') $title .= $value . ' ';
+        	if ($field === 'abstract') $abstract .= $value . ' ';
+        	if ($field === 'author') {
+        		array_push($authors, $value);
         	}
-        	$k++;
         }
-        $l = 0;
-        foreach ($intelements as $int) {
-        	if ($intelements->item($l)->getAttribute('name') === 'year') {
-        		$year = $intelements->item($l)->nodeValue;
-        	}
-        	$l++;
-        }
-        $m = 0;
-        foreach ($arrelements as $arr) {
-        	if ($arrelements->item($m)->getAttribute('name') === 'title') {
-        		$titleelements = $arrelements->item($m)->getElementsByTagName('str');
-        		$n = 0;
-        		foreach ($titleelements as $t) {
-        		    $title .= $titleelements->item($n)->nodeValue . ' ';
-        		    $n++;
-        		}
-        	}
-         	if ($arrelements->item($m)->getAttribute('name') === 'abstract') {
-        		$abstractelements = $arrelements->item($m)->getElementsByTagName('str');
-        		$n = 0;
-        		foreach ($abstractelements as $a) {
-        		    $abstract .= $abstractelements->item($n)->nodeValue . ' ';
-        		    $n++;
-        		}
-        	}
-         	if ($arrelements->item($m)->getAttribute('name') === 'author') {
-        		$authorelements = $arrelements->item($m)->getElementsByTagName('str');
-        		$n = 0;
-        		$authors = array();
-        		foreach ($authorelements as $b) {
-        		    array_push($authors, $authorelements->item($n)->nodeValue);
-        		    $n++;
-        		}
-        		$author = join('; ', $authors);
-        	}
-        	$m++;
-        }
+        $author = join('; ', $authors);
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $id, 'title' => $title, 'abstract' => $abstract, 'author' => $author, 'year' => $year));
         $qhit->setDocument($opusdoc);
         return $qhit;
