@@ -215,7 +215,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return Opus_Collection|array Subcollection(s).
      */
     protected function _fetchVisibility() {
-        return Opus_Collection_Information::getVisibility((int) $this->__role_id, (int) $this->getId());
+        if (false === $this->isNewRecord()) {
+            return Opus_Collection_Information::getVisibility((int) $this->__role_id, (int) $this->getId());
+        }
     }
 
     /**
@@ -224,7 +226,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return Opus_Collection|array Subcollection(s).
      */
     protected function _fetchSeveralAppearances() {
-        return Opus_Collection_Information::severalAppearances((int) $this->__role_id, (int) $this->getId());
+        if (false === $this->isNewRecord()) {
+            return Opus_Collection_Information::severalAppearances((int) $this->__role_id, (int) $this->getId());
+        }
     }
 
     /**
@@ -407,8 +411,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return Opus_Collection|array Parentcollection(s).
      */
     protected function _fetchParentCollection() {
-        $result = array();
-        $collectionIds = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->getId());
+        if (false === $this->isNewRecord()) {
+            $collectionIds = Opus_Collection_Information::getAllParents($this->__role_id, (int) $this->getId());
+        }
         $result = array();
         $resultOut = array();
         if (empty($collectionIds) === false) {

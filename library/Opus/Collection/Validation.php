@@ -50,7 +50,7 @@ class Opus_Collection_Validation {
     static public function constructorID($ID) {
         if ($ID === 'institute') {
             return true;
-        } else if (is_int($ID) === false) {
+        } else if (is_int(intval($ID)) === false) {
             throw new InvalidArgumentException($ID . ' is neither integer nor "institute".');
         } else if ($ID < 1) {
             throw new InvalidArgumentException($ID . ' is neither positive integer nor "institute".');
