@@ -962,8 +962,15 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @return void
      */
     public function delete() {
+   		$config = Zend_Registry::get('Zend_Config');
+
+        $searchEngine = $config->searchengine->engine;
+        if (empty($searchEngine) === true) {
+            $searchEngine = 'Lucene';
+	    }
+        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
         // Remove from index
-        $indexer = new Opus_Search_Index_Indexer();
+        $indexer = new $engineclass();
         $indexer->removeDocumentFromEntryIndex($this);
         $this->setServerState('deleted');
         $this->store();
@@ -976,8 +983,15 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @return void
      */
     public function deletePermanent() {
+   		$config = Zend_Registry::get('Zend_Config');
+
+        $searchEngine = $config->searchengine->engine;
+        if (empty($searchEngine) === true) {
+            $searchEngine = 'Lucene';
+	    }
+        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
         // Remove from index
-        $indexer = new Opus_Search_Index_Indexer();
+        $indexer = new $engineclass();
         $indexer->removeDocumentFromEntryIndex($this);
         parent::delete();
     }
