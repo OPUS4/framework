@@ -33,31 +33,26 @@
  */
 
 /**
- * Table gateway class to table 'ipaddresses'.
+ * Table gateway class to table 'ipranges'.
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_Ipaddresses extends Opus_Db_TableGateway {
+class Opus_Db_Ipranges extends Opus_Db_TableGateway {
     /**
      * Table schema name.
      *
      * @var string
      */
-    protected $_name = 'ipaddresses';
+    protected $_name = 'ipranges';
 
     /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from
+     * All dependant Tables,
+     * i.e. those that contain a document_files_id as a foreign key.
      *
-     * @var array $_referenceMap
+     * @var array $_dependantTables
      */
-    protected $_referenceMap = array(
-            'Ipranges' => array(
-                'columns' => 'iprange_id',
-                'refTableClass' => 'Opus_Db_Ipranges',
-                'refColumns' => 'id',
-                ),
-            );
+    protected $_dependentTables = array('Opus_Db_Ipranges');
+
 }

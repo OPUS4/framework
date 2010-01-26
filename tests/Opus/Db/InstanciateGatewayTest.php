@@ -68,6 +68,7 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         array('Opus_Db_InstitutesReplacement'),
         array('Opus_Db_InstitutesStructure'),
         array('Opus_Db_Ipaddresses'),
+        array('Opus_Db_Ipranges'),
         array('Opus_Db_Languages'),
         array('Opus_Db_LinkAccountsRoles'),
         array('Opus_Db_LinkDocumentsLicences'),

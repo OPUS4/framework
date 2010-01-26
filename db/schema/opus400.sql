@@ -347,16 +347,165 @@ CREATE  TABLE IF NOT EXISTS `accounts` (
 ENGINE = InnoDB
 COMMENT = 'Table for system user accounts.';
 
+
+-- -----------------------------------------------------
+-- Table `ipranges`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `ipranges` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `ip1byte1` TINYINT UNSIGNED NOT NULL COMMENT 'First byte of the ip the range starts with.' ,
+  `ip1byte2` TINYINT UNSIGNED NOT NULL COMMENT 'Second byte of the ip the range starts with.' ,
+  `ip1byte3` TINYINT UNSIGNED NOT NULL COMMENT 'Third byte of the ip the range starts with.' ,
+  `ip1byte4` TINYINT UNSIGNED NOT NULL COMMENT 'Fourth byte of the ip the range starts with.' ,
+  `ip2byte1`TINYINT UNSIGNED NOT NULL COMMENT 'First byte of the ip the range ends with.' ,
+  `ip2byte2`TINYINT UNSIGNED NOT NULL COMMENT 'Second byte of the ip the range ends with.' ,
+  `ip2byte3`TINYINT UNSIGNED NOT NULL COMMENT 'Third byte of the ip the range ends with.' ,
+  `ip2byte4`TINYINT UNSIGNED NOT NULL COMMENT 'Fourth byte of the ip the range ends with.' ,
+  PRIMARY KEY (`id`) ,
+  UNIQUE INDEX `UNIQUE_IP_RANGE` (ip1byte1, ip1byte2, ip1byte3, ip1byte4, ip2byte1, ip2byte2, ip2byte3, ip2byte4) )
+ENGINE = InnoDB
+COMMENT = 'Table for ranges of ip addresses.';
+
 -- -----------------------------------------------------
 -- Table `ipaddresses`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `ipaddresses` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `ipaddress` VARCHAR(15) NOT NULL COMMENT 'ipaddress' ,
+  `iprange_id` INT UNSIGNED COMMENT 'Foreign key to: ipranges.id. Lines set NULL here will be deleted by stored procedure expand_iprange.' , -- Do not set this 'NOT NULL'!
+  `byte1` TINYINT UNSIGNED NOT NULL COMMENT 'First byte of the ip address.' , 
+  `byte2` TINYINT UNSIGNED NOT NULL COMMENT 'Second byte of the ip address.' , 
+  `byte3` TINYINT UNSIGNED NOT NULL COMMENT 'Third byte of the ip address.' , 
+  `byte4` TINYINT UNSIGNED NOT NULL COMMENT 'Fourth byte of the ip address.' , 
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_IP` (`ipaddress` ASC) )
+  INDEX `ipaddress` (byte1, byte2, byte3, byte4) ,
+  CONSTRAINT `fk_ipranges_has_ipaddresses`
+    FOREIGN KEY (`iprange_id` )
+    REFERENCES `ipranges` (`id` )
+    ON UPDATE SET NULL ON DELETE CASCADE )
+ENGINE = InnoDB
+COMMENT = 'DONT CHANGE ANY DATA! See triggers and stored procedures.';
+
+-- -----------------------------------------------------
+-- Procedure `expand_iprange`
+-- -----------------------------------------------------
+DROP PROCEDURE IF EXISTS expand_iprange;
+
+delimiter //
+
+CREATE PROCEDURE expand_iprange (IN iprange_id INT UNSIGNED, IN ip1byte1 TINYINT(3) UNSIGNED, IN ip1byte2 TINYINT(3) UNSIGNED, IN ip1byte3 TINYINT(3) UNSIGNED, IN ip1byte4 TINYINT(3) UNSIGNED, IN ip2byte1 TINYINT(3) UNSIGNED, IN ip2byte2 TINYINT(3) UNSIGNED, IN ip2byte3 TINYINT(3) UNSIGNED, IN ip2byte4 TINYINT(3) UNSIGNED) MODIFIES SQL DATA
+BEGIN
+  DECLARE byte1, byte2, byte3, byte4 SMALLINT(3) UNSIGNED;
+
+  DELETE IGNORE FROM ipaddresses WHERE ipaddresses.iprange_id IS NULL;
+  DELETE IGNORE FROM ipaddresses WHERE ipaddresses.iprange_id = iprange_id;
+
+  SET byte1 = ip1byte1;
+  SET byte2 = ip1byte2;
+  SET byte3 = ip1byte3;
+  SET byte4 = ip1byte4;
+
+  loopip1:LOOP
+    IF byte1 = 0 THEN
+      BEGIN
+        SET byte1 = byte1 + 1;
+        ITERATE loopip1;
+      END;
+      ELSEIF byte1 >= 255 THEN LEAVE loopip1;
+      ELSEIF byte1 > ip2byte1 THEN LEAVE loopip1;
+    END IF;
+    loopip2:LOOP
+      IF byte2 > 255 THEN LEAVE loopip2;
+        ELSEIF byte2 > ip2byte2 AND byte1 >= ip2byte1 THEN LEAVE loopip2;
+      END IF;
+      loopip3:LOOP
+        IF byte3 > 255 THEN LEAVE loopip3;
+          ELSEIF byte3 > ip2byte3 AND byte2 >= ip2byte2 THEN LEAVE loopip3;
+        END IF;
+        loopip4:LOOP
+          IF byte4 = 0 THEN
+            BEGIN
+              SET byte4 = byte4 + 1;
+              ITERATE loopip4;
+            END;
+            ELSEIF byte4 > 255 THEN LEAVE loopip4;
+            ELSEIF byte4 > ip2byte4 AND byte3 >= ip2byte3 THEN LEAVE loopip4;
+          END IF;
+          INSERT INTO ipaddresses (iprange_id, byte1, byte2, byte3, byte4) VALUES (iprange_id, byte1, byte2, byte3, byte4);
+          SET byte4 = byte4 + 1;
+        END LOOP loopip4;
+        SET byte3 = byte3 + 1;
+        SET byte4 = 1;
+      END LOOP loopip3;
+      SET byte2 = byte2 + 1;
+      SET byte3 = 1;
+    END LOOP loopip2;
+    SET byte1 = byte1 + 1;
+    SET byte2 = 1;
+  END LOOP loopip1;
+END//
+
+delimiter ;
+
+-- -----------------------------------------------------
+-- Trigger `delete_ipaddresses_before_iprange_update`
+-- -----------------------------------------------------
+CREATE TRIGGER `delete_ipaddresses_before_iprange_update`
+BEFORE UPDATE ON ipranges
+FOR EACH ROW 
+DELETE FROM ipaddresses WHERE ipaddresses.iprange_id = NEW.id;
+
+-- -----------------------------------------------------
+-- Trigger `expand_ipaddresses_after_iprange_update`
+-- -----------------------------------------------------
+CREATE TRIGGER `refresh_ipaddresses_after_iprange_update`
+AFTER UPDATE ON ipranges
+FOR EACH ROW 
+CALL expand_iprange (NEW.id, NEW.ip1byte1, NEW.ip1byte2, NEW.ip1byte3, NEW.ip1byte4, NEW.ip2byte1, NEW.ip2byte2, NEW.ip2byte3, NEW.ip2byte4) ;
+
+-- -----------------------------------------------------
+-- Trigger `expand_ipaddresses_after_iprange_insert`
+-- -----------------------------------------------------
+CREATE TRIGGER `refresh_ipaddresses_after_iprange_insert`
+AFTER INSERT ON ipranges
+FOR EACH ROW 
+CALL expand_iprange (NEW.id, NEW.ip1byte1, NEW.ip1byte2, NEW.ip1byte3, NEW.ip1byte4, NEW.ip2byte1, NEW.ip2byte2, NEW.ip2byte3, NEW.ip2byte4) ;
+
+-- -----------------------------------------------------
+-- Table `roles`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `roles` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `parent` INT UNSIGNED ,
+  `name` VARCHAR(255) ,
+  PRIMARY KEY (`id`) ,
+  INDEX `fk_roles_roles` (`parent` ASC) ,
+  CONSTRAINT `fk_roles_roles`
+    FOREIGN KEY (`parent` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `link_accounts_roles`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
+  `account_id` INT UNSIGNED NOT NULL ,
+  `role_id` INT UNSIGNED NOT NULL ,
+  PRIMARY KEY (`account_id`, `role_id`) ,
+  INDEX `fk_accounts_has_roles_accounts` (`account_id` ASC) ,
+  INDEX `fk_accounts_has_roles_roles` (`role_id` ASC) ,
+  CONSTRAINT `fk_accounts_has_roles_accounts`
+    FOREIGN KEY (`account_id` )
+    REFERENCES `accounts` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_accounts_has_roles_roles`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `link_ipaddresses_roles`
@@ -445,44 +594,6 @@ CREATE  TABLE IF NOT EXISTS `document_references` (
     ON UPDATE CASCADE)
 ENGINE = InnoDB
 COMMENT = 'Table for identifiers referencing to related documents.';
-
--- -----------------------------------------------------
--- Table `roles`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `roles` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `parent` INT UNSIGNED ,
-  `name` VARCHAR(255) ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_roles_roles` (`parent` ASC) ,
-  CONSTRAINT `fk_roles_roles`
-    FOREIGN KEY (`parent` )
-    REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `link_accounts_roles`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
-  `account_id` INT UNSIGNED NOT NULL ,
-  `role_id` INT UNSIGNED NOT NULL ,
-  PRIMARY KEY (`account_id`, `role_id`) ,
-  INDEX `fk_accounts_has_roles_accounts` (`account_id` ASC) ,
-  INDEX `fk_accounts_has_roles_roles` (`role_id` ASC) ,
-  CONSTRAINT `fk_accounts_has_roles_accounts`
-    FOREIGN KEY (`account_id` )
-    REFERENCES `accounts` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_accounts_has_roles_roles`
-    FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
