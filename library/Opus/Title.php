@@ -69,14 +69,13 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
             $language->setDefault(Zend_Registry::get('Available_Languages'));
         }
         $language->setSelection(true);
+        $language->setMandatory(true);
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        $sortOrder = new Opus_Model_Field('SortOrder');
 
         $this->addField($language)
-            ->addField($value)
-            ->addField($sortOrder);
+            ->addField($value);
     }
 
 }

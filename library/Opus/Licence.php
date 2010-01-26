@@ -89,6 +89,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
             $licence_language->setDefault(Zend_Registry::get('Available_Languages'));
         }
         $licence_language->setSelection(true);
+        $licence_language->setMandatory(true);
 
         $link_licence = new Opus_Model_Field('LinkLicence');
         $link_licence->setMandatory(true)

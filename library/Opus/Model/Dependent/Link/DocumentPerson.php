@@ -88,7 +88,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         $role = new Opus_Model_Field('Role');
         $sortOrder = new Opus_Model_Field('SortOrder');
         $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
-        $allowEmailContact->setCheckbox(true)->setMandatory(true);
+        $allowEmailContact->setCheckbox(true);
 
         $this->addField($role)
             ->addField($sortOrder)

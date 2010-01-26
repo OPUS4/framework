@@ -79,6 +79,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
             $language->setDefault(Zend_Registry::get('Available_Languages'));
         }
         $language->setSelection(true);
+        $language->setMandatory(true);
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(true);

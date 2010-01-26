@@ -71,9 +71,9 @@ class Opus_Person extends Opus_Model_AbstractDb
         $last_name->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $this->addField($email)
-            ->addField($first_name)
-            ->addField($last_name);
+        $this->addField($first_name)
+            ->addField($last_name)
+            ->addField($email);
     }
 
     /**
