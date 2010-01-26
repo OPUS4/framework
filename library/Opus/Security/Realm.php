@@ -53,7 +53,7 @@ class Opus_Security_Realm {
 
 	/**
 	 * The current username.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $_username = 'guest';
@@ -111,73 +111,71 @@ class Opus_Security_Realm {
 	}
 
     /**
-	 * FIXME
      * Get the roles that are assigned to the specified username.
      *
      * @param string $username The name of the queried username.
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
-     * @return string|array
+     * @return array Array of assigned roles or an empty array.
      */
     protected function _getUsernameRoles() {
-        // $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        // $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
-        // if (null === $account) {
-        //     throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
-        // }
+        $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
+        $account = $accounts->fetchRow($accounts->select()->where('login = ?', $identity));
+        if (null === $account) {
+             throw new Opus_Security_Exception("An identity with the given name: $identity could not be found.");
+        }
 
-        // $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
-        // $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
-        // $assignedRoles = $account->findManyToManyRowset($roles, $link);
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
+        $assignedRoles = $account->findManyToManyRowset($roles, $link);
 
-        // if (1 === $assignedRoles->count()) {
-        //     // return the role name
-        //     return $assignedRoles->current()->name;
-        // } else if ($assignedRoles->count() > 1) {
-        //     $result = array();
-        //     foreach ($assignedRoles as $arole) {
-        //         $result[] = $arole->name;
-        //     }
-        //     return $result;
-        // }
+        if ($assignedRoles->count() >= 1) {
+            $result = array();
+            foreach ($assignedRoles as $arole) {
+                $result[] = $arole->name;
+            }
+            return $result;
+        }
 
         return array();
     }
 
     /**
-	 * FIXME
      * Map an IP address to Roles.
      *
      * @param string $ipaddress IP address.
-     * @return string|array|null The assigned role name or array of role names.
-     *                           Null if no Role is assigned to the given IP address.
+     * @throws Opus_Security_Exception Thrown if the supplied ip is not valid.
+     * @return array Array of assigned roles or an empty array.
      */
     protected function _getIpaddressRoles() {
-        // if (preg_match('/^[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\.[\d]{1-3}\$/', $ipaddress) === false) {
-        //     return null;
-        // }
+        $ip = array();
+        $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
+        if (false === is_null($ipaddress) && 1 !== preg_match($regex, $ipaddress, $ip)) {
+             throw new Opus_Security_Exception('Your IP address could not be validated.');
+        }
 
-        // $ipTable = new Opus_Db_Ipaddresses();
-        // $iprow = $ipTable->fetchRow($ipTable->select()->where('ipaddress = ?', $ipaddress));
-        // if ($iprow === null) {
-        //     return null;
-        // }
+        $ipTable = new Opus_Db_Ipaddresses();
+        $iprows = $ipTable->fetchAll($ipTable->select()
+                    ->where('byte1 = ?', $ip[1])
+                    ->where('byte2 = ?', $ip[2])
+                    ->where('byte3 = ?', $ip[3])
+                    ->where('bate4 = ?', $ip[4]));
+        if (0 === $iprows->count()) {
+            return array();
+        }
 
-        // $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
-        // $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
-        // $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
-
-        // if (1 === $assignedRoles->count()) {
-        //     // return the role name
-        //     return $assignedRoles->current()->name;
-        // } else if ($assignedRoles->count() > 1) {
-        //     $result = array();
-        //     foreach ($assignedRoles as $arole) {
-        //         $result[] = $arole->name;
-        //     }
-        //     return $result;
-        // }
-
-        return array();
+        $result = array();
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
+        foreach ($iprows as $iprow) {
+            $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
+            foreach ($assignedRoles as $arole) {
+                $result[] = $arole->name;
+            }
+        }
+        return $result;
     }
 
 	/**
