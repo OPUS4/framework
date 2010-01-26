@@ -543,9 +543,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return void
      */
     public function __wakeup() {
-        $tableclass = $this->_primaryTableRow->getTableClass();
-        $table = Opus_Db_TableGateway::getInstance($tableclass);
-        $this->_primaryTableRow->setTable($table);
+        if (false === is_null($this->_primaryTableRow)) {
+            $tableclass = $this->_primaryTableRow->getTableClass();
+            $table = Opus_Db_TableGateway::getInstance($tableclass);
+            $this->_primaryTableRow->setTable($table);
+        }
     }
 
     /**
