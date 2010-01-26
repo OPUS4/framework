@@ -1043,7 +1043,7 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
-     * Remove the model instance from the database. If sucessfull, also remove resource from Acl.
+     * Remove the model instance from the database.
      *
      * @see    Opus_Model_AbstractDb::delete()
      * @return void
