@@ -475,15 +475,8 @@ CALL expand_iprange (NEW.id, NEW.ip1byte1, NEW.ip1byte2, NEW.ip1byte3, NEW.ip1by
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `parent` INT UNSIGNED ,
   `name` VARCHAR(255) ,
   PRIMARY KEY (`id`) ,
-  INDEX `fk_roles_roles` (`parent` ASC) ,
-  CONSTRAINT `fk_roles_roles`
-    FOREIGN KEY (`parent` )
-    REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------

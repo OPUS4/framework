@@ -47,25 +47,4 @@ class Opus_Db_Roles extends Opus_Db_TableGateway {
      */
     protected $_name = 'roles';
 
-    /**
-     * All dependant Tables,
-     * i.e. those that contain a document_files_id as a foreign key.
-     *
-     * @var array $_dependantTables
-     */
-    protected $_dependentTables = array('Opus_Db_Roles');
-
-    /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from
-     *
-     * @var array $_referenceMap
-     */
-    protected $_referenceMap = array(
-            'Roles' => array(
-                'columns' => 'parent',
-                'refTableClass' => 'Opus_Db_Roles',
-                'refColumns' => 'id',
-                ),
-            );
 }
