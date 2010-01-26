@@ -486,6 +486,25 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
+-- Table `metis_pixel`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `metis_pixel` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id' ,
+  `public_id` VARCHAR(50) NOT NULL COMMENT 'public identification code' ,
+  `private_id` VARCHAR(50) NOT NULL COMMENT 'private identification code' ,
+  PRIMARY KEY (`id`) ,
+  INDEX `fk_metis_pixel_documents` (`document_id` ASC) ,
+  CONSTRAINT `fk_metis_pixel_documents`
+    FOREIGN KEY (`document_id` )
+    REFERENCES `documents` (`id` ) 
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+COMMENT = 'Table for VG Wort-pixel.';
+
+
+-- -----------------------------------------------------
 -- Table `translations`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `translations` (
