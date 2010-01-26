@@ -71,10 +71,8 @@ class Opus_Security_AllTests {
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Security');
         $suite->addTestSuite('Opus_Security_AccountTest');
-        $suite->addTestSuite('Opus_Security_AclTest');
         $suite->addTestSuite('Opus_Security_AuthAdapterTest');
         $suite->addTestSuite('Opus_Security_RealmTest');
-        $suite->addTestSuite('Opus_Security_RoleRegistryTest');
         return $suite;
     }
 

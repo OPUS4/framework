@@ -45,16 +45,6 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
 
 
     /**
-     * Remove Acl from security Realm to disable security
-     * after tests.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        Opus_Security_Realm::getInstance()->setAcl(null);
-    }
-
-    /**
      * Test querying the display name of a linked  model.
      *
      * @return void
