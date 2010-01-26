@@ -52,7 +52,6 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         return array(
         array('Opus_Db_Accounts'),
         array('Opus_Db_CollectionsRoles'),
-        array('Opus_Db_Configurations'),
         array('Opus_Db_DocumentEnrichments'),
         array('Opus_Db_DocumentFiles'),
         array('Opus_Db_DocumentIdentifiers'),
@@ -75,12 +74,9 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         array('Opus_Db_LinkInstitutesDocuments'),
         array('Opus_Db_LinkIpaddressesRoles'),
         array('Opus_Db_LinkPersonsDocuments'),
-        array('Opus_Db_LinkMetadocumentCollection'),
         array('Opus_Db_PersonExternalKeys'),
         array('Opus_Db_Persons'),
-        array('Opus_Db_Resources'),
         array('Opus_Db_Roles'),
-        array('Opus_Db_Rules'),
         array('Opus_Db_Translations'),
         array('Opus_Db_CollectionsThemes'),
         );
