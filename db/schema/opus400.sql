@@ -490,18 +490,34 @@ ENGINE = InnoDB;
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `metis_pixel` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id' ,
   `public_id` VARCHAR(50) NOT NULL COMMENT 'public identification code' ,
   `private_id` VARCHAR(50) NOT NULL COMMENT 'private identification code' ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_metis_pixel_documents` (`document_id` ASC) ,
-  CONSTRAINT `fk_metis_pixel_documents`
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB
+COMMENT = 'Table for VG Wort-pixel.';
+
+
+-- -----------------------------------------------------
+-- Table `link_documents_metis_pixel`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `link_documents_metis_pixel` (
+  `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
+  `pixel_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: metis_pixel.id.' ,
+  PRIMARY KEY (`document_id`, `pixel_id`) ,
+  INDEX `fk_documents_has_metispixel_documents` (`document_id` ASC) ,
+  INDEX `fk_documents_has_metispixel_document_pixels` (`pixel_id` ASC) ,
+  CONSTRAINT `fk_documents_has_metispixel_documents`
     FOREIGN KEY (`document_id` )
-    REFERENCES `documents` (`id` ) 
+    REFERENCES `documents` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_documents_has_metispixel_document_pixels`
+    FOREIGN KEY (`pixel_id` )
+    REFERENCES `metis_pixel` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Table for VG Wort-pixel.';
+COMMENT = 'Relation table (documents, metis_pixel).';
 
 
 -- -----------------------------------------------------
