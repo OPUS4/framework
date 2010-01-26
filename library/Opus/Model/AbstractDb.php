@@ -107,7 +107,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $this->_primaryTableRow = $id;
             $this->_isNewRecord = false;
         } else {
-            $this->_primaryTableRow = call_user_func_array(array(&$tableGatewayModel, 'find'),$id)->getRow(0);
+            $reflectionClass = new ReflectionClass($tableGatewayModel);
+            if (false === is_array($id)) {
+                $id = array($id);
+            }
+            $this->_primaryTableRow = $reflectionClass->getMethod('find')->invokeArgs($tableGatewayModel, $id)->getRow(0);
             if ($this->_primaryTableRow === null) {
                 throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id in database.");
             }
