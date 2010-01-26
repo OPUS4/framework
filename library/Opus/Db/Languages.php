@@ -48,11 +48,4 @@ class Opus_Db_Languages extends Opus_Db_TableGateway {
      */
     protected $_name = 'languages';
 
-    /**
-     * The language table has the three-letter ISO 639-3 identifier as a natural
-     * key, so an auto-incrementing primary key must not be used.
-     *
-     * @var string
-     */
-    protected $_sequence = false;
 }

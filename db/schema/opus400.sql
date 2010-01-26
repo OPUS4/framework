@@ -642,7 +642,7 @@ ENGINE = InnoDB;
 -- Based on http://sil.org/iso639-3/download.asp
 --
 CREATE  TABLE IF NOT EXISTS `languages` (
-  `id` char(3) NOT NULL COMMENT 'The three-letter 639-3 identifier',
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `part2_b` char(3) default NULL COMMENT 'Equivalent 639-2 identifier of the bibliographic applications code set, if there is one',
   `part2_t` char(3) default NULL COMMENT 'Equivalent 639-2 identifier of the terminology applications code set, if there is one',
   `part1` char(2) default NULL COMMENT 'Equivalent 639-1 identifier, if there is one',

@@ -55,7 +55,6 @@ class Opus_Language extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _init() {
-        $id = new Opus_Model_Field('Id');
         $part2B = new Opus_Model_Field('Part2B');
         $part2T = new Opus_Model_Field('Part2T');
         $part1 = new Opus_Model_Field('Part1');
@@ -66,8 +65,7 @@ class Opus_Language extends Opus_Model_AbstractDb {
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
 
-        $this->addField($id)
-            ->addField($part2B)
+        $this->addField($part2B)
             ->addField($part2T)
             ->addField($part1)
             ->addField($scope)
