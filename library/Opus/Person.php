@@ -60,24 +60,20 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _init() {
-        $academic_title = new Opus_Model_Field('AcademicTitle');
-
         $email = new Opus_Model_Field('Email');
         $email->setValidator(new Zend_Validate_EmailAddress());
 
         $first_name = new Opus_Model_Field('FirstName');
+        $first_name->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $last_name = new Opus_Model_Field('LastName');
         $last_name->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $name = new Opus_Model_Field('Name');
-
-        $this->addField($academic_title)
-            ->addField($email)
+        $this->addField($email)
             ->addField($first_name)
-            ->addField($last_name)
-            ->addField($name);
+            ->addField($last_name);
     }
 
     /**
@@ -86,29 +82,7 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return string
      */
     public function getName() {
-        $name = '';
-        if (false === is_null($this->getAcademicTitle()) && ! $this->getAcademicTitle() === '') {
-            $name .= $this->getAcademicTitle() . ' ';
-        }
-        $name .= $this->getShortName();
-        return $name;
-    }
-                    
-   /**
-     * Get short of name (no academic title)
-     *
-     * @return string
-     */
-    public function getShortName() {
-        $name = '';
-                                                        
-        if (false === is_null($this->getLastName())) {
-            $name .= $this->getLastName();
-        }
-        if (false === is_null($this->getFirstName())) {
-            $name .= ', ' . $this->getFirstName();
-        }
-        return $name;
+        return $this->getLastName() . ', ' . $this->getFirstName();
     }
 
     /**
@@ -118,23 +92,6 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     public function getDisplayName() {
        return $this->getName();
-    }
-
-    /**
-     * Virtual field to deliver uniform representation of names.
-     *
-     * @return string
-     */
-    public function _fetchName() {
-        return $this->getName();
-    }
-
-    /**
-     * Name is a virtual field (i.e. it is not persisted).
-     *
-     * @return void
-     */
-    public function _storeName() {
     }
 
     /**

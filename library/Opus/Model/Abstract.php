@@ -389,6 +389,15 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     }
 
     /**
+     * Magic method called when string representation of object is requested.
+     *
+     * @return string String representation of the object.
+     */
+    public function __toString() {
+        return $this->getDisplayName();
+    }
+
+    /**
      * Get a nested associative array representation of the model.
      *
      * @return array A (nested) array representation of the model.
