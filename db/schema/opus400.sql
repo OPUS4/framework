@@ -453,7 +453,7 @@ delimiter ;
 CREATE TRIGGER `delete_ipaddresses_before_iprange_update`
 BEFORE UPDATE ON ipranges
 FOR EACH ROW 
-DELETE FROM ipaddresses WHERE ipaddresses.iprange_id = NEW.id;
+DELETE FROM ipaddresses WHERE ipaddresses.iprange_id = OLD.id;
 
 -- -----------------------------------------------------
 -- Trigger `expand_ipaddresses_after_iprange_update`
@@ -487,20 +487,15 @@ CREATE  TABLE IF NOT EXISTS `privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL COMMENT 'Role that has some privilege.',
   `privilege` enum('administrate', 'publish', 'readMetadata', 'readFile') NOT NULL COMMENT 'Privilege somone has.',
-  `document_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readMetada, else set null.',
+  `document_server_state` ENUM('published', 'unpublished', 'deleted') NOT NULL COMMENT 'Status of publication process of a document in the repository.' ,
   `file_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readFile, else set null.',
   PRIMARY KEY (`id`),
   INDEX `fk_privilege_has_role` (`role_id` ASC) ,
-  INDEX `fk_privilege_has_document_id` (`document_id` ASC) ,
   INDEX `fk_privilege_has_document_file` (`file_id` ASC) ,
+  UNIQUE INDEX `unique_privileges_lookup_index` (`role_id`, `privilege`, `document_server_state`, `file_id`),
   CONSTRAINT `fk_privilege_has_role`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE ,
-  CONSTRAINT `fk_privilege_has_document_id`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE ,
   CONSTRAINT `fk_privilege_has_document_file`
