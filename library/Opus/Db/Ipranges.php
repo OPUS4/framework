@@ -49,10 +49,10 @@ class Opus_Db_Ipranges extends Opus_Db_TableGateway {
 
     /**
      * All dependant Tables,
-     * i.e. those that contain a document_files_id as a foreign key.
+     * i.e. those that contain a iprange_id as a foreign key.
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_Ipranges');
+    protected $_dependentTables = array('Opus_Db_Ipaddresses');
 
 }
