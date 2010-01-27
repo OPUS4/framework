@@ -378,6 +378,7 @@ CREATE  TABLE IF NOT EXISTS `ipaddresses` (
   `byte4` TINYINT UNSIGNED NOT NULL COMMENT 'Fourth byte of the ip address.' , 
   PRIMARY KEY (`id`) ,
   INDEX `ipaddress` (byte1, byte2, byte3, byte4) ,
+  INDEX `fk_ipranges_has_ipaddresses` (`iprange_id`) ,
   CONSTRAINT `fk_ipranges_has_ipaddresses`
     FOREIGN KEY (`iprange_id` )
     REFERENCES `ipranges` (`id` )
@@ -480,20 +481,51 @@ CREATE  TABLE IF NOT EXISTS `roles` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
+-- Table `privileges`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `privileges` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `role_id` INT UNSIGNED NOT NULL COMMENT 'Role that has some privilege.',
+  `privilege` enum('administrate', 'publish', 'readMetadata', 'readFile') NOT NULL COMMENT 'Privilege somone has.',
+  `document_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readMetada, else set null.',
+  `file_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readFile, else set null.',
+  PRIMARY KEY (`id`),
+  INDEX `fk_privilege_has_role` (`role_id` ASC) ,
+  INDEX `fk_privilege_has_document_id` (`document_id` ASC) ,
+  INDEX `fk_privilege_has_document_file` (`file_id` ASC) ,
+  CONSTRAINT `fk_privilege_has_role`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE ,
+  CONSTRAINT `fk_privilege_has_document_id`
+    FOREIGN KEY (`document_id` )
+    REFERENCES `documents` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE ,
+  CONSTRAINT `fk_privilege_has_document_file`
+    FOREIGN KEY (`file_id` )
+    REFERENCES `document_files` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE )
+ENGINE = InnoDB,
+COMMENT = 'Contains privileges to access and change files and metadata.';
+
+-- -----------------------------------------------------
 -- Table `link_accounts_roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
   `account_id` INT UNSIGNED NOT NULL ,
   `role_id` INT UNSIGNED NOT NULL ,
   PRIMARY KEY (`account_id`, `role_id`) ,
-  INDEX `fk_accounts_has_roles_accounts` (`account_id` ASC) ,
-  INDEX `fk_accounts_has_roles_roles` (`role_id` ASC) ,
-  CONSTRAINT `fk_accounts_has_roles_accounts`
+  INDEX `fk_accounts_roles_link_accounts` (`account_id` ASC) ,
+  INDEX `fk_accounts_roles_link_roles` (`role_id` ASC) ,
+  CONSTRAINT `fk_accounts_roles_link_accounts`
     FOREIGN KEY (`account_id` )
     REFERENCES `accounts` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_accounts_has_roles_roles`
+  CONSTRAINT `fk_accounts_roles_link_roles`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
     ON DELETE CASCADE
