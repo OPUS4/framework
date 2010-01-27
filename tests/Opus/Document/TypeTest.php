@@ -148,7 +148,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlFile() {
-        $xml = dirname(__FILE__) . '/type_test.xml';
+        $xml = dirname(__FILE__) . '/repository/type_test.xml';
         try {
             $type = new Opus_Document_Type($xml);
         } catch (Exception $ex) {
@@ -188,7 +188,7 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testCreateByXmlDomDocument() {
-        $file = dirname(__FILE__) . '/type_test.xml';
+        $file = dirname(__FILE__) . '/repository/type_test.xml';
         $dom = new DOMDocument();
         $dom->load($file);
         try {
@@ -230,10 +230,10 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testTypeFromFileGetsRegisteredInZendRegistry() {
-        $xml1 = dirname(__FILE__) . '/type_test.xml';
+        $xml1 = dirname(__FILE__) . '/repository/type_test.xml';
         $type1 = new Opus_Document_Type($xml1);
         $typename = $type1->getName();
-        $xml2 = dirname(__FILE__) . '/type_test.xml';
+        $xml2 = dirname(__FILE__) . '/repository/type_test.xml';
         $type2 = new Opus_Document_Type($xml2);
 
         // Check if the type2 is registered.
