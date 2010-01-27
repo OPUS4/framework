@@ -59,6 +59,7 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `server_state` ENUM('published', 'unpublished','deleted') NOT NULL COMMENT 'Status of publication process in the repository.' ,
   `source` VARCHAR(255) NULL COMMENT 'Bibliographic date from OPUS 3.x (formerly in OPUS 3.x \"source_text\").' ,
   `volume` VARCHAR(25) NULL COMMENT 'Volume.' ,
+  `workflow` VARCHAR(100) NOT NULL DEFAULT 'repository' COMMENT 'Document publication workflow.' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 COMMENT = 'Document related data (monolingual, unreproducible colums).';
