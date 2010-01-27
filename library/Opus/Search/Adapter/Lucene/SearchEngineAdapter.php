@@ -67,7 +67,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         $query = str_replace('\\', '', $query);
         $query = str_replace('\"', '', $query);
         // remove + at the end of a query (given from metager for quoted strings) - its useless anyway
-        $query = ereg_replace('[(\ )|\+|(%20)]$', '', $query);
+        $query = preg_replace('/[(\ )|\+|(%20)]$/','', $query);
         try {
             $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
                 #Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
@@ -75,7 +75,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         		$index = new Zend_Search_Lucene($lucenePath);
                 // Get the boolean operators used in the query
                 $oquery = $query;
-                if (ereg('(\ and\ |\ or\ |\ not\ )', $query) === true) {
+                if (preg_match('/(\ and\ |\ or\ |\ not\ )/', $query) === 1) {
                 	$this->boolean = 'ignore';
                 }
                 switch ($this->boolean)
