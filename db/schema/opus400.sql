@@ -477,7 +477,7 @@ CALL expand_iprange (NEW.id, NEW.ip1byte1, NEW.ip1byte2, NEW.ip1byte3, NEW.ip1by
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) ,
+  `name` VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB;
 
