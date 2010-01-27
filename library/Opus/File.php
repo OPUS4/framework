@@ -205,22 +205,19 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * Deletes a file from filespace and if directory are empty it will be deleted too.
      *
-     * @see    library/Opus/Model/Opus_Model_AbstractDb#delete()
+     * @see    library/Opus/Model/Opus_Model_AbstractDb#doDelete()
      * @throws Exception Thrown if deleting of file failed.
      * @return void
      */
-    public function delete() {
-        //FIXME: Hard coded path!
+    public function doDelete($token) {
+        parent::doDelete($token);
         $path = $this->__path . $this->getDocumentId();
-        $result = @unlink($path . '/' . $this->getPathName());
-        if (file_exists($path . '/' . $this->getPathName()) === false) {
-            parent::delete();
-            // try to delete empty directory
-            // if empty it will be deleted
-            @rmdir($path);
-        } else {
-            throw new Exception('Deleting of file "' . $this->getPathName() . '" failed.');
+        $result = unlink($path . '/' . $this->getPathName());
+        // Delete directory if empty.
+        if (0 === count(glob($path . '/*'))) {
+            rmdir($path);
         }
+        // TODO: cleanup index
     }
 
 
