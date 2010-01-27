@@ -127,6 +127,19 @@ class Opus_Document_Type {
     }
 
     /**
+     * Returns the names of all available workflows.
+     *
+     * @return array An array of strings.
+     */
+    public static function getAvailableWorkflows() {
+        $workflowList = array();
+        foreach (glob(self::$_xmlDocTypePath . '/*') as $dirName) {
+            $workflowList[] = basename($dirName);
+        }
+        return $workflowList;
+    }
+
+    /**
      * Initialize an instance with an XML document type specification and register it with the Zend Registry.
      *
      * @param string|DOMDocument $xml XML string, a filename, type name or
