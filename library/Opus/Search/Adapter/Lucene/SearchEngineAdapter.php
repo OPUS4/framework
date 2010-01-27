@@ -81,7 +81,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                 switch ($this->boolean)
                 {
                     case 'AND':
-                        $query = ereg_replace('[(\ )|\+|(%20)]', ' AND ', $query);
+                        $query = preg_replace('/[(\ )|\+|(%20)]/', ' AND ', $query);
                         //echo $query;
                         break;
 
@@ -90,7 +90,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = $oquery;
                         break;
                 }
-                $lucenequery = Opus_Search_Adapter_Lucene_QueryHighlighter::parse($query);
+                $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
                 if (strlen($query) < 2) {
                     throw new Exception('Query string should be at least 2 characters long!');
                 }

@@ -81,13 +81,14 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $highlighter = new Opus_Search_Highlighter($document->getFieldValue('abstract'), $q2->getQueryTerms());
         // hold b-Tags (highlighted text), remove all others
         #$highlighted = strip_tags($highlighter, '<b>');
-        #$highlighter->zoom();
+        $highlighter->zoom();
         $highlighted = $highlighter->mark_words();
-        // Without Syntax Highlighting
-        // $highlighted = $document->getFieldValue('abstract');
+        // Without Result Highlighting
+        #$highlighted = $document->getFieldValue('abstract');
 
         // set the query hit by fields from lucene index
-        $opusdoc = new Opus_Search_Adapter_DocumentAdapter(array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year')));
+        $array = array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year'));
+        $opusdoc = new Opus_Search_Adapter_DocumentAdapter($array);
         $qhit->setDocument($opusdoc);
         return $qhit;
   }

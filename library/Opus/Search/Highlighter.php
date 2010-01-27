@@ -66,7 +66,7 @@ class Opus_Search_Highlighter {
 		// Find the first matched term
 		foreach ( (array)$words AS $index => $wordObject ) {
 		    $word = $wordObject->text;
-		    if ( preg_match( '/('.$word.')(?!=")/i', $this->text, $matches, PREG_OFFSET_CAPTURE ) > 0 ) {
+		    if ( preg_match( '/\ ('.$word.')(?!=")\ /i', $this->text, $matches, PREG_OFFSET_CAPTURE ) > 0 ) {
 				$this->first_match = min( $this->first_match, $matches[0][1] );
 		    }
             # Remove doublettes
@@ -174,10 +174,12 @@ class Opus_Search_Highlighter {
 			$this->word_count = 0;
 			$this->word_pos   = $pos;
 
-			if ( $html )
-				$text = @preg_replace_callback( preg_encoding( '/(?<=>)([^<]+)?('.$word.')(?!=")/i' ), array( &$this, 'highlight_html_word' ), $text );
-			else
-				$text = preg_replace_callback( '/('.$word.')(?!=")/iu', array( &$this, 'highlight_plain_word' ), $text );
+			if ( $html ) {
+				$text = @preg_replace_callback( '/ (?<=>)([^<]+)?('.$word.')(?!=") /i' , array( &$this, 'highlight_html_word' ), $text );
+			}
+			else {
+			    $text = preg_replace_callback( '/ ('.$word.')(?!=") /iu', array( &$this, 'highlight_plain_word' ), $text );
+			}
 		}
 
 		$this->text = $text;
@@ -195,7 +197,7 @@ class Opus_Search_Highlighter {
 			$id = 'id="high_'.( $this->word_pos + 1 ).'"';
 
 		$this->word_count++;
-		return '<span '.$id.' class="searchterm'.( $this->word_pos + 1 ).'">'.$words[1].'</span>';
+		return ' <span '.$id.' class="searchterm'.( $this->word_pos + 1 ).'">'.$words[1].'</span> ';
 	}
 
 	/**
@@ -209,6 +211,6 @@ class Opus_Search_Highlighter {
 			$id = 'id="high_'.( $this->word_pos + 1 ).'"';
 
 		$this->word_count++;
-		return $words[1].'<span '.$id.' class="searchterm'.( $this->word_pos + 1 ).'">'.$words[2].'</span>';
+		return $words[1].' <span '.$id.' class="searchterm'.( $this->word_pos + 1 ).'">'.$words[2].'</span> ';
 	}
 }
