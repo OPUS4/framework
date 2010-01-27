@@ -48,7 +48,7 @@ class Opus_Db_Documents extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'documents';
-    
+
     /**
      * All dependant Tables,
      * i.e. those that contain a documents_id as a foreign key.
@@ -66,5 +66,6 @@ class Opus_Db_Documents extends Opus_Db_TableGateway {
             'Opus_Db_DocumentIdentifiers',
             'Opus_Db_LinkPersonsDocuments',
             'Opus_Db_LinkDocumentsLicences',
+            'OPUS_Db_Privileges',
             );
 }
