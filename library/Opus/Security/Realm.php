@@ -202,6 +202,7 @@ class Opus_Security_Realm {
 
 	/**
 	 * Checks if a privilege is granted for actual context (usersession, ip address).
+	 * If administrator is one of the current roles true will be returned ingoring everything else.
 	 *
 	 * @param $privilege           string The privilege to check, a value out of Opus_Security_Realm->getPrivileges().
 	 * @param $documentServerState string The privilege readMetadata depends on the server_state of the document the metadata belongs to.
@@ -212,6 +213,9 @@ class Opus_Security_Realm {
 	 * @throws Opus_Security_Exception Throws Exception if a privilege is called with the wrong parameters or if the privilege is unkown.
 	 */
 	public function check($privilege, $documentServerState = null, $fileId = null) {
+	    if (true === in_array('administrator', $this->_roles)) {
+	        return true;
+	    }
         if (false === in_array($privilege, $this->_privileges)) {
             throw new Opus_Security_Exception('Unknown privilege checked!');
         }
