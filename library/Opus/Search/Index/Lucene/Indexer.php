@@ -155,7 +155,32 @@ class Opus_Search_Index_Lucene_Indexer {
         #$this->entryindex->optimize();
     }
 
-	/**
+    /**
+     * Removes a document from the Search Engine Index
+     *
+     * @param Opus_Document $doc Model of the document that should be removed to the index
+     * @throws Exception Exceptions from Zend_Search_Lucene are thrown
+     * @return void
+     */
+    public function removeFileFromEntryIndex(Opus_File $file)
+    {
+        try {
+            // Weird: some IDs are only found with adding whitespace behind the query...
+            // So let's add a space behind the ID.
+            $hits = $this->entryindex->find('docid:' . $file->getDocumentId());
+            foreach ($hits as $hit) {
+                if ($hit->getDocument()->getFieldValue('source') === $file->getPathName()) {
+                    $this->entryindex->delete($hit->id);
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+        $this->entryindex->commit();
+        #$this->entryindex->optimize();
+    }
+
+    /**
 	 * Finalizes the entry in Search Engine Index
 	 *
 	 * @return void

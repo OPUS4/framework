@@ -217,7 +217,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (0 === count(glob($path . '/*'))) {
             rmdir($path);
         }
-        // TODO: cleanup index
+        // cleanup index
+        $config = Zend_Registry::get('Zend_Config');
+        $searchEngine = $config->searchengine->engine;
+        if (empty($searchEngine) === true) {
+            $searchEngine = 'Lucene';
+        }
+        // Reindex
+        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
+        $indexer = new $engineclass();
+        $indexer->removeFileFromEntryIndex($this);
     }
 
 
