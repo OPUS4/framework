@@ -264,11 +264,12 @@ class Opus_Security_Realm {
 	 */
 	protected function _checkAdministrate() {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->select()
-                        ->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.roles_id = r.id')
-                        ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'administrate');
+        $privileges = $db->fetchAll(select()
+                            ->from(array('p' => 'privileges'), array('id'))
+                            ->join(array('r' => 'roles'), 'p.roles_id = r.id')
+                            ->where('r.name IN (?)', $this->_roles)
+                            ->where('p.privilege = ?', 'administrate')
+                            );
         if (1 <= count($privileges)) {
             return true;
         }
@@ -281,11 +282,13 @@ class Opus_Security_Realm {
      */
 	protected function _checkPublish() {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->select()
+        $privileges = $db->fetchAll(
+                        $db->select()
                         ->from(array('p' => 'privileges'), array('id'))
                         ->join(array('r' => 'roles'), 'p.roles_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'publish');
+                        ->where('p.privilege = ?', 'publish')
+                        );
         if (1 <= count($privileges)) {
             return true;
         }
@@ -299,12 +302,14 @@ class Opus_Security_Realm {
      */
 	protected function _checkReadMetadata($docState) {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->select()
+        $privileges = $db->fetchAll(
+                        $db->select()
                         ->from(array('p' => 'privileges'), array('id'))
                         ->join(array('r' => 'roles'), 'p.roles_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'readMetadata')
-                        ->where('p.document_server_state = ?', $docState);
+                        ->where('p.document_server_state = ?', $docState)
+                        );
         if (1 <= count($privileges)) {
             return true;
         }
@@ -318,12 +323,14 @@ class Opus_Security_Realm {
      */
 	protected function _checkReadFile($fileId) {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->select()
+        $privileges = $db->fetchAll(
+                        $db->select()
                         ->from(array('p' => 'privileges'), array('id'))
                         ->join(array('r' => 'roles'), 'p.roles_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'readFile')
-                        ->where('p.file_id = ?', $fileId);
+                        ->where('p.file_id = ?', $fileId)
+                        );
         if (1 <= count($privileges)) {
             return true;
         }
