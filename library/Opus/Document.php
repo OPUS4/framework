@@ -357,11 +357,6 @@ class Opus_Document extends Opus_Model_AbstractDb
                 ->setSelection(true);
         }
 
-        // Add the document's type as a normal field
-        //$documentType = new Opus_Model_Field('Type');
-        //$documentType->setValue($this->_type);
-        //$this->addField($documentType);
-
         // Add the document's type as a selection
         $documentType = new Opus_Model_Field('Type');
         $doctypes = Opus_Document_Type::getAvailableTypeNames($this->_workflow);
@@ -375,6 +370,16 @@ class Opus_Document extends Opus_Model_AbstractDb
                 ->setSelection(true);
         $documentType->setValue($this->_type);
         $this->addField($documentType);
+
+        // Add the document's workflow as a selection
+        $workFlow = new Opus_Model_Field('Workflow');
+        $workFlowList = array();
+        foreach (Opus_Document_Type::getAvailableWorkflows() as $wf) {
+            $workFlowList[$wf] = $wf;
+        }
+        $workFlow->setDefault($workFlowList)->setSelection(true);
+        $workFlow->setValue($this->_workflow);
+        $this->addField($workFlow);
 
         // Add the server (publication) state as a field
         $serverState = new Opus_Model_Field('ServerState');
@@ -455,10 +460,21 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
+     * Overwrite setter, type is immutable.
+     *
      * @param  string|Opus_Document_Type $type The type of the document.
      * @return void
      */
     public function setType($type) {
+    }
+
+    /**
+     * Overwrite setter, workflow is immutable.
+     *
+     * @param  string $workFlow The workflow of the document.
+     * @return void
+     */
+    public function setWorkflow($workflow) {
     }
 
     /**
@@ -952,7 +968,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         } else {
             $deserializer = $customDeserializer;
         }
-        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
+        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type', 'Workflow')));
         return parent::fromXml($xml, $deserializer);
     }
 
