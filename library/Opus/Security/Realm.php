@@ -188,7 +188,7 @@ class Opus_Security_Realm {
 
         $result = array();
         $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
-        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
+        $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIprangesRoles');
         foreach ($iprows as $iprow) {
             $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
             foreach ($assignedRoles as $arole) {

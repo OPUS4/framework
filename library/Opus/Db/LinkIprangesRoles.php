@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -39,20 +40,20 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkIpaddressesRoles extends Opus_Db_TableGateway {
+class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway {
     /**
      * DB table name.
      *
      * @var string
      */
-    protected $_name = 'link_ipaddresses_roles';
+    protected $_name = 'link_ipranges_roles';
 
     /**
      * DB table primary key name.
      *
      * @var string
      */
-    protected $_primary = array('ipaddress_id', 'role_id');
+    protected $_primary = array('iprange_id', 'role_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -61,9 +62,14 @@ class Opus_Db_LinkIpaddressesRoles extends Opus_Db_TableGateway {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
-            'Ipaddresses' => array(
-                'columns' => 'ipaddress_id',
-                'refTableClass' => 'Opus_Db_Ipaddresses',
+	    'Ipaddresses' => array(
+		'columns' => 'iprange_id',
+		'refTableClass' => 'Opus_Db_Ipaddresses',
+		'refColumns' => 'iprange_id',
+		),
+            'Ipranges' => array(
+                'columns' => 'iprange_id',
+                'refTableClass' => 'Opus_Db_Ipranges',
                 'refColumns' => 'id',
                 ),
             'Roles' => array(

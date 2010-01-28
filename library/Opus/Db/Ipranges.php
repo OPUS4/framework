@@ -53,6 +53,9 @@ class Opus_Db_Ipranges extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_Ipaddresses');
+    protected $_dependentTables = array(
+					'Opus_Db_Ipaddresses',
+					'Opus_Db_LinkIprangesRoles',
+					);
 
 }

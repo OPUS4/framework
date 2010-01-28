@@ -529,26 +529,26 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `link_ipaddresses_roles`
+-- Table `link_ipranges_roles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `link_ipaddresses_roles` (
+CREATE  TABLE IF NOT EXISTS `link_ipranges_roles` (
   `role_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: roles.id.' ,
-  `ipaddress_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: ipaddresses.id.' ,
-  PRIMARY KEY (`role_id`, `ipaddress_id`) ,
-  INDEX `fk_ipaddress_has_roles` (`role_id` ASC) ,
-  INDEX `fk_role_has_ipaddresses` (`ipaddress_id` ASC) ,
-  CONSTRAINT `fk_ipaddress_has_role`
+  `iprange_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: ipranges.id.' ,
+  PRIMARY KEY (`role_id`, `iprange_id`) ,
+  INDEX `fk_iprange_has_roles` (`role_id` ASC) ,
+  INDEX `fk_role_has_ipranges` (`iprange_id` ASC) ,
+  CONSTRAINT `fk_iprange_has_role`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_role_has_ipaddress`
-    FOREIGN KEY (`ipaddress_id` )
-    REFERENCES `ipaddresses` (`id` )
+  CONSTRAINT `fk_role_has_ipranges`
+    FOREIGN KEY (`iprange_id` )
+    REFERENCES `iprange` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (roles, ipaddress).';
+COMMENT = 'Relation table (roles, ipranges).';
 
 
 -- -----------------------------------------------------

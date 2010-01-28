@@ -49,7 +49,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        TestHelper::clearTable('link_ipaddresses_roles');
+        // TestHelper::clearTable('link_ipaddresses_roles');
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
@@ -62,7 +62,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
-        TestHelper::clearTable('link_ipaddresses_roles');
+        // TestHelper::clearTable('link_ipaddresses_roles');
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
