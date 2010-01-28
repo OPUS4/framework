@@ -544,7 +544,7 @@ CREATE  TABLE IF NOT EXISTS `link_ipranges_roles` (
     ON UPDATE CASCADE,
   CONSTRAINT `fk_role_has_ipranges`
     FOREIGN KEY (`iprange_id` )
-    REFERENCES `iprange` (`id` )
+    REFERENCES `ipranges` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
