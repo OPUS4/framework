@@ -146,7 +146,7 @@ class Opus_Security_Realm {
         $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
         $assignedRoles = $account->findManyToManyRowset($roles, $link);
 
-        if ($assignedRoles->count() >= 1) {
+        if (count($assignedRoles) >= 1) {
             foreach ($assignedRoles as $arole) {
                 $result[] = $arole->name;
             }
@@ -182,7 +182,7 @@ class Opus_Security_Realm {
                     ->where('byte2 = ?', $ip[2])
                     ->where('byte3 = ?', $ip[3])
                     ->where('byte4 = ?', $ip[4]));
-        if (0 === $iprows->count()) {
+        if (0 === count($iprows)) {
             return array();
         }
 
@@ -269,7 +269,7 @@ class Opus_Security_Realm {
                         ->join(array('r' => 'roles'), 'p.roles_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'administrate');
-        if (1 <= $privileges->count()) {
+        if (1 <= count($privileges)) {
             return true;
         }
 	    return false;
@@ -286,7 +286,7 @@ class Opus_Security_Realm {
                         ->join(array('r' => 'roles'), 'p.roles_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'publish');
-        if (1 <= $privileges->count()) {
+        if (1 <= count($privileges)) {
             return true;
         }
         return false;
@@ -305,7 +305,7 @@ class Opus_Security_Realm {
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'readMetadata')
                         ->where('p.document_server_state = ?', $docState);
-        if (1 <= $privileges->count()) {
+        if (1 <= count($privileges)) {
             return true;
         }
         return false;
@@ -324,7 +324,7 @@ class Opus_Security_Realm {
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'readFile')
                         ->where('p.file_id = ?', $fileId);
-        if (1 <= $privileges->count()) {
+        if (1 <= count($privileges)) {
             return true;
         }
         return false;
