@@ -131,7 +131,7 @@ class Opus_Security_Realm {
      * @return array Array of assigned roles or an empty array.
      */
     protected function _getUsernameRoles() {
-        if (true === is_null($this->_username) || true === is_empty($this->_username)) {
+        if (true === is_null($this->_username) || true === empty($this->_username)) {
             return array('guest');
         }
 
@@ -233,7 +233,7 @@ class Opus_Security_Realm {
                 return $this->_checkPublish();
                 break;
             case 'readMetadata':
-                if (true === is_null($documentServerState) || true === is_empty($documentServerState)) {
+                if (true === is_null($documentServerState) || true === empty($documentServerState)) {
                     throw new Opus_Security_Exception('Missing argument: Privilege "readMetadata" needs a documentServerState.');
                 }
                 if (false === is_null($fileId)) {
@@ -242,7 +242,7 @@ class Opus_Security_Realm {
                 return $this->_checkReadMetadata($documentServerState);
                 break;
             case 'readFile':
-                if (true === is_null($fileId) || true === is_empty($fileId)) {
+                if (true === is_null($fileId) || true === empty($fileId)) {
                     throw new Opus_Security_Exception('Missing argument: Privilege "readFile" needs a fileId.');
                 }
                 if (false === is_null($documentServerState)) {
