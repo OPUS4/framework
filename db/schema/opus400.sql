@@ -488,7 +488,7 @@ CREATE  TABLE IF NOT EXISTS `privileges` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `role_id` INT UNSIGNED NOT NULL COMMENT 'Role that has some privilege.',
   `privilege` enum('administrate', 'publish', 'readMetadata', 'readFile') NOT NULL COMMENT 'Privilege somone has.',
-  `document_server_state` ENUM('published', 'unpublished', 'deleted') NOT NULL COMMENT 'Status of publication process of a document in the repository.' ,
+  `document_server_state` ENUM('published', 'unpublished', 'deleted') COMMENT 'Status of publication process of a document in the repository.' ,
   `file_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readFile, else set null.',
   PRIMARY KEY (`id`),
   INDEX `fk_privilege_has_role` (`role_id` ASC) ,
