@@ -181,7 +181,7 @@ class Opus_Security_Realm {
                     ->where('byte1 = ?', $ip[1])
                     ->where('byte2 = ?', $ip[2])
                     ->where('byte3 = ?', $ip[3])
-                    ->where('bate4 = ?', $ip[4]));
+                    ->where('byte4 = ?', $ip[4]));
         if (0 === $iprows->count()) {
             return array();
         }
