@@ -362,6 +362,7 @@ CREATE TABLE IF NOT EXISTS `ipranges` (
   `ip2byte2`TINYINT UNSIGNED NOT NULL COMMENT 'Second byte of the ip the range ends with.' ,
   `ip2byte3`TINYINT UNSIGNED NOT NULL COMMENT 'Third byte of the ip the range ends with.' ,
   `ip2byte4`TINYINT UNSIGNED NOT NULL COMMENT 'Fourth byte of the ip the range ends with.' ,
+  `name` VARCHAR(255) COMMENT 'Name of the range f.e. university or administration.',
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_IP_RANGE` (ip1byte1, ip1byte2, ip1byte3, ip1byte4, ip2byte1, ip2byte2, ip2byte3, ip2byte4) )
 ENGINE = InnoDB
