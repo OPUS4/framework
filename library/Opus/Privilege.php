@@ -34,69 +34,52 @@
  */
 
 /**
- * Domain model for licences in the Opus framework
+ * Domain model for titles in the Opus framework
  *
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Role extends Opus_Model_AbstractDb
+class Opus_Privilege extends Opus_Model_Dependent_Abstract
 {
+    /**
+     * Primary key of the parent model.
+     *
+     * @var mixed $_parentId.
+     */
+    protected $_parentColumn = 'role_id';
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Roles';
-
-    /**
-     * The privileges external fields, i.e. those not mapped directly to the
-     * Opus_Db_Privileges table gateway.
-     *
-     * @var array
-     * @see Opus_Model_Abstract::$_externalFields
-     */
-    protected $_externalFields = array(
-            'Privilege' => array(
-                'model' => 'Opus_Privilege',
-                'fetch' => 'lazy'
-            ),
-        );
-
-    /**
-     * Retrieve all Opus_Account instances from the database.
-     *
-     * @return array Array of Opus_Account objects.
-     */
-    public static function getAll() {
-        return self::getAllFrom('Opus_Role', 'Opus_Db_Roles');
-    }
+    protected static $_tableGatewayClass = 'Opus_Db_Privileges';
 
     /**
      * Initialize model with the following fields:
-     * - Name
+     * - Privilege
+     * - DocumentServerState
+     * - File
      *
      * @return void
      */
     protected function _init() {
-        $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true);
-        $this->addField($name);
-
         $privilege = new Opus_Model_Field('Privilege');
-        $privilege->setMandatory(true);
-        $privilege->setMultiplicity('*');
+        $privilege->setDefault(array(
+                    'administrate' => 'administrate',
+                    'publish' => 'publish',
+                    'readMetadata' => 'readMetadata',
+                    'readFile' => 'readFile'))
+            ->setSelection(true);
         $this->addField($privilege);
-    }
 
-    /**
-     * Returns name.
-     *
-     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
-     */
-    public function getDisplayName() {
-       return $this->getName();
+        $documentServerState = new Opus_Model_Field('DocumentServerState');
+        $documentServerState->setDefault(array(
+                    'published' => 'published',
+                    'unpublished' => 'unpublished',
+                    'deleted' => 'deleted'))
+            ->setSelection(true);
+        $this->addField($documentServerState);
     }
-
 }
