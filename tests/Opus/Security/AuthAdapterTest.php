@@ -71,7 +71,7 @@ class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
     public function setUp() {
         TestHelper::clearTable('accounts');
 
-        $bob = new Opus_Security_Account;
+        $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
         
         $this->_auth_adapter = new Opus_Security_AuthAdapter();

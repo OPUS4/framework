@@ -33,34 +33,34 @@
  */
 
 /**
- * A simple authentication adapter using the Opus_Security_Account mechanism.
+ * A simple authentication adapter using the Opus_Account mechanism.
  *
  * @category    Framework
  * @package     Opus_Security
  */
 class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
-    
+
     /**
      * Holds the login name.
      *
      * @var string
      */
     protected $_login;
-    
+
     /**
      * Holds the password.
      *
      * @var string
      */
     protected $_password;
-    
+
     /**
-     * Holds an actual Opus_Security_Account implementation.
+     * Holds an actual Opus_Account implementation.
      *
-     * @var Opus_Security_Account
+     * @var Opus_Account
      */
     protected $_account = null;
-    
+
     /**
      * Set the credential values for authentication.
      *
@@ -83,7 +83,7 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
         $this->_password = $password;
         return $this;
     }
-    
+
     /**
      * Performs an authentication attempt
      *
@@ -91,26 +91,26 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
      * @return Zend_Auth_Result
      */
     public function authenticate() {
-        
+
         // Try to get the account information
         try {
-            $account = new Opus_Security_Account($this->_login);
+            $account = new Opus_Account(null, null, $this->_login);
         } catch (Exception $ex) {
             return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, $this->_login,
                 array('The supplied identity could not be found.'));
         }
-        
+
         // Check the password
         $pass = $account->isPasswordCorrect($this->_password);
         if ($pass === true) {
-            return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->_login, 
-                array('Authentication successful.')); 
+            return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->_login,
+                array('Authentication successful.'));
         } else {
-            return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login, 
+            return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
                 array('Supplied credential is invalid.'));
         }
 
-        return $authresult; 
+        return $authresult;
     }
-    
+
 }
