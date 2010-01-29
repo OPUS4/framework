@@ -88,12 +88,12 @@ class Opus_Account extends Opus_Model_AbstractDb
      */
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null) {
         if (false === is_null($login) && false === empty($login)) {
-            if (falls === is_null($id) && false === empty($id)) {
+            if (false === is_null($id) && false === empty($id)) {
                  throw new Opus_Model_Exception('Login and id of an account are specified, specifie either id or login.');
              }
             $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-            $id = $table->fetchRow($table->select()->where('login = ?', $rec));
-            if (is_null($rec) === true) {
+            $id = $table->fetchRow($table->select()->where('login = ?', $login));
+            if (is_null($id) === true) {
                 throw new Opus_Security_Exception('An account with the login name ' . $id . ' cannot be found.');
             }
         }
