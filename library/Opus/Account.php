@@ -51,6 +51,21 @@ class Opus_Account extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Accounts';
 
     /**
+     * The documents external fields, i.e. those not mapped directly to the
+     * Opus_Db_Account table gateway.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+            'Role' => array(
+                'model' => 'Opus_Role',
+                'through' => 'Opus_Model_Dependent_Link_AccountRole',
+                'fetch' => 'lazy'
+            ),
+    );
+
+    /**
      * Retrieve all Opus_Account instances from the database.
      *
      * @return array Array of Opus_Account objects.
@@ -74,6 +89,12 @@ class Opus_Account extends Opus_Model_AbstractDb
         $password = new Opus_Model_Field('Password');
         $password->setMandatory(true);
         $this->addField($password);
+	
+	$role = new Opus_Model_Field('Role');
+	$role->setMultiplicity('*');
+	$role->setDefault(Opus_Role::getAll());
+	$role->setSelection(true);
+	$this->addField($role);
     }
 
     /**
