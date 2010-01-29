@@ -72,6 +72,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
+            'AccessPermission' => array(
+                'model' => 'Opus_Role',
+                'through' => 'Opus_Model_Dependent_Link_FileRole',
+                'options' => array('privilege' => 'readFile'),
+                'fetch' => 'lazy'
+            ),
             'TempFile' => array(),
             'HashValue' => array(
                 'model' => 'Opus_HashValues'
@@ -123,12 +129,17 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $filesize = new Opus_Model_Field('FileSize');
         $filesize->setMandatory(true);
-//            ->setValidator(new Zend_Validate_Int());
 
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
             ->setMultiplicity('*');
 
+        $role = new Opus_Model_Field('AccessPermission');
+        $role->setMultiplicity('*');
+        $role->setDefault(Opus_Role::getAll());
+        $role->setSelection(true);
+
+        $this->addField($role);
         $this->addField($filepathname)
             ->addField($filesortorder)
             ->addField($filelabel)
@@ -138,7 +149,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->addField($tempfile)
             ->addField($filesize)
             ->addField($documentid)
-            ->addField($hashvalue);
+            ->addField($hashvalue)
+            ->addField($role);
 
     }
 
