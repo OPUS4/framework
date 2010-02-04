@@ -843,6 +843,28 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns an array of latest document ids.
+     *
+     * @return array Array of document ids.
+     */
+    public static function getLatestIds($num = 10) {
+        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
+        $select = $db->select()
+            ->from('documents', array('id'))
+            ->order('server_date_published DESC');
+        $rows = $db->fetchAll($select);
+
+        $ids = array();
+        // limit does not work properly?!
+        // so lets take a for-counter...
+        for ($n= 0; $n < $num; $n++) {
+        	$ids[] = $rows[$n]['id'];
+        }
+
+        return $ids;
+    }
+
+    /**
      * Returns the earliest date (server_date_published) of all documents.
      *
      * @return int
