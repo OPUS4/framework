@@ -915,6 +915,45 @@ class Opus_Collection_Information {
     }
 
     /**
+     * Remove a document from a collection.
+     *
+     * @param integer $documents_id   Identifies the document.
+     * @param integer $roles_id       Identifies tree for collection.
+     * @param integer $collections_id Identifies the collection.
+     * @throws InvalidArgumentException Is thrown on invalid arguments.
+     * @return void
+     */
+    static public function removeDocumentFromCollection($documents_id, $roles_id, $collections_id) {
+        $validation = new Opus_Collection_Validation();
+        $validation->constructorID($roles_id);
+
+        if ( (false === is_int($collections_id)) or (0 >= $collections_id) ) {
+            throw new InvalidArgumentException('Collection ID must be a positive integer.');
+        }
+
+        if ( (false === is_int($documents_id)) or (0 >= $documents_id) ) {
+            throw new InvalidArgumentException('Document ID must be a positive integer.');
+        }
+        if ($roles_id !== self::$roles_id) {
+            self::cleanup();
+            self::$roles_id = $roles_id;
+        }
+
+        // DB table gateway for the documents-collections linking table
+        $link_documents_collections  = new Opus_Db_LinkDocumentsCollections($roles_id);
+
+        $link_documents_collections->delete(array('collections_id' => $collections_id,
+                                    'documents_id'   => $documents_id));
+
+        self::$linkDocumentsCollections = array();
+        // Fetch all links
+        self::$linkDocumentsCollections = $link_documents_collections
+                                        ->fetchAll($link_documents_collections->select()
+                                        ->from($link_documents_collections))
+                                        ->toArray();
+    }
+
+    /**
      * Replace a collection by a new one.
      *
      * @param integer $roles_id       Identifies tree for collection.

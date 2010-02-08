@@ -201,12 +201,18 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @param  Opus_Document  $document The document to add.
      * @return void
      */
-    public function addEntry(Opus_Model_AbstractDb $model) {
-        $linkTable = new Opus_Db_LinkDocumentsCollections((int) $this->__role_id);
-        $link = $linkTable->createRow();
-        $link->documents_id = $model->getId();
-        $link->collections_id = $this->getId();
-        $link->save();
+    public function addEntry(Opus_Document $document) {
+        Opus_Collection_Information::assignDocumentToCollection((int) $document->getId(), (int) $this->__role_id, (int) $this->getId());
+    }
+
+    /**
+     * Removes a document from this collection.
+     *
+     * @param  Opus_Document  $model The document to remove.
+     * @return void
+     */
+    public function deleteEntry(Opus_Document $document) {
+        Opus_Collection_Information::removeDocumentFromCollection((int) $document->getId(), (int) $this->__role_id, (int) $this->getId());
     }
 
     /**
