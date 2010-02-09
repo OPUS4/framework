@@ -47,11 +47,30 @@ class Opus_OrganisationalUnit extends Opus_Collection {
     private $__role_id = 1;
 
     /**
+     * The collections external fields, i.e. those not mapped directly to the
+     * Opus_Db_CollectionsContents table gateway.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+        'SubCollection' => array(
+            'fetch' => 'lazy',
+            'model' => 'Opus_OrganisationalUnit'),
+        'ParentCollection' => array(
+            'fetch' => 'lazy',
+            'model' => 'Opus_OrganisationalUnit'),
+        'Visibility' => array(),
+        'SeveralAppearances' => array(),
+        'Theme' => array(),
+    );
+
+    /**
      * Overwrite constructor to use fixed role id.
      *
      * @param  int  $institut_id The id of the institute to fetch.
      */
-    public function __construct($institut_id = null) {
+    public function __construct($role_id = 1, $institut_id = null) {
         parent::__construct($this->__role_id, $institut_id);
     }
 

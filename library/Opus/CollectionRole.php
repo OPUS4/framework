@@ -149,7 +149,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 $rows[] = $table->fetchRow($table->select()->where('id = ?', $id));
             }
             foreach ($rows as $row) {
-                $result[] = new Opus_Collection((int) $this->getId(), $row, $this);
+                $subClass = $this->_externalFields['SubCollection']['model'];
+                $result[] = new $subClass((int) $this->getId(), $row, $this);
             }
         }
         return $result;
@@ -318,7 +319,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Parametrize query to account for hidden collection roles.
      */
     public static function getAll() {
-        $roles = self::getAllFrom('Opus_CollectionRole', 'Opus_Db_CollectionsRoles', null, 'position');
+        $roles = self::getAllFrom(__CLASS__, 'Opus_Db_CollectionsRoles', null, 'position');
         // Exclude role with id 1, this is reserved for organisational units.
         // FIXME: Move exclusion to database query.
         $result = array();

@@ -40,6 +40,21 @@
 class Opus_OrganisationalUnits extends Opus_CollectionRole {
 
     /**
+     * The documents external fields, i.e. those not mapped directly to the
+     * Opus_Db_Documents table gateway.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+            'CollectionsContentSchema' => array(),
+            'SubCollection' => array(
+                'fetch' => 'lazy',
+                'model' => 'Opus_OrganisationalUnit'
+            ),
+        );
+
+    /**
      * Overwrite constructor to set fixed id.
      *
      * @return void

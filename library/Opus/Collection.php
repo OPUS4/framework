@@ -334,7 +334,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $rows = $table->find($collectionIds);
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row, $this->__role);
+                $subClass = $this->_externalFields['SubCollection']['model'];
+                $result[(int) $row->id] = new $subClass((int) $this->__role_id, $row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];
@@ -428,7 +429,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             $rows = $table->find($collectionIds);
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
-                $result[(int) $row->id] = new Opus_Collection((int) $this->__role_id, $row, $this->__role);
+                $parentClass = $this->_externalFields['ParentCollection']['model'];
+                $result[(int) $row->id] = new $parentClass((int) $this->__role_id, $row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];
