@@ -368,13 +368,13 @@ class Opus_Mail_SendMail {
             $collections = array();
             $collection = array_unique($collection);
             foreach ($collection as $collect) {
-                $myCollection = new Opus_Collection($collect);
+                $myCollection = new Opus_Collection(null, $collect);
                 array_push($collections, $myCollection);
             }
             $collections = $collections;
         // If $collection is a collection ID, build an array with the corresponding collection object
         } else if (is_int($collection) === true) {
-            $collection = array(new Opus_Collection($collection));
+            $collection = array(new Opus_Collection(null, $collection));
         // If $collection is a collection object, build an array around it
         } else if (is_object($collection) === true) {
             $collection = array($collection);

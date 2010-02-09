@@ -966,7 +966,7 @@ class Opus_Document extends Opus_Model_AbstractDb
                 $roles_id = $role['roles_id'];
                 foreach ($role['collections_id'] as $index => $collection) {
                     $collections_id = $collection;
-                    $collections[] = new Opus_Collection($roles_id, $collections_id);
+                    $collections[] = new Opus_Collection($collections_id, $roles_id);
                 }
             }
             return $collections;

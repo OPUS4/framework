@@ -82,7 +82,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
         $rows = $table->fetchAll($table->select()->where('is_grantor = ?', 1));
         $result = array();
         foreach ($rows as $row) {
-            $result[] = new Opus_OrganisationalUnit(1, $row);
+            $result[] = new Opus_OrganisationalUnit($row);
         }
         return $result;
     }
@@ -97,7 +97,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
         $rows = $table->fetchAll($table->select()->where('dnb_contact_id != ?', ''));
         $result = array();
         foreach ($rows as $row) {
-            $result[] = new Opus_OrganisationalUnit(1, $row);
+            $result[] = new Opus_OrganisationalUnit($row);
         }
         return $result;
     }

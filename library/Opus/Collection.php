@@ -106,20 +106,18 @@ class Opus_Collection extends Opus_Model_AbstractDb
     /**
      * Fetches existing or creates new collection.
      *
-     * @param  int|string  $role           The role that this collection is in.
-     * @param  int         $collection_id  (Optional) Id of an existing collection.
-     * @param  int         $parent         (Optional) parent Id of a new collection.
-     * @param  int         $left_sibling   (Optional) left sibling Id of a new collection.
+     * @param  int                      $collection_id  (Optional) Id of an existing collection.
+     * @param  int|Opus_CollectionRole  $role           The role model that this collection is in.
      */
-    public function __construct($role_id, $collection_id = null, $role = null) {
-        $this->__role_id = $role_id;
-        if (null === $role) {
-            $this->__role = new Opus_CollectionRole($this->__role_id);
+    public function __construct($collection_id = null, $role) {
+        if (false === $role instanceof Opus_CollectionRole) {
+            $this->__role = new Opus_CollectionRole($role);
         } else {
             $this->__role = $role;
         }
+        $this->__role_id = $this->__role->getId();
 
-        parent::__construct($collection_id, new Opus_Db_CollectionsContents($role_id));
+        parent::__construct($collection_id, new Opus_Db_CollectionsContents($this->__role_id));
     }
 
     /**
@@ -335,7 +333,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
                 $subClass = $this->_externalFields['SubCollection']['model'];
-                $result[(int) $row->id] = new $subClass((int) $this->__role_id, $row, $this->__role);
+                $result[(int) $row->id] = new $subClass($row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];
@@ -430,7 +428,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             // Sorting since find() destroyed the order of the IDs.
             foreach ($rows as $row) {
                 $parentClass = $this->_externalFields['ParentCollection']['model'];
-                $result[(int) $row->id] = new $parentClass((int) $this->__role_id, $row, $this->__role);
+                $result[(int) $row->id] = new $parentClass($row, $this->__role);
             }
             foreach ($collectionIds as $id) {
                 $resultOut[] = $result[(int) $id];

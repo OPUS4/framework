@@ -70,8 +70,8 @@ class Opus_OrganisationalUnit extends Opus_Collection {
      *
      * @param  int  $institut_id The id of the institute to fetch.
      */
-    public function __construct($role_id = 1, $institut_id = null) {
-        parent::__construct($this->__role_id, $institut_id);
+    public function __construct($institut_id = null) {
+        parent::__construct($institut_id, $this->__role_id);
     }
 
     /**

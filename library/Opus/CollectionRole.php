@@ -150,7 +150,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             }
             foreach ($rows as $row) {
                 $subClass = $this->_externalFields['SubCollection']['model'];
-                $result[] = new $subClass((int) $this->getId(), $row, $this);
+                $result[] = new $subClass($row, $this);
             }
         }
         return $result;
@@ -388,7 +388,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // FIXME: As hot-fix, we take the theme which is assigned to the root collection,
         // FIXME: i.e. the collection we get by omitting the collection_id parameter.
         // FIXME: Please check and remove TODO-tag if fixed properly.
-        $collection = new Opus_Collection( $this->getId() );
+        $collection = new Opus_Collection(null, $this->getId());
         return $collection->getTheme();
     }
 
