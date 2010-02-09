@@ -851,7 +851,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
             ->from('documents', array('id'))
-            ->order('server_date_published DESC');
+            ->order(array('server_date_unlocking DESC', 'server_date_published DESC'));
         $rows = $db->fetchAll($select);
 
         $ids = array();
