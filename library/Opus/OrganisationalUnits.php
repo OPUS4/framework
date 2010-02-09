@@ -72,4 +72,34 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
         throw new Opus_Model_Exception('Cannot delete institute role.');
     }
 
+    /**
+     * Returns a list of organisational units that act as (thesis) grantors.
+     *
+     * @return array A list of Opus_OrganisationalUnit that act as grantors.
+     */
+    public static function getGrantors() {
+        $table = new Opus_Db_CollectionsContents(1);
+        $rows = $table->fetchAll($table->select()->where('is_grantor = ?', 1));
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_OrganisationalUnit(1, $row);
+        }
+        return $result;
+    }
+
+    /**
+     * Returns a list of organisational units that act as (thesis) publishers.
+     *
+     * @return array A list of Opus_OrganisationalUnit that act as publishers.
+     */
+    public static function getPublishers() {
+        $table = new Opus_Db_CollectionsContents(1);
+        $rows = $table->fetchAll($table->select()->where('dnb_contact_id != ?', ''));
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_OrganisationalUnit(1, $row);
+        }
+        return $result;
+    }
+
 }

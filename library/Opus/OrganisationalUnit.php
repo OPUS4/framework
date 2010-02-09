@@ -74,5 +74,15 @@ class Opus_OrganisationalUnit extends Opus_Collection {
         parent::__construct($this->__role_id, $institut_id);
     }
 
+    /**
+     * Set up fields.
+     *
+     * @return void
+     */
+    protected function _init() {
+        parent::_init();
+        $this->getField('IsGrantor')->setCheckbox(true);
+    }
+
 }
 
