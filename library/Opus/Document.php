@@ -852,7 +852,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $select = $db->select()
             ->from('documents', array('id'))
             ->where('server_state = ?', 'published')
-            ->order(array('server_date_unlocking DESC', 'server_date_published DESC'));
+            ->order('server_date_published DESC');
         $rows = $db->fetchAll($select);
 
         $ids = array();
