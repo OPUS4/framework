@@ -298,7 +298,7 @@ class Opus_Search_Index_Lucene_Indexer {
         foreach ($collections as $coll_index=>$collection) {
         	$doc_index = null;
             $coll_data = $collection->toArray();
-            if ($coll_data['RoleId'] > 1) {
+            if ($coll_data['RoleId'] > 0) {
                 $cr = new Opus_CollectionRole($coll_data['RoleId']);
                 // check other OAI names (series and collections are handled seperately and they have not a static number)
                 if ($cr->getOaiName() === 'series') {
@@ -307,14 +307,16 @@ class Opus_Search_Index_Lucene_Indexer {
                 else if ($cr->getOaiName() === 'colls') {
             	    $doc_index = 'collection';
                 }
+                // Use collectionrole 1 for institutes
+                else if ($cr->getOaiName() === 'org') {
+                    $doc_index = 'institute';
+                }
             }
-            // Use collectionrole 1 for institutes
-            if ($coll_data['RoleId'] === 1) {
-                $doc_index = 'institute';
-            }
-            else if (isset($doc_index) === false ) {
+            if (isset($doc_index) === false ) {
             	$doc_index = 'subject';
+            	$subject_name = $cr->getName();
             }
+            if (isset($subject_name) === true) { $document[$doc_index] .= ' ' . $subject_name; }
             $document[$doc_index] .= ' ' . $coll_data['DisplayFrontdoor'];
             $parent = $coll_data;
             while (true === array_key_exists('ParentCollection', $parent)) {

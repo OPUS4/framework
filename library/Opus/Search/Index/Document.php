@@ -79,7 +79,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::Text('collection', $documentdata['collection'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('series', $documentdata['series'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('doctype', $documentdata['doctype'], $this->__encoding));
-        $this->addField(Zend_Search_Lucene_Field::UnStored('institute', $documentdata['institute'], $this->__encoding));
+        $this->addField(Zend_Search_Lucene_Field::Text('institute', $documentdata['institute'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::UnStored('workflow', $documentdata['workflow'], $this->__encoding));
     }
 }
