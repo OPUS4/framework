@@ -68,6 +68,9 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         $query = str_replace('\"', '', $query);
         // remove + at the end of a query (given from metager for quoted strings) - its useless anyway
         $query = preg_replace('/[(\ )|\+|(%20)]$/','', $query);
+        $query = str_replace(' and ',' AND ', $query);
+        $query = str_replace(' or ',' OR ', $query);
+        $query = preg_replace('/(\ and\ )?(\ not\ )/',' AND NOT ', $query);
         try {
             $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
                 #Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
@@ -90,6 +93,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                         $query = $oquery;
                         break;
                 }
+                #echo $query;
                 $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
                 if (strlen($query) < 2) {
                     throw new Exception('Query string should be at least 2 characters long!');
