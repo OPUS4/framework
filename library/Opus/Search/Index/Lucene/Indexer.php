@@ -291,17 +291,30 @@ class Opus_Search_Index_Lucene_Indexer {
         }
         // Add Collections to Subjects and find institutes
         $document['institute'] = '';
+        $document['series'] = '';
+        $document['collection'] = '';
         $collections = $this->docToIndex->getCollection();
         $collection_pathes = array();
         foreach ($collections as $coll_index=>$collection) {
+        	$doc_index = null;
+            $coll_data = $collection->toArray();
+            if ($coll_data['RoleId'] > 1) {
+                $cr = new Opus_CollectionRole($coll_data['RoleId']);
+                // check other OAI names (series and collections are handled seperately and they have not a static number)
+                if ($cr->getOaiName() === 'series') {
+            	    $doc_index = 'series';
+                }
+                else if ($cr->getOaiName() === 'colls') {
+            	    $doc_index = 'collection';
+                }
+            }
             // Use collectionrole 1 for institutes
-            if ($coll_index === 1) {
+            if ($coll_data['RoleId'] === 1) {
                 $doc_index = 'institute';
             }
-            else {
+            else if (isset($doc_index) === false ) {
             	$doc_index = 'subject';
             }
-            $coll_data = $collection->toArray();
             $document[$doc_index] .= ' ' . $coll_data['DisplayFrontdoor'];
             $parent = $coll_data;
             while (true === array_key_exists('ParentCollection', $parent)) {
