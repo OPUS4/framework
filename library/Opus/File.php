@@ -180,6 +180,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->addHashValue($hash);
         }
 
+        if (true === file_exists($path . '/' . $this->getPathName())) {
+            $i = 0;
+            $fileName = $this->getPathName();
+            while (true === file_exists($path . '/' . $fileName)) {
+                $info = pathinfo($path . '/' . $this->getPathName());
+                $fileName =  basename($this->getPathName(), '.' .  $info['extension']) . '_' . $i++ . '.' . $info['extension'];
+            }
+            $this->setPathName($fileName);
+        }
+
         if (true === is_uploaded_file($this->getTempFile())) {
             $copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
         } else {
