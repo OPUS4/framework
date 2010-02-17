@@ -83,6 +83,13 @@ class Opus_Mail_SendMail {
      */
     private $_bodyText;
 
+    /**
+     * Holds information whether one mail should be sent to all recipients or one to every recipient
+     *
+     * @var unknown_type
+     */
+    private $_oneMailToAll;
+
 
     /**
      * Create a new SendMail instance
@@ -92,6 +99,7 @@ class Opus_Mail_SendMail {
     public function __construct() {
         $this->createSmtpTransport();
         $this->_mail = new Zend_Mail();
+        $this->_mail->clearFrom();
     }
 
    /**
@@ -115,6 +123,25 @@ class Opus_Mail_SendMail {
      */
     public function setRecipients(array $recipients) {
         $this->_recipients = $recipients;
+    }
+
+    /**
+     * set oneMailToAll flag
+     *
+     * @param boolean $flag
+     * @return void
+     */
+    protected function setOneMailToAll($flag) {
+        $this->_oneMailToAll = $flag;
+    }
+
+    /**
+     * get oneMailToAll flag
+     *
+     * @return boolean
+     */
+    protected function getOneMailToAll() {
+        return $this->_oneMailToAll;
     }
 
     /**
@@ -440,16 +467,16 @@ class Opus_Mail_SendMail {
      * @param   string $fromName   Sender name
      * @param   string $subject    Subject
      * @param   string $bodyText   Text
-     * @param   array  $recipients Recipients
+     * @param   array  $recipients Recipients (array [#] => array ('name' => '...', 'address' => '...'))
      * @return  boolean            True if mail was sent
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
+    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients, $oneMailToAll = false) {
         $this->setRecipients($recipients);
         $this->setSubject($subject);
         $this->setBodyText($bodyText);
         $this->setFrom($from);
         $this->setFromName($fromName);
-
+        $this->setOneMailToAll($oneMailToAll);
         return $this->send();
     }
 
@@ -476,19 +503,41 @@ class Opus_Mail_SendMail {
         }
 
         $error = '';
-        foreach ($recipients as $recip) {
-            $this->_mail->addTo($recip['address'], $recip['name']);
-            $this->_mail->setFrom($from, $fromName);
-            $this->_mail->setSubject($subject);
-            $this->_mail->setBodyText($text);
 
+        if ($this->getOneMailToAll() === TRUE) {
+            $mail = new Zend_Mail();
+            $mail->setFrom($from, $fromName);
+            $mail->setSubject($subject);
+            $mail->setBodyText($text);
+        }
+
+        foreach ($recipients as $recip) {
+
+            if ($this->getOneMailToAll() === FALSE) {
+                $mail = new Zend_Mail();
+                $mail->addTo($recip['address'], $recip['name']);
+                $mail->setFrom($from, $fromName);
+                $mail->setSubject($subject);
+                $mail->setBodyText($text);
+                try {
+                    $mail->send();
+                } catch (Exception $e) {
+                    $error .= $e . ' ';
+                }
+            } else {
+                $mail->addTo($recip['address'], $recip['name']);
+            }
+        }
+
+        if ($this->getOneMailToAll() === TRUE) {
             try {
-                $this->_mail->send();
+                $mail->send();
             } catch (Exception $e) {
                 $error .= $e . ' ';
             }
         }
-        if (!$error === '') {
+
+        if (!($error === '')) {
             throw new Opus_Mail_Exception('One or more mails could not be sent: ' . $error);
         }
 
