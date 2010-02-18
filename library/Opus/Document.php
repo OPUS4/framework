@@ -511,7 +511,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * TODO: replace more flexible *and* more efficent getAllDocumentIdsByStateSorted(...)
      */
-    public static function getAllDocumentTitlesByState($state) {
+    public static function getAllDocumentTitlesByState($state, $sort_reverse) {
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
             ->from(array('d' => 'documents'),
@@ -519,7 +519,9 @@ class Opus_Document extends Opus_Model_AbstractDb
             ->join(array('t' => 'document_title_abstracts'),
                     't.document_id = d.id')
             ->where('d.server_state = ?', $state)
-            ->where('t.type = ?', 'main');
+            ->where('t.type = ?', 'main')
+            ->group('document_id')
+            ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
         $rows = $db->fetchAll($select);
 
         $result = array();
@@ -779,12 +781,13 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @return array Associative array with id=>arary(titles) entries.
      */
-    public static function getAllDocumentTitles() {
+    public static function getAllDocumentTitles($sort_reverse = '0') {
         $table = new Opus_Db_DocumentTitleAbstracts();
         $select = $table->select()
             ->from($table, array('value', 'document_id'))
             ->where('type = ?', 'main')
-            ->group('document_id');
+            ->group('document_id')
+            ->order( 'value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
         $rows = $table->fetchAll($select);
 
         $result = array();
