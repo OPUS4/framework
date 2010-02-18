@@ -566,8 +566,9 @@ class Opus_Document extends Opus_Model_AbstractDb
                     NULL,
                     array('last_name', 'first_name'))
             ->joinLeft(array('pd' => 'link_persons_documents'),
-                   'pd.document_id = d.id and pd.person_id = p.id')
+                   'pd.document_id = d.id')
             ->where('d.server_state = ?', $state)
+            ->where('pd.person_id = p.id')
             ->group('d.id');
          /* without authors $select = $db->select()
              ->from(array('d' => 'documents'), array('id', 'published_date AS date', 'server_date_published'))
@@ -616,7 +617,8 @@ class Opus_Document extends Opus_Model_AbstractDb
                     NULL,
                     array('last_name', 'first_name'))
             ->joinLeft(array('pd' => 'link_persons_documents'),
-                   'pd.document_id = d.id and pd.person_id = p.id')
+                   'pd.document_id = d.id')
+            ->where('pd.person_id = p.id')
             ->group('d.id');
          /* without authors $select = $db->select()
              ->from(array('d' => 'documents'), array('id', 'published_date AS date', 'server_date_published'))
