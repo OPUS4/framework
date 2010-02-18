@@ -147,6 +147,7 @@
 	       <enumeration value="Edition"/>
 	       <enumeration value="Enrichment"/>
 	       <enumeration value="File"/>
+	       <enumeration value="Grantor"/>
 	       <enumeration value="Institute"/>
 	       <enumeration value="Issue"/>
 	       <enumeration value="Language"/>
@@ -170,6 +171,7 @@
 	       <enumeration value="PublisherName"/>
 	       <enumeration value="PublisherPlace"/>
 	       <enumeration value="PublisherUniversity"/>
+	       <enumeration value="Publisher"/>
 	       <enumeration value="Reviewed"/>
 	       <enumeration value="ServerDateUnlocking"/>
 	       <enumeration value="ServerDateValid"/>

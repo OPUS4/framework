@@ -940,16 +940,17 @@ class Opus_Collection_Information {
         }
 
         // DB table gateway for the documents-collections linking table
-        $link_documents_collections  = new Opus_Db_LinkDocumentsCollections($roles_id);
+        $table  = new Opus_Db_LinkDocumentsCollections($roles_id);
 
-        $link_documents_collections->delete(array('collections_id' => $collections_id,
-                                    'documents_id'   => $documents_id));
+        $documents_id = $table->getAdapter()->quoteInto('documents_id = ?', $documents_id);
+        $collections_id = $table->getAdapter()->quoteInto('collections_id = ?', $collections_id);
+        $table->delete(array($collections_id, $documents_id));
 
         self::$linkDocumentsCollections = array();
         // Fetch all links
-        self::$linkDocumentsCollections = $link_documents_collections
-                                        ->fetchAll($link_documents_collections->select()
-                                        ->from($link_documents_collections))
+        self::$linkDocumentsCollections = $table
+                                        ->fetchAll($table->select()
+                                        ->from($table))
                                         ->toArray();
     }
 

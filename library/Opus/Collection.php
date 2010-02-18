@@ -200,7 +200,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      * @return void
      */
     public function addEntry(Opus_Document $document) {
-        Opus_Collection_Information::assignDocumentToCollection((int) $document->getId(), (int) $this->__role_id, (int) $this->getId());
+        if (false === $this->holdsDocument($document)) {
+            Opus_Collection_Information::assignDocumentToCollection((int) $document->getId(), (int) $this->__role_id, (int) $this->getId());
+        }
     }
 
     /**
@@ -631,5 +633,20 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $accessor = 'get' . ucfirst($oaiPostfixColumn);
         $oaiPostfix = $this->$accessor();
         return $oaiPrefix . ':' . $oaiPostfix;
+    }
+
+    /**
+     * Returns whether a given document is assigned to this collection, or not.
+     *
+     * @param  Opus_Document  $document The document to check for.
+     * @return bool True if the document is in this collection.
+     */
+    public function holdsDocument(Opus_Document $document) {
+        $docIds = Opus_Collection_Information::getAllCollectionDocuments((int) $this->__role_id, (int) $this->getId());
+        if (true === in_array($document->getId(), $docIds)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
