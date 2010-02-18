@@ -524,23 +524,7 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         $result = array();
         foreach ($rows as $row) {
-            $result[$row['document_id']][] = $row['value'];
-        }
-
-        // Check if there are documents without title
-        // FIXME: This statement is obsolete, if we use a left-join between
-        // FIXME: (documents, document_title_abstracts).  Fetching *all*
-        // FIXME: entries from documents, just toi make this check is not
-        // FIXME: reasonable!
-        $select = $db->select()
-            ->from('documents')
-            ->where('server_state = ?', $state);
-        $rows = $db->fetchAll($select);
-
-        foreach ($rows as $row) {
-            if (array_key_exists($row['id'], $result) === false) {
-                $result[$row['id']][] = 'No title specified for ID ' . $row['id'];
-            }
+            $result[] = $row['document_id'];
         }
 
         return $result;
@@ -799,27 +783,15 @@ class Opus_Document extends Opus_Model_AbstractDb
         $table = new Opus_Db_DocumentTitleAbstracts();
         $select = $table->select()
             ->from($table, array('value', 'document_id'))
-            ->where('type = ?', 'main');
+            ->where('type = ?', 'main')
+            ->group('document_id');
         $rows = $table->fetchAll($select);
 
         $result = array();
         foreach ($rows as $row) {
-            $result[$row->document_id][] = $row->value;
+            $result[] = $row->document_id;
         }
 
-        // Check for further results without title
-        // FIXME: This statement is obsolete, if we use a left-join between
-        // FIXME: (documents, document_title_abstracts).  Fetching *all*
-        // FIXME: entries from documents, just toi make this check is not
-        // FIXME: reasonable!
-        $table = new Opus_Db_Documents();
-        $rows = $table->fetchAll();
-
-        foreach ($rows as $row) {
-            if (array_key_exists($row->id, $result) === false) {
-                $result[$row->id][] = 'No title specified for ID ' . $row->id;
-            }
-        }
         return $result;
     }
 
@@ -828,16 +800,36 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @return array Array of document ids.
      */
-    public static function getAllIds() {
+    public static function getAllIds($sort_reverse = '0') {
         $table = new Opus_Db_Documents();
         $select = $table->select()
-            ->from($table, array('id'));
+            ->from($table, array('id'))
+            ->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC'));
+        $select = $select->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
         $rows = $table->fetchAll($select)->toArray();
         $ids = array();
         foreach ($rows as $row) {
             $ids[] = $row['id'];
         }
         return $ids;
+    }
+
+    /**
+     * Returns all document that are in a specific server (publication) state.
+     *
+     * @param  string  $state The state to check for.
+     * @return array The list of documents in the specified state.
+     */
+    public static function getAllIdsByState($state, $sort_reverse) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->where('server_state = ?', $state);
+        $select = $select->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = $row['id'];
+        }
+        return $result;
     }
 
     /**

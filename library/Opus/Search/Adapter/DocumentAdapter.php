@@ -47,13 +47,16 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 	/**
 	 * Constructor
 	 *
-	 * @param integer|array|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object
+	 * @param integer|array|Opus_Document|Opus_Search_Adapter_DocumentAdapter $opusDocument (Optional) Data for the new Opus_Search_Adapter_DocumentAdapter-Object
 	 */
 	public function __construct($opusDocument = null) {
 		$this->documentData = array();
 		if (is_int($opusDocument) === true) {
 			$this->documentData['id'] = $opusDocument;
 			$this->mapDocument();
+		} else if (get_class($opusDocument) === 'Opus_Document') {
+			$this->documentData['id'] = $opusDocument->getId();
+			$this->mapDocument($opusDocument);
 		} else if (is_array($opusDocument) === true) {
 			$this->documentData = $opusDocument;
 		}
@@ -82,11 +85,14 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 	/**
 	 * Maps the document data to array data usable in Module_Search
 	 *
+	 * @param Opus_Document [$document] optional OpusDocument to map
 	 * @return void
 	 */
-	private function mapDocument() {
+	private function mapDocument($document = null) {
 
-		$document = new Opus_Document($this->documentData['id']);
+		if ($document === null) {
+			$document = new Opus_Document($this->documentData['id']);
+		}
 
 		// transfer the title of this document into the adapter class
 		try	{
