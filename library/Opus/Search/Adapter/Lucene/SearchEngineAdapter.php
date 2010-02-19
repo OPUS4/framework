@@ -45,6 +45,14 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
    * @access private
    */
   private $boolean;
+  
+  /**
+   * parsed Query
+   *
+   * @var Zend_Search_Lucene_Search_Query
+   * @access public
+   */
+  public $parsedQuery;
 
   /**
    * Constructor
@@ -95,6 +103,7 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
                 }
                 #echo $query;
                 $lucenequery = Zend_Search_Lucene_Search_QueryParser::parse($query);
+                $this->parsedQuery = $lucenequery;
                 if (strlen($query) < 2) {
                     throw new Exception('Query string should be at least 2 characters long!');
                 }
@@ -102,6 +111,18 @@ class Opus_Search_Adapter_Lucene_SearchEngineAdapter implements Opus_Search_Adap
         } catch (Zend_Search_Lucene_Exception $searchException) {
                 throw $searchException;
         }
+        
+        // Query results only DocumentId (duplicates are getting removed)
+        /*$hitlistarray = array();
+        if (count($hits) > 0) {
+                foreach ($hits as $queryHit) {
+                        $document = $queryHit->getDocument();
+                        $docid = $document->getFieldValue('docid');
+                        if (in_array($docid, $hitlistarray) === false) {
+                           	array_push($hitlistarray, $docid);
+                        }
+                }
+        }*/
         // Query results are in Lucene format now
         // We need an OPUS-compliant result list to return
         $hitlist = new Opus_Search_List_HitList();

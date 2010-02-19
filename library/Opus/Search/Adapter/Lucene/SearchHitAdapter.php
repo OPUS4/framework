@@ -92,4 +92,21 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         $qhit->setDocument($opusdoc);
         return $qhit;
   }
+  
+  /**
+   * Highlight query terms in result
+   * 
+   * @param Opus_Search_Query $query Query (to get the terms to highlight)
+   * @param string $text Text to highlight
+   */
+  public static function highlight($query, $text) {
+        $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
+        Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+        $index = new Zend_Search_Lucene($lucenePath);
+        $q2 = $query->rewrite($index);
+
+        $highlighter = new Opus_Search_Highlighter($text, $q2->getQueryTerms());
+        $highlighter->zoom();
+        return $highlighted = $highlighter->mark_words();
+  }
 }

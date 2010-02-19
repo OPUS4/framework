@@ -63,6 +63,14 @@ class Opus_Search_Query
   private $searchEngine;
 
   /**
+   * parsed Query
+   *
+   * @var Zend_Search_Lucene_Search_Query
+   * @access public
+   */
+  public $parsedQuery;
+
+  /**
    * Constructor
    *
    * @param string $query        Querystring for this query
@@ -87,6 +95,7 @@ class Opus_Search_Query
    */
   public function commit() {
     $result = $this->searchEngine->find($this->query);
+    $this->parsedQuery = $this->searchEngine->parsedQuery;
     return $result;
   }
 }
