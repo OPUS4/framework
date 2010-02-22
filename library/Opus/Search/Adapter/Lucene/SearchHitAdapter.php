@@ -65,29 +65,30 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
     	// make the Zend_Lucene_Search_QueryHit to a Opus-SearchHit
 	    // Ranking and other attributes are taken from the Lucene class
         $document = $this->_parent->getDocument();
-        $docid = str_replace('nr', '', $document->getFieldValue('docid'));
+        #$docid = str_replace('nr', '', $document->getFieldValue('docid'));
         #$qhit = new Opus_Search_SearchHit($docid);
         $qhit = new Opus_Search_SearchHit();
         $qhit->setRelevance($this->_parent->score);
 
-        $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
-        Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
+        #$lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
+        #Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
         #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
-        $index = new Zend_Search_Lucene($lucenePath);
-        $q2 = $query->rewrite($index);
+        #$index = new Zend_Search_Lucene($lucenePath);
+        #$q2 = $query->rewrite($index);
 
         #$highlighter = $query->highlightMatches('<meta http-equiv="content-type" content="charset=UTF-8">' . $document->getFieldValue('abstract'));
         #$highlighter = $query->htmlFragmentHighlightMatches($document->getFieldValue('abstract'));
-        $highlighter = new Opus_Search_Highlighter($document->getFieldValue('abstract'), $q2->getQueryTerms());
+        #$highlighter = new Opus_Search_Highlighter($document->getFieldValue('abstract'), $q2->getQueryTerms());
         // hold b-Tags (highlighted text), remove all others
         #$highlighted = strip_tags($highlighter, '<b>');
-        $highlighter->zoom();
-        $highlighted = $highlighter->mark_words();
+        #$highlighter->zoom();
+        #$highlighted = $highlighter->mark_words();
         // Without Result Highlighting
         #$highlighted = $document->getFieldValue('abstract');
 
         // set the query hit by fields from lucene index
-        $array = array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year'));
+        #$array = array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year'));
+        $array = array('id' => $document->getFieldValue('docid'));
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter($array);
         $qhit->setDocument($opusdoc);
         return $qhit;
