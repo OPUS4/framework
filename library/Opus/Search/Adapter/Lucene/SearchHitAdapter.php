@@ -87,8 +87,8 @@ class Opus_Search_Adapter_Lucene_SearchHitAdapter implements Opus_Search_Adapter
         #$highlighted = $document->getFieldValue('abstract');
 
         // set the query hit by fields from lucene index
-        #$array = array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'abstract' => $highlighted, 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year'));
-        $array = array('id' => $document->getFieldValue('docid'));
+        $array = array('id' => $document->getFieldValue('docid'), 'title' => $document->getFieldValue('title'), 'author' => $document->getFieldValue('author'), 'year' => $document->getFieldValue('year'));
+        #$array = array('id' => $document->getFieldValue('docid'));
         $opusdoc = new Opus_Search_Adapter_DocumentAdapter($array);
         $qhit->setDocument($opusdoc);
         return $qhit;
