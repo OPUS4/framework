@@ -30,6 +30,7 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -405,9 +406,12 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         // Initialize available date fields and set up date validator
         // if the particular field is present
+//        $dateFields = array(
+//            'DateAccepted', 'CompletedDate', 'PublishedDate',
+//            'ServerDateModified', 'ServerDatePublished',
+//            'ServerDateUnlocking', 'ServerDateValid');
         $dateFields = array(
             'DateAccepted', 'CompletedDate', 'PublishedDate',
-            'ServerDateModified', 'ServerDatePublished',
             'ServerDateUnlocking', 'ServerDateValid');
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
@@ -1208,7 +1212,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected function _preStore() {
         parent::_preStore();
-        $now = date('Y-m-d');
+//        $now = date('Y-m-d');
+        $now = date('c');
         if (true === $this->isNewRecord()) {
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($now);
