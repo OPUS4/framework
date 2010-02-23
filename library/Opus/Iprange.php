@@ -51,6 +51,21 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Ipranges';
 
     /**
+     * The documents external fields, i.e. those not mapped directly to the
+     * Opus_Db_Account table gateway.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+            'Role' => array(
+                'model' => 'Opus_Role',
+                'through' => 'Opus_Model_Dependent_Link_IprangeRole',
+                'fetch' => 'lazy'
+            ),
+    );
+
+    /**
      * Retrieve all Opus_Iprange instances from the database.
      *
      * @return array Array of Opus_Iprange objects.
@@ -83,6 +98,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
         $ip2byte3 = new Opus_Model_Field('Ip2byte3');
         $ip2byte4 = new Opus_Model_Field('Ip2byte4');
         $name = new Opus_Model_Field('Name');
+    	$role = new Opus_Model_Field('Role');
         
         $ip1byte1->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -100,6 +116,9 @@ class Opus_Iprange extends Opus_Model_AbstractDb
             ->setValidator(new Zend_Validate_NotEmpty());
         $ip2byte4->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
+		$role->setMultiplicity('*')
+			->setDefault(Opus_Role::getAll())
+			->setSelection(true);
         
         $this->addField($ip1byte1)
             ->addField($ip1byte2)
@@ -109,7 +128,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb
             ->addField($ip2byte2)
             ->addField($ip2byte3)
             ->addField($ip2byte4)
-            ->addField($name);
+            ->addField($name)
+			->addField($role);
     }
 
     /**

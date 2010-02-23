@@ -65,9 +65,9 @@ class Opus_Role extends Opus_Model_AbstractDb
         );
 
     /**
-     * Retrieve all Opus_Account instances from the database.
+     * Retrieve all Opus_Roles instances from the database.
      *
-     * @return array Array of Opus_Account objects.
+     * @return array Array of Opus_Roles objects.
      */
     public static function getAll() {
         return self::getAllFrom('Opus_Role', 'Opus_Db_Roles');
