@@ -312,16 +312,16 @@ public function countFiles($documentId, $fileId) {
 
         //read last Access for this file id
         $fileIdTime = $xmlFileId->getAttribute('lastAccess');
-
         $doubleClick = false;
+
         if ($fileIdTime == null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             /*no lastAccess set (new entry for this id) or lastAccess too far away
              -> create entry with actual time -> return no double click*/
 
-        } else if ($time - $fileIdTime <= $this->doubleClickIntervalHtml && $filetype == 'html') {
+        } else if ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype == 'html') || ($fileId == -1))) {
             //html file double click
             $doubleClick = true;
-        } else if ($time - $fileIdTime <= $this->doubleClickIntervalPdf && $filetype == 'pdf') {
+        } else if ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype == 'pdf') && ($fileId != -1)) {
             //pdf file double click
             $doubleClick = true;
         }
