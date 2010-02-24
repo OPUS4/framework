@@ -47,8 +47,18 @@ class Opus_Statistic_LocalCounter  {
      * @var Statistic_LocalCounter
      */
     private static $localCounter = NULL;
-    private $doubleClickIntervalPdf = 2;
-    private $doubleClickIntervalHtml = 1;
+
+    /**
+     * double click interval for fulltext in sec
+     * @var int
+     */
+    private $doubleClickIntervalPdf = 30;
+
+    /**
+     * double click interval for frontdoor in sec
+     * @var int
+     */
+    private $doubleClickIntervalHtml = 10;
 
     private $spiderList = array(
         'Alexandria prototype project',
