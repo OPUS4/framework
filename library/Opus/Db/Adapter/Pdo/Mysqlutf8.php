@@ -89,7 +89,9 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
      */
     protected function _beginTransaction() {
         if ($this->_runningTransactions < 1) {
+            $query = $this->getProfiler()->queryStart('real_BEGIN', Zend_Db_Profiler::TRANSACTION);
             parent::_beginTransaction();
+            $this->getProfiler()->queryEnd($query);
         }
         $this->_runningTransactions++;
         return true;
@@ -103,7 +105,9 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql implements
     protected function _commit() {
         if ($this->_runningTransactions < 2) {
             // Check for values < 2 to not mask errors on misuse of commit()
+            $query = $this->getProfiler()->queryStart('real_COMMIT', Zend_Db_Profiler::TRANSACTION);
             parent::_commit();
+            $this->getProfiler()->queryEnd($query);
         }
         $this->_runningTransactions--;
         return true;
