@@ -213,13 +213,22 @@ class Opus_Security_Realm {
 	 * @throws Opus_Security_Exception Throws Exception if a privilege is called with the wrong parameters or if the privilege is unkown.
 	 */
 	public function check($privilege, $documentServerState = null, $fileId = null) {
-	    if (true === in_array('administrator', $this->_roles)) {
-	        return true;
-	    }
+        // Check if security is switched off
+        $conf = Zend_Registry::get('Zend_Config');
+        $secu = $conf->security;
+        $secu !== '0') {
+            return true;
+        }
+
+        if (true === in_array('administrator', $this->_roles)) {
+            return true;
+        }
+
         if (false === in_array($privilege, $this->_privileges)) {
             throw new Opus_Security_Exception('Unknown privilege checked!');
         }
-	    switch ($privilege) {
+		
+		switch ($privilege) {
             case 'administrate':
                 if (false === is_null($documentServerState) || false === is_null($fileId)) {
                     throw new Opus_Security_Exception('Privilege "administrate" can be checked only generally, not depending on document server state or for a file.');
@@ -264,7 +273,7 @@ class Opus_Security_Realm {
 	 */
 	protected function _checkAdministrate() {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(select()
+        $privileges = $db->fetchAll($db->select()
                             ->from(array('p' => 'privileges'), array('id'))
                             ->join(array('r' => 'roles'), 'p.role_id = r.id')
                             ->where('r.name IN (?)', $this->_roles)
