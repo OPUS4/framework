@@ -216,7 +216,7 @@ class Opus_Security_Realm {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
         $secu = $conf->security;
-        $secu !== '0') {
+        if ($secu !== '0') {
             return true;
         }
 
@@ -227,7 +227,7 @@ class Opus_Security_Realm {
         if (false === in_array($privilege, $this->_privileges)) {
             throw new Opus_Security_Exception('Unknown privilege checked!');
         }
-		
+
 		switch ($privilege) {
             case 'administrate':
                 if (false === is_null($documentServerState) || false === is_null($fileId)) {
