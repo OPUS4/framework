@@ -40,7 +40,7 @@
  *
  * @group       AccountTest
  */
-class Opus_AccountTest extends PHPUnit_Framework_TestCase {
+class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
 
     /**
      * Table adapter to accounts table.
