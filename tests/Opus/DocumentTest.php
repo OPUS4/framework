@@ -1214,17 +1214,17 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $type = new Opus_Document_Type($xml);
         $doc = new Opus_Document(null, $type);
 
-        $doc->setPublishedDate('2008-05-10');
-        $doc->setServerDateUnlocking('2009-04-05');
+        $doc->setPublishedDate('10.05.2008');
+        $doc->setServerDateUnlocking('05.04.2009');
 
         $personAuthor = new Opus_Person();
         $personAuthor->setLastName('Tester');
-        $personAuthor->setDateOfBirth('1965-03-26');
+        $personAuthor->setDateOfBirth('26.03.1965');
         $doc->addPersonAuthor($personAuthor);
 
         $patent = new Opus_Patent();
         $patent->setNumber('08 15');
-        $patent->setDateGranted('2008-07-07');
+        $patent->setDateGranted('07.07.2008');
         $doc->addPatent($patent);
 
         $docId = $doc->store();

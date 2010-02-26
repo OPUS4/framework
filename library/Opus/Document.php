@@ -406,17 +406,13 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         // Initialize available date fields and set up date validator
         // if the particular field is present
-//        $dateFields = array(
-//            'DateAccepted', 'CompletedDate', 'PublishedDate',
-//            'ServerDateModified', 'ServerDatePublished',
-//            'ServerDateUnlocking', 'ServerDateValid');
         $dateFields = array(
             'DateAccepted', 'CompletedDate', 'PublishedDate',
             'ServerDateUnlocking', 'ServerDateValid');
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
             if (null !== $field ) {
-                $field->setValidator(new Zend_Validate_Date);
+                $field->setValidator(new Opus_Validate_Date);
             }
         }
 

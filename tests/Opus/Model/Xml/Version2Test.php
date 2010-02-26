@@ -64,7 +64,7 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $document = new Opus_Document(null, $type);
 
         $document->setLanguage(array('deu', 'eng'));
-        $document->setPublishedDate(date('Y-m-d'));
+        $document->setPublishedDate(date('d.m.Y'));
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
@@ -133,7 +133,7 @@ class Opus_Model_Xml_Version2Test extends PHPUnit_Framework_TestCase {
         $document = new Opus_Document(null, $type);
 
         $document->setLanguage(array('deu', 'eng'));
-        $document->setPublishedDate(date('Y-m-d'));
+        $document->setPublishedDate(date('d.m.Y'));
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
