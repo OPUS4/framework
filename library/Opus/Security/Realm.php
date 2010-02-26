@@ -216,7 +216,7 @@ class Opus_Security_Realm {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
         $secu = $conf->security;
-        if ($secu !== '0') {
+        if ($secu === '0') {
             return true;
         }
 
