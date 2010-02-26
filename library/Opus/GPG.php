@@ -199,6 +199,11 @@ class Opus_GPG extends Crypt_GPG
 
     		#print_r($docfile->toXml()->saveXml());
 
-    		$doc->store();
+    		try {
+    		    $doc->store();
+    		}
+    		catch (Exception $e) {
+    			throw new Exception('Cannot store signature! Please check signature status.');
+    		}
     }
 }
