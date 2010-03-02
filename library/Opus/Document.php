@@ -262,6 +262,12 @@ class Opus_Document extends Opus_Model_AbstractDb
                 'options'  => array('role' => 'translator'),
                 'fetch' => 'lazy'
             ),
+            'PersonSubmitter' => array(
+                'model' => 'Opus_Person',
+                'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                'options'  => array('role' => 'submitter'),
+                'fetch' => 'lazy'
+            ),
             'SubjectSwd' => array(
                 'model' => 'Opus_SubjectSwd',
                 'fetch' => 'lazy'
