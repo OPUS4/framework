@@ -182,12 +182,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
             $fieldvalue = array($fieldvalue);
         }
 
-        foreach ($fieldvalue as $key => $value) {
-            if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
-                $fieldvalue[$key] = $value->getModel();
-            }
-        }
-
         if (true === $field->hasMultipleValues()) {
 
             if (empty($arguments) === false) {
