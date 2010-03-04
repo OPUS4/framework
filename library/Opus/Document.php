@@ -495,9 +495,13 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected function _convertToInternalServerDate($date) {
     	$pieces = explode('.', $date);
+    	$greenwich = explode('+', $date);
     	if (count($pieces) === 3) {
     		return ($pieces[2] . '-' . $pieces[1] . '-' . $pieces[0] . 'T00:00:00Z'); 
     	}
+    	else if (count($greenwich) === 2) {
+    		return ($greenwich[0] . 'Z'); 
+    	} 
     	return $date;
     }
 
