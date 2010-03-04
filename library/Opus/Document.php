@@ -1214,7 +1214,9 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected function _preStore() {
         parent::_preStore();
 //        $now = date('Y-m-d');
-        $now = date('c');
+//        $now = date('c');
+        $date = new Zend_Date();
+        $now = $date->get('yyyy-MM-ddThh:mm:ss') . 'Z';
         if (true === $this->isNewRecord()) {
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($now);
