@@ -488,6 +488,219 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
+     * Converts a date to an internal server date
+     *
+     * @param $date input date in format DD.MM.YYYY
+     * @return date as YYYY-MM-DDTHH:MM:SS+HH:MM
+     */
+    protected function _convertToInternalServerDate($date) {
+    	$pieces = explode('.', $date);
+    	if (count($pieces) === 3) {
+    		return ($pieces[2] . '-' . $pieces[1] . '-' . $pieces[0] . 'T00:00:00Z'); 
+    	}
+    	return $date;
+    }
+
+    /**
+     * Converts a date to an internal date
+     *
+     * @param $date input date in format DD.MM.YYYY
+     * @return date as YYYY-MM-DD
+     */
+    protected function _convertToInternalDate($date) {
+    	$pieces = explode('.', $date);
+    	if (count($pieces) === 3) {
+    		return ($pieces[2] . '-' . $pieces[1] . '-' . $pieces[0]); 
+    	}
+    	return $date;    	
+    }
+
+    /**
+     * Converts an internal date to a date to output
+     *
+     * @param $date input date in format YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS+HH:MM
+     * @return date as DD.MM.YYYY
+     */
+    protected function _convertToOutputDate($date) {
+    	$pieces = explode('-', $date);
+    	if (count($pieces) === 3) {
+    		if (strlen($pieces[2]) > 2) {
+    			$pieces[2] = substr($pieces[2], 0, 2);
+    		}
+    		return ($pieces[2] . '.' . $pieces[1] . '.' . $pieces[0]); 
+    	}
+    	return $date;    	
+    }
+
+    /**
+     * Store date of publication
+     *
+     * @return void
+     */
+    protected function _storeServerDatePublished() {
+        if ($this->_fields['ServerDatePublished']->getValue() !== null) {
+            $result = $this->_convertToInternalServerDate($this->_fields['ServerDatePublished']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->server_date_published = $result;
+    }
+
+    /**
+     * Store date of modification
+     *
+     * @return void
+     */
+    protected function _storeServerDateModified() {
+        if ($this->_fields['ServerDateModified']->getValue() !== null) {
+            $result = $this->_convertToInternalServerDate($this->_fields['ServerDateModified']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->server_date_modified = $result;
+    }
+
+    /**
+     * Store expiration date of publication
+     *
+     * @return void
+     */
+    protected function _storeServerDateValid() {
+        if ($this->_fields['ServerDateValid']->getValue() !== null) {
+            $result = $this->_convertToInternalDate($this->_fields['ServerDateValid']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->server_date_valid = $result;
+    }
+
+    /**
+     * Store scheduled unlocking date of publication
+     *
+     * @return void
+     */
+    protected function _storeServerDateUnlocking() {
+        if ($this->_fields['ServerDateUnlocking']->getValue() !== null) {
+            $result = $this->_convertToInternalDate($this->_fields['ServerDateUnlocking']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->server_date_unlocking = $result;
+    }
+
+    /**
+     * Store scheduled unlocking date of publication
+     *
+     * @return void
+     */
+    protected function _storePublishedDate() {
+        if ($this->_fields['PublishedDate']->getValue() !== null) {
+            $result = $this->_convertToInternalDate($this->_fields['PublishedDate']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->published_date = $result;
+    }
+
+    /**
+     * Store the date the publication has been completed
+     *
+     * @return void
+     */
+    protected function _storeCompletedDate() {
+        if ($this->_fields['CompletedDate']->getValue() !== null) {
+            $result = $this->_convertToInternalDate($this->_fields['CompletedDate']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->completed_date = $result;
+    }
+
+    /**
+     * Store date of accepting the publication
+     *
+     * @return void
+     */
+    protected function _storeDateAccepted() {
+        if ($this->_fields['DateAccepted']->getValue() !== null) {
+            $result = $this->_convertToInternalDate($this->_fields['DateAccepted']->getValue());
+        } else {
+            $result = null;
+        }
+        $this->_primaryTableRow->date_accepted = $result;
+    }
+
+    /**
+     * Gets expiration date of publication
+     *
+     * @return date as DD.MM.YYYY
+     */
+    protected function _fetchServerDateValid() {
+        if (empty($this->_primaryTableRow->server_date_valid) === false) {
+            $result = $this->_convertToOutputDate($this->_primaryTableRow->server_date_valid);
+        } else {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * Gets unlocking date of publication
+     *
+     * @return date as DD.MM.YYYY
+     */
+    protected function _fetchServerDateUnlocking() {
+        if (empty($this->_primaryTableRow->server_date_unlocking) === false) {
+            $result = $this->_convertToOutputDate($this->_primaryTableRow->server_date_unlocking);
+        } else {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * Gets date of publication
+     *
+     * @return date as DD.MM.YYYY
+     */
+    protected function _fetchPublishedDate() {
+        if (empty($this->_primaryTableRow->published_date) === false) {
+            $result = $this->_convertToOutputDate($this->_primaryTableRow->published_date);
+        } else {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * Gets completion date of publication
+     *
+     * @return date as DD.MM.YYYY
+     */
+    protected function _fetchCompletedDate() {
+        if (empty($this->_primaryTableRow->completed_date) === false) {
+            $result = $this->_convertToOutputDate($this->_primaryTableRow->completed_date);
+        } else {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * Gets expiration date of publication
+     *
+     * @return date as DD.MM.YYYY
+     */
+    protected function _fetchDateAccepted() {
+        if (empty($this->_primaryTableRow->date_accepted) === false) {
+            $result = $this->_convertToOutputDate($this->_primaryTableRow->date_accepted);
+        } else {
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
      * Overwrite setter, type is immutable.
      *
      * @param  string|Opus_Document_Type $type The type of the document.
