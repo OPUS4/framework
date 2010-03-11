@@ -59,7 +59,7 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
                 'refTableClass' => 'Opus_Db_Roles',
                 'refColumns' => 'id',
                 ),
-            'Document_Files' => array(
+            'DocumentFiles' => array(
                 'columns' => 'file_id',
                 'refTableClass' => 'Opus_Db_DocumentFiles',
                 'refColumns' => 'id',)
