@@ -318,14 +318,18 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Parametrize query to account for hidden collection roles.
      */
-    public static function getAll() {
+    public static function getAll($includeOrganisationalUnits = false) {
         $roles = self::getAllFrom(__CLASS__, 'Opus_Db_CollectionsRoles', null, 'position');
         // Exclude role with id 1, this is reserved for organisational units.
         // FIXME: Move exclusion to database query.
-        $result = array();
-        foreach ($roles as $role) {
-            if ($role->getId() != 1) {
-                $result[] = $role;
+        if (true === $includeOrganisationalUnits) {
+            $result = $roles;
+        } else {
+            $result = array();
+            foreach ($roles as $role) {
+                if ($role->getId() != 1) {
+                    $result[] = $role;
+                }
             }
         }
         return $result;
