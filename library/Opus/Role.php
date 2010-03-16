@@ -90,6 +90,23 @@ class Opus_Role extends Opus_Model_AbstractDb
         $this->addField($privilege);
     }
 
+    protected function _fetchPrivilege() {
+        $result = array();
+        if (false === $this->isNewRecord()) {
+            $table = new Opus_Db_Privileges();
+            $privileges = $table->getAdapter()->fetchCol(
+                $table->select()
+                ->from($table, array('id'))
+                ->where('role_id = ?', $this->getId())
+                ->where('privilege  != ?', 'readFile'));
+            foreach($privileges as $privilegeId) {
+                $result[] = new Opus_Privilege($privilegeId);
+            }
+        }
+        return $result;
+    }
+
+
     /**
      * Returns name.
      *
