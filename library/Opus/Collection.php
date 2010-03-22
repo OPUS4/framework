@@ -29,6 +29,7 @@
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -161,6 +162,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
         // Add a field to hold the collection role's id
         $collectionRoleIdField = new Opus_Model_Field('RoleId');
         $this->addField($collectionRoleIdField);
+
+        // Add a field to hold the collection display_frontdoor
+        $collectionDisplayFrontdoorField = new Opus_Model_Field('DisplayFrontdoor');
+        $this->addField($collectionDisplayFrontdoorField);
 
         // Add a field to hold visibility
         $visibility = new Opus_Model_Field('Visibility');
@@ -455,6 +460,15 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     protected function _fetchRoleName() {
         return $this->__role->getName();
+    }
+
+    /**
+     * Returns the name of the collection's display_frontdoor.
+     *
+     * @return string The name of the collection's display_frontdoor.
+     */
+    protected function _fetchDisplayFrontdoor() {
+        return $this->__role->getDisplayFrontdoor();
     }
 
     /**
