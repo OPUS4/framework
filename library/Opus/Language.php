@@ -21,13 +21,14 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -56,11 +57,19 @@ class Opus_Language extends Opus_Model_AbstractDb {
      */
     protected function _init() {
         $part2B = new Opus_Model_Field('Part2B');
+
         $part2T = new Opus_Model_Field('Part2T');
+        $part2T->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+
         $part1 = new Opus_Model_Field('Part1');
         $scope = new Opus_Model_Field('Scope');
         $type = new Opus_Model_Field('Type');
+
         $ref_name = new Opus_Model_Field('RefName');
+        $ref_name->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty());
+
         $comment = new Opus_Model_Field('Comment');
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
