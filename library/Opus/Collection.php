@@ -163,10 +163,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $collectionRoleIdField = new Opus_Model_Field('RoleId');
         $this->addField($collectionRoleIdField);
 
-        // Add a field to hold the collection display_frontdoor
-        $collectionDisplayFrontdoorField = new Opus_Model_Field('DisplayFrontdoor');
-        $this->addField($collectionDisplayFrontdoorField);
-
         // Add a field to hold visibility
         $visibility = new Opus_Model_Field('Visibility');
         $this->addField($visibility);
@@ -462,14 +458,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
         return $this->__role->getName();
     }
 
-    /**
-     * Returns the name of the collection's display_frontdoor.
-     *
-     * @return string The name of the collection's display_frontdoor.
-     */
-    protected function _fetchDisplayFrontdoor() {
-        return $this->__role->getDisplayFrontdoor();
-    }
 
     /**
      * Returns the name of the collection's role id.
