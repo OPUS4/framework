@@ -68,6 +68,7 @@ class Opus_GPG extends Crypt_GPG
      */
     public function getMasterkey()
     {
+    	try {
     	foreach ($this->getKeys() as $key)
     	{
     		// System key (masterkey) autodetection
@@ -77,6 +78,11 @@ class Opus_GPG extends Crypt_GPG
     		{
     			return $key;
     		}
+    	}
+    	}
+    	catch (Crypt_GPG_Exception $e) {
+    		// This indicates that GPG is not configured properly
+    		throw $e;
     	}
 
     	return false;
