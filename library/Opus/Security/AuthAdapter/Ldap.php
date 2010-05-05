@@ -48,8 +48,6 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
      */
     public function authenticate() {
         
-        $auth = Zend_Auth::getInstance();
-
         $config = new Zend_Config_Ini('../config/config.ini', 'production');
         
         $log_path = $config->ldap->log_path;
@@ -59,64 +57,70 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         unset($options['log_path']);
         
         try {
-            $adapter = new Zend_Auth_Adapter_Ldap($options, $this->_login, $this->_password);
+        	// first check local DB with parent class
+        	$result = parent::authenticate();
+        }
+        catch (Exception $e) {
+            try {
+                $adapter = new Zend_Auth_Adapter_Ldap($options, $this->_login, $this->_password);
         
-            $result = $auth->authenticate($adapter);
+                $result = $auth->authenticate($adapter);
                         
-            // log the result if a log path has been defined in config.ini
-            if ($log_path) {
-                $messages = $result->getMessages();
+                // log the result if a log path has been defined in config.ini
+                if ($log_path) {
+                    $messages = $result->getMessages();
 
-                $logger = new Zend_Log();
-                $logger->addWriter(new Zend_Log_Writer_Stream($log_path));
-                $filter = new Zend_Log_Filter_Priority(Zend_Log::DEBUG);
-                $logger->addFilter($filter);
+                    $logger = new Zend_Log();
+                    $logger->addWriter(new Zend_Log_Writer_Stream($log_path));
+                    $filter = new Zend_Log_Filter_Priority(Zend_Log::DEBUG);
+                    $logger->addFilter($filter);
 
-                foreach ($messages as $i => $message) {
-                    if ($i-- > 1) { // $messages[2] and up are log messages
-                        $message = str_replace("\n", "\n  ", $message);
-                        $logger->log("Ldap: $i: $message", Zend_Log::DEBUG);
+                    foreach ($messages as $i => $message) {
+                        if ($i-- > 1) { // $messages[2] and up are log messages
+                            $message = str_replace("\n", "\n  ", $message);
+                            $logger->log("Ldap: $i: $message", Zend_Log::DEBUG);
+                        }
                     }
                 }
-            }
             
-            // if authentication was successfull and user is not already in OPUS DB
-            // register user as publisher to OPUS database
-            try {
-                $account = new Opus_Account(null, null, $this->_login);
-            } catch (Exception $ex) {
-                if ($result->isValid() === true) {
-            	    $account= new Opus_Account();
-    		        $account->setLogin($this->_login);
-    		        $account->setPassword($this->_password);
-    		        $account->store();
-        		    $roles = Opus_Role::getAll();
-        		    // look for the publisher role in OPUS DB
-        		    foreach ($roles as $role) {
-        			    if ($role->getDisplayName() === 'publisher') {
-        				    $publisherId = $role->getId();
-        			    }
-        		    }
-    	    	    if ($publisherId > 0) {
-    	    	        $accessRole = new Opus_Role($publisherId);
-    	    	    }
-        		    else {
-        			    // if there is no publisher role in DB, create it
-        			    $accessRole = new Opus_Role();
-        		        $accessRole->setName('publisher');
-        		        // the publisher role needs publish access!
-        		        $privilege = new Opus_Privilege();
-                        $privilege->setPrivilege('publish');
-                        $accessRole->addPrivilege($privilege);
-    	    	        $accessRole->store();
-        		    }
-    		        $account->addRole($accessRole);
-    		        $account->store();
-                }
-    		}
-        }
-        catch (Zend_Auth_Adapter_Exception $e) {
-        	throw $e;
+                // if authentication was successfull and user is not already in OPUS DB
+                // register user as publisher to OPUS database
+                try {
+                    $account = new Opus_Account(null, null, $this->_login);
+                } catch (Exception $ex) {
+                    if ($result->isValid() === true) {
+            	        $account= new Opus_Account();
+    		            $account->setLogin($this->_login);
+    		            $account->setPassword($this->_password);
+    		            $account->store();
+        		        $roles = Opus_Role::getAll();
+            		    // look for the publisher role in OPUS DB
+            		    foreach ($roles as $role) {
+            			    if ($role->getDisplayName() === 'publisher') {
+        	    			    $publisherId = $role->getId();
+        		    	    }
+        		        }
+    	    	        if ($publisherId > 0) {
+    	    	            $accessRole = new Opus_Role($publisherId);
+    	    	        }
+        		        else {
+        			        // if there is no publisher role in DB, create it
+        			        $accessRole = new Opus_Role();
+        		            $accessRole->setName('publisher');
+            		        // the publisher role needs publish access!
+            		        $privilege = new Opus_Privilege();
+                            $privilege->setPrivilege('publish');
+                            $accessRole->addPrivilege($privilege);
+    	    	            $accessRole->store();
+        		        }
+    		            $account->addRole($accessRole);
+    		            $account->store();
+                    }
+    		    }
+            }
+            catch (Zend_Auth_Adapter_Exception $e) {
+            	throw $e;
+            }
         }
         
         return $result;
