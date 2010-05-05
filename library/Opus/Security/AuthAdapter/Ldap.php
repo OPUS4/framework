@@ -61,7 +61,12 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         	$result = parent::authenticate();
         }
         catch (Exception $e) {
+        	throw $e;
+        }
+        if ($result->isValid() !== true) {
             try {
+            	$auth = Zend_Auth::getInstance();
+            	
                 $adapter = new Zend_Auth_Adapter_Ldap($options, $this->_login, $this->_password);
         
                 $result = $auth->authenticate($adapter);
