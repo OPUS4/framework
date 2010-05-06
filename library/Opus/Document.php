@@ -1322,12 +1322,23 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         if (true === $set) {
-            // TODO contructor values should be configurable
-            $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
-            $urn_value = $urn->getUrn($this->getId());
-            $urn_model = new Opus_Identifier();
-            $urn_model->setValue($urn_value);
-            $this->setIdentifierUrn($urn_model);
+            // get constructor values from configuration file
+            // if nothing has been configured there, do not build an URN!
+            // at least the first two values MUST be set 
+     		$config = Zend_Registry::get('Zend_Config');
+
+    		if (is_object($config->urn) === true) {
+    		    $unionSnid = $config->urn->snid->union;
+    		    $libSnid = $config->urn->snid->libid;
+    		    $prefixNiss = $config->urn->niss->prefix;
+    		}
+	    	if (empty($unionSnid) !== true && empty($libSnid) !== true) {
+                $urn = new Opus_Identifier_Urn($unionSnid, $libSnid, $prefixNiss);
+                $urn_value = $urn->getUrn($this->getId());
+                $urn_model = new Opus_Identifier();
+                $urn_model->setValue($urn_value);
+                $this->setIdentifierUrn($urn_model);
+	    	}
         }
 
         if (array_key_exists('options', $this->_externalFields['IdentifierUrn']) === true) {
