@@ -68,6 +68,7 @@ class Opus_Search_Index_Document extends Zend_Search_Lucene_Document
         $this->addField(Zend_Search_Lucene_Field::Keyword('year', $documentdata['year'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('urn', $documentdata['urn'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Keyword('isbn', $documentdata['isbn'], $this->__encoding));
+        $this->addField(Zend_Search_Lucene_Field::Keyword('opac-id', $documentdata['opac-id'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('abstract', $documentdata['abstract'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('title', $documentdata['title'], $this->__encoding));
         $this->addField(Zend_Search_Lucene_Field::Text('author', $documentdata['author'], $this->__encoding));

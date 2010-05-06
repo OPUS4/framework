@@ -223,7 +223,7 @@ class Opus_Search_Index_Lucene_Indexer {
 
 	    $document['urn'] = $this->getValue($this->docToIndex, 'IdentifierUrn', 'Value');
 	    $document['isbn'] = $this->getValue($this->docToIndex, 'IdentifierIsbn', 'Value');
-
+        $document['opac-id'] = $this->getValue($this->docToIndex, 'IdentifierOpac', 'Value');
 
         $document['author'] = $this->getValue($this->docToIndex, 'PersonAuthor', 'Name');
 
