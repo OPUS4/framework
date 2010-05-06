@@ -76,21 +76,15 @@ class Opus_Iprange extends Opus_Model_AbstractDb
 
     /**
      * Initialize model with the following fields:
-     * - Ip1byte1
-     * - Ip1byte2
-     * - Ip1byte3
-     * - Ip1byte4
-     * - Ip2byte1
-     * - Ip2byte2
-     * - Ip2byte3
-     * - Ip2byte4
+     * - staringip
+     * - endingip
      * - Name
      *
      * @return void
      */
     protected function _init() {
-        $ip1byte1 = new Opus_Model_Field('startingip');
-        $ip1byte2 = new Opus_Model_Field('endingip');
+        $startingip = new Opus_Model_Field('Startingip');
+        $endingip = new Opus_Model_Field('Endingip');
         $name = new Opus_Model_Field('Name');
     	$role = new Opus_Model_Field('Role');
         
@@ -117,8 +111,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _storeStartingip() {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
-        if ($this->_fields['startingip']->getValue() !== null) {
-            $this->_primaryTableRow->startingip = ip2long($this->_fields['startingip']->getValue());
+        if ($this->_fields['Startingip']->getValue() !== null) {
+            $this->_primaryTableRow->startingip = ip2long($this->_fields['Startingip']->getValue());
         }
     }
 
@@ -129,8 +123,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected function _storeEndingip() {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
-        if ($this->_fields['endingip']->getValue() !== null) {
-            $this->_primaryTableRow->endingip = ip2long($this->_fields['endingip']->getValue());
+        if ($this->_fields['Endingip']->getValue() !== null) {
+            $this->_primaryTableRow->endingip = ip2long($this->_fields['Endingip']->getValue());
         }
     }
 
