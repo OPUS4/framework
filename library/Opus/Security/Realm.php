@@ -178,8 +178,8 @@ class Opus_Security_Realm {
         $iprangeTable = new Opus_Db_Ipranges();
         $iprows = $iprangeTable->fetchAll(
                 $iprangeTable->select()
-                ->where('startingip <= ?', ip2long($this->_ipaddress))
-                ->where('endingip >= ?', ip2long($this->_ipaddress))
+                ->where('startingip <= ?', sprintf("%u", ip2long($this->_ipaddress)))
+                ->where('endingip >= ?', sprintf("%u", ip2long($this->_ipaddress)))
             );
         if (0 === count($iprows)) {
             return array();

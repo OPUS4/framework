@@ -112,7 +112,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     protected function _storeStartingip() {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
         if ($this->_fields['Startingip']->getValue() !== null) {
-            $this->_primaryTableRow->startingip = ip2long($this->_fields['Startingip']->getValue());
+            $this->_primaryTableRow->startingip = sprintf("%u", ip2long($this->_fields['Startingip']->getValue()));
         }
     }
 
@@ -124,7 +124,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     protected function _storeEndingip() {
         // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
         if ($this->_fields['Endingip']->getValue() !== null) {
-            $this->_primaryTableRow->endingip = ip2long($this->_fields['Endingip']->getValue());
+            $this->_primaryTableRow->endingip = sprintf("%u", ip2long($this->_fields['Endingip']->getValue()));
         }
     }
 
