@@ -89,47 +89,79 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _init() {
-        $ip1byte1 = new Opus_Model_Field('Ip1byte1');
-        $ip1byte2 = new Opus_Model_Field('Ip1byte2');
-        $ip1byte3 = new Opus_Model_Field('Ip1byte3');
-        $ip1byte4 = new Opus_Model_Field('Ip1byte4');
-        $ip2byte1 = new Opus_Model_Field('Ip2byte1');
-        $ip2byte2 = new Opus_Model_Field('Ip2byte2');
-        $ip2byte3 = new Opus_Model_Field('Ip2byte3');
-        $ip2byte4 = new Opus_Model_Field('Ip2byte4');
+        $ip1byte1 = new Opus_Model_Field('startingip');
+        $ip1byte2 = new Opus_Model_Field('endingip');
         $name = new Opus_Model_Field('Name');
     	$role = new Opus_Model_Field('Role');
         
-        $ip1byte1->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip1byte2->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip1byte3->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip1byte4->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip2byte1->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip2byte2->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip2byte3->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        $ip2byte4->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+        $startingip->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty())
+            ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
+        $endingip->setMandatory(true)
+            ->setValidator(new Zend_Validate_NotEmpty())
+            ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
 		$role->setMultiplicity('*')
 			->setDefault(Opus_Role::getAll())
 			->setSelection(true);
         
-        $this->addField($ip1byte1)
-            ->addField($ip1byte2)
-            ->addField($ip1byte3)
-            ->addField($ip1byte4)
-            ->addField($ip2byte1)
-            ->addField($ip2byte2)
-            ->addField($ip2byte3)
-            ->addField($ip2byte4)
+        $this->addField($startingip)
+            ->addField($endingip)
             ->addField($name)
 			->addField($role);
+    }
+
+    /**
+     * Store the starting ip address.
+     *
+     * @return void.
+     */
+    protected function _storeStartingip() {
+        // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
+        if ($this->_fields['startingip']->getValue() !== null) {
+            $this->_primaryTableRow->startingip = ip2long($this->_fields['startingip']->getValue());
+        }
+    }
+
+    /**
+     * Store the ending ip address.
+     *
+     * @return void.
+     */
+    protected function _storeEndingip() {
+        // Zend_Validate_NotEmpty ensures that this field can not be stored without value.
+        if ($this->_fields['endingip']->getValue() !== null) {
+            $this->_primaryTableRow->endingip = ip2long($this->_fields['endingip']->getValue());
+        }
+    }
+
+    /**
+     * Gets the starting ip address.
+     *
+     * @return string IPv4 address in Internet standard format (dotted string).
+     */
+    protected function _fetchStartingip() {
+        if (empty($this->_primaryTableRow->startingip) === false) {
+            $result = long2ip($this->_primaryTableRow->startingip);
+        } else {
+            // FIXME: may conflict with Zend_Validate_NotEmpty?
+            $result = null;
+        }
+        return $result;
+    }
+
+    /**
+     * Gets the ending ip address.
+     *
+     * @return string IPv4 address in Internet standard format (dotted string).
+     */
+    protected function _fetchEndingip() {
+        if (empty($this->_primaryTableRow->endingip) === false) {
+            $result = long2ip($this->_primaryTableRow->endingip);
+        } else {
+            // FIXME: may conflict with Zend_Validate_NotEmpty?
+            $result = null;
+        }
+        return $result;
     }
 
     /**

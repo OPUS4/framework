@@ -158,7 +158,6 @@ class Opus_Security_Realm {
     /**
      * Map an IP address to Roles.
      *
-     * @param string $ipaddress IP address.
      * @throws Opus_Security_Exception Thrown if the supplied ip is not valid.
      * @return array Array of assigned roles or an empty array.
      */
@@ -176,12 +175,12 @@ class Opus_Security_Realm {
              throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
-        $ipTable = new Opus_Db_Ipaddresses();
-        $iprows = $ipTable->fetchAll($ipTable->select()
-                    ->where('byte1 = ?', $ip[1])
-                    ->where('byte2 = ?', $ip[2])
-                    ->where('byte3 = ?', $ip[3])
-                    ->where('byte4 = ?', $ip[4]));
+        $iprangeTable = new Opus_Db_Ipranges();
+        $iprows = $iprangeTable->fetchAll(
+                $iprangeTable->select()
+                ->where('startingip <= ?', ip2long($this->_ipaddress))
+                ->where('endingip >= ?', ip2long($this->_ipaddress))
+            );
         if (0 === count($iprows)) {
             return array();
         }

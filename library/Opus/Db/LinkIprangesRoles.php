@@ -62,20 +62,15 @@ class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway {
      * @var array $_referenceMap
      */
     protected $_referenceMap = array(
-	    'Ipaddresses' => array(
-		'columns' => 'iprange_id',
-		'refTableClass' => 'Opus_Db_Ipaddresses',
-		'refColumns' => 'iprange_id',
-		),
-            'Ipranges' => array(
-                'columns' => 'iprange_id',
-                'refTableClass' => 'Opus_Db_Ipranges',
-                'refColumns' => 'id',
-                ),
-            'Roles' => array(
-                'columns' => 'role_id',
-                'refTableClass' => 'Opus_Db_Roles',
-                'refColumns' => 'id'
-                )
-            );
+        'Ipranges' => array(
+            'columns' => 'iprange_id',
+            'refTableClass' => 'Opus_Db_Ipranges',
+            'refColumns' => 'id',
+        ),
+        'Roles' => array(
+            'columns' => 'role_id',
+            'refTableClass' => 'Opus_Db_Roles',
+            'refColumns' => 'id'
+        )
+    );
 }
