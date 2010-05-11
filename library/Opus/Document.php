@@ -1422,6 +1422,14 @@ class Opus_Document extends Opus_Model_AbstractDb
         // Remove from index
         $indexer = new $engineclass();
         $indexer->removeDocumentFromEntryIndex($this);
+        
+        // remove all files permanently
+        $files = $this->getFile();
+        foreach ($files as $file) {
+        	$f = new Opus_File($file->getId());
+        	$f->doDelete($f->delete());
+        }
+        
         parent::delete();
     }
 
