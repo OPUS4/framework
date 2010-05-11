@@ -324,6 +324,15 @@ class Opus_Document extends Opus_Model_AbstractDb
             parent::__construct($id, new self::$_tableGatewayClass);
             $this->_type = $this->_primaryTableRow->type;
             $this->_workflow = $this->_primaryTableRow->workflow;
+            // check files for non-existing ones and strip them out
+            $files = $this->_getField('File')->getValue();
+            $return = array();
+            foreach ($files as $file) {
+                if ($file->exists() === true) {
+            	    array_push($return, $file);
+                }
+            }
+            $this->_getField('File')->setValue($return);
         }
     }
 
@@ -444,7 +453,6 @@ class Opus_Document extends Opus_Model_AbstractDb
             $this->getField('Grantor')->setDefault($grantors)
                 ->setSelection(true);
         }
-
     }
 
     /**
@@ -1432,6 +1440,41 @@ class Opus_Document extends Opus_Model_AbstractDb
         
         parent::delete();
     }
+
+    /**
+     * Provide read access to file field.
+     * Overrides default method from parent
+     * check if the file exists physically
+     * if it doesnt clean it from file list
+     *
+     * do not use this method, its commented out!
+     * the overridden function will be used
+     * 
+     * files are checked at construction of document object
+     * they will not appear in the object if they are not found physically
+     * 
+     * @return string
+     */
+    /*public function getFile($index = null) {
+        if ($index !== null) {
+            $f = $this->_getField('File')->getValue();
+            $file = $f[$index];
+            if ($file->exists() === true) {
+            	return $file;
+            }
+            return null;
+        }
+        else {
+            $files = $this->_getField('File')->getValue();
+            $return = array();
+            foreach ($files as $file) {
+                if ($file->exists() === true) {
+            	    array_push($return, $file);
+                }
+            }
+            return $return;
+        }
+    }*/
 
     /**
      * Provide read access to internal type field.

@@ -151,7 +151,18 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->addField($documentid)
             ->addField($hashvalue)
             ->addField($role);
+    }
 
+    /**
+     * checks if the file exists physically
+     * 
+     * @return boolean false if the file does not exist, true if it exists
+     */
+    public function exists() {
+    	if (file_exists($this->__path . $this->getDocumentId() . '/' . $this->getPathName()) === true) {
+    		return true;
+    	}
+    	return false;
     }
 
     /**
