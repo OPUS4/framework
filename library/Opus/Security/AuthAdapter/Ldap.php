@@ -51,10 +51,12 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         $config = new Zend_Config_Ini('../config/config.ini', 'production');
         
         $log_path = $config->ldap->log_path;
+        $admins = explode(',', $config->ldap->admin_accounts);
         
         $options = $config->ldap->toArray();
         
         unset($options['log_path']);
+        unset($options['admin_accounts']);
         
         try {
         	// first check local DB with parent class
@@ -104,6 +106,9 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
             			    if ($role->getDisplayName() === 'publisher') {
         	    			    $publisherId = $role->getId();
         		    	    }
+        		    	    if ($role->getDisplayName() === 'administrator') {
+        	    			    $adminId = $role->getId();
+        		    	    }
         		        }
     	    	        if ($publisherId > 0) {
     	    	            $accessRole = new Opus_Role($publisherId);
@@ -118,7 +123,25 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
                             $accessRole->addPrivilege($privilege);
     	    	            $accessRole->store();
         		        }
-    		            $account->addRole($accessRole);
+    	    	        if ($adminId > 0) {
+    	    	            $adminRole = new Opus_Role($adminId);
+    	    	        }
+        		        else {
+        			        // if there is no publisher role in DB, create it
+        			        $adminRole = new Opus_Role();
+        		            $adminRole->setName('administrator');
+            		        // the publisher role needs publish access!
+            		        $adminprivilege = new Opus_Privilege();
+                            $adminprivilege->setPrivilege('administrate');
+                            $adminRole->addPrivilege($adminprivilege);
+    	    	            $adminRole->store();
+        		        }
+        		        if (in_array($this->_login, $admins) === true) {
+        		        	$account->addRole($adminRole);
+        		        }
+        		        else {
+    		                $account->addRole($accessRole);
+        		        }
     		            $account->store();
                     }
     		    }
