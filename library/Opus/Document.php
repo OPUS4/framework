@@ -1092,6 +1092,30 @@ class Opus_Document extends Opus_Model_AbstractDb
     }
 
     /**
+     * Retrieve an array of all document titles associated with the corresponding
+     * document id.
+     *
+     * @param string $value value of the identifer that should be queried in DB
+     * @param string [$type] optional string describing the type of identifier (default is urn)
+     * @return array array with all ids of the entries.
+     */
+    public static function getDocumentByIdentifier($value, $type = 'urn') {
+        $table = new Opus_Db_DocumentIdentifiers();
+        $select = $table->select()
+            ->from($table, array('document_id'))
+            ->where('type = ?', $type)
+            ->where('value = ?', $value);
+        $rows = $table->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = $row->document_id;
+        }
+
+        return $result;
+    }
+
+    /**
      * Returns all document that are in a specific server (publication) state.
      *
      * @param  string  $state The state to check for.
