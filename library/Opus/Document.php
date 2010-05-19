@@ -324,15 +324,18 @@ class Opus_Document extends Opus_Model_AbstractDb
             parent::__construct($id, new self::$_tableGatewayClass);
             $this->_type = $this->_primaryTableRow->type;
             $this->_workflow = $this->_primaryTableRow->workflow;
-            // check files for non-existing ones and strip them out
-            $files = $this->_getField('File')->getValue();
-            $return = array();
-            foreach ($files as $file) {
-                if ($file->exists() === true) {
-            	    array_push($return, $file);
+
+            if ($this->_getField('File') !== null) {
+                // check files for non-existing ones and strip them out
+                $files = $this->_getField('File')->getValue();
+                $return = array();
+                foreach ($files as $file) {
+                    if ($file->exists() === true) {
+            	        array_push($return, $file);
+                    }
                 }
+                $this->_getField('File')->setValue($return);
             }
-            $this->_getField('File')->setValue($return);
         }
     }
 
