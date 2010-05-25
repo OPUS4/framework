@@ -1166,7 +1166,9 @@ class Opus_Document extends Opus_Model_AbstractDb
         // limit does not work properly?!
         // so lets take a for-counter...
         for ($n= 0; $n < $num; $n++) {
-        	$ids[] = $rows[$n]['id'];
+        	if (array_key_exists('id', $rows[$n]) === true) {
+        	    $ids[] = $rows[$n]['id'];
+            }
         }
 
         return $ids;
