@@ -1161,14 +1161,15 @@ class Opus_Document extends Opus_Model_AbstractDb
             ->where('server_state = ?', 'published')
             ->order('server_date_published DESC');
         $rows = $db->fetchAll($select);
-
+        $reallyFoundDocuments = count($rows);
+        if ($reallyFoundDocuments < $num) {
+        	$num = $reallyFoundDocuments;
+        }
         $ids = array();
         // limit does not work properly?!
         // so lets take a for-counter...
         for ($n= 0; $n < $num; $n++) {
-        	if (array_key_exists('id', $rows[$n]) === true) {
-        	    $ids[] = $rows[$n]['id'];
-            }
+      	    $ids[] = $rows[$n]['id'];
         }
 
         return $ids;
