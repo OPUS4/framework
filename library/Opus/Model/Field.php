@@ -143,6 +143,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     protected $_pendingDeletes = array();
     
+    private $ignoreMultiplicity = true;
 
     /**
      * Create an new field instance and set the given name.
@@ -306,7 +307,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             $arrayCondition = is_array($value);
 
             // Reject input if an array is required but not is given
-            if (($multiValueCondition === false) and ($arrayCondition === true)) {
+            if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->ignoreMultiplicity === false)) {
                 throw new InvalidArgumentException('Multivalue option and input argument do not match.');
             }
 
