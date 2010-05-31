@@ -166,6 +166,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Overwrite standard storage procedure to shift positions.  The parameter
      * describes the new position of the current role.
      *
+     * TODO: This method belongs to Opus_Db_CollectionsRoles.
+     *
      * @return void
      */
     protected function _storePosition($to) {
@@ -237,6 +239,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array A (nested) array representation of the model.
      *
      * FIXME: Only basic refactoing done.  Needs testing!  Which fields to use?
+     * TODO: Check why this method isn't used any more.
      */
     public function toArray() {
         $this->logger('toArray');
@@ -262,7 +265,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    // TODO: Maybe remove this method.
     public function delete() {
         if ($this->isNewRecord()) {
             return;
@@ -305,8 +307,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
-        // $roles = $table->fetchAll("id > 1", 'position');
-        $roles = $table->fetchAll(null, 'position');
+        $roles = $table->fetchAll("id > 1", 'position');
+        // $roles = $table->fetchAll(null, 'position');
 
         return self::createObjects($roles);
     }
@@ -348,6 +350,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * FIXME: Unit-tests, if empty OaiSets are returned.
      * FIXME: How to count documents?  Only this collections or recursive?
+     * FIXME: Check if $this->getDisplayOai() contains proper field names!
      *
      * @return array An array of strings containing oai set names.
      */
@@ -427,59 +430,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return false;
     }
 
-    public static function fooDocumentIdsInSet($oaiSetName) {
-        $colonPos = strrpos($oaiSetName, ':');
-        $oaiPrefix = substr($oaiSetName, 0, $colonPos);
-        $oaiPostfixColumn = substr($oaiSetName, $colonPos + 1);
-
-        
-
-        // FIXME: Check oaiPrefix/Postfix values to prevent database exceptions.
-
-        $db = Zend_Db_Table::getDefaultAdapter();
-
-        $quotePrefix  = $db->quote("$oaiPrefix:");
-        $quotePostfix = $db->quoteIdentifier("c.$oaiPostfixColumn");
-        $quoteRoleId  = $db->quote($this->getId());
-
-        $select =
-
-        $db->select()
-
-                ->from('collections_roles AS r')
-                ->where('r.oai_name = ?', $oaiPrefix)
-
-                ->from('collections AS c', '')
-                ->where('c.subset_key = ?', $oaiPostfix)
-                ->where('c.role_id = r.id')
-                ->columns('c.id')
-                ->distinct()
-
-                ->from('link_documents_collections AS l', '')
-//              ->where('l.role_id = c.role_id')
-                ->where('l.collection_id = c.id')
-
-                ->columns('l.document_id AS id')
-                ->distinct();
-
-        $result = $db->fetchCol($select);
-
-        if (is_null($result)) {
-            return array();
-        }
-
-        return $result;
-    }
-
 
     /**
      * LEGACY.
+     *
+     * @deprecated
      */
 
-    // TODO: Add documentation.
     public static function getAll() {
         return self::fetchAll();
     }
+
+    /**
+     *  Debugging helper.  Sends the given message to Zend_Log.
+     *
+     * @param string $message
+     */
 
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
@@ -498,8 +464,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * RootCollection is found.
      *
      * @return array|Opus_Collection SubCollections of root node.
+     *
+     * @deprecated
      */
-    // TODO: LEGACY!  Remove this method.
     public function getSubCollection() {
         $root = $this->getRootNode();
         if (! is_null($root)) {
@@ -527,17 +494,21 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Get the path back to the root node.  Note: Only works in trees, where
+     * each collection is linked to one node.
      *
-     * @return <type>
-     *
-     * LEGACY.
+     * @return array|Opus_Collection
      */
     public function getParents() {
         return $this->getRootNode()->getCollection()->getParents();
     }
 
+    /**
+     * Internal methods to handle attribute fields.
+     *
+     * TODO: Should be a method on the Opus_Db_Collections Model.
+     */
 
-    // TODO: Should be a method on the Opus_Db_Collections Model.
     protected function _fetchAttributes() {
         $table = new Opus_Db_Collections();
         $info = $table->info();
@@ -557,6 +528,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         return $results;
     }
+
+    /**
+     * Internal methods to handle attribute fields.
+     *
+     * TODO: Should be a method on the Opus_Db_Collections Model.
+     */
 
     protected function _storeAttributes($attributes) {
         $table = new Opus_Db_Collections();

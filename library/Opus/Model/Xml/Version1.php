@@ -168,6 +168,10 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             $fields = $model->describe();
         }
         $excludeFields = $this->_config->_excludeFields;
+
+        // FIXME: Why doesn't Opus_Model_Xml_Conf->_excludeFields work here?
+        $excludeFields = array('ParentCollection', 'SubCollection',      'RootNode', 'Collection', 'Parents', 'Children', 'PendingNodes',   'Role', 'Nodes', 'SubCollections', 'Documents', 'Node');
+
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
         } else {
@@ -189,7 +193,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
      * @return void
      */
     protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
-
         $fieldName = $field->getName();
         $modelClass = $field->getValueModelClass();
         $fieldValues = $field->getValue();

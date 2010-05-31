@@ -170,43 +170,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
 
     /**
-     * Returns custom string representation depending on role settings.
-     *
-     * @return string
-     *
-     * TODO: Implement collections_attributes and change this stub-method.
-     */
-    public function getDisplayName($context = 'browsing') {
-        $role = $this->getRole();
-        $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
-        $display = '';
-
-        if (false === empty($fieldnames)) {
-            foreach (explode(',', $fieldnames) as $fieldname) {
-                $field = $this->_getField(trim($fieldname));
-                if (false === is_null($field)) {
-                    $display .= $field->getValue() . ' ';
-                }
-            }
-        } else {
-            $display = $this->getName();
-        }
-
-        return trim($display);
-    }
-
-
-    /**
-     * Returns debug name.
-     *
-     * @return string
-     */
-    public function getDebugName() {
-        return get_class($this) . '#' . $this->getId()  . '#' . $this->getRoleId();
-    }
-
-
-    /**
      * Fetch all children of the current node.
      *
      * FIXME: Documentation.
@@ -230,6 +193,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
+
     /**
      * Overwrites store procedure.
      *
@@ -240,25 +204,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $collection->store();
         }
     }
-
-    /**
-     *
-     * @param Opus_Collection $subCollections (optional)
-     * @return Opus_Collection The added collection.
-     */
-    public function addSubCollections($subCollections = null) {
-        throw new Exception("Method not supported.  Check API.");
-
-        if (isset($subCollections)) {
-            $subCollections = parent::addSubCollections($subCollections);
-        }
-        else {
-            $subCollections = parent::addSubCollections();
-        }
-
-        return $subCollections;
-    }
-
 
     /**
      * Fetch all nodes between (including) the root and this node.
@@ -277,6 +222,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         return self::createObjects($rows);
     }
+
 
     /**
      * Overwrites store procedure.
@@ -331,6 +277,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $theme;
     }
 
+
     /**
      * Store the name of the theme that is associated with this collection.
      *
@@ -371,85 +318,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         }
     }
 
-
     /**
-     * Set location of available themes.
-     *
-     * @param  string $path
-     */
-    public static function setThemesPath($path) {
-        if (is_dir($path) === false) {
-            throw new InvalidArgumentException("Argument should be a valid path.");
-        }
-
-        $themes = array();
-        foreach (glob($path . '/*') as $entry) {
-            if (true === is_dir($entry)) {
-                $theme = basename($entry);
-                $themes[ $theme ] = $theme;
-            }
-        }
-
-        self::$_themesPath = $path;
-        self::$_themes     = $themes;
-    }
-
-
-    /**
-     * Returns the OAI set name that corresponds with this collection.
-     *
-     * @return string The name of the OAI set.
-     *
-     * TODO: Unchecked Copy-Paste.  Check if this method still works.
-     */
-    public function getOaiSetName() {
-        throw new Exception("Unchecked Copy-Paste.  Write unit tests first.");
-
-        $role = $this->getRole();
-        $oaiPrefix = $role->getOaiName();
-        $oaiPostfixColumn = $role->getDisplayOai();
-        $accessor = 'get' . ucfirst($oaiPostfixColumn);
-        $oaiPostfix = $this->$accessor();
-        return $oaiPrefix . ':' . $oaiPostfix;
-    }
-
-
-    /**
-     * FIXME: Documentation.
-     * FIXME: Only use RoleId
-     */
-    public static function getAllByRoleId($role_id) {
-        throw new Exception("Unchecked Copy-Paste.  Write unit tests first.");
-
-        if (false === isset($role_id)) {
-            throw new Exception("role_id not defined.");
-        }
-
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->where('role_id = ?', $role_id);
-        $rows = $table->fetchAll($select);
-
-        return self::createObjects($rows);
-    }
-
-    /**
-     * Fetches all collections for a given sub-SELECT.  The sub-SELECT must
-     * have a collection_id column.  Additional columns are not allowed.
-     *
-     * @param  mixed $subselect       Subselect statement with id column.
-     * @return array|Opus_Collection  All fetched collections.
-     */
-    public static function fetchBySubSelectXXX($subselect) {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->where("id IN ($subselect)");
-
-        $rows = $table->fetchAll($select);
-        return self::createObjects($rows);
-    }
-
-    /**
-     * Internal method to fetch documents for this collection.  Is called by the
-     * model, do not use manually.
+     * Internal method to fetch documents for this collection.
      *
      * @return Opus_Document|array Document(s).
      */
@@ -483,51 +353,181 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $results;
     }
 
+
     /**
      * Internal method for storing *and* linking documents.  Is called by the
      * model, do not use manually.
      *
      * @param mixed $documents
+     *
+     * FIXME: Linking added documents currently disabled.
+     * FIXME: This method belongs to Opus_Db_Link_Documents_Collections.
      */
     protected function _storeDocuments($documents = null) {
         return;
 
-        assert(is_array($documents));
-        assert( !is_null( $this->getId() ) );
-        assert( !is_null( $this->getRoleId() ) );
+//        assert(is_array($documents));
+//        assert( !is_null( $this->getId() ) );
+//        assert( !is_null( $this->getRoleId() ) );
+//
+//        if (is_null( $this->getRoleId() )) {
+//            throw new Exception("foobar");
+//        }
+//
+//        $table = $this->_primaryTableRow->getTable();
+//        $db = $table->getAdapter();
+//
+//        foreach ($documents AS $document) {
+//            $add_link = false;
+//
+//            if ($document->isNewRecord()) {
+//                $add_link = true;
+//            }
+//            else if ( !$this->holdsDocument($document->getId()) ) {
+//                $add_link = true;
+//            }
+//
+//            $document->store();
+//
+//            if (true === $add_link) {
+//                $this->linkDocument( $document->getId() );
+//            }
+//        }
 
-        if (is_null( $this->getRoleId() )) {
-            var_dump($this);
-            throw new Exception("foobar");
-        }
+    }
 
-        $table = $this->_primaryTableRow->getTable();
-        $db = $table->getAdapter();
 
-        foreach ($documents AS $document) {
-            $add_link = false;
+    /**
+     * Internal method to populate external field.
+     */
 
-            if ($document->isNewRecord()) {
-                $add_link = true;
-            }
-            else if ( !$this->holdsDocument($document->getId()) ) {
-                $add_link = true;
-            }
+    protected function _fetchRole() {
+        $role = new Opus_CollectionRole( $this->getRoleId() );
+        return $role;
 
-            $document->store();
+        // TODO: Experiments with role object caching.
+        // TODO: protected static $_role_cache = null;
+//        if ( !is_null(self::$_role_cache) && self::$_role_cache->getId() === $this->getRoleId() ) {
+//            $this->logger('Role: Restoring from cache.');
+//        }
+//        else {
+//            $this->logger('Role: new');
+//            self::$_role_cache = new Opus_CollectionRole( $this->getRoleId() );
+//        }
+//
+//        return self::$_role_cache;
+    }
 
-            if (true === $add_link) {
-                $this->linkDocument( $document->getId() );
-            }
-        }
+    /**
+     * Internal method to store external field to model.
+     */
+
+    protected function _storeRole($role) {
 
     }
 
     /**
-     * FIXME: Documentation.
+     * Fetches contents of role-field "DisplayFrontdoor".
      *
-     * @param <type> $document_id
-     * @return <type>
+     * @return string
+     */
+    protected function _fetchRoleDisplayFrontdoor() {
+        if (!is_null($this->getRole())) {
+            return $this->getRole()->getDisplayFrontdoor();
+        }
+    }
+
+    /**
+     * Fetches role-name.
+     *
+     * @return string
+     */
+    protected function _fetchRoleName() {
+        if (!is_null($this->getRole())) {
+            return $this->getRole()->getDisplayName();
+        }
+    }
+
+
+    /**
+     * Returns custom string representation depending on role settings.
+     *
+     * @return string
+     */
+    public function getDisplayName($context = 'browsing') {
+        $role = $this->getRole();
+        $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
+        $display = '';
+
+        if (false === empty($fieldnames)) {
+            foreach (explode(',', $fieldnames) as $fieldname) {
+                $field = $this->_getField(trim($fieldname));
+                if (false === is_null($field)) {
+                    $display .= $field->getValue() . ' ';
+                }
+            }
+        } else {
+            $display = $this->getName();
+        }
+
+        return trim($display);
+    }
+
+
+    /**
+     * Returns debug name.
+     *
+     * @return string
+     */
+    public function getDebugName() {
+        return get_class($this) . '#' . $this->getId()  . '#' . $this->getRoleId();
+    }
+
+    /**
+     * Set location of available themes.
+     *
+     * @param  string $path
+     */
+    public static function setThemesPath($path) {
+        if (is_dir($path) === false) {
+            throw new InvalidArgumentException("Argument should be a valid path.");
+        }
+
+        $themes = array();
+        foreach (glob($path . '/*') as $entry) {
+            if (true === is_dir($entry)) {
+                $theme = basename($entry);
+                $themes[ $theme ] = $theme;
+            }
+        }
+
+        self::$_themesPath = $path;
+        self::$_themes     = $themes;
+    }
+
+    /**
+     * Returns the OAI set name that corresponds with this collection.
+     *
+     * @return string The name of the OAI set.
+     */
+    public function getOaiSetName() {
+        $role = $this->getRole();
+        $oaiPrefix = $role->getOaiName();
+        $oaiPostfixColumn = $role->getDisplayOai();
+        $accessor = 'get' . ucfirst($oaiPostfixColumn);
+        $oaiPostfix = $this->$accessor();
+        return $oaiPrefix . ':' . $oaiPostfix;
+    }
+
+
+    /**
+     * Add document to current collection by adding an entry in the relation
+     * table "link_documents_collections".
+     *
+     * @param int $document_id
+     *
+     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Usable return value.
      */
     public function linkDocument($document_id = null) {
         if ($this->isNewRecord()) {
@@ -546,15 +546,18 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                 'role_id'       => $this->getRoleId(),
                 'document_id'   => $document_id,
         );
-
+        
         return $db->insert('link_documents_collections', $insert_data);
     }
 
     /**
-     * FIXME: Documentation.
+     * Removes document from current collection by deleting from the relation
+     * table "link_documents_collections".
      *
-     * @param <type> $document_id
-     * @return <type>
+     * @param int $document_id
+     *
+     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Usable return value.
      */
     public function unlinkDocument($document_id = null) {
         if ($this->isNewRecord() || is_null($document_id)) {
@@ -572,11 +575,15 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $db->delete("link_documents_collections", $condition);
     }
 
+
     /**
-     * FIXME: Documentation.
+     * Checks if document is linked to current collection.
      *
-     * @param <type> $document_id
-     * @return <type>
+     * @param  int  $document_id
+     * @return bool
+     *
+     * TODO: Move method to Opus_Db_LinkDocumentsCollections.
+     * TODO: Usable return value.
      */
     public function holdsDocument($document_id = null) {
 
@@ -603,32 +610,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return false;
     }
 
-//    /**
-//     * Overwrite standard deletion in favour of collections history tracking.
-//     *
-//     * @return void
-//     */
-//    public function delete() {
-//        // FIXME: Deleting linked collections would delete whole subtrees.
-//        // FIXME: Delete fails, if there are still subcollections.
-//
-//        parent::delete();
-//    }
-
-
-//    /**
-//     * Un-deleting a collection.
-//     *
-//     * @return void
-//     */
-//    public function undelete() {
-//        // FIXME: Method not implemented.  Please refactor from old API.
-//        // FIXME: Search for new Opus_Collection(null, $role) in current code!
-//        throw new Exception('Method not implemented.  Please refactor from old API.');
-//
-//        // Opus_Collection_Information::undeleteCollection($this->__role_id, (int) $this->getId());
-//    }
-
 
     /**
      * Overwrites standard toArray() to prevent infinite recursion due to parent collections.
@@ -636,6 +617,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return array A (nested) array representation of the model.
      *
      * FIXME: Part of old API.  Please check, if everything works fine.
+     * FIXME: Seems unused.  Check if we still need it.
      */
     public function toArray($call = null) {
         $this->logger('toArray');
@@ -655,8 +637,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                 'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
                 'DisplayOai' => $this->getDisplayName('oai'),
         );
-
-        return $result;
 
         foreach (array_keys($this->_fields) as $fieldname) {
             $field = $this->_getField($fieldname);
@@ -712,18 +692,13 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     public function toXml(array $excludeFields = null) {
         $this->logger('toXml');
         return parent::toXml(array('ParentCollection', 'Nodes', 'SubCollection', 'SubCollections', 'Theme', 'Documents'));
-
-        // FIXME: Method not implemented.  Please refactor from old API.
-        // FIXME: Search for new Opus_Collection(null, $role) in current code!
-        throw new Exception('Method not implemented.  Please refactor from old API.');
-
-        // FIXME: Doesn't make use of $excludeFields!
-        return parent::toXml(array('ParentCollection'));
     }
 
 
     /**
-     * LEGACY.
+     * LEGACY.  Replace by ->getSubCollections().
+     *
+     * @deprecated
      */
     public function getSubCollection() {
         return $this->getSubCollections();
@@ -731,7 +706,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
 
     /**
-     * LEGACY.
+     * LEGACY.  We probably don't need this any more.
+     * TODO: Work on Opus_CollectionNode instead!
+     *
+     * @deprecated
      */
     public function getSeveralAppearances() {
         $nodes = $this->getNodes();
@@ -739,7 +717,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * LEGACY.
+     * LEGACY.  We probably don't need this any more.
+     *
+     * @deprecated
      */
     public function getParents() {
         $node = $this->getNode();
@@ -758,19 +738,23 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * LEGACY.
+     * LEGACY.  Part of the old API.
+     * TODO: Work on Opus_CollectionNode instead!
+     *
+     * @deprecated
      */
     public function getVisibility() {
         $node = $this->getNode();
         return $node->getVisibility();
     }
 
-    // This can be very helpful.
-    public function getFoo() {
-        return new Opus_CollectionRole( $this->getRoleId() );
-        return $this->_primaryTableRow->findParentRow('Opus_Db_CollectionsRoles');
-    }
-
+    /**
+     * Get node.  Returns the node linked to this collection, if any, null
+     * otherwise.  The method throws an exception if mroe than one node was
+     * found.  In this case, use getNodes().
+     *
+     * @return Opus_CollectionNode
+     */
     public function getNode() {
         $nodes = $this->getNodes();
 
@@ -778,22 +762,35 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return $nodes[0];
         }
         else if (count($nodes) > 1) {
-            throw new Exception("Collections linked to more than one node are currently not supported!");
+            throw new Exception("Collections linked more than one node are not supported by this method, use getNodes() instead!");
         }
 
         return;
     }
 
+    /**
+     * LEGACY.  Returns all documents in this collection.
+     *
+     * @return array|Opus_Document
+     *
+     * @deprecated
+     */
     public function getEntries() {
         if ($this->isNewRecord()) {
             return array();
         }
 
-        $documents = $this->getDocuments();
-        return $documents;
+        return $this->getDocuments();
     }
 
-
+    /**
+     * Returns all collection_ids for a given document_id.
+     *
+     * @param  int    $document_id
+     * @return array  Array of collection Ids.
+     *
+     * FIXME: This method belongs to Opus_Db_Link_Documents_Collections
+     */
     public static function fetchCollectionIdsByDocumentId($document_id) {
         if (! isset ($document_id)) {
             return array();
@@ -810,39 +807,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $ids = $table->getAdapter()->fetchCol($select);
         return $ids;
-    }
-
-
-
-    // TODO: Experiments with role object caching.
-    protected static $_role_cache = null;
-
-    protected function _fetchRole() {
-        $role = new Opus_CollectionRole( $this->getRoleId() );
-        return $role;
-
-        // TODO: Experiments with role object caching.
-        if ( !is_null(self::$_role_cache) && self::$_role_cache->getId() === $this->getRoleId() ) {
-            $this->logger('Role: Restoring from cache.');
-        }
-        else {
-            $this->logger('Role: new');
-            self::$_role_cache = new Opus_CollectionRole( $this->getRoleId() );
-        }
-
-        return self::$_role_cache;
-    }
-
-    protected function _fetchRoleDisplayFrontdoor() {
-        if (!is_null($this->getRole())) {
-            return $this->getRole()->getDisplayFrontdoor();
-        }
-    }
-
-    protected function _fetchRoleName() {
-        if (!is_null($this->getRole())) {
-            return $this->getRole()->getDisplayName();
-        }
     }
 
 
@@ -872,16 +836,17 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $results;
     }
 
-    // FIXME: Debugging.
+    /**
+     *  Debugging helper.  Sends the given message to Zend_Log.
+     *
+     * @param string $message
+     */
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
         $logger->info("Opus_Collection: $message");
     }
 
-    protected function _storeRole($role) {
-
-    }
 }
 
 ?>
