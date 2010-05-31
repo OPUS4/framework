@@ -352,28 +352,28 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array An array of strings containing oai set names.
      */
     public function getOaiSetNames() {
-        $oaiPrefix = $this->getOaiName();
+        $oaiPrefix        = $this->getOaiName();
+        $oaiPostfixColumn = $this->getDisplayOai();
+
         if (is_null($oaiPrefix) || $oaiPrefix == '') {
             throw new Exception('Missing OAI set name.');
         }
 
         $db = Zend_Db_Table::getDefaultAdapter();
-        $select = $db->select()
 
-                ->from('link_documents_collections AS ldc', '')
-                ->where('ldc.role_id = ?', $this->getId())
+        $quotePrefix  = $db->quote("$oaiPrefix:");
+        $quotePostfix = $db->quoteIdentifier("c.$oaiPostfixColumn");
+        $quoteRoleId  = $db->quote($this->getId());
 
-                ->from('collections_roles AS r', '')
-                ->where('r.id = ?', $this->getId())
+        $select = "SELECT DISTINCT CONCAT( $quotePrefix, $quotePostfix ) "
+              . " FROM collections AS c "
+              . " JOIN link_documents_collections AS l "
+              . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
+              . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
 
-                ->from('collections AS c', '')
-                ->where('c.role_id = ?', $this->getId())
-                ->where('ldc.collection_id = c.id')
-                ->where('c.role_id = ?', $this->getId())
-                ->where('c.subset_key IS NOT NULL AND c.subset_key != ""')
+        $this->logger( "$select" );
 
-                ->columns("CONCAT(CONCAT(r.oai_name, ':'), c.subset_key)")
-                ->distinct();
+        // FIXME: Add error handling for failed DB requests!
 
         $results = $db->fetchCol($select);
         return $results;
@@ -389,15 +389,62 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
      * FIXME: Belongs to Opus_Collection
      */
-    public static function listDocumentIdsInSet($oaiSetName) {
+    public function existsDocumentIdsInSet($oaiSetName) {
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
 
+        if ($this->getOaiName() !== $oaiPrefix) {
+            throw new Exception("Given OAI prefix does not match this role.");
+        }
+
+        $oaiPrefix  = $this->getOaiName();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $oaiPostfixColumn = $this->getDisplayOai();
+        $quotePostfixColumn = $db->quoteIdentifier("c.$oaiPostfixColumn");
+        $quotePostfix = $db->quote("$oaiPostfix");
+        $quoteRoleId  = $db->quote($this->getId());
+
+        $select = " SELECT c.id FROM collections AS c "
+                . " WHERE $quotePostfixColumn = $quotePostfix "
+                . " AND c.role_id = $quoteRoleId "
+                . " AND EXISTS ( "
+                . "    SELECT l.document_id "
+                . "    FROM link_documents_collections AS l "
+                . "    WHERE l.collection_id = c.id AND l.role_id = c.role_id "
+                . " )";
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $result = $db->fetchOne($select);
+        $this->logger("$oaiSetName: $result");
+
+        if (true === isset($result)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public static function fooDocumentIdsInSet($oaiSetName) {
+        $colonPos = strrpos($oaiSetName, ':');
+        $oaiPrefix = substr($oaiSetName, 0, $colonPos);
+        $oaiPostfixColumn = substr($oaiSetName, $colonPos + 1);
+
+        
+
         // FIXME: Check oaiPrefix/Postfix values to prevent database exceptions.
 
         $db = Zend_Db_Table::getDefaultAdapter();
-        $select = $db->select()
+
+        $quotePrefix  = $db->quote("$oaiPrefix:");
+        $quotePostfix = $db->quoteIdentifier("c.$oaiPostfixColumn");
+        $quoteRoleId  = $db->quote($this->getId());
+
+        $select =
+
+        $db->select()
 
                 ->from('collections_roles AS r')
                 ->where('r.oai_name = ?', $oaiPrefix)
@@ -515,8 +562,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $table = new Opus_Db_Collections();
         $info = $table->info();
 
-        $updatedTable = false;
-
         $dbFields = $info['cols'];
         $dbTableName = $info['name'];
         $db = $table->getAdapter();
@@ -535,17 +580,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 $this->logger("sql: $stmt");
 
                 // FIXME: Error handling!
-                $updatedTable = true;
                 $rh = $db->query($stmt);
                 // $rh->execute();
             }
             else {
                 $this->logger("skipping field $attribute");
             }
-        }
-
-        if ($updatedTable) {
-            $table->getMetadataCache()->clean();
         }
 
         return;
