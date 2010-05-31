@@ -134,7 +134,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         $fieldname = substr($name, 3);
 
         if (array_key_exists($fieldname, $this->_fields) === false) {
-            throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
+            throw new Opus_Model_Exception('Unknown field: ' . $fieldname . ' for ' . get_class($this) );
         }
 
         if (true === in_array($fieldname, $this->_internalFields)) {

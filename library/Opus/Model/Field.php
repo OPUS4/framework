@@ -308,7 +308,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
             // Reject input if an array is required but not is given
             if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->ignoreMultiplicity === false)) {
-                throw new InvalidArgumentException('Multivalue option and input argument do not match.');
+                throw new InvalidArgumentException('Multivalue option and input argument do not match. (' . $this->getName() . ')');
             }
 
             // arrayfy value
