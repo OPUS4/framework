@@ -92,10 +92,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy',
             ),
 
-//            'Role' => array(
-//                            'model' => 'Opus_CollectionRole',
-//                            'fetch' => 'lazy',
-//            ),
+            'Role' => array(
+                            'model' => 'Opus_CollectionRole',
+                            'fetch' => 'lazy',
+            ),
 
             'SubCollections' => array(
                             'model' => 'Opus_Collection',
@@ -105,11 +105,15 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 //                            'model' => 'Opus_Collection',
 //                            'fetch' => 'lazy',
 //            ),
+
             'Documents' => array(
                             'model' => 'Opus_Document',
                             'fetch' => 'lazy',
             ),
 
+            'Visibility' => array(),
+            'SeveralAppearances' => array(),
+            'Theme' => array(),
     );
 
 
@@ -121,7 +125,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _init() {
 
         // $fields = array('SubsetKey', 'Name', 'Visible', 'RoleId');
-        $fields = array('RoleId', 'Name', 'Number');
+        $fields = array('RoleId', 'Role', 'Name', 'Number',
+            'RoleName', 'RoleDisplayFrontdoor' );
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -136,7 +141,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 //        $parentCollections = new Opus_Model_Field('ParentCollections');
 //        $parentCollections->setMultiplicity('*');
 //        $this->addField($parentCollections);
-//
+
         // TODO: New field.  Create getter/setter.
         $documents = new Opus_Model_Field('Documents');
         $documents->setMultiplicity('*');
@@ -164,13 +169,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Implement collections_attributes and change this stub-method.
      */
     public function getDisplayName($context = 'browsing') {
-//        return $this->getDebugName();
-//        return trim( $this->getName() );
-//
-        $role_id = $this->getRoleId();
-//        $nodes = $this->getNodes();
+        $this->logger("getDisplayName($context)");
 
+        $role_id = $this->getRoleId();
         $role = new Opus_CollectionRole( $role_id );
+
         $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
         $display = '';
 
@@ -665,6 +668,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Part of old API.  Please check, if everything works fine.
      */
     public function toArray($call = null) {
+        $this->logger('toArray');
+        return array();
+
         // FIXME: Method not implemented.  Please refactor from old API.
         // FIXME: Search for new Opus_Collection(null, $role) in current code!
         throw new Exception('Method not implemented.  Please refactor from old API.');
@@ -679,6 +685,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                 'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
                 'DisplayOai' => $this->getDisplayName('oai'),
         );
+
+        return $result;
 
         foreach (array_keys($this->_fields) as $fieldname) {
             $field = $this->_getField($fieldname);
@@ -732,6 +740,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return DomDocument Xml representation of the collection.
      */
     public function toXml(array $excludeFields = null) {
+        $this->logger('toXml');
+        return parent::toXml(array('ParentCollection', 'Nodes', 'SubCollection', 'SubCollections', 'Theme', 'Documents'));
+
         // FIXME: Method not implemented.  Please refactor from old API.
         // FIXME: Search for new Opus_Collection(null, $role) in current code!
         throw new Exception('Method not implemented.  Please refactor from old API.');
@@ -768,15 +779,64 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return;
     }
 
-    public function getEntries() { 
+    public function getEntries() {
         if ($this->isNewRecord()) {
             return array();
         }
-                                
+
         $documents = $this->getDocuments();
         return $documents;
     }
-                                                    
+
+
+    public static function fetchCollectionIdsByDocumentId($document_id) {
+        if (! isset ($document_id)) {
+            return array();
+        }
+
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+
+        // FIXME: Don't use internal knowledge of foreign models/tables.
+        // FIXME: Don't return documents if collection is hidden.
+        $select = $table->getAdapter()->select()
+                ->from("link_documents_collections AS ldc", "collection_id")
+                ->where('ldc.document_id = ?', $document_id)
+                ->distinct();
+
+        $ids = $table->getAdapter()->fetchCol($select);
+        return $ids;
+    }
+
+
+
+    // FIXME: Debugging.
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+        $logger->info("Opus_Collection: $message");
+    }
+
+    protected function _fetchRole() {
+        $this->logger('Role');
+        return new Opus_CollectionRole( $this->getRoleId() );
+    }
+
+    protected function _fetchRoleDisplayFrontdoor() {
+        $this->logger('RoleDisplayFrontdoor');
+        return $this->getRole()->getDisplayFrontdoor();
+
+        $role = new Opus_CollectionRole( $this->getRoleId() );
+        return $role->getDisplayFrontdoor();
+    }
+
+    protected function _fetchRoleName() {
+        $this->logger('RoleName');
+        return $this->getRole()->getDisplayName();
+
+        $role = new Opus_CollectionRole( $this->getRoleId() );
+        return $role->getDisplayName();
+    }
+
 }
 
 ?>

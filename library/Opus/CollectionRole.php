@@ -82,6 +82,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _init() {
+        $this->logger('init');
 
         // Attributes, which are defined by the database schema.
 
@@ -98,7 +99,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
 
         // Attributes for defining visibility.
-
         $visible = new Opus_Model_Field('Visible');
         $visible->setCheckbox(true);
         $this->addField($visible);
@@ -229,6 +229,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Only basic refactoing done.  Needs testing!  Which fields to use?
      */
     public function toArray() {
+        $this->logger('toArray');
         $result = array();
         foreach ($this->getSubCollections() as $subCollection) {
             $result[] = array(
@@ -284,6 +285,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
 
     public static function fetchAll() {
+        $this->logger('fetchAll()');
 
         // FIXME: Add $where parameter to AbstractDb::getAllFrom()!
         // public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null, $orderBy = null) {
@@ -506,6 +508,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
             $node->store();
         }
+    }
+
+
+
+
+    // FIXME: Debugging.
+    public function toXml(array $excludeFields = null) {
+        $this->logger('toXml');
+        parent::toXml($excludeFields);
+    }
+
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+
+        $logger->info("Opus_CollectionRole: $message");
     }
 
 }

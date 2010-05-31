@@ -541,15 +541,38 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
     public function getSubCollection() {
         $collection = $this->getCollection();
         if (isset($collection)) {
-           return $collection->getSubCollections();
+            return $collection->getSubCollections();
         }
         return array();
     }
 
     public function getVisibility() {
-       $visible = $this->getVisible();
-       return isset($visible) && $visible === '1';
+        $visible = $this->getVisible();
+        return isset($visible) && $visible === '1';
     }
+
+
+
+
+
+    // FIXME: Debugging.
+    public function toArray() {
+        $this->logger('toArray');
+        parent::toArray();
+    }
+
+    public function toXml(array $excludeFields = null) {
+        $this->logger('toXml');
+        parent::toXml($excludeFields);
+    }
+
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+
+        $logger->info("Opus_CollectionNode: $message");
+    }
+
 }
 
 ?>
