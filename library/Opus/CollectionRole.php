@@ -143,11 +143,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      * @return string Model class name and identifier (e.g. Opus_CollectionRole#1234).
+     *
+     * TODO: Outsource this->getName to this->getRootNode->getName
      */
     public function getDisplayName() {
-        // FIXME: Remove debugging output!
-        // return get_class($this) . '#' . $this->getId() . '(' . $this->getName() . ')';
-
         return $this->getName();
     }
 
@@ -254,21 +253,24 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     // TODO: Maybe remove this method.
     public function delete() {
-//        if (! is_null($this->getRootCollection())) {
-//            $this->getRootCollection()->delete();
-//        }
+        if ($this->isNewRecord()) {
+            return;
+        }
 
         $row = $this->_primaryTableRow;
         $db = $row->getTable()->getAdapter();
 
+        // TODO: Don't use internal knowledge from "collections_nodes"
         $statement_1 = 'DELETE FROM collections_nodes WHERE role_id = ? ORDER BY left_id DESC';
         $statement_1 = $db->quoteInto($statement_1, $this->getId());
         $db->query($statement_1);
 
+        // TODO: Don't use internal knowledge from "link_documents_collections"
         $statement_2 = 'DELETE FROM link_documents_collections WHERE role_id = ?';
         $statement_2 = $db->quoteInto($statement_2, $this->getId());
         $db->query($statement_2);
 
+        // TODO: Don't use internal knowledge from "collections"
         $statement_3 = 'DELETE FROM collections WHERE role_id = ?';
         $statement_3 = $db->quoteInto($statement_3, $this->getId());
         $db->query($statement_3);
@@ -284,11 +286,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Parametrize query to account for hidden collection roles.
      */
 
-    public static function fetchAll() {
-        $this->logger('fetchAll()');
+    public static function fetchAll($show_invisible = false) {
+        // $this->logger('fetchAll()');
 
-        // FIXME: Add $where parameter to AbstractDb::getAllFrom()!
-        // public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null, $orderBy = null) {
+        if (true === $show_invisible) {
+            $where = "";
+        }
 
         $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
         // $roles = $table->fetchAll("id > 1", 'position');
@@ -309,12 +312,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
 
     public static function createObjects($array) {
-
         $results = array();
 
         // FIXME: get_called_class() only supported in PHP5 >= 5.3
         //   $class   = get_called_class();
-        //   echo "class: $class\n";
+        // FIXME: Add Model_AbstractDb::createObjects(...) when using PHP 5.3
 
         foreach ($array AS $element) {
             $c = new Opus_CollectionRole($element);
@@ -412,56 +414,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
 
-    /* ********************************************************************** *
-     * Everything which depends on $this->getRootCollection() goes here:
-     * ********************************************************************** */
-
-    /**
-     * Forward method to same method in RootCollection.  Returns NULL, if no
-     * RootCollection is found.
-     *
-     * @return array|Opus_Collection SubCollections of root node.
-     */
-    // TODO: Maybe remove this method.
-    public function getSubCollection() {
-        $root = $this->getRootNode();
-        if (! is_null($root)) {
-            return $root->getSubCollection();
-        }
-        return array();
-    }
-
-    /**
-     * Forward method to same method in RootCollection.
-     *
-     * @deprecated Get theme from RootCollection Object.
-     *
-     * @return array|Opus_Collection SubCollections of root node.
-     */
-    // TODO: Maybe remove this method.
-//    public function addSubCollections($subCollection = null) {
-//        $root = $this->getRootCollection();
-//        if (isset($subCollection)) {
-//            return $root->addSubCollections($subCollection);
-//        }
-//        else {
-//            return $root->addSubCollections();
-//        }
-//    }
-
-    /**
-     * Forward method to same method in RootCollection.
-     *
-     * @deprecated Get theme from RootCollection Object.
-     *
-     * @return string
-     */
-    // TODO: Maybe remove this method.
-//    public function getTheme() {
-//        return $this->getRootCollection()->getTheme();
-//    }
-
-
     /**
      * LEGACY.
      */
@@ -471,21 +423,32 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return self::fetchAll();
     }
 
-    // TODO: Add documentation.
-    // TODO: Maybe remove this method.
-//    public function getSubCollection() {
-//        return $this->getSubCollections();
-//    }
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
 
-    // TODO: Add documentation.
-    // TODO: Maybe remove this method.
-//    public function getRootCollection() {
-//        $root = $this->getRootNode();
-//        if (isset($root)) {
-//            return $root->getCollection();
-//        }
-//        return;
-//    }
+        $logger->info("Opus_CollectionRole: $message");
+    }
+
+
+    /* ********************************************************************** *
+     * Everything which depends on $this->getRootNode() goes here:
+     * ********************************************************************** */
+
+    /**
+     * Forward method to same method in RootCollection.  Returns NULL, if no
+     * RootCollection is found.
+     *
+     * @return array|Opus_Collection SubCollections of root node.
+     */
+    // TODO: LEGACY!  Remove this method.
+    public function getSubCollection() {
+        $root = $this->getRootNode();
+        if (! is_null($root)) {
+            return $root->getSubCollection();
+        }
+        return array();
+    }
 
     /**
      * Store root node: Delegate storing of external field.  Initialize Node.
@@ -493,12 +456,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @param array|Opus_CollectionNode $node CollectionNode to store as Root.
      * @see Opus_Model_AbstractDb
      */
-
-    // TODO: Wie findet man an dieser Stelle heraus, ob ein Feld geändert wurde?
-    // TODO: _storeRootNode nur falls field->isModified?
     public function _storeRootNode($node) {
-
-        // $this->_getField('RootNode', true)->isModified()
         if (isset($node)) {
 
             if ($node->isNewRecord()) {
@@ -508,22 +466,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
             $node->store();
         }
-    }
-
-
-
-
-    // FIXME: Debugging.
-    public function toXml(array $excludeFields = null) {
-        $this->logger('toXml');
-        parent::toXml($excludeFields);
-    }
-
-    protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-
-        $logger->info("Opus_CollectionRole: $message");
     }
 
 }

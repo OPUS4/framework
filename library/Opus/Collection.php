@@ -157,7 +157,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $nodes = new Opus_Model_Field('Nodes');
         $nodes->setMultiplicity('*');
         $this->addField($nodes);
-
     }
 
 
@@ -169,15 +168,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Implement collections_attributes and change this stub-method.
      */
     public function getDisplayName($context = 'browsing') {
-        $this->logger("getDisplayName($context)");
-
-        $role_id = $this->getRoleId();
-        $role = new Opus_CollectionRole( $role_id );
-
+        $role = $this->getRole();
         $fieldnames = $role->_getField('Display' . ucfirst($context))->getValue();
         $display = '';
-
-//        return trim($fieldnames);
 
         if (false === empty($fieldnames)) {
             foreach (explode(',', $fieldnames) as $fieldname) {
@@ -205,50 +198,27 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
 
     /**
-     * Fetch all *direct* children of the current node.
+     * Fetch all children of the current node.
+     * 
      * FIXME: Documentation.
      */
     public function _fetchSubCollections() {
         if ($this->isNewRecord()) {
-            // TODO: Check if doing nothing on new records is reasonable.
             return;
         }
+
         $parent_id = $this->getNode()->getId();
         $table = $this->_primaryTableRow->getTable();
+        $db = $table->getAdapter();
 
-        $subselect = "SELECT collection_id FROM collections_nodes WHERE parent_id = $parent_id AND collection_id IS NOT NULL ORDER BY left_id";
+        $subselect = "SELECT collection_id FROM collections_nodes WHERE parent_id = ? AND collection_id IS NOT NULL ORDER BY left_id";
+        $subselect = $db->quoteInto($subselect, $parent_id);
+
         $select = $table->select()
                 ->where("id IN ($subselect)");
-        // $select = $table->selectChildrenById( $this->getId() );
         $rows = $table->fetchAll($select);
 
         return self::createObjects($rows);
-    }
-
-    /**
-     * Mass-constructur.
-     *
-     * @param array $array Array of whatever new Opus_Collection(...) takes.
-     * @return array|Opus_Collection Array of constructed Opus_Collections.
-     *
-     * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
-     * TODO: Code duplication from/in Opus_CollectionRole!
-     */
-
-    public static function createObjects($array) {
-
-        $results = array();
-
-        // FIXME: get_called_class() only supported in PHP5 >= 5.3
-        //   $class   = get_called_class();
-        //   echo "class: $class\n";
-
-        foreach ($array AS $element) {
-            $c = new Opus_Collection($element);
-            $results[] = $c;
-        }
-
-        return $results;
     }
 
     /**
@@ -257,22 +227,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeSubCollections($subCollections) {
-        return;
-        assert( !is_null( $this->getId() ) );
-        assert( !is_null( $this->getRoleId() ) );
-
-        // TODO: Check, if this is "the OPUS4 way" to check changed fields.
-        // TODO: Recursive updating can be expensive! - Try to avoid this.
-        // TODO: Add option to _externalFields: store => lazy / propagate
-        $field = $this->_getField('SubCollections', true);
-        if (false === $field->isModified()) {
-            return;
-        }
-
-        $values = $field->getValue();
-
-        foreach ($values AS $value) {
-            $value->store();
+        foreach ($subCollections AS $collection) {
+            $collection->store();
         }
     }
 
@@ -283,6 +239,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return Opus_Collection The added collection.
      */
     public function addSubCollections($subCollections = null) {
+        throw new Exception("Method not supported.  Check API.");
+
         if (isset($subCollections)) {
             $subCollections = parent::addSubCollections($subCollections);
         }
@@ -299,8 +257,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Documentation.
      */
     public function _fetchParentCollections() {
+        throw new Exception("Method not supported.  Check API.");
+
         if ($this->isNewRecord()) {
-            // TODO: Check if doing nothing on new records is reasonable.
             return;
         }
 
@@ -317,9 +276,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeParentCollections() {
+        // FIXME: Every method, that returns external fields, should store them!
         // Storing parent collections is not possible.  But:
         // FIXME: Maybe we want to propagate changes to the parent?
-        return;
+        throw new Exception("Method not supported.  Check API.");
 
         // Recursive updating can be expensive! - Try to avoid this.
         if (false === $this->_getField('ParentCollections', true)->isModified()) {
@@ -370,6 +330,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * TODO: Unchecked Copy-Paste.  Check if this method still works.
      * TODO: Create model for these fields - don't ask the database manually!
+     * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
     protected function _storeTheme($theme) {
         if ($this->isNewRecord()) {
@@ -380,6 +341,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         if (true === is_null($theme)) {
             return;
         }
+
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
         $select = $table->select()
                 ->where('role_id = ?', $this->getRoleId())
@@ -400,6 +362,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $row->save();
         }
     }
+
 
     /**
      * Set location of available themes.
@@ -422,7 +385,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         self::$_themesPath = $path;
         self::$_themes     = $themes;
     }
-
 
 
     /**
@@ -809,34 +771,66 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
 
 
+    // TODO: Experiments with role object caching.
+    protected static $_role_cache = null;
+
+    protected function _fetchRole() {
+        $role = new Opus_CollectionRole( $this->getRoleId() );
+        return $role;
+
+        // TODO: Experiments with role object caching.
+        if ( !is_null(self::$_role_cache) && self::$_role_cache->getId() === $this->getRoleId() ) {
+            $this->logger('Role: Restoring from cache.');
+        }
+        else {
+            $this->logger('Role: new');
+            self::$_role_cache = new Opus_CollectionRole( $this->getRoleId() );
+        }
+
+        return self::$_role_cache;
+    }
+
+    protected function _fetchRoleDisplayFrontdoor() {
+        return $this->getRole()->getDisplayFrontdoor();
+    }
+
+    protected function _fetchRoleName() {
+        return $this->getRole()->getDisplayName();
+    }
+
+
+    /**
+     * Mass-constructur.
+     *
+     * @param array $array Array of whatever new Opus_Collection(...) takes.
+     * @return array|Opus_Collection Array of constructed Opus_Collections.
+     *
+     * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
+     * TODO: Code duplication from/in Opus_CollectionRole!
+     */
+
+    public static function createObjects($array) {
+
+        $results = array();
+
+        // FIXME: get_called_class() only supported in PHP5 >= 5.3
+        //   $class   = get_called_class();
+        //   echo "class: $class\n";
+
+        foreach ($array AS $element) {
+            $c = new Opus_Collection($element);
+            $results[] = $c;
+        }
+
+        return $results;
+    }
+
     // FIXME: Debugging.
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
         $logger->info("Opus_Collection: $message");
     }
-
-    protected function _fetchRole() {
-        $this->logger('Role');
-        return new Opus_CollectionRole( $this->getRoleId() );
-    }
-
-    protected function _fetchRoleDisplayFrontdoor() {
-        $this->logger('RoleDisplayFrontdoor');
-        return $this->getRole()->getDisplayFrontdoor();
-
-        $role = new Opus_CollectionRole( $this->getRoleId() );
-        return $role->getDisplayFrontdoor();
-    }
-
-    protected function _fetchRoleName() {
-        $this->logger('RoleName');
-        return $this->getRole()->getDisplayName();
-
-        $role = new Opus_CollectionRole( $this->getRoleId() );
-        return $role->getDisplayName();
-    }
-
 }
 
 ?>

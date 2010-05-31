@@ -438,28 +438,6 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
      * Compute documents counts.
      *
