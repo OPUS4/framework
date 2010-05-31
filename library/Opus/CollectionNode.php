@@ -477,7 +477,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
                 ->where("collection_id = ?", $this->getCollectionId());
 
         $count = $db->fetchOne($select);
-        return $count;
+        return (int)$count;
     }
 
     // TODO: Setze getter durch _fetchNumSubtreeEntries
@@ -485,6 +485,8 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         $nestedsets = $this->_primaryTableRow->getTable();
         $subselect = $nestedsets
                 ->selectSubtreeById($this->getId(), 'collection_id')
+                ->where("start.visible = 1")  // FIXME: Kapselung von Datenbank verletzt!
+                ->where("node.visible = 1")  // FIXME: Kapselung von Datenbank verletzt!
                 ->distinct();
 
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
@@ -494,7 +496,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
                 ->where("collection_id IN ($subselect)");
 
         $count = $db->fetchOne($select);
-        return $count;
+        return (int)$count;
     }
 
     // TODO: Diese Methode gehört in die Collection-Klasse.
