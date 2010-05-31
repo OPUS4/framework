@@ -68,13 +68,13 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
                             'fetch'   => 'lazy',
             ),
 
-            // Will contain the Collection behind the field CollectionId
-            'Parent' => array(
-                            'model'   => 'Opus_Collection',
+            // Will contain the CollectionNode to the Root Node
+            'Parents' => array(
+                            'model'   => 'Opus_CollectionNode',
                             'fetch'   => 'lazy',
             ),
 
-            // Will contain the Collection behind the field CollectionId
+            // Will contain the CollectionNodes with parentId = this->getId
             'Children' => array(
                             'model'   => 'Opus_CollectionNode',
                             'fetch'   => 'lazy',
@@ -142,6 +142,11 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         $children = new Opus_Model_Field('Children');
         $children->setMultiplicity('*');
         $this->addField($children);
+
+        // TODO: Doku
+        $parents = new Opus_Model_Field('Parents');
+        $parents->setMultiplicity('*');
+        $this->addField($parents);
     }
 
 
@@ -550,6 +555,29 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
         $logger->info("Opus_CollectionNode: $message");
     }
+
+
+    /**
+     * LEGACY.
+     */
+
+    public function _fetchParents() {
+        if ($this->isNewRecord()) {
+            // TODO: Check if doing nothing on new records is reasonable.
+            return;
+        }
+
+        // $row = $this->_primaryTableRow;
+        // return self::createObjects( $row->findDependentRowset('Opus_Db_CollectionsNodes', 'Parent') );
+
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectParentsById( $this->getId() );
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
+    }
+
 
 }
 

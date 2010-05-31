@@ -468,6 +468,16 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
     }
 
+    /**
+     *
+     * @return <type>
+     * 
+     * LEGACY.
+     */
+    public function getParents() {
+        return $this->getRootNode()->getCollection()->getParents();
+    }
+
 }
 
 ?>

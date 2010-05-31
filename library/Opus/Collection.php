@@ -112,7 +112,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             ),
 
             'Visibility' => array(),
-            'SeveralAppearances' => array(),
+//            'SeveralAppearances' => array(),
             'Theme' => array(),
     );
 
@@ -157,6 +157,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $nodes = new Opus_Model_Field('Nodes');
         $nodes->setMultiplicity('*');
         $this->addField($nodes);
+
+        // Add a field to hold SeveralAppearances
+        // TODO: LEGACY.  Remove field!
+        // $severalAppearances = new Opus_Model_Field('SeveralAppearances');
+        // $this->addField($severalAppearances);
     }
 
 
@@ -231,7 +236,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $collection->store();
         }
     }
-
 
     /**
      *
@@ -722,6 +726,41 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
 
+    /**
+     * LEGACY.
+     */
+    public function getSeveralAppearances() {
+        $nodes = $this->getNodes();
+        return count($nodes) !== 1;
+    }
+
+    /**
+     * LEGACY.
+     */
+    public function getParents() {
+        $node = $this->getNode();
+        $parent_nodes = $node->getParents();
+
+        $parent_collections = array();
+        foreach ($parent_nodes AS $node) {
+            $collection = $node->getCollection();
+
+            if (isset($collection)) {
+                $parent_collections[] = $collection;
+            }
+        }
+
+        return $parent_collections;
+    }
+
+    /**
+     * LEGACY.
+     */
+    public function getVisibility() {
+        $node = $this->getNode();
+        return $node->getVisibility();
+    }
+
     // This can be very helpful.
     public function getFoo() {
         return new Opus_CollectionRole( $this->getRoleId() );
@@ -831,6 +870,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $logger = $registry->get('Zend_Log');
         $logger->info("Opus_Collection: $message");
     }
+
 }
 
 ?>
