@@ -748,12 +748,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $this->getSubCollections();
     }
 
-    public function getVisibility() {
-        return true;
-        /* $this->getVisible(); */
-    }
-
-
 
     // This can be very helpful.
     public function getFoo() {
@@ -773,6 +767,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         return;
     }
+
+    public function getEntries() { 
+        if ($this->isNewRecord()) {
+            return array();
+        }
+                                
+        $documents = $this->getDocuments();
+        return $documents;
+    }
+                                                    
 }
 
 ?>
