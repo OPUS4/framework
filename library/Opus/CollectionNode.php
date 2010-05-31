@@ -534,6 +534,13 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return isset($visible) && $visible === '1';
     }
 
+    public function setVisibility($visible = true) {
+        if (isset($visible) && $visible === true) {
+            return $this->setVisible(1);
+        }
+        return;
+        }
+
 
 
 

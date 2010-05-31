@@ -102,18 +102,12 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy',
             ),
 
-//            'ParentCollections' => array(
-//                            'model' => 'Opus_Collection',
-//                            'fetch' => 'lazy',
-//            ),
-
             'Documents' => array(
                             'model' => 'Opus_Document',
                             'fetch' => 'lazy',
             ),
 
             'Visibility' => array(),
-//            'SeveralAppearances' => array(),
             'Theme' => array(),
     );
 
@@ -125,9 +119,28 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
+        // Add all database column names except primary keys as Opus_Model_Fields
+        $table = new Opus_Db_Collections();
+        $info = $table->info();
+
+        $skipFields = $info['primary'];
+        $dbFields = $info['metadata'];
+
+        foreach (array_keys($dbFields) as $dbField) {
+            if (in_array($dbField, $skipFields)) {
+                continue;
+            }
+            // Convert snake_case to CamelCase for fieldnames
+            $fieldname = '';
+            foreach(explode('_', $dbField) as $part) {
+                $fieldname .= ucfirst($part);
+            }
+            $field = new Opus_Model_Field($fieldname);
+            $this->addField($field);
+        }
+
         // $fields = array('SubsetKey', 'Name', 'Visible', 'RoleId');
-        $fields = array('RoleId', 'Role', 'Name', 'Number',
-                'RoleName', 'RoleDisplayFrontdoor' );
+        $fields = array('RoleName', 'RoleDisplayFrontdoor', 'Role');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -137,11 +150,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $subCollections = new Opus_Model_Field('SubCollections');
         $subCollections->setMultiplicity('*');
         $this->addField($subCollections);
-//
-//        // Add a field to hold parent collections
-//        $parentCollections = new Opus_Model_Field('ParentCollections');
-//        $parentCollections->setMultiplicity('*');
-//        $this->addField($parentCollections);
 
         // TODO: New field.  Create getter/setter.
         $documents = new Opus_Model_Field('Documents');
@@ -158,11 +166,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $nodes = new Opus_Model_Field('Nodes');
         $nodes->setMultiplicity('*');
         $this->addField($nodes);
-
-        // Add a field to hold SeveralAppearances
-        // TODO: LEGACY.  Remove field!
-        // $severalAppearances = new Opus_Model_Field('SeveralAppearances');
-        // $this->addField($severalAppearances);
     }
 
 
@@ -876,7 +879,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $logger->info("Opus_Collection: $message");
     }
 
-    protected function _storeRole($role) {}
+    protected function _storeRole($role) {
+
+    }
 }
 
 ?>

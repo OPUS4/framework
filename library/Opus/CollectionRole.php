@@ -66,6 +66,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                             'options' => array('left_id' => 1),
                             'fetch'   => 'lazy',
             ),
+
+            // Will contain additional attributes of Collections
+            'Attributes' => array(
+                            'fetch'   => 'lazy',
+            ),
     );
 
 
@@ -135,6 +140,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // Virtual attributes, which depend on other tables.
         $rootNode = new Opus_Model_Field('RootNode');
         $this->addField($rootNode);
+
+        // TODO: This field shouldn't be modified directly.
+        $attributes = new Opus_Model_Field('Attributes');
+        $attributes->setMultiplicity('*');
+        $this->addField($attributes);
+
     }
 
 
@@ -471,11 +482,73 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     /**
      *
      * @return <type>
-     * 
+     *
      * LEGACY.
      */
     public function getParents() {
         return $this->getRootNode()->getCollection()->getParents();
+    }
+
+
+    // TODO: Should be a method on the Opus_Db_Collections Model.
+    protected function _fetchAttributes() {
+        $table = new Opus_Db_Collections();
+        $info = $table->info();
+
+        $skipFields = $info['primary'];
+        $dbFields = $info['metadata'];
+
+        $results = array();
+
+        foreach (array_keys($dbFields) as $dbField) {
+            if (in_array($dbField, $skipFields)) {
+                continue;
+            }
+
+            $results[] = $dbField;
+        }
+
+        return $results;
+    }
+
+    protected function _storeAttributes($attributes) {
+        $table = new Opus_Db_Collections();
+        $info = $table->info();
+
+        $updatedTable = false;
+
+        $dbFields = $info['cols'];
+        $dbTableName = $info['name'];
+        $db = $table->getAdapter();
+
+        $this->logger("dbfields known: " . implode(",", $dbFields));
+
+        foreach ($attributes as $attribute) {
+            $attribute = trim(strtolower($attribute));
+
+            if ($attribute !== '' && false === in_array($attribute, $dbFields)) {
+                $this->logger("processing field $attribute");
+
+                $stmt = 'ALTER TABLE ' . $db->quoteIdentifier($dbTableName)
+                        . ' ADD COLUMN ' . $db->quoteIdentifier($attribute)
+                        . ' VARCHAR(255); ';
+                $this->logger("sql: $stmt");
+
+                // FIXME: Error handling!
+                $updatedTable = true;
+                $rh = $db->query($stmt);
+                // $rh->execute();
+            }
+            else {
+                $this->logger("skipping field $attribute");
+            }
+        }
+
+        if ($updatedTable) {
+            $table->getMetadataCache()->clean();
+        }
+
+        return;
     }
 
 }
