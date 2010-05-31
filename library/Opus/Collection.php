@@ -101,6 +101,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Collection',
                             'fetch' => 'lazy',
             ),
+
 //            'ParentCollections' => array(
 //                            'model' => 'Opus_Collection',
 //                            'fetch' => 'lazy',
@@ -126,7 +127,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         // $fields = array('SubsetKey', 'Name', 'Visible', 'RoleId');
         $fields = array('RoleId', 'Role', 'Name', 'Number',
-            'RoleName', 'RoleDisplayFrontdoor' );
+                'RoleName', 'RoleDisplayFrontdoor' );
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -204,7 +205,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
     /**
      * Fetch all children of the current node.
-     * 
+     *
      * FIXME: Documentation.
      */
     public function _fetchSubCollections() {
@@ -830,11 +831,15 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     protected function _fetchRoleDisplayFrontdoor() {
-        return $this->getRole()->getDisplayFrontdoor();
+        if (!is_null($this->getRole())) {
+            return $this->getRole()->getDisplayFrontdoor();
+        }
     }
 
     protected function _fetchRoleName() {
-        return $this->getRole()->getDisplayName();
+        if (!is_null($this->getRole())) {
+            return $this->getRole()->getDisplayName();
+        }
     }
 
 
@@ -871,6 +876,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $logger->info("Opus_Collection: $message");
     }
 
+    protected function _storeRole($role) {}
 }
 
 ?>
