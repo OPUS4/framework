@@ -809,7 +809,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $ids;
     }
 
-
     /**
      * Mass-constructur.
      *

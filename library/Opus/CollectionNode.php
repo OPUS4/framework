@@ -538,12 +538,10 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         if (isset($visible) && $visible === true) {
             return $this->setVisible(1);
         }
-        return;
+        else {
+            return $this->setVisible(0);
         }
-
-
-
-
+    }
 
     // FIXME: Debugging.
     public function toArray() {
