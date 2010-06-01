@@ -31,7 +31,7 @@
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -294,15 +294,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
 
-// FIXME: Removed while introducing the new collections.  Re-add.
             'Publisher' => array(
-                            'model' => 'Opus_OrganisationalUnit',
+                            'model' => 'Opus_Collection',
                             'fetch' => 'lazy'
             ),
 
-// FIXME: Removed while introducing the new collections.  Re-add.
             'Grantor' => array(
-                            'model' => 'Opus_OrganisationalUnit',
+                            'model' => 'Opus_Collection',
                             'fetch' => 'lazy'
             ),
     );
@@ -318,6 +316,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @throws Opus_Model_Exception             Thrown invalid type is passed.
      */
     public function __construct($id = null, $type = null, $workflow = null) {
+        $this->logger('__construct()');
+
         if (($id === null and $type === null) or
                 ($id !== null and $type !== null) or
                 (true == is_string($type) and true === is_null($workflow))) {
@@ -462,22 +462,19 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $collectionField->setMultiplicity('*');
         $this->addField($collectionField);
 
-// FIXME: Removed while introducing the new collections.  Re-add.
-        /*
         // Initialize available publishers
         if ($this->getField('Publisher') !== null) {
             $publishers = Opus_OrganisationalUnits::getPublishers();
             $this->getField('Publisher')->setDefault($publishers)
-                ->setSelection(true);
+                    ->setSelection(true);
         }
 
         // Initialize available grantors
         if ($this->getField('Grantor') !== null) {
             $grantors = Opus_OrganisationalUnits::getGrantors();
             $this->getField('Grantor')->setDefault($grantors)
-                ->setSelection(true);
+                    ->setSelection(true);
         }
-        */
     }
 
     /**
@@ -1173,7 +1170,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $rows = $db->fetchAll($select);
         $reallyFoundDocuments = count($rows);
         if ($reallyFoundDocuments < $num) {
-        	$num = $reallyFoundDocuments;
+            $num = $reallyFoundDocuments;
         }
         $ids = array();
         // limit does not work properly?!
@@ -1303,22 +1300,28 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Search for publisher collections that this document is assigend to.
      *
      * @return array An array of Opus_OrganisationalUnit objects.
+     *
+     * FIXME: Stupid code-duplication (@see _fetchGrantor())
+     * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _fetchPublisher() {
         $result = array();
-// FIXME: Removed while introducing the new collections.  Re-add.
-        /*
         if (false === $this->isNewRecord()) {
-            $table = new Opus_Db_LinkDocumentsCollections(1);
-            $pubIds = $table->getAdapter()->fetchCol($table->select()
-                ->from($table, array('collections_id'))
-                ->where('documents_id = ?', $this->getId())
-                ->where('role = "publisher"'));
-            foreach ($pubIds as $pubId) {
-                $result[] = new Opus_OrganisationalUnit($pubId);
+            $table = new Opus_Db_LinkDocumentsCollections();
+            $db = $table->getAdapter();
+
+            $select = $table->select()->from($table, array('collection_id'))
+                    ->where('document_id = ?', $this->getId())
+                    ->where('role_id = ?', 1)
+                    ->where('link_type = ?', 'publisher');
+
+            $collection_ids = $db->fetchCol($select);
+            foreach ($collection_ids as $collection_id) {
+                $result[] = new Opus_Collection($collection_id);
             }
         }
-        */
+
+        $this->logger('_fetchPublisher(): return-count ' . count($result));
         return $result;
     }
 
@@ -1326,22 +1329,28 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Search for grantor collections that this document is assigend to.
      *
      * @return array An array of Opus_OrganisationalUnit objects.
+     *
+     * FIXME: Stupid code-duplication (@see _fetchPublisher())
+     * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _fetchGrantor() {
         $result = array();
-// FIXME: Removed while introducing the new collections.  Re-add.
-        /*
         if (false === $this->isNewRecord()) {
-            $table = new Opus_Db_LinkDocumentsCollections(1);
-            $grantIds = $table->getAdapter()->fetchCol($table->select()
-                ->from($table, array('collections_id'))
-                ->where('documents_id = ?', $this->getId())
-                ->where('role = "grantor"'));
-            foreach ($grantIds as $grantId) {
-                $result[] = new Opus_OrganisationalUnit($grantId);
+            $table = new Opus_Db_LinkDocumentsCollections();
+            $db = $table->getAdapter();
+
+            $select = $table->select()->from($table, array('collection_id'))
+                    ->where('document_id = ?', $this->getId())
+                    ->where('role_id = ?', 1)
+                    ->where('link_type = ?', 'grantor');
+
+            $collection_ids = $db->fetchCol($select);
+            foreach ($collection_ids as $collection_id) {
+                $result[] = new Opus_Collection($collection_id);
             }
         }
-        */
+
+        $this->logger('_fetchGrantor(): return-count ' . count($result));
         return $result;
     }
 
@@ -1669,10 +1678,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  mixed  $publisher (An array of) Opus_OrganisationalUnit
      * @return void
+     *
+     * FIXME: Stupid code-duplication (@see _storeGrantor())
+     * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _storePublisher($publishers) {
-        // FIXME: Removed while introducing the new collections.  Re-add.
-        return;
+        $this->logger('_storePublisher(): store ' . count($publishers));
 
         if (true === empty($publishers)) {
             // Lazy fetching has not been triggered yet, so no action taken.
@@ -1681,17 +1692,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (false === is_array($publishers)) {
             $publishers = array($publishers);
         }
-        $table = new Opus_Db_LinkDocumentsCollections(1);
-        $documents_id = $table->getAdapter()->quoteInto('documents_id = ?', $this->getId());
-        $role = $table->getAdapter()->quoteInto('role = ?', "publisher");
-        $table->delete(array($documents_id, $role));
-        foreach ($publishers as $publisher) {
-            $link = $table->createRow();
-            $link->documents_id = $this->getId();
-            $link->collections_id = $publisher->getId();
-            $link->role = "publisher";
-            $link->save();
+        $table = new Opus_Db_LinkDocumentsCollections();
+        $db = $table->getAdapter();
+
+        $constraints = array(
+                'document_id' => $this->getId(),
+                'link_type'   => 'publisher',
+        );
+
+        // TODO: Why delete all links?
+        $table->delete($constraints);
+
+        foreach ($publishers as $collection) {
+            $row = $table->createRow($constraints);
+            $row->collection_id = $collection->getId();
+            $row->save();
         }
+
+        $this->logger('_storePublisher(): done.');
     }
 
     /**
@@ -1701,10 +1719,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  mixed  $grantor (An array of) Opus_OrganisationalUnit
      * @return void
+     *
+     * FIXME: Stupid code-duplication (@see _storePublisher())
+     * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _storeGrantor($grantors) {
-        // FIXME: Removed while introducing the new collections.  Re-add.
-        return;
+        $this->logger('_storeGrantor(): store ' . count($grantors));
 
         if (true === empty($grantors)) {
             // Lazy fetching has not been triggered yet, so no action taken.
@@ -1713,17 +1733,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (false === is_array($grantors)) {
             $grantors = array($grantors);
         }
-        $table = new Opus_Db_LinkDocumentsCollections(1);
-        $documents_id = $table->getAdapter()->quoteInto('documents_id = ?', $this->getId());
-        $role = $table->getAdapter()->quoteInto('role = ?', "grantor");
-        $table->delete(array($documents_id, $role));
-        foreach ($grantors as $grantor) {
-            $link = $table->createRow();
-            $link->documents_id = $this->getId();
-            $link->collections_id = $grantor->getId();
-            $link->role = "grantor";
-            $link->save();
+        $table = new Opus_Db_LinkDocumentsCollections();
+        $db = $table->getAdapter();
+
+        $constraints = array(
+                'document_id' => $this->getId(),
+                'link_type'   => 'grantor',
+        );
+
+        // TODO: Why delete all links?
+        $table->delete($constraints);
+
+        foreach ($grantors as $collection) {
+            $row = $table->createRow($constraints);
+            $row->collection_id = $collection->getId();
+            $row->save();
         }
+
+        $this->logger('_storeGrantor(): done.');
     }
 
 

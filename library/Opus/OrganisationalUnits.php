@@ -29,7 +29,7 @@
  * @package     Opus
  * @author     	Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -46,14 +46,15 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
      *
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
+     * @see Opus_CollectionRole::$_externalFields
      */
-//    protected $_externalFields = array(
+//  protected $_externalFields = array(
 //            'CollectionsContentSchema' => array(),
 //            'SubCollection' => array(
 //                'fetch' => 'lazy',
 //                'model' => 'Opus_OrganisationalUnit'
 //            ),
-//        );
+//  );
 
     /**
      * Overwrite constructor to set fixed id.
@@ -77,34 +78,42 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
      * Returns a list of organisational units that act as (thesis) grantors.
      *
      * @return array A list of Opus_OrganisationalUnit that act as grantors.
+     *
+     * TODO: Cache Grantors?
      */
     public static function getGrantors() {
-        throw new Opus_Model_Exception('Not implemented yet.');
+        $table = new Opus_Db_Collections();
+        $select = $table->select()
+                ->where('is_grantor = ?', 1)
+                ->where('role_id = 1');
 
-//        $table = new Opus_Db_CollectionsContents(1);
-//        $rows = $table->fetchAll($table->select()->where('is_grantor = ?', 1));
-//        $result = array();
-//        foreach ($rows as $row) {
-//            $result[] = new Opus_OrganisationalUnit($row);
-//        }
-//        return $result;
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_Collection($row);
+        }
+        return $result;
     }
 
     /**
      * Returns a list of organisational units that act as (thesis) publishers.
      *
      * @return array A list of Opus_OrganisationalUnit that act as publishers.
+     *
+     * TODO: Cache Publishers?
      */
     public static function getPublishers() {
-        throw new Opus_Model_Exception('Not implemented yet.');
+        $table = new Opus_Db_Collections();
+        $select = $table->select()
+                ->where('dnb_contact_id != ?', '')
+                ->where('role_id = 1');
 
-//        $table = new Opus_Db_CollectionsContents(1);
-//        $rows = $table->fetchAll($table->select()->where('dnb_contact_id != ?', ''));
-//        $result = array();
-//        foreach ($rows as $row) {
-//            $result[] = new Opus_OrganisationalUnit($row);
-//        }
-//        return $result;
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_Collection($row);
+        }
+        return $result;
     }
 
 }
