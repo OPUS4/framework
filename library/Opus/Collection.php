@@ -775,6 +775,34 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Returns all collection for given (role_id, collection number).
+     *
+     * @param  int|Opus_CollectionRole $role_id
+     * @param  string                  $number
+     * @return array|Opus_Collection.
+     */
+    public static function fetchCollectionsByRoleNumber($role_id, $number) {
+        if (! isset ($number)) {
+            throw new Exception("Parameter 'number' is required.");
+        }
+
+        if (! isset ($role_id)) {
+            throw new Exception("Parameter 'role_id' is required.");
+        }
+
+        if ($role_id instanceof Opus_CollectionRole) {
+            $role_id = $role_id->getId();
+        }
+
+        $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
+        $select = $table->select()->where('role_id = ?', $role_id)
+                ->where('number = ?', $number);
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
+    }
+
+    /**
      * Returns all collection_ids for a given document_id.
      *
      * @param  int    $document_id

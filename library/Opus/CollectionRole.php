@@ -291,6 +291,55 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         parent::delete();
     }
 
+ 
+    /**
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
+     * Returns null if name is null *or* nothing found.
+     *
+     * @return Opus_CollectionRole
+     */
+
+    public static function fetchByName($name = null) {
+        if (false === isset($name)) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
+        $select = $table->select()->where('name = ?', $name);
+        $row = $table->fetchRow($select);
+
+        if (isset($row)) {
+            return new Opus_CollectionRole($row);
+        }
+
+        return;
+    }
+
+
+    /**
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by oaiName.
+     * Returns null if name is null *or* nothing found.
+     *
+     * @return Opus_CollectionRole
+     */
+
+    public static function fetchByOaiName($oai_name = null) {
+        if (false === isset($oai_name)) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
+        $select = $table->select()->where('oai_name = ?', $oai_name);
+        $row = $table->fetchRow($select);
+
+        if (isset($row)) {
+            return new Opus_CollectionRole($row);
+        }
+
+        return;
+    }
+
+
     /**
      * Retrieve all Opus_CollectionRole instances from the database.
      *
@@ -554,11 +603,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 $stmt = 'ALTER TABLE ' . $db->quoteIdentifier($dbTableName)
                         . ' ADD COLUMN ' . $db->quoteIdentifier($attribute)
                         . ' VARCHAR(255); ';
-                $this->logger("sql: $stmt");
+                $this->logger("Table change: $stmt");
 
                 // FIXME: Error handling!
                 $rh = $db->query($stmt);
-                // $rh->execute();
             }
             else {
                 $this->logger("skipping field $attribute");
