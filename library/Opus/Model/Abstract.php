@@ -172,10 +172,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      */
     protected function _get($fieldname, $arguments) {
         $field = $this->getField($fieldname);
-        $index = null;
-        if (empty($arguments) === false) {
-            $index = $arguments[0];
-        }
 
         $fieldvalue = $field->getValue();
         if (false === is_array($fieldvalue)) {
@@ -441,8 +437,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
-        ->exclude($excludeFields)
-        ->excludeEmptyFields();
+                ->exclude($excludeFields)
+                ->excludeEmptyFields();
         return $xml->getDomDocument();
     }
 
@@ -487,8 +483,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         foreach ($this->_fields as $field) {
             // skip optional and empty fields
             if ((false === $field->isMandatory())
-            and ((null === $field->getValue())
-            or ('' === $field->getValue()))) {
+                    and ((null === $field->getValue())
+                            or ('' === $field->getValue()))) {
                 continue;
             }
 
@@ -496,6 +492,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
             $validator = $field->getValidator();
             if (is_null($validator) === false) {
                 $result = $validator->isValid($field->getValue());
+
+                // TODO: Short-circuit: Why not "return false" here?
                 $return = ($return and $result);
             }
 
@@ -507,8 +505,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
             }
             foreach ($fieldValues as $submodel) {
                 if (($submodel instanceof Opus_Model_Abstract)
-                and (true === $field->isMandatory())) {
+                        and (true === $field->isMandatory())) {
                     $result = $submodel->isValid();
+
+                    // TODO: Short-circuit: Why not "return false" here?
                     $return = ($return and $result);
                 }
             }
