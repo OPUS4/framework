@@ -52,7 +52,7 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         
         $log_path = $config->ldap->log_path;
         $admins = explode(',', $config->ldap->admin_accounts);
-        
+
         $options = $config->ldap->toArray();
         
         unset($options['log_path']);
@@ -61,7 +61,9 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         try {
         	// first check local DB with parent class
         	$result = parent::authenticate();
-        }
+            $user = new Zend_Session_Namespace('loggedin');
+            $user->usernumber = $this->_login;
+         }
         catch (Exception $e) {
         	throw $e;
         }
@@ -96,6 +98,8 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
                     $account = new Opus_Account(null, null, $this->_login);
                 } catch (Exception $ex) {
                     if ($result->isValid() === true) {
+     	                $user = new Zend_Session_Namespace('loggedin');
+    	                $user->usernumber = $this->_login;
             	        $account= new Opus_Account();
     		            $account->setLogin($this->_login);
     		            $account->setPassword($this->_password);
@@ -153,5 +157,77 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         
         return $result;
     }
+    
+    /**
+     * gets userdata from LDAP
+     * 
+     * @return array data of currently logged in user
+     */
+     public static function getUserdata() {
+     	// get usernumber from session
+     	// if session has not been defined return false
+     	$user = new Zend_Session_Namespace('loggedin');
+    	if (isset($user->usernumber) === false) {
+    		return false;
+    	}
+     	
+     	$return = array();
+
+        $config = new Zend_Config_Ini('../config/config.ini', 'production');
+        
+        $log_path = $config->ldap->log_path;
+        $multiOptions = $config->ldap->toArray();
+        $mappingSettings = $config->ldapmappings->toArray();
+                
+        unset($multiOptions['log_path']);
+        unset($multiOptions['admin_accounts']);
+
+        $ldap = new Zend_Ldap();
+
+        foreach ($multiOptions as $name => $options) {
+        	$mappingFirstName = $mappingSettings[$name]['firstName'];
+            $mappingLastName = $mappingSettings[$name]['lastName'];
+            $mappingEMail = $mappingSettings[$name]['EMail'];
+            
+            $ldap->setOptions($options);
+            try {
+                $ldap->bind();
+        
+                $ldapsearch = $ldap->search('(uid='.$user->usernumber.')', 'dc=tub,dc=tu-harburg,dc=de', Zend_Ldap::SEARCH_SCOPE_ONE);
+        
+                if ($ldapsearch->count() > 0) {
+                    $searchresult = $ldapsearch->getFirst();
+
+                    if (is_array($searchresult[$mappingFirstName]) === true) {
+                        $return['firstName'] = $searchresult[$mappingFirstName][0];
+                    }
+                    else {
+                    	$return['firstName'] = $searchresult[$mappingFirstName];
+                    }
+                    if (is_array($searchresult[$mappingLastName]) === true) {
+                        $return['lastName'] = $searchresult[$mappingLastName][0];
+                    }
+                    else {
+                    	$return['lastName'] = $searchresult[$mappingLastName];
+                    }
+                    if (is_array($searchresult[$mappingEMail]) === true) {
+                        $return['email'] = $searchresult[$mappingEMail][0];
+                    }
+                    else {
+                    	$return['email'] = $searchresult[$mappingEMail];
+                    }
+                    return $return;
+                }
+            }
+            catch (Zend_Ldap_Exception $zle) {
+                echo '  ' . $zle->getMessage() . "\n";
+                if ($zle->getCode() === Zend_Ldap_Exception::LDAP_X_DOMAIN_MISMATCH) {
+                    continue;
+                }
+            }
+        }
+        
+        return $return;
+     }
 
 }
