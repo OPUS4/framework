@@ -364,35 +364,26 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: This method belongs to Opus_Db_Link_Documents_Collections.
      */
     protected function _storeDocuments($documents = null) {
-        return;
+        assert(is_array($documents));
+        assert( !is_null( $this->getId() ) );
+        assert( !is_null( $this->getRoleId() ) );
 
-//        assert(is_array($documents));
-//        assert( !is_null( $this->getId() ) );
-//        assert( !is_null( $this->getRoleId() ) );
-//
-//        if (is_null( $this->getRoleId() )) {
-//            throw new Exception("foobar");
-//        }
-//
-//        $table = $this->_primaryTableRow->getTable();
-//        $db = $table->getAdapter();
-//
-//        foreach ($documents AS $document) {
-//            $add_link = false;
-//
-//            if ($document->isNewRecord()) {
-//                $add_link = true;
-//            }
-//            else if ( !$this->holdsDocument($document->getId()) ) {
-//                $add_link = true;
-//            }
-//
-//            $document->store();
-//
-//            if (true === $add_link) {
-//                $this->linkDocument( $document->getId() );
-//            }
-//        }
+        if (is_null( $this->getRoleId() )) {
+            throw new Exception("foobar");
+        }
+
+        $table = $this->_primaryTableRow->getTable();
+        $db = $table->getAdapter();
+
+        foreach ($documents AS $document) {
+            if ($document->isNewRecord()) {
+                $document->store();
+                $this->linkDocumentById( $document->getId() );
+            }
+            else if ( !$this->holdsDocumentById($document->getId()) ) {
+                $this->linkDocumentById( $document->getId() );
+            }
+        }
 
     }
 
@@ -529,7 +520,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function linkDocument($document_id = null) {
+    public function linkDocumentById($document_id = null) {
         if ($this->isNewRecord()) {
             throw new Exception("linkDocument() is not allowed on NewRecord.");
         }
@@ -546,7 +537,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                 'role_id'       => $this->getRoleId(),
                 'document_id'   => $document_id,
         );
-        
+
         return $db->insert('link_documents_collections', $insert_data);
     }
 
@@ -559,7 +550,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function unlinkDocument($document_id = null) {
+    public function unlinkDocumentById($document_id = null) {
         if ($this->isNewRecord() || is_null($document_id)) {
             return;
         }
@@ -585,7 +576,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function holdsDocument($document_id = null) {
+    public function holdsDocumentById($document_id = null) {
 
         if (is_null($document_id)) {
             return false;
