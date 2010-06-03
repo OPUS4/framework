@@ -298,8 +298,8 @@ class Opus_Search_Index_Lucene_Indexer {
         foreach ($collections as $coll_index=>$collection) {
         	$doc_index = null;
             $coll_data = $collection->toArray();
-            if ($coll_data['RoleId'] > 0) {
-                $cr = new Opus_CollectionRole($coll_data['RoleId']);
+            if ($collection->getRole()->getId() > 0) {
+                $cr = $collection->getRole();
                 // check other OAI names (series and collections are handled seperately and they have not a static number)
                 if ($cr->getOaiName() === 'series') {
             	    $doc_index = 'series';
@@ -317,12 +317,9 @@ class Opus_Search_Index_Lucene_Indexer {
             	$subject_name = $cr->getName();
             }
             if (isset($subject_name) === true) { $document[$doc_index] .= ' ' . $subject_name; }
-            $document[$doc_index] .= ' ' . $coll_data['DisplayFrontdoor'];
-            $parent = $coll_data;
-            while (true === array_key_exists('ParentCollection', $parent)) {
-                // TODO: There can be more than one parent
-                $parent = $parent['ParentCollection'][0];
-                $document[$doc_index] .= ' ' . $parent['DisplayFrontdoor'];
+            $parents = $collection->getParents();
+            foreach ($parents as $parent) {
+                $document[$doc_index] .= ' ' . $parent->getName();
             }
         }
 
