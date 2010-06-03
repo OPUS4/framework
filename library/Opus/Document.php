@@ -1706,6 +1706,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         foreach ($publishers as $collection) {
             $row = $table->createRow($constraints);
             $row->collection_id = $collection->getId();
+            $row->role_id = $collection->getRoleId();
             $row->save();
         }
 
@@ -1747,6 +1748,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         foreach ($grantors as $collection) {
             $row = $table->createRow($constraints);
             $row->collection_id = $collection->getId();
+            $row->role_id = $collection->getRoleId();
             $row->save();
         }
 
