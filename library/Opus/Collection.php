@@ -107,8 +107,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy',
             ),
 
-            'Visibility' => array(),
-            'Theme' => array(),
+            'Visibility' => array(
+                            'fetch' => 'lazy',
+            ),
     );
 
 
@@ -612,14 +613,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function toArray($call = null) {
         $this->logger('toArray');
-        return array();
-
-        // FIXME: Method not implemented.  Please refactor from old API.
-        // FIXME: Search for new Opus_Collection(null, $role) in current code!
-        throw new Exception('Method not implemented.  Please refactor from old API.');
 
         $role = $this->getRole();
-
         $result = array(
                 'Id' => $this->getId(),
                 'RoleId' => $this->getRoleId(),
@@ -629,19 +624,17 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                 'DisplayOai' => $this->getDisplayName('oai'),
         );
 
-        foreach (array_keys($this->_fields) as $fieldname) {
-            $field = $this->_getField($fieldname);
-            $fieldvalue = $field->getValue();
+        $exclude_fields = array( 'SubCollection', 'SubCollections', 'Nodes', 'Theme', 'Role', 'Documents' );
+        $search_fields = array_diff(array_keys($this->_fields), $exclude_fields);
 
-            if ('SubCollection' === $call AND ('SubCollection' === $fieldname
-                            OR 'ParentCollection' === $fieldname)
-                    OR 'ParentCollection' === $call AND 'SubCollection' === $fieldname
-            ) {
+        foreach ($search_fields as $fieldname) {
+            $field = $this->_getField($fieldname);
+
+            if (! isset($field)) {
                 continue;
             }
-            if ('ParentCollection' === $call AND '1' === $this->getId()) {
-                return false;
-            }
+
+            $fieldvalue = $field->getValue();
 
             if ($field->hasMultipleValues()) {
                 $fieldvalues = array();
