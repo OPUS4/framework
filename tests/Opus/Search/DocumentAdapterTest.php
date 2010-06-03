@@ -129,7 +129,9 @@ class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
-        $this->_document->delete();
+        if (! is_null($this->_document) ) {
+            $this->_document->delete();
+        }
     }
 
     /**
