@@ -356,7 +356,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
-        $roles = $table->fetchAll("id > 1", 'position');
+        $roles = $table->fetchAll("id > 0", 'position');
         // $roles = $table->fetchAll(null, 'position');
 
         return self::createObjects($roles);
