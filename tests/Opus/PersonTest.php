@@ -84,9 +84,10 @@ class Opus_PersonTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
+        TestHelper::clearTable('link_persons_documents');
+        TestHelper::clearTable('link_documents_collections');
         TestHelper::clearTable('documents');
         TestHelper::clearTable('persons');
-        TestHelper::clearTable('link_persons_documents');
 
         $type = new Opus_Document_Type($this->_xmlDoctype);
 

@@ -134,6 +134,17 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test if a field returns right multiplicity
+     *
+     * @return void
+     */
+    public function testSinglevaluedFieldMultiplicity() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(1);
+        $this->assertFalse($field->hasMultipleValues(), 'Field should not allow multiple values.');
+    }
+
+    /**
      * Test if a field is set to have single value it does not accept an array as
      * its input value.
      *

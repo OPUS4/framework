@@ -50,10 +50,11 @@ class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
     */
     protected function setUp() {
         // cleanup database
+        TestHelper::clearTable('link_persons_documents');
+        TestHelper::clearTable('link_documents_collections');
         TestHelper::clearTable('documents');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('persons');
-        TestHelper::clearTable('link_persons_documents');
 
         $lucenePath = dirname(dirname(dirname(dirname(__FILE__)))) . '/workspace/tmp';
         Zend_Registry::set('Zend_LuceneIndexPath', $lucenePath);

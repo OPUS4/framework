@@ -52,6 +52,9 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         return array(
         array('Opus_Db_Accounts'),
         array('Opus_Db_CollectionsRoles'),
+        array('Opus_Db_Collections'),
+        array('Opus_Db_CollectionsNodes'),
+        array('Opus_Db_CollectionsThemes'),
         array('Opus_Db_DocumentEnrichments'),
         array('Opus_Db_DocumentFiles'),
         array('Opus_Db_DocumentIdentifiers'),
@@ -64,14 +67,15 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         array('Opus_Db_DocumentSubjects'),
         array('Opus_Db_DocumentTitleAbstracts'),
         array('Opus_Db_FileHashvalues'),
-        array('Opus_Db_InstitutesContents'),
-        array('Opus_Db_InstitutesReplacement'),
-        array('Opus_Db_InstitutesStructure'),
+//        array('Opus_Db_InstitutesContents'),
+//        array('Opus_Db_InstitutesReplacement'),
+//        array('Opus_Db_InstitutesStructure'),
         array('Opus_Db_Ipranges'),
         array('Opus_Db_Languages'),
         array('Opus_Db_LinkAccountsRoles'),
+        array('Opus_Db_LinkDocumentsCollections'),
         array('Opus_Db_LinkDocumentsLicences'),
-        array('Opus_Db_LinkInstitutesDocuments'),
+//        array('Opus_Db_LinkInstitutesDocuments'),
         array('Opus_Db_LinkIprangesRoles'),
         array('Opus_Db_LinkPersonsDocuments'),
         array('Opus_Db_PersonExternalKeys'),
@@ -79,7 +83,6 @@ class Opus_Db_InstanciateGatewayTest extends PHPUnit_Framework_TestCase {
         array('Opus_Db_Privileges'),
         array('Opus_Db_Roles'),
         array('Opus_Db_Translations'),
-        array('Opus_Db_CollectionsThemes'),
         );
     }
 

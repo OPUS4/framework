@@ -105,7 +105,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
 
         TestHelper::clearTable('document_identifiers');
         TestHelper::clearTable('link_persons_documents');
-        TestHelper::clearTable('link_institutes_documents');
+//        TestHelper::clearTable('link_institutes_documents');
         TestHelper::clearTable('link_documents_licences');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
@@ -113,7 +113,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_notes');
         TestHelper::clearTable('document_enrichments');
         TestHelper::clearTable('document_licences');
-        TestHelper::clearTable('institutes_contents');
+//        TestHelper::clearTable('institutes_contents');
         TestHelper::clearTable('persons');
 
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);
@@ -132,7 +132,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
     public function tearDown() {
         TestHelper::clearTable('document_identifiers');
         TestHelper::clearTable('link_persons_documents');
-        TestHelper::clearTable('link_institutes_documents');
+//        TestHelper::clearTable('link_institutes_documents');
         TestHelper::clearTable('link_documents_licences');
         TestHelper::clearTable('document_title_abstracts');
         TestHelper::clearTable('documents');
@@ -140,7 +140,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('document_notes');
         TestHelper::clearTable('document_enrichments');
         TestHelper::clearTable('document_licences');
-        TestHelper::clearTable('institutes_contents');
+//        TestHelper::clearTable('institutes_contents');
         TestHelper::clearTable('persons');
     }
 
@@ -766,6 +766,9 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testRetrieveEmptyTitleListFromEmptyDatabase() {
+        $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
+        return;
+
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertTrue(empty($result), 'Title list contains phantom results.');
     }
