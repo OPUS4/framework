@@ -1272,14 +1272,14 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Use custom fetching supplied by Opus_Collection_Information
+     * Fetch all Opus_Collection objects for this document.
      *
      * @return array An array of Opus_Collection objects.
      */
     protected function _fetchCollection() {
         $collections = array();
 
-        if (false === $this->isNewRecord()) {
+        if (false === is_null($this->isNewRecord())) {
             $ids = Opus_Collection::fetchCollectionIdsByDocumentId($this->getId());
             $this->logger("collection_ids(".$this->getId()."):". implode(",", $ids));
 
@@ -1297,6 +1297,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Store all Opus_Collection objects for this document.
+     *
+     * @return void
+     */
+    protected function _storeCollection($collections) {
+        if (true !== is_null($this->getId())) {
+            return;
+        }
+
+        foreach ($collections AS $collection) {
+            if ($collection->holdsDocumentById($this->getId())) {
+                continue;
+            }
+            $collection->linkDocumentById($this->getId());
+        }
+    }
+
+    /**
      * Search for publisher collections that this document is assigend to.
      *
      * @return array An array of Opus_OrganisationalUnit objects.
@@ -1306,6 +1324,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _fetchPublisher() {
         $result = array();
+
         if (false === $this->isNewRecord()) {
             $table = new Opus_Db_LinkDocumentsCollections();
             $db = $table->getAdapter();
