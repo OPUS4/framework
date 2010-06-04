@@ -98,7 +98,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $oaiName  = new Opus_Model_Field('OaiName');
         $this->addField($oaiName);
 
-        // TODO: This field shouldn't be modified directly.
         $position = new Opus_Model_Field('Position');
         $this->addField($position);
 
@@ -167,17 +166,17 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * describes the new position of the current role.
      *
      * TODO: This method belongs to Opus_Db_CollectionsRoles.
+     * TODO: Make sure this method only gets called if the field changed.
      *
      * @return void
      */
     protected function _storePosition($to) {
-        // TODO: Check, if this is "the OPUS4 way" to check changed fields.
         $field = $this->_getField('Position', true);
         if (false === $field->isModified()) {
             return;
         }
 
-        echo "target position: $to\n";
+        // echo "target position: $to\n";
         if ($to < 1) {
             $to = 1;
         }
@@ -222,7 +221,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $move_query = 'UPDATE collections_roles '
                 . ' SET position = position ' . $pos_shift
                 . ' WHERE ' . $range;
-        echo "move: $move_query\n";
+        // echo "move: $move_query\n";
         $db->query($move_query);
 
         // Update this row.
@@ -291,7 +290,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         parent::delete();
     }
 
- 
+
     /**
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
      * Returns null if name is null *or* nothing found.
@@ -348,17 +347,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Parametrize query to account for hidden collection roles.
      */
 
-    public static function fetchAll($show_invisible = false) {
-        // $this->logger('fetchAll()');
-
-        if (true === $show_invisible) {
-            $where = "";
-        }
-
+    public static function fetchAll() {
         $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
         $roles = $table->fetchAll("id > 1", 'position');
-        // $roles = $table->fetchAll(null, 'position');
-
         return self::createObjects($roles);
     }
 
@@ -418,10 +409,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $quoteRoleId  = $db->quote($this->getId());
 
         $select = "SELECT DISTINCT CONCAT( $quotePrefix, $quotePostfix ) "
-              . " FROM collections AS c "
-              . " JOIN link_documents_collections AS l "
-              . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
-              . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
+                . " FROM collections AS c "
+                . " JOIN link_documents_collections AS l "
+                . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
+                . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
 
         $this->logger( "$select" );
 
@@ -547,6 +538,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * each collection is linked to one node.
      *
      * @return array|Opus_Collection
+     *
+     * TODO: Method shouldn't be in use any more.  Queue for removal.
      */
     public function getParents() {
         return $this->getRootNode()->getCollection()->getParents();
