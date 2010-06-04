@@ -50,6 +50,19 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     protected static $_tableGatewayClass = 'Opus_Db_Persons';
 
+    protected $_externalFields = array(
+            'IdentifierPnd' => array(
+                            'model' => 'Opus_Person_ExternalKey',
+                            'options' => array('type' => 'pnd'),
+                            'fetch' => 'lazy'
+            ),
+            'IdentifierLocal' => array(
+                            'model' => 'Opus_Person_ExternalKey',
+                            'options' => array('type' => 'local'),
+                            'fetch' => 'lazy'
+            ),            
+            );
+
     /**
      * Initialize model with the following fields:
      * - AcademicTitle
@@ -74,6 +87,16 @@ class Opus_Person extends Opus_Model_AbstractDb
         $this->addField($first_name)
             ->addField($last_name)
             ->addField($email);
+
+        // Add fields to be used as external identifiers (optional only).
+        $pndField = new Opus_Model_Field('IdentifierPnd');
+        $pndField->setMultiplicity(1);
+        $pndField->setMandatory(false);
+        $this->addField($pndField);
+        $localIdField = new Opus_Model_Field('IdentifierLocal');
+        $localIdField->setMultiplicity(1);
+        $localIdField->setMandatory(false);
+        $this->addField($localIdField);
     }
 
     /**
@@ -134,6 +157,28 @@ class Opus_Person extends Opus_Model_AbstractDb
         return $personIds;
     }
 
+    /**
+     * Finds a person by a given identifier
+     *
+     * @param string $id The identifier that should be queried.
+     * @param string $type [optional] The type of the identifier (local or pnd), default is local
+     * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
+     */
+    public static function findByIdentifier($id, $type = 'local') {
+        $documentsLinkTable = new Opus_Db_PersonExternalKeys();
+        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
+        $db = $documentsLinkTable->getAdapter();
+        $select = $db->select()->from($tablename, array('person_id'))
+            ->where('type = ? ', $type)
+            ->where('value = ?', $id);
+        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+
+        if (is_null($personIds) === true) {
+            $personIds = array();
+        }
+
+        return $personIds;
+    }
 
     /**
      * Retrieve all Opus_Person instances from the database.

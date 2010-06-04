@@ -56,7 +56,7 @@ class Opus_Db_PersonExternalKeys extends Opus_Db_TableGateway {
      */
     protected $_referenceMap = array(
         'Persons' => array(
-            'columns' => 'persons_id',
+            'columns' => 'person_id',
             'refTableClass' => 'Opus_Db_Persons',
             'refColumns' => 'id',
             ),
