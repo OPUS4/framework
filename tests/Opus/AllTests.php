@@ -68,7 +68,6 @@ class Opus_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus');
-        $suite->addTest(Opus_Collection_AllTests::suite());
         $suite->addTest(Opus_Db_AllTests::suite());
         $suite->addTest(Opus_Document_AllTests::suite());
         $suite->addTest(Opus_Identifier_AllTests::suite());
