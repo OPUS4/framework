@@ -560,8 +560,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $db = $table->getAdapter();
 
         $condition = array(
-                'collection_id' => $this->getId(),
-                'document_id'   => $document_id,
+                'collection_id = ?' => $this->getId(),
+                'document_id = ?'   => $document_id
         );
 
         return $db->delete("link_documents_collections", $condition);
