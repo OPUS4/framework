@@ -188,7 +188,8 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
         	$mappingFirstName = $mappingSettings[$name]['firstName'];
             $mappingLastName = $mappingSettings[$name]['lastName'];
             $mappingEMail = $mappingSettings[$name]['EMail'];
-            
+            $permanentId = $mappingSettings[$name]['personId'];
+
             $ldap->setOptions($options);
             try {
                 $ldap->bind();
@@ -215,6 +216,12 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
                     }
                     else {
                     	$return['email'] = $searchresult[$mappingEMail];
+                    }
+                    if (is_array($searchresult[$permanentId]) === true) {
+                        $return['personId'] = $searchresult[$permanentId][0];
+                    }
+                    else {
+                    	$return['personId'] = $searchresult[$permanentId];
                     }
                     return $return;
                 }
