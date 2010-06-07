@@ -181,6 +181,55 @@ class Opus_Person extends Opus_Model_AbstractDb
     }
 
     /**
+     * Finds a person by a given name
+     *
+     * @param string $lastName The last name of the person to be queried.
+     * @param string $firstName [optional] The first name of the person to be queried.
+     * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
+     */
+    public static function findByName($lastName, $firstName = null) {
+        $documentsLinkTable = new Opus_Db_Persons();
+        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
+        $db = $documentsLinkTable->getAdapter();
+        $select = $db->select()->from($tablename, array('id'));
+        
+        if ($firstName === null) {
+        	$select = $db->select()->from($tablename, array('id'))
+        	    ->where('last_name = ?', $lastName);
+        }
+        else {
+        	$select = $db->select()->from($tablename, array('id'))
+        	    ->where('last_name = ?', $lastName)
+        	    ->where('first_name = ?', $firstName);
+        }
+        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+
+        if (is_null($personIds) === true) {
+            $personIds = array();
+        }
+
+        return $personIds;
+    }
+
+    /**
+     * checks if a given person is in database
+     *
+     * @return int|bool ID of the person or (if none has been found) false
+     */
+    public function find() {
+    	// first check by identifier
+    	$localid = $this->getIdentifierLocal();
+    	if ($localid !== null && count(self::findByIdentifier($localid, 'local')) !== 0) {
+    		return ;
+    	}
+
+    	
+    	$pndid = $this->getIdentifierPnd();
+
+        return $this;
+    }
+
+    /**
      * Retrieve all Opus_Person instances from the database.
      *
      * @return array Array of Opus_Person objects.
