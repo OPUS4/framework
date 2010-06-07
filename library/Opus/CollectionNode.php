@@ -95,20 +95,44 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        // TODO: Doku
+        /*
+         * Fields directly mapped to the table.
+        */
+
         $roleId = new Opus_Model_Field('RoleId');
         $this->addField($roleId);
 
-        // TODO: Doku
-        // $collectionId = new Opus_Model_Field('CollectionId');
-        // $this->addField($collectionId);
-
-        // TODO: Doku
         $visible = new Opus_Model_Field('Visible');
         $this->addField($visible);
 
+        // The collection_id which has been assigned to this node.
+        $collection_id = new Opus_Model_Field('CollectionId');
+        $collection_id->setMultiplicity(1);
+        $this->addField($collection_id);
 
-        // FIXME: Is this the best way to define positions?
+
+        /*
+         * External fields.
+        */
+
+        // The collection which has been assigned to this node.
+        $collection = new Opus_Model_Field('Collection');
+        $collection->setMultiplicity(1);
+        $this->addField($collection);
+
+        $children = new Opus_Model_Field('Children');
+        $children->setMultiplicity('*');
+        $this->addField($children);
+
+        // Contains the path back to the root node.
+        $parents = new Opus_Model_Field('Parents');
+        $parents->setMultiplicity('*');
+        $this->addField($parents);
+
+
+        /*
+         * Fields used to define the position of new nodes.
+        */
         $positionKeys = array( 'Root',
                 'FirstChild', 'LastChild',
                 'NextSibling', 'PrevSibling'
@@ -118,35 +142,13 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         $positionKey->setDefault($positionKeys);
         $this->addField($positionKey);
 
-        // FIXME: Is this the best way to define positions?
-        // FIXME: This field is for internal use only.
         $positionId = new Opus_Model_Field('PositionId');
         $this->addField($positionId);
 
-        // TODO: Doku
-        $collection = new Opus_Model_Field('Collection');
-        $collection->setMultiplicity(1);
-        $this->addField($collection);
-
-        // TODO: Doku
-        $collection_id = new Opus_Model_Field('CollectionId');
-        $collection_id->setMultiplicity(1);
-        $this->addField($collection_id);
-
-        // TODO: Doku
         $pending_nodes = new Opus_Model_Field('PendingNodes');
         $pending_nodes->setMultiplicity('*');
         $this->addField($pending_nodes);
 
-        // TODO: Doku
-        $children = new Opus_Model_Field('Children');
-        $children->setMultiplicity('*');
-        $this->addField($children);
-
-        // TODO: Doku
-        $parents = new Opus_Model_Field('Parents');
-        $parents->setMultiplicity('*');
-        $this->addField($parents);
     }
 
 
@@ -237,7 +239,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
      * Mass-constructur.
      *
      * @param array $array Array of whatever new Opus_Collection(...) takes.
-     * @return array|Opus_Collection Array of constructed Opus_Collections.
+     * @return array|Opus_CollectionNode Constructed Opus_CollectionNode(s).
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus_CollectionRole!
@@ -299,8 +301,12 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
 
     /**
-     * PendingNodes: Neu erstellten/hinzugefügte Knoten, die gespeichert
-     * werden müssen.
+     * PendingNodes: Add new nodes to the tree.  The position depends on the
+     * $key parameter.
+     *
+     * @param string              $key  (First|Last)Child, (Next|Prev)Sibling.
+     * @param Opus_CollectionNode $node
+     * @return <type>
      */
 
     protected function addPendingNodes($key = null, $node = null) {
@@ -315,10 +321,18 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return $node;
     }
 
+    /**
+     * This is an internal field, which doesn't get stored in the model.  There
+     * is no reason to "fetch" pending nodes.
+     */
+
     public function _fetchPendingNodes() {
     }
 
-    // TODO: Doku.  Erklaeren, dass RoleId gesetzt sein muss vor "->store()".
+    /**
+     * Storing pending nodes makes sure, that every node knowns which role_id
+     * it belongs to and next to which node it will be inserted.
+     */
     public function _storePendingNodes($nodes) {
         if (is_null($nodes)) {
             return;
@@ -339,47 +353,52 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
 
     /**
-     * CollectionId
+     * Store CollectionId field: In this class, two redundant fields exist to
+     * hold collection information: Collection and CollectionId.  The field
+     * CollectionId always takes precedence over the Collection field and has
+     * to be updated by the Collection-setter.
      *
-     * TODO: Dokumentation
-     * TODO: Zusammenhang von Collection und CollectionId erklären!
-     * TODO: RoleId setzen, bevor c->store() aufgerufen wird.
+     * If the CollectionId is *not* set, then either
+     * (1) No Collection has been assigned and no action is required.
+     * (2) A new Collection has been assigned: Propagate role_id and store.
      */
 
     public function _storeCollectionId($id) {
-        $fieldname = 'CollectionId';
         $colname   = 'collection_id';
-
-        $field = $this->_fields[$fieldname];
-        $value = $field->getValue();
-
-        // TODO: Soll nur geaendert werden, wenn sich das Feld CollectionId
-        // TODO: oder die Collection geändert hat.  Bitte sicherstellen, dass
-        // TODO: keine überflüssigen Updates stattfinden.
 
         if (is_null( $this->getRoleId() )) {
             throw new Exception("RoleId must be set when storing Collections!");
         }
 
-        if (! $field->isModified()) {
+        // Trivial case: Id is known.
+        if (isset($id)) {
+            $this->_primaryTableRow->{$colname} = $id;
             return;
         }
 
-        if (! isset($value)) {
-            $collection = $this->getCollection();
+        // Non-trivial case: Collection is set, but Id not known.
+        $collection = $this->getCollection();
+
+        if (isset($collection)) {
             $collection->setRoleId( $this->getRoleId() );
-            $value = $collection->store();
+            $collection->store();
+            $id = $collection->getId();
+
+            if (is_null($id)) {
+                throw new Exception("Could not store new collection.");
+            }
+
+            $this->_primaryTableRow->{$colname} = $id;
         }
 
-        $this->_primaryTableRow->{$colname} = $value;
     }
 
 
     /**
-     * Collection
-     *
-     * TODO: Dokumentation
-     * TODO: Wichtig: Collections ändern muss auch CollectionIds ändern.
+     * Overriding setter: Only the collection_id field will be stored to the
+     * model.  On every change of the collection field, we have to update the
+     * collection_id!  If the Id of the new collection is not yet known, just
+     * reset the collection_id field to null.
      */
 
     public function addCollection($collection = null) {
@@ -402,13 +421,11 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
     public function _fetchCollection() {
         $collection_id = $this->getCollectionId();
-        if (!is_null( $collection_id )) {
+        if (isset( $collection_id )) {
             $collection = new Opus_Collection( $collection_id );
-            // echo "fetchCollection returns ", $collection,"\n";
             return $collection;
         }
 
-        // echo "fetchCollection returns null\n";
         return;
     }
 
@@ -420,14 +437,12 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         }
     }
 
-
     /**
      * Children
      */
 
     public function _fetchChildren() {
-        if ($this->isNewRecord()) {
-            // TODO: Check if doing nothing on new records is reasonable.
+        if (is_null( $this->getId() )) {
             return;
         }
 
@@ -442,13 +457,12 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-
     /**
      * Compute documents counts.
      *
+     * TODO: Add model fields such we can cache the returned counts.
      */
 
-    // TODO: Setze getter durch _fetchNum
     public function getNumEntries() {
         if (is_null($this->getCollectionId())) {
             return 0;
@@ -463,7 +477,6 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return (int)$count;
     }
 
-    // TODO: Setze getter durch _fetchNumSubtreeEntries
     public function getNumSubtreeEntries() {
         $nestedsets = $this->_primaryTableRow->getTable();
         $subselect = $nestedsets
@@ -482,17 +495,6 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return (int)$count;
     }
 
-    // TODO: Diese Methode gehört in die Collection-Klasse.
-    public function getEntries() {
-        if ($this->isNewRecord()) {
-            return;
-        }
-
-        $documents = $this->getCollection()->getDocuments();
-        return $documents;
-    }
-
-    // TODO: Setze getter durch _fetchSubtreeEntries
     public function getSubtreeEntries() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
 
@@ -543,17 +545,6 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         }
     }
 
-    // FIXME: Debugging.
-    public function toArray() {
-        $this->logger('toArray');
-        parent::toArray();
-    }
-
-    public function toXml(array $excludeFields = null) {
-        $this->logger('toXml');
-        parent::toXml($excludeFields);
-    }
-
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
@@ -583,7 +574,34 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
+    // FIXME: Debugging.
+    public function toArray() {
+        $this->logger('toArray');
+        parent::toArray();
+    }
 
+    public function toXml(array $excludeFields = null) {
+        $this->logger('toXml');
+        parent::toXml($excludeFields);
+    }
+
+    /**
+     * Fetch all documents assigned to this node.
+     *
+     * @return array|Opus_Document Array of documents.
+     *
+     * @deprecated
+     *
+     * TODO: Methode gehört in die Collection-Klasse
+     */
+    public function getEntries() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $documents = $this->getCollection()->getDocuments();
+        return $documents;
+    }
 }
 
 ?>

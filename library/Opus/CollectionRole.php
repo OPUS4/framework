@@ -81,7 +81,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * - Position
      * - LinkDocsPathToRoot
      * - Visible
-     * - Collections
      * - ...
      *
      * @return void
@@ -90,8 +89,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $this->logger('init');
 
         // Attributes, which are defined by the database schema.
-
-        // TODO: This fields contents should be moved to the root node.
         $name = new Opus_Model_Field('Name');
         $this->addField($name);
 
@@ -140,7 +137,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $rootNode = new Opus_Model_Field('RootNode');
         $this->addField($rootNode);
 
-        // TODO: This field shouldn't be modified directly.
         $attributes = new Opus_Model_Field('Attributes');
         $attributes->setMultiplicity('*');
         $this->addField($attributes);
@@ -168,12 +164,17 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: This method belongs to Opus_Db_CollectionsRoles.
      * TODO: Make sure this method only gets called if the field changed.
      *
+     * @param integer $to Target position after saving..
      * @return void
      */
     protected function _storePosition($to) {
         $field = $this->_getField('Position', true);
         if (false === $field->isModified()) {
             return;
+        }
+
+        if (true !== is_int($to)) {
+            throw new Exception("_storePosition(): First parameter must of type integer.");
         }
 
         // echo "target position: $to\n";
@@ -221,6 +222,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $move_query = 'UPDATE collections_roles '
                 . ' SET position = position ' . $pos_shift
                 . ' WHERE ' . $range;
+        $this->logger("move: $move_query");
         // echo "move: $move_query\n";
         $db->query($move_query);
 
@@ -295,6 +297,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
      * Returns null if name is null *or* nothing found.
      *
+     * @param  string $name
      * @return Opus_CollectionRole
      */
 
@@ -319,6 +322,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by oaiName.
      * Returns null if name is null *or* nothing found.
      *
+     * @param  string $oai_name
      * @return Opus_CollectionRole
      */
 
@@ -358,7 +362,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Mass-constructur.
      *
      * @param array $array Array of whatever new Opus_Collection(...) takes.
-     * @return array|Opus_Collection Array of constructed Opus_Collections.
+     * @return array|Opus_Collection Constructed Opus_Collection(s).
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus_Collection!
@@ -518,7 +522,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     /**
      * Store root node: Delegate storing of external field.  Initialize Node.
      *
-     * @param array|Opus_CollectionNode $node CollectionNode to store as Root.
+     * @param Opus_CollectionNode $node Node to store as Root.
      * @see Opus_Model_AbstractDb
      */
     public function _storeRootNode($node) {
@@ -548,6 +552,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     /**
      * Internal methods to handle attribute fields.
      *
+     * @return array Array of defined attributes for this collection role.
+     *
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
 
@@ -573,6 +579,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     /**
      * Internal methods to handle attribute fields.
+     *
+     * @param  array|string $attributes
+     * @return void
      *
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
