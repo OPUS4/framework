@@ -143,7 +143,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     protected $_pendingDeletes = array();
     
+
+    // TODO: Dirty hack to set this "true".  You should have a good reason!  If
+    // TODO: you find an issue related to this field, please file a bug report.
     private $ignoreMultiplicity = true;
+
 
     /**
      * Create an new field instance and set the given name.

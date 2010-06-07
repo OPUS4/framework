@@ -79,7 +79,7 @@ class Opus_Collection_BasicNodeTests extends PHPUnit_Framework_TestCase {
 
         // Check, if we can create the object for this Id.
         $node_id = $this->fixture->getId();
-        $node = new Opus_Collection( $node_id );
+        $node = new Opus_CollectionNode( $node_id );
 
         $this->assertFalse(is_null($node), 'CollectionNode construction failed: collection is null.');
         $this->assertFalse(is_null($node->getId()), 'CollectionNode storing failed: should have an Id.');

@@ -173,7 +173,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             return;
         }
 
-        if (true !== is_int($to)) {
+        if (!isset($to)) {
+            $to = (int) PHP_INT_MAX;
+        }
+        $to = (int) $to;
+
+        if (!is_int($to)) {
             throw new Exception("_storePosition(): First parameter must of type integer.");
         }
 

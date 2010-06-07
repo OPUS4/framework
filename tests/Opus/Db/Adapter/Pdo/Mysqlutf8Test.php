@@ -744,6 +744,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
     /**
      * Test if all opened transactions can be ended by rollback.
      *
+     * FIXME: design fault: on rollback should abort all enclosing transactions!
+     *
      * @return void
      */
     public function testRollbackNestedTransactions() {
