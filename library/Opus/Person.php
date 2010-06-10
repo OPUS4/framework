@@ -212,24 +212,6 @@ class Opus_Person extends Opus_Model_AbstractDb
     }
 
     /**
-     * checks if a given person is in database
-     *
-     * @return int|bool ID of the person or (if none has been found) false
-     */
-    public function find() {
-    	// first check by identifier
-    	$localid = $this->getIdentifierLocal();
-    	if ($localid !== null && count(self::findByIdentifier($localid, 'local')) !== 0) {
-    		return ;
-    	}
-
-    	
-    	$pndid = $this->getIdentifierPnd();
-
-        return $this;
-    }
-
-    /**
      * Retrieve all Opus_Person instances from the database.
      *
      * @return array Array of Opus_Person objects.
