@@ -197,7 +197,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                     $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
                 }
             }
-            throw new Opus_Model_Exception($msg);
+            $this->$fieldname = 'null';
+            // TODO: handle error (but without throwing it)
+            #throw new Opus_Model_Exception($msg);
         }
 
         return null;
