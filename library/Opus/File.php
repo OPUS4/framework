@@ -245,11 +245,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function doDelete($token) {
         parent::doDelete($token);
         $path = $this->__path . $this->getDocumentId();
+        
         $result = unlink($path . '/' . $this->getPathName());
         // Delete directory if empty.
         if (0 === count(glob($path . '/*'))) {
             rmdir($path);
         }
+        
         // cleanup index
         $config = Zend_Registry::get('Zend_Config');
         $searchEngine = $config->searchengine->engine;
@@ -259,7 +261,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         // Reindex
         $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
         $indexer = new $engineclass();
-        $indexer->removeFileFromEntryIndex($this);
+        try {
+        	$indexer->removeFileFromEntryIndex($this);
+        }
+        catch (Exception $e) {
+        	throw $e;
+        }
+        
+        if ($result === false) {
+        	throw new Exception('Cannot remove file ' . $this->getPathName() . '. Please check access permissions and try again!', '403');
+        }
     }
 
 

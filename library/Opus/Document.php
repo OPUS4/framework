@@ -1526,7 +1526,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $files = $this->getFile();
         foreach ($files as $file) {
             $f = new Opus_File($file->getId());
-            $f->doDelete($f->delete());
+            try {
+                $f->doDelete($f->delete());
+            }
+            catch (Exception $e) {
+            	throw $e;
+            }
         }
 
         parent::delete();
