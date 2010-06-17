@@ -54,11 +54,11 @@ class Opus_Search_Adapter_DocumentAdapter # extends Opus_Document
 		if (is_int($opusDocument) === true) {
 			$this->documentData['id'] = $opusDocument;
 			$this->mapDocument();
+		} else if (is_array($opusDocument) === true) {
+			$this->documentData = $opusDocument;
 		} else if (get_class($opusDocument) === 'Opus_Document') {
 			$this->documentData['id'] = $opusDocument->getId();
 			$this->mapDocument($opusDocument);
-		} else if (is_array($opusDocument) === true) {
-			$this->documentData = $opusDocument;
 		}
 	}
 
