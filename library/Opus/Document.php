@@ -464,6 +464,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         // Initialize available publishers
         if ($this->getField('Publisher') !== null) {
+            // TODO: Fetching Publishers is not always neccessary.  Skip/defer?
             $publishers = Opus_OrganisationalUnits::getPublishers();
             $this->getField('Publisher')->setDefault($publishers)
                     ->setSelection(true);
@@ -471,6 +472,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         // Initialize available grantors
         if ($this->getField('Grantor') !== null) {
+            // TODO: Fetching Grantors is not always neccessary.  Skip/defer?
             $grantors = Opus_OrganisationalUnits::getGrantors();
             $this->getField('Grantor')->setDefault($grantors)
                     ->setSelection(true);
@@ -1354,6 +1356,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _fetchGrantor() {
         $result = array();
+
         if (false === $this->isNewRecord()) {
             $table = new Opus_Db_LinkDocumentsCollections();
             $db = $table->getAdapter();
