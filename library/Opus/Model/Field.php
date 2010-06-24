@@ -312,7 +312,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
             // Reject input if an array is required but not is given
             if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->ignoreMultiplicity === false)) {
-                throw new InvalidArgumentException('Multivalue option and input argument do not match. (' . $this->getName() . ')');
+                throw new InvalidArgumentException('Multivalue option and input argument do not match. (Field ' . $this->_name . ')');
             }
 
             // arrayfy value
@@ -407,11 +407,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 
                 // perform typecheck
                 if (false === is_object($v)) {
-                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given');
+                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})");
                 }
                 if ($vtype !== $etype) {
                     if (false === is_subclass_of($vtype, $etype)) {
-                        throw new Opus_Model_Exception("Value of type $vtype given but expected $etype.");
+                        throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
                     }
                 }
             }
@@ -559,7 +559,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 $vtype = get_class($v);
                 $etype = $this->_valueModelClass;
                 if (get_class($v) !== $etype) {
-                    throw new Opus_Model_Exception("Value of type $vtype given but expected $etype.");
+                    throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
                 }
             }
         }
@@ -568,7 +568,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         if (is_int($this->_multiplicity) === true) {
             if ((count($value) > $this->_multiplicity)
                 or ((count($value) + count($this->_value)) > $this->_multiplicity)) {
-                throw new InvalidArgumentException('Cannot hold more then ' . $this->_multiplicity . ' values.');
+                throw new InvalidArgumentException('Field ' . $this->_name . ' cannot hold more then ' . $this->_multiplicity . ' values.');
             }
         }
 
