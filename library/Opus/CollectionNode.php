@@ -567,11 +567,23 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
      * @return Opus_Collection
      */
     public function getSubCollection() {
-        $collection = $this->getCollection();
-        if (isset($collection)) {
-            return $collection->getSubCollections();
+        if (is_null($this->getId())) {
+            return;
         }
-        return array();
+
+        // $row = $this->_primaryTableRow;
+        // return self::createObjects( $row->findDependentRowset('Opus_Db_CollectionsNodes', 'Parent') );
+        // Select all child nodes.
+        $nodes_table = $this->_primaryTableRow->getTable();
+        $subselect = $nodes_table->selectChildrenById($this->getId(), 'id');
+
+        // Find collections of child nodes.
+        // TODO: Add static Opus_Collection::fetchBySubselect.
+        $table = new Opus_Db_Collections;
+        $select = $table->select()->where("id IN ($subselect)");
+
+        $rows = $table->fetchAll($select);
+        return Opus_Collection::createObjects($rows);
     }
 
     /**

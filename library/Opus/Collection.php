@@ -168,18 +168,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return;
         }
 
-        $parent_id = $this->getNode()->getId();
-        $table = $this->_primaryTableRow->getTable();
-        $db = $table->getAdapter();
-
-        $subselect = "SELECT collection_id FROM collections_nodes WHERE parent_id = ? AND collection_id IS NOT NULL ORDER BY left_id";
-        $subselect = $db->quoteInto($subselect, $parent_id);
-
-        $select = $table->select()
-                        ->where("id IN ($subselect)");
-        $rows = $table->fetchAll($select);
-
-        return self::createObjects($rows);
+        return $this->getNode()->getSubCollection();
     }
 
     /**
@@ -787,6 +776,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return array();
         }
 
+        // FIXME: self::$_tableGatewayClass not possible in static methods.
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
 
         // FIXME: Don't use internal knowledge of foreign models/tables.
