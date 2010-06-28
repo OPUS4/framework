@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -57,7 +58,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @var string
      */
-
     protected $_name;
 
     /**
@@ -65,7 +65,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @var string
      */
-
     protected $_left;
 
     /**
@@ -73,7 +72,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @var string
      */
-
     protected $_right;
 
     /**
@@ -83,7 +81,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @var string
      */
-
     protected $_parent;
 
     /**
@@ -93,7 +90,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @var string
      */
-
     protected $_tree;
 
     /**
@@ -112,7 +108,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $this->_setupPrimaryKey();
         assert(false === is_null($this->_primary[1]));
     }
-
 
     /**
      * Retrieve node.
@@ -151,7 +146,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         return $node;
     }
 
-
     /**
      * Build SQL statement for retrieving nodes by ID.
      *
@@ -163,7 +157,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
                 ->from("{$this->_name} AS node")
                 ->where("node.{$this->_primary[1]} = ?", $id);
     }
-
 
     /**
      * Build SQL statement for retrieving nodes by (tree id, left id).
@@ -179,22 +172,15 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
                 ->where("{$this->_left} = ?", $leftId);
     }
 
-
-
-
-
-
     /**
      * Delete the whole tree.  Returns affected rows.
      *
      * @param  int     $treeId The id of the tree you want to delete.
      * @return int
      */
-
     public function deleteTreeXXX($treeId) {
         return $this->_db->query("DELETE FROM {$this->_name} WHERE {$this->_tree} = {$treeId}  ORDER BY {$this->_left}  DESC");
     }
-
 
     /**
      * Delete node with it's child(s) and return affected rows.
@@ -202,13 +188,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @param  int   $id
      * @return int   The number of affected rows.
      */
-
     public function deleteNodeXXX($id) {
-        $row     = $this->getNodeById($id);
-        $tree    = $row->{$this->_tree};
-        $right   = (int) $row->{$this->_right};
-        $left    = (int) $row->{$this->_left};
-        $width   = $right - $left + 1;
+        $row = $this->getNodeById($id);
+        $tree = $row->{$this->_tree};
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $width = $right - $left + 1;
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred
         // NOTE: constraint checks.
@@ -221,48 +206,15 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         return $res->rowCount();
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     /**
-     * Retrieve whole tree (as statement!) with additional depth field
+     * Retrieve whole tree (as statement!) with additional depth field.
+     *
+     * FIXME: Might be useful, but needs some testing.  Currently unused.
      *
      * @access public
      * @return Zend_Db_Table_Select
      */
-    public function selectTreeDepthXXX($treeId) {
+    public function selectTreeDepth($treeId) {
         $showFields = array();
         $showFields[] = $this->_primary[1];
         $showFields[] = $this->_tree;
@@ -272,18 +224,22 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
 
         $select = $this->select()
-                ->from("{$this->_name} AS parent", "COUNT(parent.{$this->_primary[1]}) - 1 AS depth")
-                ->from("{$this->_name} AS node", $showFields)
-                ->where("node.{$this->_left} BETWEEN parent.{$this->_left} AND parent.{$this->_right}")
-                ->where("node.{$this->_tree} = ?", $treeId)
-                ->where("parent.{$this->_tree} = ?", $treeId)
-                ->group("node.{$this->_primary[1]}")
-                ->order("node.{$this->_left}");
+                        ->from("{$this->_name} AS parent", "COUNT(parent.{$this->_primary[1]}) - 1 AS depth")
+                        ->from("{$this->_name} AS node", $showFields)
+                        ->where("node.{$this->_left} BETWEEN parent.{$this->_left} AND parent.{$this->_right}")
+                        ->where("node.{$this->_tree} = ?", $treeId)
+                        ->where("parent.{$this->_tree} = ?", $treeId)
+                        ->group("node.{$this->_primary[1]}")
+                        ->order("node.{$this->_left}");
 
         echo "selectTreeDepthById($treeId) new: ", $select->__toString(), "\n";
         return $select;
     }
 
+    /**
+     * FIXME: Documentation.
+     * FIXME: Add constraints to statements.
+     */
     public function selectSubtreeDepthByIdXXX($treeId = null, $id = null) {
         $select = $this->selectTreeDepth($treeId);
         $select = $this->_addSelectConstraint($select, $treeId, $id, 'node');
@@ -292,78 +248,23 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         return $select;
     }
 
-    private function _addSelectConstraintXXX($select, $treeId, $id, $column) {
-        $select->from("{$this->_name} AS start", "")
-                ->where("start.{$this->_tree_id} = ?", $treeId)
-                ->where("start.{$this->_primary[1]} = ?", $id)
-                ->where("{$column}.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}");
-
-        return $select;
-    }
-
-
-
-
-
-
-
-
     /**
-     * Retrieve whole tree (as statement!) with additional depth field
+     * Retrieve whole tree (as statement!)
      *
      * @access public
      * @return Zend_Db_Table_Select
      */
-    public function selectTreeXXX($treeId) {
-        $showFields = array();
-        $showFields[] = $this->_primary[1];
-        $showFields[] = $this->_tree;
-        $showFields[] = $this->_left;
-        $showFields[] = $this->_right;
-        $showFields[] = $this->_parent;
-        $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
-
-        $select = $this->select()
-                ->from("{$this->_name} AS node", $showFields)
-                ->where("node.{$this->_tree} = ?", $treeId)
-                ->order("node.{$this->_left}");
-
-        echo "selectTree($treeId): ", $select->__toString(), "\n";
-        return $select;
-    }
-
-    public function selectSubtreeByIdXXX($treeId = null, $id = null) {
-        $select = $this->selectTree($treeId);
-        $select = $this->_addSelectConstraint($select, $treeId, $id, 'node');
-
-        echo "selectSubtreeById($treeId, $id) new: ", $select->__toString(), "\n";
-        return $select;
-    }
-
-
     public function selectSubtreeById($id, $cols = '*') {
 
         $select = $this->select()
-                ->from("{$this->_name} AS node", $cols)
+                        ->from("{$this->_name} AS node", $cols)
 //                ->order("node.{$this->_left}")
-                ->from("{$this->_name} AS start", "")
-                ->where("start.{$this->_primary[1]} = ?", $id)
-                ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
-                ->where("node.{$this->_tree} = start.{$this->_tree}");
+                        ->from("{$this->_name} AS start", "")
+                        ->where("start.{$this->_primary[1]} = ?", $id)
+                        ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
+                        ->where("node.{$this->_tree} = start.{$this->_tree}");
 
         // echo "selectSubtreeById($id) new: ", $select->__toString(), "\n";
-        return $select;
-    }
-
-    public function selectSubtreeByLeftRightTreeId($treeId, $leftId, $rightId, $cols = '*') {
-
-        $select = $this->select()
-                ->from("{$this->_name} AS node", $cols)
-                ->where("node.{$this->_tree} = ?", $treeId)
-                ->where("node.{$this->_left} >= ?", $leftId)
-                ->where("node.{$this->_right} <= ?", $rightId);
-
-        // echo "selectSubtreeByLeftRightTreeId($treeId, $leftId, $rightId) new: ", $select->__toString(), "\n";
         return $select;
     }
 
@@ -381,33 +282,20 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @return Zend_Db_Table_Select
      */
     public function selectParentsById($id, $cols = '*') {
-//        $showFields = array();
-//        $showFields[] = $this->_primary[1];
-//        $showFields[] = $this->_tree;
-//        $showFields[] = $this->_left;
-//        $showFields[] = $this->_right;
-//        $showFields[] = $this->_parent;
-//        $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
 
         $select = $this->select()
-                ->from("{$this->_name} AS node", $cols)
-                ->from("{$this->_name} AS target", '')
-                ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
-                ->where("target.{$this->_primary[1]} = ?", $id)
-                ->where("node.{$this->_tree} = target.{$this->_tree}")
-                ->order("node.{$this->_left} DESC");
+                        ->from("{$this->_name} AS node", $cols)
+                        ->from("{$this->_name} AS target", '')
+                        ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
+                        ->where("target.{$this->_primary[1]} = ?", $id)
+                        ->where("node.{$this->_tree} = target.{$this->_tree}")
+                        ->order("node.{$this->_left} DESC");
         return $select;
     }
 
-
-    /**
-     *
-     */
     /*
      * Build select statement for fetching all children of the node $id.
-     *
-     *
-    */
+     */
 
     /**
      * Build select statement for fetching all children of the node $id.  A
@@ -422,49 +310,31 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @return Zend_Db_Table_Select
      */
     public function selectChildrenById($id, $cols = '*') {
-//        $showFields = array();
-//        $showFields[] = $this->_primary[1];
-//        $showFields[] = $this->_tree;
-//        $showFields[] = $this->_left;
-//        $showFields[] = $this->_right;
-//        $showFields[] = $this->_parent;
-//        $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
-
         $select = $this->select()
-                ->from("{$this->_name} AS node", $cols)
-                ->where("node.{$this->_parent} = ?", $id)
-                ->order("node.{$this->_left} ASC");
+                        ->from("{$this->_name} AS node", $cols)
+                        ->where("node.{$this->_parent} = ?", $id)
+                        ->order("node.{$this->_left} ASC");
         return $select;
     }
 
-
-
-
-    /**
-     *
-     *
-     *
+    /*
      * Tree manipulation.
      * FIXME: Documentation.
-     *
-     *
-     *
      */
 
     /**
-     * Create root node for tree $tree.
+     * Create root node for new tree.
      *
      * Actually, this method only initializes left, right and tree id and
-     * returns them as array.
+     * returns them as array.  The treeId must be added lated.
      *
      * @param  integer $id The ID of the tree.
      * @return array
      */
     public function createRoot() {
         return array(
-//                $this->_tree   => $tree,
-                $this->_left   => 1,
-                $this->_right  => 2,
+            $this->_left => 1,
+            $this->_right => 2,
         );
     }
 
@@ -475,14 +345,16 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * space for the new one.  The new tree, left, right and parent ids will
      * be returned as array.
      *
+     * TODO: Decide, if we want to add treeId "outside" or here.
+     *
      * @param  integer $id The ID of the parent row (must be unique in schema!).
      * @return array
      */
     public function insertFirstChild($id) {
-        $row     = $this->getNodeById($id);
-        $right   = (int) $row->{$this->_right};
-        $left    = (int) $row->{$this->_left};
-        $tree    = $row->{$this->_tree};
+        $row = $this->getNodeById($id);
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $tree = $row->{$this->_tree};
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks
         $this->_db->query("UPDATE {$this->_name} SET {$this->_right} = {$this->_right} + 2 WHERE {$this->_right} > {$left} AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} DESC");
@@ -490,12 +362,11 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
 
         return array(
 //                $this->_tree   => $tree,
-                $this->_left   => $left + 1,
-                $this->_right  => $left + 2,
-                $this->_parent => $id,
+            $this->_left => $left + 1,
+            $this->_right => $left + 2,
+            $this->_parent => $id,
         );
     }
-
 
     /**
      * Insert new right-most (last) child of $id.
@@ -504,14 +375,16 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * space for the new one.  The new tree, left, right and parent ids will
      * be returned as array.
      *
+     * TODO: Decide, if we want to add treeId "outside" or here.
+     *
      * @param  integer $id The ID of the parent row (must be unique in schema!).
      * @return array
      */
     public function insertLastChild($id) {
-        $row     = $this->getNodeById($id);
-        $right   = (int) $row->{$this->_right};
-        $left    = (int) $row->{$this->_left};
-        $tree    = $row->{$this->_tree};
+        $row = $this->getNodeById($id);
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $tree = $row->{$this->_tree};
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks.
         $this->_db->query("UPDATE {$this->_name} SET {$this->_right} = {$this->_right} + 2 WHERE {$this->_right} >= {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} DESC");
@@ -519,9 +392,9 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
 
         return array(
 //                $this->_tree   => $tree,
-                $this->_left   => $right,
-                $this->_right  => $right + 1,
-                $this->_parent => $id,
+            $this->_left => $right,
+            $this->_right => $right + 1,
+            $this->_parent => $id,
         );
     }
 
@@ -532,15 +405,17 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * space for the new one.  The new tree, left, right and parent ids will
      * be returned as array.
      *
+     * TODO: Decide, if we want to add treeId "outside" or here.
+     *
      * @param  integer $id  The sibling row ID (must be unique in schema!).
      * @return array
      */
     public function insertNextSibling($id) {
-        $row     = $this->getNodeById($id);
-        $right   = (int) $row->{$this->_right};
-        $left    = (int) $row->{$this->_left};
-        $tree    = $row->{$this->_tree};
-        $parent  = $row->{$this->_parent};
+        $row = $this->getNodeById($id);
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $tree = $row->{$this->_tree};
+        $parent = $row->{$this->_parent};
 
         if ($left === 1) {
             throw new Exception("Root node can't have siblings");
@@ -552,9 +427,9 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
 
         return array(
 //                $this->_tree   => $tree,
-                $this->_left   => $right + 1,
-                $this->_right  => $right + 2,
-                $this->_parent => $parent,
+            $this->_left => $right + 1,
+            $this->_right => $right + 2,
+            $this->_parent => $parent,
         );
     }
 
@@ -565,15 +440,17 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * space for the new one.  The new tree, left, right and parent ids will
      * be returned as array.
      *
+     * TODO: Decide, if we want to add treeId "outside" or here.
+     *
      * @param  integer $id  The sibling row ID (must be unique in schema!).
      * @return array
      */
     public function insertPrevSibling($id) {
-        $row     = $this->getNodeById($id);
-        $right   = (int) $row->{$this->_right};
-        $left    = (int) $row->{$this->_left};
-        $tree    = $row->{$this->_tree};
-        $parent  = $row->{$this->_parent};
+        $row = $this->getNodeById($id);
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $tree = $row->{$this->_tree};
+        $parent = $row->{$this->_parent};
 
         if ($left === 1) {
             throw new Exception("Root node can't have siblings");
@@ -585,111 +462,11 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
 
         return array(
 //                $this->_tree   => $tree,
-                $this->_left   => $left,
-                $this->_right  => $left + 1,
-                $this->_parent => $parent,
+            $this->_left => $left,
+            $this->_right => $left + 1,
+            $this->_parent => $parent,
         );
     }
 
-
-
-
-    /**
-     *
-     *
-     *
-     * Print routines...
-     * FIXME: Documentation.
-     *
-     *
-     *
-     */
-
-
-    /**
-     * TODO: Documentation.
-     */
-    public function printTreeDepthXXX($treeId, $id) {
-        if (false === is_null($id)) {
-            $select = $this->selectSubtreeDepthById($treeId, $id);
-        }
-        else {
-            $select = $this->selectTreeDepth($treeId);
-        }
-
-        $tree = $this->fetchAll($select);
-        echo Opus_Db_NestedSet::results2string($tree);
-    }
-
-    /**
-     * TODO: Documentation.
-     */
-    public function printTreeXXX($treeId, $id) {
-        if (false === is_null($id)) {
-            $select = $this->selectSubtreeById($treeId, $id);
-        }
-        else {
-            $select = $this->selectTree($treeId);
-        }
-
-        $tree   = $this->fetchAll($select);
-        echo Opus_Db_NestedSet::results2string($tree);
-    }
-
-
-    /**
-     * Takes an array and returns a string for pretty-printing.
-     *
-     * @param  array  $array  1D array
-     * @throws Exception
-     * @return string         result string
-     */
-    public static function array2stringXXX(array $array) {
-        $string = '';
-
-        if (0 === length($array)) {
-            return $string;
-        }
-
-        foreach ($array AS $key => $value) {
-            $string = $string . "{$key}:{$value} ";
-        }
-
-        return $string;
-    }
-
-
-    /**
-     * Takes an results 2D array and returns a string for pretty-printing.
-     *
-     * @param  array  $rows  2D results array
-     * @throws Exception
-     * @return string        result string
-     */
-    public static function results2stringXXX(array $rows) {
-        $string = "\n";
-
-        if (0 === length($rows)) {
-            return $string;
-        }
-
-        foreach ($rows AS $row) {
-            $array  = $row->toArray();
-
-            $indent = '';
-            if (true === array_key_exists('depth', $array)) {
-                while (strlen($indent) < 4*$array['depth']) {
-                    $indent .= "    ";
-                }
-            }
-
-            $string = $string . "-- " . $indent . Opus_Db_NestedSet::array2string($array) . "\n";
-        }
-
-        return $string . "\n";
-    }
-
-
 }
-
 ?>
