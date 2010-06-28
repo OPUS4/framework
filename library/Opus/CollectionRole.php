@@ -440,6 +440,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Need Collection constructor-by-oaiSetName.
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
      * FIXME: Belongs to Opus_Collection
+     * FIXME: Code duplication from getDocumentIdsInSet.
      */
     public function existsDocumentIdsInSet($oaiSetName) {
         $colonPos = strrpos($oaiSetName, ':');
@@ -479,13 +480,60 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return false;
     }
 
+    /**
+     * Return the ids of documents in an oai set.
+     *
+     * @param  string $oaiSetName The name of the oai set.
+     * @return array              The ids of the documents in the set.
+     *
+     * FIXME: Replace method by something more general.
+     * FIXME: Don't use internal knowledge from database.
+     * FIXME: Make this method non-static.
+     */
+    public static function getDocumentIdsInSet($oaiSetName) {
+        $colonPos = strrpos($oaiSetName, ':');
+        $oaiPrefix = substr($oaiSetName, 0, $colonPos);
+        $oaiPostfix = substr($oaiSetName, $colonPos + 1);
+
+        $role = self::fetchByOaiName($oaiPrefix);
+        if (is_null($oaiPrefix) === true) {
+            throw new Exception("Given OAI prefix does not exist in roles.");
+        }
+
+        $oaiPrefix = $role->getOaiName();
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $oaiPostfixColumn = $role->getDisplayOai();
+        $quotePostfixColumn = $db->quoteIdentifier("c.$oaiPostfixColumn");
+        $quotePostfix = $db->quote("$oaiPostfix");
+        $quoteRoleId = $db->quote($role->getId());
+
+        $subselect = "SELECT DISTINCT c.id FROM collections AS c "
+                . "   WHERE $quotePostfixColumn = $quotePostfix "
+                . "     AND c.role_id = $quoteRoleId "
+                . "     AND EXISTS ( "
+                . "              SELECT id FROM collections_nodes AS n "
+                . "              WHERE collection_id = n.id "
+                . "                AND visible = 1 "
+                . "     ) ";
+
+        $select = "SELECT DISTINCT document_id FROM link_documents_collections "
+                . " WHERE role_id = $quoteRoleId "
+                . "   AND collection_id IN ($subselect) ";
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $result = $db->fetchCol($select);
+        $role->logger("$oaiSetName: #" . count($result));
+
+        return $result;
+    }
 
     /**
      * LEGACY.
      *
      * @deprecated
      */
-
     public static function getAll() {
         return self::fetchAll();
     }
