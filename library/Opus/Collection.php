@@ -324,6 +324,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->from("link_documents_collections AS ldc", "document_id")
                         ->where('collection_id = ?', $this->getId())
                         ->where('role_id = ?', $this->getRoleId())
+                        ->where('link_type = ""')
                         ->distinct();
 
         $select = $table->select()
@@ -576,7 +577,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $select = $db->select()
                         ->from("link_documents_collections AS ldc", "document_id")
                         ->where('collection_id = ?', $this->getId())
-                        ->where('document_id = ?', $document_id);
+                        ->where('document_id = ?', $document_id)
+                        ->where('link_type = ""');
 
         $result = $db->fetchRow($select);
 
@@ -792,6 +794,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $select = $table->getAdapter()->select()
                         ->from("link_documents_collections AS ldc", "collection_id")
                         ->where('ldc.document_id = ?', $document_id)
+                        ->where('link_type = ""')
                         ->distinct();
 
         $ids = $table->getAdapter()->fetchCol($select);

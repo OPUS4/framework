@@ -460,9 +460,10 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
     /**
      * Compute documents counts.
      *
+     * @return int Number of collection Entries.
+     * 
      * TODO: Add model fields such we can cache the returned counts.
      */
-
     public function getNumEntries() {
         if (is_null($this->getCollectionId())) {
             return 0;
@@ -471,11 +472,18 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
         $db = $this->_primaryTableRow->getTable()->getAdapter();
         $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
-                ->where("collection_id = ?", $this->getCollectionId());
+                        ->where("collection_id = ?", $this->getCollectionId())
+                        ->where('link_type = ""');
 
         $count = $db->fetchOne($select);
         return (int)$count;
     }
+
+    /**
+     * Returns documents of complete subtree.
+     *
+     * @return int Number of subtree Entries.
+     */
 
     public function getNumSubtreeEntries() {
         $nestedsets = $this->_primaryTableRow->getTable();
@@ -488,13 +496,38 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
         $db = $this->_primaryTableRow->getTable()->getAdapter();
         $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
-                ->where("role_id = ?", $this->getRoleId())
-                ->where("collection_id IN ($subselect)");
+                        ->where("role_id = ?", $this->getRoleId())
+                        ->where("collection_id IN ($subselect)")
+                        ->where('link_type = ""');
 
         $count = $db->fetchOne($select);
-        return (int)$count;
+        return (int) $count;
     }
 
+    /**
+     * Fetch all documents assigned to this node.
+     *
+     * @return array|Opus_Document Array of documents.
+     *
+     * @deprecated
+     *
+     * TODO: Methode gehört in die Collection-Klasse
+     * TODO: Eigentlich gehoerts eher in die Link_Document_Collections Klasse.
+     */
+    public function getEntries() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $documents = $this->getCollection()->getDocuments();
+        return $documents;
+    }
+
+    /**
+     * Returns documents of complete subtree.
+     *
+     * @return Array of Opus_Document entries.
+     */
     public function getSubtreeEntries() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
 
@@ -506,10 +539,11 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         // FIXME: Don't use internal knowledge of foreign models/tables.
         // FIXME: Don't return documents if collection is hidden.
         $subselect = $table->getAdapter()->select()
-                ->from("link_documents_collections AS ldc", "document_id")
-                ->where("collection_id IN ($subselect)")
-                ->where('role_id = ?', $this->getRoleId())
-                ->distinct();
+                        ->from("link_documents_collections AS ldc", "document_id")
+                        ->where("collection_id IN ($subselect)")
+                        ->where('role_id = ?', $this->getRoleId())
+                        ->where('link_type = ""')
+                        ->distinct();
 
         $select = $table->select()
                 ->where("id IN ($subselect)");
@@ -523,6 +557,15 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return $results;
     }
 
+    /**
+     * LEGACY.
+     */
+
+    /**
+     * Returns subcollections.
+     *
+     * @return Opus_Collection
+     */
     public function getSubCollection() {
         $collection = $this->getCollection();
         if (isset($collection)) {
@@ -531,11 +574,23 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return array();
     }
 
+    /**
+     * Checks if current node is visible.  Database stores ints 0|1.
+     *
+     * @return boolean
+     */
     public function getVisibility() {
         $visible = $this->getVisible();
         return isset($visible) && $visible === '1';
     }
 
+    /**
+     * Sets if node is visible.  Database stores ints 0|1.  Set first parameter
+     * to true to make node visible.  Everything != true will hide it.
+     *
+     * @param  boolean Set to "true" to make node visible.
+     * @return void
+     */
     public function setVisibility($visible = true) {
         if (isset($visible) && $visible === true) {
             return $this->setVisible(1);
@@ -545,21 +600,14 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         }
     }
 
-    protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-
-        $logger->info("Opus_CollectionNode: $message");
-    }
-
-
     /**
-     * LEGACY.
+     * Returns nodes for breadcrump path.
+     *
+     * @return Array of Opus_CollectionNode objects.
      */
 
     public function _fetchParents() {
-        if ($this->isNewRecord()) {
-            // TODO: Check if doing nothing on new records is reasonable.
+        if (is_null($this->getId())) {
             return;
         }
 
@@ -574,34 +622,18 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-    // FIXME: Debugging.
-    public function toArray() {
-        $this->logger('toArray');
-        parent::toArray();
-    }
-
-    public function toXml(array $excludeFields = null) {
-        $this->logger('toXml');
-        parent::toXml($excludeFields);
-    }
 
     /**
-     * Fetch all documents assigned to this node.
+     *  Debugging helper.  Sends the given message to Zend_Log.
      *
-     * @return array|Opus_Document Array of documents.
-     *
-     * @deprecated
-     *
-     * TODO: Methode gehört in die Collection-Klasse
+     * @param string $message
      */
-    public function getEntries() {
-        if ($this->isNewRecord()) {
-            return;
-        }
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
 
-        $documents = $this->getCollection()->getDocuments();
-        return $documents;
+        $logger->info("Opus_CollectionNode: $message");
     }
-}
 
+}
 ?>
