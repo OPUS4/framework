@@ -165,9 +165,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                             $fieldval = null;
                         }
                     }
-                    if (true === $field->hasMultipleValues()) {
-                        $fieldval = json_decode($fieldval);
-                    }
+
+// TODO: (Thoralf) Removed to see what happens.
+//                    if (true === $field->hasMultipleValues()) {
+//                        $fieldval = json_decode($fieldval);
+//                    }
+
                     $field->setValue($fieldval);
                 }
             }
@@ -192,14 +195,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         // refuse to store if data is not valid
         if (false === $this->isValid()) {
             $msg = 'Attempt to store model with invalid data.';
-            foreach ($this->getValidationErrors() as $fieldname=>$err) {
+            foreach ($this->getValidationErrors() as $fieldname => $err) {
                 if (false === empty($err)) {
                     $msg = $msg . "\n" . "$fieldname\t" . implode("\n", $err);
                 }
             }
-            $this->$fieldname = 'null';
+            // $this->$fieldname = 'null';
             // TODO: handle error (but without throwing it)
-            #throw new Opus_Model_Exception($msg);
+            throw new Opus_Model_Exception($msg);
         }
 
         return null;
@@ -272,16 +275,20 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
                 if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
-                    
+
                     // analyze field values
                     $fieldValues = $this->_fields[$fieldname]->getValue();
                     if (is_array($fieldValues) === true) {
+
+                        // TODO: (Thoralf) Removed to see what happens.
+                        throw new Exception("Prevented JSON field values.");
+
                         // internal fields can never be a array, encode as json
                         $fieldValue = json_encode($fieldValues);
                     } else {
                         $fieldValue = $fieldValues;
                     }
-                    
+
                     // Check if the store mechanism for the field is overwritten in model.
                     $callname = '_store' . $fieldname;
                     if (method_exists($this, $callname) === true) {
@@ -320,7 +327,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         try {
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
-                // dont store Collections here since they are not stored as external fields!
                 if (in_array($fieldname, array_keys($this->_fields)) === true) {
                     // Check if the store mechanism for the field is overwritten in model.
                     $callname = '_store' . $fieldname;
