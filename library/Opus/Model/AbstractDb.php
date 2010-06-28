@@ -392,11 +392,10 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
      * @return void
      */
     protected function _loadExternal($fieldname) {
-
         // Check if the fetch mechanism for the field is overwritten in model.
         $callname = '_fetch' . $fieldname;
         if (method_exists($this, $callname) === true) {
-            $this->_fields[$fieldname]->setValue($this->$callname());
+            $result = $this->$callname();
         } else {
             // Get declared options if any
             if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
@@ -476,10 +475,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 // Return explicitly null if no results have been found.
                 $result = null;
             }
-
-            // Set the field value
-            $this->_fields[$fieldname]->setValue($result);
         }
+        // Set the field value
+        $this->_fields[$fieldname]->setValue($result);
     }
 
     /**
