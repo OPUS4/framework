@@ -1291,10 +1291,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
 
-        foreach ($collections as $collection) {
-            $this->logger("new collection(".$collection->getid().")");
-        }
-
         return $collections;
     }
 
@@ -1681,6 +1677,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 // If we add one day then is result as expected but maybe wrong?
                 //
                 // Between range looks like $from < $until and not $from <= $until
+
+                // (Anmerkung von Thoralf:)
+                // FIXME: Die Erklaerung fuer diesen Bug: Beim String-Vergleich
+                // FIXME: gilt: 2009-05-10 <= 2009-05-10T00:00:00
+
+                // FIXME: Die Datenbank speichert die Datumswerte als String!
+
                 $until->addDay(1);
                 $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd') . '%"';
             }
@@ -1688,13 +1691,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $dateWhere = 'server_date_published ' . $searchRange . ' OR server_date_modified ' . $searchRange;
             $select->where($dateWhere);
         }
-        $rows = $table->fetchAll($select)->toArray();
 
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-
+        $result = $table->getAdapter()->fetchCol($select);
         return $result;
     }
 
