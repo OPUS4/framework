@@ -332,17 +332,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->_type = $this->_primaryTableRow->type;
             $this->_workflow = $this->_primaryTableRow->workflow;
 
-            if ($this->_getField('File') !== null) {
-                // check files for non-existing ones and strip them out
-                $files = $this->_getField('File')->getValue();
-                $return = array();
-                foreach ($files as $file) {
-                    if ($file->exists() === true) {
-                        array_push($return, $file);
-                    }
-                }
-                $this->_getField('File')->setValue($return);
-            }
         }
     }
 
@@ -477,6 +466,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->getField('Grantor')->setDefault($grantors)
                     ->setSelection(true);
         }
+
+        // Check if document has non-existing attachments.
+        if (false === is_null($this->getId()) and $this->hasFileField()) {
+            // check files for non-existing ones and strip them out
+            $files = $this->_getField('File')->getValue();
+            $return = array();
+            foreach ($files as $file) {
+                if ($file->exists() === true) {
+                    array_push($return, $file);
+                }
+                else {
+                    $this->logger( "file '$file' does not exist.  Skipping." );
+
+                }
+            }
+            $this->_getField('File')->setValue($return);
+        }
+
     }
 
     /**
@@ -1789,11 +1796,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
 
-    // FIXME: Debugging.
+    /**
+     * Log document errors.  Prefixes every log entry with document id.
+     *
+     * @param string $message
+     */
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
-        $logger->info("Opus_Document: $message");
+        $logger->info( $this->getDisplayName() . ": $message");
     }
 
 }
