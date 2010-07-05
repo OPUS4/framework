@@ -1492,13 +1492,21 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $config = Zend_Registry::get('Zend_Config');
 
         $searchEngine = $config->searchengine->engine;
-        if (empty($searchEngine) === true) {
+        if (is_null($config) === true or is_null($config->searchengine) === true or empty($searchEngine) === true) {
             $searchEngine = 'Lucene';
         }
-        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
-        // Remove from index
-        $indexer = new $engineclass();
-        $indexer->removeDocumentFromEntryIndex($this);
+
+        // De-fatalize Search Index errors.
+        try {
+            $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
+            // Remove from index
+            $indexer = new $engineclass();
+            $indexer->removeDocumentFromEntryIndex($this);
+        }
+        catch (Exception $e) {
+            $this->logger("removeDocumentFromIndex failed: " . $e->getMessage());
+        }
+
         $this->setServerState('deleted');
         $this->store();
     }
