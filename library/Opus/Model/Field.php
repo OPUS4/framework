@@ -398,6 +398,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 // determine expected type            
                 $etype = $this->_valueModelClass;
                 
+                // values must be objects - should be checked before get_class.
+                if (false === is_object($v)) {
+                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})");
+                }
+
                 // determine actual type
                 if ($v instanceof Opus_Model_Dependent_Link_Abstract) {
                     $vtype = $v->getModelClass();
@@ -406,9 +411,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 }
                 
                 // perform typecheck
-                if (false === is_object($v)) {
-                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})");
-                }
                 if ($vtype !== $etype) {
                     if (false === is_subclass_of($vtype, $etype)) {
                         throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
