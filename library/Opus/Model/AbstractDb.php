@@ -166,10 +166,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                         }
                     }
 
-// TODO: (Thoralf) Removed to see what happens.
-//                    if (true === $field->hasMultipleValues()) {
+                    // TODO: (Thoralf) Removed JSON to see what happens.
+                    if (true === $field->hasMultipleValues()) {
 //                        $fieldval = json_decode($fieldval);
-//                    }
+                        throw new Exception("Prevented fetching JSON field values in field " . $fieldname);
+                    }
 
                     $field->setValue($fieldval);
                 }
@@ -281,7 +282,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                     if (is_array($fieldValues) === true) {
 
                         // TODO: (Thoralf) Removed to see what happens.
-                        throw new Exception("Prevented JSON field values.");
+                        throw new Exception("Prevented storing JSON field values in field " . $fieldname);
 
                         // internal fields can never be a array, encode as json
                         $fieldValue = json_encode($fieldValues);
