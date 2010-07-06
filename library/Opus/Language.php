@@ -90,7 +90,7 @@ class Opus_Language extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Language objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Language', 'Opus_Db_Languages');
+        return self::getAllFrom('Opus_Language', self::$_tableGatewayClass);
     }
 
     /**
@@ -99,7 +99,7 @@ class Opus_Language extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Language objects which are active.
      */
     public static function getAllActive() {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Languages');
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('active = ?', 1));
         $result = array();
         foreach ($rows as $row) {
@@ -113,11 +113,17 @@ class Opus_Language extends Opus_Model_AbstractDb {
      *
      * @param  string  $letter Letter(s) the wanted languages begin(s) with.
      * @return array Array of Opus_Language objects.
+     *
+     * @todo REMOVE method: not used any more.
+     * @deprecated
      */
     public static function getAllByName($letter) {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Languages');
-        $rows = $table->fetchAll($table->select()->where("ref_name LIKE ?",
-                    $letter . '%')->order('ref_name ASC'));
+        throw new Exception('Method marked for removal.');
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $rows = $table->fetchAll($table->select()
+                    ->where("ref_name LIKE ?", $letter . '%')
+                    ->order('ref_name ASC'));
         $result = array();
         foreach ($rows as $row) {
             $result[] = new Opus_Language($row);
@@ -130,11 +136,21 @@ class Opus_Language extends Opus_Model_AbstractDb {
      *
      * @param  string  $part1 ISO 639-1 (two-letter) code
      * @return Opus_Language The language that corresponds to the ISO 639-1 code.
+     *
+     * @todo REMOVE method: not used any more.
+     * @deprecated
      */
     public static function getByPart1($part1) {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Languages');
+        throw new Exception('Method marked for removal.');
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $row = $table->fetchRow($table->select()->where("part1 = ?", $part1));
-        return new Opus_Language($row);
+        
+        if (false === is_null($row)) {
+            return new Opus_Language($row);
+        }
+        
+        return null;
     }
 
     /**
