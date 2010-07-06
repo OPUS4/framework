@@ -50,7 +50,7 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
     public function _init() {
     }
     
-    public function delete() {
+    public function delete($token) {
         $this->deleteHasBeenCalled = true;
     }
     

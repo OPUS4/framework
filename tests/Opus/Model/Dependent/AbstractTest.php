@@ -79,12 +79,20 @@ class Opus_Model_Dependent_AbstractTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway')) {
+        if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway', false)) {
             eval('
                 class Opus_Model_Dependent_AbstractTest_MockTableGateway
                 extends Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
+                    public function info($key = null) {
+                        $info = array(
+                            self::COLS             => "",
+                            self::PRIMARY          => array("id"),
+                            self::METADATA         => "",
+                        );
+                        return $info;
+                    }
                 }
             ');
         }
@@ -94,9 +102,9 @@ class Opus_Model_Dependent_AbstractTest extends PHPUnit_Framework_TestCase {
         $this->_mockAdapter = $this->getMock('Zend_Db_Adapter_Abstract',
             array('_connect', '_beginTransaction', '_commit', '_rollback',
                 'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId', 
-                'setFetchMode', 'limit', 'supportsParameters'), 
+                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'),
             array($config));
-        
+
         $this->_mockTableGateway = $this->getMock('Opus_Model_Dependent_AbstractTest_MockTableGateway',
             array('createRow'), array(array(Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter)));
 
