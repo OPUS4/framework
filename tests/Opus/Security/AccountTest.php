@@ -164,7 +164,7 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
     public function testFindCreatedAccount() {
         $account1 = new Opus_Account;
         $account1->setLogin('bob')->setPassword('bobbob')->store();
-        $account2 = new Opus_Account('bob');
+        $account2 = new Opus_Account(null, null, 'bob');
         $this->assertEquals($account1->getLogin(), $account2->getLogin(), 'Found wrong account object.');
     }
 
@@ -206,7 +206,7 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
 
-        $result = new Opus_Account('bob');
+        $result = new Opus_Account(null, null, 'bob');
         $this->assertEquals($bob->getId(), $result->getId(), 'Retrieved account does not match stored account.');
     }
 
@@ -220,7 +220,7 @@ class Opus_Security_AccountTest extends PHPUnit_Framework_TestCase {
         $bob->setLogin('bob')->setPassword('secret')->store();
 
         $this->setExpectedException('Opus_Security_Exception');
-        $result = new Opus_Account('bobby');
+        $result = new Opus_Account(null, null, 'bobby');
     }
 
 }
