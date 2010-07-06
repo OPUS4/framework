@@ -127,7 +127,7 @@ class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
         $docId = $doc->store();
 
         // build lucene search index
-        $indexer = new Opus_Search_Index_Indexer;
+        $indexer = new Opus_Search_Index_Lucene_Indexer;
         $result = $indexer->addDocumentToEntryIndex($doc);
         $indexer->finalize();
 
