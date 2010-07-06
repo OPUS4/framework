@@ -57,7 +57,7 @@ class Opus_Model_FilterTest extends PHPUnit_Framework_TestCase {
     protected $filter = null;
 
     public function setUp() {
-        if (false === class_exists('Opus_Model_FilterTest_Mock')) {
+        if (false === class_exists('Opus_Model_FilterTest_Mock', false)) {
             $clazz =
             'class Opus_Model_FilterTest_Mock extends Opus_Model_Abstract {
                 protected $_internalFields = array(\'InternalField\');

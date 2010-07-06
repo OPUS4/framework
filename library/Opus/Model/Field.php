@@ -508,7 +508,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             if (is_array($this->_value) === true and array_key_exists($index, $this->_value) === true) {
                 return $this->_value[$index];
             } else {
-                throw new InvalidArgumentException('Unvalid index: ' . $index);
+                throw new InvalidArgumentException('Invalid index: ' . $index);
             }
         } else {
             // If multiple values are possible return an array in every case

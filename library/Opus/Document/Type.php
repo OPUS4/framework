@@ -93,6 +93,13 @@ class Opus_Document_Type {
     protected $_name = '';
 
     /**
+     * Name of the document workflow.
+     *
+     * @var string
+     */
+    protected $_workflow = '';
+
+    /**
      * Path to location of xml document type definitions.
      *
      * @var string

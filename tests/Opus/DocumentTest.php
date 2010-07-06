@@ -787,17 +787,20 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
 
-        $doc1 = new Opus_Document(null, 'test_type');
+        $doc1 = new Opus_Document(null, $type);
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
         $id1 = $doc1->store();
 
-        $doc2 = new Opus_Document(null, 'test_type');
+        $doc2 = new Opus_Document(null, $type);
         $title2 = $doc2->addTitleMain();
         $title2->setLanguage('en');
         $title2->setValue('An english titel');
         $id2 = $doc2->store();
+
+        $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
+        return;
 
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertEquals(2, count($result), 'Wrong number of title entries.');
@@ -819,7 +822,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
 
-        $doc1 = new Opus_Document(null, 'test_type');
+        $doc1 = new Opus_Document(null, $type);
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
@@ -828,11 +831,14 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $title2->setValue('Ein englischer Titel');
         $id1 = $doc1->store();
 
-        $doc2 = new Opus_Document(null, 'test_type');
+        $doc2 = new Opus_Document(null, $type);
         $title3 = $doc2->addTitleMain();
         $title3->setLanguage('en');
         $title3->setValue('An english titel');
         $id2 = $doc2->store();
+
+        $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
+        return;
 
         $result = Opus_Document::getAllDocumentTitles();
 
@@ -928,7 +934,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         </documenttype>';
         $type = new Opus_Document_Type($xml);
 
-        $doc = new Opus_Document(null, 'test_type');
+        $doc = new Opus_Document(null, $type);
         $title = $doc->addTitleMain();
         $title->setLanguage('de');
         $title->setValue('Ein deutscher Titel');
@@ -940,7 +946,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
         $expected = array(
             'Language' => 'de',
             'Value' => 'Ein deutscher Titel',
-            'SortOrder' => null
+//            'SortOrder' => null
             );
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
     }
@@ -1139,7 +1145,7 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      */
     public function testNewlyCreatedDocumentsHaveNoModifiedFields() {
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $newdoc = new Opus_Document(null, 'article');
+        $newdoc = new Opus_Document(null, 'article', 'repository');
         $fieldnames = $newdoc->describe();
         foreach ($fieldnames as $fieldname) {
             $field = $newdoc->getField($fieldname);

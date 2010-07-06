@@ -204,7 +204,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
      * @return void
      */
     public function testPrimaryKeyOfTransientLinkModelIsNull() {
-        if (false === class_exists('Opus_Model_Dependent_Link_Mock')) {
+        if (false === class_exists('Opus_Model_Dependent_Link_Mock', false)) {
             eval('
                 class Opus_Model_Dependent_Link_Mock
                 extends Opus_Model_Dependent_Link_Abstract {
@@ -212,7 +212,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
                 }
             ');
         }
-        if (false === class_exists('Opus_Model_Dependent_Link_MockTableRow')) {
+        if (false === class_exists('Opus_Model_Dependent_Link_MockTableRow', false)) {
             eval('
                 class Opus_Model_Dependent_Link_MockTableRow
                 extends Zend_Db_Table_Row {
@@ -222,13 +222,13 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
             ');
         }
         
-        if (false === class_exists('Opus_Model_Dependent_Link_MockTableGateway')) {
+        if (false === class_exists('Opus_Model_Dependent_Link_MockTableGateway', false)) {
             eval('
                 class Opus_Model_Dependent_Link_MockTableGateway
                 extends Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
-                    public function createRow(array $data = array()) {
+                    public function createRow(array $data = array(), $defaultSource = null)
                         $row = new Opus_Model_Dependent_Link_MockTableRow(array(\'table\' => $this));
                         return $row;
                     }

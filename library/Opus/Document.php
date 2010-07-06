@@ -1498,7 +1498,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     public function delete() {
         $config = Zend_Registry::get('Zend_Config');
 
-        $searchEngine = $config->searchengine->engine;
         if (is_null($config) === true or is_null($config->searchengine) === true or empty($searchEngine) === true) {
             $searchEngine = 'Lucene';
         }
