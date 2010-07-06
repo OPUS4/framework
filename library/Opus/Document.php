@@ -1502,6 +1502,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (is_null($config) === true or is_null($config->searchengine) === true or empty($searchEngine) === true) {
             $searchEngine = 'Lucene';
         }
+        else {
+            $searchEngine = $config->searchengine->engine;
+        }
 
         // De-fatalize Search Index errors.
         try {
