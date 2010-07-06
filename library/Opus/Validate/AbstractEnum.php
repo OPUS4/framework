@@ -53,7 +53,7 @@ abstract class Opus_Validate_AbstractEnum extends Zend_Validate_Abstract {
         $this->_setValue($value);
 
         if (array_search($value, $this->_valid_enums, true) === false) {
-            $this->_error();
+            $this->_error("Invalid enum value '$value'");
             return false;
         }
 
