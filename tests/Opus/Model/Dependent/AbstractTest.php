@@ -85,11 +85,20 @@ class Opus_Model_Dependent_AbstractTest extends PHPUnit_Framework_TestCase {
                 extends Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
+
+                    // Method/array copy-pasted from Zend_Db_Table_Abstract
                     public function info($key = null) {
                         $info = array(
+                            self::SCHEMA           => "",
+                            self::NAME             => "",
                             self::COLS             => "",
                             self::PRIMARY          => array("id"),
                             self::METADATA         => "",
+                            self::ROW_CLASS        => "",
+                            self::ROWSET_CLASS     => "",
+                            self::REFERENCE_MAP    => "",
+                            self::DEPENDENT_TABLES => "",
+                            self::SEQUENCE         => "",
                         );
                         return $info;
                     }
