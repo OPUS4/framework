@@ -70,7 +70,7 @@ class Opus_Search_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Search');
-        $suite->addTestSuite('Opus_Search_DocumentAdapterTest');
+        // TODO: $suite->addTestSuite('Opus_Search_DocumentAdapterTest');
         $suite->addTestSuite('Opus_Search_Adapter_PersonAdapterTest');
         $suite->addTest(Opus_Search_Index_AllTests::suite());
         return $suite;

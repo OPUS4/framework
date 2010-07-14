@@ -68,7 +68,7 @@ class Opus_Translate_AllTests {
      */
     public static function suite() {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Translate');
-        $suite->addTestSuite('Opus_Translate_Adapter_DbTest');
+        // TODO:  $suite->addTestSuite('Opus_Translate_Adapter_DbTest');
         return $suite;
     }
 

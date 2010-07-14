@@ -72,7 +72,7 @@ class Opus_Security_AllTests {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Security');
         $suite->addTestSuite('Opus_Security_AccountTest');
         $suite->addTestSuite('Opus_Security_AuthAdapterTest');
-        $suite->addTestSuite('Opus_Security_RealmTest');
+        // TODO: $suite->addTestSuite('Opus_Security_RealmTest');
         return $suite;
     }
 
