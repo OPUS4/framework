@@ -73,8 +73,8 @@ class Opus_Model_AllTests {
         $suite->addTestSuite('Opus_Model_AbstractDbTest');
         $suite->addTestSuite('Opus_Model_AbstractTest');
         $suite->addTestSuite('Opus_Model_Dependent_AbstractTest');
-        // TODO: $suite->addTestSuite('Opus_Model_Dependent_Link_AbstractTest');
-        // TODO: $suite->addTestSuite('Opus_Model_FieldTest');
+        $suite->addTestSuite('Opus_Model_Dependent_Link_AbstractTest');
+        $suite->addTestSuite('Opus_Model_FieldTest');
         $suite->addTestSuite('Opus_Model_FilterTest');
         //$suite->addTestSuite('Opus_Model_XmlTest');
         //$suite->addTestSuite('Opus_Model_Xml_Version1Test');

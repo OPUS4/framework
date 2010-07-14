@@ -173,7 +173,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
 
         $model->expects($this->once())
             ->method('__call')
-            ->with($this->equalTo('addMulti', array(null)));
+            ->with($this->equalTo('addMulti'), array(null));
 
         $link->addMulti(null);
     }
@@ -228,7 +228,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends PHPUnit_Framework_TestCase 
                 extends Zend_Db_Table {
                     protected function _setup() {}
                     protected function _init() {}
-                    public function createRow(array $data = array(), $defaultSource = null)
+                    public function createRow(array $data = array(), $defaultSource = null) {
                         $row = new Opus_Model_Dependent_Link_MockTableRow(array(\'table\' => $this));
                         return $row;
                     }

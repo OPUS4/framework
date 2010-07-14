@@ -151,6 +151,8 @@ class Opus_Model_FieldTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testSinglevaluedFieldTakesSingleValue() {
+        $this->markTestIncomplete( 'This is invalid as long as _ignoreMultiplicity is set.' );
+
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $this->setExpectedException('InvalidArgumentException');

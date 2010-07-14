@@ -80,10 +80,9 @@ class Opus_AllTests {
         $suite->addTest(Opus_Translate_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());
 
-        // TODO: $suite->addTestSuite('Opus_ConfigurationTest');
         // TODO: $suite->addTestSuite('Opus_DocumentTest');
         $suite->addTestSuite('Opus_LicenceTest');
-        // TODO: $suite->addTestSuite('Opus_PersonTest');
+        $suite->addTestSuite('Opus_PersonTest');
 
         // FIXME: Moved Search_Test to end because it could cause segmentation faults.
         $suite->addTest(Opus_Search_AllTests::suite());
