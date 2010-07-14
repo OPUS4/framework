@@ -473,6 +473,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // Form return value
             if (count($rows) === 1) {
                 // Return a single object if threre is only one model in the result
+                // FIXME: (Thoralf) Is this really neccessary?  This check could be done in setValue()
                 $result = $result[0];
             } else if (count($rows) === 0) {
                 // Return explicitly null if no results have been found.
@@ -720,5 +721,16 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 
         $field->setValue($values);
 
+    }
+
+    /**
+     *  Debugging helper.  Sends the given message to Zend_Log.
+     *
+     * @param string $message
+     */
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+        $logger->info(__CLASS__ . ": $message");
     }
 }

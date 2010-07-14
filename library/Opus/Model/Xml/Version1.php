@@ -495,4 +495,14 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
     }
 
+    /**
+     *  Debugging helper.  Sends the given message to Zend_Log.
+     *
+     * @param string $message
+     */
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+        $logger->info(__CLASS__ . ": $message");
+    }
 }
