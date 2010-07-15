@@ -48,51 +48,284 @@ class Opus_Collection_BasicRoleTests extends PHPUnit_Framework_TestCase {
      *
      * @var Opus_CollectionRole
      */
-    protected $fixture;
+    protected $object;
 
-    protected $_name     = "";
-    protected $_oai_name = "";
+    /**
+     * Static helper for creating random objects.
+     */
+     public static function createRandomObject() {
+        $name     = "name-" . rand();
+        $oai_name = "oainame-" . rand();
 
+        // Object is not stored.
+        $object = new Opus_CollectionRole();
+        $object->setName($name);
+        $object->setOaiName($oai_name);
+
+        return $object;
+     }
+
+    /**
+     * Sets up the fixture.  Method is called before each test.
+     */
     public function setUp() {
-        $this->_name     = "name-" . rand();
-        $this->_oai_name = "oainame-" . rand();
-
-        $this->fixture  = new Opus_CollectionRole();
-        $this->fixture->setName($this->_name);
-        $this->fixture->setOaiName($this->_oai_name);
-        $this->fixture->store();
+        // Object is not stored.
+        $this->object  = self::createRandomObject();
     }
 
-    public function testRoleConstructor() {
-        $this->assertFalse(is_null($this->fixture->getId()), 'CollectionRole storing failed: should have an Id.');
+    /**
+     * Tests delete method and if object is really deleted.
+     */
+    public function testDelete() {
 
-        // Check, if we can create the object for this Id.
-        $role_id = $this->fixture->getId();
-        $role = new Opus_CollectionRole( $role_id );
+        $this->assertTrue($this->object->isNewRecord(),
+                'CollectionRole isNewRecord check failed on new record.');
 
-        $this->assertFalse(is_null($role), 'CollectionRole construction failed: role is null.');
-        $this->assertFalse(is_null($role->getId()), 'CollectionRole storing failed: should have an Id.');
-        $this->assertTrue(($role->getName() === $this->_name), 'CollectionRole name check failed.');
-        $this->assertTrue(($role->getOaiName() === $this->_oai_name), 'CollectionRole oai_name check failed.');
+        $role_id = $this->object->store();
+        $this->assertNotNull($role_id,
+                'CollectionRole role_id return value check on stored record.');
+        $this->assertFalse($this->object->isNewRecord(),
+                'CollectionRole isNewRecord check failed on new record.');
+
+        $this->object->delete();
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        new Opus_CollectionRole( $role_id );
     }
 
-    public function testRoleDelete() {
-        $role_id = $this->fixture->getId();
+    /**
+     * Tests store method and if object can be reloaded after storing.
+     */
+    public function testStore() {
 
-        // Second step: Restore object, delete.
-        $role = new Opus_CollectionRole( $role_id );
-        $role->delete();
+        $this->assertTrue($this->object->isNewRecord(),
+                'CollectionRole isNewRecord check failed on new record.');
 
-        // Third step: Create deleted object - should fail.
-        $this->setExpectedException('Zend_Db_Table_Rowset_Exception');
-        $role = new Opus_CollectionRole( $role_id );
+        $role_id = $this->object->store();
+        $this->assertNotNull($role_id,
+                'CollectionRole role_id return value check on stored record.');
+        $this->assertNotNull($this->object->getId(),
+                'CollectionRole getId check on stored record.');
+        $this->assertTrue($role_id === $this->object->getId(),
+                'CollectionRole->store return value check failed.');
+        $this->assertFalse($this->object->isNewRecord(),
+                'CollectionRole isNewRecord check failed on stored record.');
 
-        $this->assertTrue(is_null($role), 'CollectionRole construction failed: role is NOT null.');
+        $role = new Opus_CollectionRole( $this->object->getId() );
+        $this->assertTrue(is_object($role),
+                'CollectionRole reloading failed.');
+        $this->assertFalse(is_null($role->getId()),
+                'CollectionRole getId check on stored record.');
+        $this->assertFalse($role->isNewRecord(),
+                'CollectionRole isNewRecord check failed on reloaded record.');
+        $this->assertFalse($role->isModified(),
+                'CollectionRole isModified check failed on reloaded record.');
+
+        $this->object->delete();
     }
+
+    /**
+     * Tests setting of name field.
+     */
+    public function testSetName() {
+        $name = "set-name-" . rand();
+
+        $this->object->setName($name);
+        $this->assertTrue(($this->object->getName() === $name),
+                'CollectionRole name check failed.');
+
+        $this->object->store();
+        $role = new Opus_CollectionRole( $this->object->getId() );
+        $this->assertTrue(($role->getName() === $name),
+                'CollectionRole name check on reloaded object failed.');
+
+        $this->object->delete();
+    }
+
+    /**
+     * @todo Implement testGetDisplayName().
+     */
+    public function testGetDisplayName() {
+        $this->assertNotNull($this->object->getDisplayName(),
+                'CollectionRole getDisplayName most NOT be null.');
+    }
+
+    /**
+     * @todo Implement testToArray().
+     */
+    public function testToArray() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testFetchByName().
+     */
+    public function testFetchByName() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testFetchByOaiName().
+     */
+    public function testFetchByOaiName() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testFetchAll().
+     */
+    public function testFetchAll() {
+
+        $name = $this->object->getName();
+
+        // Check fetchAll works even if object is unstored.
+        $roles = Opus_CollectionRole::fetchAll();
+        $roles_count_old = count($roles);
+        $this->assertTrue( is_array($roles), "Array return value expected." );
+
+        // Check fetchAll works after storing *and* contains the object.
+        $this->object->store();
+        $roles = Opus_CollectionRole::fetchAll();
+        $this->assertTrue( is_array($roles), "Array return value expected." );
+        $this->assertTrue( count($roles) > $roles_count_old, "Increasing count expected." );
+
+        $seen = false;
+        foreach ($roles AS $role) {
+            if ( $role->getId() === $this->object->getId() ) {
+                $seen = true;
+                $this->assertTrue( $role->getName() === $name, "CollectionRole has wrong name." );
+            }
+        }
+
+        $this->assertTrue( $seen , "CollectionRole is not visible in fetchAll." );
+    }
+
+    /**
+     * @todo Implement testCreateObjects().
+     */
+    public function testCreateObjects() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testGetOaiSetNames().
+     */
+    public function testGetOaiSetNames() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testExistsDocumentIdsInSet().
+     */
+    public function testExistsDocumentIdsInSet() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testGetDocumentIdsInSet().
+     */
+    public function testGetDocumentIdsInSet() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testGetAll().
+     */
+    public function testGetAll() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testGetSubCollection().
+     */
+    public function testGetSubCollection() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement test_storeRootNode().
+     */
+    public function test_storeRootNode() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * @todo Implement testGetParents().
+     */
+    public function testGetParents() {
+        // Remove the following lines when you implement this test.
+        $this->markTestIncomplete(
+                'This test has not been implemented yet.'
+        );
+    }
+
+    /**
+     * Check if setting position works
+     */
+    public function testPosition() {
+
+        $this->object->store();
+
+        // Populate database with dummy objects.
+        $i_max = rand(5, 10);
+        for ($i = 0; $i < $i_max; $i++) {
+            $object = self::createRandomObject();
+            $object->store();
+        }
+
+        // Check if setPosition works properly.
+        $num_roles = count( Opus_CollectionRole::fetchAll() );
+        $check_positions = array( 1, $num_roles, round((1+$num_roles)/2), 1 );
+
+        foreach ($check_positions AS $position) {
+            $this->object->setPosition($position);
+            $this->object->store();
+
+            // Reload object, otherwise the result will be trivial.
+            $role = new Opus_CollectionRole($this->object->getId());
+            $this->assertTrue(($role->getPosition() === "$position"), 'CollectionRole position check failed.');
+        }
+
+    }
+
+    /**
+     * Initializes the current element with random data and checks if it will
+     * be stored correctly.
+     */
 
     public function testRoleData() {
         // Initialize with data.
-        $role = $this->fixture;
+        $role = $this->object;
 
         $role->setLinkDocsPathToRoot('both');
         $role->setDisplayBrowsing('Number, Name');
@@ -114,8 +347,8 @@ class Opus_Collection_BasicRoleTests extends PHPUnit_Framework_TestCase {
         $role_id = $role->getId();
         $role = new Opus_CollectionRole( $role_id );
 
-        $this->assertTrue(($role->getName() === $this->_name), 'CollectionRole name check failed.');
-        $this->assertTrue(($role->getOaiName() === $this->_oai_name), 'CollectionRole oai_name check failed.');
+        $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
+        $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');
 
         $this->assertTrue(($role->getLinkDocsPathToRoot() === 'both'), 'CollectionRole link_docs_path_to_root check failed.');
         $this->assertTrue(($role->getDisplayBrowsing() === 'Number, Name'), 'CollectionRole display_browsing check failed.');
@@ -130,35 +363,5 @@ class Opus_Collection_BasicRoleTests extends PHPUnit_Framework_TestCase {
         $this->assertTrue(($role->getPosition() === '1'), 'CollectionRole position check failed.');
     }
 
-    public function testRoleFetchAll() {
-
-        // Check if Role is visible in fetchAll
-        $roles = Opus_CollectionRole::fetchAll();
-        $seen = false;
-        foreach ($roles AS $role) {
-            if ( $role->getId() === $this->fixture->getId() ) {
-                $seen = true;
-                $this->assertTrue( $role->getName() === $this->_name, "CollectionRole has wrong name." );
-            }
-        }
-
-        $this->assertTrue( true === $seen , "CollectionRole is not visible in fetchAll." );
-    }
-
-    public function testPosition() {
-
-        // Check if setPosition works properly.
-        $num_roles = count( Opus_CollectionRole::fetchAll() );
-        $check_positions = array( 1, $num_roles, round((1+$num_roles)/2), 1 );
-        
-        foreach ($check_positions AS $position) {
-            $this->fixture->setPosition($position);
-            $this->fixture->store();
-
-            $role = new Opus_CollectionRole($this->fixture->getId());
-            $this->assertTrue(($role->getPosition() === "$position"), 'CollectionRole position check failed.');
-        }
-
-    }
 
 }
