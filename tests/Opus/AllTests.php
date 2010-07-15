@@ -80,7 +80,7 @@ class Opus_AllTests {
         $suite->addTest(Opus_Translate_AllTests::suite());
         $suite->addTest(Opus_Validate_AllTests::suite());
 
-        // TODO: $suite->addTestSuite('Opus_DocumentTest');
+        $suite->addTestSuite('Opus_DocumentTest');
         $suite->addTestSuite('Opus_LicenceTest');
         $suite->addTestSuite('Opus_PersonTest');
 

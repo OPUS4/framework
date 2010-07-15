@@ -373,8 +373,8 @@ class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function testGetDocumentTypeFileByTypeName() {
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $type = new Opus_Document_Type('type_test');
+        Opus_Document_Type::setXmlDoctypePath(dirname(dirname(__FILE__)));
+        $type = new Opus_Document_Type('article');
         $this->assertNotNull($type);
     }
 

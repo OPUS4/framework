@@ -118,7 +118,7 @@ class Opus_Document_Type {
      */
     public static function getAvailableTypeNames() {
         $typeList = array();
-        foreach (glob(self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . "repository" . DIRECTORY_SEPARATOR . '*.xml') as $filename) {
+        foreach (glob(self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . '*.xml') as $filename) {
             $docType = new DomDocument;
             $docType->load($filename);
             $typeList[] = $docType->getElementsByTagName('documenttype')->item(0)->attributes->getNamedItem('name')->value;
@@ -166,7 +166,8 @@ class Opus_Document_Type {
                 $type = 'filename';
                 $xml = $filename;
             } else {
-                $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . "repository" . DIRECTORY_SEPARATOR . $filename . '.xml';
+                $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . $filename . '.xml';
+                var_dump($filename);
                 if (is_file($filename) === true) {
                     $type = 'filename';
                     $xml = $filename;
