@@ -200,7 +200,6 @@ class Opus_Search_Index_Lucene_Indexer {
 	    #unset($doc);
 	    $document['year'] = $this->getValue($this->docToIndex, 'CompletedYear');
 	    $document['doctype'] = $this->getValue($this->docToIndex, 'Type');
-	    $document['workflow'] = $this->getValue($this->docToIndex, 'Workflow');
 
         // if there is no year set, search in other fields for a usable year
         if ('0000' === $document['year'] && true === array_key_exists('year', $document)) {

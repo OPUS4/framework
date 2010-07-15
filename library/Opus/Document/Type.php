@@ -93,13 +93,6 @@ class Opus_Document_Type {
     protected $_name = '';
 
     /**
-     * Name of the document workflow.
-     *
-     * @var string
-     */
-    protected $_workflow = '';
-
-    /**
      * Path to location of xml document type definitions.
      *
      * @var string
@@ -123,27 +116,14 @@ class Opus_Document_Type {
      *
      * @return array An array of strings.
      */
-    public static function getAvailableTypeNames($workflow = 'repository') {
+    public static function getAvailableTypeNames() {
         $typeList = array();
-        foreach (glob(self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . $workflow . DIRECTORY_SEPARATOR . '*.xml') as $filename) {
+        foreach (glob(self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . "repository" . DIRECTORY_SEPARATOR . '*.xml') as $filename) {
             $docType = new DomDocument;
             $docType->load($filename);
             $typeList[] = $docType->getElementsByTagName('documenttype')->item(0)->attributes->getNamedItem('name')->value;
         }
         return $typeList;
-    }
-
-    /**
-     * Returns the names of all available workflows.
-     *
-     * @return array An array of strings.
-     */
-    public static function getAvailableWorkflows() {
-        $workflowList = array();
-        foreach (glob(self::$_xmlDocTypePath . '/*') as $dirName) {
-            $workflowList[] = basename($dirName);
-        }
-        return $workflowList;
     }
 
     /**
@@ -157,7 +137,7 @@ class Opus_Document_Type {
      * @throws Opus_Document_Exception  If parsing or validating fails.
      *
      */
-    public function __construct($xml, $workflow = 'repository') {
+    public function __construct($xml) {
 
         // Determine the type of argument
         $document = null;
@@ -186,7 +166,7 @@ class Opus_Document_Type {
                 $type = 'filename';
                 $xml = $filename;
             } else {
-                $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . $workflow . DIRECTORY_SEPARATOR . $filename . '.xml';
+                $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . "repository" . DIRECTORY_SEPARATOR . $filename . '.xml';
                 if (is_file($filename) === true) {
                     $type = 'filename';
                     $xml = $filename;
@@ -354,15 +334,6 @@ class Opus_Document_Type {
      */
     public function getName() {
         return $this->_name;
-    }
-
-    /**
-     * Get workflow of the document type.
-     *
-     * @return string Workflow name.
-     */
-    public function getWorkflow() {
-        return $this->_workflow;
     }
 
     /**
