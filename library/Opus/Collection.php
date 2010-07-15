@@ -183,24 +183,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Fetch all nodes between (including) the root and this node.
-     * FIXME: Documentation.
-     */
-    public function _fetchParentCollections() {
-        throw new Exception("Method not supported.  Check API.");
-
-        if ($this->isNewRecord()) {
-            return;
-        }
-
-        $table = $this->_primaryTableRow->getTable();
-        $select = $table->selectParentsById($this->getId());
-        $rows = $table->fetchAll($select);
-
-        return self::createObjects($rows);
-    }
-
-    /**
      * Overwrites store procedure.
      *
      * @return void
@@ -232,7 +214,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
-        $config = Zend_Registry::get('Zend_Config');
+        // $config = Zend_Registry::get('Zend_Config');
 
         // Find default theme: if not set in config file, set to default.
         $theme = isset($config->theme) === true ? $config->theme : self::DEFAULT_THEME_NAME;
@@ -277,19 +259,19 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
+        if (self::DEFAULT_THEME_NAME === $theme) {
+            // No need to store default theme setting.
+            $row->delete();
+        }
+
         if (true === is_null($row)) {
             $row = $table->createRow();
         }
 
-        if (self::DEFAULT_THEME_NAME === $theme) {
-            // No need to store default theme setting.
-            $row->delete();
-        } else {
-            $row->role_id = $this->getRoleId();
-            $row->collection_id = $this->getId();
-            $row->theme = $theme;
-            $row->save();
-        }
+        $row->role_id = $this->getRoleId();
+        $row->collection_id = $this->getId();
+        $row->theme = $theme;
+        $row->save();
     }
 
     /**
@@ -322,7 +304,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $results = array();
         foreach ($rows as $row) {
-            $doc = $results[] = new Opus_Document($row);
+            $results[] = new Opus_Document($row);
         }
 
         return $results;

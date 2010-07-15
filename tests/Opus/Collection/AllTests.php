@@ -72,7 +72,7 @@ class Opus_Collection_AllTests {
         $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Collection');
         $suite->addTestSuite('Opus_Collection_BasicRoleTests');
         // TODO: $suite->addTestSuite('Opus_Collection_BasicNodeTests');
-        // TODO: $suite->addTestSuite('Opus_Collection_BasicCollectionTests');
+        $suite->addTestSuite('Opus_Collection_BasicCollectionTests');
         return $suite;
     }
 
