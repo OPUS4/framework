@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -51,7 +52,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     protected static $_tableGatewayClass = 'Opus_Db_CollectionsRoles';
 
-
     /**
      * The documents external fields, i.e. those not mapped directly to the
      * Opus_Db_Documents table gateway.
@@ -60,19 +60,17 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            // Will contain the Root Node of this Role.
-            'RootNode' => array(
-                            'model'   => 'Opus_CollectionNode',
-                            'options' => array('left_id' => 1),
-                            'fetch'   => 'lazy',
-            ),
-
-            // Will contain additional attributes of Collections
-            'Attributes' => array(
-                            'fetch'   => 'lazy',
-            ),
+        // Will contain the Root Node of this Role.
+        'RootNode' => array(
+            'model' => 'Opus_CollectionNode',
+            'options' => array('left_id' => 1),
+            'fetch' => 'lazy',
+        ),
+        // Will contain additional attributes of Collections
+        'Attributes' => array(
+            'fetch' => 'lazy',
+        ),
     );
-
 
     /**
      * Initialize model with the following fields:
@@ -92,7 +90,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $name = new Opus_Model_Field('Name');
         $this->addField($name);
 
-        $oaiName  = new Opus_Model_Field('OaiName');
+        $oaiName = new Opus_Model_Field('OaiName');
         $this->addField($oaiName);
 
         $position = new Opus_Model_Field('Position');
@@ -105,7 +103,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $this->addField($visible);
 
         $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
-        $mapping = array('none'=>'none', 'count'=>'count', 'display'=>'display', 'both'=>'both');
+        $mapping = array('none' => 'none', 'count' => 'count', 'display' => 'display', 'both' => 'both');
         $links_docs_path_to_root->setDefault($mapping)->setSelection(true);
         $this->addField($links_docs_path_to_root);
 
@@ -143,7 +141,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     }
 
-
     /**
      * Returns long name.
      *
@@ -154,8 +151,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public function getDisplayName() {
         return $this->getName();
-    }
 
+    }
 
     /**
      * Overwrite standard storage procedure to shift positions.  The parameter
@@ -206,7 +203,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $range = $db->quoteInto("position >= ?", $to);
         $pos_shift = ' + 1 ';
 
-        if (! $this->isNewRecord()) {
+        if (!$this->isNewRecord()) {
             $pos_query = 'SELECT position FROM collections_roles WHERE id = ?';
             $pos = $db->fetchOne($pos_query, $this->getId());
 
@@ -235,8 +232,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $row->{'position'} = (int) $to;
 
         return;
-    }
 
+    }
 
     /**
      * Overwrites standard toArray() to prevent infinite recursion due to parent
@@ -252,15 +249,15 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $result = array();
         foreach ($this->getSubCollections() as $subCollection) {
             $result[] = array(
-                    'Id'             => $subCollection->getId(),
-                    'Name'           => $subCollection->getName(),
+                'Id' => $subCollection->getId(),
+                'Name' => $subCollection->getName(),
 //                    'RootCollection' => $this->getRootCollection()->getId(),
 //                    'SubCollection'  => $subCollection->toArray(),
             );
         }
         return $result;
-    }
 
+    }
 
     /**
      * Extend standard deletion to delete collection roles tables.
@@ -295,8 +292,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $db->query($statement_3);
 
         parent::delete();
-    }
 
+    }
 
     /**
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
@@ -305,13 +302,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @param  string $name
      * @return Opus_CollectionRole
      */
-
     public static function fetchByName($name = null) {
         if (false === isset($name)) {
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('name = ?', $name);
         $row = $table->fetchRow($select);
 
@@ -320,8 +316,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return;
-    }
 
+    }
 
     /**
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by oaiName.
@@ -330,13 +326,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @param  string $oai_name
      * @return Opus_CollectionRole
      */
-
     public static function fetchByOaiName($oai_name = null) {
         if (false === isset($oai_name)) {
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance( self::$_tableGatewayClass );
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('oai_name = ?', $oai_name);
         $row = $table->fetchRow($select);
 
@@ -345,8 +340,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return;
-    }
 
+    }
 
     /**
      * Retrieve all Opus_CollectionRole instances from the database.
@@ -356,14 +351,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Parametrize query to account for hidden collection roles.
      * TODO: Modify self::getAllFrom to take parameters.
      */
-
     public static function fetchAll() {
         // $roles = self::getAllFrom('Opus_CollectionRole', self::$_tableGatewayClass);
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $roles = $table->fetchAll("id > 1", 'position');
         return self::createObjects($roles);
-    }
 
+    }
 
     /**
      * Mass-constructur.
@@ -374,7 +368,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus_Collection!
      */
-
     public static function createObjects($array) {
         $results = array();
 
@@ -388,9 +381,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return $results;
+
     }
 
-    /* ********************************************************************** *
+    /*     * ********************************************************************* *
      * Everything which deals with OAI sets goes here:
      * ********************************************************************** */
 
@@ -405,7 +399,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array An array of strings containing oai set names.
      */
     public function getOaiSetNames() {
-        $oaiPrefix        = $this->getOaiName();
+        $oaiPrefix = $this->getOaiName();
         $oaiPostfixColumn = $this->getDisplayOai();
 
         if (is_null($oaiPrefix) || $oaiPrefix == '') {
@@ -414,9 +408,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
 
-        $quotePrefix  = $db->quote("$oaiPrefix:");
+        $quotePrefix = $db->quote("$oaiPrefix:");
         $quotePostfix = $db->quoteIdentifier("c.$oaiPostfixColumn");
-        $quoteRoleId  = $db->quote($this->getId());
+        $quoteRoleId = $db->quote($this->getId());
 
         $select = "SELECT DISTINCT CONCAT( $quotePrefix, $quotePostfix ) "
                 . " FROM collections AS c "
@@ -424,12 +418,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
                 . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
 
-        $this->logger( "$select" );
+        $this->logger("$select");
 
         // FIXME: Add error handling for failed DB requests!
 
         $results = $db->fetchCol($select);
         return $results;
+
     }
 
     /**
@@ -452,14 +447,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             throw new Exception("Given OAI prefix does not match this role.");
         }
 
-        $oaiPrefix  = $this->getOaiName();
+        $oaiPrefix = $this->getOaiName();
 
         $db = Zend_Db_Table::getDefaultAdapter();
 
         $oaiPostfixColumn = $this->getDisplayOai();
         $quotePostfixColumn = $db->quoteIdentifier("c.$oaiPostfixColumn");
         $quotePostfix = $db->quote("$oaiPostfix");
-        $quoteRoleId  = $db->quote($this->getId());
+        $quoteRoleId = $db->quote($this->getId());
 
         $select = " SELECT c.id FROM collections AS c "
                 . " WHERE $quotePostfixColumn = $quotePostfix "
@@ -479,6 +474,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return false;
+
     }
 
     /**
@@ -528,6 +524,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $role->logger("$oaiSetName: #" . count($result));
 
         return $result;
+
     }
 
     /**
@@ -537,6 +534,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public static function getAll() {
         return self::fetchAll();
+
     }
 
     /**
@@ -544,16 +542,15 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @param string $message
      */
-
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
 
         $logger->info("Opus_CollectionRole: $message");
+
     }
 
-
-    /* ********************************************************************** *
+    /*     * ********************************************************************* *
      * Everything which depends on $this->getRootNode() goes here:
      * ********************************************************************** */
 
@@ -567,10 +564,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public function getSubCollection() {
         $root = $this->getRootNode();
-        if (! is_null($root)) {
+        if (!is_null($root)) {
             return $root->getSubCollection();
         }
         return array();
+
     }
 
     /**
@@ -584,11 +582,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
             if ($node->isNewRecord()) {
                 $node->setPositionKey('Root');
-                $node->setRoleId( $this->getId() );
+                $node->setRoleId($this->getId());
             }
 
             $node->store();
         }
+
     }
 
     /**
@@ -601,6 +600,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public function getParents() {
         return $this->getRootNode()->getCollection()->getParents();
+
     }
 
     /**
@@ -610,7 +610,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
-
     protected function _fetchAttributes() {
         $table = new Opus_Db_Collections();
         $info = $table->info();
@@ -629,6 +628,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return $results;
+
     }
 
     /**
@@ -639,7 +639,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
-
     protected function _storeAttributes($attributes) {
         $table = new Opus_Db_Collections();
         $info = $table->info();
@@ -670,8 +669,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return;
+
     }
 
 }
-
 ?>
