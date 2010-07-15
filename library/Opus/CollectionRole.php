@@ -164,22 +164,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @param integer $to Target position after saving..
      * @return void
      */
-    protected function _storePosition($to) {
+    protected function _storePosition($to = PHP_INT_MAX) {
         $field = $this->_getField('Position', true);
-        if (false === $field->isModified()) {
+        if (false === is_null($field->getValue()) && false === $field->isModified()) {
             return;
         }
 
-        if (!isset($to)) {
-            $to = (int) PHP_INT_MAX;
-        }
         $to = (int) $to;
-
-        if (!is_int($to)) {
-            throw new Exception("_storePosition(): First parameter must of type integer.");
-        }
-
-        // echo "target position: $to\n";
         if ($to < 1) {
             $to = 1;
         }

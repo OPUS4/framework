@@ -84,6 +84,7 @@ class Opus_Collection_BasicRoleTests extends PHPUnit_Framework_TestCase {
 
         $this->assertTrue($this->object->isNewRecord(),
                 'CollectionRole isNewRecord check failed on new record.');
+        $this->object->delete();
 
         $role_id = $this->object->store();
         $this->assertNotNull($role_id,
