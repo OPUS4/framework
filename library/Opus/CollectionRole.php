@@ -384,7 +384,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     }
 
-    /*     * ********************************************************************* *
+    /* ********************************************************************** *
      * Everything which deals with OAI sets goes here:
      * ********************************************************************** */
 
@@ -397,10 +397,20 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Check if $this->getDisplayOai() contains proper field names!
      *
      * @return array An array of strings containing oai set names.
+     *
+     * @see modules/oai/controllers/IndexController.php
      */
     public function getOaiSetNames() {
+        if (is_null($this->getId())) {
+            return array();
+        }
+
         $oaiPrefix = $this->getOaiName();
         $oaiPostfixColumn = $this->getDisplayOai();
+
+        if (empty($oaiPostfixColumn)) {
+            throw new Exception("getDisplayOai returned empty field.");
+        }
 
         if (is_null($oaiPrefix) || $oaiPrefix == '') {
             throw new Exception('Missing OAI set name.');
@@ -437,6 +447,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Check OAI set names for invalid characters (i.e. ':')
      * FIXME: Belongs to Opus_Collection
      * FIXME: Code duplication from getDocumentIdsInSet.
+     *
+     * @see modules/oai/controllers/IndexController.php
      */
     public function existsDocumentIdsInSet($oaiSetName) {
         $colonPos = strrpos($oaiSetName, ':');
@@ -486,6 +498,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * FIXME: Replace method by something more general.
      * FIXME: Don't use internal knowledge from database.
      * FIXME: Make this method non-static.
+     *
+     * @see modules/oai/controllers/IndexController.php
      */
     public static function getDocumentIdsInSet($oaiSetName) {
         $colonPos = strrpos($oaiSetName, ':');
@@ -524,16 +538,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $role->logger("$oaiSetName: #" . count($result));
 
         return $result;
-
-    }
-
-    /**
-     * LEGACY.
-     *
-     * @deprecated
-     */
-    public static function getAll() {
-        return self::fetchAll();
 
     }
 
