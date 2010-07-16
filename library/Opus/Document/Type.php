@@ -167,7 +167,6 @@ class Opus_Document_Type {
                 $xml = $filename;
             } else {
                 $filename = self::$_xmlDocTypePath . DIRECTORY_SEPARATOR . $filename . '.xml';
-                var_dump($filename);
                 if (is_file($filename) === true) {
                     $type = 'filename';
                     $xml = $filename;
