@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <dataset>
-    <test_testtable test_testtable_id="1" value="raboof" />
-	<test_testtable test_testtable_id="3" value="foo" />
-	<test_testtable test_testtable_id="4" value="bar" />
-	<test_testtable test_testtable_id="5" value="bla" />
-	<test_testtable test_testtable_id="8" value="blub" />
+    <testtable testtable_id="1" value="raboof" />
+    <testtable testtable_id="3" value="foo" />
+    <testtable testtable_id="4" value="bar" />
+    <testtable testtable_id="5" value="bla" />
+    <testtable testtable_id="8" value="blub" />
 </dataset>

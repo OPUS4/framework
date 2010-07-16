@@ -46,13 +46,13 @@ class Opus_Model_AbstractTableProvider extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_name = 'test_testtable';
+    protected $_name = 'testtable';
 
     /**
      * Set name of primary key column
      *
      * @var string
      */
-    protected $_primary = 'test_testtable_id';
+    protected $_primary = 'testtable_id';
 
 }

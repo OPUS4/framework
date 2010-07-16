@@ -95,14 +95,11 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function setUp() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-        try {
-            $dba->deleteTable('testtable');
-        } catch (Exception $ex) {
-            // CodeSniffer dope
-            $noop = 12;
-        }
-        $dba->createTable('testtable');
-        $dba->addField('testtable', array('name' => 'value', 'type' => 'varchar', 'length' => 23));
+
+        $dba->query('DROP TABLE IF EXISTS testtable');
+        $dba->query('CREATE TABLE testtable (
+            testtable_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+            value        VARCHAR(255))');
 
         // load table data
         parent::setUp();
@@ -117,7 +114,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function tearDown() {
-        TestHelper::dropTable('test_testtable');
+        TestHelper::dropTable('testtable');
     }
 
     /**
@@ -255,14 +252,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     /**
      * Test if loading a model instance from the database devlivers the expected value.
      *
-     * @param integer $test_testtable_id Id of dataset to load.
-     * @param mixed   $value             Expected Value.
+     * @param integer $testtable_id Id of dataset to load.
+     * @param mixed   $value        Expected Value.
      * @return void
      *
      * @dataProvider abstractDataSetDataProvider
      */
-    public function testValueAfterLoadById($test_testtable_id, $value) {
-        $obj = new Opus_Model_ModelAbstractDb($test_testtable_id);
+    public function testValueAfterLoadById($testtable_id, $value) {
+        $obj = new Opus_Model_ModelAbstractDb($testtable_id);
         $result = $obj->getValue();
         $this->assertEquals($value,$result, "Expected Value to be $value, got '" . $result . "'");
     }
@@ -276,8 +273,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $obj = new Opus_Model_ModelAbstractDb(1);
         $obj->setValue('raboof');
         $obj->store();
-        $expected = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSetAfterChangedValue.xml')->getTable('test_testtable');
-        $result = $this->getConnection()->createDataSet()->getTable('test_testtable');
+        $expected = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSetAfterChangedValue.xml')->getTable('testtable');
+        $result = $this->getConnection()->createDataSet()->getTable('testtable');
         $this->assertTablesEqual($expected, $result);
     }
 
@@ -373,9 +370,9 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testDeletion() {
         $obj = new Opus_Model_ModelAbstractDb(1);
-        $preCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
+        $preCount = $this->getConnection()->createDataSet()->getTable('testtable')->getRowCount();
         $obj->delete();
-        $postCount = $this->getConnection()->createDataSet()->getTable('test_testtable')->getRowCount();
+        $postCount = $this->getConnection()->createDataSet()->getTable('testtable')->getRowCount();
         $this->assertEquals($postCount, ($preCount - 1), 'Object persists allthough it was deleted.');
     }
 
@@ -397,7 +394,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase() {
-        TestHelper::clearTable('test_testtable');
+        TestHelper::clearTable('testtable');
         $result = Opus_Model_ModelAbstractDb::getAllFrom('Opus_Model_ModelAbstractDb', 'Opus_Model_AbstractTableProvider');
         $this->assertTrue(empty($result), 'Empty table should not deliver any objects.');
     }
@@ -408,7 +405,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function testGetAllEntities() {
-        TestHelper::clearTable('test_testtable');
+        TestHelper::clearTable('testtable');
         $entities[0] = new Opus_Model_ModelAbstractDb(); $entities[0]->setValue('SatisfyValidator');
         $entities[1] = new Opus_Model_ModelAbstractDb(); $entities[1]->setValue('SatisfyValidator');
         $entities[2] = new Opus_Model_ModelAbstractDb(); $entities[2]->setValue('SatisfyValidator');
