@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!-- see http://www.phpunit.de/wiki/Documentation -->
+<phpunit bootstrap="./Bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         stopOnFailure="true">
+
+    <testsuite name="FrameworkTests">
+        <directory>./</directory>
+    </testsuite>
+
+    <!-- Define directories/files filter for code coverage. -->
+    <filter>
+        <!-- Per default, skip all files. -->
+        <blacklist>
+            <directory suffix=".php">..</directory>
+        </blacklist>
+
+        <!-- Define directories to include. -->
+        <whitelist>
+            <directory suffix=".php">../library/Opus</directory>
+        </whitelist>
+    </filter>
+
+</phpunit>

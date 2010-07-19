@@ -128,7 +128,7 @@ class TestHelper extends Opus_Bootstrap_Base {
     public static function clearTable($tablename) {
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query("DELETE FROM $tablename");
+        $adapter->query("TRUNCATE $tablename");
     }
 
     /**
@@ -153,7 +153,3 @@ class TestHelper extends Opus_Bootstrap_Base {
     }
 
 }
-
-// Do test environment initializiation.
-$testhelper = new TestHelper();
-$testhelper->run(dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);
