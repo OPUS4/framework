@@ -69,10 +69,13 @@ class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
         $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
         $this->_filterPrefix[] = 'Opus_Model_FilterTest';
 
+        $id = new Opus_Model_Field('Id');
+
         $value = new Opus_Model_Field('Value');
         // trigger modified flag       
         $value->setValue('');
         
-        $this->addField($value);
+        $this->addField($id)
+           ->addField($value);
     }
 }

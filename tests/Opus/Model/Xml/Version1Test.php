@@ -206,6 +206,8 @@ class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
      * @return array
      */
     public function xmlModelDataProvider() {
+        // $this->markTestIncomplete( 'Skipped: Unknown field: Id for Opus_Model_ModelAbstract' );
+
         // one-field model
         $model1 = new Opus_Model_ModelAbstract();
         $model1->setValue('Foo');
