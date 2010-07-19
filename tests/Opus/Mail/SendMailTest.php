@@ -26,8 +26,9 @@
  *
  * @category    Tests
  * @package     Opus_Mail
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Eva Kranz <s9evkran@stud.uni-saarland.de>
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,7 +41,7 @@
  *
  * @group    MailSendMailTest
  */
-class Opus_Mail_SendMailTest extends PHPUnit_Framework_TestCase {
+class Opus_Mail_SendMailTest extends TestCase {
 
     /**
      * Holds a syntactically correct sender e-mail address.

@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_Statistic
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,7 +41,7 @@
  *
  * @group LocalCounterTest
  */
-class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
+class Opus_Statistic_LocalCounterTest extends TestCase {
 
 
     /**
@@ -64,8 +65,7 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        TestHelper::clearTable('document_statistics');
-        TestHelper::clearTable('documents');
+        parent::setUp();
 
         $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
@@ -85,7 +85,6 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
         $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
         $_SERVER['HTTP_USER_AGENT'] = 'bla';
         $_SERVER['REDIRECT_STATUS'] = 200;
-
     }
 
     /**
@@ -94,8 +93,7 @@ class Opus_Statistic_LocalCounterTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
-        TestHelper::clearTable('document_statistics');
-        TestHelper::clearTable('documents');
+        parent::tearDown();
 
         $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);

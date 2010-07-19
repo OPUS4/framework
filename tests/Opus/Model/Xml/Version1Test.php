@@ -26,8 +26,9 @@
  *
  * @category    Tests
  * @package     Opus_Model
- * @author      Ralf ClauÃnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,7 +41,7 @@
  *
  * @group XmlVersion1Test
  */
-class Opus_Model_Xml_Version1Test extends PHPUnit_Framework_TestCase {
+class Opus_Model_Xml_Version1Test extends TestCase {
 
     /**
      * Test if getModel() returns model previously defined with setModel().

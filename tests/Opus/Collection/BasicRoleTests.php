@@ -39,7 +39,7 @@
  * @category    Tests
  * @package     Opus_Collection
  *
- * @group       Collection
+ * @group       CollectionTests
  *
  */
 class Opus_Collection_BasicRoleTests extends TestCase {

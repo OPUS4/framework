@@ -27,6 +27,7 @@
  * @category    Tests
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -42,7 +43,7 @@
  * @group       Isbn10Test
  *
  */
-class Opus_Validate_Isbn10Test extends PHPUnit_Framework_TestCase {
+class Opus_Validate_Isbn10Test extends TestCase {
 
     /**
      * Data provider for valid arguments.

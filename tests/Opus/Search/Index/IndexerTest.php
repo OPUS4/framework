@@ -25,12 +25,13 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category   Test
- * @package    Opus_Search
- * @author     Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright  Copyright (c) 2009, OPUS 4 development team
- * @license    http://www.gnu.org/licenses/gpl.html General Public License
- * @version    $Id$
+ * @category    Test
+ * @package     Opus_Search
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
  */
 
 /**
@@ -41,7 +42,7 @@
  *
  * @group SearchIndexIndexerTests
  */
-class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
+class Opus_Search_Index_IndexerTest extends TestCase {
 
     /**
      * Setup initial stuff.
@@ -49,12 +50,7 @@ class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
      * @return void
     */
     protected function setUp() {
-        // cleanup database
-        TestHelper::clearTable('link_persons_documents');
-        TestHelper::clearTable('link_documents_collections');
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('document_title_abstracts');
-        TestHelper::clearTable('persons');
+        parent::setUp();
 
         $lucenePath = dirname(dirname(dirname(dirname(__FILE__)))) . '/workspace/tmp';
         Zend_Registry::set('Zend_LuceneIndexPath', $lucenePath);
@@ -85,12 +81,8 @@ class Opus_Search_Index_IndexerTest extends PHPUnit_Framework_TestCase {
         }
         closedir($fh);
 
-        // cleanup database
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('document_title_abstracts');
-        TestHelper::clearTable('persons');
-        TestHelper::clearTable('link_persons_documents');
 
+        parent::tearDown();
     }
 
     public function testCorrectIndexingOfEasyDocuments() {

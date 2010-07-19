@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_Security
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,7 +41,7 @@
  *
  * @group       AuthAdapterTest
  */
-class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
+class Opus_Security_AuthAdapterTest extends TestCase {
     
     /**
      * Holds the authentication adapter instance.
@@ -69,8 +70,6 @@ class Opus_Security_AuthAdapterTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        TestHelper::clearTable('accounts');
-
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
         

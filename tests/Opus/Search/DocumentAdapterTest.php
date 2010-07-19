@@ -27,12 +27,13 @@
  * @category    Test
  * @package     Opus_Search
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-class Opus_Search_DocumentAdapterTest extends PHPUnit_Framework_TestCase {
+class Opus_Search_DocumentAdapterTest extends TestCase {
 
 
     /**

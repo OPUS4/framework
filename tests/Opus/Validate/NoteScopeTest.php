@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,7 +41,7 @@
  * @package     Opus_Validate
  *
  */
-class Opus_Validate_NoteScopeTest extends PHPUnit_Framework_TestCase {
+class Opus_Validate_NoteScopeTest extends TestCase {
 
     /**
      * Data provider for valid arguments.

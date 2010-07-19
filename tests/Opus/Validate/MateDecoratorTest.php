@@ -41,7 +41,7 @@
  * @group       MateDecoratorTest
  *
  */
-class Opus_Validate_MateDecoratorTest extends PHPUnit_Framework_TestCase {
+class Opus_Validate_MateDecoratorTest extends TestCase {
     
     /**
      * Test if a decorated validator works as normal. 

@@ -27,8 +27,9 @@
  * @category    Tests
  * @package     Opus_Db
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -41,7 +42,7 @@
  *
  * @group       Mysqlutf8Test
  */
-class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
+class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
 
     /** Ensure a clean database table.
      *
@@ -50,6 +51,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
     public function setUp() {
         // Clean setup of default database adapter
         $config = Zend_Registry::get('Zend_Config');
+
         // Use zend_Db factory to create a database adapter
         // and make it the default for all tables.
         $db = Zend_Db::factory($config->db);
@@ -59,10 +61,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
         Zend_Registry::getInstance()->set('db_adapter', $db);
             
         // drop helper table
-        TestHelper::dropTable('test_timmy');
-
-        // Set up table prefix for subsequent tests
-        $dba = Zend_Db_Table::getDefaultAdapter();
+        $this->dropTable('test_timmy');
     }
     
     /**
@@ -72,7 +71,11 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends PHPUnit_Framework_TestCase {
      */
     public function tearDown() {
         // drop helper table
-        TestHelper::dropTable('test_timmy');
+        $this->dropTable('test_timmy');
+
+        // Close connection for clean transaction state.
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->closeConnection();
     }
 
     /**

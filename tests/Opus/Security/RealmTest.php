@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_Security
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,34 +41,7 @@
  *
  * @group RealmTest
  */
-class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
-
-
-    /**
-     * Provide clean tables.
-     *
-     * @return void
-     */
-    public function setUp() {
-        // TestHelper::clearTable('link_ipaddresses_roles');
-        TestHelper::clearTable('link_accounts_roles');
-        TestHelper::clearTable('accounts');
-        TestHelper::clearTable('roles');
-        // TestHelper::clearTable('ipaddresses');        
-    }
-    
-    /**
-     * Clear used tables.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        // TestHelper::clearTable('link_ipaddresses_roles');
-        TestHelper::clearTable('link_accounts_roles');
-        TestHelper::clearTable('accounts');
-        TestHelper::clearTable('roles');
-        // TestHelper::clearTable('ipaddresses');        
-    }    
+class Opus_Security_RealmTest extends TestCase {
 
     /**
      * Test getting singleton instance.

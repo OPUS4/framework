@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_Document
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -42,7 +43,7 @@
  * @group       TypeTest
  *
  */
-class Opus_Document_TypeTest extends PHPUnit_Framework_TestCase {
+class Opus_Document_TypeTest extends TestCase {
 
 
     /**

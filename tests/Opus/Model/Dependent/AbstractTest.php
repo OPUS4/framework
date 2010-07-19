@@ -28,7 +28,8 @@
  * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: AbstractTest.php 3427 2009-07-17 09:45:14Z claussnitzer $
  */
@@ -41,7 +42,7 @@
  *
  * @group DependentAbstractTest
  */
-class Opus_Model_Dependent_AbstractTest extends PHPUnit_Framework_TestCase {
+class Opus_Model_Dependent_AbstractTest extends TestCase {
 
     /**
      * Class instance under test.
