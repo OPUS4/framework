@@ -1,11 +1,27 @@
 <?xml version="1.0"?>
 <!-- see http://www.phpunit.de/wiki/Documentation -->
+<!-- Options copy-pasted from phpUnderControl documentation -->
+
+<!-- <phpunit backupGlobals="false"
+         backupStaticAttributes="true"
+         bootstrap="./Bootstrap.php"
+         colors="false"
+         convertErrorsToExceptions="true"
+         convertNoticesToExceptions="true"
+         convertWarningsToExceptions="true"
+         processIsolation="false"
+         stopOnFailure="false"
+         syntaxCheck="true"
+         testSuiteLoaderClass="PHPUnit_Runner_StandardTestSuiteLoader"> -->
+
 <phpunit bootstrap="./Bootstrap.php"
          colors="false"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
-         stopOnFailure="false">
+         stopOnFailure="false"
+         processIsolation="false"
+         syntaxCheck="true">
 
     <testsuite name="FrameworkTests">
         <directory>./</directory>
