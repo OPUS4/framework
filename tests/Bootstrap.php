@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,21 +32,65 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 // Setup error reporting.
 error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', 1);
 
 // Configure include path.
 set_include_path('.' . PATH_SEPARATOR
-. PATH_SEPARATOR . dirname(__FILE__)
-. PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
-. PATH_SEPARATOR . get_include_path());
+        . PATH_SEPARATOR . dirname(__FILE__)
+        . PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
+        . PATH_SEPARATOR . get_include_path());
 
 // Zend_Loader is'nt available yet. We have to do a require_once in order
 // to find the bootstrap class.
 require_once 'Opus/Bootstrap/Base.php';
 
+/**
+ * This class provides a static initializiation method for setting up                                                                                                                                              
+ * a test environment including php include path, configuration and                                                                                                                                                
+ * database setup.                                                                                                                                                                                                 
+ *                                                                                                                                                                                                                 
+ * @category    Tests                                                                                                                                                                                              
+ */
+class TestHelper extends Opus_Bootstrap_Base {
+
+    /**
+     * Add setting up database and logging facilities.
+     *
+     * @return void
+     * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
+     */
+    protected function _setupBackend() {
+        $this->_setupLogging();
+        $this->_setupTemp();
+        $this->_setupDatabase();
+
+        // FIXME: This should be done in Opus_Bootstrap_Base
+        $this->_setupLocale();
+    }
+
+    /**
+     * Setup timezone and default locale.
+     *
+     * Registers locale with key Zend_Locale as mentioned in the ZF documentation.
+     *
+     * @return void
+     *
+     */
+    protected function _setupLocale() {
+        /*
+         * Setup timezone and locale options.
+         */
+        date_default_timezone_set('Europe/Berlin');
+
+        // This avoids an exception if the locale cannot determined automatically.
+        $locale = new Zend_Locale('de');
+        Zend_Registry::set('Zend_Locale', $locale);
+    }
+
+}
+
 // Do test environment initializiation.
-$application = new Opus_Bootstrap_Base();
+$application = new TestHelper();
 $application->run(dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);
