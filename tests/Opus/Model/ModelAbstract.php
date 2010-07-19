@@ -75,7 +75,8 @@ class Opus_Model_ModelAbstract extends Opus_Model_Abstract {
         // trigger modified flag       
         $value->setValue('');
         
-        $this->addField($id)
-           ->addField($value);
+        // TODO: Why does $this->addField(id)->addField(value) fail?
+        $this->addField($id);
+        $this->addField($value);
     }
 }
