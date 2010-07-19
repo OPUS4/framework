@@ -73,9 +73,6 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _init() {
-        $email = new Opus_Model_Field('Email');
-        $email->setValidator(new Zend_Validate_EmailAddress());
-
         $first_name = new Opus_Model_Field('FirstName');
         $first_name->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -84,8 +81,16 @@ class Opus_Person extends Opus_Model_AbstractDb
         $last_name->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
+        $date_of_birth = new Opus_Model_Field('DateOfBirth');
+        $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
+
+        $email = new Opus_Model_Field('Email');
+        $email->setValidator(new Zend_Validate_EmailAddress());
+
         $this->addField($first_name)
             ->addField($last_name)
+            ->addField($date_of_birth)
+            ->addField($place_of_birth)
             ->addField($email);
 
         // Add fields to be used as external identifiers (optional only).

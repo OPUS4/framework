@@ -53,7 +53,7 @@ class Opus_Model_AbstractTest extends PHPUnit_Framework_TestCase {
         $mock->addField(new Opus_Model_Field('Field1'))
             ->addField(new Opus_Model_Field('Field2'));
         $fields = $mock->describe();
-        $this->assertEquals(array('Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
+        $this->assertEquals(array('Id', 'Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
     }
 
 
