@@ -95,7 +95,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function setUp() {
         $dba = Zend_Db_Table::getDefaultAdapter();
-
         $dba->query('DROP TABLE IF EXISTS testtable');
         $dba->query('CREATE TABLE testtable (
             testtable_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -114,7 +113,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function tearDown() {
-        TestHelper::dropTable('testtable');
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->query('DROP TABLE IF EXISTS testtable');
     }
 
     /**
@@ -394,7 +394,9 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase() {
-        TestHelper::clearTable('testtable');
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->query('TRUNCATE testtable');
+
         $result = Opus_Model_ModelAbstractDb::getAllFrom('Opus_Model_ModelAbstractDb', 'Opus_Model_AbstractTableProvider');
         $this->assertTrue(empty($result), 'Empty table should not deliver any objects.');
     }
@@ -405,7 +407,9 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function testGetAllEntities() {
-        TestHelper::clearTable('testtable');
+        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba->query('TRUNCATE testtable');
+
         $entities[0] = new Opus_Model_ModelAbstractDb(); $entities[0]->setValue('SatisfyValidator');
         $entities[1] = new Opus_Model_ModelAbstractDb(); $entities[1]->setValue('SatisfyValidator');
         $entities[2] = new Opus_Model_ModelAbstractDb(); $entities[2]->setValue('SatisfyValidator');
