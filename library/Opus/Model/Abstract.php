@@ -340,7 +340,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * Return a reference to an actual field.
      *
      * @param string $name Name of the requested field.
-     * @throws Opus_Model_Exception If the field is internal.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     protected function _getField($name) {
@@ -349,6 +348,16 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         } else {
             return null;
         }
+    }
+
+    /**
+     * Checks if a given field exists as internal or external field.
+     *
+     * @param string $name Name of the requested field.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    protected function _hasField($name) {
+        return (array_key_exists($name, $this->_fields) === true);
     }
 
     /**

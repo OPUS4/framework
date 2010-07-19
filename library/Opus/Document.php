@@ -326,18 +326,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * checks if this document has a file field according to DTD
-     *
-     * @return boolean true = has file field, false = has no file field
-     */
-    public function hasFileField() {
-        if ($this->_getField('File') !== null) {
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * Initialize the document's fields. Due to a variety of different document types, an
      * Opus_Document_Builder is used. The language field needs special treatment to initialize the
      * default values.
@@ -446,7 +434,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Check if document has non-existing attachments.
-        if (false === is_null($this->getId()) and $this->hasFileField()) {
+        if (false === is_null($this->getId()) and $this->_hasField('File')) {
             // check files for non-existing ones and strip them out
             $files = $this->_getField('File')->getValue();
             $return = array();
