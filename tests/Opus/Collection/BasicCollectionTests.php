@@ -34,15 +34,15 @@
 
 
 /**
- * Test cases for class Opus_Collection_Builder.
+ * Test cases for class Opus_Collection.
  *
  * @category    Tests
  * @package     Opus_Collection
  *
- * @group       CollectionBuilderTest
+ * @group       Collection
  *
  */
-class Opus_Collection_BasicCollectionTests extends PHPUnit_Framework_TestCase {
+class Opus_Collection_BasicCollectionTests extends TestCase {
 
     /**
      * @var Opus_CollectionRole
