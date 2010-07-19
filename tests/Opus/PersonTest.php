@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -42,7 +43,7 @@
  * @group PersonTest
  *
  */
-class Opus_PersonTest extends PHPUnit_Framework_TestCase {
+class Opus_PersonTest extends TestCase {
 
 
     /**
@@ -84,11 +85,6 @@ class Opus_PersonTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-        TestHelper::clearTable('link_persons_documents');
-        TestHelper::clearTable('link_documents_collections');
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('persons');
-
         $type = new Opus_Document_Type($this->_xmlDoctype);
 
         // create documents
@@ -109,17 +105,6 @@ class Opus_PersonTest extends PHPUnit_Framework_TestCase {
             $document->addPersonAuthor($p);
             $document->store();
         }
-    }
-
-    /**
-     * Clear out all test data.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('persons');
-        TestHelper::clearTable('link_persons_documents');
     }
 
     /**

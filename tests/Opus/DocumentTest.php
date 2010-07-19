@@ -29,8 +29,9 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -45,7 +46,7 @@
  * @group DocumentTest
  *
  */
-class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
+class Opus_DocumentTest extends TestCase {
 
 
     /**
@@ -102,46 +103,12 @@ class Opus_DocumentTest extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function setUp() {
-
-        TestHelper::clearTable('document_identifiers');
-        TestHelper::clearTable('link_persons_documents');
-//        TestHelper::clearTable('link_institutes_documents');
-        TestHelper::clearTable('link_documents_licences');
-        TestHelper::clearTable('document_title_abstracts');
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('document_patents');
-        TestHelper::clearTable('document_notes');
-        TestHelper::clearTable('document_enrichments');
-        TestHelper::clearTable('document_licences');
-//        TestHelper::clearTable('institutes_contents');
-        TestHelper::clearTable('persons');
-
         $this->_type = new Opus_Document_Type($this->_xmlDoctype);
         $adapter = Zend_Db_Table::getDefaultAdapter();
 
         // Set up a mock language list.
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
         Zend_Registry::set('Available_Languages', $list);
-    }
-
-    /**
-     * Tear down test fixture.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        TestHelper::clearTable('document_identifiers');
-        TestHelper::clearTable('link_persons_documents');
-//        TestHelper::clearTable('link_institutes_documents');
-        TestHelper::clearTable('link_documents_licences');
-        TestHelper::clearTable('document_title_abstracts');
-        TestHelper::clearTable('documents');
-        TestHelper::clearTable('document_patents');
-        TestHelper::clearTable('document_notes');
-        TestHelper::clearTable('document_enrichments');
-        TestHelper::clearTable('document_licences');
-//        TestHelper::clearTable('institutes_contents');
-        TestHelper::clearTable('persons');
     }
 
 
