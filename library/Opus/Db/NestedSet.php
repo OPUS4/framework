@@ -93,14 +93,13 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     protected $_tree;
 
     /**
-     * Constructor.
+     * Override setup logic.
      *
-     * @param  mixed $config Array of config options, or just the Db Adapter.
      * @return void
-     * @see    Zend_Db_Table_Abstract::__construct()
+     * @see    Zend_Db_Table_Abstract::_setup()
      */
-    public function __construct($config = array()) {
-        parent::__construct($config);
+    protected function _setup() {
+        parent::_setup();
 
         // Set up primary key in $this->_primary[1].  It will not be set on
         // construction, so we do it manually.  This way, we can assume that
