@@ -109,6 +109,8 @@ class Opus_DocumentTest extends TestCase {
         // Set up a mock language list.
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
         Zend_Registry::set('Available_Languages', $list);
+
+        parent::setUp();
     }
 
 

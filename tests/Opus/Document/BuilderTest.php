@@ -46,6 +46,12 @@
 class Opus_Document_BuilderTest extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Holds a simple document description.
      *
      * @var string

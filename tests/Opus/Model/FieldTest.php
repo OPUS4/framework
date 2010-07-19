@@ -44,6 +44,12 @@
 class Opus_Model_FieldTest extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Date provider for invalid setMultiplicity() arguments test.
      *
      * @return array

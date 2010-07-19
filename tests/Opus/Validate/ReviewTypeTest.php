@@ -44,6 +44,12 @@
 class Opus_Validate_ReviewTypeTest extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.

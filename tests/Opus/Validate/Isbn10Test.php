@@ -46,6 +46,12 @@
 class Opus_Validate_Isbn10Test extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.

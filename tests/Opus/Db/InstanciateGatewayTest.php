@@ -43,6 +43,11 @@
  */
 class Opus_Db_InstanciateGatewayTest extends TestCase {
 
+    /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
 
     /**
      * Provider for table gateway class names.

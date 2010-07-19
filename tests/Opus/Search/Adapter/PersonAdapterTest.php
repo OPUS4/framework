@@ -57,20 +57,13 @@ class Opus_Search_Adapter_PersonAdapterTest extends TestCase {
      * @return void
      */
     public function setUp() {
+        parent::setUp();
+
         // Persist a person model
         $this->_personModel = new Opus_Person();
         $this->_personModel->setFirstName('Gybrush');
         $this->_personModel->setLastName('Threepwood');
         $pid = $this->_personModel->store();
-    }
-
-    /**
-     * Remove the test fixture model from the database.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        $this->_personModel->delete();
     }
 
     /**

@@ -80,6 +80,11 @@ class Opus_Model_FilterTest extends TestCase {
     }
 
     /**
+     * Overwrite parent methods.
+     */
+    public function tearDown() {}
+
+    /**
      * Test if filter without blacklist returnes all fields.
      *
      * @return void

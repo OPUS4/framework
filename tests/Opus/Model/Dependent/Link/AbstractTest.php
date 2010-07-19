@@ -43,7 +43,11 @@
  */
 class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
 
-
+    /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
 
     /**
      * Test querying the display name of a linked  model.

@@ -70,6 +70,8 @@ class Opus_Security_AuthAdapterTest extends TestCase {
      * @return void
      */
     public function setUp() {
+        parent::setUp();
+    
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
         

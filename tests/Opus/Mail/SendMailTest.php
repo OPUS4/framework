@@ -116,6 +116,11 @@ class Opus_Mail_SendMailTest extends TestCase {
     }
 
     /**
+     * Overwrite parent methods.
+     */
+    public function tearDown() {}
+
+    /**
      * Tests the setter for a mail text.
      *
      * @return void

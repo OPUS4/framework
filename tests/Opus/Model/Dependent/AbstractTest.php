@@ -135,6 +135,11 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
     }
 
     /**
+     * Overwrite parent methods.
+     */
+    public function tearDown() {}
+
+    /**
      * Test if no row is actually deleted on delete() call.
      *
      * @return void

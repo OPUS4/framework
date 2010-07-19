@@ -98,6 +98,12 @@ class Opus_Validate_LanguageTest extends TestCase {
 
 
     /**
+     * Overwrite parent methods.
+     */
+    public function tearDown() {}
+
+
+    /**
      * Test validation of correct arguments.
      *
      * @param string $arg Name of a locale type to validate.

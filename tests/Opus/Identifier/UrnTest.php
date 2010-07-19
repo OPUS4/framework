@@ -45,6 +45,12 @@
 class Opus_Identifier_UrnTest extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Test data provider
      *
      * @return array Array containing document identifier, URN and check digit pairs.

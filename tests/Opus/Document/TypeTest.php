@@ -45,6 +45,11 @@
  */
 class Opus_Document_TypeTest extends TestCase {
 
+    /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
 
     /**
      * Data provider for invalid creation arguments.

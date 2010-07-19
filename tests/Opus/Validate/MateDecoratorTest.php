@@ -44,6 +44,12 @@
 class Opus_Validate_MateDecoratorTest extends TestCase {
     
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Test if a decorated validator works as normal. 
      *
      * @return void

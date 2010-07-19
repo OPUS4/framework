@@ -35,7 +35,6 @@
 
 class Opus_Search_DocumentAdapterTest extends TestCase {
 
-
     /**
      * Test fixture document instance.
      *
@@ -49,6 +48,7 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
      * @return void
      */
     public function setUp() {
+	parent::setUp();
 
         // Set up a mock language list.
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
@@ -122,17 +122,6 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
         $document->store();
 
         $this->_document = $document;
-    }
-
-    /**
-     * Remove the created document instance.
-     *
-     * @return void
-     */
-    public function tearDown() {
-        if (! is_null($this->_document) ) {
-            $this->_document->delete();
-        }
     }
 
     /**

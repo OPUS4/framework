@@ -56,6 +56,7 @@ class Opus_Security_AccountTest extends TestCase {
      * @return void
      */
     public function setUp() {
+        parent::setUp();
         $this->_accounts = new Opus_Db_Accounts();
     }
 

@@ -62,6 +62,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
             
         // drop helper table
         $this->dropTable('test_timmy');
+        parent::setUp();
     }
     
     /**
@@ -72,6 +73,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
     public function tearDown() {
         // drop helper table
         $this->dropTable('test_timmy');
+        parent::tearDown();
 
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();

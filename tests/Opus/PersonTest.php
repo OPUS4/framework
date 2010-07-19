@@ -45,7 +45,6 @@
  */
 class Opus_PersonTest extends TestCase {
 
-
     /**
      * Test document type.
      *
@@ -85,6 +84,8 @@ class Opus_PersonTest extends TestCase {
      * @return void
      */
     public function setUp() {
+        parent::setUp();
+
         $type = new Opus_Document_Type($this->_xmlDoctype);
 
         // create documents

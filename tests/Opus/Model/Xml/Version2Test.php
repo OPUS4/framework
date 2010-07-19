@@ -44,6 +44,12 @@
 class Opus_Model_Xml_Version2Test extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * First test of xml version 2.
      *
      * @return void

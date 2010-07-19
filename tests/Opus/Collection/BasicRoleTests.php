@@ -72,9 +72,10 @@ class Opus_Collection_BasicRoleTests extends TestCase {
      * Sets up the fixture.  Method is called before each test.
      */
     public function setUp() {
+        parent::setUp();
+
         // Object is not stored.
         $this->object = self::createRandomObject();
-
     }
 
     /**

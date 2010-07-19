@@ -49,7 +49,7 @@ class Opus_Search_Index_IndexerTest extends TestCase {
      *
      * @return void
     */
-    protected function setUp() {
+    public function setUp() {
         parent::setUp();
 
         $lucenePath = dirname(dirname(dirname(dirname(__FILE__)))) . '/workspace/tmp';
@@ -69,7 +69,8 @@ class Opus_Search_Index_IndexerTest extends TestCase {
      *
      * @return void
      */
-    protected function tearDown() {
+    public function tearDown() {
+        parent::tearDown();
 
         // cleanup lucene directory
         $lucenePath = Zend_Registry::get('Zend_LuceneIndexPath');
@@ -80,9 +81,6 @@ class Opus_Search_Index_IndexerTest extends TestCase {
             //@unlink($lucenePath . '/' . $file);
         }
         closedir($fh);
-
-
-        parent::tearDown();
     }
 
     public function testCorrectIndexingOfEasyDocuments() {

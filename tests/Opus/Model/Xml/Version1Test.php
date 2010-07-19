@@ -44,6 +44,12 @@
 class Opus_Model_Xml_Version1Test extends TestCase {
 
     /**
+     * Overwrite parent methods.
+     */
+    public function setUp() {}
+    public function tearDown() {}
+
+    /**
      * Test if getModel() returns model previously defined with setModel().
      *
      * @return void

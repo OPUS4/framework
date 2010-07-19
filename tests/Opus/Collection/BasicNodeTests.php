@@ -58,6 +58,8 @@ class Opus_Collection_BasicNodeTests extends TestCase {
 
 
     public function setUp() {
+        parent::setUp();
+
         $this->_role_name     = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();
 
