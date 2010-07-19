@@ -119,44 +119,4 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         return true;
     }
 
-
-
-    /**
-     * Validate a name
-     *
-     * @param string $name Contains the name for Validation
-     * @return boolean
-     */
-    private static function isValidName($name) {
-        $pattern = '/^[a-zA-Z0-9][a-zA-Z0-9_]*$/';
-        if (preg_match($pattern, $name) === 0) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-    /**
-     * Delete a table.
-     *
-     * @param string $name Contains the table name fro dropping
-     * @throws Exception Exception on non valid name or non-existing table
-     * @return bool true on success
-     */
-    public function deleteTable($name) {
-        // check for a valid table name
-        if (self::isValidName($name) === false) {
-            throw new Exception('Non-valid name for a table.');
-        }
-        // build sql query
-        $stmt = 'DROP TABLE ' . $this->_quoteIdentifier(strtolower($name));
-        try {
-            $this->query($stmt);
-        } catch (Exception $e) {
-            throw new Exception('Tried to drop a non-existing table! Error reason: ' . $e->getMessage());
-        }
-        // return true on success
-        return true;
-    }
-
 }
