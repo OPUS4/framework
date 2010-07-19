@@ -356,8 +356,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * @param string $name Name of the requested field.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    protected function _hasField($name) {
-        return (array_key_exists($name, $this->_fields) === true);
+    public function hasField($name) {
+        return (true === array_key_exists($name, $this->_fields))
+                and (false === in_array($name, $this->_internalFields, true));
     }
 
     /**

@@ -434,7 +434,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Check if document has non-existing attachments.
-        if (false === is_null($this->getId()) and $this->_hasField('File')) {
+        if (false === is_null($this->getId()) and $this->hasField('File')) {
             // check files for non-existing ones and strip them out
             $files = $this->_getField('File')->getValue();
             $return = array();
