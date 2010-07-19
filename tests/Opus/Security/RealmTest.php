@@ -53,7 +53,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
-        TestHelper::clearTable('ipaddresses');        
+        // TestHelper::clearTable('ipaddresses');        
     }
     
     /**
@@ -66,7 +66,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         TestHelper::clearTable('link_accounts_roles');
         TestHelper::clearTable('accounts');
         TestHelper::clearTable('roles');
-        TestHelper::clearTable('ipaddresses');        
+        // TestHelper::clearTable('ipaddresses');        
     }    
 
     /**
@@ -101,6 +101,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         
         // query Realm
         $realm = Opus_Security_Realm::getInstance();
+        $this->markTestIncomplete( 'Method does not exist (any more).' );
         $result = $realm->getIdentityRole('user');
         
         $this->assertNotNull($result, 'Expect assigned role.');
@@ -132,6 +133,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         
         // query Realm
         $realm = Opus_Security_Realm::getInstance();
+        $this->markTestIncomplete( 'Method does not exist (any more).' );
         $result = $realm->getIdentityRole('user');
         
         $this->assertNotNull($result, 'Expect assigned role.');
@@ -151,6 +153,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
 
         $realm = Opus_Security_Realm::getInstance();
+        $this->markTestIncomplete( 'Method does not exist (any more).' );
         $result = $realm->getIdentityRole('user');
         $this->assertNull($result, 'Expected null if no roles are assigned.');
    }
@@ -163,6 +166,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
     public function testThrowExceptionIfAccountDontExist() {
         $realm = Opus_Security_Realm::getInstance();
         $this->setExpectedException('Opus_Security_Exception');
+        $this->markTestIncomplete( 'Method does not exist (any more).' );
         $result = $realm->getIdentityRole('user');
    }
    
@@ -173,6 +177,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      */
     public function testIpCanBeMappedToSingleRole() {
         // create ip address
+        $this->markTestIncomplete( 'Class does not exist (any more).' );
         $ip = new Opus_Db_Ipaddresses;
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
@@ -199,6 +204,7 @@ class Opus_Security_RealmTest extends PHPUnit_Framework_TestCase {
      */
     public function testIpCanBeMappedToMultipleRoles() {
         // create ip address
+        $this->markTestIncomplete( 'Class does not exist (any more).' );
         $ip = new Opus_Db_Ipaddresses;
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
