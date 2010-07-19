@@ -56,15 +56,6 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
     protected static $_tableGatewayClass = 'Opus_Db_DocumentSubjects';
 
     /**
-     * Fields that should not be displayed on a form.
-     *
-     * @var array  Defaults to array('Type').
-     */
-    protected $_internalFields = array(
-        'Type',
-    );
-
-    /**
      * Initialize model with the following fields:
      * - Language
      * - Type
