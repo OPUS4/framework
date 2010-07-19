@@ -224,7 +224,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(0, count($value), 'Expected zero objects to be returned initially.');
 
         $doc->addLicence(new Opus_Licence());
-        $value = $doc->getField('Licence')->getValue();
+        $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
         $this->assertType('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
@@ -316,7 +316,7 @@ class Opus_DocumentTest extends TestCase {
     /**
      * Test if adding a value to a single-value field that is already populated
      * throws an InvaludArgumentException.
-     *die;
+     *
      * @return void
      */
     public function testAddingValuesToPopulatedSingleValueFieldThrowsException() {
@@ -497,7 +497,7 @@ class Opus_DocumentTest extends TestCase {
         $doc->addPersonAuthor($author);
         $doc->store();
 
-        $linkId = $doc->getField('PersonAuthor')->getValue()->getId();
+        $linkId = $doc->getPersonAuthor()->getId();
 
         $doc->delete();
 
@@ -528,7 +528,7 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addLicence($licence);
         $doc->store();
-        $linkid = $doc->getField('Licence')->getValue()->getId();
+        $linkid = $doc->getLicence()->getId();
         $doc->delete();
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -863,7 +863,9 @@ class Opus_DocumentTest extends TestCase {
         $document->addLicence($licence);
 
         $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
-                'Adding to a field containing a link model failed.');
+                'Adding to a field containing a link model failed (getField).');
+        $this->assertTrue($document->getLicence() instanceof Opus_Model_Dependent_Link_Abstract,
+                'Adding to a field containing a link model failed (getLicence).');
     }
 
     /**
@@ -887,7 +889,9 @@ class Opus_DocumentTest extends TestCase {
         $document->setLicence($licence);
 
         $this->assertTrue($document->getField('Licence')->getValue() instanceof Opus_Model_Dependent_Link_Abstract,
-                'Setting a field containing a link model failed.');
+                'Setting a field containing a link model failed (getField).');
+        $this->assertTrue($document->getLicence() instanceof Opus_Model_Dependent_Link_Abstract,
+                'Setting a field containing a link model failed (getLicence).');
     }
 
     /**
@@ -909,10 +913,14 @@ class Opus_DocumentTest extends TestCase {
         $document = new Opus_Document(null, $type);
         $licence = new Opus_Licence;
         $document->setLicence($licence);
-        $licence = $document->getField('Licence')->getValue();
 
+        $licence = $document->getField('Licence')->getValue();
         $this->assertTrue($licence instanceof Opus_Model_Dependent_Link_Abstract,
-                'Getting a field value containing a link model failed.');
+                'Getting a field value containing a link model failed (getField).');
+
+        $licence = $document->getLicence();
+        $this->assertTrue($licence instanceof Opus_Model_Dependent_Link_Abstract,
+                'Getting a field value containing a link model failed (getLicence).');
     }
 
     /**
