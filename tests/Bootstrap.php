@@ -24,57 +24,18 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Statistic
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-// The phpunit testrunner defines the global PHPUnit_MAIN_METHOD to
-// configure the method of test execution. When called via php directly
-// PHPUnit_MAIN_METHOD is not defined and therefor gets defined to execute
-// AllTests:main() to run the suite.
-if ( defined('PHPUnit_MAIN_METHOD') === false ) {
-    define('PHPUnit_MAIN_METHOD', 'Opus_Statistic_AllTests::main');
-}
+// Setup error reporting.
+error_reporting(E_ALL | E_STRICT);
+ini_set('display_errors', 1);
 
-// Use the TestHelper to setup Zend specific environment.
-require_once dirname(dirname(dirname(__FILE__))) . DIRECTORY_SEPARATOR . 'TestHelper.php';
+require_once 'TestHelper.php';
 
-/**
- * Main test suite for testing statistic component.
- *
- * @category    Tests
- * @package     Opus_Statistic
- */
-class Opus_Statistic_AllTests {
-
-    /**
-     * If the test class is called directly via php command the test
-     * run gets startet in this method.
-     *
-     * @return void
-     */
-    public static function main() {
-        PHPUnit_TextUI_TestRunner::run(self::suite());
-    }
-
-    /**
-     * Construct and return the test suite.
-     *
-     * @return PHPUnit_Framework_TestSuite The suite.
-     */
-    public static function suite() {
-        $suite = new PHPUnit_Framework_TestSuite('Opus Application Framework - Opus_Statistic');
-        $suite->addTestSuite('Opus_Statistic_LocalCounterTest');
-        return $suite;
-    }
-
-}
-
-// Execute the test run if necessary.
-if (PHPUnit_MAIN_METHOD === 'Opus_Statistic_AllTests::main') {
-    Opus_Statistic_AllTests::main();
-}
+// Do test environment initializiation.
+$testhelper = new TestHelper();
+$testhelper->run(dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);
