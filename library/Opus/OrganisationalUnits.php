@@ -82,7 +82,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
      * TODO: Cache Grantors?
      */
     public static function getGrantors() {
-        $table = new Opus_Db_Collections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $select = $table->select()
                 ->where('is_grantor = ?', 1)
                 ->where('role_id = 1');
@@ -103,7 +103,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
      * TODO: Cache Publishers?
      */
     public static function getPublishers() {
-        $table = new Opus_Db_Collections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $select = $table->select()
                 ->where('dnb_contact_id != ?', '')
                 ->where('role_id = 1');

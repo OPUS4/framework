@@ -62,15 +62,15 @@ class Opus_Security_RealmTest extends TestCase {
      */
     public function testIdentityCanBeMappedToSingleRole() {
         // create account
-        $acc = new Opus_Db_Accounts;
+        $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
         
         // create role
-        $rol = new Opus_Db_Roles;
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $rolId = $rol->insert(array('name' => 'role'));
         
         // connect role and account
-        $lar = new Opus_Db_LinkAccountsRoles;
+        $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
         $lar->insert(array('account_id' => $accId, 'role_id' => $rolId));
         
         // query Realm
@@ -91,17 +91,17 @@ class Opus_Security_RealmTest extends TestCase {
      */
     public function testIdentityCanBeMappedToMultipleRoles() {
         // create account
-        $acc = new Opus_Db_Accounts;
+        $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
         
         // create role
-        $rol = new Opus_Db_Roles;
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $rolId[] = $rol->insert(array('name' => 'role1'));
         $rolId[] = $rol->insert(array('name' => 'role2'));
         
         
         // connect role and account
-        $lar = new Opus_Db_LinkAccountsRoles;
+        $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
         $lar->insert(array('account_id' => $accId, 'role_id' => $rolId[0]));
         $lar->insert(array('account_id' => $accId, 'role_id' => $rolId[1]));
         
@@ -123,7 +123,7 @@ class Opus_Security_RealmTest extends TestCase {
      */
     public function testNoRolesReturnedWhenNoRolesAssigned() {
         // create account
-        $acc = new Opus_Db_Accounts;
+        $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
 
         $realm = Opus_Security_Realm::getInstance();
@@ -152,15 +152,15 @@ class Opus_Security_RealmTest extends TestCase {
     public function testIpCanBeMappedToSingleRole() {
         // create ip address
         $this->markTestIncomplete( 'Class does not exist (any more).' );
-        $ip = new Opus_Db_Ipaddresses;
+        $ip = Opus_Db_TableGateway::getInstance('Opus_Db_Ipadresses');
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
         // create role
-        $rol = new Opus_Db_Roles;
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $rolId = $rol->insert(array('name' => 'role'));
         
         // connect role and ip
-        $lar = new Opus_Db_LinkIpaddressesRoles;
+        $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
         $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId));
         
         // query Realm
@@ -179,16 +179,16 @@ class Opus_Security_RealmTest extends TestCase {
     public function testIpCanBeMappedToMultipleRoles() {
         // create ip address
         $this->markTestIncomplete( 'Class does not exist (any more).' );
-        $ip = new Opus_Db_Ipaddresses;
+        $ip = Opus_Db_TableGateway::getInstance('Opus_Db_Ipadresses');
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
         // create role
-        $rol = new Opus_Db_Roles;
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
         $rolId[0] = $rol->insert(array('name' => 'role1'));
         $rolId[1] = $rol->insert(array('name' => 'role2'));
         
         // connect role and ip
-        $lar = new Opus_Db_LinkIpaddressesRoles;
+        $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIpaddressesRoles');
         $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId[0]));
         $lar->insert(array('ipaddress_id' => $ipId, 'role_id' => $rolId[1]));
         

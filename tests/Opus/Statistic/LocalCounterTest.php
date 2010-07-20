@@ -125,7 +125,7 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
         $lc->count($docId, 1, 'files');
 
         // check database table for counting value
-        $ods = new Opus_Db_DocumentStatistics();
+        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
@@ -147,7 +147,7 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
         $lc->count($docId, null, 'frontdoor');
 
         // check database table for counting value
-        $ods = new Opus_Db_DocumentStatistics();
+        $ods = Opus_Db_TableGateway::getInstance("Opus_Db_DocumentStatistics");
         $rows = $ods->fetchAll()->toArray();
 
         $this->assertEquals(1, count($rows), 'Expect 1 statistic entry.');
@@ -157,5 +157,4 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
             $this->assertEquals('frontdoor', $row['type'], 'Expect type = \'frontdoor\'');
         }
     }
-
 }

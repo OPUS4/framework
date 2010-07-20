@@ -73,15 +73,11 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
         array('Opus_Db_DocumentSubjects'),
         array('Opus_Db_DocumentTitleAbstracts'),
         array('Opus_Db_FileHashvalues'),
-//        array('Opus_Db_InstitutesContents'),
-//        array('Opus_Db_InstitutesReplacement'),
-//        array('Opus_Db_InstitutesStructure'),
         array('Opus_Db_Ipranges'),
         array('Opus_Db_Languages'),
         array('Opus_Db_LinkAccountsRoles'),
         array('Opus_Db_LinkDocumentsCollections'),
         array('Opus_Db_LinkDocumentsLicences'),
-//        array('Opus_Db_LinkInstitutesDocuments'),
         array('Opus_Db_LinkIprangesRoles'),
         array('Opus_Db_LinkPersonsDocuments'),
         array('Opus_Db_PersonExternalKeys'),
@@ -101,13 +97,11 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
      *
      * @dataProvider tableGatewayDataProvider
      */
-    public function testSpawnGateway($tableGateway, $param = null) {
+    public function testSpawnGateway($tableGateway) {
         try {
-            if (is_null($param) === true) {
-                $table = new $tableGateway;
-            } else {
-                $table = new $tableGateway($param);
-            }
+            $table = Opus_Db_TableGateway::getInstance($tableGateway);
+            $this->assertNotNull($table);
+            $this->assertNotNull(get_class($table) === $tableGateway);
         } catch (Exception $ex) {
             $this->fail("Failed to instanciate $tableGateway: " . $ex->getMessage());
         }

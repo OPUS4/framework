@@ -443,7 +443,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // Do nothing if the current model has not been persisted
             // (if no identifier given)
             if ($this->getId() === null) {
-                $result = null;
                 return;
             }
 
@@ -471,7 +470,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             }
 
             // Get dependent rows
-            $rows = $this->_primaryTableRow->findDependentRowset(get_class($table), null, $select);
+            $rows = $this->_primaryTableRow->findDependentRowset($table, null, $select);
 
             // Create new model for each row
             foreach ($rows as $row) {

@@ -42,15 +42,13 @@
  */
 class Opus_DateTest extends TestCase {
 
+    protected $_locale_backup;
 
     /**
      * Prepare german locale setup.
      *
      */
     public function setUp() {
-
-        parent::setUp();
-
         $this->_locale_backup = Zend_Registry::get('Zend_Locale');
         Zend_Registry::set('Zend_Locale', new Zend_Locale('de'));
     }
@@ -61,9 +59,6 @@ class Opus_DateTest extends TestCase {
      */
     public function tearDown() {
         Zend_Registry::set('Zend_Locale', $this->_locale_backup);
-
-        parent::tearDown();
-
     }
 
     /**

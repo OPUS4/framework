@@ -57,8 +57,8 @@ class Opus_Security_AccountTest extends TestCase {
      */
     public function setUp() {
         parent::setUp();
-        $this->_accounts = new Opus_Db_Accounts();
-    }
+        $this->_accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
+        }
 
     /**
      * Test if the table is initially empty.

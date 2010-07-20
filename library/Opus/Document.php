@@ -317,9 +317,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
         if ($id === null and $type !== null) {
             $this->_type = $type;
-            parent::__construct(null, new self::$_tableGatewayClass);
+            parent::__construct();
+//            parent::__construct(null, new self::$_tableGatewayClass);
         } else {
-            parent::__construct($id, new self::$_tableGatewayClass);
+            parent::__construct($id);
+//            parent::__construct($id, new self::$_tableGatewayClass);
             $this->_type = $this->_primaryTableRow->type;
 
         }
@@ -1043,7 +1045,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByTitles($sort_reverse = '0') {
-        $table = new Opus_Db_DocumentTitleAbstracts();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentTitleAbstracts');
         $select = $table->select()
                 ->from($table, array('value', 'document_id'))
                 ->where('type = ?', 'main')
@@ -1066,7 +1068,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array Array of document ids.
      */
     public static function getAllIds($sort_reverse = '0') {
-        $table = new Opus_Db_Documents();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()
                 ->from($table, array('id'))
                 ->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC'));
@@ -1088,7 +1090,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array array with all ids of the entries.
      */
     public static function getDocumentByIdentifier($value, $type = 'urn') {
-        $table = new Opus_Db_DocumentIdentifiers();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentIdentifiers');
         $select = $table->select()
                 ->from($table, array('document_id'))
                 ->where('type = ?', $type)
@@ -1154,7 +1156,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return int
      */
     public static function getEarliestPublicationDate() {
-        $table = new Opus_Db_Documents();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()->from($table, 'min(server_date_published)');
         $timestamp = $table->fetchRow($select)->toArray();
         return $timestamp['min(server_date_published)'];
@@ -1167,7 +1169,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array Array of document ids.
      */
     public static function getIdsForDocType($typename) {
-        $table = new Opus_Db_Documents();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()
                 ->from($table, array('id'))->where('type = ?', $typename);
         $rows = $table->fetchAll($select)->toArray();
@@ -1221,7 +1223,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd') . '%"';
         }
 
-        $table = new Opus_Db_Documents();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         // TODO server date publish really needed ?
         // because server date modified is in any case setted to latest change date
         $select = $table->select()
@@ -1288,7 +1290,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $result = array();
 
         if (false === $this->isNewRecord()) {
-            $table = new Opus_Db_LinkDocumentsCollections();
+            $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
             $db = $table->getAdapter();
 
             $select = $table->select()->from($table, array('collection_id'))
@@ -1318,7 +1320,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $result = array();
 
         if (false === $this->isNewRecord()) {
-            $table = new Opus_Db_LinkDocumentsCollections();
+            $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
             $db = $table->getAdapter();
 
             $select = $table->select()->from($table, array('collection_id'))
@@ -1598,7 +1600,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     public static function getIdsOfOaiRequest(array $restriction) {
 
-        $table = new Opus_Db_Documents();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()->from($table, array('id'));
 
         // add server state restrictions
@@ -1691,7 +1693,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (false === is_array($publishers)) {
             $publishers = array($publishers);
         }
-        $table = new Opus_Db_LinkDocumentsCollections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
         $db = $table->getAdapter();
 
         $constraints = array(
@@ -1733,7 +1735,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (false === is_array($grantors)) {
             $grantors = array($grantors);
         }
-        $table = new Opus_Db_LinkDocumentsCollections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
         $db = $table->getAdapter();
 
         $constraints = array(

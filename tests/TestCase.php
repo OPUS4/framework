@@ -40,23 +40,6 @@
 class TestCase extends PHPUnit_Framework_TestCase {
 
     /**
-     * Trigger cleanup logic for all components.
-     *
-     * @return void
-     */
-    private function _cleanUp() {
-        self::_clearTables();
-    }
-
-    /**
-     * Clear index.
-     *
-     * @return void
-     */
-    public function clearIndex() {
-    }
-
-    /**
      * Empty all listed tables.
      *
      * @return void
@@ -135,7 +118,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      */
     public function setUp() {
         parent::setUp();
-        self::_cleanUp();
+        self::_clearTables();
     }
 
     /**
@@ -144,7 +127,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @return void
      */
     public function tearDown() {
-        self::_cleanUp();
+        self::_clearTables();
         parent::tearDown();
     }
 }
