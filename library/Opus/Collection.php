@@ -110,7 +110,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _init() {
 
         // Add all database column names except primary keys as Opus_Model_Fields
-        $table = new Opus_Db_Collections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $info = $table->info();
 
         $skipFields = $info['primary'];

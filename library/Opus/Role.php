@@ -93,7 +93,7 @@ class Opus_Role extends Opus_Model_AbstractDb
     protected function _fetchPrivilege() {
         $result = array();
         if (false === $this->isNewRecord()) {
-            $table = new Opus_Db_Privileges();
+            $table = Opus_Db_TableGateway::getInstance('Opus_Db_Privileges');
             $privileges = $table->getAdapter()->fetchCol(
                 $table->select()
                 ->from($table, array('id'))

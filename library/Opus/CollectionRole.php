@@ -606,7 +606,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
     protected function _fetchAttributes() {
-        $table = new Opus_Db_Collections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $info = $table->info();
 
         $skipFields = $info['primary'];
@@ -635,7 +635,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Should be a method on the Opus_Db_Collections Model.
      */
     protected function _storeAttributes($attributes) {
-        $table = new Opus_Db_Collections();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $info = $table->info();
 
         $dbFields = $info['cols'];

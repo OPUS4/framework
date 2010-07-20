@@ -579,7 +579,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
         // Find collections of child nodes.
         // TODO: Add static Opus_Collection::fetchBySubselect.
-        $table = new Opus_Db_Collections;
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $select = $table->select()->where("id IN ($subselect)");
 
         $rows = $table->fetchAll($select);

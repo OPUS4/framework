@@ -129,12 +129,14 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return array An array of Opus_Document
      */
     public function getDocumentsByRole($role) {
-        $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
+        // $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+        $documentsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $documents = array();
         $select = $documentsLinkTable->select();
         $select->where('role=?', $role);
-        foreach ($this->_primaryTableRow->findManyToManyRowset('Opus_Db_Documents',
-                'Opus_Db_LinkPersonsDocuments', null, null, $select) as $document) {
+        foreach ($this->_primaryTableRow->findManyToManyRowset($documentsTable,
+                $documentsLinkTable, null, null, $select) as $document) {
             $documents[] = new Opus_Document($document->id);
         }
         return $documents;
@@ -148,7 +150,8 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
     public static function getAllIdsByRole($role) {
-        $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
+        // $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
         $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
         $db = $documentsLinkTable->getAdapter();
         $select = $db->select()->from($tablename, array('person_id'))
@@ -170,7 +173,8 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
     public static function findByIdentifier($id, $type = 'local') {
-        $documentsLinkTable = new Opus_Db_PersonExternalKeys();
+        // $documentsLinkTable = new Opus_Db_PersonExternalKeys();
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_PersonExternalKeys');
         $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
         $db = $documentsLinkTable->getAdapter();
         $select = $db->select()->from($tablename, array('person_id'))
@@ -193,7 +197,8 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
     public static function findByName($lastName, $firstName = null) {
-        $documentsLinkTable = new Opus_Db_Persons();
+        // $documentsLinkTable = new Opus_Db_Persons();
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
         $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
         $db = $documentsLinkTable->getAdapter();
         $select = $db->select()->from($tablename, array('id'));

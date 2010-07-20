@@ -175,7 +175,7 @@ class Opus_Security_Realm {
              throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
-        $iprangeTable = new Opus_Db_Ipranges();
+        $iprangeTable = Opus_Db_TableGateway::getInstance('Opus_Db_Ipranges');
         $iprows = $iprangeTable->fetchAll(
                 $iprangeTable->select()
                 ->where('startingip <= ?', sprintf("%u", ip2long($this->_ipaddress)))
