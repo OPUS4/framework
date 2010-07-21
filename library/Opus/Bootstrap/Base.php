@@ -88,6 +88,7 @@ class Opus_Bootstrap_Base {
         if ( empty($applicationRootDirectory) === true ) {
             throw new Exception('Configuration error. No application base path given.');
         }
+
         $this->_applicationRootDirectory = $applicationRootDirectory;
         $this->_applicationWorkspaceDirectory = $this->_applicationRootDirectory . '/workspace';
 
@@ -101,8 +102,6 @@ class Opus_Bootstrap_Base {
 
         $this->_setupBackendCaching();
         $this->_setupBackend();
-
-        $this->_setupInternalConfiguration();
 
         $this->_setupFrontendCaching();
         $this->_setupFrontend();
@@ -238,15 +237,6 @@ class Opus_Bootstrap_Base {
 
 
     /**
-     * Augment the application configuration with configuration values
-     * delivered by Opus_Configuration model.
-     *
-     * @return void
-     */
-    protected function _setupInternalConfiguration() {
-    }
-
-    /**
      * Load application configuration file and register the configuration
      * object with the Zend registry under 'Zend_Config'.
      *
@@ -268,9 +258,9 @@ class Opus_Bootstrap_Base {
     protected function _setupConfiguration($configLevel, $configPath = null) {
 
         // Make sure that invalid configuration level values fail.
-        if (($configLevel !== self::CONFIG_PRODUCTION) and (($configLevel !== self::CONFIG_TEST))) {
-            throw new Exception('Invalid configuration level: ' . $configLevel);
-        }
+//        if (($configLevel !== self::CONFIG_PRODUCTION) and (($configLevel !== self::CONFIG_TEST))) {
+//            throw new Exception('Invalid configuration level: ' . $configLevel);
+//        }
 
         // build path to ini file
         $pathToIni = 'config.ini';
@@ -342,7 +332,7 @@ class Opus_Bootstrap_Base {
     protected function _setupDocumentType() {
         // Set location of xml document type definitions
         Opus_Document_Type::setXmlDoctypePath($this->_applicationRootDirectory .
-                '/configs/xmldoctypes');
+                '/config/xmldoctypes');
     }
 
 }
