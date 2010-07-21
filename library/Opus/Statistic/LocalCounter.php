@@ -194,19 +194,18 @@ public function countFiles($documentId, $fileId) {
         $year = date('Y', $time);
         $month = date('n', $time);
 
-        $db = Zend_Registry::get('db_adapter');
+        $ods = Opus_Db_TableGateway::getInstance("Opus_Db_DocumentStatistics");
+        $db = $ods->getAdapter();
         $db->beginTransaction();
 
-        $ods = new Opus_Db_DocumentStatistics();
         try {
+            $value = 0;
+            $createEntry = true;
+
             $rowSet = $ods->find($documentId, $year, $month, $type);
-            foreach ($rowSet as $row) {
-                $value = $row->count;
-            }
-            $createEntry = false;
-            if (isset($value) === FALSE || is_int($value)) {
-                $value = 0;
-                $createEntry = true;
+            if ($rowSet->count() > 0) {
+                $value = $rowSet->current()->count;
+                $createEntry = false;
             }
 
             $value++;
@@ -218,11 +217,9 @@ public function countFiles($documentId, $fileId) {
                 'type' => $type,
             );
 
-
-
             //TODO direct $ods->insert() possible??
 
-            $where = $ods->getAdapter()->quoteInto('document_id = ?', $documentId) .
+            $where = $db->quoteInto('document_id = ?', $documentId) .
             $ods->getAdapter()->quoteInto(' AND year = ?', $year) .
             $ods->getAdapter()->quoteInto(' AND month = ?', $month) .
             $ods->getAdapter()->quoteInto(' AND type = ?', $type);
@@ -264,12 +261,11 @@ public function countFiles($documentId, $fileId) {
         //TODO determine file type of file id
         $filetype = 'pdf';
 
+        $dom = new DOMDocument();
         if (file_exists($tempDir . '~localstat.xml') === FALSE) {
-            $dom = new DOMDocument();
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
         } else {
-            $dom = new DOMDocument();
             $dom->load($tempDir . '~localstat.xml');
         }
 
@@ -340,13 +336,14 @@ public function countFiles($documentId, $fileId) {
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = new Opus_Db_DocumentStatistics();
+        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
         $select = $ods->select()->where('year = ?', $year)
             ->where('document_id = ?', $documentId)
             ->where('type = ?', $datatype)
             ->order('month');
+
         $queryResult = $ods->fetchAll($select);
-        unset($result);
+        $result = array();
         foreach ($queryResult as $row) {
             $result[$row->month] = $row->count;
         }
@@ -363,7 +360,7 @@ public function countFiles($documentId, $fileId) {
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = new Opus_Db_DocumentStatistics();
+        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
 
         $select = $ods->select()
             ->from(array('stat' => 'document_statistics'), array('count' => 'SUM(stat.count)'))
@@ -378,7 +375,7 @@ public function countFiles($documentId, $fileId) {
             ->order('stat2.year');
 
         $queryResult = $ods->fetchAll($select);
-        unset($result);
+        $result = array();
         foreach ($queryResult as $row) {
             $result[$row->year] = $row->count;
         }
@@ -393,7 +390,7 @@ public function countFiles($documentId, $fileId) {
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
-        $ods = new Opus_Db_DocumentStatistics();
+        $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
 
         $select = $ods->select()
             ->from(array('stat' => 'document_statistics'), array('count' => 'SUM(stat.count)'))
