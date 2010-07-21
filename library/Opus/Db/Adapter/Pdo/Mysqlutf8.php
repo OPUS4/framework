@@ -67,12 +67,16 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         $this->logger("created new adapter");
         $backtrace = debug_backtrace(false);
         foreach ($backtrace AS $row) {
+            $file     = array_key_exists('file', $row)     ? $row['file']     : '_no_file_)';
+            $line     = array_key_exists('line', $row)     ? $row['line']     : '0';
+            $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
+
             $optional = '';
             if ($row['function'] == 'query' && !is_null($row['args'][0])) {
                 $optional = "(" . $row['args'][0] . ")";
             }
 
-            $this->logger($row['file'] . ":" . $row['line'] . " at " . $row['function'] . "$optional");
+            $this->logger("$file:$line at $function $optional");
         }
 
 
