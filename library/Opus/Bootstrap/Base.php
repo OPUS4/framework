@@ -342,7 +342,7 @@ class Opus_Bootstrap_Base {
     protected function _setupDocumentType() {
         // Set location of xml document type definitions
         Opus_Document_Type::setXmlDoctypePath($this->_applicationRootDirectory .
-                '/config/xmldoctypes');
+                '/configs/xmldoctypes');
     }
 
 }
