@@ -64,6 +64,18 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
             return;
         }
 
+        $this->logger("created new adapter");
+        $backtrace = debug_backtrace(false);
+        foreach ($backtrace AS $row) {
+            $optional = '';
+            if ($row['function'] == 'query' && !is_null($row['args'][0])) {
+                $optional = "(" . $row['args'][0] . ")";
+            }
+
+            $this->logger($row['file'] . ":" . $row['line'] . " at " . $row['function'] . "$optional");
+        }
+
+
         parent::_connect();
 
         // set connection to utf8
@@ -117,6 +129,17 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         }
         $this->_runningTransactions--;
         return true;
+    }
+
+    /**
+     * Log document errors.  Prefixes every log entry with class name.
+     *
+     * @param string $message
+     */
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+        $logger->info( "Mysqlutf8: $message");
     }
 
 }
