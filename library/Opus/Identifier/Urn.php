@@ -163,7 +163,9 @@ class Opus_Identifier_Urn {
             $nbn_numbers = $this->replaceUrnChars($nbn);
 
             // identify string length
-            $nbn_numbers_length = mb_strlen($nbn_numbers);
+            // TODO: (Thoralf)  Not supported by every PHP
+            // $nbn_numbers_length = mb_strlen($nbn_numbers);
+            $nbn_numbers_length = strlen($nbn_numbers);
 
             // convert string to array of characters
             $nbn_numbers_array = preg_split('//', $nbn_numbers);
@@ -186,7 +188,9 @@ class Opus_Identifier_Urn {
             $quotient = (string) $quotient;
 
             // identify last digit, which is the check digit
-            $check_digit = ($quotient{mb_strlen($quotient)-1});
+            // TODO: (Thoralf)  Not supported by every PHP
+            // $check_digit = ($quotient{mb_strlen($quotient)-1});
+            $check_digit = ($quotient{strlen($quotient)-1});
 
             // return check digit
             return $check_digit;
