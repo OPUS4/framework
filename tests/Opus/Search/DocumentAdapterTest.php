@@ -132,8 +132,6 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
      *
      * @param Opus_Search_Adapter_DocumentAdapter $document Document from the database
      * @return void
-     *
-     * @dataProvider oneRealDoc
      */
 	public function testDocumentAdapterFromDb() {
 	    $adapter = new Opus_Search_Adapter_DocumentAdapter((int)$this->_document->getId());
