@@ -54,15 +54,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
     /**
-     * The document is the most complex Opus_Model. An Opus_Document_Builder is
-     * used in the _init() function to construct an Opus_Document of a
-     * certain type.
-     *
-     * @var Opus_Document_Builder
-     */
-    protected $_builder;
-
-    /**
      * The documents external fields, i.e. those not mapped directly to the
      * Opus_Db_Documents table gateway.
      *
@@ -297,8 +288,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  integer|string $id   (Optional) Id an existing document.
      * @param  string         $type (Optional) Type of a new document.
      * @see    Opus_Model_Abstract::__construct()
-     * @see    $_builder
-     * @throws InvalidArgumentException         Thrown if id and type are passed.
      * @throws Opus_Model_Exception             Thrown invalid type is passed.
      */
     public function __construct($id = null, $type = null) {
@@ -325,15 +314,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Initialize the document's fields. Due to a variety of different document types, an
-     * Opus_Document_Builder is used. The language field needs special treatment to initialize the
-     * default values.
+     * Initialize the document's fields.  The language field needs special
+     * treatment to initialize the default values.
      *
      * @return void
      */
     protected function _init() {
         $fields = array(
-            "Collection",
             "CompletedDate",
             "CompletedYear",
 //            "Conference",
@@ -341,36 +328,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "CreatingCorporation",
             "DateAccepted",
             "Edition",
-            "Enrichment",
-            "File",
-            "Grantor",
-            "IdentifierIsbn",
-            "IdentifierIssn",
-            "IdentifierOpac",
-            "IdentifierOpus3",
-            "IdentifierUrn",
 //            "Institute",
             "Issue",
 //            "Journal",
             "Language",
-            "Licence",
 //            "Monograph",
-            "Note",
             "PageFirst",
             "PageLast",
             "PageNumber",
-            "PersonAdvisor",
-            "PersonAuthor",
-            "PersonContributor",
-            "PersonEditor",
-            "PersonOther",
-            "PersonReferee",
-            "PersonSubmitter",
-            "PersonTranslator",
-            "Patent",
             "PublishedDate",
             "PublishedYear",
-            "Publisher",
             "PublisherName",
             "PublisherPlace",
             "ServerDateModified",
@@ -379,34 +346,27 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "ServerDateValid",
             "ServerState",
             "Source",
-            "SubjectSwd",
-            "SubjectUncontrolled",
-            "TitleAbstract",
-            "TitleAdditional",
-            "TitleMain",
-            "TitleParent",
             "Type",
             "Volume",
         );
 
         foreach ($fields as $fieldname) {
-            $field = new Opus_Model_Field($fieldname);
-
-            $multiplicity = 1;
             if (array_key_exists($fieldname, $this->_externalFields)) {
-                $options = $this->_externalFields[$fieldname];
-
-                if (array_key_exists('model', $options)) {
-                    $field->setLinkModelClass($options['model']);
-                }
-
-                $multiplicity = '*';
-//                if (array_key_exists('multiplicity', $options)) {
-//                    $multiplicity = $options['multiplicity'];
-//                }
+                throw new Exception( "Field $fieldname exists in _externalFields" );
             }
 
-            $field->setMultiplicity($multiplicity);
+            $field = new Opus_Model_Field($fieldname);
+            $this->addField($field);
+        }
+
+        foreach ($this->_externalFields AS $fieldname => $options) {
+            $field = new Opus_Model_Field($fieldname);
+
+            if (array_key_exists('model', $options)) {
+                $field->setLinkModelClass($options['model']);
+            }
+
+            $field->setMultiplicity('*');
             $this->addField($field);
         }
 
@@ -414,6 +374,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if ($this->getField('Language') !== null) {
             if (Zend_Registry::isRegistered('Available_Languages') === true) {
                 $this->getField('Language')
+//                        ->setMultiplicity('*')
                         ->setDefault(Zend_Registry::get('Available_Languages'))
                         ->setSelection(true);
             }
@@ -444,16 +405,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 $field->setValidator(new Opus_Validate_Date);
             }
         }
-
-          // Add UUID field to be used as an external identifier.
-//        $uuidField = new Opus_Model_Field('IdentifierUuid');
-//        $uuidField->setMultiplicity(1);
-//        $this->addField($uuidField);
-
-          // Add collection field.
-//        $collectionField = new Opus_Model_Field('Collection');
-//        $collectionField->setMultiplicity('*');
-//        $this->addField($collectionField);
 
         // Initialize available publishers
         if ($this->getField('Publisher') !== null) {
