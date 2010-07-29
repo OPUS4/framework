@@ -95,6 +95,7 @@ class Opus_Bootstrap_Base {
         include_once 'Zend/Loader/Autoloader.php';
         $autoloader = Zend_Loader_Autoloader::getInstance();
         $autoloader->registerNamespace('Opus_');
+        $autoloader->registerNamespace('Apache_');
         $autoloader->setFallbackAutoloader(true);
 
         $this->_setupEnvironment();
