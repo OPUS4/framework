@@ -82,6 +82,8 @@ class Opus_Person extends Opus_Model_AbstractDb
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $date_of_birth = new Opus_Model_Field('DateOfBirth');
+        $date_of_birth->setValueModelClass('Opus_Date');
+
         $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
