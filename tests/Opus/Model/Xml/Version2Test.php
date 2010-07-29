@@ -97,7 +97,7 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $omx->setStrategy(new Opus_Model_Xml_Version2);
 
         $dom = $omx->getDomDocument();
-        $xmlData = $dom->saveXML();
+        // $xmlData = $dom->saveXML();
 
         // easy tests of structure
         $opusTag = $dom->getElementsByTagName('Opus');
