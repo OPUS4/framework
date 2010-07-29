@@ -1336,11 +1336,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *                                                 will be overwritten.
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
-    public static function fromXml($xml, Opus_Model_Xml $customDeserializer = null) {
-        if (null === $customDeserializer) {
+    public static function fromXml($xml, Opus_Model_Xml $deserializer = null) {
+        if (false === isset($customDeserializer)) {
             $deserializer = new Opus_Model_Xml;
-        } else {
-            $deserializer = $customDeserializer;
         }
         $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         return parent::fromXml($xml, $deserializer);
@@ -1352,12 +1350,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeIdentifierUrn() {
-        $identifierUrn = $this->getField('IdentifierUrn')->getValue();
+        $identifiers = $this->getField('IdentifierUrn')->getValue();
 
-        if (false === is_array($identifierUrn)) {
-            $identifiers = array($identifierUrn);
-        } else {
-            $identifiers = $identifierUrn;
+        if (false === is_array($identifiers)) {
+            $identifiers = array($identifiers);
         }
 
         $set = true;
@@ -1392,12 +1388,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
 
+        $options = null;
         if (array_key_exists('options', $this->_externalFields['IdentifierUrn']) === true) {
             $options = $this->_externalFields['IdentifierUrn']['options'];
-        } else {
-            $options = null;
         }
-
         $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
     }
 
@@ -1412,10 +1406,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $uuid_model->setValue(Opus_Identifier_UUID::generate());
             $this->setIdentifierUuid($uuid_model);
         }
+
+        $options = null;
         if (array_key_exists('options', $this->_externalFields['IdentifierUuid']) === true) {
             $options = $this->_externalFields['IdentifierUuid']['options'];
-        } else {
-            $options = null;
         }
         $this->_storeExternal($this->_fields['IdentifierUuid']->getValue(), $options);
     }
@@ -1444,10 +1438,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
     public function delete() {
         $config = Zend_Registry::get('Zend_Config');
 
-        if (is_null($config) === true or is_null($config->searchengine) === true or empty($searchEngine) === true) {
-            $searchEngine = 'Lucene';
-        }
-        else {
+        $searchEngine = 'Lucene';
+        if (is_null($config) !== true and is_null($config->searchengine) === fals and empty($searchEngine) === false) {
             $searchEngine = $config->searchengine->engine;
         }
 
@@ -1471,14 +1463,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @see    Opus_Model_AbstractDb::delete()
      * @return void
+     *
+     * TODO: Only remove if document does not have an URN/DOI!
      */
     public function deletePermanent() {
+        /* @var $config Zend_Config */
         $config = Zend_Registry::get('Zend_Config');
 
-        $searchEngine = $config->searchengine->engine;
-        if (empty($searchEngine) === true) {
-            $searchEngine = 'Lucene';
+        $searchEngine = 'Lucene';
+        if (is_null($config) !== true and is_null($config->searchengine) === fals and empty($searchEngine) === false) {
+            $searchEngine = $config->searchengine->engine;
         }
+
         $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
         // Remove from index
         $indexer = new $engineclass();
@@ -1681,7 +1677,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $publishers = array($publishers);
         }
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-        $db = $table->getAdapter();
 
         $constraints = array(
                 'document_id' => $this->getId(),
@@ -1723,7 +1718,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $grantors = array($grantors);
         }
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-        $db = $table->getAdapter();
 
         $constraints = array(
                 'document_id' => $this->getId(),
