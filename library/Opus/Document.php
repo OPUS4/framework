@@ -321,8 +321,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _init() {
         $fields = array(
-            "CompletedDate",
-            "CompletedYear",
+            "CompletedDate", "CompletedYear",
 //            "Conference",
             "ContributingCorporation",
             "CreatingCorporation",
@@ -333,13 +332,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
 //            "Journal",
             "Language",
 //            "Monograph",
-            "PageFirst",
-            "PageLast",
-            "PageNumber",
-            "PublishedDate",
-            "PublishedYear",
-            "PublisherName",
-            "PublisherPlace",
+            "PageFirst", "PageLast", "PageNumber",
+            "PublishedDate", "PublishedYear",
+            "PublisherName",  "PublisherPlace",
             "ServerDateModified",
             "ServerDatePublished",
             "ServerDateUnlocking",
@@ -533,15 +528,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             return ($pieces[2] . '.' . $pieces[1] . '.' . $pieces[0]);
         }
         return $date;
-    }
-
-    /**
-     * Overwrite setter, type is immutable.
-     *
-     * @param  string|Opus_Document_Type $type The type of the document.
-     * @return void
-     */
-    public function setType($type) {
     }
 
     /**
@@ -1174,7 +1160,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
     public static function fromXml($xml, Opus_Model_Xml $deserializer = null) {
-        if (false === isset($customDeserializer)) {
+        if (false === isset($deserializer)) {
             $deserializer = new Opus_Model_Xml;
         }
         $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
