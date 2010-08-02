@@ -1319,50 +1319,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Provide read access to file field.
-     * Overrides default method from parent
-     * check if the file exists physically
-     * if it doesnt clean it from file list
-     *
-     * do not use this method, its commented out!
-     * the overridden function will be used
-     *
-     * files are checked at construction of document object
-     * they will not appear in the object if they are not found physically
-     *
-     * @return string
-     */
-    /*public function getFile($index = null) {
-        if ($index !== null) {
-            $f = $this->_getField('File')->getValue();
-            $file = $f[$index];
-            if ($file->exists() === true) {
-            	return $file;
-            }
-            return null;
-        }
-        else {
-            $files = $this->_getField('File')->getValue();
-            $return = array();
-            foreach ($files as $file) {
-                if ($file->exists() === true) {
-            	    array_push($return, $file);
-                }
-            }
-            return $return;
-        }
-    }*/
-
-    /**
-     * Provide read access to internal type field.
-     *
-     * @return string
-     */
-    public function getType() {
-        return $this->_getField('Type')->getValue();
-    }
-
-    /**
      * Set internal fields ServerDatePublished and ServerDateModified.
      *
      * @return mixed Anything else then null will cancel the storage process.
@@ -1488,8 +1444,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _storePublisher($publishers) {
-        $this->logger('_storePublisher(): store ' . count($publishers));
-
         if (true === empty($publishers)) {
             // Lazy fetching has not been triggered yet, so no action taken.
             return;
@@ -1513,8 +1467,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $row->role_id = $collection->getRoleId();
             $row->save();
         }
-
-        $this->logger('_storePublisher(): done.');
     }
 
     /**
@@ -1529,8 +1481,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * FIXME: Should be provided by Db_LinkDocumentsCollections()
      */
     protected function _storeGrantor($grantors) {
-        $this->logger('_storeGrantor(): store ' . count($grantors));
-
         if (true === empty($grantors)) {
             // Lazy fetching has not been triggered yet, so no action taken.
             return;
@@ -1554,8 +1504,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $row->role_id = $collection->getRoleId();
             $row->save();
         }
-
-        $this->logger('_storeGrantor(): done.');
     }
 
 
