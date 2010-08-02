@@ -67,7 +67,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
-                            'model' => 'Opus_Abstract',
+                            'model' => 'Opus_Title',
                             'options' => array('type' => 'abstract'),
                             'fetch' => 'lazy'
             ),
@@ -447,14 +447,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeLanguage() {
+        $result = null;
         if ($this->_fields['Language']->getValue() !== null) {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = implode(',', $this->_fields['Language']->getValue());
             } else {
                 $result = $this->_fields['Language']->getValue();
             }
-        } else {
-            $result = null;
         }
         $this->_primaryTableRow->language = $result;
     }
@@ -465,6 +464,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array
      */
     protected function _fetchLanguage() {
+        $result = null;
         if (empty($this->_primaryTableRow->language) === false) {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = explode(',', $this->_primaryTableRow->language);

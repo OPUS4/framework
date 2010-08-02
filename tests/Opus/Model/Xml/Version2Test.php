@@ -87,7 +87,7 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $title->setValue('Creating of tests.');
         $document->addTitleMain($title);
 
-        $abstract = new Opus_Abstract();
+        $abstract = new Opus_Title();
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);
@@ -156,7 +156,7 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $title->setValue('Creating of tests.');
         $document->addTitleMain($title);
 
-        $abstract = new Opus_Abstract();
+        $abstract = new Opus_Title();
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);

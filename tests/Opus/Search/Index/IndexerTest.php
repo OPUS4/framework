@@ -106,7 +106,7 @@ class Opus_Search_Index_IndexerTest extends TestCase {
         $title->setValue('Gegen die Wand und noch viel weiter');
         $title->setLanguage('ger');
         $doc->addTitleMain($title);
-        $abstract = new Opus_Abstract();
+        $abstract = new Opus_Title();
         $abstract->setValue('Eine kleine Nachtgeschichte.');
         $abstract->setLanguage('ger');
         $doc->addTitleAbstract($abstract);
