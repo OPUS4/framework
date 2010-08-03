@@ -201,13 +201,17 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->setPathName($fileName);
         }
 
+        $target = $path . '/' . $this->getPathName();
         if (true === is_uploaded_file($this->getTempFile())) {
-            $copyResult = move_uploaded_file($this->getTempFile(), $path . '/' . $this->getPathName());
+            $moveResult = move_uploaded_file($this->getTempFile(), $target);
+            if ($moveResult === false) {
+                $this->logger("Error moving file '" . $this->getTempFile() .  "' to '$target'");
+            }
         } else {
-            $copyResult = copy($this->getTempFile(), $path . '/' . $this->getPathName());
-        }
-        if ($copyResult === false) {
-            throw new Opus_Model_Exception('Error saving file.');
+            $copyResult = copy($this->getTempFile(), $target);
+            if ($copyResult === false) {
+                $this->logger("Error copying file '" . $this->getTempFile() .  "' to '$target'");
+            }
         }
     }
 
@@ -372,5 +376,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     		return true;
     	}
         return false;
+    }
+
+    /**
+     * Log document errors.  Prefixes every log entry with document id.
+     *
+     * @param string $message
+     */
+    protected function logger($message) {
+        $registry = Zend_Registry::getInstance();
+        $logger = $registry->get('Zend_Log');
+        $logger->info( $this->getDisplayName() . ": $message");
     }
 }
