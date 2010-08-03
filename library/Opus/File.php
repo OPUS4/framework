@@ -203,8 +203,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $target = $path . '/' . $this->getPathName();
         if (true === is_uploaded_file($this->getTempFile())) {
-            $moveResult = move_uploaded_file($this->getTempFile(), $target);
-            if ($moveResult === false) {
+            $copyResult = move_uploaded_file($this->getTempFile(), $target);
+            if ($copyResult === false) {
                 $this->logger("Error moving file '" . $this->getTempFile() .  "' to '$target'");
             }
         } else {
@@ -212,6 +212,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             if ($copyResult === false) {
                 $this->logger("Error copying file '" . $this->getTempFile() .  "' to '$target'");
             }
+        }
+
+        if ($copyResult === false) {
+            throw new Opus_Model_Exception('Error saving file.');
         }
     }
 
