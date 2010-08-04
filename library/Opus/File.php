@@ -85,20 +85,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 'options' => array('privilege' => 'readFile'),
                 'fetch' => 'lazy'
             ),
-            'TempFile' => array(),
             'HashValue' => array(
                 'model' => 'Opus_HashValues'
             ),
-        );
-
-    /**
-     * The file models hidden fields for not showing inside form builder.
-     *
-     * @var array
-     * @see Opus_Model_Abstract::$_internalFields
-     */
-    protected $_internalFields = array(
-            'FileSize',
         );
 
     /**
