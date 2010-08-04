@@ -106,10 +106,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return void
      */
     protected function _init() {
-        $documentid = new Opus_Model_Field('DocumentId');
-        $documentid->setMandatory(true)
-            ->setValidator(new Zend_Validate_Int());
-
         $filepathname = new Opus_Model_Field('PathName');
         $filepathname->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -148,7 +144,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             ->addField($filelanguage)
             ->addField($tempfile)
             ->addField($filesize)
-            ->addField($documentid)
             ->addField($hashvalue)
             ->addField($role);
     }
@@ -159,7 +154,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	if (file_exists($this->__path . $this->getDocumentId() . '/' . $this->getPathName()) === true) {
+    	if (file_exists($this->__path . $this->getParentId() . '/' . $this->getPathName()) === true) {
             return true;
     	}
     	return false;
@@ -186,7 +181,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashtypes = array('md5', 'sha512');
 
         //FIXME: Hard coded path!
-        $path = $this->__path . $this->getDocumentId();
+        $path = $this->__path . $this->getParentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
@@ -259,7 +254,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function doDelete($token) {
         parent::doDelete($token);
-        $path = $this->__path . $this->getDocumentId();
+        $path = $this->__path . $this->getParentId();
         
         $result = unlink($path . '/' . $this->getPathName());
         // Delete directory if empty.
@@ -309,7 +304,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return string hash value
      */
     public function getRealHash($type) {
-        $path = $this->__path . $this->getDocumentId();
+        $path = $this->__path . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
         return hash_file($type, $completePath);
     }
@@ -381,7 +376,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean True if verification can get performed
      */
     public function canVerify() {
-    	$path = $this->__path . $this->getDocumentId();
+    	$path = $this->__path . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
     	if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
     		return true;
