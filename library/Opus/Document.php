@@ -941,20 +941,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param int $start The smallest document id to be considered.
      * @param int $end The largest document id to be considered.
      * @return array The list of document ids within the given range.
+     *
+     * @throws InvalidArgumentException
      */
-    public static function getAllPublishedIds($start = 0, $end = -1) {
+    public static function getAllPublishedIds($start, $end) {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->columns('id')
                 ->where('server_state = "published"');
-        if ($start !== 0 && $end !== -1) {
+
+        if (isset($start) && isset($end)) {
             $select = $select->where('id >= ?', $start)->where('id <= ?', $end);
         }
-        elseif ($end === -1) {
+        elseif (isset($start)) {
             $select = $select->where('id >= ?', $start);
         }
-        else {
-            $select = $select->where('id <= ?', $end);
+        elseif (!isset($start) && isset($end)) {
+            throw new InvalidArgumentException("End ID given, but no start ID.");
         }
+
         return $table->getAdapter()->fetchCol($select);
     }
 
