@@ -487,6 +487,21 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 $result = null;
             }
         }
+
+        // TODO: Write unit test.
+        // iterate through dependend models and set parent id
+        $list = $result;
+        if (false === is_array($result)) {
+            $list = array($list);
+        }
+
+        $myid = $this->getId();
+        foreach ($list as $child) {
+            if ($child instanceof Opus_Model_Dependent_Abstract) {
+                $child->setParentId($myid);
+            }
+        }
+
         // Set the field value
         $this->_fields[$fieldname]->setValue($result);
     }
