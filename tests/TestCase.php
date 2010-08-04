@@ -116,7 +116,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    protected function setUp() {
         parent::setUp();
         self::_clearTables();
     }
@@ -126,7 +126,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    protected function tearDown() {
         self::_clearTables();
         parent::tearDown();
     }
