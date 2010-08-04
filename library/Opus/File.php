@@ -160,9 +160,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function exists() {
     	if (file_exists($this->__path . $this->getDocumentId() . '/' . $this->getPathName()) === true) {
-    		return true;
+            return true;
     	}
     	return false;
+    }
+
+    /**
+     *
+     */
+    public function getPath() {
+        return $this->__path . $this->getDocumentId() . '/' . addslashes($this->getPathName());
     }
 
     /**

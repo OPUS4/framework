@@ -919,13 +919,40 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Returns all document that are in a specific server (publication) state.
      *
      * @param  string  $state The state to check for.
-     * @param string [$sort_reverse] optional string interpreted indicator for list order: 1 = descending order, all other values (or none) = ascending order
+     * @param  string [$sort_reverse] optional string interpreted indicator for list order: 1 = descending order, all other values (or none) = ascending order
      * @return array The list of documents in the specified state.
      */
     public static function getAllIdsByState($state, $sort_reverse = '0') {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('server_state = ?', $state);
         $select = $select->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = $row['id'];
+        }
+        return $result;
+    }
+
+    /**
+     * Returns all documents that are in publication state and whose ids are within the given range
+     *
+     * @param int $start The smallest document id to be considered.
+     * @param int $end The largest document id to be considered.
+     * @return array The list of document ids within the given range.
+     */
+    public static function getAllPublishedIds($start = 0, $end = -1) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select();
+        if ($start !== 0 && $end !== -1) {
+            $select = $select->where('id >= ?', $start)->where('id <= ?', $end);
+        }
+        elseif ($end === -1) {
+            $select = $select->where('id >= ?', $start);
+        }
+        else {
+            $select = $select->where('id <= ?', $end);
+        }
         $rows = $table->fetchAll($select);
         $result = array();
         foreach ($rows as $row) {

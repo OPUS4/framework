@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -10,7 +11,7 @@
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
  * the Saarland University and State Library, the Saxon State Library -
  * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg University of Technology with funding from
+ * the University Library of Hamburg Univeresity of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -26,296 +27,301 @@
  *
  * @category    Framework
  * @package     Opus_Search
- * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: Indexer.php 3834 2009-11-18 16:28:06Z becker $
  */
-
 class Opus_Search_Index_Solr_Indexer {
-	/**
-	 * Index variable
-	 *
-	 * @var Zend_Search_Lucene Index for the search engine
-	 * @access private
-	 */
-	private $entryindex;
 
-	/**
-	 * Index path
-	 *
-	 * @var String Path to the index for the search engine
-	 * @access private
-	 */
-	private $indexPath;
+    // Connection to Solr server
+    private $solr_server = null;
 
-    /**
-     * Document that should get indexed by this object
-     * This should spare memory at all
-     */
-    private $docToIndex = null;
+    // Solr server URL
+    private $solr_server_url;
 
-	/**
-	 * Constructor
-	 *
-	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
-	 */
-	public function __construct($createIndex = false, $bufferedDocs = 3) {
-        /*$registry = Zend_Registry::getInstance();
-        $this->indexPath = $registry->get('Zend_LuceneIndexPath');
-        try
-        {
-            if ($createIndex === true) {
-            	$this->entryindex = Zend_Search_Lucene::create($this->indexPath);
-            }
-            else {
-                $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
-            }
+    // Logger
+    private $log;
+
+    public function __construct($deleteAllDocs = false) {
+        $this->log = Zend_Registry::get('Zend_Log');
+        $this->solr_server = $this->getSolrServer();
+        $this->log->info('try to establish connection to Solr server ' . $this->solr_server_url);
+        if (is_null($this->solr_server) || !$this->solr_server->ping()) {
+            $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
+            throw new Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
         }
-        catch (Zend_Search_Lucene_Exception $zsle) {
-            if (false !== strpos($zsle->getMessage(), 'Index doesn\'t exists in the specified directory.')) {
-                // re-creating could cause deleting existing lucene search index
-                $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
-            } else {
-                throw $zsle;
-            }
+        $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
+        if ($deleteAllDocs) {
+            $this->deleteAllDocs();
         }
-        // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index 
-        $this->entryindex->setMaxBufferedDocs($bufferedDocs);
-        */
-	}
-
-	/**
-	 * Stores a document in the Search Engine Index
-	 *
-	 * @param Opus_Document $doc Model of the document that should be added to the index
-	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
-	 * @return void
-	 */
-	public function addDocumentToEntryIndex(Opus_Document $doc)
-	{
-        $solr = new Apache_Solr_Service( 'localhost', '8983', '/solr' );
-  
-        if ( ! $solr->ping() ) {
-            echo 'Solr service not responding.';
-            exit;
-        }
-        
-        $this->docToIndex = $doc;
-        unset($doc);
-    	$returnarray = array();
-
-    	try {
-    	    // remove existing entries
-    	    // not necessary with solr
-    	    //if (count($this->entryindex->find('docid:' . $doc->getId() . ' ')) > 0) {
-    	    //    $this->removeDocumentFromEntryIndex($doc);
-    	    //}
-    	    $analyzedDocs = $this->analyzeDocument();
-            unset($doc);
-    	    foreach ($analyzedDocs as $analyzedDoc) {
-			 	// TODO: print out exceptions and errors
-			 	//if (true === array_key_exists('exception', $analyzedDoc))
-			 	//{
-			 	//	$returnarray[] = $analyzedDoc['source'] . ' in document ID ' . $analyzedDoc['docid'] . ': ' . $analyzedDoc['exception'];
-			 	//}
-			 	//else
-			 	//{
-            	try {
-            	    //$indexDoc = new Opus_Search_Index_Document($analyzedDoc);
-			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
-          	        if (is_array($analyzedDoc) === true) {
-           	            $solr->addDocuments($analyzedDoc);
-           	            $solr->commit();
-           	        }
-           	        else {
-           	    	    $solr->addDocument($analyzedDoc);
-           	    	    $solr->commit();
-            	    }
-			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
-			 		$returnarray[] = "indexed " . $analyzedDoc->getField('source') . ' for document id ' . $analyzedDoc->getField('id');
-            	}
-            	catch (Exception $e) {
-            		throw $e;
-            	}
-			 	//}
-            }
-            
-		} catch (Exception $e) {
-			throw $e;
-        }
-        unset($analyzedDoc);
-        unset($analyzedDocs);
-        return $returnarray;
-	}
-
-    /**
-     * Removes a document from the Search Engine Index
-     *
-     * @param Opus_Document $doc Model of the document that should be removed to the index
-     * @throws Exception Exceptions from Zend_Search_Lucene are thrown
-     * @return void
-     */
-    public function removeDocumentFromEntryIndex(Opus_Document $doc = null)
-    {
-    	if ($doc !== null) {
-    		$this->docToIndex = $doc;
-    		unset ($doc);
-    	}
-        try {
-            // Weird: some IDs are only found with adding whitespace behind the query...
-            // So let's add a space behind the ID.
-            $hits = $this->entryindex->find('docid:' . $this->docToIndex . ' ');
-            foreach ($hits as $hit) {
-                $this->entryindex->delete($hit->id);
-            }
-        } catch (Exception $e) {
-            throw $e;
-        }
-        $this->commit();
-        $this->optimize();
     }
 
-	/**
-	 * Commits Search Engine Index
-	 *
-	 * @return void
-	 */
-	public function commit() {
-		$this->addDocument('<commit/>');
-	}
+    /**
+     * returns a Apache_Solr_Service object which encapsulates the communication
+     * with the Solr server
+     *
+     * @return Apache_Solr_Server
+     */
+    private function getSolrServer() {        
+        $config = Zend_Registry::get('Zend_Config');
+        $solr_host = $config->searchengine->solr->host;
+        $solr_port = $config->searchengine->solr->port;
+        $solr_app = '/' . $config->searchengine->solr->app;
+        $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
+        return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
+    }
 
-	/**
-	 * Optimizes Search Engine Index
-	 *
-	 * @return void
-	 */
-	public function optimize() {
-		$this->addDocument('<optimize/>');
-	}
+    /**
+     * Add a document to the index.
+     * Unless $commit is true, the changes are not visible and a subsequent call
+     * to commit is required, to make the changes visible.
+     *
+     * @param Opus_Document $doc Model of the document that should be added to the index
+     * @param $commit
+     * @throws Exception
+     * @return void
+     */
+    public function addDocumentToEntryIndex(Opus_Document $doc, $commit = false) {
+        try {            
+            // send xml directly to solr server instead of wrapping the document data
+            // into an Apache_Solr_Document object offered by the solr php client library
+            $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
+            if ($commit) {
+                $this->commit();
+            }
+        }
+        catch (Exception $e) {
+            throw new Exception('error while adding document with id ' . $doc->getId() . ' : ' . $e->getMessage());
+        }
+    }
 
-	private function analyzeDocument() {
-        
-        // Set up filter and get XML-Representation of filtered document.
-        $type = new Opus_Document_Type($this->docToIndex->getType());
+    /**
+     * Removes a document from the index.
+     * Unless $commit is true, the changes are not visible and a subsequent call
+     * to commit is required, to make the changes visible.
+     *
+     * @param Opus_Document $doc Model of the document that should be removed to the index
+     * @param $commit 
+     * @throws Exception
+     * @return void
+     */
+    public function removeDocumentFromEntryIndex(Opus_Document $doc = null, $commit = false) {
+        try {
+            $this->solr_server->deleteById($doc->getId());
+            if ($commit) {
+                $this->commit();
+            }
+        }
+        catch (Exception $e) {
+            $this->log->error('error while deleting document with id ' . $doc->getId() . ' : ' . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    /* @var $doc Opus_Document */
+    /**
+     * returns a xml representation of the given document in the format that is
+     * expected by Solr
+     *
+     * @param Opus_Document $doc
+     * @return DOMDocument
+     */
+    private function getSolrXmlDocument($doc) {
+        // Set up filter and get XML representation of filtered document.
         $filter = new Opus_Model_Filter;
-        $filter->setModel($this->docToIndex);
-        $xml = $filter->toXml();
+        $filter->setModel($doc);
+        $modelXml = $filter->toXml();
+        $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
 
-        // Set up XSLT-Stylesheet
+        // Set up XSLT stylesheet
         $xslt = new DomDocument;
-        $template = 'solr.xslt';
-        $xslt->load(dirname(__FILE__) . '/' . $template);
+        $xslt->load(dirname(__FILE__) . '/solr.xslt');
 
-        // Set up XSLT-Processor
+        // Set up XSLT processor
         $proc = new XSLTProcessor;
         $proc->importStyleSheet($xslt);
-        $xmlDocument = $proc->transformToXML($xml);
+
+        $solrXmlDocument = new DOMDocument();
+        $solrXmlDocument->preserveWhiteSpace = false;
+        $solrXmlDocument->formatOutput = true;
+        $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
+
+        /*
+        $this->log->debug("\n" . $modelXml->saveXML());
+        $this->log->debug("\n" . $solrXmlDocument->saveXML());
+        */
         
-        $dom = new DomDocument();
-        $dom->loadXml($xmlDocument);
-        
-        $fields = $dom->getElementsByTagName('field');
-        $solrDocument = new Apache_Solr_Document();
-        $count = 0;
-        $elements = array();
-        foreach ($fields as $key) {
-            $element = $fields->item($count)->getAttribute('name');
-            $k = 0;
-            if (in_array($element, $elements) === true) {
-            	$solrDocument->setMultiValue( $element, $fields->item($count)->nodeValue );
-            }
-            else {
-            	$solrDocument->$element = $fields->item($count)->nodeValue;
-            }
-            array_push($elements, $element); 
-            $count++;
-        }
+        return $solrXmlDocument;
+    }
 
-        $docArray = array();
-        // index files (each file will get one data set)
-        if (count($this->docToIndex->getFile()) > 0) {
-            $files = $this->docToIndex->getFile();
-            $file_count = count($files);
-            $numberOfIndexableFiles = $file_count;
-            foreach ($files as $file)
-            {
-            	try {
-           	        $solrDocument->fulltext = $this->getFileContent($file);
-           	        $solrDocument->source = $file->getPathName();
-       	        	array_push($docArray, $solrDocument);
-                }
-                catch (Exception $e) {
-            	    $document = $e->getMessage();
-            	    $numberOfIndexableFiles--;
-            	    #array_push($docArray, $document);
-                }
+    /* @var $modelXml DomDocument */
+    /* @var $files    Opus_File   */
+    /**
+     * for each file that is associated to the given document the fulltext and
+     * path information are attached to the xml representation of the document model     
+     *
+     * @param DomDocument $modelXml
+     * @param Opus_File $files
+     * @param $docId
+     * @return void
+     */
+    private function attachFulltextToXml($modelXml, $files, $docId) {
+        $docXml = $modelXml->getElementsByTagName('Opus_Model_Filter')->item(0);
+        if (is_null($docXml)) {
+            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $doc->getId());
+            return;
+        }
+        if (count($files) == 0) {
+            // Dokument besteht ausschließlich aus Metadaten
+            $docXml->appendChild($modelXml->createElement('Source_Index', 'metadata'));
+            $docXml->appendChild($modelXml->createElement('Fulltext_Index', ''));
+            return;
+        }
+        foreach ($files as $file) {
+            $docXml->appendChild($modelXml->createElement('Source_Index', $file->getPathName()));
+            $fulltext = '';
+            try {
+                $fulltext = $this->getFileContent($file);
             }
-        } else {
-            $numberOfIndexableFiles = 0;
+            catch (Exception $e) {
+                $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
+            }
+            $element = $modelXml->createElement('Fulltext_Index');
+            $element->appendChild($modelXml->createCDATASection(trim($fulltext)));
+            $docXml->appendChild($element);            
         }
-        // if there is no file (or only non-readable ones) associated with the document, index only metadata
-        if ($numberOfIndexableFiles === 0)
-        {
-           	$solrDocument->fulltext = '';
-           	$solrDocument->source = 'metadata';
-            array_push($docArray, $solrDocument);
-        }
+    }
 
-        return ($docArray);
-	}
-
+    /* @var $file Opus_File */
+    /**
+     * returns the extracted fulltext of the given file or an exception in
+     * case of errors
+     *
+     * @param Opus_File $file
+     * @throws Exception
+     * @return extracted fulltext
+     */    
     private function getFileContent($file) {
+        if (!$file->exists()) {
+            throw new Exception($file->getPath() . ' does not exist.');
+        }
         $fulltext = '';
-        //FIXME: Hard coded path!
-        $path_prefix = '../workspace/files/' . $file->getDocumentId();
-		$mimeType = $file->getMimeType();
-		if (substr($mimeType, 0, 9) === 'text/html') {
-			$mimeType = 'text/html';
-		}
-		try {
-			$fileToConvert = realpath($path_prefix . '/' . addslashes($file->getPathName()));
-		    switch ($mimeType)
-		    {
-			    case 'application/pdf':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($fileToConvert);
-				    break;
-			    case 'application/postscript':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($fileToConvert);
-				    break;
-			    case 'text/html':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($fileToConvert);
-	    			break;
-			    case 'text/plain':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($fileToConvert);
-	    			break;
-		    	default:
-			    	throw new Exception('No converter for MIME-Type ' . $mimeType);
-		    }
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-		return $fulltext;
-	}
-	
-	private function addDocument($solrDoc) {
-		// HTTP-Header vorbereiten
-		$out  = "POST /solr/update HTTP/1.1\r\n";
-		$out .= "Host: localhost\r\n";
-		$out .= "Content-type: text/xml; charset=utf-8\r\n";
-		$out .= "Content-length: ". strlen($solrDoc) ."\r\n";
-		$out .= "User-Agent: SolrIndexer\r\n";
-		$out .= "Connection: Close\r\n";
-		$out .= "\r\n";
-		$out .= $solrDoc;
-		if (!$conex = @fsockopen('localhost', '8983', $errno, $errstr, 10)) return 0;
-		fwrite($conex, $out);
-		$data = '';
-		while (!feof($conex)) {
-			$data .= fgets($conex, 512);
-		}
-		fclose($conex);
-		return $data;		
-	}
+        $mimeType = $file->getMimeType();
+        if (substr($mimeType, 0, 9) === 'text/html') {
+            $mimeType = 'text/html';
+        }        
+        switch ($mimeType) {
+            case 'application/pdf':
+                $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($file->getPath());
+                break;
+            case 'application/postscript':
+                $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($file->getPath(), true);
+                break;
+            case 'text/html':
+                $fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($file->getPath());
+                break;
+            case 'text/plain':
+                $fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($file->getPath());
+                break;
+            default:
+                throw new Exception('No converter for MIME-Type ' . $mimeType);
+        }
+        return $fulltext;
+    }
+
+    /**
+     * Deletes all index documents.
+     * Unless $commit is true, the changes are not visible and a subsequent call
+     * to commit is required, to make the changes visible.
+     *
+     * @param query
+     * @param commit
+     * @exception Exception
+     * @return void
+     */
+    public function deleteAllDocs($commit = false) {
+        $this->deleteDocsByQuery("*");
+        $this->log->info('all docs were deleted');
+    }
+
+    /**
+     * Deletes all index documents that match the given query $query.
+     * Unless $commit is true, the changes are not visible and a subsequent call
+     * to commit is required, to make the changes visible.
+     *
+     * @param query
+     * @param commit
+     * @exception
+     * @return void
+     *
+     */
+    public function deleteDocsByQuery($query, $commit = false) {
+        try {
+            $this->solr_server->deleteByQuery($query);
+        }
+        catch (Exception $e) {
+            $this->log->error('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
+            throw new Exception('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
+        }
+        if ($commit) {
+            $this->commit();
+        }
+    }
+
+    /**
+     * Posts the given xml document to the Solr server without using the solr php client library.
+     *
+     * @param DOMDocument $solrXml
+     */
+    private function sendSolrXmlToServer($solrXml) {
+        $stream = stream_context_create();
+        stream_context_set_option(
+            $stream,
+            array(
+                'http' => array(
+                    'method' => 'POST',
+                    'header' => 'Content-Type: text/xml; charset=UTF-8',
+                    'content' => $solrXml->saveXML(),
+                    'timeout' => '3600'
+                )
+            )
+        );
+        $response = new Apache_Solr_Response(@file_get_contents($this->solr_server_url . '/update', false, $stream));
+        $this->log->debug('HTTP Status: ' . $response->getHttpStatus());
+    }
+
+    /**
+     * Commits changes to the index
+     *
+     * @return void
+     */
+    public function commit() {
+        try {
+            $this->solr_server->commit();
+        }
+        catch (Exception $e) {
+            $this->log->error('error while committing changes: ' . $e->getMessage());
+            throw new Exception('error while committing changes: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Optimizes the index
+     *
+     * @return void
+     */
+    public function optimize() {
+        try {
+            $this->solr_server->optimize();
+        }
+        catch (Exception $e) {
+            $this->log->error('error while optimizing index: ' . $e->getMessage());
+            throw new Exception('error while optimizing index: ' . $e->getMessage());
+        }
+    }
+
+    public function finalize() {
+        $this->commit();
+    }
 }
