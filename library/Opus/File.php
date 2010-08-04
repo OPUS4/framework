@@ -148,7 +148,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	if (file_exists($this->getDestinationPath() . $this->getParentId() . '/' . $this->getPathName()) === true) {
+    	if (file_exists($this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName()) === true) {
             return true;
     	}
     	return false;
@@ -158,7 +158,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      */
     public function getPath() {
-        return $this->__path . $this->getDocumentId() . '/' . addslashes($this->getPathName());
+        return $this->getDestinationPath() . $this->getDocumentId() . DIRECTORY_SEPARATOR . addslashes($this->getPathName());
     }
 
     /**
