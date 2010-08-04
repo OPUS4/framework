@@ -49,14 +49,16 @@ class Opus_Search_Index_Solr_Indexer {
      *
      * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
      */
+
     public function __construct($deleteAllDocs = false) {
         $this->log = Zend_Registry::get('Zend_Log');
         $this->solr_server = $this->getSolrServer();
-        $this->log->info('try to establish connection to Solr server ' . $this->solr_server_url);
-        if (is_null($this->solr_server) || !$this->solr_server->ping()) {
+
+        if (false === $this->solr_server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
-            throw new Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
+            throw new Opus_Search_Index_Solr_Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
         }
+
         $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
         if (true === $deleteAllDocs) {
             $this->deleteAllDocs();
@@ -75,6 +77,7 @@ class Opus_Search_Index_Solr_Indexer {
         $solr_port = $config->searchengine->solr->port;
         $solr_app = '/' . $config->searchengine->solr->app;
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
+        require_once 'Apache/Solr/Service.php';
         return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
     }
 
@@ -83,7 +86,7 @@ class Opus_Search_Index_Solr_Indexer {
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param Opus_Document $doc Model of the document that should be added to the index
-     * @throws Exception
+     * @throws Opus_Search_Index_Solr_Exception If adding document to Solr index failed.
      * @return void
      */
     public function addDocumentToEntryIndex(Opus_Document $doc) {
@@ -93,7 +96,9 @@ class Opus_Search_Index_Solr_Indexer {
             $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
         }
         catch (Exception $e) {
-            throw new Exception('error while adding document with id ' . $doc->getId() . ' : ' . $e->getMessage());
+            $msg = 'Error while adding document with id ' . $doc->getId();
+            $this->log->error("$msg : " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
 
@@ -102,7 +107,8 @@ class Opus_Search_Index_Solr_Indexer {
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param Opus_Document $doc Model of the document that should be removed to the index
-     * @throws InvalidArgumentException
+     * @throws InvalidArgumentException If given document $doc is null.
+     * @throws Opus_Search_Index_Solr_Exception If deleting document failed.
      * @return void
      */
     public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
@@ -113,8 +119,9 @@ class Opus_Search_Index_Solr_Indexer {
             $this->solr_server->deleteById($doc->getId());
         }
         catch (Exception $e) {
-            $this->log->error('error while deleting document with id ' . $doc->getId() . ' : ' . $e->getMessage());
-            throw $e;
+            $msg = 'Error while deleting document with id ' . $doc->getId();
+            $this->log->error("$msg : " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
 
@@ -183,7 +190,7 @@ class Opus_Search_Index_Solr_Indexer {
             try {
                 $fulltext = $this->getFileContent($file);
             }
-            catch (Exception $e) {
+            catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
             $element = $modelXml->createElement('Fulltext_Index');
@@ -198,12 +205,12 @@ class Opus_Search_Index_Solr_Indexer {
      * case of errors
      *
      * @param Opus_File $file
-     * @throws Exception
+     * @throws Opus_Search_Index_Solr_Exception
      * @return extracted fulltext
      */    
     private function getFileContent($file) {
         if (!$file->exists()) {
-            throw new Exception($file->getPath() . ' does not exist.');
+            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
         }
         $fulltext = '';
         $mimeType = $file->getMimeType();
@@ -224,7 +231,7 @@ class Opus_Search_Index_Solr_Indexer {
                 $fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($file->getPath());
                 break;
             default:
-                throw new Exception('No converter for MIME-Type ' . $mimeType);
+                throw new Opus_Search_Index_Solr_Exception('No converter for MIME-Type ' . $mimeType);
         }
         return $fulltext;
     }
@@ -234,7 +241,7 @@ class Opus_Search_Index_Solr_Indexer {
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param query
-     * @exception Exception
+     * @throws Opus_Search_Index_Solr_Exception If deletion of all documents failed.
      * @return void
      */
     public function deleteAllDocs() {
@@ -248,7 +255,7 @@ class Opus_Search_Index_Solr_Indexer {
      * make the changes visible.
      *
      * @param query
-     * @exception
+     * @throws Opus_Search_Index_Solr_Exception If delete by query $query failed.
      * @return void
      *
      */
@@ -257,8 +264,9 @@ class Opus_Search_Index_Solr_Indexer {
             $this->solr_server->deleteByQuery($query);
         }
         catch (Exception $e) {
-            $this->log->error('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
-            throw new Exception('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
+            $msg = 'Error while deleting all documents that match query ' . $query;
+            $this->log->error("$msg : " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
 
@@ -287,6 +295,7 @@ class Opus_Search_Index_Solr_Indexer {
     /**
      * Commits changes to the index
      *
+     * @throws Opus_Search_Index_Solr_Exception If commit failed.
      * @return void
      */
     public function commit() {
@@ -294,14 +303,16 @@ class Opus_Search_Index_Solr_Indexer {
             $this->solr_server->commit();
         }
         catch (Exception $e) {
-            $this->log->error('error while committing changes: ' . $e->getMessage());
-            throw new Exception('error while committing changes: ' . $e->getMessage());
+            $msg = 'Error while committing changes';
+            $this->log->error("$msg : " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
 
     /**
      * Optimizes the index
      *
+     * @throws Opus_Search_Index_Solr_Exception If index optimization failed.
      * @return void
      */
     public function optimize() {
@@ -309,9 +320,9 @@ class Opus_Search_Index_Solr_Indexer {
             $this->solr_server->optimize();
         }
         catch (Exception $e) {
-            $this->log->error('error while optimizing index: ' . $e->getMessage());
-            throw new Exception('error while optimizing index: ' . $e->getMessage());
+            $msg = 'Error while optimizing changes';
+            $this->log->error("$msg : " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
-
 }
