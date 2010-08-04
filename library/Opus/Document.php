@@ -935,7 +935,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Returns all documents that are in publication state and whose ids are within the given range
+     * Returns all documents that are in publication state and whose ids are within the given range.
+     * Used by SolrIndexBuilder.
      *
      * @param int $start The smallest document id to be considered.
      * @param int $end The largest document id to be considered.
