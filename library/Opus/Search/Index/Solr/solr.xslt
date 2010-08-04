@@ -29,6 +29,7 @@
  * @category    Framework
  * @package     Opus_Search
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
+ * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -48,8 +49,10 @@
 
     <xsl:output method="xml" indent="yes" />
 
+    <!--
     <xsl:param name="fulltext" />
     <xsl:param name="source" />
+    -->
 
     <!--
     Suppress output for all elements that don't have an explicit template.
@@ -59,97 +62,143 @@
 
     <!--create the head of oai response  -->
     <xsl:template match="/">
-    <xsl:element name="add">
-        <xsl:element name="doc">
-            <xsl:element name="field">
-                <xsl:attribute name="name">id</xsl:attribute>
-                <xsl:value-of select="$source" />
-                <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">source</xsl:attribute>
-                <xsl:value-of select="$source" />
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">docid</xsl:attribute>
-                <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">year</xsl:attribute>
-                <xsl:value-of select="/Opus/Opus_Model_Filter/@CompletedYear" />
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">urn</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/IdentifierUrn">
-                    <xsl:value-of select="@Value" />
-                    <xsl:text> </xsl:text>
+        <xsl:element name="add">
+            <xsl:element name="doc">
+
+                <!-- id -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">id</xsl:attribute>
+                    <!--<xsl:value-of select="$source" />-->
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
+                </xsl:element>
+
+                <!-- source -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/Source_Index">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">source</xsl:attribute>
+                        <xsl:value-of select="." />
+                    </xsl:element>
                 </xsl:for-each>
-            </xsl:element>
-            <xsl:element name="field">
-                <xsl:attribute name="name">isbn</xsl:attribute>
-                <xsl:for-each select="/Opus/Opus_Model_Filter/IdentifierIsbn">
-                    <xsl:value-of select="@Value" />
-                    <xsl:text> </xsl:text>
+
+                <!-- docid -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">docid</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
+                </xsl:element>
+
+                <!-- year -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">year</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@CompletedYear" />
+                </xsl:element>
+
+                <!-- TODO: published_year -->
+
+                <!-- urn -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">urn</xsl:attribute>
+                    <xsl:for-each select="/Opus/Opus_Model_Filter/IdentifierUrn">
+                        <xsl:value-of select="@Value" />
+                        <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                </xsl:element>
+
+                <!-- isbn -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">isbn</xsl:attribute>
+                    <xsl:for-each select="/Opus/Opus_Model_Filter/IdentifierIsbn">
+                        <xsl:value-of select="@Value" />
+                        <xsl:text> </xsl:text>
+                    </xsl:for-each>
+                </xsl:element>
+
+                <!-- TODO: issn -->
+
+                <!-- abstract -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">abstract</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
                 </xsl:for-each>
-            </xsl:element>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
+
+                <!-- title -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">title</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- TODO: TitleParent -->
+
+                <!-- author -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/PersonAuthor">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">author</xsl:attribute>
+                        <xsl:value-of select="@Name" />
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- fulltext -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/Fulltext_Index">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">fulltext</xsl:attribute>
+                        <xsl:value-of select="." />
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/*">
+                    <xsl:if test="substring(name(), 1, 6)='Person'">
+                        <xsl:if test="name()!='PersonAuthor'">
+                            <xsl:element name="field">
+                                <xsl:attribute name="name">persons</xsl:attribute>
+                                <xsl:value-of select="@Name" />
+                            </xsl:element>
+                        </xsl:if>
+                    </xsl:if>
+                </xsl:for-each>
+
+                <!-- language -->
                 <xsl:element name="field">
-                    <xsl:attribute name="name">abstract</xsl:attribute>
-                    <xsl:value-of select="@Value" />
+                    <xsl:attribute name="name">language</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@Language" />
                 </xsl:element>
-            </xsl:for-each>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
+
+                <!-- doctype -->
                 <xsl:element name="field">
-                    <xsl:attribute name="name">title</xsl:attribute>
-                    <xsl:value-of select="@Value" />
+                    <xsl:attribute name="name">doctype</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@Type" />
                 </xsl:element>
-            </xsl:for-each>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/PersonAuthor">
-                <xsl:element name="field">
-                    <xsl:attribute name="name">author</xsl:attribute>
-                    <xsl:value-of select="@Name" />
-                </xsl:element>
-            </xsl:for-each>
-            <xsl:element name="field">
-                <xsl:attribute name="name">fulltext</xsl:attribute>
-                <xsl:value-of select="$fulltext" />
-            </xsl:element>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/*">
-                <xsl:if test="substring(name(), 1, 6)='Person'">
-                    <xsl:if test="name()!='PersonAuthor'">
+
+                <!-- TODO: subject (SubjectSwd, SubjectUncontrolled) -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
+                    <xsl:if test="@RoleId != 1">
                         <xsl:element name="field">
-                            <xsl:attribute name="name">persons</xsl:attribute>
+                            <xsl:attribute name="name">subject</xsl:attribute>
                             <xsl:value-of select="@Name" />
                         </xsl:element>
                     </xsl:if>
-                </xsl:if>
-            </xsl:for-each>
-            <xsl:element name="field">
-                <xsl:attribute name="name">language</xsl:attribute>
-                <xsl:value-of select="/Opus/Opus_Model_Filter/@Language" />
-            </xsl:element>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                <xsl:if test="@RoleId != 1">
-                    <xsl:element name="field">
-                        <xsl:attribute name="name">subject</xsl:attribute>
-                        <xsl:value-of select="@Name" />
-                    </xsl:element>
-                </xsl:if>
-            </xsl:for-each>
-            <xsl:element name="field">
-                <xsl:attribute name="name">doctype</xsl:attribute>
-                <xsl:value-of select="/Opus/Opus_Model_Filter/@Type" />
-            </xsl:element>
-            <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                <xsl:if test="@RoleId = 1">
-                    <xsl:element name="field">
-                        <xsl:attribute name="name">institute</xsl:attribute>
-                        <xsl:value-of select="@Name" />
-                    </xsl:element>
-                </xsl:if>
-             </xsl:for-each>
-        </xsl:element>
-    </xsl:element>
-    </xsl:template>
+                </xsl:for-each>
 
+                <!-- TODO: institute -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
+                    <xsl:if test="@RoleId = 1">
+                        <xsl:element name="field">
+                            <xsl:attribute name="name">institute</xsl:attribute>
+                            <xsl:value-of select="@Name" />
+                        </xsl:element>
+                    </xsl:if>
+                 </xsl:for-each>
+            </xsl:element>
+
+            <!-- TODO: CreatingCorporation, ContributingCorporation -->
+
+            <!-- TODO: PublisherName, PublisherPlace -->
+
+            
+
+        </xsl:element>
+    </xsl:template>
 </xsl:stylesheet>
