@@ -944,7 +944,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     public static function getAllPublishedIds($start, $end) {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->columns('id')
+        $select = $table->select()->from('documents', 'id')
                 ->where('server_state = "published"');
 
         if (isset($start)) {
