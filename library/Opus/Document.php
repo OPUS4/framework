@@ -944,7 +944,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     public static function getAllPublishedIds($start = 0, $end = -1) {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select();
+        $select = $table->select()->columns('id')
+                ->where('server_state = "published"');
         if ($start !== 0 && $end !== -1) {
             $select = $select->where('id >= ?', $start)->where('id <= ?', $end);
         }
@@ -954,12 +955,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         else {
             $select = $select->where('id <= ?', $end);
         }
-        $rows = $table->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-        return $result;
+        return $table->getAdapter()->fetchCol($select);
     }
 
     /**
