@@ -484,7 +484,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     private function _addMissingDirectorySeparator($path) {
         if (false === empty($path)) {
-            if (DIRECTORY_SEPARATOR !== $path[mb_strlen($path) - 1]) {
+            // TODO: if (DIRECTORY_SEPARATOR !== $path[mb_strlen($path) - 1]) {
+            if (DIRECTORY_SEPARATOR !== $path[strlen($path) - 1]) {
                 $path .= DIRECTORY_SEPARATOR;
             }
         }
