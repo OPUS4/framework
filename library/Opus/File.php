@@ -158,7 +158,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      */
     public function getPath() {
-        return $this->getDestinationPath() . $this->getDocumentId() . DIRECTORY_SEPARATOR . addslashes($this->getPathName());
+        return $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . addslashes($this->getPathName());
     }
 
     /**
