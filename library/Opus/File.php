@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -49,28 +50,24 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var string
      */
     private $_destinationPath = '../workspace/files/';
-
     /**
      * Holds path of source.
      *
      * @var string
      */
     private $_sourcePath = null;
-
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'document_id';
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass  = 'Opus_Db_DocumentFiles';
-
+    protected static $_tableGatewayClass = 'Opus_Db_DocumentFiles';
     /**
      * The file models external fields, i.e. those not mapped directly to the
      * Opus_Db_DocumentFiles table gateway.
@@ -79,16 +76,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            'AccessPermission' => array(
-                'model' => 'Opus_Role',
-                'through' => 'Opus_Model_Dependent_Link_FileRole',
-                'options' => array('privilege' => 'readFile'),
-                'fetch' => 'lazy'
-            ),
-            'HashValue' => array(
-                'model' => 'Opus_HashValues'
-            ),
-        );
+        'AccessPermission' => array(
+            'model' => 'Opus_Role',
+            'through' => 'Opus_Model_Dependent_Link_FileRole',
+            'options' => array('privilege' => 'readFile'),
+            'fetch' => 'lazy'
+        ),
+        'HashValue' => array(
+            'model' => 'Opus_HashValues'
+        ),
+    );
 
     /**
      * Initialize model with the following fields:
@@ -104,7 +101,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     protected function _init() {
         $filepathname = new Opus_Model_Field('PathName');
         $filepathname->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty());
 
         $filesortorder = new Opus_Model_Field('SortOrder');
         $filelabel = new Opus_Model_Field('Label');
@@ -124,7 +121,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
-            ->setMultiplicity('*');
+                ->setMultiplicity('*');
 
         $role = new Opus_Model_Field('AccessPermission');
         $role->setMultiplicity('*');
@@ -133,15 +130,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $this->addField($role);
         $this->addField($filepathname)
-            ->addField($filesortorder)
-            ->addField($filelabel)
-            ->addField($filetype)
-            ->addField($mimetype)
-            ->addField($filelanguage)
-            ->addField($tempfile)
-            ->addField($filesize)
-            ->addField($hashvalue)
-            ->addField($role);
+                ->addField($filesortorder)
+                ->addField($filelabel)
+                ->addField($filetype)
+                ->addField($mimetype)
+                ->addField($filelanguage)
+                ->addField($tempfile)
+                ->addField($filesize)
+                ->addField($hashvalue)
+                ->addField($role);
+
     }
 
     /**
@@ -166,65 +164,86 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * Copy the uploaded file to it's final destination.
      *
+     * Moves or copies uploaded file depending on whether it has been
+     * uploaded by PHP process or was privided via filesystem directly.
+     *
+     * Determine and set file mime type.
+     *
+     * @see Opus_Model_AbstractDb::_preStore()
+     */
+    protected function _preStore() {
+        $result = parent::_preStore();
+
+        if (null !== $result) {
+            return $result;
+        }
+
+        $tempFile = $this->getTempFile();
+        if (false === empty($tempFile)) {
+            // add source path if temp file does not have path information
+            if (false === file_exists($tempFile)) {
+                $tempFile = $this->getSourcePath() . $tempFile;
+            }
+            // TODO: set mime type
+            $mimetype = mime_content_type($tempFile);
+            // $mimetype = $this->_storage->getFileMimeEncoding($tempFile);
+            $this->setMimeType($mimetype);
+
+            $destinationPath = $this->getDestinationPath() . $this->getParentId();
+
+            if (file_exists($destinationPath) === false) {
+               mkdir($destinationPath, 0777, true);
+            }
+
+            $target = $destinationPath . DIRECTORY_SEPARATOR . $this->getPathName();
+
+            // TODO: Copy file
+            // $this->_storage->copyFile($tempFile, $destinationPath . $this->getPathName());
+
+            if (true === is_uploaded_file($tempFile)) {
+                $copyResult = move_uploaded_file($tempFile, $target);
+                if ($copyResult === false) {
+                    $this->logger("Error moving file '" . $this->getTempFile() . "' to '$target'");
+                }
+            }
+            else {
+                $copyResult = copy($tempFile, $target);
+                if ($copyResult === false) {
+                    $this->logger("Error copying file '" . $this->getTempFile() . "' to '$target'");
+                }
+            }
+
+            if ($copyResult === false) {
+                throw new Opus_Model_Exception('Error saving file.');
+            }
+
+            // create and append hash values
+            $this->_createHashValues();
+        }
+
+        if (true === $this->getField('PathName')->isModified()) {
+            $storedValue = $this->_primaryTableRow->path_name;
+            // rename only already stored files
+            if (false === empty($storedValue)) {
+                $newValue = $this->getPathName();
+                $directory = $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR;
+
+                $this->_storage->renameFile($directory . $storedValue, $directory . $newValue);
+            }
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * Copy the uploaded file to it's final destination.
+     *
      * @throws Opus_Model_Exception Thrown if moving or copying failed.
      * @return void
      */
     protected function _storeTempFile() {
-        if (is_null($this->getTempFile()) === true) {
-            return;
-        }
-
-        //FIXME: Hard coded path!
-        $path = $this->getDestinationPath() . $this->getParentId();
-        if (file_exists($path) === false) {
-            mkdir($path, 0777, true);
-        }
-
-        // create and append hash values
-        $this->_createHashValues();
-
-        if (true === file_exists($path . '/' . $this->getPathName())) {
-            $i = 0;
-            $fileName = $this->getPathName();
-            while (true === file_exists($path . '/' . $fileName)) {
-                $info = pathinfo($path . '/' . $this->getPathName());
-                $fileName =  basename($this->getPathName(), '.' .  $info['extension']) . '_' . $i++ . '.' . $info['extension'];
-            }
-            $this->setPathName($fileName);
-        }
-
-        $tempFile = $this->getTempFile();
-        if (false === file_exists($tempFile)) {
-            $tempFile = $this->getSourcePath() . $tempFile;
-        }
-
-        $target = $path . '/' . $this->getPathName();
-
-        if (false === is_dir("$path/")) {
-            // TODO: Debugging.
-            throw new Exception("Is not dir: $target");
-        }
-        if (false === is_writeable("$path/")) {
-            // TODO: Debugging.
-            throw new Exception("Is not writeable: $target");
-        }
-
-        $copyResult = false;
-        if (true === is_uploaded_file($tempFile)) {
-            $copyResult = move_uploaded_file($tempFile, $target);
-            if ($copyResult === false) {
-                $this->logger("Error moving file '" . $this->getTempFile() .  "' to '$target'");
-            }
-        } else {
-            $copyResult = copy($tempFile, $target);
-            if ($copyResult === false) {
-                $this->logger("Error copying file '" . $this->getTempFile() .  "' to '$target'");
-            }
-        }
-
-        if ($copyResult === false) {
-            throw new Opus_Model_Exception('Error saving file.');
-        }
+        return;
     }
 
     /**
@@ -233,13 +252,21 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return void
      */
     protected function _storeFileSize() {
-        if (true === $this->_isNewRecord) {
-            // Common workaround for php limitation (2 / 4 GB file size)
-            // look at http://de.php.net/manual/en/function.filesize.php
-            // more inforamtion
+        $file_size = 0;
+        $tempFile = $this->getTempFile();
+
+        if (false === empty($tempFile)) {
+            if (false === file_exists($tempFile)) {
+                $tempFile = $this->getSourcePath() . $tempFile;
+            }
+            // TODO: $file_size = $this->_storage->getFileSize($tempFile);
             $file_size = sprintf('%u', @filesize($this->getTempFile()));
-            $this->_primaryTableRow->file_size = $file_size;
         }
+        else {
+            $file_size = (int) $this->getFileSize();
+        }
+
+        $this->_primaryTableRow->file_size = $file_size;
     }
 
     /**
@@ -248,7 +275,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return string Filename
      */
     protected function _fetchTempFile() {
-        return $this->_fields['TempFile']->getValue();
+        return;
     }
 
     /**
@@ -261,13 +288,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function doDelete($token) {
         parent::doDelete($token);
         $path = $this->getDestinationPath() . $this->getParentId();
-        
+
         $result = unlink($path . '/' . $this->getPathName());
         // Delete directory if empty.
         if (0 === count(glob($path . '/*'))) {
             rmdir($path);
         }
-        
+
         // cleanup index
         $config = Zend_Registry::get('Zend_Config');
         $searchEngine = $config->searchengine->engine;
@@ -275,20 +302,20 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $searchEngine = 'Lucene';
         }
         // Reindex
-        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
+        $engineclass = 'Opus_Search_Index_' . $searchEngine . '_Indexer';
         $indexer = new $engineclass();
         try {
-        	$indexer->removeFileFromEntryIndex($this);
+            $indexer->removeFileFromEntryIndex($this);
         }
         catch (Exception $e) {
-        	throw $e;
+            throw $e;
         }
-        
-        if ($result === false) {
-        	throw new Exception('Cannot remove file ' . $this->getPathName() . '. Please check access permissions and try again!', '403');
-        }
-    }
 
+        if ($result === false) {
+            throw new Exception('Cannot remove file ' . $this->getPathName() . '. Please check access permissions and try again!', '403');
+        }
+
+    }
 
     /**
      * Populate fields from array.
@@ -301,6 +328,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setPathName($info['name']);
         $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
+
     }
 
     /**
@@ -313,6 +341,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $path = $this->getDestinationPath() . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
         return hash_file($type, $completePath);
+
     }
 
     /**
@@ -329,8 +358,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 }
             }
         }
-        if ($this->getRealHash($type) === $value) return true;
+        if ($this->getRealHash($type) === $value)
+            return true;
         return false;
+
     }
 
     /**
@@ -347,6 +378,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $return[$type] = $this->verify($type, $value);
         }
         return $return;
+
     }
 
     /**
@@ -355,25 +387,26 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return int limit to that files should get verified
      */
     private function getMaxVerifyFilesize() {
-    	$config = Zend_Registry::get('Zend_Config');
+        $config = Zend_Registry::get('Zend_Config');
 
-		$maxVerifyFilesize = $config->checksum->maxVerificationSize;
-		$maxVerifyFilesize = str_replace(' ', '', strtolower($maxVerifyFilesize));
-    	$returnVerifyFilesize = $maxVerifyFilesize;
-    	if (stristr($maxVerifyFilesize, 'k') !== false) {
-    		$maxVerifyFilesize = str_replace('k', '', strtolower($maxVerifyFilesize));
-    		$returnVerifyFilesize = $maxVerifyFilesize*1024;
-    	}
-    	if (stristr($maxVerifyFilesize, 'm') !== false) {
-    		$maxVerifyFilesize = str_replace('m', '', strtolower($maxVerifyFilesize));
-    		$returnVerifyFilesize = $maxVerifyFilesize*1024*1024;
-    	}
-    	if (stristr($maxVerifyFilesize, 'g') !== false) {
-    		$maxVerifyFilesize = str_replace('g', '', strtolower($maxVerifyFilesize));
-    		$returnVerifyFilesize = $maxVerifyFilesize*1024*1024*1024;
-    	}
+        $maxVerifyFilesize = $config->checksum->maxVerificationSize;
+        $maxVerifyFilesize = str_replace(' ', '', strtolower($maxVerifyFilesize));
+        $returnVerifyFilesize = $maxVerifyFilesize;
+        if (stristr($maxVerifyFilesize, 'k') !== false) {
+            $maxVerifyFilesize = str_replace('k', '', strtolower($maxVerifyFilesize));
+            $returnVerifyFilesize = $maxVerifyFilesize * 1024;
+        }
+        if (stristr($maxVerifyFilesize, 'm') !== false) {
+            $maxVerifyFilesize = str_replace('m', '', strtolower($maxVerifyFilesize));
+            $returnVerifyFilesize = $maxVerifyFilesize * 1024 * 1024;
+        }
+        if (stristr($maxVerifyFilesize, 'g') !== false) {
+            $maxVerifyFilesize = str_replace('g', '', strtolower($maxVerifyFilesize));
+            $returnVerifyFilesize = $maxVerifyFilesize * 1024 * 1024 * 1024;
+        }
 
         return $returnVerifyFilesize;
+
     }
 
     /**
@@ -382,12 +415,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean True if verification can get performed
      */
     public function canVerify() {
-    	$path = $this->getDestinationPath() . $this->getParentId();
+        $path = $this->getDestinationPath() . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
-    	if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
-    		return true;
-    	}
+        if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
+            return true;
+        }
         return false;
+
     }
 
     /**
@@ -397,6 +431,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     private function getDestinationPath() {
         return $this->_destinationPath;
+
     }
 
     /**
@@ -406,6 +441,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function getSourcePath() {
         return $this->_sourcePath;
+
     }
 
     /**
@@ -421,6 +457,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             throw new InvalidArgumentException('"' . $destinationPath . '" is not a valid directory.');
         }
         $this->_destinationPath = $destinationPath;
+
     }
 
     /**
@@ -436,9 +473,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             throw new InvalidArgumentException('"' . $sourcePath . '" is not a valid directory.');
         }
         $this->_sourcePath = $sourcePath;
+
     }
 
-        /**
+    /**
      * Adds to a given path a directory separator if not set.
      *
      * @param string $path Path with or withour directory separator.
@@ -451,6 +489,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             }
         }
         return $path;
+
     }
 
     /**
@@ -472,6 +511,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
+
     }
 
     /**
@@ -482,6 +522,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
-        $logger->info( $this->getDisplayName() . ": $message");
+        $logger->info($this->getDisplayName() . ": $message");
+
     }
+
 }
