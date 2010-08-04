@@ -26,9 +26,10 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -43,12 +44,18 @@
 class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
-     * Holds path to working directory.
-     * TODO: hardcoded path!
+     * Holds path of destination.
      *
      * @var string
      */
-    private $__path = '../workspace/files/';
+    private $_destinationPath = '../workspace/files/';
+
+    /**
+     * Holds path of source.
+     *
+     * @var string
+     */
+    private $_sourcePath = null;
 
     /**
      * Primary key of the parent model.
@@ -154,7 +161,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	if (file_exists($this->__path . $this->getParentId() . '/' . $this->getPathName()) === true) {
+    	if (file_exists($this->getDestinationPath() . $this->getParentId() . '/' . $this->getPathName()) === true) {
             return true;
     	}
     	return false;
@@ -178,20 +185,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             return;
         }
 
-        $hashtypes = array('md5', 'sha512');
-
         //FIXME: Hard coded path!
-        $path = $this->__path . $this->getParentId();
+        $path = $this->getDestinationPath() . $this->getParentId();
         if (file_exists($path) === false) {
             mkdir($path, 0777, true);
         }
 
-        foreach ($hashtypes as $type) {
-            $hash = new Opus_HashValues();
-            $hash->setType($type);
-            $hash->setValue(hash_file($type, $this->getTempFile()));
-            $this->addHashValue($hash);
-        }
+        // create and append hash values
+        $this->_createHashValues();
 
         if (true === file_exists($path . '/' . $this->getPathName())) {
             $i = 0;
@@ -203,14 +204,30 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->setPathName($fileName);
         }
 
+        $tempFile = $this->getTempFile();
+        if (false === file_exists($tempFile)) {
+            $tempFile = $this->getSourcePath() . $tempFile;
+        }
+
         $target = $path . '/' . $this->getPathName();
-        if (true === is_uploaded_file($this->getTempFile())) {
-            $copyResult = move_uploaded_file($this->getTempFile(), $target);
+
+        if (false === is_dir("$path/")) {
+            // TODO: Debugging.
+            throw new Exception("Is not dir: $target");
+        }
+        if (false === is_writeable("$path/")) {
+            // TODO: Debugging.
+            throw new Exception("Is not writeable: $target");
+        }
+
+        $copyResult = false;
+        if (true === is_uploaded_file($tempFile)) {
+            $copyResult = move_uploaded_file($tempFile, $target);
             if ($copyResult === false) {
                 $this->logger("Error moving file '" . $this->getTempFile() .  "' to '$target'");
             }
         } else {
-            $copyResult = copy($this->getTempFile(), $target);
+            $copyResult = copy($tempFile, $target);
             if ($copyResult === false) {
                 $this->logger("Error copying file '" . $this->getTempFile() .  "' to '$target'");
             }
@@ -254,7 +271,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function doDelete($token) {
         parent::doDelete($token);
-        $path = $this->__path . $this->getParentId();
+        $path = $this->getDestinationPath() . $this->getParentId();
         
         $result = unlink($path . '/' . $this->getPathName());
         // Delete directory if empty.
@@ -304,7 +321,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return string hash value
      */
     public function getRealHash($type) {
-        $path = $this->__path . $this->getParentId();
+        $path = $this->getDestinationPath() . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
         return hash_file($type, $completePath);
     }
@@ -376,12 +393,96 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean True if verification can get performed
      */
     public function canVerify() {
-    	$path = $this->__path . $this->getParentId();
+    	$path = $this->getDestinationPath() . $this->getParentId();
         $completePath = $path . '/' . $this->getPathName();
     	if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
     		return true;
     	}
         return false;
+    }
+
+    /**
+     * Returns current destination path.
+     *
+     * @return string
+     */
+    private function getDestinationPath() {
+        return $this->_destinationPath;
+    }
+
+    /**
+     * Returns current source path.
+     *
+     * @return string
+     */
+    public function getSourcePath() {
+        return $this->_sourcePath;
+    }
+
+    /**
+     * Set new destination path.
+     *
+     * @param string $sourcePath New directory path for destination files.
+     * @throws InvalidArgumentException Thrown if directory is not valid.
+     * @return void
+     */
+    public function setDestinationPath($destinationPath) {
+        $destinationPath = $this->_addMissingDirectorySeparator($destinationPath);
+        if (false === is_dir($destinationPath)) {
+            throw new InvalidArgumentException('"' . $destinationPath . '" is not a valid directory.');
+        }
+        $this->_destinationPath = $destinationPath;
+    }
+
+    /**
+     * Set new source path.
+     *
+     * @param string $sourcePath New directory path for source files.
+     * @throws InvalidArgumentException Thrown if directory is not valid.
+     * @return void
+     */
+    public function setSourcePath($sourcePath) {
+        $sourcePath = $this->_addMissingDirectorySeparator($sourcePath);
+        if (false === is_dir($sourcePath)) {
+            throw new InvalidArgumentException('"' . $sourcePath . '" is not a valid directory.');
+        }
+        $this->_sourcePath = $sourcePath;
+    }
+
+        /**
+     * Adds to a given path a directory separator if not set.
+     *
+     * @param string $path Path with or withour directory separator.
+     * @return string Path with directory separator.
+     */
+    private function _addMissingDirectorySeparator($path) {
+        if (false === empty($path)) {
+            if (DIRECTORY_SEPARATOR !== $path[mb_strlen($path) - 1]) {
+                $path .= DIRECTORY_SEPARATOR;
+            }
+        }
+        return $path;
+    }
+
+    /**
+     * Create hash value model objects from original file.
+     *
+     * @return void
+     */
+    private function _createHashValues() {
+        $hashtypes = array('md5', 'sha512');
+        $hashs = array();
+        $tempFile = $this->getTempFile();
+        if (false === file_exists($tempFile)) {
+            $tempFile = $this->getSourcePath() . $tempFile;
+        }
+        foreach ($hashtypes as $type) {
+            $hash = new Opus_HashValues();
+            $hash->setType($type);
+            $hash->setValue(hash_file($type, $tempFile));
+            $hashs[] = $hash;
+        }
+        $this->setHashValue($hashs);
     }
 
     /**
