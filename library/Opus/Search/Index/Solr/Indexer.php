@@ -43,6 +43,12 @@ class Opus_Search_Index_Solr_Indexer {
     // Logger
     private $log;
 
+    /**
+     * Establishes a connection to SolrServer.  Deletes all documents from index,
+     * if $deleteAllDocs is set to true.
+     *
+     * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
+     */
     public function __construct($deleteAllDocs = false) {
         $this->log = Zend_Registry::get('Zend_Log');
         $this->solr_server = $this->getSolrServer();
@@ -52,7 +58,7 @@ class Opus_Search_Index_Solr_Indexer {
             throw new Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
         }
         $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
-        if ($deleteAllDocs) {
+        if (true === $deleteAllDocs) {
             $this->deleteAllDocs();
         }
     }
@@ -73,23 +79,18 @@ class Opus_Search_Index_Solr_Indexer {
     }
 
     /**
-     * Add a document to the index.
-     * Unless $commit is true, the changes are not visible and a subsequent call
-     * to commit is required, to make the changes visible.
+     * Add a document to the index.  The changes are not visible and a
+     * subsequent call to commit is required, to make the changes visible.
      *
      * @param Opus_Document $doc Model of the document that should be added to the index
-     * @param $commit
      * @throws Exception
      * @return void
      */
-    public function addDocumentToEntryIndex(Opus_Document $doc, $commit = false) {
+    public function addDocumentToEntryIndex(Opus_Document $doc) {
         try {            
             // send xml directly to solr server instead of wrapping the document data
             // into an Apache_Solr_Document object offered by the solr php client library
             $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
-            if ($commit) {
-                $this->commit();
-            }
         }
         catch (Exception $e) {
             throw new Exception('error while adding document with id ' . $doc->getId() . ' : ' . $e->getMessage());
@@ -97,21 +98,19 @@ class Opus_Search_Index_Solr_Indexer {
     }
 
     /**
-     * Removes a document from the index.
-     * Unless $commit is true, the changes are not visible and a subsequent call
-     * to commit is required, to make the changes visible.
+     * Removes a document from the index.  The changes are not visible and a
+     * subsequent call to commit is required, to make the changes visible.
      *
      * @param Opus_Document $doc Model of the document that should be removed to the index
-     * @param $commit 
-     * @throws Exception
+     * @throws InvalidArgumentException
      * @return void
      */
-    public function removeDocumentFromEntryIndex(Opus_Document $doc = null, $commit = false) {
+    public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
+        if (true !== isset($doc)) {
+            throw new InvalidArgumentException("Document parameter must not be NULL.");
+        }
         try {
             $this->solr_server->deleteById($doc->getId());
-            if ($commit) {
-                $this->commit();
-            }
         }
         catch (Exception $e) {
             $this->log->error('error while deleting document with id ' . $doc->getId() . ' : ' . $e->getMessage());
@@ -231,41 +230,35 @@ class Opus_Search_Index_Solr_Indexer {
     }
 
     /**
-     * Deletes all index documents.
-     * Unless $commit is true, the changes are not visible and a subsequent call
-     * to commit is required, to make the changes visible.
+     * Deletes all index documents.  The changes are not visible and a
+     * subsequent call to commit is required, to make the changes visible.
      *
      * @param query
-     * @param commit
      * @exception Exception
      * @return void
      */
-    public function deleteAllDocs($commit = false) {
+    public function deleteAllDocs() {
         $this->deleteDocsByQuery("*");
         $this->log->info('all docs were deleted');
     }
 
     /**
-     * Deletes all index documents that match the given query $query.
-     * Unless $commit is true, the changes are not visible and a subsequent call
-     * to commit is required, to make the changes visible.
+     * Deletes all index documents that match the given query $query.  The
+     * changes are not visible and a subsequent call to commit is required, to
+     * make the changes visible.
      *
      * @param query
-     * @param commit
      * @exception
      * @return void
      *
      */
-    public function deleteDocsByQuery($query, $commit = false) {
+    public function deleteDocsByQuery($query) {
         try {
             $this->solr_server->deleteByQuery($query);
         }
         catch (Exception $e) {
             $this->log->error('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
             throw new Exception('error while deleting all documents that match query ' . $query . " : " . $e->getMessage());
-        }
-        if ($commit) {
-            $this->commit();
         }
     }
 
@@ -321,7 +314,4 @@ class Opus_Search_Index_Solr_Indexer {
         }
     }
 
-    public function finalize() {
-        $this->commit();
-    }
 }
