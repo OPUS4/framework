@@ -11,7 +11,7 @@
  * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
  * the Saarland University and State Library, the Saxon State Library -
  * Dresden State and University Library, the Bielefeld University Library and
- * the University Library of Hamburg Univeresity of Technology with funding from
+ * the University Library of Hamburg University of Technology with funding from
  * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
@@ -28,7 +28,7 @@
  * @category    Framework
  * @package     Opus_Search
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: Indexer.php 3834 2009-11-18 16:28:06Z becker $
  */
@@ -77,7 +77,7 @@ class Opus_Search_Index_Solr_Indexer {
         $solr_port = $config->searchengine->solr->port;
         $solr_app = '/' . $config->searchengine->solr->app;
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
-        require_once 'Apache/Solr/Service.php';
+        //require_once 'Apache/Solr/Service.php';
         return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
     }
 
@@ -218,16 +218,16 @@ class Opus_Search_Index_Solr_Indexer {
             $mimeType = 'text/html';
         }        
         switch ($mimeType) {
-            case 'application/pdf':
+            case Opus_File::PDF:
                 $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($file->getPath());
                 break;
-            case 'application/postscript':
+            case Opus_File::POSTSCRIPT:
                 $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($file->getPath(), true);
                 break;
-            case 'text/html':
+            case Opus_File::HTML:
                 $fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($file->getPath());
                 break;
-            case 'text/plain':
+            case Opus_File::PLAINTEXT:
                 $fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($file->getPath());
                 break;
             default:

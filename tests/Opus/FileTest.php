@@ -120,7 +120,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('23423432-3244.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
 
         $this->assertTrue($file->isValid(), 'File model should validate to true.');
     }
@@ -160,7 +160,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('foobar-copied.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
         $file->setDestinationPath($this->_dest_path);
         $file->setTempFile($this->_src_path . '/foobar.pdf');
 
@@ -183,7 +183,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('foobar-copied.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
         $file->setDestinationPath($this->_dest_path);
         $file->setSourcePath($this->_src_path);
         $file->setTempFile('foobar.pdf');
@@ -208,7 +208,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('foobar-copied.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
         $file->setDestinationPath($this->_dest_path);
         $file->setTempFile($this->_src_path . '/foobar.pdf');
         $doc->setFile($file);
@@ -233,7 +233,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('foobar-copied.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
         $file->setDestinationPath($this->_dest_path);
         $file->setTempFile($this->_src_path . '/foobar.pdf');
         $doc->setFile($file);
@@ -381,7 +381,7 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('foobar-copied.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType('application/x-pdf');
+        $file->setMimeType(Opus_File::PDF);
         $file->setDestinationPath($this->_dest_path);
         $file->setTempFile($this->_src_path . '/foobar.pdf');
 
@@ -392,7 +392,7 @@ class Opus_FileTest extends TestCase {
         $file2 = new Opus_File($fileId);
         $file2->setPathName('foobar-copied.pdf');
         $file2->setLabel('Volltextdokument (PDF) 2');
-        $file2->setMimeType('application/x-pdf');
+        $file2->setMimeType(Opus_File::PDF);
 
         $doc = new Opus_Document($id);
         $doc->setFile($file2);

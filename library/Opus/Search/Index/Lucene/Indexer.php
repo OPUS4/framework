@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,48 +32,43 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 class Opus_Search_Index_Lucene_Indexer {
-	/**
-	 * Index variable
-	 *
-	 * @var Zend_Search_Lucene Index for the search engine
-	 * @access private
-	 */
-	private $entryindex;
 
-	/**
-	 * Index path
-	 *
-	 * @var String Path to the index for the search engine
-	 * @access private
-	 */
-	private $indexPath;
-
+    /**
+     * Index variable
+     *
+     * @var Zend_Search_Lucene Index for the search engine
+     * @access private
+     */
+    private $entryindex;
+    /**
+     * Index path
+     *
+     * @var String Path to the index for the search engine
+     * @access private
+     */
+    private $indexPath;
     /**
      * Document that should get indexed by this object
      * This should spare memory at all
      */
     private $docToIndex = null;
 
-	/**
-	 * Constructor
-	 *
-	 * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
-	 */
-	public function __construct($createIndex = false, $bufferedDocs = 3) {
+    /**
+     * Constructor
+     *
+     * @throws Zend_Search_Lucene_Exception Exception is thrown when there are problems with the index
+     */
+    public function __construct($createIndex = false, $bufferedDocs = 3) {
         $registry = Zend_Registry::getInstance();
         $this->indexPath = $registry->get('Zend_LuceneIndexPath');
-        try
-        {
+        try {
             if ($createIndex === true) {
-            	$this->entryindex = Zend_Search_Lucene::create($this->indexPath);
-            }
-            else {
+                $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
+            } else {
                 $this->entryindex = Zend_Search_Lucene::open($this->indexPath);
             }
-        }
-        catch (Zend_Search_Lucene_Exception $zsle) {
+        } catch (Zend_Search_Lucene_Exception $zsle) {
             if (false !== strpos($zsle->getMessage(), 'Index doesn\'t exists in the specified directory.')) {
                 // re-creating could cause deleting existing lucene search index
                 $this->entryindex = Zend_Search_Lucene::create($this->indexPath);
@@ -82,51 +78,47 @@ class Opus_Search_Index_Lucene_Indexer {
         }
         // Decrease desired memory for indexing by limiting the amount of documents in memory befory writing them to index
         $this->entryindex->setMaxBufferedDocs($bufferedDocs);
-	}
+    }
 
-	/**
-	 * Stores a document in the Search Engine Index
-	 *
-	 * @param Opus_Document $doc Model of the document that should be added to the index
-	 * @throws Exception Exceptions from Zend_Search_Lucene are thrown
-	 * @return void
-	 */
-	public function addDocumentToEntryIndex(Opus_Document $doc)
-	{
+    /**
+     * Stores a document in the Search Engine Index
+     *
+     * @param Opus_Document $doc Model of the document that should be added to the index
+     * @throws Exception Exceptions from Zend_Search_Lucene are thrown
+     * @return void
+     */
+    public function addDocumentToEntryIndex(Opus_Document $doc) {
         $this->docToIndex = $doc;
         unset($doc);
 
-    	$returnarray = array();
+        $returnarray = array();
 
-    	try {
-    	    // remove existing entries
-    	    if (count($this->entryindex->find('docid:' . $this->docToIndex->getId() . ' ')) > 0) {
-    	        $this->removeDocumentFromEntryIndex($this->docToIndex);
-    	    }
-    	    $analyzedDocs = $this->analyzeDocument();
-    	    foreach ($analyzedDocs as $analyzedDoc) {
-			 	if (true === array_key_exists('exception', $analyzedDoc))
-			 	{
-			 		$returnarray[] = $analyzedDoc['source'] . ' in document ID ' . $analyzedDoc['docid'] . ': ' . $analyzedDoc['exception'];
-			 	}
-			 	else
-			 	{
-            	    $indexDoc = new Opus_Search_Index_Document($analyzedDoc);
-			 		#echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
-            	    $this->entryindex->addDocument($indexDoc);
-            	    $this->entryindex->commit();
-			 		unset($indexDoc);
-			 		#echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
-			 		$returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
-			 	}
+        try {
+            // remove existing entries
+            if (count($this->entryindex->find('docid:' . $this->docToIndex->getId() . ' ')) > 0) {
+                $this->removeDocumentFromEntryIndex($this->docToIndex);
             }
-		} catch (Exception $e) {
-			throw $e;
+            $analyzedDocs = $this->analyzeDocument();
+            foreach ($analyzedDocs as $analyzedDoc) {
+                if (true === array_key_exists('exception', $analyzedDoc)) {
+                    $returnarray[] = $analyzedDoc['source'] . ' in document ID ' . $analyzedDoc['docid'] . ': ' . $analyzedDoc['exception'];
+                } else {
+                    $indexDoc = new Opus_Search_Index_Document($analyzedDoc);
+                    #echo "Memorybedarf nach Analyse " . memory_get_usage() . "\n";
+                    $this->entryindex->addDocument($indexDoc);
+                    $this->entryindex->commit();
+                    unset($indexDoc);
+                    #echo "Memorybedarf nach Indizierung " . memory_get_usage() . "\n";
+                    $returnarray[] = $analyzedDoc['source'] . ': indexed for document ID ' . $analyzedDoc['docid'];
+                }
+            }
+        } catch (Exception $e) {
+            throw $e;
         }
         unset($analyzedDoc);
         unset($analyzedDocs);
         return $returnarray;
-	}
+    }
 
     /**
      * Removes a document from the Search Engine Index
@@ -135,12 +127,11 @@ class Opus_Search_Index_Lucene_Indexer {
      * @throws Exception Exceptions from Zend_Search_Lucene are thrown
      * @return void
      */
-    public function removeDocumentFromEntryIndex(Opus_Document $doc = null)
-    {
-    	if ($doc !== null) {
-    		$this->docToIndex = $doc;
-    		unset ($doc);
-    	}
+    public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
+        if ($doc !== null) {
+            $this->docToIndex = $doc;
+            unset($doc);
+        }
         try {
             // Weird: some IDs are only found with adding whitespace behind the query...
             // So let's add a space behind the ID.
@@ -162,8 +153,7 @@ class Opus_Search_Index_Lucene_Indexer {
      * @throws Exception Exceptions from Zend_Search_Lucene are thrown
      * @return void
      */
-    public function removeFileFromEntryIndex(Opus_File $file)
-    {
+    public function removeFileFromEntryIndex(Opus_File $file) {
         try {
             // Weird: some IDs are only found with adding whitespace behind the query...
             // So let's add a space behind the ID.
@@ -181,25 +171,25 @@ class Opus_Search_Index_Lucene_Indexer {
     }
 
     /**
-	 * Finalizes the entry in Search Engine Index
-	 *
-	 * @return void
-	 */
-	public function finalize() {
-		$this->entryindex->commit();
-    	$this->entryindex->optimize();
-    	flush();
-	}
+     * Finalizes the entry in Search Engine Index
+     *
+     * @return void
+     */
+    public function finalize() {
+        $this->entryindex->commit();
+        $this->entryindex->optimize();
+        flush();
+    }
 
-	private function analyzeDocument() {
+    private function analyzeDocument() {
         $returnarray = array();
         $langarray = array();
 
-	    $docarray = $this->docToIndex->toArray();
-	    $document['docid'] = $this->docToIndex->getId();
-	    #unset($doc);
-	    $document['year'] = $this->getValue($this->docToIndex, 'CompletedYear');
-	    $document['doctype'] = $this->getValue($this->docToIndex, 'Type');
+        $docarray = $this->docToIndex->toArray();
+        $document['docid'] = $this->docToIndex->getId();
+        #unset($doc);
+        $document['year'] = $this->getValue($this->docToIndex, 'CompletedYear');
+        $document['doctype'] = $this->getValue($this->docToIndex, 'Type');
 
         // if there is no year set, search in other fields for a usable year
         if ('0000' === $document['year'] && true === array_key_exists('year', $document)) {
@@ -208,7 +198,7 @@ class Opus_Search_Index_Lucene_Indexer {
                 'CompletedDate',
                 'PublishedDate',
                 'DateAccepted'
-                );
+            );
             $result = null;
             foreach ($dateList as $dateField) {
                 $iterim = $this->getValue($this->docToIndex, $dateField);
@@ -220,8 +210,8 @@ class Opus_Search_Index_Lucene_Indexer {
             }
         }
 
-	    $document['urn'] = $this->getValue($this->docToIndex, 'IdentifierUrn', 'Value');
-	    $document['isbn'] = $this->getValue($this->docToIndex, 'IdentifierIsbn', 'Value');
+        $document['urn'] = $this->getValue($this->docToIndex, 'IdentifierUrn', 'Value');
+        $document['isbn'] = $this->getValue($this->docToIndex, 'IdentifierIsbn', 'Value');
         $document['opac-id'] = $this->getValue($this->docToIndex, 'IdentifierOpac', 'Value');
 
         $document['author'] = $this->getValue($this->docToIndex, 'PersonAuthor', 'Name');
@@ -239,29 +229,26 @@ class Opus_Search_Index_Lucene_Indexer {
         $abstracts = '';
         if (true === is_array($docarray['TitleMain']) && true === array_key_exists('TitleMain', $docarray)) {
             if (true === array_key_exists('Value', $docarray['TitleMain'])) {
-        	    // only one title
+                // only one title
                 $titles = array($docarray['TitleMain']);
-            }
-            else {
-            	$titles = $docarray['TitleMain'];
+            } else {
+                $titles = $docarray['TitleMain'];
             }
         }
         if (true === is_array($docarray['TitleAbstract']) && true === array_key_exists('TitleAbstract', $docarray)) {
             if (true === array_key_exists('Value', $docarray['TitleAbstract'])) {
-        	    // only one abstract
+                // only one abstract
                 $abstracts = array($docarray['TitleAbstract']);
-            }
-            else {
-            	$abstracts = $docarray['TitleAbstract'];
+            } else {
+                $abstracts = $docarray['TitleAbstract'];
             }
         }
         $document['title'] = '';
         $document['abstract'] = '';
         $document['language'] = '';
         if ($titles !== '') {
-            foreach ($titles as $title)
-            {
-                $document['title'] .=  ' ' . $title['Value'];
+            foreach ($titles as $title) {
+                $document['title'] .= ' ' . $title['Value'];
                 $lang = $title['Language'];
                 $document['language'] .= ' ' . $lang;
                 $document['abstract'] .= ' ' . $this->getAbstract($abstracts, $lang);
@@ -294,28 +281,29 @@ class Opus_Search_Index_Lucene_Indexer {
         $document['collection'] = '';
         $collections = $this->docToIndex->getCollection();
         $collection_pathes = array();
-        foreach ($collections as $coll_index=>$collection) {
-        	$doc_index = null;
+        foreach ($collections as $coll_index => $collection) {
+            $doc_index = null;
             $coll_data = $collection->toArray();
             if ($collection->getRole()->getId() > 0) {
                 $cr = $collection->getRole();
                 // check other OAI names (series and collections are handled seperately and they have not a static number)
                 if ($cr->getOaiName() === 'series') {
-            	    $doc_index = 'series';
-                }
-                else if ($cr->getOaiName() === 'colls') {
-            	    $doc_index = 'collection';
+                    $doc_index = 'series';
+                } else if ($cr->getOaiName() === 'colls') {
+                    $doc_index = 'collection';
                 }
                 // Use collectionrole 1 for institutes
                 else if ($cr->getOaiName() === 'org') {
                     $doc_index = 'institute';
                 }
             }
-            if (isset($doc_index) === false ) {
-            	$doc_index = 'subject';
-            	$subject_name = $cr->getName();
+            if (isset($doc_index) === false) {
+                $doc_index = 'subject';
+                $subject_name = $cr->getName();
             }
-            if (isset($subject_name) === true) { $document[$doc_index] .= ' ' . $subject_name; }
+            if (isset($subject_name) === true) {
+                $document[$doc_index] .= ' ' . $subject_name;
+            }
             $parents = $collection->getParents();
             foreach ($parents as $parent) {
                 $document[$doc_index] .= ' ' . $parent->getName();
@@ -328,28 +316,25 @@ class Opus_Search_Index_Lucene_Indexer {
             $files = $docarray['File'];
             $file_count = count($files);
             $numberOfIndexableFiles = $file_count;
-            foreach ($files as $file)
-            {
-            	try {
-           	        $document['content'] = $this->getFileContent($file);
-           	        $document['source'] = $file['PathName'];
-           	        unset($document['exception']);
-       	        	array_push($returnarray, $document);
-                }
-                catch (Exception $e) {
-            	    $document['source'] = $file['PathName'];
-            	    $document['content'] = '';
-            	    $document['exception'] = $e->getMessage();
-            	    $numberOfIndexableFiles--;
-            	    array_push($returnarray, $document);
+            foreach ($files as $file) {
+                try {
+                    $document['content'] = $this->getFileContent($file);
+                    $document['source'] = $file['PathName'];
+                    unset($document['exception']);
+                    array_push($returnarray, $document);
+                } catch (Exception $e) {
+                    $document['source'] = $file['PathName'];
+                    $document['content'] = '';
+                    $document['exception'] = $e->getMessage();
+                    $numberOfIndexableFiles--;
+                    array_push($returnarray, $document);
                 }
             }
         } else {
             $numberOfIndexableFiles = 0;
         }
         // if there is no file (or only non-readable ones) associated with the document, index only metadata
-        if ($numberOfIndexableFiles === 0)
-        {
+        if ($numberOfIndexableFiles === 0) {
             $document['source'] = 'metadata';
             $document['content'] = '';
             unset($document['exception']);
@@ -361,63 +346,58 @@ class Opus_Search_Index_Lucene_Indexer {
         #print_r($returnarray);
         // return array of documents to index
         return $returnarray;
-	}
+    }
 
-	private function getAbstract($abstracts, $language) {
-        foreach ($abstracts as $abstract)
-        {
+    private function getAbstract($abstracts, $language) {
+        foreach ($abstracts as $abstract) {
             if ($abstract['Language'] === $language) {
                 return $abstract['Value'];
             }
         }
         return null;
-	}
+    }
 
-	private function checkAbstractLanguage($abstracts, array $languages) {
+    private function checkAbstractLanguage($abstracts, array $languages) {
         $not_processed = array();
-	    foreach ($abstracts as $abstract)
-        {
+        foreach ($abstracts as $abstract) {
             if (false === in_array($abstract['Language'], $languages)) {
                 array_push($not_processed, $abstract['Value']);
             }
         }
         return $not_processed;
-	}
+    }
 
     private function getValue($doc, $roleName, $attName = '') {
         $returnValue = '';
 
-   	    // check existance of modelField
+        // check existance of modelField
         $field = $doc->getField($roleName);
         $roleCaller = 'get' . $roleName;
         // if the field does not exist, proceed with next field
-       	if ($field === null) {
-       		return '';
-       	}
-       	if ($field->hasMultipleValues() === true) {
-       		// there can be multiple values in this field, its always returned as an array
+        if ($field === null) {
+            return '';
+        }
+        if ($field->hasMultipleValues() === true) {
+            // there can be multiple values in this field, its always returned as an array
             $values = $doc->$roleCaller();
-       		foreach ($values as $value) {
-       		    if ($attName !== '') {
-       			    $attCaller = 'get' . $attName;
+            foreach ($values as $value) {
+                if ($attName !== '') {
+                    $attCaller = 'get' . $attName;
                     $returnValue .= $value->$attCaller() . '; ';
-       		    }
-       		    else {
-           		    $returnValue .= $value . '; ';
-           		}
-       		}
-       	}
-       	else {
-       		if ($attName !== '' && $doc->$roleCaller() !== null) {
-   			    $attCaller = 'get' . $attName;
+                } else {
+                    $returnValue .= $value . '; ';
+                }
+            }
+        } else {
+            if ($attName !== '' && $doc->$roleCaller() !== null) {
+                $attCaller = 'get' . $attName;
                 $returnValue = $doc->$roleCaller()->$attCaller();
-       		}
-       		else {
-       		    $returnValue = $doc->$roleCaller();
-       		}
-       	}
-       	// remove trailing space and ;
-       	$returnValue = preg_replace('/(;\ )$/', '', $returnValue);
+            } else {
+                $returnValue = $doc->$roleCaller();
+            }
+        }
+        // remove trailing space and ;
+        $returnValue = preg_replace('/(;\ )$/', '', $returnValue);
         return $returnValue;
     }
 
@@ -425,33 +405,32 @@ class Opus_Search_Index_Lucene_Indexer {
         $fulltext = '';
         //FIXME: Hard coded path!
         $path_prefix = '../workspace/files/' . $file['DocumentId'];
-		$mimeType = $file['MimeType'];
-		if (substr($mimeType, 0, 9) === 'text/html') {
-			$mimeType = 'text/html';
-		}
-		try {
-			$fileToConvert = realpath($path_prefix . '/' . addslashes($file['PathName']));
-		    switch ($mimeType)
-		    {
-			    case 'application/pdf':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($fileToConvert);
-				    break;
-			    case 'application/postscript':
-				    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($fileToConvert);
-				    break;
-			    case 'text/html':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($fileToConvert);
-	    			break;
-			    case 'text/plain':
-    				$fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($fileToConvert);
-	    			break;
-		    	default:
-			    	throw new Exception('No converter for MIME-Type ' . $mimeType);
-		    }
-		}
-		catch (Exception $e) {
-			throw $e;
-		}
-		return $fulltext;
-	}
+        $mimeType = $file['MimeType'];
+        if (substr($mimeType, 0, 9) === 'text/html') {
+            $mimeType = 'text/html';
+        }
+        try {
+            $fileToConvert = realpath($path_prefix . '/' . addslashes($file['PathName']));
+            switch ($mimeType) {
+                case Opus_File::PDF:
+                    $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($fileToConvert);
+                    break;
+                case Opus_File::POSTSCRIPT:
+                    $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($fileToConvert);
+                    break;
+                case Opus_File::HTML:
+                    $fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($fileToConvert);
+                    break;
+                case Opus_File::PLAINTEXT:
+                    $fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($fileToConvert);
+                    break;
+                default:
+                    throw new Exception('No converter for MIME-Type ' . $mimeType);
+            }
+        } catch (Exception $e) {
+            throw $e;
+        }
+        return $fulltext;
+    }
+
 }
