@@ -89,10 +89,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * available MIME types
      */
-    const $PDF = 'application/pdf';
-    const $POSTSCRIPT = 'application/ps';
-    const $HTML = 'text/html';
-    const $PLAINTEXT = 'text/plain';
+    const PDF = 'application/pdf';
+    const POSTSCRIPT = 'application/ps';
+    const HTML = 'text/html';
+    const PLAINTEXT = 'text/plain';
 
     /**
      * Initialize model with the following fields:
