@@ -155,7 +155,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	return file_exists($this->getPath();
+    	return file_exists($this->getPath());
     }
 
     /**
