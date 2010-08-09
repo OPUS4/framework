@@ -155,17 +155,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	if (file_exists($this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName()) === true) {
-            return true;
-    	}
-    	return false;
+    	return file_exists($this->getPath();
     }
 
     /**
-     *
+     * Get full path of destination file.
      */
     public function getPath() {
-        return $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . addslashes($this->getPathName());
+        return $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName();
     }
 
     /**
@@ -186,6 +183,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         $tempFile = $this->getTempFile();
+        $destinationPath = $this->getDestinationPath() . $this->getParentId();
+        $target = $destinationPath . DIRECTORY_SEPARATOR . $this->getPathName();
+
         if (false === empty($tempFile)) {
             // add source path if temp file does not have path information
             if (false === file_exists($tempFile)) {
@@ -196,13 +196,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             // $mimetype = $this->_storage->getFileMimeEncoding($tempFile);
             $this->setMimeType($mimetype);
 
-            $destinationPath = $this->getDestinationPath() . $this->getParentId();
 
             if (file_exists($destinationPath) === false) {
                mkdir($destinationPath, 0777, true);
             }
-
-            $target = $destinationPath . DIRECTORY_SEPARATOR . $this->getPathName();
 
             // TODO: Copy file
             // $this->_storage->copyFile($tempFile, $destinationPath . $this->getPathName());
@@ -229,13 +226,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         if (true === $this->getField('PathName')->isModified()) {
+            throw new Exception("Renaming files is not supported.");
+
             $storedValue = $this->_primaryTableRow->path_name;
+            $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedValue;
+
             // rename only already stored files
             if (false === empty($storedValue)) {
-                $newValue = $this->getPathName();
-                $directory = $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR;
-
-                $this->_storage->renameFile($directory . $storedValue, $directory . $newValue);
+                $this->_storage->renameFile($oldName, $target);
             }
         }
 
@@ -335,7 +333,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setPathName($info['name']);
         $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
-
     }
 
     /**
@@ -533,5 +530,4 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $logger->info($this->getDisplayName() . ": $message");
 
     }
-
 }
