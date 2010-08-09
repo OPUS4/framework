@@ -1041,6 +1041,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             throw new Exception('Invalid date string supplied: ' . $until);
         }
 
+        $searchRange = null;
         if (true === $from->equals($until)) {
             $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
         } else {
@@ -1083,7 +1084,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         if (false === is_null($this->isNewRecord())) {
             $ids = Opus_Collection::fetchCollectionIdsByDocumentId($this->getId());
-            $this->logger("collection_ids(".$this->getId()."):". implode(",", $ids));
 
             foreach ($ids as $id) {
                 $collection = new Opus_Collection($id);
@@ -1138,7 +1138,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
 
-        $this->logger('_fetchPublisher(): return-count ' . count($result));
         return $result;
     }
 
@@ -1168,7 +1167,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
 
-        $this->logger('_fetchGrantor(): return-count ' . count($result));
         return $result;
     }
 
@@ -1221,17 +1219,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
             // at least the first two values MUST be set
             $config = Zend_Registry::get('Zend_Config');
 
-            if (is_object($config->urn) === true) {
+            if (isset($config) and is_object($config->urn) === true) {
                 $unionSnid = $config->urn->snid->union;
                 $libSnid = $config->urn->snid->libid;
                 $prefixNiss = $config->urn->niss->prefix;
-            }
-            if (empty($unionSnid) !== true && empty($libSnid) !== true) {
-                $urn = new Opus_Identifier_Urn($unionSnid, $libSnid, $prefixNiss);
-                $urn_value = $urn->getUrn($this->getId());
-                $urn_model = new Opus_Identifier();
-                $urn_model->setValue($urn_value);
-                $this->setIdentifierUrn($urn_model);
+
+                if (empty($unionSnid) !== true && empty($libSnid) !== true) {
+                    $urn = new Opus_Identifier_Urn($unionSnid, $libSnid, $prefixNiss);
+                    $urn_value = $urn->getUrn($this->getId());
+                    $urn_model = new Opus_Identifier();
+                    $urn_model->setValue($urn_value);
+                    $this->setIdentifierUrn($urn_model);
+                }
             }
         }
 
