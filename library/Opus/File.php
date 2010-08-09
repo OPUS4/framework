@@ -226,13 +226,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         if (true === $this->getField('PathName')->isModified()) {
-            throw new Exception("Renaming files is not supported.");
-
             $storedValue = $this->_primaryTableRow->path_name;
             $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedValue;
 
             // rename only already stored files
             if (false === empty($storedValue)) {
+                throw new Exception("Renaming files is not supported.");
                 $this->_storage->renameFile($oldName, $target);
             }
         }
