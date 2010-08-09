@@ -44,25 +44,32 @@
  */
 class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
 
+    protected $dba_backup;
+
+
     /** Ensure a clean database table.
      *
      * @return void
      */
     public function setUp() {
+        parent::setUp();
+
         // Clean setup of default database adapter
         $config = Zend_Registry::get('Zend_Config');
 
-        // Use zend_Db factory to create a database adapter
+        // Backup existing adapter
+        $this->dba_backup = Zend_Db_Table::getDefaultAdapter();
+
+        // Use Zend_Db factory to create a database adapter
         // and make it the default for all tables.
         $db = Zend_Db::factory($config->db);
         Zend_Db_Table::setDefaultAdapter($db);
 
         // Register the adapter within Zend_Registry.
         Zend_Registry::getInstance()->set('db_adapter', $db);
-            
+
         // drop helper table
-        $this->dropTable('test_timmy');
-        parent::setUp();
+        // $this->dropTable('test_timmy');
     }
     
     /**
@@ -72,12 +79,17 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
      */
     public function tearDown() {
         // drop helper table
-        $this->dropTable('test_timmy');
-        parent::tearDown();
+        // $this->dropTable('test_timmy');
 
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->closeConnection();
+
+        // Restore existing adapter
+        Zend_Db_Table::setDefaultAdapter($this->dba_backup);
+        Zend_Registry::getInstance()->set('db_adapter', $this->dba_backup);
+
+        parent::tearDown();
     }
 
     /**
