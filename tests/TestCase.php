@@ -100,7 +100,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
+     * Standard setUp method for clearing database.
      *
      * @return void
      */
@@ -110,12 +110,11 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     *
+     * Tear down unit tests.
      *
      * @return void
      */
     protected function tearDown() {
-        self::_clearTables();
         parent::tearDown();
     }
 }
