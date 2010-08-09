@@ -516,29 +516,20 @@ class Opus_DocumentTest extends TestCase {
      *
      * @return void
      */
-    public function testDeleteDocumentCascadesLicenceLinks() {
-        // TODO: analyze
-        return;
+    public function testDeleteDocumentCascadesLicence() {
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
         $licence = new Opus_Licence();
         $licence->setNameLong('LongName');
         $licence->setLinkLicence('http://long.org/licence');
 
         $doc->addLicence($licence);
         $doc->store();
-        $linkid = $doc->getLicence()->getId();
+        $id = $doc->getLicence(0)->getId();
         $doc->delete();
 
         $this->setExpectedException('Opus_Model_Exception');
-        $link = new Opus_Model_Dependent_Link_DocumentLicence($linkid);
+        $link = new Opus_Licence($id);
     }
 
     /**
