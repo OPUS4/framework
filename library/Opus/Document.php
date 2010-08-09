@@ -1285,7 +1285,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $config = Zend_Registry::get('Zend_Config');
 
         $searchEngine = 'Lucene';
-        if (is_null($config) !== true and is_null($config->searchengine) === fals and empty($searchEngine) === false) {
+        if (is_null($config) !== true and is_null($config->searchengine) === false and empty($searchEngine) === false) {
             $searchEngine = $config->searchengine->engine;
         }
 
@@ -1317,7 +1317,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $config = Zend_Registry::get('Zend_Config');
 
         $searchEngine = 'Lucene';
-        if (is_null($config) !== true and is_null($config->searchengine) === fals and empty($searchEngine) === false) {
+        if (is_null($config) !== true and is_null($config->searchengine) === false and empty($searchEngine) === false) {
             $searchEngine = $config->searchengine->engine;
         }
 
