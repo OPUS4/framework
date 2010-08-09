@@ -66,7 +66,7 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract
         $countries = new Opus_Model_Field('Countries');
 
         $dateGranted = new Opus_Model_Field('DateGranted');
-        $dateGranted->setValidator(new Opus_Validate_Date);
+        $dateGranted->setValueModelClass('Opus_Date');
 
         $number = new Opus_Model_Field('Number');
         $number->setMandatory(true)

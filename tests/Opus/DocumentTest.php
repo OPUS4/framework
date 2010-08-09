@@ -88,24 +88,12 @@ class Opus_DocumentTest extends TestCase {
 
         </documenttype>';
 
-
-    /**
-     * Test fixture document type.
-     *
-     * @var Opus_Document_Type
-     */
-    protected $_type = null;
-
-
     /**
      * Set up test fixture.
      *
      * @return void
      */
     public function setUp() {
-        $this->_type = new Opus_Document_Type($this->_xmlDoctype);
-        $adapter = Zend_Db_Table::getDefaultAdapter();
-
         // Set up a mock language list.
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
         Zend_Registry::set('Available_Languages', $list);
@@ -113,14 +101,13 @@ class Opus_DocumentTest extends TestCase {
         parent::setUp();
     }
 
-
     /**
      * Test if a Document instance can be serialized.
      *
      * @return void
      */
     public function testSerializing() {
-        $doc = new Opus_Document(null, $this->_type);
+        $doc = new Opus_Document();
         $ser = serialize($doc);
     }
 
@@ -130,7 +117,7 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeserializing() {
-        $doc1 = new Opus_Document(null, $this->_type);
+        $doc1 = new Opus_Document();
         $ser = serialize($doc1);
         $doc2 = unserialize($ser);
         $this->assertEquals($doc1, $doc2, 'Deserializing unsuccesful.');
@@ -152,13 +139,13 @@ class Opus_DocumentTest extends TestCase {
                     'Edition' => 2,
                     'Issue' => 3,
                     'Volume' => 1,
-                    'NonInstituteAffiliation' => 'Wie bitte?',
+                    // Invalid: 'NonInstituteAffiliation' => 'Wie bitte?',
                     'PageFirst' => 1,
                     'PageLast' => 297,
                     'PageNumber' => 297,
                     'CompletedYear' => 1960,
                     'CompletedDate' => '1901-01-01',
-                    'Reviewed' => 'peer',
+                    // Invalid: 'Reviewed' => 'peer',
                     'ServerDateUnlocking' => '2008-12-01',
                     'ServerDateValid' => '2008-12-01',
                     'Source' => 'BlaBla',
@@ -480,13 +467,30 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
+     * Test if corresponding deleting documents works.
+     *
+     * @return void
+     */
+    public function testDeleteDocument() {
+        $this->markTestSkipped('Delete documents is currently under development.');
+
+        $doc = new Opus_Document();
+        $docid = $doc->store();
+        $doc->delete();
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $doc = new Opus_Document($docid);
+
+        $this->fail("Document has not been deleted.");
+    }
+
+    /**
      * Test if corresponding links to persons are removed when deleting a document.
      *
      * @return void
      */
     public function testDeleteDocumentCascadesPersonLinks() {
-        // TODO: analyze
-        return;
+        $this->markTestSkipped('Delete documents is currently under development.');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -516,7 +520,8 @@ class Opus_DocumentTest extends TestCase {
      *
      * @return void
      */
-    public function testDeleteDocumentCascadesLicence() {
+    public function testDeleteDocumentCascadesLicenceLink() {
+        $this->markTestSkipped('Delete documents is currently under development.');
 
         $doc = new Opus_Document();
         $licence = new Opus_Licence();
@@ -524,12 +529,14 @@ class Opus_DocumentTest extends TestCase {
         $licence->setLinkLicence('http://long.org/licence');
 
         $doc->addLicence($licence);
-        $doc->store();
-        $id = $doc->getLicence(0)->getId();
+        $docid = $doc->store();
+        $linkid = $doc->getLicence(0)->getId();
         $doc->delete();
 
         $this->setExpectedException('Opus_Model_Exception');
-        $link = new Opus_Licence($id);
+        $link = new Opus_Model_Dependent_Link_DocumentLicence($linkid);
+
+        $this->fail("Document delete has not been cascaded.");
     }
 
     /**
@@ -539,6 +546,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesEnrichments() {
         $this->markTestSkipped('Enrichments currently under development.');
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
             xmlns="http://schemas.opus.org/documenttype"
@@ -564,7 +572,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesIdentifiers() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -592,7 +600,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesPatents() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -621,7 +629,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesNotes() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -650,7 +658,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesSubjects() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -678,7 +686,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesTitles() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -706,7 +714,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentCascadesAbstracts() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="doctoral_thesis"
@@ -759,7 +767,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testRetrieveEmptyTitleListFromEmptyDatabase() {
         // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertTrue(empty($result), 'Title list contains phantom results.');
@@ -792,7 +800,7 @@ class Opus_DocumentTest extends TestCase {
         $id2 = $doc2->store();
 
         // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertEquals(2, count($result), 'Wrong number of title entries.');
@@ -830,7 +838,7 @@ class Opus_DocumentTest extends TestCase {
         $id2 = $doc2->store();
 
         // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $result = Opus_Document::getAllDocumentTitles();
 
@@ -964,7 +972,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testMultipleLanguageStorage() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="meintest"
@@ -1006,7 +1014,7 @@ class Opus_DocumentTest extends TestCase {
         $doc2 = new Opus_Document($id);
 
         // TODO: Cannot check Urn if we did not add it...
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $this->assertNotNull($doc2->getIdentifierUrn(0));
         $urn_value = $doc2->getIdentifierUrn(0)->getValue();
@@ -1032,7 +1040,7 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document(null, $type);
 
         // TODO: Cannot check Urn if we did not add it...
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
@@ -1076,7 +1084,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testStoreUrnWithEmptyModel() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
         <documenttype name="meintest"
@@ -1163,7 +1171,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testNewlyCreatedDocumentsHaveNoModifiedFields() {
         // TODO: analyze
-        return;
+        $this->markTestSkipped('TODO: analyze');
 
         Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
         $newdoc = new Opus_Document(null, 'article');
@@ -1229,29 +1237,16 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testSettingAndGettingDateValues() {
-        // FIXME Fix date field problem
-        $this->markTestSkipped('Non-object return values of date fields break test.');
-
         $locale = new Zend_Locale('de_DE');
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PublishedDate" />
-            <field name="ServerDateUnlocking" />
-            <field name="Patent" />
-            <field name="PersonAuthor" />
-        </documenttype>';
+        $doc = new Opus_Document();
 
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
-
-        $doc->setPublishedDate('10.05.2008');
+        $doc->setPublishedDate('05.10.2008');
         $doc->setServerDateUnlocking('05.04.2009');
 
         $personAuthor = new Opus_Person();
+        $personAuthor->setFirstName('Real');
         $personAuthor->setLastName('Tester');
-        $personAuthor->setDateOfBirth('26.03.1965');
+        $personAuthor->setDateOfBirth('23.06.1965');
         $doc->addPersonAuthor($personAuthor);
 
         $patent = new Opus_Patent();
@@ -1271,7 +1266,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals('05.10.2008', $publishedDate->getZendDate()->toString($localeFormatDate), 'Setting a date through string does not work.');
         $this->assertEquals('05.04.2009', $serverDateUnlocking->getZendDate()->toString($localeFormatDate), 'Setting a date through Zend_Date does not work.');
         $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getZendDate()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
-        $this->assertEquals('11.10.1999', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
+        $this->assertEquals('07.07.2008', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
     }
 
     /**
@@ -1280,18 +1275,7 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testCheckIfDefaultServerStateValueIsSetCorrectAfterStoringModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PublishedDate" />
-            <field name="ServerDateUnlocking" />
-            <field name="Patent" />
-            <field name="PersonAuthor" />
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
         $doc->store();
         
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');    
