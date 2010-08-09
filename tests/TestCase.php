@@ -100,18 +100,6 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * Use standard database adapater to drop a table.
-     *
-     * @param string $tablename Name of the table to be dropped.
-     * @return void
-     */
-    protected function dropTable($tablename) {
-        $adapter = Zend_Db_Table::getDefaultAdapter();
-        $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('DROP TABLE IF EXISTS ' . $tablename);
-    }
-
-    /**
      *
      *
      * @return void
