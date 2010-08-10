@@ -57,18 +57,21 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var string
      */
     private $_sourcePath = null;
+
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'document_id';
+
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_DocumentFiles';
+
     /**
      * The file models external fields, i.e. those not mapped directly to the
      * Opus_Db_DocumentFiles table gateway.
