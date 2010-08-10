@@ -87,6 +87,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             'model' => 'Opus_HashValues'
         ),
     );
+    
     /**
      * available MIME types
      */
@@ -147,7 +148,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($hashvalue)
                 ->addField($role);
-
     }
 
     /**
@@ -335,7 +335,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 throw new Exception('Cannot remove file ' . $this->getPath() . '. Please check access permissions and try again!  (cwd: ' . getcwd() . ')', '403');
             }
         }
-
     }
 
     /**
@@ -358,10 +357,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return string hash value
      */
     public function getRealHash($type) {
-        $path = $this->getDestinationPath() . $this->getParentId();
-        $completePath = $path . '/' . $this->getPathName();
-        return hash_file($type, $completePath);
-
+        return hash_file($type, $this->getPath());
     }
 
     /**
@@ -370,18 +366,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean true if the checksum is valid, false if not
      */
     public function verify($type, $value = null) {
-        if ($value === null) {
-            $hashes = $this->getHashValue();
-            foreach ($hashes as $hash) {
-                if ($type === $hash->getType()) {
-                    $value = $hash->getValue();
-                }
-            }
-        }
-        if ($this->getRealHash($type) === $value)
+        if (!empty($value) and $this->getRealHash($type) === $value)
             return true;
-        return false;
 
+        return false;
     }
 
     /**
@@ -398,7 +386,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $return[$type] = $this->verify($type, $value);
         }
         return $return;
-
     }
 
     /**
@@ -426,7 +413,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         return $returnVerifyFilesize;
-
     }
 
     /**
@@ -435,13 +421,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean True if verification can get performed
      */
     public function canVerify() {
-        $path = $this->getDestinationPath() . $this->getParentId();
-        $completePath = $path . '/' . $this->getPathName();
-        if ($this->getMaxVerifyFilesize() === 'u' || $this->getMaxVerifyFilesize() > fileSize($completePath)) {
+        $maxVerifyFilesize = $this->getMaxVerifyFilesize();
+        if ($maxVerifyFilesize === 'u' || $maxVerifyFilesize > fileSize($this->getPath())) {
             return true;
         }
         return false;
-
     }
 
     /**
@@ -451,7 +435,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     private function getDestinationPath() {
         return $this->_destinationPath;
-
     }
 
     /**
@@ -461,7 +444,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function getSourcePath() {
         return $this->_sourcePath;
-
     }
 
     /**
@@ -477,7 +459,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             throw new InvalidArgumentException('"' . $destinationPath . '" is not a valid directory.');
         }
         $this->_destinationPath = $destinationPath;
-
     }
 
     /**
@@ -493,7 +474,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             throw new InvalidArgumentException('"' . $sourcePath . '" is not a valid directory.');
         }
         $this->_sourcePath = $sourcePath;
-
     }
 
     /**
@@ -510,7 +490,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             }
         }
         return $path;
-
     }
 
     /**
@@ -532,7 +511,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
-
     }
 
     /**
@@ -544,6 +522,5 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
         $logger->info($this->getDisplayName() . ": $message");
-
     }
 }
