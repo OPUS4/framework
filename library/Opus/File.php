@@ -50,6 +50,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var string
      */
     private $_destinationPath = '../workspace/files/';
+
     /**
      * Holds path of source.
      *
@@ -178,27 +179,27 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     protected function _preStore() {
         $result = parent::_preStore();
 
-        if (null !== $result) {
+        if (isset($result)) {
             return $result;
         }
 
         $tempFile = $this->getTempFile();
         $destinationPath = $this->getDestinationPath() . $this->getParentId();
-        $target = $destinationPath . DIRECTORY_SEPARATOR . $this->getPathName();
+        $target = $this->getPath();
 
         if (false === empty($tempFile)) {
             // add source path if temp file does not have path information
             if (false === file_exists($tempFile)) {
                 $tempFile = $this->getSourcePath() . $tempFile;
             }
+
             // TODO: set mime type
             $mimetype = mime_content_type($tempFile);
             // $mimetype = $this->_storage->getFileMimeEncoding($tempFile);
             $this->setMimeType($mimetype);
 
-
             if (file_exists($destinationPath) === false) {
-               mkdir($destinationPath, 0777, true);
+               mkdir($destinationPath, 0755, true);
             }
 
             // TODO: Copy file
@@ -225,19 +226,23 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->_createHashValues();
         }
 
-        if (true === $this->getField('PathName')->isModified()) {
-            $storedValue = $this->_primaryTableRow->path_name;
-            $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedValue;
+        // Rename file, if the stored name changed on existing record.
+        if (false === $this->isNewRecord()) {
+            if ($this->getField('PathName')->isModified()) {
+                $storedValue = $this->_primaryTableRow->path_name;
+                $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedValue;
 
-            // rename only already stored files
-            if (false === empty($storedValue)) {
-                throw new Exception("Renaming files is not supported.");
-                $this->_storage->renameFile($oldName, $target);
+                // rename only already stored files
+                if (false === empty($storedValue)) {
+                    $result = @rename($oldName, $target);
+                    if (false === $result) {
+                        throw new Exception('Could not rename file from "' . $oldName . '" to "' . $target . '"!');
+                    }
+                }
             }
         }
 
-        return $result;
-
+        return;
     }
 
     /**
@@ -293,7 +298,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         parent::doDelete($token);
         $path = $this->getDestinationPath() . $this->getParentId();
 
-        $result = unlink($path . '/' . $this->getPathName());
+        $result = false;
+        if ($this->exists()) {
+            $result = @unlink($this->getPath());
+        }
+        else {
+            $this->logger("Trying to delete non-existing file '" . $this->getPath() . "'");
+        }
+
         // Delete directory if empty.
         if (0 === count(glob($path . '/*'))) {
             rmdir($path);
@@ -305,18 +317,20 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (empty($searchEngine) === true) {
             $searchEngine = 'Lucene';
         }
+
         // Reindex
         $engineclass = 'Opus_Search_Index_' . $searchEngine . '_Indexer';
         $indexer = new $engineclass();
         try {
-            $indexer->removeFileFromEntryIndex($this);
+            // $indexer->removeFileFromEntryIndex($this);
         }
         catch (Exception $e) {
             throw $e;
         }
 
         if ($result === false) {
-            throw new Exception('Cannot remove file ' . $this->getPathName() . '. Please check access permissions and try again!', '403');
+            
+            throw new Exception('Cannot remove file ' . $this->getPath() . '. Please check access permissions and try again!  (cwd: ' . getcwd() . ')', '403');
         }
 
     }

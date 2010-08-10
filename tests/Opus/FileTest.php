@@ -114,6 +114,29 @@ class Opus_FileTest extends TestCase {
     }
 
     /**
+     *
+     * @param string $filename
+     * @return Opus_Document 
+     */
+    private function _createDocumentWithFile($filename) {
+        touch($this->_src_path . DIRECTORY_SEPARATOR . $filename);
+
+        $doc = new Opus_Document;
+        $file = $doc->addFile();
+
+        $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
+        $file->setTempFile($filename);
+
+        $file->setDestinationPath($this->_dest_path);   // TODO: Remove setting of destination path.  Should come from config.
+        $file->setPathName('copied-' . $filename);
+
+        $file->setLabel('Volltextdokument (PDF)');
+        $file->setMimeType(Opus_File::PDF);
+
+        return $doc;
+    }
+
+    /**
      * Test if a valid Opus_File instance gets validated to be correct.
      *
      * @return void
@@ -154,22 +177,42 @@ class Opus_FileTest extends TestCase {
      *
      * @return void
      */
-    public function testFilesTemporaryAbsoluteSource() {
-        $doc = new Opus_Document;
+    public function testFilesStoreDependent() {
 
-        touch($this->_src_path . '/foobar.pdf');
-
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.pdf');
-        $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
-        $file->setDestinationPath($this->_dest_path);
-        $file->setTempFile($this->_src_path . '/foobar.pdf');
-
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/$id/foobar-copied.pdf",
+        $this->assertNotNull($file->getId(), "Storing file did not work out.");
+        $this->assertEquals($doc->getId(), $file->getParentId(),
+                "ParentId does not match parent model.");
+
+        $doc = new Opus_Document($id);
+        $file = $doc->getFile(0);
+
+        $this->assertType('Opus_File', $file, "getFile has wrong type.");
+        $this->assertEquals($doc->getId(), $file->getParentId(),
+                "ParentId does not match parent model.");
+
+        $file->store();
+
+        // TODO: Check mime type after storing.
+        $this->markTestIncomplete('TODO: Check mime type after storing.');
+        $this->assertEquals($file->getMimeType(), Opus_File::PDF);
+    }
+
+    /**
+     * Test if added files with tempory path get moved to destination path target filename.
+     *
+     * @return void
+     */
+    public function testFilesTemporaryAbsoluteSource() {
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $file->setTempFile($this->_src_path . '/foobar.pdf');
+        $id = $doc->store();
+
+        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has not been copied.');
     }
 
@@ -179,23 +222,33 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testFilesTemporaryRelativeSource() {
-        $doc = new Opus_Document;
-
-        touch($this->_src_path . '/foobar.pdf');
-
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.pdf');
-        $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
-        $file->setDestinationPath($this->_dest_path);
-        $file->setSourcePath($this->_src_path);
-        $file->setTempFile('foobar.pdf');
-
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/$id/foobar-copied.pdf",
-                'File has not been copied.');
+        $expectedPath = $this->_dest_path . "/$id/copied-foobar.pdf";
+        $this->assertFileExists($expectedPath, 'File has not been copied.');
+        $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
+        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+    }
+
+    /**
+     * Test if added files with tempory path get moved to destination path target filename.
+     *
+     * @return void
+     */
+    public function testFilesExistsAfterDelete() {
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $id = $doc->store();
+
+        $expectedPath = $this->_dest_path . "/$id/copied-foobar.pdf";
+        $this->assertFileExists($expectedPath, 'File has not been copied.');
+        $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
+        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+
+        @unlink($file->getPath());
+        $this->assertFalse($file->exists(), "File->exists should return false on deleted files.");
     }
 
     /**
@@ -205,21 +258,14 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testDeleteCallReturnsDeletionTokenAndNotActuallyRemovesAFile() {
-        $doc = new Opus_Document;
-        touch($this->_src_path . '/foobar.pdf');
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.pdf');
-        $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
-        $file->setDestinationPath($this->_dest_path);
-        $file->setTempFile($this->_src_path . '/foobar.pdf');
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
         $id = $doc->store();
 
         $token = $file->delete();
 
         $this->assertNotNull($token, 'No deletion token returned.');
-        $this->assertFileExists($this->_dest_path . "/$id/foobar-copied.pdf",
+        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has been deleted.');
     }
 
@@ -229,26 +275,23 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testFileGetsDeletedThroughDocumentModel() {
-        $this->markTestSkipped('Fix test for our Opus_File.');
-
-        $doc = new Opus_Document;
-        touch($this->_src_path . '/foobar.pdf');
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.pdf');
-        $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
-        $file->setDestinationPath($this->_dest_path);
-        $file->setTempFile($this->_src_path . '/foobar.pdf');
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
         $id = $doc->store();
 
+        // Reload Opus_Document and Opus_File.
         $doc = new Opus_Document($id);
+        $file = $doc->getFile(0);
+
+        // TODO: Do not add _dest_path to file in order to delete.
+        $file->setDestinationPath($this->_dest_path);
+
         $doc->setFile(null);
-        $this->assertFileExists($this->_dest_path . "/$id/foobar-copied.pdf",
+        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has been deleted before the model has been stored.');
 
         $doc->store();
-        $this->assertFileNotExists($this->_dest_path . "/$id/foobar-copied.pdf",
+        $this->assertFileNotExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has not been deleted after storing the model.');
     }
 
@@ -284,13 +327,9 @@ class Opus_FileTest extends TestCase {
             $mimetype = 'application/octet-stream';
         }
 
-        $doc = new Opus_Document;
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.txt');
-        $file->setDestinationPath($this->_dest_path);
-        $file->setTempFile($filename);
-        $doc->setFile($file);
-        $id = $doc->store();
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
 
         $this->assertEquals($file->getMimeType(), $mimetype,
                 'Mime type is not set as expected.');
@@ -302,29 +341,23 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testChangingPathNameRenamesFile() {
-        $this->markTestSkipped('Fix test for our Opus_File.');
-
         $fileNameWrong = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        touch($this->_src_path . DIRECTORY_SEPARATOR . 'wrongName2.pdf');
-
-        $file = new Opus_File;
-        $file->setTempFile('wrongName2.pdf');
-        $file->setPathName($fileNameWrong);
-
-        $doc = new Opus_Document;
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile($fileNameWrong);
+        $file = $doc->getFile(0);
         $docId = $doc->store();
 
         $doc = new Opus_Document($docId);
         $file = $doc->getFile(0); // get first file
         $file->setPathName($fileNameCorrect);
+        $file->setDestinationPath($this->_dest_path); // TODO: Remove setting of destination path.  Should come from config.
         $doc->store();
 
         $path = $this->_dest_path . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
+        $this->assertFileExists($path . $fileNameCorrect,
+                'Expecting file renamed properly.');
 
-        $this->assertFileExists($path . $fileNameCorrect, 'Expecting file renamed proberly.');
         $this->assertFileNotExists($path . $fileNameWrong, 'Expecting old file removed.');
     }
 
@@ -335,19 +368,11 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testIfRenamingFailedExceptionIsThrownAndNoDataIsChanged() {
-        $this->markTestSkipped('Fix test for our Opus_File.');
-
         $fileNameWrong = 'wrongName.pdf';
         $fileNameCorrect = 'correctName.pdf';
 
-        touch($this->_src_path . DIRECTORY_SEPARATOR . 'wrongName2.pdf');
-
-        $file = new Opus_File;
-        $file->setTempFile('wrongName2.pdf');
-        $file->setPathName($fileNameWrong);
-
-        $doc = new Opus_Document;
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile($fileNameWrong);
+        $file = $doc->getFile(0);
         $docId = $doc->store();
 
         $doc = new Opus_Document($docId);
@@ -379,34 +404,24 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function testUpdateFileObjectDoesNotDeleteStoredFile() {
-        $this->markTestSkipped('Fix test for our Opus_File.');
 
-        $doc = new Opus_Document;
-
-        touch($this->_src_path . '/foobar.pdf');
-
-        $file = new Opus_File;
-        $file->setPathName('foobar-copied.pdf');
-        $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
-        $file->setDestinationPath($this->_dest_path);
-        $file->setTempFile($this->_src_path . '/foobar.pdf');
-
-        $doc->setFile($file);
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
         $id = $doc->store();
-        $fileId = $file->getId();
 
-        $file2 = new Opus_File($fileId);
-        $file2->setPathName('foobar-copied.pdf');
+        $file2 = new Opus_File($file->getId());
+        $file2->setPathName('copied-foobar.pdf');
         $file2->setLabel('Volltextdokument (PDF) 2');
         $file2->setMimeType(Opus_File::PDF);
+
+        // TODO: Do not add _dest_path to file in order to delete.
+        $file2->setDestinationPath($this->_dest_path);
 
         $doc = new Opus_Document($id);
         $doc->setFile($file2);
         $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/$id/foobar-copied.pdf", 'File should not be deleted.');
-
+        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf", 'File should not be deleted.');
     }
 
 }
