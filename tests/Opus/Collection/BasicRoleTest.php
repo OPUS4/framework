@@ -42,7 +42,7 @@
  * @group       CollectionTests
  *
  */
-class Opus_Collection_BasicRoleTests extends TestCase {
+class Opus_Collection_BasicRoleTest extends TestCase {
 
     /**
      *
@@ -73,6 +73,10 @@ class Opus_Collection_BasicRoleTests extends TestCase {
      */
     public function setUp() {
         parent::setUp();
+
+        // Create first dummy role, just to make sure ID=1 exists.
+        $role_1 = self::createRandomObject();
+        $role_1->store();
 
         // Object is not stored.
         $this->object = self::createRandomObject();

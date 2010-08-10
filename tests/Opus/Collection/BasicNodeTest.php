@@ -42,7 +42,7 @@
  * @group       CollectionTests
  *
  */
-class Opus_Collection_BasicNodeTests extends TestCase {
+class Opus_Collection_BasicNodeTest extends TestCase {
 
     /**
      * @var Opus_CollectionRole
