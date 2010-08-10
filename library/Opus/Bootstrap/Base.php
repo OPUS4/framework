@@ -63,6 +63,12 @@ class Opus_Bootstrap_Base {
     protected $_applicationWorkspaceDirectory = '';
 
     /**
+     * Logger.
+     * @var Zend_Log
+     */
+    protected $log;
+
+    /**
      * Declare the use of production state configuration.
      *
      */
@@ -224,7 +230,7 @@ class Opus_Bootstrap_Base {
     protected function _setupEnvironment() {
         // Setup error reporting.
         error_reporting(E_ALL | E_STRICT);
-        ini_set('display_errors', 1);
+        ini_set('display_errors', 0);
 
         /*
          * Setup timezone and locale options.
@@ -323,6 +329,7 @@ class Opus_Bootstrap_Base {
         $logger = new Zend_Log($writer);
         $registry = Zend_Registry::getInstance();
         $registry->set('Zend_Log', $logger);
+        $this->log = $logger;
     }
 
     /**
