@@ -70,7 +70,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
     /**
      * Holds persistance status of the model, including all dependant models.
      *
-     * @var int  Defaults to true.
+     * @var boolean  Defaults to true.
      */
     protected $_isNewRecord = true;
 
