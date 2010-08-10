@@ -79,6 +79,13 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     protected $_internalFields = array();
 
     /**
+     * Hold a logger instance.
+     *
+     * @var Zend_Log
+     */
+    private $_logger = null;
+
+    /**
      * @TODO: Provide a more fine grained workflow by implementing pre and post operations.
      *
      * Start standard model initialization workflow:
@@ -583,4 +590,25 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         }
     }
 
+    /**
+     * Return a logger either configured in Zend_Registry or null logger.
+     *
+     * Adds the Zend_Log instance registered with Zend_Registry with key 'Zend_Log'.
+     * If no such instance is configured, a standard logger will be set writing all
+     * log events to Zend_Log_Writer_Null.
+     *
+     * (Copy-paste from Qucosa.)
+     *
+     * @return Zend_Log Logger instance.
+     */
+    protected function getLogger() {
+        if (null === $this->_logger) {
+            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
+            if (true === Zend_Registry::isRegistered('Zend_Log')) {
+                $this->_logger = Zend_Registry::get('Zend_Log');
+            }
+        }
+        return $this->_logger;
+
+    }
 }
