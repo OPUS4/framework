@@ -193,33 +193,29 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 $tempFile = $this->getSourcePath() . $tempFile;
             }
 
-            // TODO: set mime type
+            // set mime type
             $mimetype = mime_content_type($tempFile);
-            // $mimetype = $this->_storage->getFileMimeEncoding($tempFile);
             $this->setMimeType($mimetype);
 
             if (file_exists($destinationPath) === false) {
                mkdir($destinationPath, 0755, true);
             }
 
-            // TODO: Copy file
-            // $this->_storage->copyFile($tempFile, $destinationPath . $this->getPathName());
-
             if (true === is_uploaded_file($tempFile)) {
-                $copyResult = move_uploaded_file($tempFile, $target);
-                if ($copyResult === false) {
-                    $this->logger("Error moving file '" . $this->getTempFile() . "' to '$target'");
+                $moveResult = move_uploaded_file($tempFile, $target);
+                if ($moveResult === false) {
+                    $message = "Error moving file '" . $this->getTempFile() . "' to '$target'";
+                    $this->getLogger()->err($message);
+                    throw new Exception($message);
                 }
             }
             else {
                 $copyResult = copy($tempFile, $target);
                 if ($copyResult === false) {
-                    $this->logger("Error copying file '" . $this->getTempFile() . "' to '$target'");
+                    $message = "Error copying file '" . $this->getTempFile() . "' to '$target'";
+                    $this->getLogger()->err($message);
+                    throw new Exception($message);
                 }
-            }
-
-            if ($copyResult === false) {
-                throw new Opus_Model_Exception('Error saving file.');
             }
 
             // create and append hash values
@@ -303,13 +299,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $result = @unlink($this->getPath());
         }
         else {
-            $this->logger("Trying to delete non-existing file '" . $this->getPath() . "'");
+            $message = 'Cannot remove file ' . $this->getPath() . ' (cwd: ' . getcwd() . ')';
+            $this->getLogger()->warn($message);
         }
 
-        // Delete directory if empty.
-        if (0 === count(glob($path . '/*'))) {
-            rmdir($path);
-        }
+        // Delete directory.  If not empty, it will fail but suppress errors.
+        @rmdir($path);
 
         // cleanup index
         $config = Zend_Registry::get('Zend_Config');
@@ -331,8 +326,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             }
 
             if ($result === false) {
-
-                throw new Exception('Cannot remove file ' . $this->getPath() . '. Please check access permissions and try again!  (cwd: ' . getcwd() . ')', '403');
+                $message = 'Cannot remove file ' . $this->getPath() . ' (cwd: ' . getcwd() . ')';
+                $this->getLogger()->error($message);
+                throw new Exception($message, '403');
             }
         }
     }
@@ -513,14 +509,4 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setHashValue($hashs);
     }
 
-    /**
-     * Log document errors.  Prefixes every log entry with document id.
-     *
-     * @param string $message
-     */
-    protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-        $logger->info($this->getDisplayName() . ": $message");
-    }
 }
