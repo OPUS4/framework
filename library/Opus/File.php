@@ -318,19 +318,22 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $searchEngine = 'Lucene';
         }
 
-        // Reindex
-        $engineclass = 'Opus_Search_Index_' . $searchEngine . '_Indexer';
-        $indexer = new $engineclass();
-        try {
-            // $indexer->removeFileFromEntryIndex($this);
-        }
-        catch (Exception $e) {
-            throw $e;
-        }
+        // TODO: Disabled index update when not running Zend_Lucene.
+        if ($searchEngine === 'Lucene') {
+            // Reindex
+            $engineclass = 'Opus_Search_Index_' . $searchEngine . '_Indexer';
+            $indexer = new $engineclass();
+            try {
+                $indexer->removeFileFromEntryIndex($this);
+            }
+            catch (Exception $e) {
+                throw $e;
+            }
 
-        if ($result === false) {
-            
-            throw new Exception('Cannot remove file ' . $this->getPath() . '. Please check access permissions and try again!  (cwd: ' . getcwd() . ')', '403');
+            if ($result === false) {
+
+                throw new Exception('Cannot remove file ' . $this->getPath() . '. Please check access permissions and try again!  (cwd: ' . getcwd() . ')', '403');
+            }
         }
 
     }
