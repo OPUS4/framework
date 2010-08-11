@@ -463,6 +463,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
                 $select = null;
             }
 
+            // TODO: $sort_order does not work if no $options are given?
             if (is_null($sort_order) === false && is_null($select) === false) {
                 foreach ($sort_order as $column => $order) {
                     $select = $select->order("$column $order");
