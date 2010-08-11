@@ -201,23 +201,20 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->setMimeType($mimetype);
 
             if (file_exists($destinationPath) === false) {
-               mkdir($destinationPath, 0755, true);
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $copyResult = copy($tempFile, $target);
+            if ($copyResult === false) {
+                $message = "Error copying file '" . $this->getTempFile() . "' to '$target'";
+                $this->getLogger()->err($message);
+                throw new Exception($message);
             }
 
             if (true === is_uploaded_file($tempFile)) {
-                $moveResult = move_uploaded_file($tempFile, $target);
-                if ($moveResult === false) {
-                    $message = "Error moving file '" . $this->getTempFile() . "' to '$target'";
+                if (@unlink($tempFile) === false) {
+                    $message = "Error removing temp file " . $this->getTempFile();
                     $this->getLogger()->err($message);
-                    throw new Exception($message);
-                }
-            }
-            else {
-                $copyResult = copy($tempFile, $target);
-                if ($copyResult === false) {
-                    $message = "Error copying file '" . $this->getTempFile() . "' to '$target'";
-                    $this->getLogger()->err($message);
-                    throw new Exception($message);
                 }
             }
 
@@ -225,23 +222,23 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->_createHashValues();
         }
 
-        // Rename file, if the stored name changed on existing record.
-        if (false === $this->isNewRecord()) {
-            if ($this->getField('PathName')->isModified()) {
-                $storedValue = $this->_primaryTableRow->path_name;
-                $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedValue;
+        // Rename file, if the stored name changed on existing record.  Rename
+        // only already stored files.
+        // TODO: Move rename logic to _storePathName() method.
+        if (false === $this->isNewRecord() && $this->getField('PathName')->isModified()) {
+            $storedPathName = $this->_primaryTableRow->path_name;
 
-                // rename only already stored files
-                if (false === empty($storedValue)) {
-                    $result = @rename($oldName, $target);
-                    if (false === $result) {
-                        throw new Exception('Could not rename file from "' . $oldName . '" to "' . $target . '"!');
-                    }
+            if (!empty($storedPathName)) {
+                $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedPathName;
+                $result = @rename($oldName, $target);
+                if (false === $result) {
+                    throw new Exception('Could not rename file from "' . $oldName . '" to "' . $target . '"!');
                 }
             }
         }
 
         return;
+
     }
 
     /**
@@ -364,28 +361,32 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean true if the checksum is valid, false if not
      */
-    public function verify($type, $value = null) {
-        if (!empty($value) and $this->getRealHash($type) === $value)
-            return true;
-
-        return false;
-    }
+//    public function verify($type, $value = null) {
+//        throw new Exception("Method seems to be unused.  Remove.");
+//
+//        if (!empty($value) and $this->getRealHash($type) === $value)
+//            return true;
+//
+//        return false;
+//    }
 
     /**
      * Perform a verification on all checksums
      *
      * @return array boolean values of all checksums: true (valid) or false (invalid)
      */
-    public function verifyAll() {
-        $hashes = $this->getHashValue();
-        $return = array();
-        foreach ($hashes as $hash) {
-            $type = $hash->getType();
-            $value = $hash->getValue();
-            $return[$type] = $this->verify($type, $value);
-        }
-        return $return;
-    }
+//    public function verifyAll() {
+//        throw new Exception("Method seems to be unused.  Remove.");
+//
+//        $hashes = $this->getHashValue();
+//        $return = array();
+//        foreach ($hashes as $hash) {
+//            $type = $hash->getType();
+//            $value = $hash->getValue();
+//            $return[$type] = $this->verify($type, $value);
+//        }
+//        return $return;
+//    }
 
     /**
      * Gets the verification file size limit from configuration
