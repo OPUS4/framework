@@ -46,25 +46,6 @@
 class Opus_PersonTest extends TestCase {
 
     /**
-     * Test document type.
-     *
-     * @var string
-     */
-    private $_xmlDoctype =
-        '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="person_test"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PersonAdvisor"/>
-            <field name="PersonAuthor"/>
-            <field name="PersonOther"/>
-            <field name="PersonContributor"/>
-            <field name="PersonEditor"/>
-            <field name="PersonReferee"/>
-            <field name="PersonTranslator"/>
-        </documenttype>';
-
-    /**
      * List of Opus_Person identifiers having the role Author.
      *
      * @var array
@@ -86,13 +67,18 @@ class Opus_PersonTest extends TestCase {
     public function setUp() {
         parent::setUp();
 
-        $type = new Opus_Document_Type($this->_xmlDoctype);
-
         // create documents
         for ($i = 0; $i<10; $i++) {
-            $doc = new Opus_Document(null, $type);
+            $doc = new Opus_Document;
             $doc->store();
             $this->_documents[] = $doc;
+        }
+
+        for ($i = 0; $i<10; $i++) {
+            $p = new Opus_Person;
+            $p->setFirstName('Dummy-'.$p)
+                ->setLastName('Empty-'.$p)
+                ->store();
         }
 
         // add a person as author to every document
@@ -114,26 +100,20 @@ class Opus_PersonTest extends TestCase {
      * @return void
      */
     public function testGetDocumentsByRole() {
-        $this->markTestIncomplete( 'This test must be checked.' );
-
         // TODO: $doc->getPersonAuthor()->getId() gibt nicht die Id eines
         // TODO: Autors zurueck, sondern das Paar (document_id, person_id) aus
         // TODO: der Tabelle link_persons_documents.
+        //
+        // TODO: Die ID der Person erhält man mit getLinkedModelId()
 
         foreach ($this->_authors as $author) {
             $docs = $author->getDocumentsByRole('author');
             foreach ($docs as $doc) {
-                echo "---\n";
-                var_dump($doc->getPersonAuthor()->getId());
-                var_dump($author->getId());
-
                 $this->assertEquals(
-                    $doc->getPersonAuthor()->getId(),
+                    $doc->getPersonAuthor(0)->getLinkedModelId(),
                     $author->getId(),
                     'Retrieved author is not the author of the document as defined in test data.'
                     );
-
-                echo "---\n";
             }
         }
     }
