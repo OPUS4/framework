@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -56,35 +57,35 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
      */
     public function tableGatewayDataProvider() {
         return array(
-        array('Opus_Db_Accounts'),
-        array('Opus_Db_CollectionsRoles'),
-        array('Opus_Db_Collections'),
-        array('Opus_Db_CollectionsNodes'),
-        array('Opus_Db_CollectionsThemes'),
-        array('Opus_Db_DocumentEnrichments'),
-        array('Opus_Db_DocumentFiles'),
-        array('Opus_Db_DocumentIdentifiers'),
-        array('Opus_Db_DocumentLicences'),
-        array('Opus_Db_DocumentNotes'),
-        array('Opus_Db_DocumentPatents'),
-        array('Opus_Db_DocumentReferences'),
-        array('Opus_Db_Documents'),
-        array('Opus_Db_DocumentStatistics'),
-        array('Opus_Db_DocumentSubjects'),
-        array('Opus_Db_DocumentTitleAbstracts'),
-        array('Opus_Db_FileHashvalues'),
-        array('Opus_Db_Ipranges'),
-        array('Opus_Db_Languages'),
-        array('Opus_Db_LinkAccountsRoles'),
-        array('Opus_Db_LinkDocumentsCollections'),
-        array('Opus_Db_LinkDocumentsLicences'),
-        array('Opus_Db_LinkIprangesRoles'),
-        array('Opus_Db_LinkPersonsDocuments'),
-        array('Opus_Db_PersonExternalKeys'),
-        array('Opus_Db_Persons'),
-        array('Opus_Db_Privileges'),
-        array('Opus_Db_Roles'),
-        array('Opus_Db_Translations'),
+            array('Opus_Db_Accounts'),
+            array('Opus_Db_CollectionsRoles'),
+            array('Opus_Db_Collections'),
+            array('Opus_Db_CollectionsNodes'),
+            array('Opus_Db_CollectionsThemes'),
+            array('Opus_Db_DocumentEnrichments'),
+            array('Opus_Db_DocumentFiles'),
+            array('Opus_Db_DocumentIdentifiers'),
+            array('Opus_Db_DocumentLicences'),
+            array('Opus_Db_DocumentNotes'),
+            array('Opus_Db_DocumentPatents'),
+            array('Opus_Db_DocumentReferences'),
+            array('Opus_Db_Documents'),
+            array('Opus_Db_DocumentStatistics'),
+            array('Opus_Db_DocumentSubjects'),
+            array('Opus_Db_DocumentTitleAbstracts'),
+            array('Opus_Db_FileHashvalues'),
+            array('Opus_Db_Ipranges'),
+            array('Opus_Db_Languages'),
+            array('Opus_Db_LinkAccountsRoles'),
+            array('Opus_Db_LinkDocumentsCollections'),
+            array('Opus_Db_LinkDocumentsLicences'),
+            array('Opus_Db_LinkIprangesRoles'),
+            array('Opus_Db_LinkPersonsDocuments'),
+            array('Opus_Db_PersonExternalKeys'),
+            array('Opus_Db_Persons'),
+            array('Opus_Db_Privileges'),
+            array('Opus_Db_Roles'),
+            array('Opus_Db_Translations'),
         );
     }
 
@@ -99,10 +100,27 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
      */
     public function testSpawnGateway($tableGateway) {
         try {
+            // Test, if creating instance works.
             $table = Opus_Db_TableGateway::getInstance($tableGateway);
             $this->assertNotNull($table);
             $this->assertNotNull(get_class($table) === $tableGateway);
-        } catch (Exception $ex) {
+
+            // Test, if instance exists in instances array afterwards.
+            $instances = Opus_Db_TableGateway::getAllInstances();
+            $this->assertTrue(is_array($instances),
+                    'Instances should be array.');
+            $this->assertArrayHasKey($tableGateway, $instances,
+                    'Current instance should be in instance array.');
+
+            // Test, if second call gives same TableGateway.
+            $table_2 = Opus_Db_TableGateway::getInstance($tableGateway);
+            $this->assertNotNull($table_2);
+            $this->assertNotNull(get_class($table_2) === $tableGateway);
+
+            $this->assertTrue($table === $table_2,
+                    'Singleton should return same object on second call');
+        }
+        catch (Exception $ex) {
             $this->fail("Failed to instanciate $tableGateway: " . $ex->getMessage());
         }
     }
