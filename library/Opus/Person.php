@@ -51,17 +51,17 @@ class Opus_Person extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Persons';
 
     protected $_externalFields = array(
-            'IdentifierPnd' => array(
-                            'model' => 'Opus_Person_ExternalKey',
-                            'options' => array('type' => 'pnd'),
-                            'fetch' => 'lazy'
-            ),
-            'IdentifierLocal' => array(
-                            'model' => 'Opus_Person_ExternalKey',
-                            'options' => array('type' => 'local'),
-                            'fetch' => 'lazy'
-            ),            
-            );
+        'IdentifierPnd' => array(
+            'model' => 'Opus_Person_ExternalKey',
+            'options' => array('type' => 'pnd'),
+            'fetch' => 'lazy'
+        ),
+        'IdentifierLocal' => array(
+            'model' => 'Opus_Person_ExternalKey',
+            'options' => array('type' => 'local'),
+            'fetch' => 'lazy'
+        ),
+    );
 
     /**
      * Initialize model with the following fields:
@@ -174,22 +174,22 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @param string $type [optional] The type of the identifier (local or pnd), default is local
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
-    public static function findByIdentifier($id, $type = 'local') {
-        // $documentsLinkTable = new Opus_Db_PersonExternalKeys();
-        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_PersonExternalKeys');
-        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
-        $db = $documentsLinkTable->getAdapter();
-        $select = $db->select()->from($tablename, array('person_id'))
-            ->where('type = ? ', $type)
-            ->where('value = ?', $id);
-        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
-
-        if (is_null($personIds) === true) {
-            $personIds = array();
-        }
-
-        return $personIds;
-    }
+//    public static function findByIdentifier($id, $type = 'local') {
+//        // $documentsLinkTable = new Opus_Db_PersonExternalKeys();
+//        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_PersonExternalKeys');
+//        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
+//        $db = $documentsLinkTable->getAdapter();
+//        $select = $db->select()->from($tablename, array('person_id'))
+//            ->where('type = ? ', $type)
+//            ->where('value = ?', $id);
+//        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+//
+//        if (is_null($personIds) === true) {
+//            $personIds = array();
+//        }
+//
+//        return $personIds;
+//    }
 
     /**
      * Finds a person by a given name
@@ -198,30 +198,30 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @param string $firstName [optional] The first name of the person to be queried.
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
-    public static function findByName($lastName, $firstName = null) {
-        // $documentsLinkTable = new Opus_Db_Persons();
-        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
-        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
-        $db = $documentsLinkTable->getAdapter();
-        $select = $db->select()->from($tablename, array('id'));
-        
-        if ($firstName === null) {
-        	$select = $db->select()->from($tablename, array('id'))
-        	    ->where('last_name = ?', $lastName);
-        }
-        else {
-        	$select = $db->select()->from($tablename, array('id'))
-        	    ->where('last_name = ?', $lastName)
-        	    ->where('first_name = ?', $firstName);
-        }
-        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
-
-        if (is_null($personIds) === true) {
-            $personIds = array();
-        }
-
-        return $personIds;
-    }
+//    public static function findByName($lastName, $firstName = null) {
+//        // $documentsLinkTable = new Opus_Db_Persons();
+//        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
+//        $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
+//        $db = $documentsLinkTable->getAdapter();
+//        $select = $db->select()->from($tablename, array('id'));
+//
+//        if ($firstName === null) {
+//        	$select = $db->select()->from($tablename, array('id'))
+//        	    ->where('last_name = ?', $lastName);
+//        }
+//        else {
+//        	$select = $db->select()->from($tablename, array('id'))
+//        	    ->where('last_name = ?', $lastName)
+//        	    ->where('first_name = ?', $firstName);
+//        }
+//        $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
+//
+//        if (is_null($personIds) === true) {
+//            $personIds = array();
+//        }
+//
+//        return $personIds;
+//    }
 
     /**
      * Retrieve all Opus_Person instances from the database.
