@@ -482,55 +482,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Converts a date to an internal server date
-     *
-     * @param $date input date in format DD.MM.YYYY
-     * @return date as YYYY-MM-DDTHH:MM:SS+HH:MM
-     */
-    protected function _convertToInternalServerDate($date) {
-        $pieces = explode('.', $date);
-        $greenwich = explode('+', $date);
-        if (count($pieces) === 3) {
-            return ($pieces[2] . '-' . $pieces[1] . '-' . $pieces[0] . 'T00:00:00Z');
-        }
-        else if (count($greenwich) === 2) {
-            return ($greenwich[0] . 'Z');
-        }
-        return $date;
-    }
-
-    /**
-     * Converts a date to an internal date
-     *
-     * @param $date input date in format DD.MM.YYYY
-     * @return date as YYYY-MM-DD
-     */
-    protected function _convertToInternalDate($date) {
-        $pieces = explode('.', $date);
-        if (count($pieces) === 3) {
-            return ($pieces[2] . '-' . $pieces[1] . '-' . $pieces[0]);
-        }
-        return $date;
-    }
-
-    /**
-     * Converts an internal date to a date to output
-     *
-     * @param $date input date in format YYYY-MM-DD or YYYY-MM-DDTHH:MM:SS+HH:MM
-     * @return date as DD.MM.YYYY
-     */
-    protected function _convertToOutputDate($date) {
-        $pieces = explode('-', $date);
-        if (count($pieces) === 3) {
-            if (strlen($pieces[2]) > 2) {
-                $pieces[2] = substr($pieces[2], 0, 2);
-            }
-            return ($pieces[2] . '.' . $pieces[1] . '.' . $pieces[0]);
-        }
-        return $date;
-    }
-
-    /**
      * Retrieve all Opus_Document instances from the database.
      *
      * @return array Array of Opus_Document objects.
