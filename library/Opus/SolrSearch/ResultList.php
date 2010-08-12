@@ -36,5 +36,18 @@ class Opus_SolrSearch_ResultList {
     private $num_of_hits;
     private $results;
 
+    public function  __construct($results, $num_of_hits) {
+        $this->num_of_hits = $num_of_hits;
+        $this->results = $results;
+    }
+
+    public function getResults() {
+        return $this->results;
+    }
+
+    public function getNumberOfHits() {
+        return $this->num_of_hits;
+    }
+
 }
 ?>

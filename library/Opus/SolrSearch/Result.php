@@ -33,5 +33,38 @@
 
 class Opus_SolrSearch_Result {
 
+    private $score;
+    private $author;
+    private $title;
+    private $year;
+    private $text;
+
+    public function  __construct($score, $author, $title, $year, $text) {
+        $this->score = $score;
+        $this->author = $author;
+        $this->title = $title;
+        $this->year = $year;
+        $this->text = $text;
+    }
+
+    public function getScore(){
+        return $this->score;
+    }
+
+    public function getAuthor() {
+        return $this->author;
+    }
+
+    public function getTitle() {
+        return $this->title;
+    }
+
+    public function getYear() {
+        return $this->year;
+    }
+
+    public function getText() {
+        return $this->text;
+    }
 }
 ?>
