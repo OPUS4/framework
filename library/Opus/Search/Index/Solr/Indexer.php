@@ -54,21 +54,19 @@ class Opus_Search_Index_Solr_Indexer {
     private $log;
 
     /**
-     * Establishes a connection to SolrServer.  Deletes all documents from index,
+     * Establishes a connection to a Solr server. Additionally, deletes all documents from index,
      * if $deleteAllDocs is set to true.
      *
      * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
+     * @throws Opus_Search_Index_Solr_Exception If Solr server does not react.
      */
-
     public function __construct($deleteAllDocs = false) {
         $this->log = Zend_Registry::get('Zend_Log');
         $this->solr_server = $this->getSolrServer();
-
         if (false === $this->solr_server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
             throw new Opus_Search_Index_Solr_Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
         }
-
         $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
         if (true === $deleteAllDocs) {
             $this->deleteAllDocs();
