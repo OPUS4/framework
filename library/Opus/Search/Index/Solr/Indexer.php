@@ -34,13 +34,23 @@
  */
 class Opus_Search_Index_Solr_Indexer {
 
-    // Connection to Solr server
+    /**
+     * Connection to Solr server
+     *
+     * @var Apache_Solr_Service
+     */
     private $solr_server = null;
-
-    // Solr server URL
+    
+    /**
+     * Solr server URL
+     * @var string
+     */
     private $solr_server_url;
 
-    // Logger
+    /**
+     *
+     * @var Zend_Log
+     */
     private $log;
 
     /**
