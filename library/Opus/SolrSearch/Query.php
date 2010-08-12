@@ -38,14 +38,109 @@ class Opus_SolrSearch_Query {
     private $q;
     private $sortField;
     private $sortOrder;
-    private $fq;
-    private $simpleSearch;
+    private $filterQueries;
+    private $year;
+    private $urn;
+    private $isbn;
+    private $abstract;
+    private $title;
+    private $author;
+    private $fulltext;
 
-    public function isSimpleQuery() {
-        return $this->simpleSearch;
+    public function getStart() {
+        return $this->start;
     }
 
+    public function setStart($start) {
+        $this->start = $start;
+    }
 
+    public function getRows() {
+        return $this->rows;
+    }
 
+    public function setRows($rows) {
+        $this->rows = $rows;
+    }
+
+    public function getSortField() {
+        return $this->sortField;
+    }
+
+    public function setSortField($sortField) {
+        $this->sortField = $sortField;
+    }
+
+    public function getSortOrder() {
+        return $this->sortOrder;
+    }
+
+    public function setSortOrder($sortOrder) {
+        $this->sortOrder = $sortOrder;
+    }
+
+    public function getFilterQueries() {
+        return $this->filterQueries;
+    }
+
+    public function setFilterQueries($filterQueries) {
+        $this->filterQueries = $filterQueries;
+    }
+
+    public function getYear() {
+        return $this->year;
+    }
+
+    public function setYear($year) {
+        $this->year = $year;
+    }
+
+    public function getUrn() {
+        return $this->urn;
+    }
+
+    public function setUrn($urn) {
+        $this->urn = $urn;
+    }
+
+    public function getIsbn() {
+        return $this->isbn;
+    }
+
+    public function setIsbn($isbn) {
+        $this->isbn = $isbn;
+    }
+
+    public function getAbstract() {
+        return $this->abstract;
+    }
+
+    public function setAbstract($abstract) {
+        $this->abstract = $abstract;
+    }
+
+    public function getTitle() {
+        return $this->title;
+    }
+
+    public function setTitle($title) {
+        $this->title = $title;
+    }
+
+    public function getAuthor() {
+        return $this->author;
+    }
+
+    public function setAuthor($author) {
+        $this->author = $author;
+    }
+
+    public function getFulltext() {
+        return $this->fulltext;
+    }
+
+    public function setFulltext($fulltext) {
+        $this->fulltext = $fulltext;
+    }
 }
 ?>
