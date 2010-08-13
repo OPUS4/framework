@@ -34,16 +34,22 @@
 
 class Opus_SolrSearch_ResultList {
 
-    private $numOfHits;
     private $results;
+    private $numOfHits;
     private $queryTime;
+    private $facets;
 
-    public function  __construct($results, $numOfHits, $queryTime) {
-        $this->numOfHits = $numOfHits;
+    public function  __construct($results = array(), $numOfHits = 0, $queryTime = 0, $facets = array()) {
         $this->results = $results;
+        $this->numOfHits = $numOfHits;        
         $this->queryTime = $queryTime;
+        $this->facets = $facets;
     }
 
+    /**
+     *
+     * @return array Returns an array of Opus_SolrSearch_Result objects.
+     */
     public function getResults() {
         return $this->results;
     }
@@ -54,6 +60,14 @@ class Opus_SolrSearch_ResultList {
 
     public function getQueryTime() {
         return $this->queryTime;
+    }
+
+    /**
+     *
+     * @return array Returns an array of Opus_SolrSearch_Facet objects.
+     */
+    public function getFacets() {
+        return $this->facets;
     }
 }
 ?>

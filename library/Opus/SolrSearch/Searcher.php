@@ -25,6 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    TODO
+ * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,13 +35,91 @@
 class Opus_SolrSearch_Searcher {
 
     /**
+     * Logger
+     *
+     * @var Zend_Log
+     */
+    private $log;
+
+    /**
+     * Connection to Solr server
+     *
+     * @var Apache_Solr_Service
+     */
+    private $solr_server;
+
+    /**
+     * Connection string
+     *
+     * @var string
+     */
+    private $solr_server_url;
+
+    /**
+     *
+     * @throws Opus_SolrSearch_Exception If connection to Solr server could not be established.
+     */
+    public function  __construct() {
+        $this->log = Zend_Registry::get('Zend_Log');
+        $this->solr_server = $this->getSolrServer();
+        if (false === $this->solr_server->ping()) {
+            $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
+            throw new Opus_SolrSearch_Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
+        }
+        $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
+    }
+
+
+    /**
+     * TODO remove code duplication (Opus_Search_Index_Solr_Indexer)
+     * Returns a Apache_Solr_Service object which encapsulates the communication
+     * with the Solr server.
+     *
+     * @return Apache_Solr_Server
+     */
+    private function getSolrServer() {
+        $config = Zend_Registry::get('Zend_Config');
+        $solr_host = $config->searchengine->solr->host;
+        $solr_port = $config->searchengine->solr->port;
+        $solr_app = '/' . $config->searchengine->solr->app;
+        $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
+        return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
+    }
+
+    /**
      *
      * @param Opus_SolrSearch_Query $query
      * @return Opus_SolrSearch_ResultList
+     * @throws Opus_SolrSearch Exception If Solr server responds with an error or the response is empty.
      */
     public function search($query) {
-        $query->getQ();
+        /**
+         * @var Apache_Solr_Response $solr_response
+         */
+        $solr_response = null;
+        try {
+            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), getParams($query));
+        }
+        catch (Exception $e) {
+            $msg = 'Solr server responds with an error ' . $e->getMessage();
+            $this->log->err($msg);
+            throw new Opus_SolrSearch_Exception($msg, null, $e);
+        }
+        if (is_null($solr_response)) {
+            $msg = 'could not get an Apache_Solr_Response object';
+            $this->log->err($msg);
+            throw new Opus_SolrSearch_Exception($msg);
+        }
+        /**
+         * @var Opus_SolrSearch_ResponseRenderer $responseRenderer
+         */
+        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response);
+        return $responseRenderer->getResultList();
+    }
 
+    private function getParams($query) {
+        $params = array();
+        return $params;
     }
 }
 
