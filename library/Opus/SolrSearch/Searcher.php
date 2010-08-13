@@ -118,7 +118,7 @@ class Opus_SolrSearch_Searcher {
     }
 
     private function getParams($query) {
-        $params = array();
+        $params = array( 'fl' => '* score' );
         return $params;
     }
 }
