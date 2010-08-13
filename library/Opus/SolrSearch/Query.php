@@ -31,6 +31,9 @@
  * @version     $Id$
  */
 
+/**
+ * Encapsulates all parameter values needed to build the Solr query URL.
+ */
 class Opus_SolrSearch_Query {
 
     private $start;
@@ -46,6 +49,7 @@ class Opus_SolrSearch_Query {
     private $title;
     private $author;
     private $fulltext;
+    private $catchAll;
 
     public function getStart() {
         return $this->start;
@@ -141,6 +145,14 @@ class Opus_SolrSearch_Query {
 
     public function setFulltext($fulltext) {
         $this->fulltext = $fulltext;
+    }
+
+    public function getCatchAll() {
+        return $this->catchAll;
+    }
+
+    public function setCatchAll($catchAll) {
+        $this->catchAll = $catchAll;
     }
 }
 ?>
