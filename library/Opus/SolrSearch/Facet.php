@@ -25,6 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    TODO
+ * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -35,5 +36,22 @@ class Opus_SolrSearch_Facet {
 
     private $facet_name;
     private $facet_items;
+
+    public function getFacet_name() {
+        return $this->facet_name;
+    }
+
+    public function setFacet_name($facet_name) {
+        $this->facet_name = $facet_name;
+    }
+
+    public function getFacet_items() {
+        return $this->facet_items;
+    }
+
+    public function setFacet_items($facet_items) {
+        $this->facet_items = $facet_items;
+    }
+
 }
 ?>

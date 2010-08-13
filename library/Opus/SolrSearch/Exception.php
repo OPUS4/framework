@@ -32,27 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_SolrSearch_FacetItem {
-
-    private $text;
-    private $count;
-
-    public function getText() {
-        return $this->text;
-    }
-
-    public function setText($text) {
-        $this->text = $text;
-    }
-
-    public function getCount() {
-        return $this->count;
-    }
-
-    public function setCount($count) {
-        $this->count = $count;
-    }
-
+class Opus_SolrSearch_Exception extends Exception {
+    
 }
-
 ?>

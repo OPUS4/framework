@@ -25,6 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    TODO
+ * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -37,14 +38,15 @@ class Opus_SolrSearch_Result {
     private $author;
     private $title;
     private $year;
-    private $text;
+    private $abstract;
 
-    public function  __construct($score, $author, $title, $year, $text) {
+    public function  __construct($score, $author, $title, $year, $abstract) {
         $this->score = $score;
         $this->author = $author;
         $this->title = $title;
         $this->year = $year;
-        $this->text = $text;
+        $this->abstract = $abstract;
+
     }
 
     public function getScore(){
@@ -63,8 +65,8 @@ class Opus_SolrSearch_Result {
         return $this->year;
     }
 
-    public function getText() {
-        return $this->text;
+    public function getAbstract() {
+        return $this->abstract;
     }
 }
 ?>
