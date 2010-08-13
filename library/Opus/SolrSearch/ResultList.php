@@ -34,12 +34,14 @@
 
 class Opus_SolrSearch_ResultList {
 
-    private $num_of_hits;
+    private $numOfHits;
     private $results;
+    private $queryTime;
 
-    public function  __construct($results, $num_of_hits) {
-        $this->num_of_hits = $num_of_hits;
+    public function  __construct($results, $numOfHits, $queryTime) {
+        $this->numOfHits = $numOfHits;
         $this->results = $results;
+        $this->queryTime = $queryTime;
     }
 
     public function getResults() {
@@ -47,8 +49,11 @@ class Opus_SolrSearch_ResultList {
     }
 
     public function getNumberOfHits() {
-        return $this->num_of_hits;
+        return $this->numOfHits;
     }
 
+    public function getQueryTime() {
+        return $this->queryTime;
+    }
 }
 ?>
