@@ -77,7 +77,7 @@ class Opus_SolrSearch_ResponseRenderer {
             $result->setScore($doc->score);
             $result->setTitleDeu($doc->title_deu);
             $result->setTitleEng($doc->title_eng);
-            $result->setAuthor($doc->author);
+            $result->setAuthors($doc->author);
             $result->setYear($doc->year);
             $result->setAbstractDeu($doc->abstract_deu);
             $result->setAbstractEng($doc->abstract_eng);                                

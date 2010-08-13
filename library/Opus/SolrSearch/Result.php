@@ -36,7 +36,7 @@ class Opus_SolrSearch_Result {
 
     private $id;
     private $score;
-    private $author;
+    private $authors;
     private $titleDeu;
     private $titleEng;
     private $year;
@@ -62,12 +62,17 @@ class Opus_SolrSearch_Result {
         $this->score = $score;
     }
 
-    public function getAuthor() {
-        return $this->author;
+    public function getAuthors() {
+        return $this->authors;
     }
 
-    public function setAuthor($author) {
-        $this->author = $author;
+    public function setAuthors($authors) {
+        if (!is_array($authors)) {
+            $this->authors = array($authors);
+        }
+        else {
+            $this->authors = $authors;
+        }
     }
 
     public function getTitleDeu() {
