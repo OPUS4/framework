@@ -85,7 +85,6 @@ class Opus_Search_Index_Solr_Indexer {
         $solr_port = $config->searchengine->solr->port;
         $solr_app = '/' . $config->searchengine->solr->app;
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
-        //require_once 'Apache/Solr/Service.php';
         return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
     }
 
@@ -161,10 +160,10 @@ class Opus_Search_Index_Solr_Indexer {
         $solrXmlDocument->formatOutput = true;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        
+        /*
         $this->log->debug("\n" . $modelXml->saveXML());
         $this->log->debug("\n" . $solrXmlDocument->saveXML());
-        
+        */
         
         return $solrXmlDocument;
     }
