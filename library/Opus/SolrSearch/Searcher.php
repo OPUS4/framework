@@ -98,7 +98,7 @@ class Opus_SolrSearch_Searcher {
          */
         $solr_response = null;
         try {
-            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), getParams($query));
+            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), $this->getParams($query));
         }
         catch (Exception $e) {
             $msg = 'Solr server responds with an error ' . $e->getMessage();
