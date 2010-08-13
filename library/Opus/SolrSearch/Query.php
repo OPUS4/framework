@@ -38,7 +38,6 @@ class Opus_SolrSearch_Query {
 
     private $start;
     private $rows;
-    private $q;
     private $sortField;
     private $sortOrder;
     private $filterQueries;
@@ -50,6 +49,16 @@ class Opus_SolrSearch_Query {
     private $author;
     private $fulltext;
     private $catchAll;
+    private $searchType;
+
+    const SIMPLE = 'simple';
+    const ADVANCED = 'advanced';
+
+    public function  __construct($searchType = self::SIMPLE) {
+        if ($searchType === self::ADVANCED) {
+            $this->searchType = self::ADVANCED;
+        }
+    }
 
     public function getStart() {
         return $this->start;
@@ -153,6 +162,15 @@ class Opus_SolrSearch_Query {
 
     public function setCatchAll($catchAll) {
         $this->catchAll = $catchAll;
+    }
+
+
+    public function getQ() {
+        if ($this->searchType === self::SIMPLE) {
+            return getCatchAll();
+        }
+        // TODO
+        return "*:*";
     }
 }
 ?>
