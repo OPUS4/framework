@@ -34,39 +34,82 @@
 
 class Opus_SolrSearch_Result {
 
+    private $id;
     private $score;
     private $author;
-    private $title;
+    private $titleDeu;
+    private $titleEng;
     private $year;
-    private $abstract;
+    private $abstractDeu;
+    private $abstractEng;
 
-    public function  __construct($score, $author, $title, $year, $abstract) {
-        $this->score = $score;
-        $this->author = $author;
-        $this->title = $title;
-        $this->year = $year;
-        $this->abstract = $abstract;
-
+    public function  __construct() {
     }
 
-    public function getScore(){
+    public function getId() {
+        return $this->id;
+    }
+
+    public function setId($id) {
+        $this->id = $id;
+    }
+
+    public function getScore() {
         return $this->score;
+    }
+
+    public function setScore($score) {
+        $this->score = $score;
     }
 
     public function getAuthor() {
         return $this->author;
     }
 
-    public function getTitle() {
-        return $this->title;
+    public function setAuthor($author) {
+        $this->author = $author;
+    }
+
+    public function getTitleDeu() {
+        return $this->titleDeu;
+    }
+
+    public function setTitleDeu($titleDeu) {
+        $this->titleDeu = $titleDeu;
+    }
+
+    public function getTitleEng() {
+        return $this->titleEng;
+    }
+
+    public function setTitleEng($titleEng) {
+        $this->titleEng = $titleEng;
     }
 
     public function getYear() {
         return $this->year;
     }
 
-    public function getAbstract() {
-        return $this->abstract;
+    public function setYear($year) {
+        $this->year = $year;
     }
+
+    public function getAbstractDeu() {
+        return $this->abstractDeu;
+    }
+
+    public function setAbstractDeu($abstractDeu) {
+        $this->abstractDeu = $abstractDeu;
+    }
+
+    public function getAbstractEng() {
+        return $this->abstractEng;
+    }
+
+    public function setAbstractEng($abstractEng) {
+        $this->abstractEng = $abstractEng;
+    }
+
+
 }
 ?>

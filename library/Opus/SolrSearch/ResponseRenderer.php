@@ -33,6 +33,12 @@
  */
 
 class Opus_SolrSearch_ResponseRenderer {
+    /**
+     * Logger
+     *
+     * @var Zend_Log
+     */
+    private $log;
 
     /**
      * @var Opus_SolrSearch_ResultList
@@ -44,6 +50,7 @@ class Opus_SolrSearch_ResponseRenderer {
      * @param Apache_Solr_Response $solrResponse
      */
     public function  __construct($solrResponse) {
+        $this->log = Zend_Registry::get('Zend_Log');
         $this->buildResultList($solrResponse);
     }
 
@@ -65,10 +72,23 @@ class Opus_SolrSearch_ResponseRenderer {
         }
         $results = array();
         foreach ($solrResponse->response->docs as $doc) {
-            $result = new Opus_SolrSearch_Result($doc->score, $doc->author, $doc->title, $doc->year, $doc->abstract);
+            $result = new Opus_SolrSearch_Result();
+            $result->setId($doc->id);
+            $result->setScore($doc->score);
+            $result->setTitleDeu($doc->title_deu);
+            $result->setTitleEng($doc->title_eng);
+            $result->setAuthor($doc->author);
+            $result->setYear($doc->year);
+            $result->setAbstractDeu($doc->abstract_deu);
+            $result->setAbstractEng($doc->abstract_eng);                                
             array_push($results, $result);
         }
-        $this->resultList = new Opus_SolrSearch_ResultList($results, $solrReponse->response->numFound, $solrReponse->QTime);
+        $this->log->debug("number of hits: " . $solrResponse->response->numFound);
+        $this->resultList = new Opus_SolrSearch_ResultList($results, $solrResponse->response->numFound, $solrResponse->QTime, $this->getFacets($solrResponse));
+    }
+
+    private function getFacets($solrResponse) {
+        return array();
     }
 }
 ?>

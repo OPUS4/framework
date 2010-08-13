@@ -41,7 +41,7 @@ class Opus_SolrSearch_ResultList {
 
     public function  __construct($results = array(), $numOfHits = 0, $queryTime = 0, $facets = array()) {
         $this->results = $results;
-        $this->numOfHits = $numOfHits;        
+        $this->numOfHits = $numOfHits;
         $this->queryTime = $queryTime;
         $this->facets = $facets;
     }
@@ -68,6 +68,11 @@ class Opus_SolrSearch_ResultList {
      */
     public function getFacets() {
         return $this->facets;
+    }
+
+    public function  __toString() {
+        // TODO
+        return "result list consisting of " . $this->numOfHits . " results retrieved in " . $this->queryTime . " milliseconds" ;
     }
 }
 ?>

@@ -45,8 +45,10 @@ class Opus_SolrSearch_Query {
     private $year;
     private $urn;
     private $isbn;
-    private $abstract;
-    private $title;
+    private $abstractDeu;
+    private $abstractEng;
+    private $titleDeu;
+    private $titleEng;
     private $author;
     private $fulltext;
     private $catchAll;
@@ -125,22 +127,6 @@ class Opus_SolrSearch_Query {
         $this->isbn = $isbn;
     }
 
-    public function getAbstract() {
-        return $this->abstract;
-    }
-
-    public function setAbstract($abstract) {
-        $this->abstract = $abstract;
-    }
-
-    public function getTitle() {
-        return $this->title;
-    }
-
-    public function setTitle($title) {
-        $this->title = $title;
-    }
-
     public function getAuthor() {
         return $this->author;
     }
@@ -165,13 +151,49 @@ class Opus_SolrSearch_Query {
         $this->catchAll = $catchAll;
     }
 
+    public function getAbstractDeu() {
+        return $this->abstractDeu;
+    }
+
+    public function setAbstractDeu($abstractDeu) {
+        $this->abstractDeu = $abstractDeu;
+    }
+
+    public function getAbstractEng() {
+        return $this->abstractEng;
+    }
+
+    public function setAbstractEng($abstractEng) {
+        $this->abstractEng = $abstractEng;
+    }
+
+    public function getTitleDeu() {
+        return $this->titleDeu;
+    }
+
+    public function setTitleDeu($titleDeu) {
+        $this->titleDeu = $titleDeu;
+    }
+
+    public function getTitleEng() {
+        return $this->titleEng;
+    }
+
+    public function setTitleEng($titleEng) {
+        $this->titleEng = $titleEng;
+    }
 
     public function getQ() {
         if ($this->searchType === self::SIMPLE) {
-            return getCatchAll();
+            return $this->getCatchAll();
         }
         // TODO
         return "*:*";
     }
-}
+
+    public function  __toString() {
+        // TODO
+        return "string representation of query object";
+    }}
+
 ?>
