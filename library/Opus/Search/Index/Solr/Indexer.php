@@ -161,10 +161,10 @@ class Opus_Search_Index_Solr_Indexer {
         $solrXmlDocument->formatOutput = true;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        /*
+        
         $this->log->debug("\n" . $modelXml->saveXML());
         $this->log->debug("\n" . $solrXmlDocument->saveXML());
-        */
+        
         
         return $solrXmlDocument;
     }

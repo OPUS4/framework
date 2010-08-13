@@ -115,20 +115,44 @@
                 <!-- TODO: issn -->
 
                 <!-- abstract -->
-                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
+                <!--xsl:for-each select="/Opus/Opus_Model_Filter/TitleAbstract">
                     <xsl:element name="field">
                         <xsl:attribute name="name">abstract</xsl:attribute>
                         <xsl:value-of select="@Value" />
                     </xsl:element>
-                </xsl:for-each>
+                </xsl:for-each-->
+
+                <!-- abstract deu -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">abstract_deu</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/TitleAbstract[@Language='deu']/@Value" />
+                </xsl:element>
+
+                <!-- abstract_eng -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">abstract_eng</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/TitleAbstract[@Language='eng']/@Value" />
+                </xsl:element>
 
                 <!-- title -->
-                <xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
+                <!--xsl:for-each select="/Opus/Opus_Model_Filter/TitleMain">
                     <xsl:element name="field">
                         <xsl:attribute name="name">title</xsl:attribute>
                         <xsl:value-of select="@Value" />
                     </xsl:element>
-                </xsl:for-each>
+                </xsl:for-each-->
+
+                <!-- title deu -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">title_deu</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/TitleMain[@Language='deu']/@Value" />
+                </xsl:element>
+
+                <!-- title_eng -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">title_eng</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/TitleMain[@Language='eng']/@Value" />
+                </xsl:element>
 
                 <!-- TODO: TitleParent -->
 
