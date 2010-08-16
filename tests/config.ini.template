@@ -41,7 +41,7 @@ db.params.dbname =
 ;SEARCH ENGINE SETTINGS
 searchengine.engine = Solr              ; searchengine to be used: Lucene or Solr
 searchengine.solr.host = opus4ci.zib.de ; test instance on ci server
-searchengine.solr.port =                ; default port 8983
+searchengine.solr.port = 8983           ; default port 8983
 searchengine.solr.app = solr
 
 [test : production]
