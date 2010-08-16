@@ -87,6 +87,7 @@ class Opus_PersonTest extends TestCase {
             $p = new Opus_Person;
             $p->setFirstName('Rainer')
                 ->setLastName('Zufall')
+                ->setAcademicTitle('Prof. Dr.')
                 ->store();
             $this->_authors[] = $p;
             $document->addPersonAuthor($p);
