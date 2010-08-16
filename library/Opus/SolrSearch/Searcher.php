@@ -98,6 +98,7 @@ class Opus_SolrSearch_Searcher {
          */
         $solr_response = null;
         try {
+            $this->log->debug("query: " . $query->getQ());
             $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), $this->getParams($query));
         }
         catch (Exception $e) {
@@ -118,7 +119,12 @@ class Opus_SolrSearch_Searcher {
     }
 
     private function getParams($query) {
-        $params = array( 'fl' => '* score' );
+        $params = array( 
+            'fl' => '* score',
+            'facet' => 'true',
+            'facet.field' => 'year',
+            'facet.mincount' => 1
+        );
         return $params;
     }
 }

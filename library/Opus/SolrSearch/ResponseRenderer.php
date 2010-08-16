@@ -46,12 +46,18 @@ class Opus_SolrSearch_ResponseRenderer {
     private $resultList;
 
     /**
+     * @var array
+     */
+    private $jsonResponse;
+
+    /**
      *
      * @param Apache_Solr_Response $solrResponse
      */
     public function  __construct($solrResponse) {
         $this->log = Zend_Registry::get('Zend_Log');
-        $this->buildResultList($solrResponse);
+        $this->setJsonResponseAsArray($solrResponse);
+        $this->buildResultList($solrResponse);        
     }
 
     /**
@@ -62,8 +68,7 @@ class Opus_SolrSearch_ResponseRenderer {
     }
 
     /**
-     *
-     * @pparam Apache_Solr_Response
+     * @param Apache_Solr_Response $solrResponse
      */
     private function buildResultList($solrResponse) {
         if (is_null($solrResponse->response) || $solrResponse->response->numFound == 0) {
@@ -83,11 +88,43 @@ class Opus_SolrSearch_ResponseRenderer {
             $result->setAbstractEng($doc->abstract_eng);                                
             array_push($results, $result);
         }
-        $this->log->debug("number of hits: " . $solrResponse->response->numFound);
-        $this->resultList = new Opus_SolrSearch_ResultList($results, $solrResponse->response->numFound, $solrResponse->QTime, $this->getFacets($solrResponse));
+        $numFound = $solrResponse->response->numFound;
+        $qtime = $this->jsonResponse['responseHeader']['QTime'];
+        $this->log->debug("number of hits: $numFound");
+        $this->log->debug("query time: $qtime");
+        $this->resultList = new Opus_SolrSearch_ResultList($results, $numFound, $qtime, $this->getFacets());
     }
 
-    private function getFacets($solrResponse) {
+    /**
+     *
+     * @param Apache_Solr_Response $solrResponse
+     */
+    private function setJsonResponseAsArray($solrResponse) {
+        try {
+            $this->jsonResponse = Zend_Json::decode($solrResponse->getRawResponse());
+            if (is_null($this->jsonResponse)) {
+                $this->log->warn("result of decoding solr's json string is null");
+            }
+        }
+        catch (Exception $e) {
+            $this->log->warn("error while decoding solr's json response");            
+        }
+    }
+
+    private function getFacets() {
+        $facets = $this->jsonResponse['facet_counts']['facet_fields'];       
+        $facetItems = array();
+        foreach ($this->getFacet($facets, 'year') as $text => $count) {
+            array_push($facetItems, $facetItem = new Opus_SolrSearch_FacetItem($text, $count));
+        }
+        //$yearFacet = new Opus_SolrSearch_Facet('year', $facetItems);
+        return array( "year" => $facetItems);
+    }
+
+    private function getFacet($facets, $facetName) {
+        if (array_key_exists($facetName, $facets)) {
+            return $facets[$facetName];
+        }
         return array();
     }
 }

@@ -57,10 +57,21 @@ class Opus_SolrSearch_Query {
     const SIMPLE = 'simple';
     const ADVANCED = 'advanced';
 
+    /**
+     *
+     * @param string $searchType
+     * @throws Opus_SolrSearch_Exception If $searchType is not supported.
+     */
     public function  __construct($searchType = self::SIMPLE) {
+        if ($searchType === self::SIMPLE) {
+            $this->searchType = self::SIMPLE;
+            return;
+        }
         if ($searchType === self::ADVANCED) {
             $this->searchType = self::ADVANCED;
+            return;
         }
+        throw new Opus_SolrSearch_Exception("searchtype $searchType is not supported");
     }
 
     public function getStart() {
@@ -192,8 +203,11 @@ class Opus_SolrSearch_Query {
     }
 
     public function  __toString() {
+        if ($this->searchType === self::SIMPLE) {
+            return 'simple search for ' . $this->getCatchAll();
+        }
         // TODO
-        return "string representation of query object";
+        return "advanced search for TODO";
     }}
 
 ?>

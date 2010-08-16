@@ -37,6 +37,11 @@ class Opus_SolrSearch_FacetItem {
     private $text;
     private $count;
 
+    public function  __construct($text, $count) {
+        $this->text = $text;
+        $this->count = $count;
+    }
+
     public function getText() {
         return $this->text;
     }
@@ -53,6 +58,9 @@ class Opus_SolrSearch_FacetItem {
         $this->count = $count;
     }
 
+    public function  __toString() {
+        return $this->getText() . ' => ' . $this->getCount();
+    }
 }
 
 ?>
