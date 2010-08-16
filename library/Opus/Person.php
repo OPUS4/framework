@@ -73,6 +73,8 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return void
      */
     protected function _init() {
+        $title = new Opus_Model_Field('AcademicTitle');
+
         $first_name = new Opus_Model_Field('FirstName');
         $first_name->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -89,7 +91,8 @@ class Opus_Person extends Opus_Model_AbstractDb
         $email = new Opus_Model_Field('Email');
         $email->setValidator(new Zend_Validate_EmailAddress());
 
-        $this->addField($first_name)
+        $this->addField($title)
+            ->addField($first_name)
             ->addField($last_name)
             ->addField($date_of_birth)
             ->addField($place_of_birth)
