@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -43,11 +44,8 @@
  */
 class Opus_FileTest extends TestCase {
 
-
     protected $_src_path = '';
-
     protected $_dest_path = '';
-
     protected $_config_backup = null;
 
     /**
@@ -72,6 +70,7 @@ class Opus_FileTest extends TestCase {
 
         $this->_dest_path = $path . '/dest';
         mkdir($this->_dest_path, 0777, true);
+
     }
 
     /**
@@ -87,8 +86,9 @@ class Opus_FileTest extends TestCase {
 
         Zend_Registry::set('Zend_Config', $this->_config_backup);
         parent::tearDown();
+
     }
-    
+
     /**
      * Remove a directory and its entries recursivly.
      *
@@ -106,11 +106,12 @@ class Opus_FileTest extends TestCase {
             if ($item == '.' || $item == '..') {
                 continue;
             }
-            if (false === $this->_deleteDirectory($dir.DIRECTORY_SEPARATOR.$item)) {
+            if (false === $this->_deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
                 return false;
             }
         }
         return rmdir($dir);
+
     }
 
     /**
@@ -134,6 +135,7 @@ class Opus_FileTest extends TestCase {
         $file->setMimeType(Opus_File::PDF);
 
         return $doc;
+
     }
 
     /**
@@ -148,6 +150,7 @@ class Opus_FileTest extends TestCase {
         $file->setMimeType(Opus_File::PDF);
 
         $this->assertTrue($file->isValid(), 'File model should validate to true.');
+
     }
 
     /**
@@ -169,7 +172,8 @@ class Opus_FileTest extends TestCase {
         // TODO: Check, why this test fails.
         $this->markTestIncomplete('TODO: Check, why this test fails.');
         $this->assertTrue(array_key_exists('HashValue', $file->getValidationErrors()),
-            'Missing validation errors for field HashValue.');
+                'Missing validation errors for field HashValue.');
+
     }
 
     /**
@@ -199,6 +203,7 @@ class Opus_FileTest extends TestCase {
         // TODO: Check mime type after storing.
         $this->markTestIncomplete('TODO: Check mime type after storing.');
         $this->assertEquals($file->getMimeType(), Opus_File::PDF);
+
     }
 
     /**
@@ -214,6 +219,7 @@ class Opus_FileTest extends TestCase {
 
         $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has not been copied.');
+
     }
 
     /**
@@ -230,6 +236,7 @@ class Opus_FileTest extends TestCase {
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+
     }
 
     /**
@@ -249,6 +256,7 @@ class Opus_FileTest extends TestCase {
 
         @unlink($file->getPath());
         $this->assertFalse($file->exists(), "File->exists should return false on deleted files.");
+
     }
 
     /**
@@ -267,6 +275,7 @@ class Opus_FileTest extends TestCase {
         $this->assertNotNull($token, 'No deletion token returned.');
         $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has been deleted.');
+
     }
 
     /**
@@ -293,6 +302,7 @@ class Opus_FileTest extends TestCase {
         $doc->store();
         $this->assertFileNotExists($this->_dest_path . "/$id/copied-foobar.pdf",
                 'File has not been deleted after storing the model.');
+
     }
 
     /**
@@ -309,6 +319,7 @@ class Opus_FileTest extends TestCase {
                 'Wrong source path loaded from configuration.');
         $this->assertEquals($this->_dest_path, realpath($file->getDestinationPath()),
                 'Wrong destination path loaded from configuration.');
+
     }
 
     /**
@@ -316,23 +327,21 @@ class Opus_FileTest extends TestCase {
      * after storing the Opus_File model.
      *
      * @return void
-     */   
+     */
     public function testMimeTypeIsSetAfterStore() {
-
-        $filename = $this->_src_path . '/foobar.txt';
-        touch($filename);
-        $mimetype = mime_content_type($filename);
-
-        if (true === empty($mimetype)) {
-            $mimetype = 'application/octet-stream';
-        }
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
 
+        $mimetype = mime_content_type($file->getPath());
+        if (true === empty($mimetype)) {
+            $mimetype = 'application/octet-stream';
+        }
+
         $this->assertEquals($file->getMimeType(), $mimetype,
                 'Mime type is not set as expected.');
+
     }
 
     /**
@@ -359,6 +368,7 @@ class Opus_FileTest extends TestCase {
                 'Expecting file renamed properly.');
 
         $this->assertFileNotExists($path . $fileNameWrong, 'Expecting old file removed.');
+
     }
 
     /**
@@ -383,19 +393,22 @@ class Opus_FileTest extends TestCase {
 
         try {
             $doc->store();
-        } catch (Opus_Model_Exception $ope) {
+        }
+        catch (Opus_Model_Exception $ope) {
             $expectedMessage = 'Could not rename file from';
             $this->assertStringStartsWith($expectedMessage, $ope->getMessage(), 'Catched wrong exception!');
             return;
-        } catch (Exception $ex) {
+        }
+        catch (Exception $ex) {
             $this->fail('Expected exception not thrown.');
         }
 
         $this->fail('It should be an exception thrown.');
-        
+
         $doc = new Opus_Document($docId);
         $file = $doc->getFile(0);
         $this->asserEquals($fileNameWrong, $file->getPathName(), 'Content of PathName should not be altered!');
+
     }
 
     /**
@@ -422,6 +435,62 @@ class Opus_FileTest extends TestCase {
         $doc->store();
 
         $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf", 'File should not be deleted.');
+
+    }
+
+    /**
+     * Test if MimeType field is set withmime type of actual file
+     * after storing the Opus_File model.
+     *
+     * @return void
+     */
+    public function testFileSizeIsSetAfterStore() {
+
+        // Create zero file.
+        $filename = $this->_src_path . '/foobar.txt';
+        touch($filename);
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $this->assertEquals($file->getFileSize(), 0,
+                'FileSize should be zero now.');
+
+        echo "test1\n";
+
+        // Create random-sized file.
+        $filename_nonzero = $this->_src_path . '/foobar-nonzero.txt';
+        $fh = fopen($filename_nonzero, 'w');
+
+        if ($fh == false) {
+            $this->fail("Unable to write file $filename_nonzero.");
+        }
+
+        $rand = rand(1, 100);
+        for ($i = 0; $i < $rand; $i++) {
+            fwrite($fh, ".");
+        }
+
+        fclose($fh);
+
+        
+        $doc = new Opus_Document;
+        $file = $doc->addFile();
+
+        $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
+        $file->setTempFile('/foobar-nonzero.txt');
+
+        $file->setDestinationPath($this->_dest_path);   // TODO: Remove setting of destination path.  Should come from config.
+        $file->setPathName('copied-foobar-nonzero.txt');
+
+        $doc->store();
+
+        $this->assertTrue($file->getFileSize() >= 1,
+                'FileSize should be bigger zero.');
+        $this->assertEquals($file->getFileSize(), $rand,
+                'FileSize is not set as expected.');
+
     }
 
 }

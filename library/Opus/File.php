@@ -196,6 +196,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 $tempFile = $this->getSourcePath() . $tempFile;
             }
 
+            if (false === file_exists($tempFile)) {
+                throw new Exception("File $tempFile does not exist.");
+            }
+
+            // set file size
+            $file_size = sprintf('%u', @filesize($tempFile));
+            $this->setFileSize($file_size);
+
             // set mime type
             $mimetype = mime_content_type($tempFile);
             $this->setMimeType($mimetype);
@@ -249,29 +257,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _storeTempFile() {
         return;
-    }
-
-    /**
-     * Store the file size.
-     *
-     * @return void
-     */
-    protected function _storeFileSize() {
-        $file_size = 0;
-        $tempFile = $this->getTempFile();
-
-        if (false === empty($tempFile)) {
-            if (false === file_exists($tempFile)) {
-                $tempFile = $this->getSourcePath() . $tempFile;
-            }
-            // TODO: $file_size = $this->_storage->getFileSize($tempFile);
-            $file_size = sprintf('%u', @filesize($this->getTempFile()));
-        }
-        else {
-            $file_size = (int) $this->getFileSize();
-        }
-
-        $this->_primaryTableRow->file_size = $file_size;
     }
 
     /**
