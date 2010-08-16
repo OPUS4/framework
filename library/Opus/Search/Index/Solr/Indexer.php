@@ -104,7 +104,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         catch (Exception $e) {
             $msg = 'Error while adding document with id ' . $doc->getId();
-            $this->log->error("$msg : " . $e->getMessage());
+            $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
@@ -127,7 +127,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         catch (Exception $e) {
             $msg = 'Error while deleting document with id ' . $doc->getId();
-            $this->log->error("$msg : " . $e->getMessage());
+            $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
@@ -196,6 +196,7 @@ class Opus_Search_Index_Solr_Indexer {
             $fulltext = '';
             try {
                 $fulltext = $this->getFileContent($file);
+                $this->log->debug("extracted fulltext: " . $fulltext);
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
@@ -220,6 +221,21 @@ class Opus_Search_Index_Solr_Indexer {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
         }
         $fulltext = '';
+        try {
+            $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );
+            $this->log->debug('extract: ' . $file->getPath());
+            $response = $this->solr_server->extract($file->getPath(), $params);
+            // TODO add mime type information
+            $jsonResponse = Zend_Json_Decoder::decode($response->getRawResponse());
+            if (array_key_exists('', $jsonResponse)) {                
+                return $jsonResponse[''];    
+            }
+        }
+        catch (Exception $e) {
+            throw new Opus_Search_Index_Solr_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+        }
+        
+        /*
         $mimeType = $file->getMimeType();
         if (substr($mimeType, 0, 9) === 'text/html') {
             $mimeType = 'text/html';
@@ -240,6 +256,7 @@ class Opus_Search_Index_Solr_Indexer {
             default:
                 throw new Opus_Search_Index_Solr_Exception('No converter for MIME-Type ' . $mimeType);
         }
+        */
         return $fulltext;
     }
 
@@ -272,7 +289,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         catch (Exception $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
-            $this->log->error("$msg : " . $e->getMessage());
+            $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
@@ -311,7 +328,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         catch (Exception $e) {
             $msg = 'Error while committing changes';
-            $this->log->error("$msg : " . $e->getMessage());
+            $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
@@ -328,7 +345,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         catch (Exception $e) {
             $msg = 'Error while optimizing changes';
-            $this->log->error("$msg : " . $e->getMessage());
+            $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
