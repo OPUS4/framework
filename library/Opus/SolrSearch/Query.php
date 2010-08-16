@@ -42,13 +42,12 @@ class Opus_SolrSearch_Query {
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
     const DEFAULT_SORTORDER = 'desc';
-    const DEFAULT_FILTERQUERIES = array();
 
     private $start = self::DEFAULT_START;
     private $rows = self::DEFAULT_ROWS;
     private $sortField = self::DEFAULT_SORTFIELD;
     private $sortOrder = self::DEFAULT_SORTORDER;
-    private $filterQueries = self::DEFAULT_FILTERQUERIES;
+    private $filterQueries = array();
     private $year;
     private $urn;
     private $isbn;
@@ -110,6 +109,11 @@ class Opus_SolrSearch_Query {
         $this->sortOrder = $sortOrder;
     }
 
+    /**
+     *
+     * @return string A combined string representation of all specified filter queries
+     * that can be directly used as a value for Solr's fq parameter.
+     */
     public function getFilterQueriesString() {
         if (count($this->filterQueries) === 0) {
             return null;
@@ -128,10 +132,18 @@ class Opus_SolrSearch_Query {
         return $fqString;
     }
 
+    /**
+     *
+     * @param string $filterQuery A query that should be used as a filter query.
+     */
     public function addFilterQuery($filterQuery) {
         array_push($this->filterQueries, $filterQuery);
     }
 
+    /**
+     *
+     * @param array $filterQueries An array of queries that should be used as filter queries.
+     */
     public function setFilterQueries($filterQueries) {
         $this->filterQueries = $filterQueries;
     }
