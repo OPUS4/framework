@@ -457,8 +457,6 @@ class Opus_FileTest extends TestCase {
         $this->assertEquals($file->getFileSize(), 0,
                 'FileSize should be zero now.');
 
-        echo "test1\n";
-
         // Create random-sized file.
         $filename_nonzero = $this->_src_path . '/foobar-nonzero.txt';
         $fh = fopen($filename_nonzero, 'w');
