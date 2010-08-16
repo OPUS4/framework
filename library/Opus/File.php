@@ -312,7 +312,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
             if ($result === false) {
                 $message = 'Cannot remove file ' . $this->getPath() . ' (cwd: ' . getcwd() . ')';
-                $this->getLogger()->error($message);
+                $this->getLogger()->err($message);
                 throw new Exception($message, '403');
             }
         }
