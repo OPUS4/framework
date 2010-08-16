@@ -37,6 +37,9 @@
         <!-- Define directories to include. -->
         <whitelist>
             <directory suffix=".php">../library/Opus</directory>
+            <exclude>
+                <directory suffix=".php">../library/Opus/Search/</directory>
+            </exclude>
         </whitelist>
     </filter>
 
