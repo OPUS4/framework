@@ -36,12 +36,19 @@
  * Encapsulates all parameter values needed to build the Solr query URL.
  */
 class Opus_SolrSearch_Query {
+    const SIMPLE = 'simple';
+    const ADVANCED = 'advanced';
+    const DEFAULT_START = 0;
+    const DEFAULT_ROWS = 10;
+    const DEFAULT_SORTFIELD = 'score';
+    const DEFAULT_SORTORDER = 'desc';
+    const DEFAULT_FILTERQUERIES = array();
 
-    private $start;
-    private $rows;
-    private $sortField;
-    private $sortOrder;
-    private $filterQueries;
+    private $start = self::DEFAULT_START;
+    private $rows = self::DEFAULT_ROWS;
+    private $sortField = self::DEFAULT_SORTFIELD;
+    private $sortOrder = self::DEFAULT_SORTORDER;
+    private $filterQueries = self::DEFAULT_FILTERQUERIES;
     private $year;
     private $urn;
     private $isbn;
@@ -53,9 +60,6 @@ class Opus_SolrSearch_Query {
     private $fulltext;
     private $catchAll;
     private $searchType;
-
-    const SIMPLE = 'simple';
-    const ADVANCED = 'advanced';
 
     /**
      *
@@ -106,8 +110,26 @@ class Opus_SolrSearch_Query {
         $this->sortOrder = $sortOrder;
     }
 
-    public function getFilterQueries() {
-        return $this->filterQueries;
+    public function getFilterQueriesString() {
+        if (count($this->filterQueries) === 0) {
+            return null;
+        }
+        $first = true;
+        $fqString = '';
+        foreach ($this->filterQueries as $field => $value) {
+            if ($first === true) {
+                $fqString = $field . ':' . $value;
+                $first = false;
+            }
+            else {
+                $fqString = $fqString . ' +' . $field . ':' . $value;
+            }
+        }
+        return $fqString;
+    }
+
+    public function addFilterQuery($filterQuery) {
+        array_push($this->filterQueries, $filterQuery);
     }
 
     public function setFilterQueries($filterQueries) {
@@ -204,7 +226,7 @@ class Opus_SolrSearch_Query {
 
     public function  __toString() {
         if ($this->searchType === self::SIMPLE) {
-            return 'simple search for ' . $this->getCatchAll();
+            return 'simple search with query ' . $this->getQ();
         }
         // TODO
         return "advanced search for TODO";

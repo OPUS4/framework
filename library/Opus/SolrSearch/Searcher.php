@@ -118,13 +118,23 @@ class Opus_SolrSearch_Searcher {
         return $responseRenderer->getResultList();
     }
 
+    /**
+     *
+     * @param Opus_SolrSearch_Query $query
+     * @return string
+     */
     private function getParams($query) {
         $params = array( 
             'fl' => '* score',
             'facet' => 'true',
             'facet.field' => 'year',
-            'facet.mincount' => 1
+            'facet.mincount' => 1,
+            'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
         );
+        $fq = $query->getFilterQueriesStr();
+        if (!is_null($fq)) {
+            $params['fq'] = $fq;
+        }
         return $params;
     }
 }
