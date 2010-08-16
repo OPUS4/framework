@@ -47,6 +47,8 @@ class Opus_Security_Realm {
      * Array of privileges that are defined in database:
      *  - 'administrate' means use of module /admin.
      *  - 'publish' means use of module /publish.
+     *  - 'publishUnvalidated' means the possibility to ignore validation
+           while publishing.
      *  - 'readMetadata' checks if somone is allowed to read meatdata of
      *    a document (f.e. if the not published by an administrator yet).
      *    This privilege makes it necessary to give a document id with it.
@@ -55,7 +57,13 @@ class Opus_Security_Realm {
      *
      * @var array
      */
-    protected $_privileges = array('administrate', 'publish', 'readMetadata', 'readFile');
+    protected $_privileges = array(
+        'administrate',
+        'publish',
+        'publishUnvalidated',
+        'readMetadata',
+        'readFile',
+    );
 
     /**
      * The current user roles.
@@ -240,6 +248,12 @@ class Opus_Security_Realm {
                 }
                 return $this->_checkPublish();
                 break;
+            case 'publishUnvalidated':
+                if (false === is_null($documentServerState) || false === is_null($fileId)) {
+                    throw new Opus_Security_Exception('Privilege "publishUnvalidated" can be checked only generally, not depending on document server state or for a single file.');
+                }
+                return $this->_checkPublishUnvalidated();
+                break;
             case 'readMetadata':
                 if (true === is_null($documentServerState) || true === empty($documentServerState)) {
                     throw new Opus_Security_Exception('Missing argument: Privilege "readMetadata" needs a documentServerState.');
@@ -296,6 +310,25 @@ class Opus_Security_Realm {
                         ->join(array('r' => 'roles'), 'p.role_id = r.id')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', 'publish')
+                        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
+	}
+
+	/**
+     * This messages checks if the privilege publishUnvalidated is allowed for one of the current roles.
+     * @return boolean true if the privilege publishUnvalidated is granted for one of the current roles.
+     */
+	protected function _checkPublishUnvalidated() {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll(
+                        $db->select()
+                        ->from(array('p' => 'privileges'), array('id'))
+                        ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                        ->where('r.name IN (?)', $this->_roles)
+                        ->where('p.privilege = ?', 'publishUnvalidated')
                         );
         if (1 <= count($privileges)) {
             return true;

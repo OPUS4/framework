@@ -69,6 +69,7 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
         $privilege->setDefault(array(
                     'administrate' => 'administrate',
                     'publish' => 'publish',
+                    'publishUnvalidated' => 'publishUnvalidated',
                     'readMetadata' => 'readMetadata',
                     'readFile' => 'readFile'))
             ->setSelection(true);
