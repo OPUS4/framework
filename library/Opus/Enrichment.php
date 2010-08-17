@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -63,9 +64,13 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
      * @return void
      */
     protected function _init() {
+        $key = new Opus_Model_Field('Key');
+        $key->setMandatory(true);
+
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true);
 
+        $this->addField($key);
         $this->addField($value);
     }
 
