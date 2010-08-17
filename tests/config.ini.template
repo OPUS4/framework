@@ -66,6 +66,6 @@ searchengine.solr.host = opus4ci.zib.de ; test instance on ci server
 searchengine.solr.port = 8983           ; default port 8983
 searchengine.solr.app = solr
 
-[test : production]
+[testing : production]
 sql.schema.path =
 
