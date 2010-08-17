@@ -569,6 +569,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Seems unused.  Check if we still need it.
      */
     public function toArray($call = null) {
+        // TODO: Why should we log this?
         $this->logger('toArray');
 
         $role = $this->getRole();
@@ -628,9 +629,17 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param  array $excludeFields Fields to exclude from the Xml output.
      * @return DomDocument Xml representation of the collection.
      */
-    public function toXml(array $excludeFields = null) {
+    public function toXml(array $excludeFields = null,  $strategy = null) {
+        // TODO: Why should we log this?
         $this->logger('toXml');
-        return parent::toXml(array('ParentCollection', 'Nodes', 'SubCollection', 'SubCollections', 'Theme', 'Documents'));
+        // TODO: comment why these fields should always be excluded.
+        $alwaysExclude = array('ParentCollection', 'Nodes', 'SubCollection', 'SubCollections', 'Theme', 'Documents');
+        if (is_null($excludeFields) === true) {
+            $excludeFields = $alwaysExclude;
+        } else {
+            $excludeFields = array_merge($excludeFields, $alwaysExclude);
+        }
+        return parent::toXml($excludeFields, $strategy);
     }
 
     /**

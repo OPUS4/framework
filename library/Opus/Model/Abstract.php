@@ -447,15 +447,19 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * @param array $excludeFields Array of fields that shall not be serialized.
      * @return DomDocument A Dom representation of the model.
      */
-    public function toXml(array $excludeFields = null) {
+    public function toXml(array $excludeFields = null, $strategy = null) {
         if (is_null($excludeFields) === true) {
             // FIXME: Hard coded definition of standard exclude fields.
             $excludeFields = array('ParentCollection', 'SubCollection');
         }
+        if (is_null($strategy) === true) {
+            $strategy = new Opus_Model_Xml_Version1();
+        }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
                 ->exclude($excludeFields)
-                ->excludeEmptyFields();
+                ->excludeEmptyFields()
+                ->setStrategy($strategy);
         return $xml->getDomDocument();
     }
 
