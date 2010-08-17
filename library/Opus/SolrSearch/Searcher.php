@@ -123,15 +123,15 @@ class Opus_SolrSearch_Searcher {
      * @param Opus_SolrSearch_Query $query
      * @return string
      */
-    private function getParams($query) {
+    private function getParams($query) {        
         $params = array( 
             'fl' => '* score',
             'facet' => 'true',
             'facet.field' => 'year',
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
-        );
-        $fq = $query->getFilterQueriesStr();
+        );        
+        $fq = $query->getFilterQueriesString();
         if (!is_null($fq)) {
             $params['fq'] = $fq;
         }
