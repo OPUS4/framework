@@ -445,6 +445,7 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * Returns a Dom representation of the model.
      *
      * @param array $excludeFields Array of fields that shall not be serialized.
+     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return DomDocument A Dom representation of the model.
      */
     public function toXml(array $excludeFields = null, $strategy = null) {

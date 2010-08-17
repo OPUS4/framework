@@ -627,6 +627,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * Returns Xml representation of the collection.
      *
      * @param  array $excludeFields Fields to exclude from the Xml output.
+     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return DomDocument Xml representation of the collection.
      */
     public function toXml(array $excludeFields = null,  $strategy = null) {

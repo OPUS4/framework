@@ -199,6 +199,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * Returns a Dom representation of the filtered model.
      *
      * @param array $excludeFields Array of fields that shall not be serialized.
+     * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return DomDocument A Dom representation of the model.
      */
     public function toXml(array $excludeFields = null, $strategy = null) {
