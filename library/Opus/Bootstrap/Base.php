@@ -39,7 +39,7 @@
  * @package     Opus_Bootstrap
  *
  */
-class Opus_Bootstrap_Base {
+class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
     /**
      * Stores a reference to the application front controller component.
@@ -63,20 +63,15 @@ class Opus_Bootstrap_Base {
     protected $_applicationWorkspaceDirectory = '';
 
     /**
-     * Logger.
-     * @var Zend_Log
-     */
-    protected $log;
-
-    /**
      * Declare the use of production state configuration.
      *
      */
-    const CONFIG_PRODUCTION = 'production';
+//    const CONFIG_PRODUCTION = 'production';
+
     /**
      * Declare the use of test state configuration.
      */
-    const CONFIG_TEST = 'test';
+//    const CONFIG_TEST = 'test';
 
     /**
      * Setup and run the dispatch loop. Finally send the response to the client.
@@ -89,23 +84,36 @@ class Opus_Bootstrap_Base {
      * @throws Exception                       Exception is thrown on empty application base path.
      * @return void
      *
+     * TODO how to execute this using Zend_Application
+     * TODO where can I get the parameters from?
      */
-    public function run($applicationRootDirectory, $configLevel, $configPath = null) {
+    protected function _initMain() {
+        $this->bootstrap('Configuration');
+
+        $config = $this->getResource('Configuration');
+
+        defined('APPLICATION_PATH');
+
+        $applicationRootDirectory = APPLICATION_PATH;
+
         if ( empty($applicationRootDirectory) === true ) {
             throw new Exception('Configuration error. No application base path given.');
         }
 
         $this->_applicationRootDirectory = $applicationRootDirectory;
-        $this->_applicationWorkspaceDirectory = $this->_applicationRootDirectory . '/workspace';
 
-        include_once 'Zend/Loader/Autoloader.php';
-        $autoloader = Zend_Loader_Autoloader::getInstance();
-        $autoloader->registerNamespace('Opus_');
-        $autoloader->registerNamespace('Apache_');
-        $autoloader->setFallbackAutoloader(true);
+        $this->_applicationWorkspaceDirectory = $config->workspacePath;
+
+// NOTE moved into index.php as part of Zend_Application construction
+//        include_once 'Zend/Loader/Autoloader.php';
+//        $autoloader = Zend_Loader_Autoloader::getInstance();
+//        $autoloader->registerNamespace('Opus_');
+//        $autoloader->registerNamespace('Apache_');
+//        $autoloader->setFallbackAutoloader(true);
+// TODO how to configure fallback normally?
 
         $this->_setupEnvironment();
-        $this->_setupConfiguration($configLevel, $configPath);
+        //$this->_setupConfiguration();
 
         $this->_setupBackendCaching();
         $this->_setupBackend();
@@ -113,7 +121,7 @@ class Opus_Bootstrap_Base {
         $this->_setupFrontendCaching();
         $this->_setupFrontend();
 
-        $this->_run();
+        // $this->_run();
     }
 
     /**
@@ -139,7 +147,7 @@ class Opus_Bootstrap_Base {
      */
     protected function _setupBackend() {
         $this->_setupDatabase();
-        $this->_setupLogging();
+        $this->bootstrap('Logging');
         $this->_setupLucene();
         $this->_setupTemp();
         $this->_setupDocumentType();
@@ -197,6 +205,7 @@ class Opus_Bootstrap_Base {
      *
      * @return void
      *
+     * TODO put into configuration file
      */
     protected function _setupDatabase() {
         // use custom DB adapter
@@ -229,17 +238,16 @@ class Opus_Bootstrap_Base {
      */
     protected function _setupEnvironment() {
         // Setup error reporting.
-        error_reporting(E_ALL | E_STRICT);
-        ini_set('display_errors', 0);
+//        error_reporting(E_ALL | E_STRICT);
+        // ini_set('display_errors', 1); // TODO remove, leave to ini
 
         /*
          * Setup timezone and locale options.
          */
-        date_default_timezone_set('Europe/Berlin');
+//        date_default_timezone_set('Europe/Berlin');
 
         // This avoids an exception if the locale cannot determined automatically.
-        Zend_Locale::setDefault('de');
-
+//        Zend_Locale::setDefault('de');
     }
 
 
@@ -254,39 +262,16 @@ class Opus_Bootstrap_Base {
      * $config = $registry->get('Zend_Config');
      * </code>
      *
-     * @param string $configLevel Determines wich level of configuration is to be used.
-     *                            choose CONFIG_PRODUCTION or CONFIG_TEST.
-     * @param string $configPath  (Optional) Path to config.ini. If no path is given,
-     *                            the application root directory is assumed to hold the config.ini.
      * @throws Exception          Exception is thrown if configuration level is invalid.
      * @return void
      *
      */
-    protected function _setupConfiguration($configLevel, $configPath = null) {
+    protected function _initConfiguration() {
+        $config = new Zend_Config($this->getOptions());
 
-        // Make sure that invalid configuration level values fail.
-//        if (($configLevel !== self::CONFIG_PRODUCTION) and (($configLevel !== self::CONFIG_TEST))) {
-//            throw new Exception('Invalid configuration level: ' . $configLevel);
-//        }
+        Zend_Registry::set('Zend_Config', $config);
 
-        // build path to ini file
-        $pathToIni = 'config.ini';
-        if ( is_null($configPath) === true ) {
-            // only prepend path information if given
-            // to aviod invalid filename "/config.ini"
-            $pathToIni = $this->_applicationRootDirectory . DIRECTORY_SEPARATOR . $pathToIni;
-        } else {
-            $pathToIni = $configPath . DIRECTORY_SEPARATOR . $pathToIni;
-        }
-
-        // Check if the config file really exists.
-        if ( file_exists($pathToIni) === false ) {
-            throw new Exception('Config file ' . $pathToIni . ' does not exist in: ' . $pathToIni);
-        }
-
-        $config = new Zend_Config_Ini($pathToIni, $configLevel);
-        $registry = Zend_Registry::getInstance();
-        $registry->set('Zend_Config', $config);
+        return $config;
     }
 
 
@@ -319,17 +304,25 @@ class Opus_Bootstrap_Base {
      * @return void
      *
      */
-    protected function _setupLogging()
+    protected function _initLogging()
     {
-        $logfile = @fopen($this->_applicationWorkspaceDirectory . '/log/opus.log', 'a', false);
+        $this->bootstrap('Configuration');
+
+        $config = $this->getResource('Configuration');
+
+        $logfile = @fopen($config->workspacePath . '/log/opus.log', 'a', false);
+        
         if ( $logfile === false ) {
+            // TODO use Opus exception
             throw new Exception('Failed to open logging file.');
         }
+
         $writer = new Zend_Log_Writer_Stream($logfile);
         $logger = new Zend_Log($writer);
-        $registry = Zend_Registry::getInstance();
-        $registry->set('Zend_Log', $logger);
-        $this->log = $logger;
+        
+        Zend_Registry::set('Zend_Log', $logger);
+
+        return $logger;
     }
 
     /**

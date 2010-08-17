@@ -26,44 +26,51 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-// Setup error reporting.
-// TODO leave to Zend and config?
-error_reporting(E_ALL | E_STRICT);
-ini_set('display_errors', 1);
 
-// Define path to application directory
-defined('APPLICATION_PATH')
-        || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+/**
+ * This class provides a static initializiation method for setting up
+ * a test environment including php include path, configuration and
+ * database setup.
+ *
+ * @category    Tests
+ */
+class TestHelper extends Opus_Bootstrap_Base {
 
-// Define application environment (use 'production' by default)
-//defined('APPLICATION_ENV') ||
-define('APPLICATION_ENV', 'testing');
-//        (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'testing'));
+    /**
+     * Add setting up database and logging facilities.
+     *
+     * @return void
+     * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
+     */
+    protected function _setupBackend() {
+        $this->_setupLogging();
+        $this->_setupTemp();
+        $this->_setupDatabase();
 
-// Configure include path.
-set_include_path('.' . PATH_SEPARATOR
-        . PATH_SEPARATOR . dirname(__FILE__)
-        . PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
-        . PATH_SEPARATOR . get_include_path());
+        // FIXME: This should be done in Opus_Bootstrap_Base
+        $this->_setupLocale();
+    }
 
-// enable fallback autoloader for testing
-require_once 'Zend/Loader/Autoloader.php';
-$autoloader = Zend_Loader_Autoloader::getInstance();
-$autoloader->suppressNotFoundWarnings(true);
-$autoloader->setFallbackAutoloader(true);
+    /**
+     * Setup timezone and default locale.
+     *
+     * Registers locale with key Zend_Locale as mentioned in the ZF documentation.
+     *
+     * @return void
+     *
+     */
+    protected function _setupLocale() {
+        // This avoids an exception if the locale cannot determined automatically.
+        // TODO setup in config, still put in registry?
+        $locale = new Zend_Locale('de');
+        Zend_Registry::set('Zend_Locale', $locale);
+    }
 
-// Zend_Loader is'nt available yet. We have to do a require_once in order
-// to find the bootstrap class.
-require_once 'Zend/Application.php';
+}
 
-// Do test environment initializiation.
-$application = new Zend_Application(APPLICATION_ENV, 
-        APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests'. DIRECTORY_SEPARATOR . 'config.ini');
-$application->bootstrap();
-// $application->getBootstrap()->run(); // dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);
+?>
