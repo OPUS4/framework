@@ -42,9 +42,7 @@ defined('APPLICATION_PATH')
         || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
 
 // Define application environment (use 'production' by default)
-//defined('APPLICATION_ENV') ||
 define('APPLICATION_ENV', 'testing');
-//        (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'testing'));
 
 // Configure include path.
 set_include_path('.' . PATH_SEPARATOR
@@ -65,5 +63,4 @@ require_once 'Zend/Application.php';
 // Do test environment initializiation.
 $application = new Zend_Application(APPLICATION_ENV, 
         APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests'. DIRECTORY_SEPARATOR . 'config.ini');
-$application->bootstrap();
-// $application->getBootstrap()->run(); // dirname(__FILE__), Opus_Bootstrap_Base::CONFIG_TEST);
+$application->bootstrap(array('Database','Temp','Locale'));

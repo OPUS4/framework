@@ -47,14 +47,15 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return void
      */
     protected function _initBackend() {
-        $this->bootstrap(array('BackendCaching','Logging'));
-        $this->_setupDatabase();
+        $this->bootstrap(array('DatabaseCache','Logging'));
+        $this->bootstrap('Database');
         $this->_setupLucene();
-        $this->_setupTemp();
+        // $this->_setupTemp();
         $this->_setupDocumentType();
     }
 
-    protected function _setupTemp() {
+    protected function _initTemp() {
+        $this->bootstrap('Configuration');
         $config = $this->getResource('Configuration');
         $tempDirectory = $config->workspacePath . '/tmp/';
         Zend_Registry::set('temp_dir', $tempDirectory);
@@ -65,8 +66,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * @return void
      */
-    protected function _setupDatabaseCache() {
-        $this->bootstrap('Configuration');
+    protected function _initDatabaseCache() {
+        $this->bootstrap(array('Configuration','Logging'));
         $config = $this->getResource('Configuration');
 
         $cache = null;
@@ -76,10 +77,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
             'automatic_serialization' => true,
         );
 
-        $backendOptions = array(
         // Directory where to put the cache files. Must be writeable for application server
-            'cache_dir' => $config->workspacePath . '/cache/'
-            );
+        $backendOptions = array('cache_dir' => $config->workspacePath . '/cache/');
 
         $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
 
@@ -95,7 +94,9 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * TODO put into configuration file
      */
-    protected function _setupDatabase() {
+    protected function _initDatabase() {
+        $this->bootstrap('Configuration');
+
         // use custom DB adapter
         $config = new Zend_Config(array(
             'db' => array(

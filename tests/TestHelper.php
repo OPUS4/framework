@@ -49,8 +49,6 @@ class TestHelper extends Opus_Bootstrap_Base {
      */
     protected function _initBackend() {
         $this->bootstrap('Logging');
-        $this->_setupTemp();
-        $this->_setupDatabase();
 
         // DOES NOT USE Lucene, DocumentType
     }
