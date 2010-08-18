@@ -49,13 +49,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected $_frontController = null;
 
     /**
-     * Path to workspace directory.
-     *
-     * @var string
-     */
-    protected $_applicationWorkspaceDirectory = '';
-
-    /**
      * Setup and run the dispatch loop. Finally send the response to the client.
      *
      * @param string $applicationRootDirectory Full path to directory of application modules and configuration.
@@ -72,25 +65,11 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected function _initMain() {
         $this->bootstrap('Configuration');
 
-        $config = $this->getResource('Configuration');
-
-        defined('APPLICATION_PATH');
-
-        $this->_applicationWorkspaceDirectory = $config->workspacePath;
-
         $this->_setupBackendCaching();
         $this->_setupBackend();
 
         $this->_setupFrontendCaching();
         $this->_setupFrontend();
-    }
-
-    /**
-     * Start bootstrapped application.
-     *
-     * @return void
-     */
-    protected function _run() {
     }
 
     /**
@@ -131,7 +110,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     }
 
     protected function _setupTemp() {
-        $tempDirectory = $this->_applicationWorkspaceDirectory . '/tmp/';
+        $config = $this->getResource('Configuration');
+        $tempDirectory = $config->workspacePath . '/tmp/';
         $registry = Zend_Registry::getInstance();
         $registry->set('temp_dir', $tempDirectory);
     }
@@ -142,6 +122,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return void
      */
     protected function _setupDatabaseCache() {
+        $config = $this->getResource('Configuration');
+
         $cache = null;
         $frontendOptions = array(
         // Set cache lifetime to 5 minutes (in seconds)
@@ -151,13 +133,13 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $backendOptions = array(
         // Directory where to put the cache files. Must be writeable for application server
-            'cache_dir' => $this->_applicationWorkspaceDirectory . '/cache/'
+            'cache_dir' => $config->workspacePath . '/cache/'
             );
 
-            $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+        $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
 
-            // enable db metadata caching
-            Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
+        // enable db metadata caching
+        Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
     }
 
 
@@ -226,13 +208,14 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      */
     protected function _setupLucene()
     {
-        $lucenePath = $this->_applicationWorkspaceDirectory . '/lucene_index';
+        $config = $this->getResource('Configuration');
+        $lucenePath = $config->workspacePath . '/lucene_index';
         $registry = Zend_Registry::getInstance();
         Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
         #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Opus_Search_Adapter_Lucene_NumberFinder());
         Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
         $registry->set('Zend_LuceneIndexPath', $lucenePath);
-        $personslucenePath = $this->_applicationWorkspaceDirectory . '/persons_index';
+        $personslucenePath = $config->workspacePath. '/persons_index';
         $registry->set('Zend_LucenePersonsIndexPath', $personslucenePath);
     }
 
@@ -261,6 +244,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $logger = new Zend_Log($writer);
         
         Zend_Registry::set('Zend_Log', $logger);
+
+        $logger->debug('Logging initialized');
 
         return $logger;
     }
