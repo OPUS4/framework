@@ -105,8 +105,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected function _setupTemp() {
         $config = $this->getResource('Configuration');
         $tempDirectory = $config->workspacePath . '/tmp/';
-        $registry = Zend_Registry::getInstance();
-        $registry->set('temp_dir', $tempDirectory);
+        Zend_Registry::set('temp_dir', $tempDirectory);
     }
 
     /**
@@ -163,7 +162,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         Zend_Db_Table::setDefaultAdapter($db);
 
         // Register the adapter within Zend_Registry.
-        Zend_Registry::getInstance()->set('db_adapter', $db);
+        Zend_Registry::set('db_adapter', $db);
     }
 
     /**
@@ -203,13 +202,12 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     {
         $config = $this->getResource('Configuration');
         $lucenePath = $config->workspacePath . '/lucene_index';
-        $registry = Zend_Registry::getInstance();
         Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
         #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Opus_Search_Adapter_Lucene_NumberFinder());
         Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
-        $registry->set('Zend_LuceneIndexPath', $lucenePath);
+        Zend_Registry::set('Zend_LuceneIndexPath', $lucenePath);
         $personslucenePath = $config->workspacePath. '/persons_index';
-        $registry->set('Zend_LucenePersonsIndexPath', $personslucenePath);
+        Zend_Registry::set('Zend_LucenePersonsIndexPath', $personslucenePath);
     }
 
 
