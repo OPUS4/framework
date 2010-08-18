@@ -56,17 +56,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected $_applicationWorkspaceDirectory = '';
 
     /**
-     * Declare the use of production state configuration.
-     *
-     */
-//    const CONFIG_PRODUCTION = 'production';
-
-    /**
-     * Declare the use of test state configuration.
-     */
-//    const CONFIG_TEST = 'test';
-
-    /**
      * Setup and run the dispatch loop. Finally send the response to the client.
      *
      * @param string $applicationRootDirectory Full path to directory of application modules and configuration.
@@ -89,24 +78,11 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $this->_applicationWorkspaceDirectory = $config->workspacePath;
 
-// NOTE moved into index.php as part of Zend_Application construction
-//        include_once 'Zend/Loader/Autoloader.php';
-//        $autoloader = Zend_Loader_Autoloader::getInstance();
-//        $autoloader->registerNamespace('Opus_');
-//        $autoloader->registerNamespace('Apache_');
-//        $autoloader->setFallbackAutoloader(true);
-// TODO how to configure fallback normally?
-
-        $this->_setupEnvironment();
-        //$this->_setupConfiguration();
-
         $this->_setupBackendCaching();
         $this->_setupBackend();
 
         $this->_setupFrontendCaching();
         $this->_setupFrontend();
-
-        // $this->_run();
     }
 
     /**
@@ -214,27 +190,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         // Register the adapter within Zend_Registry.
         Zend_Registry::getInstance()->set('db_adapter', $db);
     }
-
-    /**
-     * Setup error reporting, timezone and include path.
-     *
-     * @return void
-     *
-     */
-    protected function _setupEnvironment() {
-        // Setup error reporting.
-//        error_reporting(E_ALL | E_STRICT);
-        // ini_set('display_errors', 1); // TODO remove, leave to ini
-
-        /*
-         * Setup timezone and locale options.
-         */
-//        date_default_timezone_set('Europe/Berlin');
-
-        // This avoids an exception if the locale cannot determined automatically.
-//        Zend_Locale::setDefault('de');
-    }
-
 
     /**
      * Load application configuration file and register the configuration
