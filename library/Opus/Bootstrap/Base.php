@@ -49,13 +49,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected $_frontController = null;
 
     /**
-     * Stores the abolute path to the application on the server.
-     *
-     * @var string
-     */
-    protected $_applicationRootDirectory = '';
-
-    /**
      * Path to workspace directory.
      *
      * @var string
@@ -93,14 +86,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $config = $this->getResource('Configuration');
 
         defined('APPLICATION_PATH');
-
-        $applicationRootDirectory = APPLICATION_PATH;
-
-        if ( empty($applicationRootDirectory) === true ) {
-            throw new Exception('Configuration error. No application base path given.');
-        }
-
-        $this->_applicationRootDirectory = $applicationRootDirectory;
 
         $this->_applicationWorkspaceDirectory = $config->workspacePath;
 
@@ -332,8 +317,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      */
     protected function _setupDocumentType() {
         // Set location of xml document type definitions
-        Opus_Document_Type::setXmlDoctypePath($this->_applicationRootDirectory .
-                '/config/xmldoctypes');
+        Opus_Document_Type::setXmlDoctypePath(APPLICATION_PATH . '/config/xmldoctypes');
     }
 
 }
