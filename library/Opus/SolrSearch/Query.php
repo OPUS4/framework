@@ -120,13 +120,13 @@ class Opus_SolrSearch_Query {
         }
         $first = true;
         $fqString = '';
-        foreach ($this->filterQueries as $field => $value) {
+        foreach ($this->filterQueries as $fq) {
             if ($first === true) {
-                $fqString = $field . ':' . $value;
+                $fqString = '+' . $fq;
                 $first = false;
             }
             else {
-                $fqString = $fqString . ' +' . $field . ':' . $value;
+                $fqString = $fqString . ' +' . $fq;
             }
         }
         return $fqString;
