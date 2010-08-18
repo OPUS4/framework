@@ -42,64 +42,16 @@
 class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
     /**
-     * Setup and run the dispatch loop. Finally send the response to the client.
-     *
-     * @param string $applicationRootDirectory Full path to directory of application modules and configuration.
-     *                                         Must not be empty.
-     * @param string $configLevel              Determines wich level of configuration is to be used.
-     *                                         choose CONFIG_PRODUCTION or CONFIG_TEST.
-     * @param string $configPath               (Optional) Path to look for config.ini file.
-     * @throws Exception                       Exception is thrown on empty application base path.
-     * @return void
-     *
-     * TODO how to execute this using Zend_Application
-     * TODO where can I get the parameters from?
-     */
-    protected function _initMain() {
-        $this->bootstrap('Configuration');
-
-        $this->_setupBackendCaching();
-        $this->_setupBackend();
-
-        $this->_setupFrontendCaching();
-        $this->_setupFrontend();
-    }
-
-    /**
-     * Override this to do custom frontend setup.
-     *
-     * @return void
-     */
-    protected function _setupFrontend() {
-    }
-
-    /**
      * Override this to do custom backend setup.
      *
      * @return void
      */
-    protected function _setupBackend() {
+    protected function _initBackend() {
+        $this->bootstrap(array('BackendCaching','Logging'));
         $this->_setupDatabase();
-        $this->bootstrap('Logging');
         $this->_setupLucene();
         $this->_setupTemp();
         $this->_setupDocumentType();
-    }
-
-    /**
-     * Override to set up custom caching engines for any backend functionality.
-     *
-     * @return void
-     */
-    protected function _setupBackendCaching() {
-    }
-
-    /**
-     * Override to set up custom caching engines for the frontend.
-     *
-     * @return void
-     */
-    protected function _setupFrontendCaching() {
     }
 
     protected function _setupTemp() {
@@ -114,6 +66,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return void
      */
     protected function _setupDatabaseCache() {
+        $this->bootstrap('Configuration');
         $config = $this->getResource('Configuration');
 
         $cache = null;

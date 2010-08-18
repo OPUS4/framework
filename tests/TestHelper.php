@@ -47,13 +47,12 @@ class TestHelper extends Opus_Bootstrap_Base {
      * @return void
      * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
      */
-    protected function _setupBackend() {
+    protected function _initBackend() {
         $this->bootstrap('Logging');
         $this->_setupTemp();
         $this->_setupDatabase();
 
-        // FIXME: This should be done in Opus_Bootstrap_Base
-        $this->_setupLocale();
+        // DOES NOT USE Lucene, DocumentType
     }
 
     /**
@@ -63,8 +62,10 @@ class TestHelper extends Opus_Bootstrap_Base {
      *
      * @return void
      *
+     * FIXME: This should be done in Opus_Bootstrap_Base
      */
-    protected function _setupLocale() {
+    protected function _initLocale() {
+        $this->bootstrap('Backend');
         // This avoids an exception if the locale cannot determined automatically.
         // TODO setup in config, still put in registry?
         $locale = new Zend_Locale('de');
