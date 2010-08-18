@@ -42,13 +42,6 @@
 class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
     /**
-     * Stores a reference to the application front controller component.
-     *
-     * @var Zend_Controller_Action
-     */
-    protected $_frontController = null;
-
-    /**
      * Setup and run the dispatch loop. Finally send the response to the client.
      *
      * @param string $applicationRootDirectory Full path to directory of application modules and configuration.
