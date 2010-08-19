@@ -63,4 +63,4 @@ require_once 'Zend/Application.php';
 // Do test environment initializiation.
 $application = new Zend_Application(APPLICATION_ENV, 
         APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests'. DIRECTORY_SEPARATOR . 'config.ini');
-$application->bootstrap(array('Database','Temp','Locale'));
+$application->bootstrap(array('Database','Temp','OpusLocale'));

@@ -58,7 +58,7 @@ autoloaderNamespaces.controller = 'Controller_'
 workspacePath = APPLICATION_PATH "/tests/workspace"
 
 ; LOCALE SETTINGS (TODO verify)
-resources.locale.default = de
+resources.locale.default = 'de'
 
 ;SEARCH ENGINE SETTINGS
 searchengine.engine = Solr              ; searchengine to be used: Lucene or Solr

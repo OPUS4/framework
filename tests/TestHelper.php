@@ -40,36 +40,6 @@
  * @category    Tests
  */
 class TestHelper extends Opus_Bootstrap_Base {
-
-    /**
-     * Add setting up database and logging facilities.
-     *
-     * @return void
-     * @see library/Opus/Bootstrap/Opus_Bootstrap_Base#_setupBackend()
-     */
-    protected function _initBackend() {
-        $this->bootstrap('Logging');
-
-        // DOES NOT USE Lucene, DocumentType
-    }
-
-    /**
-     * Setup timezone and default locale.
-     *
-     * Registers locale with key Zend_Locale as mentioned in the ZF documentation.
-     *
-     * @return void
-     *
-     * FIXME: This should be done in Opus_Bootstrap_Base
-     */
-    protected function _initLocale() {
-        $this->bootstrap('Backend');
-        // This avoids an exception if the locale cannot determined automatically.
-        // TODO setup in config, still put in registry?
-        $locale = new Zend_Locale('de');
-        Zend_Registry::set('Zend_Locale', $locale);
-    }
-
 }
 
 ?>

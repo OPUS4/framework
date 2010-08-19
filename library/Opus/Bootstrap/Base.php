@@ -49,11 +49,12 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected function _initBackend() {
         $this->bootstrap(array('DatabaseCache','Logging'));
         $this->bootstrap('Database');
-        $this->_setupLucene();
-        // $this->_setupTemp();
-        $this->_setupDocumentType();
     }
 
+    /**
+     * Initializes the location for temporary files.
+     *
+     */
     protected function _initTemp() {
         $this->bootstrap('Configuration');
         $config = $this->getResource('Configuration');
@@ -95,7 +96,10 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * TODO put into configuration file
      */
     protected function _initDatabase() {
-        $this->bootstrap('Configuration');
+        $this->bootstrap(array('Logging','Configuration'));
+
+        $logger = $this->getResource('Logging');
+        $logger->debug('Initializing database.');
 
         // use custom DB adapter
         $config = new Zend_Config(array(
@@ -152,8 +156,9 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return void
      *
      */
-    protected function _setupLucene()
+    protected function _initLucene()
     {
+        $this->bootstrap('Database'); // TODO check dependencies
         $config = $this->getResource('Configuration');
         $lucenePath = $config->workspacePath . '/lucene_index';
         Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
@@ -200,9 +205,27 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * @return void
      */
-    protected function _setupDocumentType() {
+    protected function _initDocumentType() {
+        $this->bootstrap('Database'); // TODO is 'Configuration' sufficient?
         // Set location of xml document type definitions
         Opus_Document_Type::setXmlDoctypePath(APPLICATION_PATH . '/config/xmldoctypes');
+    }
+
+    /**
+     * Setup timezone and default locale.
+     *
+     * Registers locale with key Zend_Locale as mentioned in the ZF documentation.
+     *
+     * @return void
+     *
+     * FIXME: This should be done in configuration.
+     * FIXME: Merge methods that transfer configuration into registry.
+     */
+    protected function _initOpusLocale() {
+        // This avoids an exception if the locale cannot determined automatically.
+        // TODO setup in config, still put in registry?
+        $locale = new Zend_Locale("de");
+        Zend_Registry::set('Zend_Locale', $locale);
     }
 
 }
