@@ -47,8 +47,8 @@ phpSettings.date.timezone = Europe/Berlin
 
 ;ZEND_APPLICATION SETTINGS
 includePaths.library = APPLICATION_PATH "/library"
-bootstrap.path = APPLICATION_PATH "/tests/TestHelper.php"
-bootstrap.class = "TestHelper"
+bootstrap.path = APPLICATION_PATH "/library/Opus/Bootstrap/Base.php"
+bootstrap.class = "Opus_Bootstrap_Base"
 appnamespace = "Application"
 autoloaderNamespaces.apache = 'Apache_'
 autoloaderNamespaces.opus = 'Opus_'
