@@ -86,6 +86,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'options' => array('type' => 'additional'),
                             'fetch' => 'lazy'
             ),
+            'IdentifierOld' => array(
+                            'model' => 'Opus_Identifier',
+                            'options' => array('type' => 'old'),
+                            'fetch' => 'lazy'
+            ),
+            'IdentifierSerial' => array(
+                            'model' => 'Opus_Identifier',
+                            'options' => array('type' => 'serial'),
+                            'fetch' => 'lazy'
+            ),
             'IdentifierUuid' => array(
                             'model' => 'Opus_Identifier',
                             'options' => array('type' => 'uuid'),
@@ -235,6 +245,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'options'  => array('role' => 'other'),
                             'fetch' => 'lazy'
             ),
+            'PersonOwner' => array(
+                            'model' => 'Opus_Person',
+                            'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                            'options'  => array('role' => 'owner'),
+                            'fetch' => 'lazy'
+            ),
             'PersonTranslator' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
@@ -259,6 +275,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'SubjectUncontrolled' => array(
                             'model' => 'Opus_Subject',
                             'options' => array('type' => 'uncontrolled'),
+                            'fetch' => 'lazy'
+            ),
+            'SubjectMSC' => array(
+                            'model' => 'Opus_Subject',
+                            'options' => array('type' => 'msc'),
                             'fetch' => 'lazy'
             ),
             'File' => array(
