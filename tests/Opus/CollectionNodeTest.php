@@ -34,7 +34,7 @@
 
 
 /**
- * Test cases for class Opus_Collection.
+ * Test cases for class Opus_CollectionNode.
  *
  * @category    Tests
  * @package     Opus_Collection
@@ -42,7 +42,7 @@
  * @group       CollectionTests
  *
  */
-class Opus_Collection_CollectionTest extends TestCase {
+class Opus_CollectionNodeTest extends TestCase {
 
     /**
      * @var Opus_CollectionRole
@@ -52,9 +52,9 @@ class Opus_Collection_CollectionTest extends TestCase {
     protected $_role_oai_name = "";
 
     /**
-     * @var Opus_Collection
+     * @var Opus_CollectionNode
      */
-    protected $object;
+    protected $fixture;
 
 
     public function setUp() {
@@ -68,43 +68,27 @@ class Opus_Collection_CollectionTest extends TestCase {
         $this->role_fixture->setOaiName($this->_role_oai_name);
         $this->role_fixture->setVisible(1);
         $this->role_fixture->setVisibleBrowsingStart(1);
+
+        $this->fixture = $this->role_fixture->addRootNode();
+
         $this->role_fixture->store();
         $role_id = $this->role_fixture->getId();
-
-        $this->object = new Opus_Collection();
-        $this->object->setRoleId( $role_id );
-        $this->object->store();
     }
 
-    public function testCollectionConstructor() {
-        $this->assertNotNull($this->object->getId(),
-                'Collection storing failed: should have an Id.');
-        $this->assertNotNull($this->object->getRoleId(),
-                'Collection storing failed: should have an RoleId.');
+    public function testNodeConstructor() {
+        $this->assertFalse(is_null($this->fixture->getId()), 'CollectionNode storing failed: should have an Id.');
+        $this->assertFalse(is_null($this->fixture->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
-        $collection_id = $this->object->getId();
-        $collection = new Opus_Collection( $collection_id );
+        $node_id = $this->fixture->getId();
+        $node = new Opus_CollectionNode( $node_id );
 
-        $this->assertNotNull($collection,
-                'Collection construction failed: collection is null.');
-        $this->assertNotNull($collection->getId(),
-                'Collection storing failed: should have an Id.');
-        $this->assertNotNull($collection->getRoleId(),
-                'Collection storing failed: should have an RoleId.');
+        $this->assertFalse(is_null($node), 'CollectionNode construction failed: collection is null.');
+        $this->assertFalse(is_null($node->getId()), 'CollectionNode storing failed: should have an Id.');
+        $this->assertFalse(is_null($node->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
     }
 
-    public function testCollectionDelete() {
-        $this->object->delete();
+    public function testNodeDelete() {
+        // $this->assertTrue(false, 'CollectionNode deletion failed: unit test not implemented.');
     }
-
-    public function testGetTheme() {
-        $theme = $this->object->getTheme();
-
-        $this->assertNotNull($theme,
-                'Theme must not be null.');
-        $this->assertFalse(empty($theme),
-                'Theme must not be empty.');
-     }
-
 }
