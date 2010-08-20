@@ -66,6 +66,9 @@ searchengine.solr.host = opus4ci.zib.de ; test instance on ci server
 searchengine.solr.port = 8983           ; default port 8983
 searchengine.solr.app = solr
 
+;LOGGING RELATED SETTINGS
+log.prepare.xml = false                 ; if set to true all xml that is generated while indexing is prepared for logging
+
 [testing : production]
 sql.schema.path =
 
