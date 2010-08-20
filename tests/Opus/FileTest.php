@@ -132,7 +132,6 @@ class Opus_FileTest extends TestCase {
         $file->setPathName('copied-' . $filename);
 
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
 
         return $doc;
 
@@ -147,7 +146,6 @@ class Opus_FileTest extends TestCase {
         $file = new Opus_File;
         $file->setPathName('23423432-3244.pdf');
         $file->setLabel('Volltextdokument (PDF)');
-        $file->setMimeType(Opus_File::PDF);
 
         $this->assertTrue($file->isValid(), 'File model should validate to true.');
 
@@ -200,9 +198,8 @@ class Opus_FileTest extends TestCase {
 
         $file->store();
 
-        // TODO: Check mime type after storing.
-        $this->markTestIncomplete('TODO: Check mime type after storing.');
-        $this->assertEquals($file->getMimeType(), Opus_File::PDF);
+        // File is empty.
+        $this->assertEquals($file->getMimeType(), 'application/x-empty');
 
     }
 
@@ -425,7 +422,6 @@ class Opus_FileTest extends TestCase {
         $file2 = new Opus_File($file->getId());
         $file2->setPathName('copied-foobar.pdf');
         $file2->setLabel('Volltextdokument (PDF) 2');
-        $file2->setMimeType(Opus_File::PDF);
 
         // TODO: Do not add _dest_path to file in order to delete.
         $file2->setDestinationPath($this->_dest_path);
