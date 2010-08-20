@@ -309,6 +309,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      *
      * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
      * @return Opus_Model_Abstract Provide fluent interface.
+     *
+     * TODO: Refactor class: Handle _externalFields outside!
      */
     public function addField(Opus_Model_Field $field) {
         $fieldname = $field->getName();
@@ -472,19 +474,18 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * @return Opus_Model_Abstract The Opus_Model derived from xml.
      */
     public static function fromXml($xml, Opus_Model_Xml $customDeserializer = null) {
-        if (null === $customDeserializer) {
-            $xmlHelper = new Opus_Model_Xml;
-        } else {
-            $xmlHelper = $customDeserializer;
+        if (is_null($customDeserializer)) {
+            $customDeserializer = new Opus_Model_Xml;
         }
+ 
         if ($xml instanceof DomDocument) {
-            $xmlHelper->setDomDocument($xml);
+            $customDeserializer->setDomDocument($xml);
         } else if (is_string($xml)) {
-            $xmlHelper->setXml($xml);
+            $customDeserializer->setXml($xml);
         } else {
             throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
         }
-        return $xmlHelper->getModel();
+        return $customDeserializer->getModel();
     }
 
 
@@ -501,42 +502,37 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      *                 at least one field fails validation.
      */
     public function isValid() {
-        $return = true;
         foreach ($this->_fields as $field) {
+            $value = $field->getValue();
+            $mandatory = $field->isMandatory();
+
             // skip optional and empty fields
-            if ((false === $field->isMandatory())
-                    and ((null === $field->getValue())
-                            or ('' === $field->getValue()))) {
+            if ((false === $mandatory) and (is_null($value) or ('' === $value))) {
                 continue;
             }
 
             // validate
             $validator = $field->getValidator();
             if (is_null($validator) === false) {
-                $result = $validator->isValid($field->getValue());
-
-                // TODO: Short-circuit: Why not "return false" here?
-                $return = ($return and $result);
-            }
-
-            // submodel handling
-            if (true === $field->hasMultipleValues()) {
-                $fieldValues = $field->getValue();
-            } else {
-                $fieldValues = array($field->getValue());
-            }
-            foreach ($fieldValues as $submodel) {
-                if (($submodel instanceof Opus_Model_Abstract)
-                        and (true === $field->isMandatory())) {
-                    $result = $submodel->isValid();
-
-                    // TODO: Short-circuit: Why not "return false" here?
-                    $return = ($return and $result);
+                if ($validator->isValid($value) === false) {
+                    return false;
                 }
             }
 
+            if (true === $mandatory) {
+                // submodel handling
+                $fieldValues = $field->hasMultipleValues() ? $value : array($value);
+
+                foreach ($fieldValues as $submodel) {
+                    if ($submodel instanceof Opus_Model_Abstract) {
+                        if ($submodel->isValid() === false) {
+                            return false;
+                        }
+                    }
+                }
+            }
         }
-        return $return;
+        return true;
     }
 
     /**
