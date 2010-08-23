@@ -183,11 +183,13 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $config = $this->getResource('Configuration');
 
-        $logfile = @fopen($config->workspacePath . '/log/opus.log', 'a', false);
+        $logfilePath = realpath($config->workspacePath . '/log/opus.log');
+
+        $logfile = @fopen($logfilePath, 'a', false);
         
         if ( $logfile === false ) {
             // TODO use Opus exception
-            throw new Exception('Failed to open logging file.');
+            throw new Exception('Failed to open logging file:' . $logfilePath);
         }
 
         $writer = new Zend_Log_Writer_Stream($logfile);
