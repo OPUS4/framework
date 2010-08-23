@@ -78,14 +78,14 @@ class Opus_SolrSearch_ResponseRenderer {
         $results = array();
         foreach ($solrResponse->response->docs as $doc) {
             $result = new Opus_SolrSearch_Result();
-            $result->setId($doc->id);
-            $result->setScore($doc->score);
-            $result->setTitleDeu($doc->title_deu);
-            $result->setTitleEng($doc->title_eng);
-            $result->setAuthors($doc->author);
-            $result->setYear($doc->year);
-            $result->setAbstractDeu($doc->abstract_deu);
-            $result->setAbstractEng($doc->abstract_eng);                                
+            if (isset($doc->id)) $result->setId($doc->id);
+            if (isset($doc->score)) $result->setScore($doc->score);
+            if (isset($doc->title_deu)) $result->setTitleDeu($doc->title_deu);
+            if (isset($doc->title_eng)) $result->setTitleEng($doc->title_eng);
+            if (isset($doc->author)) $result->setAuthors($doc->author);
+            if (isset($doc->year)) $result->setYear($doc->year);
+            if (isset($doc->abstract_deu)) $result->setAbstractDeu($doc->abstract_deu);
+            if (isset($doc->abstract_eng)) $result->setAbstractEng($doc->abstract_eng);
             array_push($results, $result);
         }
         $numFound = $solrResponse->response->numFound;
