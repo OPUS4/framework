@@ -160,7 +160,9 @@
                 <xsl:for-each select="/Opus/Opus_Model_Filter/PersonAuthor">
                     <xsl:element name="field">
                         <xsl:attribute name="name">author</xsl:attribute>
-                        <xsl:value-of select="@Name" />
+                        <xsl:value-of select="@LastName" />
+                        <xsl:text>, </xsl:text>
+                        <xsl:value-of select="@FirstName" />
                     </xsl:element>
                 </xsl:for-each>
 
@@ -196,14 +198,20 @@
                     <xsl:value-of select="/Opus/Opus_Model_Filter/@Type" />
                 </xsl:element>
 
-                <!-- TODO: subject (SubjectSwd, SubjectUncontrolled) -->
-                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                    <xsl:if test="@RoleId != 1">
-                        <xsl:element name="field">
-                            <xsl:attribute name="name">subject</xsl:attribute>
-                            <xsl:value-of select="@Name" />
-                        </xsl:element>
-                    </xsl:if>
+                <!-- subject (swd) -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/SubjectSwd">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">subject</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- subject (uncontrolled) -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/SubjectUncontrolled">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">subject</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
                 </xsl:for-each>
 
                 <!-- TODO: institute -->

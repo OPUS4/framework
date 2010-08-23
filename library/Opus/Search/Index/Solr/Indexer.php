@@ -62,6 +62,7 @@ class Opus_Search_Index_Solr_Indexer {
      */
     public function __construct($deleteAllDocs = false) {
         $this->log = Zend_Registry::get('Zend_Log');
+        
         $this->solr_server = $this->getSolrServer();
         if (false === $this->solr_server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
@@ -70,6 +71,7 @@ class Opus_Search_Index_Solr_Indexer {
         $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
         if (true === $deleteAllDocs) {
             $this->deleteAllDocs();
+            $this->commit();
         }
     }
 
@@ -125,14 +127,13 @@ class Opus_Search_Index_Solr_Indexer {
         try {
             $this->solr_server->deleteById($doc->getId());
         }
-        catch (Exception $e) {
+        catch (Apache_Solr_HttpTransportException $e) {
             $msg = 'Error while deleting document with id ' . $doc->getId();
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
     }
 
-    /* @var $doc Opus_Document */
     /**
      * returns a xml representation of the given document in the format that is
      * expected by Solr
@@ -156,20 +157,18 @@ class Opus_Search_Index_Solr_Indexer {
         $proc->importStyleSheet($xslt);
 
         $solrXmlDocument = new DOMDocument();
-        $solrXmlDocument->preserveWhiteSpace = false;
-        $solrXmlDocument->formatOutput = true;
+        $solrXmlDocument->preserveWhiteSpace = false;        
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        /*
-        $this->log->debug("\n" . $modelXml->saveXML());
-        $this->log->debug("\n" . $solrXmlDocument->saveXML());
-        */
-        
+        if (Zend_Registry::get('Zend_Config')->log->prepare->xml) {
+            $modelXml->formatOutput = true;
+            $this->log->debug("\n" . $modelXml->saveXML());
+            $solrXmlDocument->formatOutput = true;
+            $this->log->debug("\n" . $solrXmlDocument->saveXML());
+        }        
         return $solrXmlDocument;
     }
 
-    /* @var $modelXml DomDocument */
-    /* @var $files    Opus_File   */
     /**
      * for each file that is associated to the given document the fulltext and
      * path information are attached to the xml representation of the document model     
@@ -194,20 +193,17 @@ class Opus_Search_Index_Solr_Indexer {
         foreach ($files as $file) {
             $docXml->appendChild($modelXml->createElement('Source_Index', $file->getPathName()));
             $fulltext = '';
-            try {
+            try {                
                 $fulltext = $this->getFileContent($file);
-                $this->log->debug("extracted fulltext: " . $fulltext);
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
-            $element = $modelXml->createElement('Fulltext_Index');
-            $element->appendChild($modelXml->createCDATASection(trim($fulltext)));
+            $element = $modelXml->createElement('Fulltext_Index', $fulltext);
             $docXml->appendChild($element);            
         }
     }
 
-    /* @var $file Opus_File */
     /**
      * returns the extracted fulltext of the given file or an exception in
      * case of errors
@@ -217,47 +213,43 @@ class Opus_Search_Index_Solr_Indexer {
      * @return extracted fulltext
      */    
     private function getFileContent($file) {
+        $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
         }
+        if (!$this->hasSupportedMimeType($file)) {
+            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+        }
         $fulltext = '';
         try {
-            $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );
-            $this->log->debug('extract: ' . $file->getPath());
+            $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );            
             $response = $this->solr_server->extract($file->getPath(), $params);
             // TODO add mime type information
             $jsonResponse = Zend_Json_Decoder::decode($response->getRawResponse());
             if (array_key_exists('', $jsonResponse)) {                
-                return $jsonResponse[''];    
+                return trim($jsonResponse['']);
+                // TODO evaluate additional data in json response
             }
         }
         catch (Exception $e) {
             throw new Opus_Search_Index_Solr_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
-        }
-        
-        /*
-        $mimeType = $file->getMimeType();
-        if (substr($mimeType, 0, 9) === 'text/html') {
-            $mimeType = 'text/html';
         }        
-        switch ($mimeType) {
-            case Opus_File::PDF:
-                $fulltext = Opus_Search_Index_FileFormatConverter_PdfDocument::toText($file->getPath());
-                break;
-            case Opus_File::POSTSCRIPT:
-                $fulltext = Opus_Search_Index_FileFormatConverter_PsDocument::toText($file->getPath(), true);
-                break;
-            case Opus_File::HTML:
-                $fulltext = Opus_Search_Index_FileFormatConverter_HtmlDocument::toText($file->getPath());
-                break;
-            case Opus_File::PLAINTEXT:
-                $fulltext = Opus_Search_Index_FileFormatConverter_TextDocument::toText($file->getPath());
-                break;
-            default:
-                throw new Opus_Search_Index_Solr_Exception('No converter for MIME-Type ' . $mimeType);
-        }
-        */
         return $fulltext;
+    }
+
+    /**
+     *
+     * @param Opus_File $file
+     */
+    private function hasSupportedMimeType($file) {
+        if (    $file->getMimeType() === 'text/html' ||
+                $file->getMimeType() === 'text/plain' ||
+                $file->getMimeType() === 'application/pdf' ||
+                $file->getMimeType() === 'application/postscript' ||
+                $file->getMimeType() === 'application/xhtml+xml') {
+         return true;
+        }
+        return false;
     }
 
     /**
@@ -269,8 +261,7 @@ class Opus_Search_Index_Solr_Indexer {
      * @return void
      */
     public function deleteAllDocs() {
-        $this->deleteDocsByQuery("*");
-        $this->log->info('all docs were deleted');
+        $this->deleteDocsByQuery("*:*");
     }
 
     /**
@@ -286,8 +277,9 @@ class Opus_Search_Index_Solr_Indexer {
     public function deleteDocsByQuery($query) {
         try {
             $this->solr_server->deleteByQuery($query);
+            $this->log->info('deleted all docs that match ' . $query);
         }
-        catch (Exception $e) {
+        catch (Apache_Solr_HttpTransportException $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
