@@ -42,23 +42,18 @@ class Opus_SolrSearch_Query {
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
     const DEFAULT_SORTORDER = 'desc';
+    const DEFAULT_OPERATOR = 'OR';
 
     private $start = self::DEFAULT_START;
     private $rows = self::DEFAULT_ROWS;
     private $sortField = self::DEFAULT_SORTFIELD;
     private $sortOrder = self::DEFAULT_SORTORDER;
+    private $defaultOperator = self::DEFAULT_OPERATOR;
     private $filterQueries = array();
-    private $year;
-    private $urn;
-    private $isbn;
-    private $abstractDeu;
-    private $abstractEng;
-    private $titleDeu;
-    private $titleEng;
-    private $author;
-    private $fulltext;
     private $catchAll;
     private $searchType;
+    private $modifier;
+    private $fieldValues;
 
     /**
      *
@@ -109,6 +104,14 @@ class Opus_SolrSearch_Query {
         $this->sortOrder = $sortOrder;
     }
 
+    public function getDefaultOperator() {
+        return $this->defaultOperator;
+    }
+
+    public function setDefaultOperator($defaultOperator) {
+        $this->defaultOperator = $defaultOperator;
+    }
+
     /**
      *
      * @return string A combined string representation of all specified filter queries
@@ -148,46 +151,6 @@ class Opus_SolrSearch_Query {
         $this->filterQueries = $filterQueries;
     }
 
-    public function getYear() {
-        return $this->year;
-    }
-
-    public function setYear($year) {
-        $this->year = $year;
-    }
-
-    public function getUrn() {
-        return $this->urn;
-    }
-
-    public function setUrn($urn) {
-        $this->urn = $urn;
-    }
-
-    public function getIsbn() {
-        return $this->isbn;
-    }
-
-    public function setIsbn($isbn) {
-        $this->isbn = $isbn;
-    }
-
-    public function getAuthor() {
-        return $this->author;
-    }
-
-    public function setAuthor($author) {
-        $this->author = $author;
-    }
-
-    public function getFulltext() {
-        return $this->fulltext;
-    }
-
-    public function setFulltext($fulltext) {
-        $this->fulltext = $fulltext;
-    }
-
     public function getCatchAll() {
         return $this->catchAll;
     }
@@ -196,52 +159,68 @@ class Opus_SolrSearch_Query {
         $this->catchAll = $catchAll;
     }
 
-    public function getAbstractDeu() {
-        return $this->abstractDeu;
+    /**
+     *
+     * @param string $name
+     * @param string $value
+     * @param string $modifier
+     */
+    public function setField($name, $value, $modifier = '+') {
+        $this->fieldValues[$name] = $value;
+        $this->modifier[$name] = $modifier;
     }
 
-    public function setAbstractDeu($abstractDeu) {
-        $this->abstractDeu = $abstractDeu;
+    /**
+     *
+     * @param string $name
+     * @return Returns null if no values was specified for the given field name.
+     */
+    public function getField($name) {
+        if (array_key_exists($name, $this->fieldValues)) {
+            return $this->fieldValues[$name];
+        }
+        return null;
     }
 
-    public function getAbstractEng() {
-        return $this->abstractEng;
-    }
-
-    public function setAbstractEng($abstractEng) {
-        $this->abstractEng = $abstractEng;
-    }
-
-    public function getTitleDeu() {
-        return $this->titleDeu;
-    }
-
-    public function setTitleDeu($titleDeu) {
-        $this->titleDeu = $titleDeu;
-    }
-
-    public function getTitleEng() {
-        return $this->titleEng;
-    }
-
-    public function setTitleEng($titleEng) {
-        $this->titleEng = $titleEng;
+    /**
+     *
+     * @param string $fieldname
+     * @return Returns null if no modifier was specified for the given field name.
+     */
+    public function getModifier($fieldname) {
+        if (array_key_exists($fieldname, $this->modifier)) {
+            return $this->modifier[$fieldname];
+        }
+        return null;
     }
 
     public function getQ() {
         if ($this->searchType === self::SIMPLE) {
             return $this->getCatchAll();
         }
-        // TODO
-        return "*:*";
+        return $this->buildAdvancedQString();
+    }
+
+    private function buildAdvancedQString() {
+        $q = '';
+        $first = true;
+        foreach ($this->fieldValues as $fieldname => $fieldvalue) {
+            if (!$first) {
+                $q = $q . ' ' . $this->defaultOperator . ' ';
+            }
+            else {
+                $first = false;
+            }
+            $q = $q . $this->modifier[$fieldname] . $fieldname . ':(' . $fieldvalue . ')';
+        }
+        return $q;
     }
 
     public function  __toString() {
         if ($this->searchType === self::SIMPLE) {
             return 'simple search with query ' . $this->getQ();
         }
-        // TODO
-        return "advanced search for TODO";
-    }}
-
+        return 'advanced search with query  ' . $this->getQ();
+    }
+}
 ?>
