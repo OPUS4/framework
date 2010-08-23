@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -42,18 +43,16 @@
  *
  * @group SearchIndexIndexerTests
  */
-class Opus_Search_Index_Solr_IndexerTest extends TestCase
-{
+class Opus_Search_Index_Solr_IndexerTest extends TestCase {
+
     /**
      * @var Opus_Search_Index_Solr_Indexer
      */
     protected $indexer;
-
     /**
      * @var int
      */
     protected $document_id;
-
     /**
      * Valid document data.
      *
@@ -92,10 +91,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
-    protected function setUp()
-    {
-        // parent::setUp();
-        $this->indexer = new Opus_Search_Index_Solr_Indexer;
+    protected function setUp() {
+        parent::setUp();
+        $this->indexer = new Opus_Search_Index_Solr_Indexer();
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
 
         $document = new Opus_Document();
         foreach (self::$_validDocumentData as $fieldname => $value) {
@@ -110,66 +110,197 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase
      * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
-    protected function tearDown()
-    {
-        // parent::tearDown();
+    protected function tearDown() {
+        parent::tearDown();
+        $this->indexer = new Opus_Search_Index_Solr_Indexer();
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
     }
 
-    /**
-     * @todo Implement testAddDocumentToEntryIndex().
-     */
-    public function testAddDocumentToEntryIndex()
-    {
+    public function testDeleteAllDocsInConstructor() {
+        $this->_addOneDocumentToIndex();
+        $this->indexer = new Opus_Search_Index_Solr_Indexer(true);
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
+
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
+        $this->_addOneDocumentToIndex();
+        $this->indexer = new Opus_Search_Index_Solr_Indexer(false);
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
+        $this->_addOneDocumentToIndex();
+        $this->indexer = new Opus_Search_Index_Solr_Indexer();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testAddDocumentToEmptyIndex() {
+        $this->_addOneDocumentToIndex();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testRemoveDocumentFromIndex() {
+        $this->_addOneDocumentToIndex();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+        $document = new Opus_Document($this->document_id);
+        $this->indexer->removeDocumentFromEntryIndex($document);
+        $this->indexer->commit();
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testRemoveNullFromIndex() {
+        $this->_addOneDocumentToIndex();
+        $this->setExpectedException('InvalidArgumentException');
+        $this->indexer->removeDocumentFromEntryIndex(null);
+    }
+
+    public function testDeleteAllDocsFromNonEmptyIndex() {
+        $this->_addOneDocumentToIndex();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testDeleteAllDocsFromEmptyIndex() {
+        $this->indexer->deleteAllDocs();
+        $this->indexer->commit();
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testDeleteDocsByMatchingQuery() {
+        $this->_addOneDocumentToIndex();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+        $queryString = 'id:' . $this->document_id;
+        $this->indexer->deleteDocsByQuery($queryString);
+        $this->indexer->commit();
+        $this->assertEquals(0, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testDeleteDocsByNonMatchingQuery() {
+        $this->_addOneDocumentToIndex();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+        $nonExistentDocID = $this->document_id + 1;
+        $queryString = 'id:' . $nonExistentDocID;
+        $this->indexer->deleteDocsByQuery($queryString);
+        $this->indexer->commit();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testDeleteDocsByInvalidQuery() {
+        $this->setExpectedException('Opus_Search_Index_Solr_Exception');
+        $this->indexer->deleteDocsByQuery('id:');        
+    }
+
+    public function testCommit() {
+        $this->indexer->commit();
+    }
+
+    public function testOptimize() {
+        $this->indexer->optimize();
+    }
+
+    public function testFulltextExtractionPdf() {
+        $this->_addFileToDocument('test.pdf', 'PDF fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+    
+    public function testFulltextExtractionPostscript() {
+        $this->_addFileToDocument('test.ps', 'PS fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testFulltextExtractionHtml() {
+        $this->_addFileToDocument('test.html', 'HTML fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testFulltextExtractionText() {
+        $this->_addFileToDocument('test.txt', 'TXT fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testFulltextExtractionWithNonExistentFile() {
+        $doc = new Opus_Document($this->document_id);
+
+        $file = $doc->addFile();
+        $file->setDestinationPath('workspace/files');
+        $file->setPathName('nonexistent.pdf');
+        $file->setLabel('non-existent PDF fulltext');
+
+        $doc->store();
+
+        $this->indexer->addDocumentToEntryIndex($doc);
+        $this->indexer->commit();
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testFulltextExtractionWithNonSupportedMimeType() {
+        $this->_addFileToDocument('test.odt', 'ODT fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
+    public function testFulltextExtractionByContentForPdf() {
+        $this->_addFileToDocument('test.pdf', 'PDF fulltext');
+        $this->assertEquals(1, $this->_searchTestFulltext());
+    }
+
+    public function testFulltextExtractionByContentForPostscript() {
+        $this->markTestIncomplete();
+        $this->_addFileToDocument('test.ps', 'PS fulltext');
+        $this->assertEquals(1, $this->_searchTestFulltext());
+    }
+
+    public function testFulltextExtractionByContentForText() {
+        $this->_addFileToDocument('test.txt', 'TXT fulltext');
+        $this->assertEquals(1, $this->_searchTestFulltext());
+    }
+
+    public function testFulltextExtractionByContentForHtml() {
+        $this->markTestIncomplete();
+        $this->_addFileToDocument('test.html', 'HTML fulltext');
+        $this->assertEquals(1, $this->_searchTestFulltext());
+    }
+
+    private function _getNumberOfIndexDocs() {
+        $searcher = new Opus_SolrSearch_Searcher();
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query->setCatchAll("*:*");
+        return $searcher->search($query)->getNumberOfHits();
+    }
+
+    private function _searchTestFulltext() {
+        $searcher = new Opus_SolrSearch_Searcher();
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query->setCatchAll('Lorem');
+        return $searcher->search($query)->getNumberOfHits();
+    }
+
+    private function _addOneDocumentToIndex() {
         $document = new Opus_Document($this->document_id);
         $this->indexer->addDocumentToEntryIndex($document);
         $this->indexer->commit();
     }
 
     /**
-     * @todo Implement testRemoveDocumentFromEntryIndex().
+     *
+     * @param string $filename
+     * @param string $label
      */
-    public function testRemoveDocumentFromEntryIndex()
-    {
-        $document = new Opus_Document($this->document_id);
-        $this->indexer->removeDocumentFromEntryIndex($document);
+    private function _addFileToDocument($filename, $label) {
+        $doc = new Opus_Document($this->document_id);
+        $file = $doc->addFile();
+        $file->setSourcePath('fulltexts');
+        $file->setTempFile($filename);
+        $file->setDestinationPath('workspace/files');
+        $file->setPathName($filename);
+        $file->setLabel($label);
+
+        $doc->store();
+
+        $this->indexer->addDocumentToEntryIndex($doc);
         $this->indexer->commit();
-
-        $this->setExpectedException('InvalidArgumentException');
-        $this->indexer->removeDocumentFromEntryIndex(null);
-    }
-
-    /**
-     * @todo Implement testDeleteAllDocs().
-     */
-    public function testDeleteAllDocs()
-    {
-        $this->indexer->deleteAllDocs();
-        $this->indexer->commit();
-    }
-
-    /**
-     * @todo Implement testDeleteDocsByQuery().
-     */
-    public function testDeleteDocsByQuery()
-    {
-        $this->indexer->deleteDocsByQuery("*");
-        $this->indexer->commit();
-    }
-
-    /**
-     * @todo Implement testCommit().
-     */
-    public function testCommit()
-    {
-        $this->indexer->commit();
-    }
-
-    /**
-     * @todo Implement testOptimize().
-     */
-    public function testOptimize()
-    {
-        $this->indexer->optimize();
     }
 
 }
