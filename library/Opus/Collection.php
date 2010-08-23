@@ -370,8 +370,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     protected function _fetchRoleDisplayFrontdoor() {
-        if (!is_null($this->getRole())) {
-            return $this->getRole()->getDisplayFrontdoor();
+        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
+        $role = $this->_fetchRole();
+        if (!is_null($role)) {
+            return $role->getDisplayFrontdoor();
         }
     }
 
@@ -381,8 +383,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     protected function _fetchRoleName() {
-        if (!is_null($this->getRole())) {
-            return $this->getRole()->getDisplayName();
+        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
+        $role = $this->_fetchRole();
+        if (!is_null($role)) {
+            return $role->getDisplayName();
         }
     }
 
