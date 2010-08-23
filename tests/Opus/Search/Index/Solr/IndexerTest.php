@@ -115,6 +115,14 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $this->indexer = new Opus_Search_Index_Solr_Indexer();
         $this->indexer->deleteAllDocs();
         $this->indexer->commit();
+        // remove test documents under tests/workspace/files/$document_id
+        $dirname = "workspace/files/" . $this->document_id;
+        if (file_exists($dirname)) {
+            foreach (glob($dirname . "/*") as $filename) {
+                unlink($filename);
+            }
+            rmdir($dirname);
+        }
     }
 
     public function testDeleteAllDocsInConstructor() {

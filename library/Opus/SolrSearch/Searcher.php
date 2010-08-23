@@ -127,7 +127,7 @@ class Opus_SolrSearch_Searcher {
         $params = array( 
             'fl' => '* score',
             'facet' => 'true',
-            'facet.field' => array('year', 'doctype', 'author', 'language'),
+            'facet.field' => array('year', 'doctype', 'author_facet', 'language'),
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
         );        
