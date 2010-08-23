@@ -246,7 +246,8 @@ class Opus_Search_Index_Solr_Indexer {
                 $file->getMimeType() === 'text/plain' ||
                 $file->getMimeType() === 'application/pdf' ||
                 $file->getMimeType() === 'application/postscript' ||
-                $file->getMimeType() === 'application/xhtml+xml') {
+                $file->getMimeType() === 'application/xhtml+xml' ||
+                $file->getMimeType() === 'application/xml') {
          return true;
         }
         return false;

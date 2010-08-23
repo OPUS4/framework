@@ -216,6 +216,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $this->assertEquals(1, $this->_getNumberOfIndexDocs());
     }
 
+    public function testFulltextExtractionXhtml() {
+        $this->_addFileToDocument('test.xhtml', 'XHTML fulltext');
+        $this->assertEquals(1, $this->_getNumberOfIndexDocs());
+    }
+
     public function testFulltextExtractionText() {
         $this->_addFileToDocument('test.txt', 'TXT fulltext');
         $this->assertEquals(1, $this->_getNumberOfIndexDocs());
@@ -258,8 +263,12 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     public function testFulltextExtractionByContentForHtml() {
-        $this->markTestIncomplete();
         $this->_addFileToDocument('test.html', 'HTML fulltext');
+        $this->assertEquals(1, $this->_searchTestFulltext());
+    }
+
+    public function testFulltextExtractionByContentForXhtml() {
+        $this->_addFileToDocument('test.xhtml', 'XHTML fulltext');
         $this->assertEquals(1, $this->_searchTestFulltext());
     }
 
