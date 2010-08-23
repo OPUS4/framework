@@ -1072,7 +1072,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeCollection($collections) {
-        if (true !== is_null($this->getId())) {
+        if (true === is_null($this->getId())) {
             return;
         }
 
