@@ -317,6 +317,14 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
             $node = parent::addPendingNodes();
         }
 
+        // TODO: Workaround for missing/wrong parent-handling: If parent model
+        // TODO: is already stored, we can get it's Id and RoleId before we
+        // TODO: reach _storePendingNodes.  (Copy-paste!)
+        if ($node->isNewRecord()) {
+            $node->setRoleId($this->getRoleId());
+            $node->setPositionId($this->getId());
+        }
+
         $node->setPositionKey($key);
         return $node;
     }
