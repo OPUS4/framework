@@ -129,7 +129,8 @@ class Opus_SolrSearch_Searcher {
             'facet' => 'true',
             'facet.field' => array('year', 'doctype', 'author_facet', 'language'),
             'facet.mincount' => 1,
-            'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
+            'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
+            'facet.limit' => 10
         );        
         $fq = $query->getFilterQueriesString();
         if (!is_null($fq)) {
