@@ -112,13 +112,17 @@ class Opus_SolrSearch_ResponseRenderer {
     }
 
     private function getFacets() {
-        $facets = $this->jsonResponse['facet_counts']['facet_fields'];       
-        $facetItems = array();
-        foreach ($this->getFacet($facets, 'year') as $text => $count) {
-            array_push($facetItems, $facetItem = new Opus_SolrSearch_FacetItem($text, $count));
+        $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];        
+        $facets = array ('year', 'doctype', 'author', 'language');
+        $result = array();
+        foreach ($facets as $facet) {
+            $facetItems = array();
+            foreach ($this->getFacet($facetsResult, $facet) as $text => $count) {
+                array_push($facetItems, new Opus_SolrSearch_FacetItem($text, $count));
+            }
+            $result[$facet] = $facetItems;
         }
-        //$yearFacet = new Opus_SolrSearch_Facet('year', $facetItems);
-        return array( "year" => $facetItems);
+        return $result;
     }
 
     private function getFacet($facets, $facetName) {
