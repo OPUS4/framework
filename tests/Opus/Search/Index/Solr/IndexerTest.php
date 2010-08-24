@@ -61,6 +61,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     protected $files_dir;
 
     /**
+     * @var Zend_Config
+     */
+    protected $config;
+
+    /**
      * Valid document data.
      *
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
@@ -99,8 +104,8 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     protected function setUp() {
         parent::setUp();
 
-        $config = Zend_Registry::get('Zend_Config');
-        $this->files_dir = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
+        $this->config = Zend_Registry::get('Zend_Config');
+        $this->files_dir = $this->config->workspacePath . DIRECTORY_SEPARATOR . "files";
 
         $this->indexer = new Opus_Search_Index_Solr_Indexer();
         $this->indexer->deleteAllDocs();
@@ -121,6 +126,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
      */
     protected function tearDown() {
         parent::tearDown();
+        $this->rollbackConfigChanges();
         $this->indexer = new Opus_Search_Index_Solr_Indexer();
         $this->indexer->deleteAllDocs();
         $this->indexer->commit();
@@ -131,6 +137,65 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
                 unlink($filename);
             }
             rmdir($dirname);
+        }
+    }
+
+    public function testMissingConfigParam() {
+        // manipulate configuration so that searchengine.solr.app is missing
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'solr' => array(
+                    'host' => 'examplehost',
+                    'port' => 'exampleport'))), true);
+        Zend_Registry::set('Zend_Config', $config);
+
+        try {
+            new Opus_Search_Index_Solr_Indexer();
+            $this->fail('The expected Opus_Search_Index_Solr_Exception has not been raised.');
+        }
+        catch (Opus_Search_Index_Solr_Exception $e) {
+            return;
+        }
+    }
+
+    public function testEmptyConfiguration() {
+
+        // manipulate configuration so that searchengine.solr.app is empty
+        $config = Zend_Registry::get('Zend_Config');
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'solr' => array(
+                    'host' => 'examplehost',
+                    'port' => 'exampleport',
+                    'app'  => ''))), true);
+        Zend_Registry::set('Zend_Config', $config);
+        
+        try {
+            new Opus_Search_Index_Solr_Indexer();
+            $this->fail('The expected Opus_Search_Index_Solr_Exception has not been raised.');
+        }
+        catch(Opus_Search_Index_Solr_Exception $e) {
+            return;
+        }
+    }
+
+    public function testInvalidConfiguration() {
+        // manipulate configuration so that searchengine.solr.app is invalid
+        $config = Zend_Registry::get('Zend_Config');
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'solr' => array(
+                    'host' => 'examplehost',
+                    'port' => 'exampleport',
+                    'app'  => 'this_solr_instance_name_does_not_exist'))), true);
+        Zend_Registry::set('Zend_Config', $config);
+                
+        try {
+            new Opus_Search_Index_Solr_Indexer();
+            $this->fail('The expected Opus_Search_Index_Solr_Exception has not been raised.');
+        }
+        catch(Opus_Search_Index_Solr_Exception $e) {
+            return;
         }
     }
 
@@ -327,6 +392,10 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
 
         $this->indexer->addDocumentToEntryIndex($doc);
         $this->indexer->commit();
+    }
+
+    private function rollbackConfigChanges() {
+        Zend_Registry::set('Zend_Config', $this->config);
     }
 
 }

@@ -58,7 +58,8 @@ class Opus_Search_Index_Solr_Indexer {
      * if $deleteAllDocs is set to true.
      *
      * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
-     * @throws Opus_Search_Index_Solr_Exception If Solr server does not react.
+     * @throws Opus_Search_Index_Solr_Exception If Solr server does not react or at least one
+     * searchengine related parameter in configuration file is missing or empty.
      */
     public function __construct($deleteAllDocs = false) {
         $this->log = Zend_Registry::get('Zend_Log');
@@ -80,14 +81,39 @@ class Opus_Search_Index_Solr_Indexer {
      * with the Solr server
      *
      * @return Apache_Solr_Server
+     * @throws Opus_Search_Index_Solr_Exception If no connection could be established.
      */
     private function getSolrServer() {        
         $config = Zend_Registry::get('Zend_Config');
-        $solr_host = $config->searchengine->solr->host;
-        $solr_port = $config->searchengine->solr->port;
-        $solr_app = '/' . $config->searchengine->solr->app;
+        $solr_host = $this->checkForExistence($config->searchengine->solr->host, 'searchengine.solr.host');
+        $solr_port = $this->checkForExistence($config->searchengine->solr->port, 'searchengine.solr.port');
+        $solr_app = '/' . $this->checkForExistence($config->searchengine->solr->app, 'searchengine.solr.app');
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
-        return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
+        try {
+            return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
+        }
+        catch (Apache_Solr_Exception $e) {
+            $msg = "Connection to Solr server " . $this->solr_server_url . " could not be established";
+            $this->log->err($msg . ": " . $e->getMessage());
+            throw new Opus_Search_Index_Solr_Exception($msg, null, $e);
+        }
+
+    }
+
+    /**
+     * @param Zend_Config $config Configuration from which to read from.
+     * @param string $configParamName Name of the config parameter needed for output purposes.
+     * @return string Returns the value of the given configuration parameter if it exists in config file.
+     * @throws Opus_Search_Index_Solr_Exception If the given configuration parameter
+     * is not present in the config file or is empty.
+     */
+    private function checkForExistence($configParamValue, $configParamName) {
+        if (empty($configParamValue)) {
+            $msg = "Configuration parameter $configParamName does not exist in config file or is empty.";
+            $this->log->err($msg);
+            throw new Opus_Search_Index_Solr_Exception($msg);
+        }
+        return trim($configParamValue);
     }
 
     /**
@@ -127,7 +153,7 @@ class Opus_Search_Index_Solr_Indexer {
         try {
             $this->solr_server->deleteById($doc->getId());
         }
-        catch (Apache_Solr_HttpTransportException $e) {
+        catch (Apache_Solr_Exception $e) {
             $msg = 'Error while deleting document with id ' . $doc->getId();
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
@@ -135,8 +161,8 @@ class Opus_Search_Index_Solr_Indexer {
     }
 
     /**
-     * returns a xml representation of the given document in the format that is
-     * expected by Solr
+     * Returns an xml representation of the given document in the format that is
+     * expected by Solr.
      *
      * @param Opus_Document $doc
      * @return DOMDocument
@@ -160,12 +186,13 @@ class Opus_Search_Index_Solr_Indexer {
         $solrXmlDocument->preserveWhiteSpace = false;        
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        if (Zend_Registry::get('Zend_Config')->log->prepare->xml) {
+        $config = Zend_Registry::get('Zend_Config');
+        if ($config->log->prepare->xml === true) {
             $modelXml->formatOutput = true;
             $this->log->debug("\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;
             $this->log->debug("\n" . $solrXmlDocument->saveXML());
-        }        
+        }
         return $solrXmlDocument;
     }
 
@@ -187,7 +214,6 @@ class Opus_Search_Index_Solr_Indexer {
         if (count($files) == 0) {
             // Dokument besteht ausschließlich aus Metadaten
             $docXml->appendChild($modelXml->createElement('Source_Index', 'metadata'));
-            $docXml->appendChild($modelXml->createElement('Fulltext_Index', ''));
             return;
         }
         foreach ($files as $file) {
@@ -196,9 +222,11 @@ class Opus_Search_Index_Solr_Indexer {
             $docXml->appendChild($sourceNode);            
             try {                
                 $fulltext = $this->getFileContent($file);
-                $element = $modelXml->createElement('Fulltext_Index');
-                $element->appendChild($modelXml->createTextNode($fulltext));
-                $docXml->appendChild($element);
+                if (!empty($fulltext)) {
+                    $element = $modelXml->createElement('Fulltext_Index');
+                    $element->appendChild($modelXml->createTextNode($fulltext));
+                    $docXml->appendChild($element);
+                }
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
@@ -242,6 +270,8 @@ class Opus_Search_Index_Solr_Indexer {
     /**
      *
      * @param Opus_File $file
+     * @return boolean Returns true if fulltext extraction for the file's MIME type
+     * is supported.
      */
     private function hasSupportedMimeType($file) {
         if (    $file->getMimeType() === 'text/html' ||
@@ -275,14 +305,13 @@ class Opus_Search_Index_Solr_Indexer {
      * @param query
      * @throws Opus_Search_Index_Solr_Exception If delete by query $query failed.
      * @return void
-     *
      */
     public function deleteDocsByQuery($query) {
         try {
             $this->solr_server->deleteByQuery($query);
             $this->log->info('deleted all docs that match ' . $query);
         }
-        catch (Apache_Solr_HttpTransportException $e) {
+        catch (Apache_Solr_Exception $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
@@ -293,6 +322,7 @@ class Opus_Search_Index_Solr_Indexer {
      * Posts the given xml document to the Solr server without using the solr php client library.
      *
      * @param DOMDocument $solrXml
+     * @return void
      */
     private function sendSolrXmlToServer($solrXml) {
         $stream = stream_context_create();
@@ -321,7 +351,7 @@ class Opus_Search_Index_Solr_Indexer {
         try {
             $this->solr_server->commit();
         }
-        catch (Exception $e) {
+        catch (Apache_Solr_Exception $e) {
             $msg = 'Error while committing changes';
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
@@ -338,7 +368,7 @@ class Opus_Search_Index_Solr_Indexer {
         try {
             $this->solr_server->optimize();
         }
-        catch (Exception $e) {
+        catch (Apache_Solr_Exception $e) {
             $msg = 'Error while optimizing changes';
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
