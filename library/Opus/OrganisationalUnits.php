@@ -84,7 +84,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
     public static function getGrantors() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $select = $table->select()
-                ->where('is_grantor = ?', 1)
+//                ->where('is_grantor = ?', 1)
                 ->where('role_id = 1');
 
         $rows = $table->fetchAll($select);
@@ -105,7 +105,7 @@ class Opus_OrganisationalUnits extends Opus_CollectionRole {
     public static function getPublishers() {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $select = $table->select()
-                ->where('dnb_contact_id != ?', '')
+//                ->where('dnb_contact_id != ?', '')
                 ->where('role_id = 1');
 
         $rows = $table->fetchAll($select);
