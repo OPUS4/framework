@@ -109,28 +109,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        // Add all database column names except primary keys as Opus_Model_Fields
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
-        $info = $table->info();
-
-        $skipFields = $info['primary'];
-        $dbFields = $info['metadata'];
-
-        foreach (array_keys($dbFields) as $dbField) {
-            if (in_array($dbField, $skipFields)) {
-                continue;
-            }
-            // Convert snake_case to CamelCase for fieldnames
-            $fieldname = '';
-            foreach (explode('_', $dbField) as $part) {
-                $fieldname .= ucfirst($part);
-            }
-            $field = new Opus_Model_Field($fieldname);
-            $this->addField($field);
-        }
-
-        // $fields = array('SubsetKey', 'Name', 'Visible', 'RoleId');
-        $fields = array('RoleName', 'RoleDisplayFrontdoor', 'Role');
+        $fields = array('Number', 'Name', 'OaiSubset',
+            'RoleName', 'RoleDisplayFrontdoor', 'Role');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -451,12 +431,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string The name of the OAI set.
      */
     public function getOaiSetName() {
-        $role = $this->getRole();
-        $oaiPrefix = $role->getOaiName();
-        $oaiPostfixColumn = $role->getDisplayOai();
-        $accessor = 'get' . ucfirst($oaiPostfixColumn);
-        $oaiPostfix = $this->$accessor();
-        return $oaiPrefix . ':' . $oaiPostfix;
+        return $this->getRole()->getOaiName() . ':' . $this->getOaiSubset();
     }
 
     // TODO: Add documentation for method.
