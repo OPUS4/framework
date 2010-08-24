@@ -186,6 +186,16 @@
                     </xsl:if>
                 </xsl:for-each>
 
+                <!-- referee -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/PersonReferee">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">referee</xsl:attribute>
+                        <xsl:value-of select="@LastName" />
+                        <xsl:text>, </xsl:text>
+                        <xsl:value-of select="@FirstName" />
+                    </xsl:element>
+                </xsl:for-each>
+
                 <!-- language -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">language</xsl:attribute>
