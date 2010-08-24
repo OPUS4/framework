@@ -56,7 +56,9 @@ class Opus_CollectionTest extends TestCase {
      */
     protected $object;
 
-
+    /**
+     * SetUp method.  Inherits database cleanup from parent.
+     */
     public function setUp() {
         parent::setUp();
 
@@ -76,6 +78,9 @@ class Opus_CollectionTest extends TestCase {
         $this->object->store();
     }
 
+    /**
+     * Test constructor.
+     */
     public function testCollectionConstructor() {
         $this->assertNotNull($this->object->getId(),
                 'Collection storing failed: should have an Id.');
@@ -94,10 +99,20 @@ class Opus_CollectionTest extends TestCase {
                 'Collection storing failed: should have an RoleId.');
     }
 
+    /** 
+     * Test if delete really deletes.
+     */
     public function testCollectionDelete() {
+        $collection_id = $this->object->getId();
         $this->object->delete();
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        new Opus_Collection($collection_id);
     }
 
+    /**
+     * Test if we can retrieve stored themes from the database.
+     */
     public function testGetTheme() {
         $theme = $this->object->getTheme();
 
@@ -105,6 +120,22 @@ class Opus_CollectionTest extends TestCase {
                 'Theme must not be null.');
         $this->assertFalse(empty($theme),
                 'Theme must not be empty.');
+     }
+
+     /**
+      * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
+      */
+     public function testGetOaiName() {
+        $this->object->setOaiSubset("subset");
+        $collection_id = $this->object->store();
+
+        $collection = new Opus_Collection($collection_id);
+        $oai_name = $collection->getOaiSetName();
+
+        $this->assertNotNull($oai_name,
+                'Field OaiName must not be null/empty.');
+        $this->assertTrue(preg_match("/:subset/", $oai_name) == 1,
+                'Field OaiSetName must contain OaiSubset.');
      }
 
 }
