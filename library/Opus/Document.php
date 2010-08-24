@@ -343,25 +343,19 @@ class Opus_Document extends Opus_Model_AbstractDb {
     protected function _init() {
         $fields = array(
             "CompletedDate", "CompletedYear",
-//            "Conference",
             "ContributingCorporation",
             "CreatingCorporation",
-            "DateAccepted",
+            "ThesisDateAccepted",
             "Edition",
-//            "Institute",
             "Issue",
-//            "Journal",
             "Language",
-//            "Monograph",
             "PageFirst", "PageLast", "PageNumber",
             "PublishedDate", "PublishedYear",
             "PublisherName",  "PublisherPlace",
             "ServerDateModified",
             "ServerDatePublished",
             "ServerDateUnlocking",
-            "ServerDateValid",
             "ServerState",
-            "Source",
             "Type",
             "Volume",
         );
@@ -416,9 +410,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // Initialize available date fields and set up date validator
         // if the particular field is present
         $dateFields = array(
-            'DateAccepted', 'CompletedDate', 'PublishedDate',
-            'ServerDateModified', 'ServerDatePublished',
-            'ServerDateUnlocking', 'ServerDateValid');
+            'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateUnlocking');
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
             if (null !== $field) {
