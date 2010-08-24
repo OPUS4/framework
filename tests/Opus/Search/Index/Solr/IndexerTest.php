@@ -64,7 +64,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         'Language' => 'de',
         'ContributingCorporation' => 'Contributing, Inc.',
         'CreatingCorporation' => 'Creating, Inc.',
-        'DateAccepted' => '1901-01-01',
+        'ThesisDateAccepted' => '1901-01-01',
         'Edition' => 2,
         'Issue' => 3,
         'Volume' => 1,
@@ -74,8 +74,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         'CompletedYear' => 1960,
         'CompletedDate' => '1901-01-01',
         'ServerDateUnlocking' => '2008-12-01',
-        'ServerDateValid' => '2008-12-01',
-        'Source' => 'BlaBla',
     );
 
     /**
