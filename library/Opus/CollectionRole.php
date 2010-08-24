@@ -80,8 +80,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _init() {
-        $this->logger('init');
-
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
         $this->addField($name);
@@ -207,8 +205,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $move_query = 'UPDATE collections_roles '
                 . ' SET position = position ' . $pos_shift
                 . ' WHERE ' . $range;
-        $this->logger("move: $move_query");
-        // echo "move: $move_query\n";
+        // $this->logger("move: $move_query");
         $db->query($move_query);
 
         // Update this row.
