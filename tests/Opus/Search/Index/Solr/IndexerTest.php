@@ -49,10 +49,17 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
      * @var Opus_Search_Index_Solr_Indexer
      */
     protected $indexer;
+
     /**
      * @var int
      */
     protected $document_id;
+
+    /**
+     * @var string
+     */
+    protected $files_dir;
+
     /**
      * Valid document data.
      *
@@ -91,6 +98,10 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
      */
     protected function setUp() {
         parent::setUp();
+
+        $config = Zend_Registry::get('Zend_Config');
+        $this->files_dir = $config->workspacePath . DIRECTORY_SEPARATOR . "files";
+
         $this->indexer = new Opus_Search_Index_Solr_Indexer();
         $this->indexer->deleteAllDocs();
         $this->indexer->commit();
@@ -114,7 +125,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $this->indexer->deleteAllDocs();
         $this->indexer->commit();
         // remove test documents under tests/workspace/files/$document_id
-        $dirname = "workspace/files/" . $this->document_id;
+        $dirname = $this->files_dir . DIRECTORY_SEPARATOR .$this->document_id;
         if (file_exists($dirname)) {
             foreach (glob($dirname . "/*") as $filename) {
                 unlink($filename);
@@ -236,7 +247,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $doc = new Opus_Document($this->document_id);
 
         $file = $doc->addFile();
-        $file->setDestinationPath('workspace/files');
+        $file->setDestinationPath($this->files_dir);
         $file->setPathName('nonexistent.pdf');
         $file->setLabel('non-existent PDF fulltext');
 
@@ -308,7 +319,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $file = $doc->addFile();
         $file->setSourcePath('fulltexts');
         $file->setTempFile($filename);
-        $file->setDestinationPath('workspace/files');
+        $file->setDestinationPath($this->files_dir);
         $file->setPathName($filename);
         $file->setLabel($label);
 
