@@ -124,6 +124,7 @@ class Opus_SolrSearch_Query {
         $first = true;
         $fqString = '';
         foreach ($this->filterQueries as $fq) {
+            $fq = str_replace(' ', '\ ', $fq);
             if ($first === true) {
                 $fqString = '+' . $fq;
                 $first = false;
