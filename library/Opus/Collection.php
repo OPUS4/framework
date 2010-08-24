@@ -110,7 +110,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _init() {
 
         $fields = array('Number', 'Name', 'OaiSubset',
-            'RoleName', 'RoleDisplayFrontdoor', 'Role');
+            'RoleName', 'RoleDisplayFrontdoor', 'RoleId', 'Role');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
