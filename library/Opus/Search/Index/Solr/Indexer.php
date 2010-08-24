@@ -191,16 +191,18 @@ class Opus_Search_Index_Solr_Indexer {
             return;
         }
         foreach ($files as $file) {
-            $docXml->appendChild($modelXml->createElement('Source_Index', $file->getPathName()));
-            $fulltext = '';
+            $sourceNode = $modelXml->createElement('Source_Index');
+            $sourceNode->appendChild($modelXml->createTextNode($file->getPathName()));
+            $docXml->appendChild($sourceNode);            
             try {                
                 $fulltext = $this->getFileContent($file);
+                $element = $modelXml->createElement('Fulltext_Index');
+                $element->appendChild($modelXml->createTextNode($fulltext));
+                $docXml->appendChild($element);
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
-            $element = $modelXml->createElement('Fulltext_Index', $fulltext);
-            $docXml->appendChild($element);            
         }
     }
 
