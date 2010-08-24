@@ -260,15 +260,6 @@ class Opus_CollectionRoleTest extends TestCase {
     }
 
     /**
-     * Tests getAttributes().
-     */
-    public function testGetAttributes() {
-        $attributes = $this->object->getAttributes();
-
-        $this->assertTrue(is_array($attributes), "Expected attributes array.");
-    }
-
-    /**
      * @todo Implement testExistsDocumentIdsInSet().
      */
     public function testExistsDocumentIdsInSet() {
