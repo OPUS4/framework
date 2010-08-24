@@ -331,13 +331,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_CollectionRole objects.
      *
-     * TODO: Parametrize query to account for hidden collection roles.
      * TODO: Modify self::getAllFrom to take parameters.
      */
     public static function fetchAll() {
         // $roles = self::getAllFrom('Opus_CollectionRole', self::$_tableGatewayClass);
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $roles = $table->fetchAll("id > 1", 'position');
+        $roles = $table->fetchAll(null, 'position');
         return self::createObjects($roles);
 
     }
