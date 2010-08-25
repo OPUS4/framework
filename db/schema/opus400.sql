@@ -48,6 +48,7 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `server_date_unlocking` VARCHAR(50) NULL COMMENT 'Expiration date of a embargo.' ,
   `server_state` ENUM('published', 'unpublished','deleted') NOT NULL COMMENT 'Status of publication process in the repository.' ,
   `volume` VARCHAR(25) NULL COMMENT 'Volume.',
+  `belongs_to_bibliography` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'States, if document will be part of the bibliography? (1=yes, 0=no).' ,
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
 COMMENT = 'Document related data (monolingual, unreproducible colums).';
@@ -78,12 +79,11 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `path_name` TEXT NOT NULL COMMENT 'File and path name.' ,
-  `sort_order` TINYINT(4) NOT NULL COMMENT 'Order of the files.' ,
   `label` TEXT NOT NULL COMMENT 'Display text of the file.' ,
-  `file_type` VARCHAR(255) NOT NULL COMMENT 'Filetype according to dublin core.' ,
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type of the file.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the file.' ,
   `file_size` BIGINT UNSIGNED NOT NULL COMMENT 'File size in bytes.',
+  `visible_in_frontdoor` BOOLEAN NOT NULL DEFAULT 1 COMMENT 'States, will be shown in the front door (1=yes, 0=no).' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_files_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_files_documents`
@@ -143,7 +143,6 @@ CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
   `type` ENUM('main', 'parent', 'abstract', 'sub', 'additional') NOT NULL COMMENT 'Type of title or abstract.' ,
   `value` TEXT NOT NULL COMMENT 'Value of title or abstract.' ,
   `language` VARCHAR(3) NOT NULL COMMENT 'Language of the title or abstract.' ,
-  `sort_order` TINYINT UNSIGNED NULL COMMENT 'Sort order of the titles related to the document.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_title_abstracts_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_title_abstracts_documents`
@@ -272,8 +271,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `message` TEXT NOT NULL COMMENT 'Message text.' ,
-  `creator` TEXT NOT NULL COMMENT 'Crator of the message.' ,
-  `scope` ENUM('private', 'public', 'reference') NOT NULL COMMENT 'Visibility: private, public, reference to another document version.' ,
+  `visibility` ENUM('private', 'public') NOT NULL COMMENT 'Visibility: private, public to another document version.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_notes_document` (`document_id` ASC) ,
   CONSTRAINT `fk_document_notes_document`
