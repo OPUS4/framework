@@ -430,29 +430,6 @@ COMMENT = 'Relation table (roles, ipranges).';
 
 
 -- -----------------------------------------------------
--- Table `collections_roles`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `collections_roles` (
-  `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
-  `oai_name` VARCHAR(255) NOT NULL COMMENT 'Shortname identifying role in oai context.' ,
-  `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
-  `link_docs_path_to_root` ENUM('none', 'count', 'display', 'both') default 'none' COMMENT 'Every document belonging to a collection C automatically belongs to every collection on the path from C to the root of the collection tree for document counting, document diplaying, none or both.',
-  `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Deleted collection trees are invisible. (1=visible, 0=invisible).' ,
-  `visible_browsing_start` 	TINYINT(1) UNSIGNED NOT NULL 	COMMENT 'Show tree on browsing start page. (1=yes, 0=no).' ,
-  `display_browsing` 		VARCHAR(512) NULL 		COMMENT 'Comma separated list of collection_contents_x-fields to display in browsing list context.' ,
-  `visible_frontdoor` 		TINYINT(1) UNSIGNED NOT NULL 	COMMENT 'Show tree on frontdoor. (1=yes, 0=no).' ,
-  `display_frontdoor` 		VARCHAR(512) NULL 		COMMENT 'Comma separated list of collection_contents_x-fields to display in frontdoor context.' ,
-  `visible_oai` 		TINYINT(1) UNSIGNED NOT NULL 	COMMENT 'Show tree in oai output. (1=yes, 0=no).' ,
-  `display_oai` 		VARCHAR(512) NULL 		COMMENT 'collection_contents_x-field to display in oai context.' ,
-  PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
-  UNIQUE INDEX `UNIQUE_OAI_NAME` (`oai_name` ASC) )
-ENGINE = InnoDB
-COMMENT = 'Administration table for the indivdual collection trees.';
-
-
--- -----------------------------------------------------
 -- Table `link_documents_licences`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
@@ -495,54 +472,6 @@ ENGINE = InnoDB
 COMMENT = 'Table for identifiers referencing to related documents.';
 
 
--- -----------------------------------------------------
--- Table `metis_pixel`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `metis_pixel` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `public_id` VARCHAR(50) NOT NULL COMMENT 'public identification code' ,
-  `private_id` VARCHAR(50) NOT NULL COMMENT 'private identification code' ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-COMMENT = 'Table for VG Wort-pixel.';
-
-
--- -----------------------------------------------------
--- Table `link_documents_metis_pixel`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `link_documents_metis_pixel` (
-  `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
-  `pixel_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: metis_pixel.id.' ,
-  PRIMARY KEY (`document_id`, `pixel_id`) ,
-  INDEX `fk_documents_has_metispixel_documents` (`document_id` ASC) ,
-  INDEX `fk_documents_has_metispixel_document_pixels` (`pixel_id` ASC) ,
-  CONSTRAINT `fk_documents_has_metispixel_documents`
-    FOREIGN KEY (`document_id` )
-    REFERENCES `documents` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE,
-  CONSTRAINT `fk_documents_has_metispixel_document_pixels`
-    FOREIGN KEY (`pixel_id` )
-    REFERENCES `metis_pixel` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-COMMENT = 'Relation table (documents, metis_pixel).';
-
-
--- -----------------------------------------------------
--- Table `translations`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `translations` (
-    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `context` VARCHAR(15) NOT NULL,
-    `locale` VARCHAR(10) NOT NULL,    
-    `translation_key` VARCHAR(15) NOT NULL,
-    `translation_msg` VARCHAR(15) NOT NULL,    
-    PRIMARY KEY (`id`))
-ENGINE = InnoDB;
-
-
 --
 -- Table `languages`
 -- Based on http://sil.org/iso639-3/download.asp
@@ -556,19 +485,8 @@ CREATE  TABLE IF NOT EXISTS `languages` (
   `type` ENUM('A', 'C', 'E', 'H', 'L', 'S') NOT NULL COMMENT 'A(ncient), C(onstructed), E(xtinct), H(istorical), L(iving), S(pecial)',
   `ref_name` varchar(150) NOT NULL COMMENT 'Reference language name',
   `comment` varchar(150) default NULL COMMENT 'Comment relating to one or more of the columns',
-  `active` TINYINT UNSIGNED NOT NULL default 0 COMMENT 'Is the institute visible? (1=yes, 0=no).' ,
+  `active` TINYINT UNSIGNED NOT NULL default 0 COMMENT 'Is the language visible? (1=yes, 0=no).' ,
   PRIMARY KEY (`id`)
-)
-ENGINE=InnoDB;
-
--- -----------------------------------------------------
--- Table `collections_themes`
--- -----------------------------------------------------
-CREATE  TABLE `collections_themes` (
-  `role_id` INT UNSIGNED NOT NULL,
-  `collection_id` INT UNSIGNED NOT NULL,
-  `theme` TEXT NOT NULL,
-  PRIMARY KEY (`role_id`, `collection_id`)
 )
 ENGINE=InnoDB;
 
