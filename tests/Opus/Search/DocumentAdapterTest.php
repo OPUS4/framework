@@ -86,7 +86,7 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
 
         $enrichment = $document->addEnrichment();
         $enrichment->setValue('Poor enrichment.');
-        $enrichment->setType('nonesense');
+        $enrichment->setKeyName('nonesense');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
