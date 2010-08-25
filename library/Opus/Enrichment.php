@@ -64,7 +64,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
      * @return void
      */
     protected function _init() {
-        $key = new Opus_Model_Field('Key');
+        $key = new Opus_Model_Field('KeyName');
         $key->setMandatory(true);
 
         $value = new Opus_Model_Field('Value');

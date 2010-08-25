@@ -64,7 +64,7 @@ class Opus_EnrichmentTest extends TestCase {
         $key = 'hallo';
         $value = 'welt';
 
-        $this->_doc->addEnrichment()->setKey($key)->setValue($value);
+        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
         $this->_doc->store();
 
         // reload document
@@ -76,7 +76,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         // get the enrichment to assert key and value
         $enrichment = $enrichments[0];
-        $this->assertEquals($key, $enrichment->getKey(),
+        $this->assertEquals($key, $enrichment->getKeyName(),
                 'Loaded other key, then stored.');
         $this->assertEquals($value, $enrichment->getValue(),
                 'Loaded other value, then stored.');
@@ -87,7 +87,7 @@ class Opus_EnrichmentTest extends TestCase {
         $values = array('11B05', '42A05');
 
         foreach ($values as $v) {
-            $this->_doc->addEnrichment()->setKey($key)->setValue($v);
+            $this->_doc->addEnrichment()->setKeyName($key)->setValue($v);
         }
         $this->_doc->store();
 
@@ -101,7 +101,7 @@ class Opus_EnrichmentTest extends TestCase {
         // compare enrichment values
         $loadedValues = array();
         foreach ($enrichments as $e) {
-            $this->assertEquals($key, $e->getKey(),
+            $this->assertEquals($key, $e->getKeyName(),
                     'Loaded other key, then stored.');
             $loadedValues[] = $e->getValue();
         }
@@ -117,7 +117,7 @@ class Opus_EnrichmentTest extends TestCase {
         $count = 5;
 
         for ($i = 0; $i < $count; $i++) {
-            $this->_doc->addEnrichment()->setKey($key)->setValue($value);
+            $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
         }
         $this->_doc->store();
 
@@ -130,7 +130,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         // compare enrichment keys and values
         foreach ($enrichments as $e) {
-            $this->assertEquals($key, $e->getKey(),
+            $this->assertEquals($key, $e->getKeyName(),
                     'Loaded other key, then stored.');
             $this->assertEquals($value, $e->getValue(),
                     'Loaded other value, then stored.');
