@@ -1045,6 +1045,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array An array of Opus_Collection objects.
      */
     protected function _fetchCollection() {
+        return;
+
+        // TODO: Waiting for implementation of institutes.
         $collections = array();
 
         if (false === is_null($this->isNewRecord())) {
@@ -1065,6 +1068,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeCollection($collections) {
+        return;
+
+        // TODO: Waiting for implementation of institutes.
         if (true === is_null($this->getId())) {
             return;
         }
@@ -1087,7 +1093,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _fetchPublisher() {
         $result = array();
+        return $result;
 
+        // TODO: Waiting for implementation of institutes.
         if (false === $this->isNewRecord()) {
             $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
             $db = $table->getAdapter();
@@ -1116,7 +1124,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _fetchGrantor() {
         $result = array();
+        return $result;
 
+        // TODO: Waiting for implementation of institutes.
         if (false === $this->isNewRecord()) {
             $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
             $db = $table->getAdapter();
