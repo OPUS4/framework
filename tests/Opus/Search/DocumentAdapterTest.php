@@ -75,7 +75,7 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
 
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
-        $note->setVisiblity('public');
+        $note->setVisibility('public');
 
         // FIXME: Dirty hack for mySql table locking problem.
         if (0) {
