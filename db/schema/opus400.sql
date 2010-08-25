@@ -290,8 +290,8 @@ COMMENT = 'Table for notes to documents.';
 CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `key_name` TEXT NOT NULL COMMENT 'Key name of the enrichment.' ,
-  `value` TEXT NOT NULL COMMENT 'Value of the enrichment.' ,
+  `key_name` VARCHAR(255) NOT NULL COMMENT 'Key name of the enrichment.' ,
+  `value` VARCHAR(255) NOT NULL COMMENT 'Value of the enrichment.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichment_document` (`document_id` ASC) ,
   INDEX `fk_document_enrichment_document_key` (`document_id` ASC, `key_name`) ,
