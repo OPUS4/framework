@@ -49,18 +49,9 @@
 
     <xsl:output method="xml" indent="yes" />
 
-    <!--
-    <xsl:param name="fulltext" />
-    <xsl:param name="source" />
-    -->
-
-    <!--
-    Suppress output for all elements that don't have an explicit template.
-    -->
+    <!-- Suppress output for all elements that don't have an explicit template. -->
     <xsl:template match="*" />
-    <xsl:template match="*" mode="oai_dc" />
-
-    <!--create the head of oai response  -->
+    
     <xsl:template match="/">
         <xsl:element name="add">
             <xsl:element name="doc">
@@ -174,6 +165,12 @@
                     </xsl:element>
                 </xsl:for-each>
 
+                <!-- has fulltext -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">has_fulltext</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/Has_Fulltext" />
+                </xsl:element>
+
                 <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
                 <xsl:for-each select="/Opus/Opus_Model_Filter/*">
                     <xsl:if test="substring(name(), 1, 6)='Person'">
@@ -233,14 +230,19 @@
                         </xsl:element>
                     </xsl:if>
                  </xsl:for-each>
+
+                <!-- Bibliographie -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">belongs_to_bibliography</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/@BelongsToBibliography" />
+                </xsl:element>
+
+
+                <!-- TODO: CreatingCorporation, ContributingCorporation -->
+
+                <!-- TODO: PublisherName, PublisherPlace -->
+
             </xsl:element>
-
-            <!-- TODO: CreatingCorporation, ContributingCorporation -->
-
-            <!-- TODO: PublisherName, PublisherPlace -->
-
-            
-
         </xsl:element>
     </xsl:template>
 </xsl:stylesheet>

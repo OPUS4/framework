@@ -206,7 +206,7 @@ class Opus_Search_Index_Solr_Indexer {
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
         $config = Zend_Registry::get('Zend_Config');
-        if (isset($config->log->prepare->xml) && $config->log->prepare->xml === true) {
+        if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
             $modelXml->formatOutput = true;
             $this->log->debug("\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;
@@ -233,24 +233,28 @@ class Opus_Search_Index_Solr_Indexer {
         if (count($files) == 0) {
             // Dokument besteht ausschließlich aus Metadaten
             $docXml->appendChild($modelXml->createElement('Source_Index', 'metadata'));
+            $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
         }
+        $hasFulltext = 'false';
         foreach ($files as $file) {
             $sourceNode = $modelXml->createElement('Source_Index');
             $sourceNode->appendChild($modelXml->createTextNode($file->getPathName()));
             $docXml->appendChild($sourceNode);            
-            try {                
+            try {
                 $fulltext = $this->getFileContent($file);
                 if (!empty($fulltext)) {
                     $element = $modelXml->createElement('Fulltext_Index');
                     $element->appendChild($modelXml->createTextNode($fulltext));
                     $docXml->appendChild($element);
+                    $hasFulltext = 'true';
                 }
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
         }
+        $docXml->appendChild($modelXml->createElement('Has_Fulltext', $hasFulltext));
     }
 
     /**

@@ -113,7 +113,7 @@ class Opus_SolrSearch_ResponseRenderer {
 
     private function getFacets() {
         $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];        
-        $facets = array ('year', 'doctype', 'author_facet', 'language');
+        $facets = array ('year', 'doctype', 'author_facet', 'language', 'has_fulltext', 'belongs_to_bibliography');
         $result = array();
         foreach ($facets as $facet) {
             $facetItems = array();
