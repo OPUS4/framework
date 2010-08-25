@@ -61,7 +61,6 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
             array('Opus_Db_CollectionsRoles'),
             array('Opus_Db_Collections'),
             array('Opus_Db_CollectionsNodes'),
-            array('Opus_Db_CollectionsThemes'),
             array('Opus_Db_DocumentEnrichments'),
             array('Opus_Db_DocumentFiles'),
             array('Opus_Db_DocumentIdentifiers'),
