@@ -94,7 +94,9 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function setUp() {
-        $dba = Zend_Db_Table::getDefaultAdapter();
+        // Instantiate the Zend_Db_Table
+        $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
+        $dba = $this->dbProvider->getAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
         $dba->query('CREATE TABLE testtable (
             testtable_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -103,8 +105,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // load table data
         parent::setUp();
 
-        // Instantiate the Zend_Db_Table
-        $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
     }
 
     /**
@@ -113,7 +113,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function tearDown() {
-        $dba = Zend_Db_Table::getDefaultAdapter();
+        $dba = $this->dbProvider->getAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
     }
 
