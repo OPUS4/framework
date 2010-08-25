@@ -53,7 +53,7 @@ class Opus_SolrSearch_Query {
     private $catchAll;
     private $searchType;
     private $modifier;
-    private $fieldValues;
+    private $fieldValues = array();
 
     /**
      *
@@ -167,8 +167,10 @@ class Opus_SolrSearch_Query {
      * @param string $modifier
      */
     public function setField($name, $value, $modifier = '+') {
-        $this->fieldValues[$name] = $value;
-        $this->modifier[$name] = $modifier;
+        if (!empty($value)) {
+            $this->fieldValues[$name] = $value;
+            $this->modifier[$name] = $modifier;
+        }
     }
 
     /**
