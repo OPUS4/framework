@@ -77,21 +77,16 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
         $note->setMessage('Ich bin eine öffentliche Notiz.');
         $note->setVisibility('public');
 
-        // FIXME: Dirty hack for mySql table locking problem.
-        if (0) {
-//        $dba = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentPatents');
-
         $patent = $document->addPatent();
         $patent->setCountries('Lummerland');
         $patent->setDateGranted('01-01-2001');
         $patent->setNumber('123456789');
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
-        }
 
         $enrichment = $document->addEnrichment();
         $enrichment->setValue('Poor enrichment.');
-//        $enrichment->setType('nonesense');
+        $enrichment->setType('nonesense');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
