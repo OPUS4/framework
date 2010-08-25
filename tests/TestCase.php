@@ -59,7 +59,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'documents',
             'accounts',
             'collections_nodes',
-            'collections_attributes',
+            'collections_enrichments',
             'collections',
             'collections_roles',
             'file_hashvalues',
@@ -68,16 +68,13 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'link_accounts_roles',
             'link_documents_collections',
             'link_documents_licences',
-            'link_documents_metis_pixel',
             'link_ipranges_roles',
             'link_persons_documents',
-            'metis_pixel',
             'persons',
             'person_external_keys',
             'privileges',
             'roles',
             'schema_version',
-            'translations',
         );
 
         foreach ($tables as $tableName) {
