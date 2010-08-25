@@ -37,11 +37,9 @@ class Opus_SolrSearch_Result {
     private $id;
     private $score;
     private $authors;
-    private $titleDeu;
-    private $titleEng;
+    private $title;
     private $year;
-    private $abstractDeu;
-    private $abstractEng;
+    private $abstract;    
 
     public function  __construct() {
     }
@@ -75,20 +73,12 @@ class Opus_SolrSearch_Result {
         }
     }
 
-    public function getTitleDeu() {
-        return $this->titleDeu;
+    public function getTitle() {
+        return $this->title;
     }
 
-    public function setTitleDeu($titleDeu) {
-        $this->titleDeu = $titleDeu;
-    }
-
-    public function getTitleEng() {
-        return $this->titleEng;
-    }
-
-    public function setTitleEng($titleEng) {
-        $this->titleEng = $titleEng;
+    public function setTitle($title) {
+        $this->title = $title;
     }
 
     public function getYear() {
@@ -99,20 +89,12 @@ class Opus_SolrSearch_Result {
         $this->year = $year;
     }
 
-    public function getAbstractDeu() {
-        return $this->abstractDeu;
+    public function getAbstract() {
+        return $this->abstract;
     }
 
-    public function setAbstractDeu($abstractDeu) {
-        $this->abstractDeu = $abstractDeu;
-    }
-
-    public function getAbstractEng() {
-        return $this->abstractEng;
-    }
-
-    public function setAbstractEng($abstractEng) {
-        $this->abstractEng = $abstractEng;
+    public function setAbstract($abstract) {
+        $this->abstract = $abstract;
     }
 
 
