@@ -140,7 +140,38 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         }
     }
 
-    public function testMissingConfigParam() {
+    public function testMissingConfigParamSearchEngine_Solr_Host() {
+        // manipulate configuration so that searchengine.solr.host is missing
+        $config = new Zend_Config(array());
+        Zend_Registry::set('Zend_Config', $config);
+
+        try {
+            new Opus_Search_Index_Solr_Indexer();
+            $this->fail('The expected Opus_Search_Index_Solr_Exception has not been raised.');
+        }
+        catch (Opus_Search_Index_Solr_Exception $e) {
+            return;
+        }
+    }
+
+    public function testMissingConfigParamSearchEngine_Solr_Port() {
+        // manipulate configuration so that searchengine.solr.port is missing
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'solr' => array(
+                    'host' => 'examplehost'))), true);
+        Zend_Registry::set('Zend_Config', $config);
+
+        try {
+            new Opus_Search_Index_Solr_Indexer();
+            $this->fail('The expected Opus_Search_Index_Solr_Exception has not been raised.');
+        }
+        catch (Opus_Search_Index_Solr_Exception $e) {
+            return;
+        }
+    }
+
+    public function testMissingConfigParamSearchEngine_Solr_App() {
         // manipulate configuration so that searchengine.solr.app is missing
         $config = new Zend_Config(array(
             'searchengine' => array(
@@ -159,9 +190,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     public function testEmptyConfiguration() {
-
         // manipulate configuration so that searchengine.solr.app is empty
-        $config = Zend_Registry::get('Zend_Config');
         $config = new Zend_Config(array(
             'searchengine' => array(
                 'solr' => array(
@@ -181,7 +210,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
 
     public function testInvalidConfiguration() {
         // manipulate configuration so that searchengine.solr.app is invalid
-        $config = Zend_Registry::get('Zend_Config');
         $config = new Zend_Config(array(
             'searchengine' => array(
                 'solr' => array(
@@ -197,6 +225,26 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         catch(Opus_Search_Index_Solr_Exception $e) {
             return;
         }
+    }
+
+    public function testPrepareAndOutputXML() {
+        $oldConfig = Zend_Registry::get('Zend_Config');
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'solr' => array(
+                    'host' => $this->config->searchengine->solr->host,
+                    'port' => $this->config->searchengine->solr->port,
+                    'app'  => $this->config->searchengine->solr->app
+                )
+            ),
+            'log' => array(
+                'prepare' => array(
+                    'xml' => true
+                )
+            )
+        ), true);
+        Zend_Registry::set('Zend_Config', $config);
+        $this->_addOneDocumentToIndex();
     }
 
     public function testDeleteAllDocsInConstructor() {

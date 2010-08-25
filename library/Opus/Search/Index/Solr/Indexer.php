@@ -77,18 +77,36 @@ class Opus_Search_Index_Solr_Indexer {
     }
 
     /**
-     * returns a Apache_Solr_Service object which encapsulates the communication
-     * with the Solr server
+     * Returns a Apache_Solr_Service object which encapsulates the communication
+     * with the Solr server.
      *
      * @return Apache_Solr_Server
      * @throws Opus_Search_Index_Solr_Exception If no connection could be established.
      */
-    private function getSolrServer() {        
+    private function getSolrServer() {
         $config = Zend_Registry::get('Zend_Config');
+        $errMsg = "Configuration parameter searchengine.solr.%s does not exist in config file.";
+        if (!isset($config->searchengine->solr->host)) {
+            $errMsg = sprintf($errMsg, 'host');
+            $this->log->err($errMsg);
+            throw new Opus_Search_Index_Solr_Exception($errMsg);
+        }
+        if (!isset($config->searchengine->solr->port)) {
+            $errMsg = sprintf($errMsg, 'port');
+            $this->log->err($errMsg);
+            throw new Opus_Search_Index_Solr_Exception($errMsg);
+        }
+        if (!isset($config->searchengine->solr->app)) {
+            $errMsg = sprintf($errMsg, 'app');
+            $this->log->err($errMsg);
+            throw new Opus_Search_Index_Solr_Exception($errMsg);
+        }
+        
         $solr_host = $this->checkForExistence($config->searchengine->solr->host, 'searchengine.solr.host');
         $solr_port = $this->checkForExistence($config->searchengine->solr->port, 'searchengine.solr.port');
         $solr_app = '/' . $this->checkForExistence($config->searchengine->solr->app, 'searchengine.solr.app');
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
+        
         try {
             return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
         }
@@ -103,13 +121,14 @@ class Opus_Search_Index_Solr_Indexer {
     /**
      * @param Zend_Config $config Configuration from which to read from.
      * @param string $configParamName Name of the config parameter needed for output purposes.
-     * @return string Returns the value of the given configuration parameter if it exists in config file.
+     * @return string Returns the value of the given configuration parameter if
+     * it exists in config file and is not empty.
      * @throws Opus_Search_Index_Solr_Exception If the given configuration parameter
-     * is not present in the config file or is empty.
+     * is empty.
      */
     private function checkForExistence($configParamValue, $configParamName) {
         if (empty($configParamValue)) {
-            $msg = "Configuration parameter $configParamName does not exist in config file or is empty.";
+            $msg = "Configuration parameter $configParamName is empty.";
             $this->log->err($msg);
             throw new Opus_Search_Index_Solr_Exception($msg);
         }
@@ -187,7 +206,7 @@ class Opus_Search_Index_Solr_Indexer {
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
         $config = Zend_Registry::get('Zend_Config');
-        if ($config->log->prepare->xml === true) {
+        if (isset($config->log->prepare->xml) && $config->log->prepare->xml === true) {
             $modelXml->formatOutput = true;
             $this->log->debug("\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;
