@@ -68,15 +68,10 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
             ->setValidator(new Zend_Validate_NotEmpty())
             ->setTextarea(true);
             
-        $creator = new Opus_Model_Field('Creator');
-        $creator->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-        
-        $scope = new Opus_Model_Field('Scope');
-        $scope->setValidator(new Opus_Validate_NoteScope());
+        $visibility = new Opus_Model_Field('Visibility');
+        $visibility->setValidator(new Opus_Validate_NoteScope());
 
-        $this->addField($creator)
-            ->addField($scope)
+        $this->addField($visibility)
             ->addField($message);
     }
 

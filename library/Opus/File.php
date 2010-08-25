@@ -107,9 +107,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $filepathname->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $filesortorder = new Opus_Model_Field('SortOrder');
         $filelabel = new Opus_Model_Field('Label');
-        $filetype = new Opus_Model_Field('FileType');
         $mimetype = new Opus_Model_Field('MimeType');
 
         $filelanguage = new Opus_Model_Field('Language');
@@ -123,6 +121,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $filesize = new Opus_Model_Field('FileSize');
         $filesize->setMandatory(true);
 
+        $visible_in_frontdoor = new Opus_Model_Field('VisibleInFrontdoor');
+
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
@@ -134,13 +134,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $this->addField($role);
         $this->addField($filepathname)
-                ->addField($filesortorder)
                 ->addField($filelabel)
-                ->addField($filetype)
                 ->addField($mimetype)
                 ->addField($filelanguage)
                 ->addField($tempfile)
                 ->addField($filesize)
+                ->addField($visible_in_frontdoor)
                 ->addField($hashvalue)
                 ->addField($role);
     }

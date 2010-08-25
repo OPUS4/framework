@@ -51,7 +51,7 @@ class Opus_Validate_NoteScope extends Opus_Validate_AbstractEnum {
      * @var array
      */
     protected $_messageTemplates = array(
-        self::MSG_NOTESCOPE => "'%value%' is not a valid note scope"
+        self::MSG_NOTESCOPE => "'%value%' is not a valid note visibility"
     );
 
     /**
@@ -59,5 +59,5 @@ class Opus_Validate_NoteScope extends Opus_Validate_AbstractEnum {
      *
      * @var array
      */
-    protected $_valid_enums = array('private','public','reference');
+    protected $_valid_enums = array('private','public');
 }
