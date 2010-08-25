@@ -189,13 +189,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Use attributes table for this and 'options' on $_externalFields.
      */
     protected function _fetchTheme() {
-        return array();
-
         if ($this->isNewRecord()) {
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
         // $config = Zend_Registry::get('Zend_Config');
 
         // Find default theme: if not set in config file, set to default.
@@ -204,12 +202,12 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         // Search for theme in database and, if exists, overwrite default theme.
         if (false === $this->isNewRecord()) {
             $select = $table->select()
-                            ->where('role_id = ?', $this->getRoleId())
+                            ->where('key_name = ?', "theme")
                             ->where('collection_id = ?', $this->getId());
             $row = $table->fetchRow($select);
 
             if (false === is_null($row)) {
-                $theme = $row->theme;
+                $theme = $row->value;
             }
         }
 
@@ -226,8 +224,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
     protected function _storeTheme($theme) {
-        return;
-
         if ($this->isNewRecord()) {
             // FIXME: Maybe there is something to be done on isNewRecord?
             return;
@@ -237,9 +233,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return;
         }
 
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsThemes');
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
         $select = $table->select()
-                        ->where('role_id = ?', $this->getRoleId())
+                        ->where('key_name = ?', "theme")
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
@@ -250,11 +246,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         if (true === is_null($row)) {
             $row = $table->createRow();
+            $row->collection_id = $this->getId();
+            $row->key_name = 'theme';
         }
 
-        $row->role_id = $this->getRoleId();
-        $row->collection_id = $this->getId();
-        $row->theme = $theme;
+        $row->value = $theme;
         $row->save();
     }
 
