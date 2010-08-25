@@ -189,6 +189,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Use attributes table for this and 'options' on $_externalFields.
      */
     protected function _fetchTheme() {
+        return array();
+
         if ($this->isNewRecord()) {
             return;
         }
@@ -224,6 +226,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
     protected function _storeTheme($theme) {
+        return;
+
         if ($this->isNewRecord()) {
             // FIXME: Maybe there is something to be done on isNewRecord?
             return;
