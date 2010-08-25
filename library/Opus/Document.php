@@ -1068,9 +1068,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeCollection($collections) {
-        return;
-
-        // TODO: Waiting for implementation of institutes.
         if (true === is_null($this->getId())) {
             return;
         }
