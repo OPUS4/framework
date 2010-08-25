@@ -67,9 +67,9 @@ class Opus_Note extends Opus_Model_Dependent_Abstract
         $message->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty())
             ->setTextarea(true);
-            
+
         $visibility = new Opus_Model_Field('Visibility');
-        $visibility->setValidator(new Opus_Validate_NoteScope());
+        $visibility->setValidator(new Opus_Validate_NoteVisibility());
 
         $this->addField($visibility)
             ->addField($message);
