@@ -42,7 +42,7 @@ class Opus_SolrSearch_Query {
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
     const DEFAULT_SORTORDER = 'desc';
-    const DEFAULT_OPERATOR = 'OR';
+    const DEFAULT_OPERATOR = 'AND';
 
     private $start = self::DEFAULT_START;
     private $rows = self::DEFAULT_ROWS;
