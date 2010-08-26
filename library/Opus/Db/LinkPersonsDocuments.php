@@ -71,10 +71,10 @@ class Opus_Db_LinkPersonsDocuments extends Opus_Db_TableGateway {
                 'refTableClass' => 'Opus_Db_Persons',
                 'refColumns' => 'id'
                 ),
-            'Institutes' => array(
-                'column' => 'institute_id',
-                'refTableClass' => 'Opus_Db_InstitutesContents',
-                'refColumns' => 'id' 
-                )
+//            'Institutes' => array(
+//                'column' => 'institute_id',
+//                'refTableClass' => 'Opus_Db_InstitutesContents',
+//                'refColumns' => 'id'
+//                )
             );
 }
