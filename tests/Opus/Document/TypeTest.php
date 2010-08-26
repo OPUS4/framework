@@ -99,6 +99,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @dataProvider invalidCreationDataProvider
      */
     public function testCreateWithInvalidArgumentThrowsException($arg, $msg) {
+
+
         try {
             $obj = new Opus_Document_Type($arg);
         } catch (InvalidArgumentException $ex) {
@@ -114,6 +116,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testCreateByXmlString() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -154,6 +158,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testCreateByXmlFile() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = dirname(__FILE__) . '/repository/type_test.xml';
         try {
             $type = new Opus_Document_Type($xml);
@@ -194,6 +200,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testCreateByXmlDomDocument() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $file = dirname(__FILE__) . '/repository/type_test.xml';
         $dom = new DOMDocument();
         $dom->load($file);
@@ -211,6 +219,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testDefaultOptions() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -236,6 +246,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testTypeFromFileGetsRegisteredInZendRegistry() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml1 = dirname(__FILE__) . '/repository/type_test.xml';
         $type1 = new Opus_Document_Type($xml1);
         $typename = $type1->getName();
@@ -256,6 +268,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testTypeGetsRegisteredInZendRegistry() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="special_type"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -280,6 +294,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testTypeOverrideInRegistry() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml1 = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -311,6 +327,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testGetMultiplicityWhenGivenByXml() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -336,6 +354,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testGetMandatoryWhenGivenByXml() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -355,6 +375,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return
      */
     public function testAppropriateErrorMessageOnXmlSchemaViolations() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
@@ -379,6 +401,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testGetDocumentTypeFileByTypeName() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         Opus_Document_Type::setXmlDoctypePath(dirname(dirname(__FILE__)));
         $type = new Opus_Document_Type('article');
         $this->assertNotNull($type);
@@ -410,6 +434,8 @@ class Opus_Document_TypeTest extends TestCase {
      * @return void
      */
     public function testMandatoryIsBooleanValue() {
+        $this->markTestSkipped("Opus_Document_Type is deprecated and won't be fixed.");
+
         $xml = '<?xml version="1.0" encoding="UTF-8" ?>
                 <documenttype name="doctoral_thesis"
                     xmlns="http://schemas.opus.org/documenttype"
