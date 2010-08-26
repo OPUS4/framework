@@ -43,14 +43,6 @@
  */
 class Opus_Statistic_LocalCounterTest extends TestCase {
 
-
-    /**
-     * Documenttype for countable documents.
-     *
-     * @var Opus_Document_Type
-     */
-    protected $_documentType = null;
-
     /**
      * Document to count on :)
      *
@@ -60,7 +52,7 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
 
     /**
      * Provide clean documents and statistics table and remove temporary files.
-     * Create document type and document for counting.
+     * Create document for counting.
      *
      * @return void
      */
@@ -70,15 +62,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
         $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
         @unlink($path);
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-                <documenttype name="counter_test_type"
-                    xmlns="http://schemas.opus.org/documenttype"
-                    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-                    <field name="Language"/>
-                </documenttype>';
-        $this->_documentType = new Opus_Document_Type($xml);
-
-        $this->_document = new Opus_Document(null, $this->_documentType);
+        $this->_document = new Opus_Document();
+        $this->_document->setType("doctoral_thesis");
         $this->_document->store();
 
         //setting server globals

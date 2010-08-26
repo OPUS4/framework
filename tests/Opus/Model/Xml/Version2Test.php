@@ -55,20 +55,8 @@ class Opus_Model_Xml_Version2Test extends TestCase {
      * @return void
      */
     public function testInitialXmlVersion2() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" multiplicity="2" />
-            <field name="TitleMain" />
-            <field name="TitleAbstract" />
-            <field name="PersonAuthor" multiplicity="2"/>
-            <field name="PublishedDate" />
-
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
 
         $document->setLanguage(array('deu', 'eng'));
         $document->setPublishedDate(date('d.m.Y'));
@@ -123,21 +111,8 @@ class Opus_Model_Xml_Version2Test extends TestCase {
      * @return void
      */
     public function testSettingOfXmlShouldBeEqualToSetModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" multiplicity="2" />
-            <field name="TitleMain" />
-            <field name="TitleAbstract" />
-            <field name="PersonAuthor" multiplicity="2"/>
-            <field name="PublishedDate" />
-
-        </documenttype>';
-
-        // generate a model
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
 
         $document->setLanguage(array('deu', 'eng'));
         $document->setPublishedDate(date('d.m.Y'));
@@ -196,15 +171,6 @@ class Opus_Model_Xml_Version2Test extends TestCase {
      * @return void
      */
     public function testConstructionFromCorrectTypeElement() {
-    
-       $typeXml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="test"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" />
-            <field name="SubjectUncontrolled" />
-        </documenttype>';
-    
         $docXml = '<?xml version="1.0"?>
             <Opus version="2.0">
               <Opus_Document>
@@ -223,12 +189,13 @@ class Opus_Model_Xml_Version2Test extends TestCase {
               </Opus_Document>
             </Opus>';
             
-        $type = new Opus_Document_Type($typeXml);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
 
         $omx = new Opus_Model_Xml();
         // take first serialize data as source
         $omx->setXml($docXml);
-        $omx->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
+        $omx->setConstructionAttributesMap(array('Opus_Document' => array()));
         $omx->setStrategy(new Opus_Model_Xml_Version2);
         // build a model from xml
         $model = $omx->getModel();

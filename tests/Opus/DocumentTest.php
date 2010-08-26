@@ -845,8 +845,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $newdoc = new Opus_Document(null, 'article');
+        $newdoc = new Opus_Document();
+        $newdoc->setType('article');
+
         $fieldnames = $newdoc->describe();
         foreach ($fieldnames as $fieldname) {
             $field = $newdoc->getField($fieldname);
