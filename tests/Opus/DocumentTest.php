@@ -205,30 +205,6 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
-     * Test if adding more values to a multi-value field than it may hold throws
-     * an InvalidArgumentException.
-     *
-     * @return void
-     */
-    public function testAddingMoreValuesThanMultiplicityAllowsThrowsException() {
-        // TODO: Write new unit test for new behaviour.
-        $this->markTestSkipped('Obsolete test after removing document builder.');
-
-        $document = new Opus_Document();
-        $document->setType("doctoral_thesis");
-
-        $author = new Opus_Person();
-        $author->setFirstName('Ludwig');
-        $author->setLastName('Wittgenstein');
-
-        $document->addPersonAuthor($author);
-        $document->addPersonAuthor($author);
-        $this->setExpectedException('InvalidArgumentException');
-        $document->addPersonAuthor($author);
-
-    }
-
-    /**
      * Test if adding a value to a single-value field that is already populated
      * throws an InvalidArgumentException.
      *
@@ -615,54 +591,6 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
-     * Test if an empty title list can be retrieved from an empty database.
-     *
-     * @return void
-     */
-    public function testRetrieveEmptyTitleListFromEmptyDatabase() {
-        // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        $this->markTestSkipped('TODO: analyze');
-
-        $result = Opus_Document::getAllDocumentTitles();
-        $this->assertTrue(empty($result), 'Title list contains phantom results.');
-    }
-
-    /**
-     * Test if the corresponding document id is set for each titile in the tile list.
-     *
-     * @return void
-     */
-    public function testRetrieveDocumentIdPerTitle() {
-
-        $doc1 = new Opus_Document();
-        $doc1->setType("doctoral_thesis");
-        $title1 = $doc1->addTitleMain();
-        $title1->setLanguage('de');
-        $title1->setValue('Ein deutscher Titel');
-        $title2 = $doc1->addTitleMain();
-        $title2->setLanguage('en');
-        $title2->setValue('Ein englischer Titel');
-        $id1 = $doc1->store();
-
-
-        $doc2 = new Opus_Document();
-        $doc2->setType("doctoral_thesis");
-        $title3 = $doc2->addTitleMain();
-        $title3->setLanguage('en');
-        $title3->setValue('An english titel');
-        $id2 = $doc2->store();
-
-        // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        $this->markTestSkipped('TODO: analyze');
-
-        $result = Opus_Document::getAllDocumentTitles();
-
-        $this->assertEquals($title1->getValue(), $result[$id1][0], 'Wrong document id for title.');
-        $this->assertEquals($title2->getValue(), $result[$id1][1], 'Wrong document id for title.');
-        $this->assertEquals($title3->getValue(), $result[$id2][0], 'Wrong document id for title.');
-    }
-
-    /**
      * Test if adding a model to a field that is defined as a link sets the
      * field value to the corresponding dependent link model.
      *
@@ -1018,7 +946,7 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document();
         $doc->store();
         
-        $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');    
+        $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');
     }
 
 }
