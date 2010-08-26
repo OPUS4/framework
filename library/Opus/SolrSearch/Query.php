@@ -44,6 +44,10 @@ class Opus_SolrSearch_Query {
     const DEFAULT_SORTORDER = 'desc';
     const DEFAULT_OPERATOR = 'AND';
 
+    const SEARCH_MODIFIER_CONTAINS_ALL = "contains_all";
+    const SEARCH_MODIFIER_CONTAINS_ANY = "contains_any";
+    const SEARCH_MODIFIER_CONTAINS_NONE = "contains_none";
+
     private $start = self::DEFAULT_START;
     private $rows = self::DEFAULT_ROWS;
     private $sortField = self::DEFAULT_SORTFIELD;
@@ -166,7 +170,7 @@ class Opus_SolrSearch_Query {
      * @param string $value
      * @param string $modifier
      */
-    public function setField($name, $value, $modifier = '+') {
+    public function setField($name, $value, $modifier = self::SEARCH_MODIFIER_CONTAINS_ANY) {
         if (!empty($value)) {
             $this->fieldValues[$name] = $value;
             $this->modifier[$name] = $modifier;
@@ -199,7 +203,7 @@ class Opus_SolrSearch_Query {
 
     public function getQ() {
         if ($this->searchType === self::SIMPLE) {
-            return $this->getCatchAll();
+            return $this->escape($this->getCatchAll());
         }
         return $this->buildAdvancedQString();
     }
@@ -214,7 +218,7 @@ class Opus_SolrSearch_Query {
             else {
                 $first = false;
             }
-            $q = $q . $this->modifier[$fieldname] . $fieldname . ':(' . $fieldvalue . ')';
+            $q = $q . $this->modifier[$fieldname] . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
         }
         return $q;
     }
@@ -224,6 +228,14 @@ class Opus_SolrSearch_Query {
             return 'simple search with query ' . $this->getQ();
         }
         return 'advanced search with query  ' . $this->getQ();
+    }
+
+    /**
+     *
+     * @param string $query The value which needs to be escaped.
+     */
+    private function escape($query) {
+        return $query;
     }
 }
 ?>
