@@ -140,8 +140,8 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         }
     }
 
-    public function testMissingConfigParamSearchEngine_Solr_Host() {
-        // manipulate configuration so that searchengine.solr.host is missing
+    public function testMissingConfigParamSearchEngine_Index_Host() {
+        // manipulate configuration so that searchengine.index.host is missing
         $config = new Zend_Config(array());
         Zend_Registry::set('Zend_Config', $config);
 
@@ -154,11 +154,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         }
     }
 
-    public function testMissingConfigParamSearchEngine_Solr_Port() {
-        // manipulate configuration so that searchengine.solr.port is missing
+    public function testMissingConfigParamSearchEngine_Index_Port() {
+        // manipulate configuration so that searchengine.index.port is missing
         $config = new Zend_Config(array(
             'searchengine' => array(
-                'solr' => array(
+                'index' => array(
                     'host' => 'examplehost'))), true);
         Zend_Registry::set('Zend_Config', $config);
 
@@ -171,11 +171,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         }
     }
 
-    public function testMissingConfigParamSearchEngine_Solr_App() {
-        // manipulate configuration so that searchengine.solr.app is missing
+    public function testMissingConfigParamSearchEngine_Index_App() {
+        // manipulate configuration so that searchengine.index.app is missing
         $config = new Zend_Config(array(
             'searchengine' => array(
-                'solr' => array(
+                'index' => array(
                     'host' => 'examplehost',
                     'port' => 'exampleport'))), true);
         Zend_Registry::set('Zend_Config', $config);
@@ -189,11 +189,31 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         }
     }
 
-    public function testEmptyConfiguration() {
-        // manipulate configuration so that searchengine.solr.app is empty
+    public function testMissingConfigParamLogPrepareXml() {
+        // manipulate configuration so that log.prepare.xml is missing
         $config = new Zend_Config(array(
             'searchengine' => array(
-                'solr' => array(
+                'index' => array(
+                    'host' => $this->config->searchengine->index->host,
+                    'port' => $this->config->searchengine->index->port,
+                    'app'  => $this->config->searchengine->index->app
+                ),
+                'extract' => array(
+                    'host' => $this->config->searchengine->extract->host,
+                    'port' => $this->config->searchengine->extract->port,
+                    'app'  => $this->config->searchengine->extract->app
+                )
+            ),
+        ), true);
+        Zend_Registry::set('Zend_Config', $config);
+        $this->_addOneDocumentToIndex();
+    }
+
+    public function testEmptyConfiguration() {
+        // manipulate configuration so that searchengine.index.app is empty
+        $config = new Zend_Config(array(
+            'searchengine' => array(
+                'index' => array(
                     'host' => 'examplehost',
                     'port' => 'exampleport',
                     'app'  => ''))), true);
@@ -209,10 +229,10 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     public function testInvalidConfiguration() {
-        // manipulate configuration so that searchengine.solr.app is invalid
+        // manipulate configuration so that searchengine.index.app is invalid
         $config = new Zend_Config(array(
             'searchengine' => array(
-                'solr' => array(
+                'index' => array(
                     'host' => 'examplehost',
                     'port' => 'exampleport',
                     'app'  => 'this_solr_instance_name_does_not_exist'))), true);
@@ -228,13 +248,17 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     public function testPrepareAndOutputXML() {
-        $oldConfig = Zend_Registry::get('Zend_Config');
         $config = new Zend_Config(array(
             'searchengine' => array(
-                'solr' => array(
-                    'host' => $this->config->searchengine->solr->host,
-                    'port' => $this->config->searchengine->solr->port,
-                    'app'  => $this->config->searchengine->solr->app
+                'index' => array(
+                    'host' => $this->config->searchengine->index->host,
+                    'port' => $this->config->searchengine->index->port,
+                    'app'  => $this->config->searchengine->index->app
+                ),
+                'extract' => array(
+                    'host' => $this->config->searchengine->extract->host,
+                    'port' => $this->config->searchengine->extract->port,
+                    'app'  => $this->config->searchengine->extract->app
                 )
             ),
             'log' => array(
@@ -248,7 +272,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     public function testDeleteAllDocsInConstructor() {
-        $this->_addOneDocumentToIndex();
+        $this->_addOneDocumentToIndex();        
         $this->indexer = new Opus_Search_Index_Solr_Indexer(true);
         $this->assertEquals(0, $this->_getNumberOfIndexDocs());
 
@@ -406,6 +430,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $searcher = new Opus_SolrSearch_Searcher();
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
         $query->setCatchAll("*:*");
+        $query->disableEscaping();
         return $searcher->search($query)->getNumberOfHits();
     }
 
@@ -413,6 +438,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $searcher = new Opus_SolrSearch_Searcher();
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
         $query->setCatchAll('Lorem');
+        $query->disableEscaping();
         return $searcher->search($query)->getNumberOfHits();
     }
 
