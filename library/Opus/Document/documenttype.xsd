@@ -1,37 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
-<!-- 
-	* This file is part of OPUS. The software OPUS has been originally developed
-	* at the University of Stuttgart with funding from the German Research Net,
-	* the Federal Department of Higher Education and Research and the Ministry
-	* of Science, Research and the Arts of the State of Baden-Wuerttemberg.
-	*
-	* OPUS 4 is a complete rewrite of the original OPUS software and was developed
-	* by the Stuttgart University Library, the Library Service Center
-	* Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
-	* the Saarland University and State Library, the Saxon State Library - 
-	* Dresden State and University Library, the Bielefeld University Library and 
-	* the University Library of Hamburg University of Technology with funding from 
-	* the German Research Foundation and the European Regional Development Fund.
-	*
-	* LICENCE
-	* OPUS is free software; you can redistribute it and/or modify it under the
-	* terms of the GNU General Public License as published by the Free Software
-	* Foundation; either version 2 of the Licence, or any later version.
-	* OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
-	* WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-	* FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
-	* details. You should have received a copy of the GNU General Public License 
-	* along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
-	* Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-	*
-	* @category   Framework
-	* @package    Opus_Document
-	* @author     Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
-	* @copyright  Copyright (c) 2008, OPUS 4 development team
-	* @license    http://www.gnu.org/licenses/gpl.html General Public License
-	* @version    $Id$
--->
+<!--
+/**
+ * This file is part of OPUS. The software OPUS has been originally developed
+ * at the University of Stuttgart with funding from the German Research Net,
+ * the Federal Department of Higher Education and Research and the Ministry
+ * of Science, Research and the Arts of the State of Baden-Wuerttemberg.
+ *
+ * OPUS 4 is a complete rewrite of the original OPUS software and was developed
+ * by the Stuttgart University Library, the Library Service Center
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
+ *
+ * LICENCE
+ * OPUS is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the Licence, or any later version.
+ * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * @category    TODO
+ * @author      Susanne Gottwald <gottwald@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
+ */
+ -->
 
 <!--
 	This schema describes the how to structure document type definition files
@@ -39,175 +39,164 @@
 	
 	A document type definition basicly consists of field declarations. Each of them 
 	describes an Opus field that is used by the document type. A field declaration may 
-	have options to trigger	language selection or multivalue capabilities if supported 
+	have options to trigger language selection or multivalue capabilities if supported 
 	by Opus for the specified field.
 	
-	An mandatory option is set to "yes" if the field has to be filled during user input 
-	activities.	To group a set of mandatory fields the <mandatory> tag can be used.  
+	An required option is set to "yes" if the field has to be filled during user input 
+	activities.
 -->
-<schema targetNamespace="http://schemas.opus.org/documenttype"
-	elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
-	xmlns:opus="http://schemas.opus.org/documenttype">
-
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:opus="http://schemas.opus.org/documenttype" targetNamespace="http://schemas.opus.org/documenttype" elementFormDefault="qualified">
 	<!-- Root element -->
-	<element name="documenttype" type="opus:OpusDocumentType" />
-
+	<element name="documenttype" type="opus:OpusDocumentType"/>
 	<complexType name="OpusDocumentType">
 		<sequence maxOccurs="unbounded">
 			<choice maxOccurs="unbounded">
-				<element name="field" type="opus:FieldType" />
-				<element name="mandatory" type="opus:Mandatory" />
-				<element name="page" type="opus:Page" />
+				<element name="field" type="opus:FieldType"/>
 			</choice>
 		</sequence>
-		<attribute name="name" type="opus:validname" use="required" />
+		<attribute name="name" type="opus:validname" use="required"/>
 	</complexType>
-
 	<!-- The mandatory option groups field elements and allows to specify
 		three different mandatory types:
 		
 		all          - all grouped fields are mandatory fields
 		one-at-least - minimum one field has to be set  
 	-->
-	<complexType name="Mandatory">
-		<sequence>
-			<element name="field" type="opus:FieldType"
-				maxOccurs="unbounded" />
-		</sequence>
-		<attribute name="type" default="all">
-			<simpleType>
-				<restriction base="string">
-					<enumeration value="all" />
-					<enumeration value="one-at-least" />
-				</restriction>
-			</simpleType>
-		</attribute>
-	</complexType>
-
-	<complexType name="Page">
-		<sequence maxOccurs="unbounded">
-			<choice maxOccurs="unbounded">
-				<element name="field" type="opus:FieldType" />
-				<element name="mandatory" type="opus:Mandatory" />
-			</choice>
-		</sequence>
-		<attribute name="caption" type="string" />
-	</complexType>
-
 	<complexType name="FieldType">
-		<attribute name="name" type="opus:validfieldname" use="required" />
-		<attribute name="multiplicity" type="opus:multiplicity"
-			default="1" />
-		<attribute name="mandatory" type="opus:yesno" default="no" />
-		<attribute name="adminformweight" type="integer" />
-		<attribute name="publishformweight" type="integer" />
+		<sequence maxOccurs="1" minOccurs="0">
+			<element name="required-if-fulltext"  minOccurs="0"/>			
+		</sequence>
+		<attribute name="name" type="opus:validfieldname" use="required"/>
+		<attribute name="multiplicity" type="opus:multiplicity" default="1"/>
+		<attribute name="required" type="opus:yesno" default="no"/>
+		<attribute name="formelement" type="opus:validFormElements"/>
+		<attribute name="datatype" type="opus:availableDatatypes"/>		
 	</complexType>
-
+	
+	<complexType name="requiredType">
+		<attribute name="field" type="opus:validfieldname" use="required"/>
+	</complexType>
 	<!-- Multiplicity attributes accept only integers for quantities,
 		or the star "*" symbol to represent unlimited quantity.-->
 	<simpleType name="multiplicity">
 		<restriction base="string">
-			<pattern value="([1-9][0-9]*)|\*" />
+			<pattern value="([1-9][0-9]*)|\*"/>
 		</restriction>
 	</simpleType>
-
+	<simpleType name="availableDatatypes">
+		<restriction base="string">
+			<enumeration value="Text"/>
+			<enumeration value="Year"/>
+			<enumeration value="Person"/>
+			<enumeration value="Alpha"/>
+			<enumeration value="Integer"/>
+			<enumeration value="Title"/>
+			<enumeration value="Licence"/>
+		</restriction>
+	</simpleType>
+	<simpleType name="validFormElements">
+		<restriction base="string">
+			<enumeration value="Text"/>
+			<enumeration value="Textarea"/>
+			<enumeration value="Select"/>
+		</restriction>
+	</simpleType>
 	<simpleType name="yesno">
 		<restriction base="string">
-			<enumeration value="yes" />
-			<enumeration value="no" />
+			<enumeration value="yes"/>
+			<enumeration value="no"/>
 		</restriction>
 	</simpleType>
-
 	<simpleType name="onoff">
 		<restriction base="string">
-			<enumeration value="on" />
-			<enumeration value="off" />
+			<enumeration value="on"/>
+			<enumeration value="off"/>
 		</restriction>
 	</simpleType>
-
 	<!-- A valid field name has only lowercase characters and digits.
 		It always starts with characters. Words can be separated by the
 		underscore character "_".
 	-->
 	<simpleType name="validname">
 		<restriction base="string">
-			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*" />
+			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
 		</restriction>
 	</simpleType>
-	
+	<!-- FINGER WEG: Änderungen führen zu Fehlern! Feldnamen hängen von Opus_Document ab! -->
 	<simpleType name="validfieldname">
-	   <restriction base="string">
-	       <enumeration value="Collection"/>
-	       <enumeration value="CompletedDate"/>
-	       <enumeration value="CompletedYear"/>
-	       <enumeration value="ContributingCorporation"/>
-	       <enumeration value="CreatingCorporation"/>
-	       <enumeration value="DateAccepted"/>
-	       <enumeration value="DocumentType"/>
-	       <enumeration value="Edition"/>
-	       <enumeration value="Enrichment"/>
-	       <enumeration value="File"/>
-	       <enumeration value="Grantor"/>
-	       <enumeration value="Institute"/>
-	       <enumeration value="Issue"/>
-	       <enumeration value="Language"/>
-	       <enumeration value="Licence"/>
-	       <enumeration value="NonInstituteAffiliation"/>
-	       <enumeration value="Note"/>
-	       <enumeration value="PageFirst"/>
-	       <enumeration value="PageLast"/>
-	       <enumeration value="PageNumber"/>
-	       <enumeration value="Patent"/>
-	       <enumeration value="PersonAdvisor"/>
-	       <enumeration value="PersonAuthor"/>
-	       <enumeration value="PersonOther"/>
-	       <enumeration value="PersonReferee"/>
-	       <enumeration value="PersonContributor"/>
-	       <enumeration value="PersonEditor"/>
-	       <enumeration value="PersonTranslator"/>
-	       <enumeration value="PersonSubmitter"/>
-	       <enumeration value="PublicationVersion"/>
-	       <enumeration value="PublishedDate"/>
-	       <enumeration value="PublishedYear"/>
-	       <enumeration value="PublisherName"/>
-	       <enumeration value="PublisherPlace"/>
-	       <enumeration value="PublisherUniversity"/>
-	       <enumeration value="Publisher"/>
-	       <enumeration value="Reviewed"/>
-	       <enumeration value="ServerDateUnlocking"/>
-	       <enumeration value="ServerDateValid"/>
-	       <enumeration value="Source"/>
-	       <enumeration value="SubjectDdc"/>
-	       <enumeration value="SubjectPsyndex"/>
-	       <enumeration value="SubjectSwd"/>
-	       <enumeration value="SubjectUncontrolled"/>
-	       <enumeration value="TitleAbstract"/>
-	       <enumeration value="TitleMain"/>
-	       <enumeration value="TitleParent"/>
-	       <enumeration value="TitleSub"/>
-	       <enumeration value="TitleAdditional"/>
-	       <enumeration value="Volume"/>
-	       <enumeration value="IdentifierIsbn"/>
-	       <enumeration value="IdentifierUrn"/>
-	       <enumeration value="IdentifierDoi"/>
-	       <enumeration value="IdentifierHandle"/>
-	       <enumeration value="IdentifierUrl"/>
-	       <enumeration value="IdentifierIssn"/>
-	       <enumeration value="IdentifierStdDoi"/>
-	       <enumeration value="IdentifierCrisLink"/>
-	       <enumeration value="IdentifierSplashUrl"/>
-	       <enumeration value="IdentifierOpus3"/>
-	       <enumeration value="IdentifierOpac"/>
-	       <enumeration value="ReferenceIsbn"/>
-	       <enumeration value="ReferenceUrn"/>
-	       <enumeration value="ReferenceDoi"/>
-	       <enumeration value="ReferenceHandle"/>
-	       <enumeration value="ReferenceUrl"/>
-	       <enumeration value="ReferenceIssn"/>
-	       <enumeration value="ReferenceStdDoi"/>
-	       <enumeration value="ReferenceCrisLink"/>
-	       <enumeration value="ReferenceSplashUrl"/>
-	   </restriction>
+		<restriction base="string">
+			<enumeration value="Collection"/>
+			<enumeration value="CompletedDate"/>
+			<enumeration value="CompletedYear"/>
+			<enumeration value="ContributingCorporation"/>
+			<enumeration value="CreatingCorporation"/>
+			<enumeration value="DocumentType"/>
+			<enumeration value="Edition"/>
+			<enumeration value="Enrichment"/>
+			<enumeration value="File"/>
+			<enumeration value="Grantor"/>
+			<enumeration value="Institute"/>
+			<enumeration value="Issue"/>
+			<enumeration value="Journal"/>
+			<enumeration value="Language"/>
+			<enumeration value="Licence"/>
+			<enumeration value="NonInstituteAffiliation"/>
+			<enumeration value="Note"/>
+			<enumeration value="PageFirst"/>
+			<enumeration value="PageLast"/>
+			<enumeration value="PageNumber"/>
+			<enumeration value="Patent"/>
+			<enumeration value="PersonAdvisor"/>
+			<enumeration value="PersonAuthor"/>
+			<enumeration value="PersonOther"/>
+			<enumeration value="PersonReferee"/>
+			<enumeration value="PersonContributor"/>
+			<enumeration value="PersonEditor"/>
+			<enumeration value="PersonTranslator"/>
+			<enumeration value="PersonSubmitter"/>
+			<enumeration value="PublicationVersion"/>
+			<enumeration value="PublishedDate"/>
+			<enumeration value="PublishedYear"/>
+			<enumeration value="PublisherName"/>
+			<enumeration value="PublisherPlace"/>
+			<enumeration value="PublisherUniversity"/>
+			<enumeration value="Publisher"/>
+			<enumeration value="Reviewed"/>
+			<enumeration value="ServerDateUnlocking"/>
+			<enumeration value="ServerDateValid"/>
+			<enumeration value="Source"/>
+			<enumeration value="SubjectDdc"/>
+			<enumeration value="SubjectMSC"/>			
+			<enumeration value="SubjectPsyndex"/>
+			<enumeration value="SubjectSwd"/>
+			<enumeration value="SubjectUncontrolled"/>
+			<enumeration value="ThesisDateAccepted"/>
+			<enumeration value="TitleAbstract"/>
+			<enumeration value="TitleMain"/>
+			<enumeration value="TitleParent"/>
+			<enumeration value="TitleSub"/>
+			<enumeration value="TitleAdditional"/>
+			<enumeration value="Volume"/>
+			<enumeration value="IdentifierIsbn"/>
+			<enumeration value="IdentifierUrn"/>
+			<enumeration value="IdentifierDoi"/>
+			<enumeration value="IdentifierHandle"/>
+			<enumeration value="IdentifierUrl"/>
+			<enumeration value="IdentifierIssn"/>
+			<enumeration value="IdentifierStdDoi"/>
+			<enumeration value="IdentifierCrisLink"/>
+			<enumeration value="IdentifierSplashUrl"/>
+			<enumeration value="IdentifierOpus3"/>
+			<enumeration value="IdentifierOpac"/>
+			<enumeration value="ReferenceIsbn"/>
+			<enumeration value="ReferenceUrn"/>
+			<enumeration value="ReferenceDoi"/>
+			<enumeration value="ReferenceHandle"/>
+			<enumeration value="ReferenceUrl"/>
+			<enumeration value="ReferenceIssn"/>
+			<enumeration value="ReferenceStdDoi"/>
+			<enumeration value="ReferenceCrisLink"/>
+			<enumeration value="ReferenceSplashUrl"/>
+		</restriction>
 	</simpleType>
-
 </schema>
