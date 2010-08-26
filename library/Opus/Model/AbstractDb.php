@@ -107,22 +107,21 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $this->_primaryTableRow = $id;
             $this->_isNewRecord = false;
         } else {
-// TODO: Remove old fetch logic.
-//            $reflectionClass = new ReflectionClass($tableGatewayModel);
-//            if (false === is_array($id)) {
-//                $id = array($id);
-//            }
-//            $this->_primaryTableRow = $reflectionClass->getMethod('find')->invokeArgs($tableGatewayModel, $id)->getRow(0);
-//            if ($this->_primaryTableRow === null) {
-//                throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id in database.");
-//            }
-//            $this->_isNewRecord = false;
 
-            $rowSet = $tableGatewayModel->find($id);
-            if ($rowSet->count() < 1) {
-                throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id in database.");
+            $id_tupel = is_array($id) ? $id : array($id);
+            $id_string = is_array($id) ? "(".implode(",", $id).")" : $id;
+
+            // This is needed, because find takes as many parameters as
+            // primary keys.  It *does* *not* accept arrays with all primary
+            // key columns.
+            $rowset = call_user_func_array(array(&$tableGatewayModel, 'find'), $id_tupel);
+            if ($rowset->count() > 0) {
+                $this->_primaryTableRow = $rowset->getRow(0);
             }
-            $this->_primaryTableRow = $rowSet->getRow(0);
+            else {
+                throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id_string in database.");
+            }
+
             $this->_isNewRecord = false;
         }
         parent::__construct();
