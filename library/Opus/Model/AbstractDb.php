@@ -416,30 +416,34 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $result = $this->$callname();
         } else {
             // Get declared options if any
+            $options = null;
             if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
                 $options = $this->_externalFields[$fieldname]['options'];
-            } else {
-                $options = null;
             }
 
             // Get declared sort order if any
+            $sort_order = null;
             if (array_key_exists('sort_order', $this->_externalFields[$fieldname]) === true) {
                 $sort_order = $this->_externalFields[$fieldname]['sort_order'];
-            } else {
-                $sort_order = null;
             }
 
             // Determine the class of the field values model
+            $modelclass = null;
             if (array_key_exists('through', $this->_externalFields[$fieldname])) {
                 // If handling a link model, fetch modelclass from 'through' option.
                 $modelclass = $this->_externalFields[$fieldname]['through'];
-            } else {
+            } 
+            else if (array_key_exists('model', $this->_externalFields[$fieldname])) {
                 // Otherwise just use the 'model' option.
                 $modelclass = $this->_externalFields[$fieldname]['model'];
             }
 
+            if (empty($modelclass)) {
+                throw new Opus_Model_Exception('Definition of external field "' . $fieldname . '" must contain "model" or "through" key.');
+            }
+
             // Make sure that a field's value model is inherited from Opus_Model_Abstract
-            if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
+            if (is_subclass_of($modelclass, 'Opus_Model_Abstract')) {
                 throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
                         Define _fetch' . $fieldname . ' method in model class.');
             }
