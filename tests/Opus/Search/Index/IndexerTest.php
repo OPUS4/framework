@@ -84,21 +84,10 @@ class Opus_Search_Index_IndexerTest extends TestCase {
     }
 
     public function testCorrectIndexingOfEasyDocuments() {
-        // generate documents
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="monographie"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" />
-            <field name="PublishedDate" />
-            <field name="TitleMain" />
-            <field name="TitleAbstract" />
-            <field name="PersonAuthor" />
-        </documenttype>';
-
         // create document
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("monographie");
+
         // fill document with data
         $doc->setLanguage('ger');
         $doc->setPublishedDate('12.08.2007');
