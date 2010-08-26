@@ -463,19 +463,16 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             eval('$tablename = ' . $modelclass . '::$_tableGatewayClass;');
             $table = Opus_Db_TableGateway::getInstance($tablename);
 
-
             // Get name of id column in target table
-            if (is_null($options) === false) {
-                $select = $table->select();
+            $select = $table->select();
+            if (is_array($options)) {
                 foreach ($options as $column => $value) {
                     $select = $select->where("$column = ?", $value);
                 }
-            } else {
-                $select = null;
             }
 
             // TODO: $sort_order does not work if no $options are given?
-            if (is_null($sort_order) === false && is_null($select) === false) {
+            if (is_array($sort_order)) {
                 foreach ($sort_order as $column => $order) {
                     $select = $select->order("$column $order");
                 }
