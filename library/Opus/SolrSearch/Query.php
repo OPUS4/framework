@@ -56,7 +56,7 @@ class Opus_SolrSearch_Query {
     private $searchType;
     private $modifier;
     private $fieldValues = array();
-    private $escape = true;
+    private $escapingEnabled = true;
 
     /**
      *
@@ -219,7 +219,7 @@ class Opus_SolrSearch_Query {
             if ($this->modifier === self::SEARCH_MODIFIER_CONTAINS_NONE) {
                 $q = $q . '-' . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
                 continue;
-            }            
+            }
             $q = $q . $fieldname . ':(';
             $firstTerm = true;
             foreach (explode(' ', $this->escape($fieldvalue)) as $queryTerm) {
@@ -233,8 +233,6 @@ class Opus_SolrSearch_Query {
 
             }
             $q = $q . ')';
-
-            
         }
         return $q;
     }
@@ -247,7 +245,7 @@ class Opus_SolrSearch_Query {
     }
 
     public function disableEscaping() {
-        $this->escape = false;
+        $this->escapingEnabled = false;
     }
 
     /**
@@ -259,7 +257,7 @@ class Opus_SolrSearch_Query {
      * @param string $query The query which needs to be escaped.
      */
     private function escape($query) {
-        if ($this->escape === false) {
+        if (!$this->escapingEnabled) {
             return $query;
         }
         $query = trim($query);
@@ -267,8 +265,19 @@ class Opus_SolrSearch_Query {
         if (substr_count($query, '"') % 2 == 1) {
             $query = $query . '"';
         }
-        // escape special characters (currently ignore " \* \?)
-        return preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $query);
+        // escape special characters (currently ignore " \* \?) outside of ""
+        $insidePhrase = false;
+        $result = '';
+        foreach (explode('"', $query) as $phrase) {
+            if ($insidePhrase) {
+                $result = $result . '"' . $phrase . '"';
+            }
+            else {
+                $result = $result . preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $phrase);
+            }
+            $insidePhrase = !$insidePhrase;
+        }
+        return $result;
     }
 }
 ?>
