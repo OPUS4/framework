@@ -110,6 +110,7 @@ class Opus_DocumentTest extends TestCase {
                 'CompletedYear' => 1960,
                 'CompletedDate' => '1901-01-01',
                 'ServerDateUnlocking' => '2008-12-01',
+                'BelongsToBibliography' => 1,
             )
         )
     );
