@@ -100,20 +100,16 @@ class Opus_DocumentTest extends TestCase {
                     'Language' => 'de',
                     'ContributingCorporation' => 'Contributing, Inc.',
                     'CreatingCorporation' => 'Creating, Inc.',
-                    'DateAccepted' => '1901-01-01',
+                    'ThesisDateAccepted' => '1901-01-01',
                     'Edition' => 2,
                     'Issue' => 3,
                     'Volume' => 1,
-                    // Invalid: 'NonInstituteAffiliation' => 'Wie bitte?',
                     'PageFirst' => 1,
                     'PageLast' => 297,
                     'PageNumber' => 297,
                     'CompletedYear' => 1960,
                     'CompletedDate' => '1901-01-01',
-                    // Invalid: 'Reviewed' => 'peer',
                     'ServerDateUnlocking' => '2008-12-01',
-                    'ServerDateValid' => '2008-12-01',
-                    'Source' => 'BlaBla',
                 )
             )
         );
@@ -136,17 +132,10 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testTunnelingSetterCallsInManyToManyLinks() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" multiplicity="3"/>
-        </documenttype>';
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
         $licence = new Opus_Licence();
-
         $doc->addLicence($licence);
         $doc->getLicence(0)->setSortOrder(47);
         $value = $doc->getLicence(0)->getSortOrder();
@@ -161,15 +150,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testAddingModelInManyToManyLink() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" multiplicity="3"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
@@ -189,15 +171,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testAddingModelInOneToManyLink() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Note" multiplicity="*"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
@@ -219,15 +194,8 @@ class Opus_DocumentTest extends TestCase {
      *
      */
     public function testStoreWithLinkToIndependentModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PersonAuthor" multiplicity="*"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
@@ -247,15 +215,8 @@ class Opus_DocumentTest extends TestCase {
         // TODO: Write new unit test for new behaviour.
         $this->markTestSkipped('Obsolete test after removing document builder.');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PersonAuthor" multiplicity="2"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
@@ -278,15 +239,8 @@ class Opus_DocumentTest extends TestCase {
         // TODO: Write new unit test for new behaviour.
         $this->markTestSkipped('Obsolete test after removing document builder.');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Enrichment"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $enrichment = new Opus_Enrichment;
         $enrichment->setValue('Poor enrichment.');
@@ -319,11 +273,9 @@ class Opus_DocumentTest extends TestCase {
      * @dataProvider validDocumentDataProvider
      */
     public function testDocumentFieldsPersistDatabaseStorage(array $documentDataset) {
-        // FIXME Fix date field problem
-        $this->markTestSkipped('Invalid scheme for storing date fields breaks test.');
+        $document = new Opus_Document();
+        $document->setType("article");
 
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Document(null, 'article');
         foreach ($documentDataset as $fieldname => $value) {
             $callname = 'set' . $fieldname;
             $document->$callname($value);
@@ -346,8 +298,7 @@ class Opus_DocumentTest extends TestCase {
 
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
-        $note->setCreator('Jim Knopf');
-        $note->setScope('public');
+        $note->setVisibility('public');
 
         $patent = $document->addPatent();
         $patent->setCountries('Lummerland');
@@ -356,8 +307,9 @@ class Opus_DocumentTest extends TestCase {
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
 
-//      $enrichment = $document->addEnrichment();
-//      $enrichment->setValue('Poor enrichment.');
+        $enrichment = $document->addEnrichment();
+        $enrichment->setKeyName('foo');
+        $enrichment->setValue('Poor enrichment.');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
@@ -393,42 +345,49 @@ class Opus_DocumentTest extends TestCase {
         $document = new Opus_Document($id);
 
         foreach ($documentDataset as $fieldname => $value) {
-            $this->assertEquals($value, $document->{'get' . $fieldname}(), "Field $fieldname was changed by database.");
+            $field = $document->{'get' . $fieldname}();
+
+            // Special handling for Opus_Date fields...
+            if ($field instanceof Opus_Date) {
+                $field = substr($field->__toString(), 0, 10);
+            }
+
+            $this->assertEquals($value, $field, "Field $fieldname was changed by database.");
         }
+
         $this->assertEquals($document->getTitleMain(0)->getValue(), 'Title');
         $this->assertEquals($document->getTitleMain(0)->getLanguage(), 'de');
         $this->assertEquals($document->getTitleMain(1)->getValue(), 'Title Two');
         $this->assertEquals($document->getTitleMain(1)->getLanguage(), 'en');
-        $this->assertEquals($document->getTitleAbstract()->getValue(), 'Abstract');
-        $this->assertEquals($document->getTitleAbstract()->getLanguage(), 'fr');
-        $this->assertEquals($document->getTitleParent()->getValue(), 'Parent');
-        $this->assertEquals($document->getTitleParent()->getLanguage(), 'en');
-        $this->assertEquals($document->getIdentifierIsbn()->getValue(), '123-123-123');
-        $this->assertEquals($document->getNote()->getMessage(), 'Ich bin eine öffentliche Notiz.');
-        $this->assertEquals($document->getNote()->getCreator(), 'Jim Knopf');
-        $this->assertEquals($document->getNote()->getScope(), 'public');
-        $this->assertEquals($document->getPatent()->getCountries(), 'Lummerland');
-        $this->assertEquals($document->getPatent()->getDateGranted(), '2008-12-05');
-        $this->assertEquals($document->getPatent()->getNumber(), '123456789');
-        $this->assertEquals($document->getPatent()->getYearApplied(), '2008');
-        $this->assertEquals($document->getPatent()->getApplication(), 'Absolutely none.');
-//      $this->assertEquals($document->getEnrichment()->getValue(), 'Poor enrichment.');
-//      $this->assertEquals($document->getEnrichment()->getType(), 'nonesense');
+        $this->assertEquals($document->getTitleAbstract(0)->getValue(), 'Abstract');
+        $this->assertEquals($document->getTitleAbstract(0)->getLanguage(), 'fr');
+        $this->assertEquals($document->getTitleParent(0)->getValue(), 'Parent');
+        $this->assertEquals($document->getTitleParent(0)->getLanguage(), 'en');
+        $this->assertEquals($document->getIdentifierIsbn(0)->getValue(), '123-123-123');
+        $this->assertEquals($document->getNote(0)->getMessage(), 'Ich bin eine öffentliche Notiz.');
+        $this->assertEquals($document->getNote(0)->getVisibility(), 'public');
+        $this->assertEquals($document->getPatent(0)->getCountries(), 'Lummerland');
+        $this->assertStringStartsWith('2008-12-05', $document->getPatent(0)->getDateGranted()->__toString());
+        $this->assertEquals($document->getPatent(0)->getNumber(), '123456789');
+        $this->assertEquals($document->getPatent(0)->getYearApplied(), '2008');
+        $this->assertEquals($document->getPatent(0)->getApplication(), 'Absolutely none.');
+        $this->assertEquals($document->getEnrichment(0)->getValue(), 'Poor enrichment.');
+        $this->assertEquals($document->getEnrichment(0)->getKeyName(), 'foo');
         $this->assertEquals($document->getPersonAuthor(0)->getFirstName(), 'Ludwig');
         $this->assertEquals($document->getPersonAuthor(0)->getLastName(), 'Wittgenstein');
-        $this->assertEquals($document->getPersonAuthor(0)->getDateOfBirth(), '1889-04-26 00:00:00');
+        $this->assertStringStartsWith('1889-04-26', $document->getPersonAuthor(0)->getDateOfBirth()->__toString());
         $this->assertEquals($document->getPersonAuthor(0)->getPlaceOfBirth(), 'Wien');
         $this->assertEquals($document->getPersonAuthor(1)->getFirstName(), 'Ferdinand');
         $this->assertEquals($document->getPersonAuthor(1)->getLastName(), 'de Saussure');
-        $this->assertEquals($document->getPersonAuthor(1)->getDateOfBirth(), '1857-11-26 00:00:00');
+        $this->assertStringStartsWith('1857-11-26', $document->getPersonAuthor(1)->getDateOfBirth()->__toString());
         $this->assertEquals($document->getPersonAuthor(1)->getPlaceOfBirth(), 'Genf');
-        $this->assertEquals($document->getLicence()->getActive(), 1);
-        $this->assertEquals($document->getLicence()->getLanguage(), 'de');
-        $this->assertEquals($document->getLicence()->getLinkLicence(), 'http://creativecommons.org/');
-        $this->assertEquals($document->getLicence()->getMimeType(), 'text/pdf');
-        $this->assertEquals($document->getLicence()->getNameLong(), 'Creative Commons');
-        $this->assertEquals($document->getLicence()->getPodAllowed(), 1);
-        $this->assertEquals($document->getLicence()->getSortOrder(), 0);
+        $this->assertEquals($document->getLicence(0)->getActive(), 1);
+        $this->assertEquals($document->getLicence(0)->getLanguage(), 'de');
+        $this->assertEquals($document->getLicence(0)->getLinkLicence(), 'http://creativecommons.org/');
+        $this->assertEquals($document->getLicence(0)->getMimeType(), 'text/pdf');
+        $this->assertEquals($document->getLicence(0)->getNameLong(), 'Creative Commons');
+        $this->assertEquals($document->getLicence(0)->getPodAllowed(), 1);
+        $this->assertEquals($document->getLicence(0)->getSortOrder(), 0);
     }
 
     /**
@@ -457,14 +416,9 @@ class Opus_DocumentTest extends TestCase {
     public function testDeleteDocumentCascadesPersonLinks() {
         $this->markTestSkipped('Delete documents is currently under development.');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="PersonAuthor" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $author = new Opus_Person();
         $author->setFirstName('M.');
         $author->setLastName('Gandi');
@@ -512,14 +466,9 @@ class Opus_DocumentTest extends TestCase {
     public function testDeleteDocumentCascadesEnrichments() {
         $this->markTestSkipped('Enrichments currently under development.');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Enrichment" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $enrichment = new Opus_Enrichment();
 
         $doc->addEnrichment($enrichment);
@@ -539,14 +488,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierIsbn" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $isbn = new Opus_Identifier();
         $isbn->setValue('ISBN');
 
@@ -567,14 +511,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Patent" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $patent = new Opus_Patent();
         $patent->setNumber('X0815');
         $patent->setDateGranted('01-01-2001');
@@ -596,14 +535,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Note" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $note = new Opus_Note();
         $note->setMessage('A note!')
             ->setCreator('Me');
@@ -625,14 +559,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="SubjectSwd" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $subject = new Opus_SubjectSwd();
         $subject->setValue('Schlagwort');
 
@@ -653,14 +582,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $title = new Opus_Title();
         $title->setValue('Title of a document');
 
@@ -681,14 +605,9 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleAbstract" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
         $abstract = new Opus_Abstract();
         $abstract->setValue('It is necessary to give an abstract.');
 
@@ -706,23 +625,15 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testRetrieveAllDocuments() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="test_type"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleAbstract" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $docs = array();
-        $docs[] = new Opus_Document(null, $type);
-        $docs[] = new Opus_Document(null, $type);
-        $docs[] = new Opus_Document(null, $type);
-        foreach ($docs as $doc) {
+        $max_docs = 5;
+        for ($i = 0; $i < $max_docs; $i++) {
+            $doc = new Opus_Document();
+            $doc->setType("doctoral_thesis");
             $doc->store();
         }
 
         $result = Opus_Document::getAll();
-        $this->assertEquals(count($docs), count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals($max_docs, count($result), 'Wrong number of objects retrieved.');
     }
 
     /**
@@ -744,21 +655,17 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testRetrieveAllTitles() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="test_type"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
+        $doc1 = new Opus_Document();
+        $doc1->setType("doctoral_thesis");
 
-        $doc1 = new Opus_Document(null, $type);
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
         $id1 = $doc1->store();
 
-        $doc2 = new Opus_Document(null, $type);
+        $doc2 = new Opus_Document();
+        $doc2->setType("doctoral_thesis");
+
         $title2 = $doc2->addTitleMain();
         $title2->setLanguage('en');
         $title2->setValue('An english titel');
@@ -779,15 +686,9 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testRetrieveDocumentIdPerTitle() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="test_type"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" multiplicity="*" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
 
-        $doc1 = new Opus_Document(null, $type);
+        $doc1 = new Opus_Document();
+        $doc1->setType("doctoral_thesis");
         $title1 = $doc1->addTitleMain();
         $title1->setLanguage('de');
         $title1->setValue('Ein deutscher Titel');
@@ -796,7 +697,9 @@ class Opus_DocumentTest extends TestCase {
         $title2->setValue('Ein englischer Titel');
         $id1 = $doc1->store();
 
-        $doc2 = new Opus_Document(null, $type);
+
+        $doc2 = new Opus_Document();
+        $doc2->setType("doctoral_thesis");
         $title3 = $doc2->addTitleMain();
         $title3->setLanguage('en');
         $title3->setValue('An english titel');
@@ -821,14 +724,9 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testAddLinkModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
+
         $licence = new Opus_Licence;
         $document->addLicence($licence);
 
@@ -850,14 +748,9 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testSetLinkModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
+
         $licence = new Opus_Licence;
         $document->setLicence($licence);
 
@@ -879,14 +772,9 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testGetLinkModel() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Licence" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
-        $document = new Opus_Document(null, $type);
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
+
         $licence = new Opus_Licence;
         $document->setLicence($licence);
 
@@ -905,15 +793,9 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testToArrayReturnsCorrectValuesForTitleMain(){
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="test_type"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" multiplicity="*" />
-        </documenttype>';
-        $type = new Opus_Document_Type($xml);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
-        $doc = new Opus_Document(null, $type);
         $title = $doc->addTitleMain();
         $title->setLanguage('de');
         $title->setValue('Ein deutscher Titel');
@@ -939,23 +821,16 @@ class Opus_DocumentTest extends TestCase {
         // TODO: analyze
         $this->markTestSkipped('TODO: analyze');
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="Language" multiplicity="3"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $doc->addLanguage('de');
         $doc->addLanguage('en');
         $doc->addLanguage('fr');
         $languages = $doc->getLanguage();
         $id = $doc->store();
-        $doc = new Opus_Document($id);
 
+        $doc = new Opus_Document($id);
         $this->assertEquals($languages, $doc->getLanguage(), 'Document language list corrupted by storage.');
     }
 
@@ -965,16 +840,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testStoringOfOneIdentifierUrn() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="1"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
-
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
         $id = $doc->store();
         $doc2 = new Opus_Document($id);
 
@@ -994,15 +861,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testStoringOfMultipleIdentifierUrnField() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="2"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         // TODO: Cannot check Urn if we did not add it...
         $this->markTestSkipped('TODO: analyze');
@@ -1022,15 +882,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testNotOverrideExistingUrn() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="1"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $urn_value = 'urn:nbn:de:swb:14-opus-5548';
         $urn_model = $doc->addIdentifierUrn();
@@ -1048,18 +901,11 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testStoreUrnWithEmptyModel() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
+        $this->markTestSkipped("Creating URN for document not implemented?");
 
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="1"/>
-        </documenttype>';
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
         $urn_model = new Opus_Identifier();
         $doc->setIdentifierUrn($urn_model);
         $id = $doc->store();
@@ -1075,15 +921,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testNotOverrideExistingMultipleUrn() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="2"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
         $urn_model = $doc->addIdentifierUrn();
@@ -1105,15 +944,8 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testNotOverridePartialExistingMultipleUrn() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="IdentifierUrn" multiplicity="2"/>
-        </documenttype>';
-
-        $type = new Opus_Document_Type($xml);
-        $doc = new Opus_Document(null, $type);
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
 
         $urn_value_1 = 'urn:nbn:de:swb:14-opus-5548';
         $urn_model = $doc->addIdentifierUrn();
@@ -1153,38 +985,35 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testGetByServerStateReturnsCorrectDocuments() {
-        $xml = '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="meintest"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-            <field name="TitleMain" />
-        </documenttype>';
+        $publishedDoc1 = new Opus_Document();
+        $publishedDoc1->setType("doctoral_thesis")
+                ->setServerState('published')
+                ->store();
 
-        $type = new Opus_Document_Type($xml);
+        $publishedDoc2 = new Opus_Document();
+        $publishedDoc2->setType("doctoral_thesis")
+                ->setServerState('published')
+                ->store();
 
-        $publishedDoc1 = new Opus_Document(null, $type);
-        $publishedDoc1->setServerState('published');
-        $publishedDoc1->store();
+        $unpublishedDoc1 = new Opus_Document();
+        $unpublishedDoc1->setType("doctoral_thesis")
+                ->setServerState('unpublished')
+                ->store();
 
-        $publishedDoc2 = new Opus_Document(null, $type);
-        $publishedDoc2->setServerState('published');
-        $publishedDoc2->store();
+        $unpublishedDoc2 = new Opus_Document();
+        $unpublishedDoc2->setType("doctoral_thesis")
+                ->setServerState('unpublished')
+                ->store();
 
-        $unpublishedDoc1 = new Opus_Document(null, $type);
-        $unpublishedDoc1->setServerState('unpublished');
-        $unpublishedDoc1->store();
+        $deletedDoc1 = new Opus_Document();
+        $deletedDoc1->setType("doctoral_thesis")
+                ->setServerState('deleted')
+                ->store();
 
-        $unpublishedDoc2 = new Opus_Document(null, $type);
-        $unpublishedDoc2->setServerState('unpublished');
-        $unpublishedDoc2->store();
-
-        $deletedDoc1 = new Opus_Document(null, $type);
-        $deletedDoc1->setServerState('deleted');
-        $deletedDoc1->store();
-
-        $deletedDoc2 = new Opus_Document(null, $type);
-        $deletedDoc2->setServerState('deleted');
-        $deletedDoc2->store();
+        $deletedDoc2 = new Opus_Document();
+        $deletedDoc2->setType("doctoral_thesis")
+                ->setServerState('deleted')
+                ->store();
 
         $publishedDocs = Opus_Document::getAllByState('published');
         $unpublishedDocs = Opus_Document::getAllByState('unpublished');
@@ -1193,7 +1022,6 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(2, count($publishedDocs));
         $this->assertEquals(2, count($unpublishedDocs));
         $this->assertEquals(2, count($deletedDocs));
-
     }
 
     /**
