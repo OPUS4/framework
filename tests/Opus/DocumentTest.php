@@ -441,19 +441,17 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesLicenceLink() {
-        $this->markTestSkipped('Delete documents is currently under development.');
-
         $doc = new Opus_Document();
         $licence = new Opus_Licence();
         $licence->setNameLong('LongName');
         $licence->setLinkLicence('http://long.org/licence');
 
         $doc->addLicence($licence);
-        $docid = $doc->store();
+        $doc->store();
         $linkid = $doc->getLicence(0)->getId();
-        $doc->delete();
+        $doc->deletePermanent();
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $link = new Opus_Model_Dependent_Link_DocumentLicence($linkid);
 
         $this->fail("Document delete has not been cascaded.");
@@ -465,8 +463,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesEnrichments() {
-        $this->markTestSkipped('Enrichments currently under development.');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -474,9 +470,9 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addEnrichment($enrichment);
         $doc->store();
-        $id = $doc->getEnrichment()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getEnrichment(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $enrichment = new Opus_Enrichment($id);
     }
 
@@ -486,9 +482,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesIdentifiers() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -497,9 +490,9 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addIdentifierIsbn($isbn);
         $doc->store();
-        $id = $doc->getIdentifierIsbn()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getIdentifierIsbn(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $isbn = new Opus_Identifier($id);
     }
 
@@ -509,9 +502,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesPatents() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -521,9 +511,9 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addPatent($patent);
         $doc->store();
-        $id = $doc->getPatent()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getPatent(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $patent = new Opus_Patent($id);
     }
 
@@ -533,21 +523,17 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesNotes() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
         $note = new Opus_Note();
-        $note->setMessage('A note!')
-            ->setCreator('Me');
+        $note->setMessage('A note!');
 
         $doc->addNote($note);
         $doc->store();
-        $id = $doc->getNote()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getNote(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $note = new Opus_Note($id);
     }
 
@@ -557,9 +543,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesSubjects() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -568,9 +551,9 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addSubjectSwd($subject);
         $doc->store();
-        $id = $doc->getSubjectSwd()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getSubjectSwd(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $subject = new Opus_Subject($id);
     }
 
@@ -580,9 +563,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesTitles() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -591,9 +571,9 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->addTitleMain($title);
         $doc->store();
-        $id = $doc->getTitleMain()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getTitleMain(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $title = new Opus_Title($id);
     }
 
@@ -603,20 +583,17 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesAbstracts() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
-        $abstract = new Opus_Abstract();
+        $abstract = new Opus_Title();
         $abstract->setValue('It is necessary to give an abstract.');
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
-        $id = $doc->getTitleAbstract()->getId();
-        $doc->delete();
-        $this->setExpectedException('Opus_Model_Exception');
+        $id = $doc->getTitleAbstract(0)->getId();
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $abstract = new Opus_Title($id);
     }
 
@@ -648,37 +625,6 @@ class Opus_DocumentTest extends TestCase {
 
         $result = Opus_Document::getAllDocumentTitles();
         $this->assertTrue(empty($result), 'Title list contains phantom results.');
-    }
-
-    /**
-     * Test if a correct title list can be retrieved.
-     *
-     * @return void
-     */
-    public function testRetrieveAllTitles() {
-        $doc1 = new Opus_Document();
-        $doc1->setType("doctoral_thesis");
-
-        $title1 = $doc1->addTitleMain();
-        $title1->setLanguage('de');
-        $title1->setValue('Ein deutscher Titel');
-        $id1 = $doc1->store();
-
-        $doc2 = new Opus_Document();
-        $doc2->setType("doctoral_thesis");
-
-        $title2 = $doc2->addTitleMain();
-        $title2->setLanguage('en');
-        $title2->setValue('An english titel');
-        $id2 = $doc2->store();
-
-        // TODO: $this->assertTrue(false, 'Cannot check title list - Opus_Document::getAllDocumentTitles does not exist.');
-        $this->markTestSkipped('TODO: analyze');
-
-        $result = Opus_Document::getAllDocumentTitles();
-        $this->assertEquals(2, count($result), 'Wrong number of title entries.');
-        $this->assertEquals($title1->getValue(), $result[$id1][0], 'Expected title is not in the list.');
-        $this->assertEquals($title2->getValue(), $result[$id2][0], 'Expected title is not in the list.');
     }
 
     /**
