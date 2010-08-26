@@ -115,13 +115,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // primary keys.  It *does* *not* accept arrays with all primary
             // key columns.
             $rowset = call_user_func_array(array(&$tableGatewayModel, 'find'), $id_tupel);
-            if ($rowset->count() > 0) {
-                $this->_primaryTableRow = $rowset->getRow(0);
-            }
-            else {
+            if (false == ($rowset->count() > 0)) {
                 throw new Opus_Model_NotFoundException('No ' . get_class($tableGatewayModel) . " with id $id_string in database.");
             }
 
+            $this->_primaryTableRow = $rowset->getRow(0);
             $this->_isNewRecord = false;
         }
         parent::__construct();
@@ -140,11 +138,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             // Field is declared as external and requires special handling
             if (array_key_exists($fieldname, $this->_externalFields) === true) {
                 // Determine the fields fetching mode
+                $fetchmode = 'lazy';
                 if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
                     $fetchmode = $this->_externalFields[$fieldname]['fetch'];
-                } else {
-                    $fetchmode = 'lazy';
                 }
+
                 if ($fetchmode === 'lazy') {
                     // Remember the field to be fetched later.
                     $this->_pending[] = $fieldname;
