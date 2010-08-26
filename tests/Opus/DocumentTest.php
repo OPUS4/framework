@@ -95,24 +95,24 @@ class Opus_DocumentTest extends TestCase {
      * associative array that represents valid document data.
      */
     protected static $_validDocumentData = array(
+        array(
             array(
-                array(
-                    'Language' => 'de',
-                    'ContributingCorporation' => 'Contributing, Inc.',
-                    'CreatingCorporation' => 'Creating, Inc.',
-                    'ThesisDateAccepted' => '1901-01-01',
-                    'Edition' => 2,
-                    'Issue' => 3,
-                    'Volume' => 1,
-                    'PageFirst' => 1,
-                    'PageLast' => 297,
-                    'PageNumber' => 297,
-                    'CompletedYear' => 1960,
-                    'CompletedDate' => '1901-01-01',
-                    'ServerDateUnlocking' => '2008-12-01',
-                )
+                'Language' => 'de',
+                'ContributingCorporation' => 'Contributing, Inc.',
+                'CreatingCorporation' => 'Creating, Inc.',
+                'ThesisDateAccepted' => '1901-01-01',
+                'Edition' => 2,
+                'Issue' => 3,
+                'Volume' => 1,
+                'PageFirst' => 1,
+                'PageLast' => 297,
+                'PageNumber' => 297,
+                'CompletedYear' => 1960,
+                'CompletedDate' => '1901-01-01',
+                'ServerDateUnlocking' => '2008-12-01',
             )
-        );
+        )
+    );
 
     /**
      * Valid document data provider
@@ -122,8 +122,6 @@ class Opus_DocumentTest extends TestCase {
     public static function validDocumentDataProvider() {
         return self::$_validDocumentData;
     }
-
-
 
     /**
      * Test if tunneling setter calls through a n:m link model reaches
@@ -215,8 +213,8 @@ class Opus_DocumentTest extends TestCase {
         // TODO: Write new unit test for new behaviour.
         $this->markTestSkipped('Obsolete test after removing document builder.');
 
-        $doc = new Opus_Document();
-        $doc->setType("doctoral_thesis");
+        $document = new Opus_Document();
+        $document->setType("doctoral_thesis");
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
@@ -231,23 +229,17 @@ class Opus_DocumentTest extends TestCase {
 
     /**
      * Test if adding a value to a single-value field that is already populated
-     * throws an InvaludArgumentException.
+     * throws an InvalidArgumentException.
      *
      * @return void
      */
     public function testAddingValuesToPopulatedSingleValueFieldThrowsException() {
-        // TODO: Write new unit test for new behaviour.
-        $this->markTestSkipped('Obsolete test after removing document builder.');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
-        $enrichment = new Opus_Enrichment;
-        $enrichment->setValue('Poor enrichment.');
-
-        $document->addEnrichment($enrichment);
+        $doc->addPageFirst(10);
         $this->setExpectedException('InvalidArgumentException');
-        $document->addEnrichment($enrichment);
+        $doc->addPageFirst(100);
     }
 
     /**
@@ -395,17 +387,28 @@ class Opus_DocumentTest extends TestCase {
      *
      * @return void
      */
-    public function testDeleteDocument() {
-        $this->markTestSkipped('Delete documents is currently under development.');
-
+    public function testDelete() {
         $doc = new Opus_Document();
         $docid = $doc->store();
         $doc->delete();
 
+        $doc = new Opus_Document($docid);
+        $this->assertEquals('deleted', $doc->getServerState(),
+                "Server state should be set to 'deleted' now.");
+    }
+
+    /**
+     * Test if corresponding permanently deleting documents works.
+     *
+     * @return void
+     */
+    public function testDeletePermanent() {
+        $doc = new Opus_Document();
+        $docid = $doc->store();
+        $doc->deletePermanent();
+
         $this->setExpectedException('Opus_Model_NotFoundException');
         $doc = new Opus_Document($docid);
-
-        $this->fail("Document has not been deleted.");
     }
 
     /**
@@ -414,8 +417,6 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testDeleteDocumentCascadesPersonLinks() {
-        $this->markTestSkipped('Delete documents is currently under development.');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
@@ -426,11 +427,10 @@ class Opus_DocumentTest extends TestCase {
         $doc->addPersonAuthor($author);
         $doc->store();
 
-        $linkId = $doc->getPersonAuthor()->getId();
+        $linkId = $doc->getPersonAuthor(0)->getId();
 
-        $doc->delete();
-
-        $this->setExpectedException('Opus_Model_Exception');
+        $doc->deletePermanent();
+        $this->setExpectedException('Opus_Model_NotFoundException');
         $link = new Opus_Model_Dependent_Link_DocumentPerson($linkId);
     }
 
