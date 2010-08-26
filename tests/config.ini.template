@@ -60,14 +60,18 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
-searchengine.engine = Solr              ; searchengine to be used: Lucene or Solr
-searchengine.solr.host = opus4ci.zib.de ; test instance on ci server
-searchengine.solr.port = 8983           ; default port 8983
-searchengine.solr.app = solr
+; searchengine to be used: Lucene or Solr
+searchengine.engine = Solr
+searchengine.index.host =
+searchengine.index.port =
+searchengine.index.app =
+searchengine.extract.host =
+searchengine.extract.port =
+searchengine.extract.app = 
 
 ;LOGGING RELATED SETTINGS
-log.prepare.xml = false                 ; if set to true all xml that is generated while indexing is prepared for logging
+; if set to true all xml that is generated while indexing is prepared for logging
+log.prepare.xml = false
 
 [testing : production]
 sql.schema.path =
-
