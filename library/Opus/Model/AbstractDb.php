@@ -282,39 +282,46 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         try {
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
-                if (in_array($fieldname, array_keys($this->_externalFields)) === false) {
+                
+                // Skip external fields.
+                if (in_array($fieldname, array_keys($this->_externalFields))) {
+                    continue;
+                }
 
                     // analyze field values
-                    $fieldValues = $this->_fields[$fieldname]->getValue();
-                    if (is_array($fieldValues) === true) {
+                $fieldValues = $this->_fields[$fieldname]->getValue();
+                if (is_array($fieldValues) === true) {
 
-                        // TODO: (Thoralf) Removed to see what happens.
-                        if (count($fieldValues) > 0) {
-                            throw new Exception("Prevented storing JSON field values in field " . $fieldname);
-                        }
-
-                        // internal fields can never be a array, encode as json
-                        $fieldValue = json_encode($fieldValues);
-                    } else {
-                        $fieldValue = $fieldValues;
+                    // TODO: (Thoralf) Removed to see what happens.
+                    if (count($fieldValues) > 0) {
+                        throw new Exception("Prevented storing JSON field values in field " . $fieldname);
                     }
 
-                    // Check if the store mechanism for the field is overwritten in model.
-                    $callname = '_store' . $fieldname;
-                    if (method_exists($this, $callname) === true) {
-                        // Call custom store method
-                        $this->$callname($fieldValue);
-                    } else if ($field->isModified() === false) {
-                        // Skip non-modified field.
-                        continue;
-                    } else {
-                        $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
-                        $this->_primaryTableRow->{$colname} = $fieldValue;
-                    }
-                    // Clear modification status of successfully stored field.
-                    $field->clearModified();
+                    // internal fields can never be a array, encode as json
+                    $fieldValue = json_encode($fieldValues);
                 }
+                else {
+                    $fieldValue = $fieldValues;
+                }
+
+                // Check if the store mechanism for the field is overwritten in model.
+                $callname = '_store' . $fieldname;
+                if (method_exists($this, $callname) === true) {
+                    // Call custom store method
+                    $this->$callname($fieldValue);
+                }
+                else if ($field->isModified() === false) {
+                    // Skip non-modified field.
+                    continue;
+                }
+                else {
+                    $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/', '_\0', $fieldname));
+                    $this->_primaryTableRow->{$colname} = $fieldValue;
+                }
+                // Clear modification status of successfully stored field.
+                $field->clearModified();
             }
+
             // Save the row.
             // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
