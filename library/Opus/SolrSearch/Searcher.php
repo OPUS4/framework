@@ -79,9 +79,9 @@ class Opus_SolrSearch_Searcher {
      */
     private function getSolrServer() {
         $config = Zend_Registry::get('Zend_Config');
-        $solr_host = $config->searchengine->solr->host;
-        $solr_port = $config->searchengine->solr->port;
-        $solr_app = '/' . $config->searchengine->solr->app;
+        $solr_host = $config->searchengine->index->host;
+        $solr_port = $config->searchengine->index->port;
+        $solr_app = '/' . $config->searchengine->index->app;
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
         return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
     }

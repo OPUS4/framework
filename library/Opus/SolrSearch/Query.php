@@ -42,7 +42,6 @@ class Opus_SolrSearch_Query {
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
     const DEFAULT_SORTORDER = 'desc';
-    const DEFAULT_OPERATOR = 'AND';
 
     const SEARCH_MODIFIER_CONTAINS_ALL = "contains_all";
     const SEARCH_MODIFIER_CONTAINS_ANY = "contains_any";
@@ -52,12 +51,12 @@ class Opus_SolrSearch_Query {
     private $rows = self::DEFAULT_ROWS;
     private $sortField = self::DEFAULT_SORTFIELD;
     private $sortOrder = self::DEFAULT_SORTORDER;
-    private $defaultOperator = self::DEFAULT_OPERATOR;
     private $filterQueries = array();
     private $catchAll;
     private $searchType;
     private $modifier;
     private $fieldValues = array();
+    private $escape = true;
 
     /**
      *
@@ -106,14 +105,6 @@ class Opus_SolrSearch_Query {
 
     public function setSortOrder($sortOrder) {
         $this->sortOrder = $sortOrder;
-    }
-
-    public function getDefaultOperator() {
-        return $this->defaultOperator;
-    }
-
-    public function setDefaultOperator($defaultOperator) {
-        $this->defaultOperator = $defaultOperator;
     }
 
     /**
@@ -203,22 +194,47 @@ class Opus_SolrSearch_Query {
 
     public function getQ() {
         if ($this->searchType === self::SIMPLE) {
+            if ($this->getCatchAll() === '*:*') {
+                return $this->catchAll;
+            }
             return $this->escape($this->getCatchAll());
         }
         return $this->buildAdvancedQString();
     }
 
     private function buildAdvancedQString() {
-        $q = '';
+        $q = "{!lucene q.op=AND}";
         $first = true;
         foreach ($this->fieldValues as $fieldname => $fieldvalue) {
             if (!$first) {
-                $q = $q . ' ' . $this->defaultOperator . ' ';
+                $q = $q . ' ';
             }
             else {
                 $first = false;
             }
-            $q = $q . $this->modifier[$fieldname] . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+            if ($this->modifier === self::SEARCH_MODIFIER_CONTAINS_ALL) {
+                $q = $q . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+                continue;
+            }
+            if ($this->modifier === self::SEARCH_MODIFIER_CONTAINS_NONE) {
+                $q = $q . '-' . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+                continue;
+            }            
+            $q = $q . $fieldname . ':(';
+            $firstTerm = true;
+            foreach (explode(' ', $this->escape($fieldvalue)) as $queryTerm) {
+                if ($firstTerm) {
+                    $firstTerm = false;
+                    $q = $q . $queryTerm;
+                }
+                else {
+                    $q = ' OR ' . $queryTerm;
+                }
+
+            }
+            $q = $q . ')';
+
+            
         }
         return $q;
     }
@@ -230,12 +246,29 @@ class Opus_SolrSearch_Query {
         return 'advanced search with query  ' . $this->getQ();
     }
 
+    public function disableEscaping() {
+        $this->escape = false;
+    }
+
     /**
-     *
-     * @param string $query The value which needs to be escaped.
+     * Escape Lucene's special query characters specified in
+     * http://lucene.apache.org/java/3_0_2/queryparsersyntax.html#Escaping%20Special%20Characters
+     * Escaping currently ignores * and ? which are used as wildcard operators.
+     * Additionally, double-quotes are not escaped and a double-quote is added to
+     * the end of $query in case it contains an odd number of double-quotes.
+     * @param string $query The query which needs to be escaped.
      */
     private function escape($query) {
-        return $query;
+        if ($this->escape === false) {
+            return $query;
+        }
+        $query = trim($query);
+        // add one " to the end of $query if it contains an odd number of "
+        if (substr_count($query, '"') % 2 == 1) {
+            $query = $query . '"';
+        }
+        // escape special characters (currently ignore " \* \?)
+        return preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $query);
     }
 }
 ?>
