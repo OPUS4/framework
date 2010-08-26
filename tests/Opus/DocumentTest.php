@@ -48,46 +48,6 @@
  */
 class Opus_DocumentTest extends TestCase {
 
-
-    /**
-     * Test document type.
-     *
-     * @var string
-     */
-    protected $_xmlDoctype =
-        '<?xml version="1.0" encoding="UTF-8" ?>
-        <documenttype name="doctoral_thesis"
-            xmlns="http://schemas.opus.org/documenttype"
-            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-            <field name="Language" mandatory="yes" />
-            <field name="Licence"/>
-            <field name="ContributingCorporation"/>
-            <field name="CreatingCorporation"/>
-            <field name="ContributingCorporation"/>
-
-            <field name="DateAccepted"/>
-            <field name="Edition"/>
-            <field name="Issue"/>
-            <field name="NonInstituteAffiliation"/>
-            <field name="PageFirst"/>
-            <field name="PageLast"/>
-            <field name="PageNumber"/>
-
-            <mandatory type="one-at-least">
-                <field name="CompletedYear"/>
-                <field name="CompletedDate"/>
-            </mandatory>
-
-            <field name="Reviewed"/>
-            <field name="ServerDateUnlocking"/>
-            <field name="ServerDateValid"/>
-            <field name="Source"/>
-            <field name="IdentifierOpac"/>
-            <field name="Volume"/>
-
-        </documenttype>';
-
     /**
      * Set up test fixture.
      *
