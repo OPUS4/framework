@@ -632,14 +632,14 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
 
         // Fetch all entries in one query and pass result table rows
         // directly to models.
+        $rows = array();
         if (is_null($ids) === true) {
             $rows = $table->fetchAll(null, $orderBy);
-        } else if (empty($ids) === true) {
-            $rows = array();
-        } else {
+        } else if (empty($ids) === false) {
             $rowset = $table->find($ids);
             if (false === is_null($orderBy)) {
                 // Sort manually, since find() does not support order by clause.
+                $vals = array();
                 foreach($rowset as $key => $row) {
                     $vals[$key] = $row->$orderBy;
                     $rows[] = $row;
