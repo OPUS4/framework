@@ -52,7 +52,7 @@ class Opus_Db_LinkPersonsDocuments extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('person_id', 'document_id');
+    protected $_primary = array('person_id', 'document_id', 'role');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
