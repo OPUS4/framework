@@ -56,12 +56,7 @@
 		</sequence>
 		<attribute name="name" type="opus:validname" use="required"/>
 	</complexType>
-	<!-- The mandatory option groups field elements and allows to specify
-		three different mandatory types:
-		
-		all          - all grouped fields are mandatory fields
-		one-at-least - minimum one field has to be set  
-	-->
+	
 	<complexType name="FieldType">
 		<sequence maxOccurs="1" minOccurs="0">
 			<element name="required-if-fulltext"  minOccurs="0"/>			
