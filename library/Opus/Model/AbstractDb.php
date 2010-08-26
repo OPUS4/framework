@@ -443,7 +443,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             }
 
             // Make sure that a field's value model is inherited from Opus_Model_Abstract
-            if (is_subclass_of($modelclass, 'Opus_Model_Abstract')) {
+            if (is_subclass_of($modelclass, 'Opus_Model_Abstract') === false) {
                 throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_Abstract.
                         Define _fetch' . $fieldname . ' method in model class.');
             }
