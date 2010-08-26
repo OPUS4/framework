@@ -54,8 +54,8 @@ class Opus_Search_DocumentAdapterTest extends TestCase {
         $list = array('de' => 'Test_Deutsch', 'en' => 'Test_Englisch', 'fr' => 'Test_Französisch');
         Zend_Registry::set('Available_Languages', $list);
 
-        Opus_Document_Type::setXmlDoctypePath(dirname(__FILE__));
-        $document = new Opus_Document(null, 'article');
+        $document = new Opus_Document();
+        $document->setType('article');
         $document->setLanguage('de');
 
         $title = $document->addTitleMain();
