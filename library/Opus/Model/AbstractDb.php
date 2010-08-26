@@ -341,25 +341,29 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         try {
             // Store external fields.
             foreach (array_keys($this->_externalFields) as $fieldname) {
-                if (in_array($fieldname, array_keys($this->_fields)) === true) {
-                    // Check if the store mechanism for the field is overwritten in model.
-                    $callname = '_store' . $fieldname;
-                    if (method_exists($this, $callname) === true) {
-                        // Call custom store method
-                        $this->$callname($this->_fields[$fieldname]->getValue());
-                    } else {
-                        if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
-                            $options = $this->_externalFields[$fieldname]['options'];
-                        } else {
-                            $options = null;
-                        }
-                        $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
-                    }
-                    // trigger any pending delete operations
-                    $this->_fields[$fieldname]->doPendingDeleteOperations();
-                    // Clear modification status of successfully stored field.
-                    $this->_fields[$fieldname]->clearModified();
+
+                // Skip external fields, that have not been added to the model.
+                if (in_array($fieldname, array_keys($this->_fields)) === false) {
+                    continue;
                 }
+
+                // Check if the store mechanism for the field is overwritten in model.
+                $callname = '_store' . $fieldname;
+                if (method_exists($this, $callname) === true) {
+                    // Call custom store method
+                    $this->$callname($this->_fields[$fieldname]->getValue());
+                }
+                else {
+                    $options = null;
+                    if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+                        $options = $this->_externalFields[$fieldname]['options'];
+                    }
+                    $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
+                }
+                // trigger any pending delete operations
+                $this->_fields[$fieldname]->doPendingDeleteOperations();
+                // Clear modification status of successfully stored field.
+                $this->_fields[$fieldname]->clearModified();
             }
         } catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
