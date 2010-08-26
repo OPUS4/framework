@@ -69,6 +69,11 @@ class Opus_DocumentTest extends TestCase {
     public function testSerializing() {
         $doc = new Opus_Document();
         $ser = serialize($doc);
+
+        $this->assertNotNull($ser, 'Serializing returned NULL.');
+        $match_result = preg_match('/"Opus_Document"/', $ser);
+        $this->assertTrue(is_int($match_result) && $match_result > 0,
+                'Serialized string does not contain Opus_Document as string.');
     }
 
     /**
