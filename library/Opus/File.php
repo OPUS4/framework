@@ -215,10 +215,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 throw new Exception($message);
             }
 
-            if (true === is_uploaded_file($tempFile)) {
-                if (@unlink($tempFile) === false) {
-                    $message = "Error removing temp file " . $this->getTempFile();
-                    $this->getLogger()->err($message);
+            // TODO: Hotfix for upload bug.  Cannot create hash, if file is deleted.
+            if (false) {
+                if (true === is_uploaded_file($tempFile)) {
+                    if (@unlink($tempFile) === false) {
+                        $message = "Error removing temp file " . $this->getTempFile();
+                        $this->getLogger()->err($message);
+                    }
                 }
             }
 
@@ -485,10 +488,19 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (false === file_exists($tempFile)) {
             $tempFile = $this->getSourcePath() . $tempFile;
         }
+        if (false === file_exists($tempFile)) {
+            throw new Exception("File $tempFile does not exist.");
+        }
         foreach ($hashtypes as $type) {
             $hash = new Opus_HashValues();
             $hash->setType($type);
-            $hash->setValue(hash_file($type, $tempFile));
+            $hash_string = hash_file($type, $tempFile);
+
+            if (empty ($hash_string)) {
+                throw new Exception("Empty HASH for file $tempFile.");
+            }
+
+            $hash->setValue($hash_string);
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
