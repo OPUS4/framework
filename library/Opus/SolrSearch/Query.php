@@ -57,6 +57,7 @@ class Opus_SolrSearch_Query {
     private $modifier;
     private $fieldValues = array();
     private $escapingEnabled = true;
+    private $q;
 
     /**
      *
@@ -64,6 +65,7 @@ class Opus_SolrSearch_Query {
      * @throws Opus_SolrSearch_Exception If $searchType is not supported.
      */
     public function  __construct($searchType = self::SIMPLE) {
+        $this->invalidQCache();
         if ($searchType === self::SIMPLE) {
             $this->searchType = self::SIMPLE;
             return;
@@ -153,6 +155,7 @@ class Opus_SolrSearch_Query {
 
     public function setCatchAll($catchAll) {
         $this->catchAll = $catchAll;
+        $this->invalidQCache();
     }
 
     /**
@@ -161,11 +164,12 @@ class Opus_SolrSearch_Query {
      * @param string $value
      * @param string $modifier
      */
-    public function setField($name, $value, $modifier = self::SEARCH_MODIFIER_CONTAINS_ANY) {
+    public function setField($name, $value, $modifier = self::SEARCH_MODIFIER_CONTAINS_ALL) {
         if (!empty($value)) {
             $this->fieldValues[$name] = $value;
             $this->modifier[$name] = $modifier;
-        }
+            $this->invalidQCache();
+        }        
     }
 
     /**
@@ -193,6 +197,15 @@ class Opus_SolrSearch_Query {
     }
 
     public function getQ() {
+        if (is_null($this->q)) {
+            // earlier cached is invalid: setup cache
+            $this->q = $this->setupQCache();
+        }
+        // return cached result (caching is done here since building q is an expensive operation
+        return $this->q;
+    }
+
+    private function setupQCache() {
         if ($this->searchType === self::SIMPLE) {
             if ($this->getCatchAll() === '*:*') {
                 return $this->catchAll;
@@ -202,49 +215,52 @@ class Opus_SolrSearch_Query {
         return $this->buildAdvancedQString();
     }
 
+    private function invalidQCache() {
+        $this->q = null;
+    }
+
     private function buildAdvancedQString() {
         $q = "{!lucene q.op=AND}";
         $first = true;
         foreach ($this->fieldValues as $fieldname => $fieldvalue) {
-            if (!$first) {
-                $q = $q . ' ';
-            }
-            else {
+            if ($first) {
                 $first = false;
             }
-            if ($this->modifier === self::SEARCH_MODIFIER_CONTAINS_ALL) {
-                $q = $q . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+            else {
+                $q = $q . ' ';
+            }
+            
+            if ($this->modifier[$fieldname] === self::SEARCH_MODIFIER_CONTAINS_ANY) {
+                $q = $q . $fieldname . ':(';
+                $firstTerm = true;
+                foreach (explode(' ', $this->escape($fieldvalue)) as $queryTerm) {
+                    if ($firstTerm) {
+                        $firstTerm = false;
+                    }
+                    else {
+                        $q = $q . ' OR ';
+                    }
+                    $q = $q . $queryTerm;
+                }
+                $q = $q . ')';
                 continue;
             }
-            if ($this->modifier === self::SEARCH_MODIFIER_CONTAINS_NONE) {
+
+            if ($this->modifier[$fieldname] === self::SEARCH_MODIFIER_CONTAINS_NONE) {
                 $q = $q . '-' . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
                 continue;
             }
-            $q = $q . $fieldname . ':(';
-            $firstTerm = true;
-            foreach (explode(' ', $this->escape($fieldvalue)) as $queryTerm) {
-                if ($firstTerm) {
-                    $firstTerm = false;
-                    $q = $q . $queryTerm;
-                }
-                else {
-                    $q = ' OR ' . $queryTerm;
-                }
 
-            }
-            $q = $q . ')';
+            // self::SEARCH_MODIFIER_CONTAINS_ALL
+            $q = $q . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+
+            
         }
         return $q;
     }
 
-    public function  __toString() {
-        if ($this->searchType === self::SIMPLE) {
-            return 'simple search with query ' . $this->getQ();
-        }
-        return 'advanced search with query  ' . $this->getQ();
-    }
-
     public function disableEscaping() {
+        $this->invalidQCache();
         $this->escapingEnabled = false;
     }
 
@@ -278,6 +294,13 @@ class Opus_SolrSearch_Query {
             $insidePhrase = !$insidePhrase;
         }
         return $result;
+    }
+
+    public function  __toString() {
+        if ($this->searchType === self::SIMPLE) {
+            return 'simple search with query ' . $this->getQ();
+        }
+        return 'advanced search with query  ' . $this->getQ();
     }
 }
 ?>
