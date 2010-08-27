@@ -733,6 +733,32 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Returns all collection for given (role_id, collection name) as array
+     * with Opus_Collection objects.  Always returning an array, even if the
+     * result set has zero or one element.
+     *
+     * @param  int     $role_id
+     * @param  string  $name
+     * @return array   Array of Opus_Collection objects.
+     */
+    public static function fetchCollectionsByRoleName($role_id, $name) {
+        if (!isset($name)) {
+            throw new Exception("Parameter 'name' is required.");
+        }
+
+        if (!isset($role_id)) {
+            throw new Exception("Parameter 'role_id' is required.");
+        }
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->where('role_id = ?', $role_id)
+                        ->where('name = ?', $name);
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
+    }
+
+    /**
      * Returns all collection_ids for a given document_id.
      *
      * @param  int    $document_id
