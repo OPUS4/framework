@@ -200,7 +200,12 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->setMimeType($mimetype);
 
             if (file_exists($destinationPath) === false) {
-                mkdir($destinationPath, 0755, true);
+                $mkdirResult = mkdir($destinationPath, 0755, true);
+                if (!$mkdirResult) {
+                    $message = "Error creating directory '$destinationPath'.";
+                    $this->getLogger()->err($message);
+                    throw new Exception($message);
+                }
             }
 
             $copyResult = copy($tempFile, $target);
