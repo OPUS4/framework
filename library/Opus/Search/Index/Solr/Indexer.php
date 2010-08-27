@@ -251,16 +251,11 @@ class Opus_Search_Index_Solr_Indexer {
             return;
         }
         if (count($files) == 0) {
-            // Dokument besteht ausschließlich aus Metadaten
-            $docXml->appendChild($modelXml->createElement('Source_Index', 'metadata'));
             $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
         }
         $hasFulltext = 'false';
         foreach ($files as $file) {
-            $sourceNode = $modelXml->createElement('Source_Index');
-            $sourceNode->appendChild($modelXml->createTextNode($file->getPathName()));
-            $docXml->appendChild($sourceNode);            
             try {
                 $fulltext = $this->getFileContent($file);
                 if (!empty($fulltext)) {

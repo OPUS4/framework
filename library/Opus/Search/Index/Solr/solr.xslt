@@ -59,21 +59,6 @@
                 <!-- id -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">id</xsl:attribute>
-                    <!--<xsl:value-of select="$source" />-->
-                    <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
-                </xsl:element>
-
-                <!-- source -->
-                <xsl:for-each select="/Opus/Opus_Model_Filter/Source_Index">
-                    <xsl:element name="field">
-                        <xsl:attribute name="name">source</xsl:attribute>
-                        <xsl:value-of select="." />
-                    </xsl:element>
-                </xsl:for-each>
-
-                <!-- docid -->
-                <xsl:element name="field">
-                    <xsl:attribute name="name">docid</xsl:attribute>
                     <xsl:value-of select="/Opus/Opus_Model_Filter/@Id" />
                 </xsl:element>
 
