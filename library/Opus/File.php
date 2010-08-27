@@ -132,7 +132,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $role->setDefault(Opus_Role::getAll());
         $role->setSelection(true);
 
-        $this->addField($role);
+        $document_id = new Opus_Model_Field('DocumentId');
+
         $this->addField($filepathname)
                 ->addField($filelabel)
                 ->addField($mimetype)
@@ -141,7 +142,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
                 ->addField($hashvalue)
-                ->addField($role);
+                ->addField($role)
+                ->addField($document_id);
     }
 
     /**
