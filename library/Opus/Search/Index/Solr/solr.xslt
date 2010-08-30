@@ -139,7 +139,7 @@
                 </xsl:element>
 
                 <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
-                <xsl:for-each select="/Opus/Opus_Model_Filter/*">
+                <!--xsl:for-each select="/Opus/Opus_Model_Filter/*">
                     <xsl:if test="substring(name(), 1, 6)='Person'">
                         <xsl:if test="name()!='PersonAuthor'">
                             <xsl:element name="field">
@@ -148,7 +148,7 @@
                             </xsl:element>
                         </xsl:if>
                     </xsl:if>
-                </xsl:for-each>
+                </xsl:for-each-->
 
                 <!-- referee -->
                 <xsl:for-each select="/Opus/Opus_Model_Filter/PersonReferee">
