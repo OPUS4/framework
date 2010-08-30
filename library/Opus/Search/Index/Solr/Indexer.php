@@ -248,13 +248,14 @@ class Opus_Search_Index_Solr_Indexer {
         $docXml = $modelXml->getElementsByTagName('Opus_Model_Filter')->item(0);
         if (is_null($docXml)) {
             $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $doc->getId());
+            $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
         }
         if (count($files) == 0) {
             $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
         }
-        $hasFulltext = 'false';
+        $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'true'));
         foreach ($files as $file) {
             try {
                 $fulltext = $this->getFileContent($file);
@@ -262,14 +263,12 @@ class Opus_Search_Index_Solr_Indexer {
                     $element = $modelXml->createElement('Fulltext_Index');
                     $element->appendChild($modelXml->createTextNode($fulltext));
                     $docXml->appendChild($element);
-                    $hasFulltext = 'true';
                 }
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
         }
-        $docXml->appendChild($modelXml->createElement('Has_Fulltext', $hasFulltext));
     }
 
     /**
