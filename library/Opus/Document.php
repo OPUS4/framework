@@ -497,15 +497,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve all available external fields in a one-dimensional array
-     * @return array with _externalFields values
-     */
-    public function getAllExternalFields(){
-        $return = array_keys($this->_externalFields);
-        return $return;
-    }
-
-    /**
      * Retrieve all Opus_Document instances from the database.
      *
      * @return array Array of Opus_Document objects.
@@ -1522,7 +1513,5 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $logger = $registry->get('Zend_Log');
         $logger->info( $this->getDisplayName() . ": $message");
     }
-
-    
 
 }
