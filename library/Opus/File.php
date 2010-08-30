@@ -228,7 +228,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             }
 
             // create and append hash values
-            $this->_createHashValues();
+            // $this->_createHashValues();
         }
 
         // Rename file, if the stored name changed on existing record.  Rename
@@ -330,6 +330,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setPathName($info['name']);
         $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
+        $this->setLabel($info['name']);
     }
 
     /**
