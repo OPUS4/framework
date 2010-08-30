@@ -505,6 +505,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         return self::getAllFrom('Opus_Document', 'Opus_Db_Documents', $ids);
     }
 
+    public function getAllExternalFields() {
+        return array_keys($this->_externalFields);
+    }
     /**
      * Returns all document that are in a specific server (publication) state.
      *
