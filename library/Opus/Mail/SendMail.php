@@ -471,7 +471,6 @@ class Opus_Mail_SendMail {
      */
     private function validateAddress($address) {
         $validator = new Zend_Validate_EmailAddress();
-        Zend_Registry::get('Zend_Log')->debug('address = ' . $address);
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
                 throw new Opus_Mail_Exception($message);
