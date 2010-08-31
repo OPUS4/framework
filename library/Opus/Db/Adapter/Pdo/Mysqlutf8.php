@@ -64,19 +64,24 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
             return;
         }
 
-        $this->logger("created new adapter");
-        $backtrace = debug_backtrace(false);
-        foreach ($backtrace AS $row) {
-            $file     = array_key_exists('file', $row)     ? $row['file']     : '_no_file_)';
-            $line     = array_key_exists('line', $row)     ? $row['line']     : '0';
-            $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
+        $config = Zend_Registry::get('Zend_Config');
+        if (isset($config->db->debug) && $config->db->debug) {
+            $logger = Zend_Registry::get('Zend_Log');
+            $logger->debug("Mysqlutf8: created new adapter");
 
-            $optional = '';
-            if ($row['function'] == 'query' && !is_null($row['args'][0])) {
-                $optional = "(" . $row['args'][0] . ")";
+            $backtrace = debug_backtrace(false);
+            foreach ($backtrace AS $row) {
+                $file     = array_key_exists('file', $row)     ? $row['file']     : '_no_file_)';
+                $line     = array_key_exists('line', $row)     ? $row['line']     : '0';
+                $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
+
+                $optional = '';
+                if ($row['function'] == 'query' && !is_null($row['args'][0])) {
+                    $optional = "(" . $row['args'][0] . ")";
+                }
+
+                $logger->debug("Mysqlutf8: $file:$line at $function $optional");
             }
-
-            $this->logger("$file:$line at $function $optional");
         }
 
 
@@ -141,9 +146,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      * @param string $message
      */
     protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-        $logger->info( "Mysqlutf8: $message");
+        info( "Mysqlutf8: $message");
     }
 
 }
