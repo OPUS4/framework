@@ -36,13 +36,6 @@
  */
 -->
 
-<!--
-/**
- * @category    Framework
- * @package     Opus_Search
- */
--->
-
 <xsl:stylesheet version="1.0"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -138,18 +131,6 @@
                     <xsl:value-of select="/Opus/Opus_Model_Filter/Has_Fulltext" />
                 </xsl:element>
 
-                <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
-                <!--xsl:for-each select="/Opus/Opus_Model_Filter/*">
-                    <xsl:if test="substring(name(), 1, 6)='Person'">
-                        <xsl:if test="name()!='PersonAuthor'">
-                            <xsl:element name="field">
-                                <xsl:attribute name="name">persons</xsl:attribute>
-                                <xsl:value-of select="@Name" />
-                            </xsl:element>
-                        </xsl:if>
-                    </xsl:if>
-                </xsl:for-each-->
-
                 <!-- referee -->
                 <xsl:for-each select="/Opus/Opus_Model_Filter/PersonReferee">
                     <xsl:element name="field">
@@ -182,6 +163,14 @@
                     </xsl:element>
                 </xsl:for-each>
 
+                <!-- subject (msc) -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/SubjectMSC">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">subject_msc</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
                 <!-- belongs_to_bibliography -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">belongs_to_bibliography</xsl:attribute>
@@ -195,15 +184,41 @@
                     </xsl:choose>                    
                 </xsl:element>
 
-                <!-- TODO: institute -->
-                <!--xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
-                    <xsl:if test="@RoleId = 1">
-                        <xsl:element name="field">
-                            <xsl:attribute name="name">institute</xsl:attribute>
-                            <xsl:value-of select="@Name" />
-                        </xsl:element>
+                <!-- collections: project, app_area, institute -->
+                <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
+                    <xsl:choose>
+                        <xsl:when test="@RoleId = 11">
+                            <xsl:element name="field">
+                                <xsl:attribute name="name">project</xsl:attribute>
+                                <xsl:value-of select="@Number" />
+                                <xsl:text>: </xsl:text>
+                                <xsl:value-of select="@Name" />
+                            </xsl:element>
+                            <xsl:element name="field">
+                                <xsl:attribute name="name">app_area</xsl:attribute>
+                                <xsl:value-of select="substring(@Number, 0, 2)" />
+                            </xsl:element>
+                        </xsl:when>
+                        <xsl:when test="@RoleId = 12">
+                            <xsl:element name="field">
+                                <xsl:attribute name="name">institute</xsl:attribute>
+                                <xsl:value-of select="@Name" />
+                            </xsl:element>
+                        </xsl:when>
+                    </xsl:choose>
+                </xsl:for-each>
+
+                <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
+                <!--xsl:for-each select="/Opus/Opus_Model_Filter/*">
+                    <xsl:if test="substring(name(), 1, 6)='Person'">
+                        <xsl:if test="name()!='PersonAuthor'">
+                            <xsl:element name="field">
+                                <xsl:attribute name="name">persons</xsl:attribute>
+                                <xsl:value-of select="@Name" />
+                            </xsl:element>
+                        </xsl:if>
                     </xsl:if>
-                 </xsl:for-each-->
+                </xsl:for-each-->
 
                 <!-- TODO: CreatingCorporation, ContributingCorporation -->
 
