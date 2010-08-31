@@ -122,11 +122,18 @@ class Opus_Mail_SendMail {
             $smtp = $config->mail->opus->smtp;
         }
 
+        if (isset($config->mail->opus->port)) {
+            $port = $config->mail->opus->port;
+        }
+        else {
+            $port = 25;
+        }
+
         if (empty($smtp)) {
             $this->_disabled = true;
         }
         else {
-            $transport = new Zend_Mail_Transport_Smtp($smtp, array('port' => 25));
+            $transport = new Zend_Mail_Transport_Smtp($smtp, array('port' => $port));
             Zend_Mail::setDefaultTransport($transport);
         }
     }
