@@ -90,6 +90,11 @@ class Opus_Mail_SendMail {
      */
     private $_oneMailToAll;
 
+    /**
+     * Flag for disabling sending of email.
+     */
+    private $_disabled = false;
+
 
     /**
      * Create a new SendMail instance
@@ -111,8 +116,19 @@ class Opus_Mail_SendMail {
     private function createSmtpTransport() {
         // @todo IP-Adresse des SMTP-Servers und Port müssen noch in config.ini / Bootstrap ausgelagert werden.
         // Port 25000 braucht man, um SendMail mit dem Fake-SMTP-Server benutzen zu können.
-        $transport = new Zend_Mail_Transport_Smtp('localhost', array('port' => 25000));
-        Zend_Mail::setDefaultTransport($transport);
+        $config = Zend_Registry::get('Zend_Config');
+
+        if (isset($config->mail->opus->smtp)) {
+            $smtp = $config->mail->opus->smtp;
+        }
+
+        if (empty($smtp)) {
+            $this->_disabled = true;
+        }
+        else {
+            $transport = new Zend_Mail_Transport_Smtp($smtp, array('port' => 25));
+            Zend_Mail::setDefaultTransport($transport);
+        }
     }
 
     /**
@@ -448,6 +464,7 @@ class Opus_Mail_SendMail {
      */
     private function validateAddress($address) {
         $validator = new Zend_Validate_EmailAddress();
+        Zend_Registry::get('Zend_Log')->debug('address = ' . $address);
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
                 throw new Opus_Mail_Exception($message);
@@ -488,6 +505,12 @@ class Opus_Mail_SendMail {
      * @return boolean             True if mail could be sent
      */
     private function send() {
+        if ($this->_disabled) {
+            $logger = Zend_Registry::get('Zend_Log');
+            $logger->warn('Not sending mail: Mail server not configured.');
+            return true;
+        }
+
         $recipients = $this->getRecipients();
         $from = $this->getFrom();
         $fromName = $this->getFromName();
