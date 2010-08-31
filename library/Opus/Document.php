@@ -1049,9 +1049,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return array An array of Opus_Collection objects.
      */
     protected function _fetchCollection() {
-        return;
-
-        // TODO: Waiting for implementation of institutes.
         $collections = array();
 
         if (false === is_null($this->isNewRecord())) {
