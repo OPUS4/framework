@@ -265,6 +265,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             ),
             'SubjectSwd' => array(
                             'model' => 'Opus_SubjectSwd',
+                            'options' => array('type' => 'swd'),
                             'fetch' => 'lazy'
             ),
             'SubjectPsyndex' => array(
