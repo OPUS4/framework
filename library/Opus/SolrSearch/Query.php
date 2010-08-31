@@ -99,6 +99,11 @@ class Opus_SolrSearch_Query {
 
     public function setSortField($sortField) {
         $this->sortField = $sortField;
+        // add _sort to the end of $sortField if not already done
+        $suffix = '_sort';
+        if (substr($sortField, strlen($sortField) - strlen($suffix)) !== $suffix) {
+            $this->sortField .= _sort;
+        }        
     }
 
     public function getSortOrder() {
