@@ -110,10 +110,15 @@ class Opus_SolrSearch_ResponseRenderer {
     }
 
     private function getFacets() {
-        $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];        
-        $facets = array ('year', 'doctype', 'author_facet', 'language', 'has_fulltext', 'belongs_to_bibliography', 'subject_facet');
+        $config = Zend_Registry::get('Zend_Config');
+        if (!isset($config->searchengine->solr->facets)) {
+            return array();
+        }
+        $facets = explode((","), $config->searchengine->solr->facets);
+        $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];                
         $result = array();
         foreach ($facets as $facet) {
+            $facet = trim($facet);
             $facetItems = array();
             foreach ($this->getFacet($facetsResult, $facet) as $text => $count) {
                 array_push($facetItems, new Opus_SolrSearch_FacetItem($text, $count));

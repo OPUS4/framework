@@ -111,9 +111,6 @@ class Opus_SolrSearch_Searcher {
             $this->log->err($msg);
             throw new Opus_SolrSearch_Exception($msg);
         }
-        /**
-         * @var Opus_SolrSearch_ResponseRenderer $responseRenderer
-         */
         $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response);
         return $responseRenderer->getResultList();
     }
@@ -127,16 +124,31 @@ class Opus_SolrSearch_Searcher {
         $params = array( 
             'fl' => '* score',
             'facet' => 'true',
-            'facet.field' => array('year', 'doctype', 'author_facet', 'language', 'has_fulltext', 'belongs_to_bibliography', 'subject_facet'),
+            'facet.field' => $this->setFacetFieldsFromConfig(),
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
             'facet.limit' => 10
-        );        
+        );
         $fq = $query->getFilterQueriesString();
         if (!is_null($fq)) {
             $params['fq'] = $fq;
         }
         return $params;
+    }
+
+    private function setFacetFieldsFromConfig() {
+        $config = Zend_Registry::get('Zend_Config');
+        if (!isset($config->searchengine->solr->facets)) {
+            // no facets are being configured
+            $this->log->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
+            return array();
+        }
+        $result = array();
+        $facets = explode((","), $config->searchengine->solr->facets);
+        foreach ($facets as $facet) {
+            array_push($result, trim($facet));
+        }
+        return $result;
     }
 }
 
