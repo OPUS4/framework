@@ -196,13 +196,14 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
     }
 
     /**
-     * Returns a Dom representation of the filtered model.
+     * Returns a DOM representation of the filtered model.
      *
      * @param array $excludeFields Array of fields that shall not be serialized.
      * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
+     * @param bool $excludeEmptyFields If set to false, fields with empty values are included in the resulting DOM.
      * @return DomDocument A Dom representation of the model.
      */
-    public function toXml(array $excludeFields = null, $strategy = null) {
+    public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true) {
         if (is_null($excludeFields) === true) {
             // FIXME: Hard coded definition of standard exclude fields.
             $excludeFields = array('ParentCollection', 'SubCollection', 'SubCollections', 'Documents', 'Nodes', 'Role');
@@ -212,9 +213,11 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
-            ->exclude($excludeFields)
-            ->excludeEmptyFields()
+            ->exclude($excludeFields)            
             ->setStrategy($strategy);
+        if ($excludeEmptyFields === true) {
+            $xml->excludeEmptyFields();
+        }
         return $xml->getDomDocument();
     }
 

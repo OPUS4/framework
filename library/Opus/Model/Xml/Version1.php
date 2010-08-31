@@ -26,7 +26,7 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Ralf ClauÃnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -213,7 +213,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             $attr->value = htmlspecialchars($fieldValues);
             $rootNode->appendChild($attr);
         } else {
-            if (false === is_array($fieldValues)) {
+            if (!is_array($fieldValues)) {
                 $fieldValues = array($fieldValues);
             }
 
@@ -231,6 +231,13 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
                     }
                 }
                 $rootNode->appendChild($childNode);
+                
+                // if a field has no value then is nothing more to do
+                // TODO maybe must be there an other solution
+                // FIIXME remove code duplication (duplicates Opus_Model_Xml_Version2)
+                if (is_null($value)) {
+                    continue;
+                }
 
                 // delivers a URI if a mapping for the given model exists
                 $uri = $this->_createXlinkRef($value);

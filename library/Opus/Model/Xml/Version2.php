@@ -208,7 +208,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             $element->nodeValue = htmlspecialchars($fieldValues);
             $rootNode->appendChild($element);
         } else {
-            if (false === is_array($fieldValues)) {
+            if (!is_array($fieldValues)) {
                 $fieldValues = array($fieldValues);
             }
 
@@ -218,7 +218,8 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
                 // if a field has no value then is nothing more to do
                 // TODO maybe must be there an other solution
-                if (null === $value) {
+                // FIXME remove code duplication (duplicates Opus_Model_Xml_Version1)
+                if (is_null($value)) {
                     continue;
                 }
 

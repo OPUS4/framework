@@ -496,31 +496,30 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
 
     /**
-     * Get the fields value
+     * Get the field's value. If the field is a multi-valued one it is guaranteed
+     * that an array is returned.
      *
      * @param  integer $index (Optional) The index of the value, if it's an array.
      * @throws InvalidArgumentException If you try to access an index, that does not exists.
      * @return Mixed Whatever the value of the field might be.
      */
     public function getValue($index = null) {
-        // Caller requested specific array index
-        if (is_null($index) === false) {
-            if (is_array($this->_value) === true and array_key_exists($index, $this->_value) === true) {
+        // Caller requested a specific array index
+        if (!is_null($index)) {
+            if (is_array($this->_value) and array_key_exists($index, $this->_value)) {
                 return $this->_value[$index];
-            } else {
-                throw new InvalidArgumentException('Invalid index: ' . $index);
             }
-        } else {
-            // If multiple values are possible return an array in every case
-            if (($this->hasMultipleValues() === true) and (is_array($this->_value) === false)) {
-                if (is_null($this->_value) === false) {
-                    return array($this->_value);
-                } else {
-                    return array();
-                }
-            }
-            return $this->_value;
+            throw new InvalidArgumentException('Invalid index: ' . $index);
         }
+
+        // If multiple values are possible return an array in every case
+        if ($this->hasMultipleValues() === true and !is_array($this->_value)) {
+            if (!is_null($this->_value)) {
+                return array($this->_value);
+            }
+            return array();
+        }
+        return $this->_value;
     }
 
 
