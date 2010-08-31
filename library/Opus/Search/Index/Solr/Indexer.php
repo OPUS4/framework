@@ -210,7 +210,7 @@ class Opus_Search_Index_Solr_Indexer {
         // Set up filter and get XML representation of filtered document.
         $filter = new Opus_Model_Filter;
         $filter->setModel($doc);
-        $modelXml = $filter->toXml();
+        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1(), false);
         $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
 
         // Set up XSLT stylesheet

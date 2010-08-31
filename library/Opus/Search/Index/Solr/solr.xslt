@@ -182,10 +182,17 @@
                     </xsl:element>
                 </xsl:for-each>
 
-                <!-- Bibliographie -->                
+                <!-- belongs_to_bibliography -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">belongs_to_bibliography</xsl:attribute>
-                    <xsl:value-of select="/Opus/Opus_Model_Filter/@BelongsToBibliography" />
+                    <xsl:choose>
+                        <xsl:when test="/Opus/Opus_Model_Filter/@BelongsToBibliography = 0" >
+                            <xsl:text>false</xsl:text>
+                       </xsl:when>
+                       <xsl:otherwise>
+                            <xsl:text>true</xsl:text>
+                       </xsl:otherwise>
+                    </xsl:choose>                    
                 </xsl:element>
 
                 <!-- TODO: institute -->
