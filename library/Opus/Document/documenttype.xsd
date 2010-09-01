@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
@@ -44,7 +44,10 @@
 	An required option is set to "yes" if the field has to be filled during user input 
 	activities.
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:opus="http://schemas.opus.org/documenttype" targetNamespace="http://schemas.opus.org/documenttype" elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:opus="http://schemas.opus.org/documenttype"
+    targetNamespace="http://schemas.opus.org/documenttype"
+    elementFormDefault="qualified">
 	<!-- Root element -->
 	<element name="documenttype" type="opus:OpusDocumentType"/>
 	<complexType name="OpusDocumentType">
@@ -84,6 +87,9 @@
 			<enumeration value="Integer"/>
 			<enumeration value="Title"/>
 			<enumeration value="Licence"/>
+                        <enumeration value="Institute"/>
+                        <enumeration value="Project"/>
+                        <enumeration value="Msc"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="validFormElements">
@@ -114,7 +120,7 @@
 			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
 		</restriction>
 	</simpleType>
-	<!-- FINGER WEG: Änderungen führen zu Fehlern! Feldnamen hängen von Opus_Document ab! -->
+	<!-- FINGER WEG: Aenderungen fuehren zu Fehlern! Feldnamen haengen von Opus_Document ab! -->
 	<simpleType name="validfieldname">
 		<restriction base="string">
 			<enumeration value="Collection"/>
