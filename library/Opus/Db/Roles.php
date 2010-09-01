@@ -54,6 +54,7 @@ class Opus_Db_Roles extends Opus_Db_TableGateway {
      * @var array $_dependantTables
      */
     protected $_dependentTables = array(
+            'Opus_Db_LinkAccountsRoles',
             'Opus_Db_LinkIprangesRoles',
             'Opus_Db_Privileges',
             );
