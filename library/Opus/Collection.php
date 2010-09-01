@@ -296,6 +296,34 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Method to fetch documents-ids assigned to this collection.
+     *
+     * @return array DocumentId(s).
+     */
+    public function getDocumentIds() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        assert(!is_null($this->getId()));
+        assert(!is_null($this->getRoleId()));
+
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
+
+        // FIXME: Don't use internal knowledge of foreign models/tables.
+        // FIXME: Don't return documents if collection is hidden.
+        $select = $table->select()
+                        ->from("link_documents_collections AS ldc", "document_id")
+                        ->where('collection_id = ?', $this->getId())
+                        ->where('role_id = ?', $this->getRoleId())
+                        ->distinct();
+
+        $results = $table->getAdapter()->fetchAll($select);
+
+        return $results;
+    }
+
+    /**
      * Internal method for storing *and* linking documents.  Is called by the
      * model, do not use manually.
      *
