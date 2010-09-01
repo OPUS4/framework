@@ -960,6 +960,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return int
      */
     public static function getEarliestPublicationDate() {
+        // TODO: This method can be removed, when we refactor getEarliestPublicationDate()!
+
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()->from($table, 'min(server_date_published)');
         $timestamp = $table->fetchRow($select)->toArray();
