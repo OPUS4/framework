@@ -767,7 +767,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-    /**
+      /**
      * Returns all collection for given (role_id, collection name) as array
      * with Opus_Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
