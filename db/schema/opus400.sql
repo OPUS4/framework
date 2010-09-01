@@ -489,6 +489,45 @@ CREATE  TABLE IF NOT EXISTS `languages` (
 )
 ENGINE=InnoDB;
 
+
+-- -----------------------------------------------------
+-- Table `dnb_institutes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `dnb_institutes` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+    `name` VARCHAR(255) NOT NULL UNIQUE ,
+    `address` MEDIUMTEXT ,
+    `city` VARCHAR(255) NOT NULL ,
+    `phone` VARCHAR(255) ,
+    `dnb_contact_id` VARCHAR(255) COMMENT 'Contact id of the german national library.' ,
+    `is_grantor` TINYINT (1) NOT NULL COMMENT 'Flag: is the institituion grantor of academic degrees?' ,
+    PRIMARY KEY (`id`)
+    )
+ENGINE = InnoDB
+COMMENT = 'Table for thesisPublishers or thesisGrantors.';
+
+-- -----------------------------------------------------
+-- Table `link_documents_dnb_institutes`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
+    `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
+    `dnb_institute_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
+    PRIMARY KEY (`document_id`, `dnb_institute_id`) ,
+    INDEX `fk_link_documents_dnb_institutes_documents` (`document_id` ASC) ,
+    INDEX `fk_link_documents_dnb_institutes_dnb_institutes` (`dnb_institute_id` ASC) ,
+    CONSTRAINT `fk_link_documents_dnb_institutes_documents`
+      FOREIGN KEY (`document_id`)
+      REFERENCES `documents` (`id`)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE,
+    CONSTRAINT `fk_link_documents_dnb_institutes_dnb_institutes`
+      FOREIGN KEY (`dnb_institute_id`)
+      REFERENCES `dnb_institute` (`id`)
+      ON DELETE CASCADE
+      ON UPDATE CASCADE)
+ENGINE = InnoDB
+COMMENT = 'Relation table (documents, dnb_institutes).';
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

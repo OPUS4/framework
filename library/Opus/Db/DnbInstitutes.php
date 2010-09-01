@@ -1,5 +1,5 @@
 <?php
-/**
+/*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -26,46 +26,35 @@
  *
  * @category    Framework
  * @package     Opus_Db
- * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Table gateway class to table 'documents'.
+ * Table gateway class to table 'dnb_institutes'.
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_Documents extends Opus_Db_TableGateway {
-
+class Opus_Db_DnbInstitutes extends Opus_Db_TableGateway {
     /**
-     * Real database name of the documents table.
+     * Table schema name.
      *
      * @var string
      */
-    protected $_name = 'documents';
+    protected $_name = 'dnb_institutes';
 
-    /**
+        /**
      * All dependant Tables,
-     * i.e. those that contain a documents_id as a foreign key.
+     * i.e. those that contain a role_id as a foreign key.
      *
      * @var array $_dependantTables
      */
     protected $_dependentTables = array(
-            'Opus_Db_DocumentTitleAbstracts',
-            'Opus_Db_DocumentSubjects',
-            'Opus_Db_DocumentStatistics',
-            'Opus_Db_DocumentNotes',
-            'Opus_Db_DocumentPatents',
-            'Opus_Db_DocumentEnrichments',
-            'Opus_Db_DocumentFiles',
-            'Opus_Db_DocumentIdentifiers',
             'Opus_Db_LinkDocumentsDnbInstitutes',
-            'Opus_Db_LinkPersonsDocuments',
-            'Opus_Db_LinkDocumentsLicences',
             );
+
 }
