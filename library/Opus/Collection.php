@@ -89,6 +89,12 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'model' => 'Opus_CollectionRole',
             'fetch' => 'lazy',
         ),
+        'RoleName' => array(
+            'fetch' => 'lazy',
+        ),
+        'RoleDisplayFrontdoor' => array(
+            'fetch' => 'lazy',
+        ),
         'SubCollections' => array(
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
