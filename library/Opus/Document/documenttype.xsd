@@ -32,7 +32,6 @@
  * @version     $Id$
  */
  -->
-
 <!--
 	This schema describes the how to structure document type definition files
 	and serves as a source for validation of those files. 
@@ -56,18 +55,16 @@
 		</sequence>
 		<attribute name="name" type="opus:validname" use="required"/>
 	</complexType>
-	
 	<complexType name="FieldType">
-		<sequence maxOccurs="1" minOccurs="0">
-			<element name="required-if-fulltext"  minOccurs="0"/>			
+		<sequence minOccurs="0">
+			<element name="required-if-fulltext" minOccurs="0"/>
 		</sequence>
 		<attribute name="name" type="opus:validfieldname" use="required"/>
 		<attribute name="multiplicity" type="opus:multiplicity" default="1"/>
 		<attribute name="required" type="opus:yesno" default="no"/>
 		<attribute name="formelement" type="opus:validFormElements"/>
-		<attribute name="datatype" type="opus:availableDatatypes"/>		
+		<attribute name="datatype" type="opus:availableDatatypes"/>
 	</complexType>
-	
 	<complexType name="requiredType">
 		<attribute name="field" type="opus:validfieldname" use="required"/>
 	</complexType>
@@ -117,7 +114,7 @@
 			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
 		</restriction>
 	</simpleType>
-	<!-- FINGER WEG: Ã„nderungen fÃ¼hren zu Fehlern! Feldnamen hÃ¤ngen von Opus_Document ab! -->
+	<!-- FINGER WEG: Änderungen führen zu Fehlern! Feldnamen hängen von Opus_Document ab! -->
 	<simpleType name="validfieldname">
 		<restriction base="string">
 			<enumeration value="Collection"/>
@@ -129,13 +126,11 @@
 			<enumeration value="Edition"/>
 			<enumeration value="Enrichment"/>
 			<enumeration value="File"/>
-			<enumeration value="Grantor"/>
 			<enumeration value="Institute"/>
 			<enumeration value="Issue"/>
 			<enumeration value="Journal"/>
 			<enumeration value="Language"/>
 			<enumeration value="Licence"/>
-			<enumeration value="NonInstituteAffiliation"/>
 			<enumeration value="Note"/>
 			<enumeration value="PageFirst"/>
 			<enumeration value="PageLast"/>
@@ -143,29 +138,25 @@
 			<enumeration value="Patent"/>
 			<enumeration value="PersonAdvisor"/>
 			<enumeration value="PersonAuthor"/>
-			<enumeration value="PersonOther"/>
 			<enumeration value="PersonReferee"/>
 			<enumeration value="PersonContributor"/>
 			<enumeration value="PersonEditor"/>
 			<enumeration value="PersonTranslator"/>
 			<enumeration value="PersonSubmitter"/>
-			<enumeration value="PublicationVersion"/>
+			<enumeration value="PublicationState"/>
 			<enumeration value="PublishedDate"/>
 			<enumeration value="PublishedYear"/>
 			<enumeration value="PublisherName"/>
 			<enumeration value="PublisherPlace"/>
-			<enumeration value="PublisherUniversity"/>
-			<enumeration value="Publisher"/>
-			<enumeration value="Reviewed"/>
 			<enumeration value="ServerDateUnlocking"/>
-			<enumeration value="ServerDateValid"/>
-			<enumeration value="Source"/>
 			<enumeration value="SubjectDdc"/>
-			<enumeration value="SubjectMSC"/>			
+			<enumeration value="SubjectMSC"/>
 			<enumeration value="SubjectPsyndex"/>
 			<enumeration value="SubjectSwd"/>
 			<enumeration value="SubjectUncontrolled"/>
 			<enumeration value="ThesisDateAccepted"/>
+			<enumeration value="ThesisGrantor"/>
+			<enumeration value="ThesisPublisher"/>
 			<enumeration value="TitleAbstract"/>
 			<enumeration value="TitleMain"/>
 			<enumeration value="TitleParent"/>
