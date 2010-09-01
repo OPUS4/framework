@@ -319,6 +319,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Internal method to populate external field.
      */
+//    protected static $_role_cache = null;
     protected function _fetchRole() {
         $role = new Opus_CollectionRole($this->getRoleId());
         return $role;
@@ -350,7 +351,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _fetchRoleDisplayFrontdoor() {
         // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
-        $role = $this->_fetchRole();
+        $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayFrontdoor();
         }
@@ -363,7 +364,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _fetchRoleName() {
         // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
-        $role = $this->_fetchRole();
+        $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayName();
         }
