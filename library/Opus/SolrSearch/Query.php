@@ -236,36 +236,40 @@ class Opus_SolrSearch_Query {
                 $first = false;
             }
             else {
-                $q = $q . ' ';
+                $q .= ' ';
             }
             
             if ($this->modifier[$fieldname] === self::SEARCH_MODIFIER_CONTAINS_ANY) {
-                $q = $q . $fieldname . ':(';
-                $firstTerm = true;
-                foreach (explode(' ', $this->escape($fieldvalue)) as $queryTerm) {
-                    if ($firstTerm) {
-                        $firstTerm = false;
-                    }
-                    else {
-                        $q = $q . ' OR ';
-                    }
-                    $q = $q . $queryTerm;
-                }
-                $q = $q . ')';
+                $q .= $this->combineSearchTerms($fieldname, $fieldvalue, 'OR');
                 continue;
             }
 
             if ($this->modifier[$fieldname] === self::SEARCH_MODIFIER_CONTAINS_NONE) {
-                $q = $q . '-' . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
+                $q .= '-' . $this->combineSearchTerms($fieldname, $fieldvalue, 'OR');
                 continue;
             }
 
             // self::SEARCH_MODIFIER_CONTAINS_ALL
-            $q = $q . $fieldname . ':(' . $this->escape($fieldvalue) . ')';
-
-            
+            $q .= $this->combineSearchTerms($fieldname, $fieldvalue);
         }
         return $q;
+    }
+
+    private function combineSearchTerms($fieldname, $fieldvalue, $conjunction = null) {
+        $result = $fieldname . ':(';
+        $firstTerm = true;
+        $queryTerms = preg_split("/[\s]+/", $this->escape($fieldvalue), null, PREG_SPLIT_NO_EMPTY);
+        foreach ($queryTerms as $queryTerm) {
+            if ($firstTerm) {
+                $firstTerm = false;
+            }
+            else {
+                $result .= is_null($conjunction) ? " " : " $conjunction ";
+            }
+            $result .= $queryTerm;
+        }
+        $result .= ')';
+        return $result;
     }
 
     public function disableEscaping() {
@@ -288,17 +292,17 @@ class Opus_SolrSearch_Query {
         $query = trim($query);
         // add one " to the end of $query if it contains an odd number of "
         if (substr_count($query, '"') % 2 == 1) {
-            $query = $query . '"';
+            $query .= '"';
         }
         // escape special characters (currently ignore " \* \?) outside of ""
         $insidePhrase = false;
         $result = '';
         foreach (explode('"', $query) as $phrase) {
             if ($insidePhrase) {
-                $result = $result . '"' . $phrase . '"';
+                $result .= '"' . $phrase . '"';
             }
             else {
-                $result = $result . preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $phrase);
+                $result .= preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $phrase);
             }
             $insidePhrase = !$insidePhrase;
         }
