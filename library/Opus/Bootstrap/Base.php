@@ -126,14 +126,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
             Zend_Registry::set('db_adapter', $db);
         }
         catch (Zend_Db_Adapter_Exception $e) {
-            if ($this->getEnvironment() === "production") {
-                $logger->err($e);
-                echo "OPUS Bootstrap Error: Database not found!";
-                exit(-1);
-            }
-            else {
-                throw $e;
-            }
+            $logger->err($e);
+            throw new Exception('OPUS Bootstrap Error: Database not found!', 0, $e);
         }
     }
 
