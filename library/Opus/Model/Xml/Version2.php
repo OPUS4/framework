@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -81,13 +82,13 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         // Handle constructor attributes
         if (true === array_key_exists($classname, $this->_config->_constructionAttributesMap)) {
             $init = array();
-            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorAttribute) {
-                if (null !== $constructorAttribute) {
+            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorElement) {
+                if (null !== $constructorElement) {
                     // get child node that has nodeName equal to constructor element
                     $childElements = $element->childNodes;
                     foreach ($childElements as $childElement) {
                         if (XML_ELEMENT_NODE === $childElement->nodeType) {
-                            if ($constructorAttribute === $childElement->nodeName) {
+                            if ($constructorElement === $childElement->nodeName) {
                                 $init[] = $childElement->nodeValue;
                                 // remove constructor element from element list
                                 $element->removeChild($childElement);
@@ -107,6 +108,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         }
 
         return $model;
+
     }
 
     /**
@@ -133,7 +135,8 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
                 // return associated model id if $model is a link model
                 if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
                     $modelId = $model->getLinkedModelId();
-                } else {
+                }
+                else {
                     $modelId = $model->getId();
                 }
 
@@ -144,6 +147,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             }
         }
         return $uri;
+
     }
 
     /**
@@ -159,9 +163,11 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
         if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Link_Abstract)) {
             $fields = $model->describeUntunneled();
-        } else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
+        }
+        else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
             $fields = array();
-        } else {
+        }
+        else {
             $fields = $model->describe();
         }
 
@@ -173,7 +179,8 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
-        } else {
+        }
+        else {
             $fields_diff = $fields;
         }
 
@@ -181,6 +188,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $rootNode);
         }
+
     }
 
     /**
@@ -261,7 +269,8 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         $excludeFields = $this->_config->_excludeFields;
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
-        } else {
+        }
+        else {
             $fields_diff = $fields;
         }
 
@@ -272,6 +281,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $childNode);
         }
+
     }
 
     /**
@@ -297,14 +307,16 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
 
             if (in_array($fieldName, $fieldList) === false) {
                 throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined. Model class: '
-                    . get_class($model));
-            } else {
+                        . get_class($model));
+            }
+            else {
                 $fieldObj = $model->getField($fieldName);
                 $modelclass = $fieldObj->getValueModelClass();
                 // determine accessor function
                 if (true === $fieldObj->hasMultipleValues()) {
                     $accessor = 'add';
-                } else {
+                }
+                else {
                     $accessor = 'set';
                 }
 
@@ -319,12 +331,14 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
                             // if we add values then we need to do this on the returned model
                             $tempModel = $model->$callname($submodel);
                             $this->_populateModelFromXml($tempModel, $fieldNode);
-                        } else {
+                        }
+                        else {
                             // setting of values should be done on submodel
                             $model->$callname($submodel);
                             $this->_populateModelFromXml($submodel, $fieldNode);
                         }
-                    } else {
+                    }
+                    else {
                         $callname = $accessor . $fieldName;
                         $model->$callname($fieldValue);
                     }
@@ -332,6 +346,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             }
         }
         return $model;
+
     }
 
     /**
@@ -339,6 +354,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
      */
     public function __construct() {
         $this->_config = new Opus_Model_Xml_Conf;
+
     }
 
     /**
@@ -359,6 +375,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         $this->_mapModel($this->_config->_model, $this->_config->_dom, $root);
 
         return $this->_config->_dom;
+
     }
 
     /**
@@ -379,11 +396,13 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
     }
 
     /**
-     * (non-PHPdoc)
+     * Return version value of current xml representation.
+     *
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getVersion()
      */
     public function getVersion() {
         return floor($this->_version);
+
     }
 
     /**
@@ -392,14 +411,16 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
      */
     public function setDomDocument(DomDocument $dom) {
         $this->_config->_dom = $dom;
+
     }
 
     /**
      * (non-PHPdoc)
-     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setup()
+     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
      */
     public function setup(Opus_Model_Xml_Conf $conf) {
         $this->_config = $conf;
+
     }
 
     /**
@@ -415,14 +436,15 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         libxml_use_internal_errors(true);
         $success = $dom->loadXml($xml);
         if (false === $success) {
-            $errors = libxml_get_errors();
-            foreach ($errors as $error) {
-                $errmsg = $error->message . "\n";
+            $errmsg = '';
+            foreach (libxml_get_errors() as $error) {
+                $errmsg = $error . $error->message . "\n";
             }
             libxml_clear_errors();
             throw new Opus_Model_Exception($errmsg);
         }
         $this->setDomDocument($dom);
+
     }
 
     /**
@@ -430,6 +452,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
     public function updateFromXml($xml) {
-        //
+
     }
+
 }
