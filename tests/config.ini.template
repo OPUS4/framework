@@ -67,7 +67,8 @@ searchengine.index.port =
 searchengine.index.app =
 searchengine.extract.host =
 searchengine.extract.port =
-searchengine.extract.app = 
+searchengine.extract.app =
+searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,app_area,institute,subject_msc
 
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
