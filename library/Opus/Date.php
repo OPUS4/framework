@@ -53,7 +53,7 @@ class Opus_Date extends Opus_Model_Abstract {
         if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
         } else
-        if (true === is_string($value)) {
+        if (is_string($value)) {
             $this->setFromString($value);
         } else
         if ($value instanceof Opus_Date) {
@@ -66,13 +66,14 @@ class Opus_Date extends Opus_Model_Abstract {
                 ->setHour(0)
                 ->setMinute(0)
                 ->setSecond(0)
-                ->setTimezone('');
+                ->setTimezone('')
+                ->setUnixTimestamp(0);
         }
     }
 
     /**
      * Initialize model by adding the corresponding fields
-     * Year, Month, Day, Hour, Minute, Second and Timezone.
+     * Year, Month, Day, Hour, Minute, Second, Timezone, and UnixTimestamp.
      *
      * @return void
      */
@@ -88,6 +89,9 @@ class Opus_Date extends Opus_Model_Abstract {
         }
         
         $field = new Opus_Model_Field('Timezone');
+        $this->addField($field);
+
+        $field = new Opus_Model_Field('UnixTimestamp');
         $this->addField($field);
     }
 
@@ -108,13 +112,12 @@ class Opus_Date extends Opus_Model_Abstract {
             'timezone' => $this->getTimezone());
 
         foreach ($datearray as $key => $value) {
-            if (null === $value) {
+            if (is_null($value)) {
                 unset($datearray[$key]);
             }
         }
         
-        $zd = new Zend_Date($datearray);
-        return $zd;
+        return new Zend_Date($datearray);
     }
 
     /**
@@ -132,6 +135,7 @@ class Opus_Date extends Opus_Model_Abstract {
         $this->setMinute($datearray['minute']);
         $this->setSecond($datearray['second']);
         $this->setTimezone($datearray['timezone']);
+        $this->setUnixTimestamp($date->getTimestamp());
     }
 
     /**
@@ -145,8 +149,7 @@ class Opus_Date extends Opus_Model_Abstract {
         if (true === empty($date)) {
             $date = null;
         }
-        $zd = new Zend_Date($date);
-        $this->setZendDate($zd);
+        $this->setZendDate(new Zend_Date($date));
     }
     
     /**
