@@ -38,6 +38,7 @@
 class Opus_SolrSearch_Query {
     const SIMPLE = 'simple';
     const ADVANCED = 'advanced';
+    const FACET_ONLY = 'facet_only';
     const DEFAULT_START = 0;
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
@@ -58,6 +59,7 @@ class Opus_SolrSearch_Query {
     private $fieldValues = array();
     private $escapingEnabled = true;
     private $q;
+    private $facetField;
 
     /**
      *
@@ -66,15 +68,28 @@ class Opus_SolrSearch_Query {
      */
     public function  __construct($searchType = self::SIMPLE) {
         $this->invalidQCache();
-        if ($searchType === self::SIMPLE) {
-            $this->searchType = self::SIMPLE;
+        if ($searchType === self::SIMPLE || $searchType === self::ADVANCED) {
+            $this->searchType = $searchType;
             return;
         }
-        if ($searchType === self::ADVANCED) {
-            $this->searchType = self::ADVANCED;
+        if ($searchType === self::FACET_ONLY) {
+            $this->searchType = self::FACET_ONLY;
+            $this->setRows(0);
             return;
         }
         throw new Opus_SolrSearch_Exception("searchtype $searchType is not supported");
+    }
+
+    public function getSearchType() {
+        return $this->searchType;
+    }
+
+    public function getFacetField() {
+        return $this->facetField;
+    }
+
+    public function setFacetField($facetField) {
+        $this->facetField = $facetField;
     }
 
     public function getStart() {
@@ -221,6 +236,9 @@ class Opus_SolrSearch_Query {
             }
             return $this->escape($this->getCatchAll());
         }
+        if ($this->searchType === self::FACET_ONLY) {
+            return '*:*';
+        }
         return $this->buildAdvancedQString();
     }
 
@@ -312,6 +330,9 @@ class Opus_SolrSearch_Query {
     public function  __toString() {
         if ($this->searchType === self::SIMPLE) {
             return 'simple search with query ' . $this->getQ();
+        }
+        if ($this->searchType === self::FACET_ONLY) {
+            return 'facet only search with query *:*';
         }
         return 'advanced search with query  ' . $this->getQ();
     }

@@ -120,7 +120,17 @@ class Opus_SolrSearch_Searcher {
      * @param Opus_SolrSearch_Query $query
      * @return string
      */
-    private function getParams($query) {        
+    private function getParams($query) {
+        if ($query->getSearchType() === Opus_SolrSearch_Query::FACET_ONLY) {
+            $params = array(
+                'fl' => '',
+                'facet' => 'true',
+                'facet.field' => $query->getFacetField(),
+                'facet.mincount' => 1,
+                'facet.limit' => -1
+            );
+            return $params;
+        }
         $params = array( 
             'fl' => '* score',
             'facet' => 'true',

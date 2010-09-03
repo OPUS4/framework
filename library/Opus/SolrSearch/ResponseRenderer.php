@@ -114,7 +114,7 @@ class Opus_SolrSearch_ResponseRenderer {
         if (!isset($config->searchengine->solr->facets)) {
             return array();
         }
-        $facets = explode((","), $config->searchengine->solr->facets);
+        $facets = explode(",", $config->searchengine->solr->facets);
         $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];                
         $result = array();
         foreach ($facets as $facet) {
