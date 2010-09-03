@@ -58,7 +58,14 @@
                 <!-- year -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">year</xsl:attribute>
-                    <xsl:value-of select="/Opus/Opus_Model_Filter/PublishedDate/@Year" />
+                    <xsl:choose>
+                        <xsl:when test="/Opus/Opus_Model_Filter/PublishedDate/@Year != ''">
+                            <xsl:value-of select="/Opus/Opus_Model_Filter/PublishedDate/@Year" />
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:value-of select="/Opus/Opus_Model_Filter/@PublishedYear" />
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:element>
 
                 <!-- server_date_published -->
