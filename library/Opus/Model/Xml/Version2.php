@@ -81,26 +81,28 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         // Handle constructor attributes
         if (true === array_key_exists($classname, $this->_config->_constructionAttributesMap)) {
             $init = array();
-            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorElement) {
-                if (null !== $constructorElement) {
+            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorAttribute) {
+                if (null !== $constructorAttribute) {
                     // get child node that has nodeName equal to constructor element
                     $childElements = $element->childNodes;
                     foreach ($childElements as $childElement) {
                         if (XML_ELEMENT_NODE === $childElement->nodeType) {
-                            if ($constructorElement === $childElement->nodeName) {
+                            if ($constructorAttribute === $childElement->nodeName) {
                                 $init[] = $childElement->nodeValue;
                                 // remove constructor element from element list
                                 $element->removeChild($childElement);
                             }
                         }
                     }
-                } else {
+                }
+                else {
                     $init[] = null;
                 }
             }
             $creator = new ReflectionClass($classname);
             $model = $creator->newInstanceArgs($init);
-        } else {
+        }
+        else {
             $model = new $classname;
         }
 
@@ -162,7 +164,13 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         } else {
             $fields = $model->describe();
         }
-        $excludeFields = $this->_config->_excludeFields;
+
+        // FIXME: Why doesn't Opus_Model_Xml_Conf->_excludeFields work here?
+        $excludeFields = array('ParentCollection', 'SubCollection', 'RootNode',
+            'Collection', 'Parents', 'Children', 'PendingNodes',
+            'Role', 'Nodes', 'SubCollections', 'Documents', 'Node');
+        $excludeFields = array_merge($this->_config->_excludeFields, $excludeFields);
+
         if (count($excludeFields) > 0) {
             $fields_diff = array_diff($fields, $excludeFields);
         } else {
