@@ -121,6 +121,14 @@ class Opus_SolrSearch_Searcher {
      * @return string
      */
     private function getParams($query) {
+        if ($query->getSearchType() === Opus_SolrSearch_Query::LATEST_DOCS) {
+            $params = array(
+                'fl' => '* score',
+                'facet' => 'false',
+                'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
+            );
+            return $params;
+        }
         if ($query->getSearchType() === Opus_SolrSearch_Query::FACET_ONLY) {
             $params = array(
                 'fl' => '',

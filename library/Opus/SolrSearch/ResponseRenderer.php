@@ -112,10 +112,17 @@ class Opus_SolrSearch_ResponseRenderer {
     private function getFacets() {
         $config = Zend_Registry::get('Zend_Config');
         if (!isset($config->searchengine->solr->facets)) {
+            $this->log->debug('config parameter searchengine.solr.facets is not defined -- no facets will be displayed');
             return array();
         }
-        $facets = explode(",", $config->searchengine->solr->facets);
-        $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];                
+        
+        if (!array_key_exists('facet_counts', $this->jsonResponse) ||
+            !array_key_exists('facet_fields', $this->jsonResponse['facet_counts'])) {
+            return array();
+        }
+
+        $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];
+        $facets = explode(",", $config->searchengine->solr->facets);        
         $result = array();
         foreach ($facets as $facet) {
             $facet = trim($facet);

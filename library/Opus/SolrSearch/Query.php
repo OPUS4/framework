@@ -36,9 +36,12 @@
  * Encapsulates all parameter values needed to build the Solr query URL.
  */
 class Opus_SolrSearch_Query {
+    // currently available search types
     const SIMPLE = 'simple';
     const ADVANCED = 'advanced';
     const FACET_ONLY = 'facet_only';
+    const LATEST_DOCS = 'latest';
+
     const DEFAULT_START = 0;
     const DEFAULT_ROWS = 10;
     const DEFAULT_SORTFIELD = 'score';
@@ -75,6 +78,12 @@ class Opus_SolrSearch_Query {
         if ($searchType === self::FACET_ONLY) {
             $this->searchType = self::FACET_ONLY;
             $this->setRows(0);
+            return;
+        }
+        if ($searchType === self::LATEST_DOCS) {
+            $this->searchType = self::LATEST_DOCS;
+            $this->sortField = 'server_date_published';
+            $this->sortOrder = 'desc';
             return;
         }
         throw new Opus_SolrSearch_Exception("searchtype $searchType is not supported");
@@ -236,7 +245,7 @@ class Opus_SolrSearch_Query {
             }
             return $this->escape($this->getCatchAll());
         }
-        if ($this->searchType === self::FACET_ONLY) {
+        if ($this->searchType === self::FACET_ONLY || $this->searchType === self::LATEST_DOCS) {
             return '*:*';
         }
         return $this->buildAdvancedQString();
@@ -333,6 +342,9 @@ class Opus_SolrSearch_Query {
         }
         if ($this->searchType === self::FACET_ONLY) {
             return 'facet only search with query *:*';
+        }
+        if ($this->searchType === self::LATEST_DOCS) {
+            return 'search for latest documents with query *:*';
         }
         return 'advanced search with query  ' . $this->getQ();
     }

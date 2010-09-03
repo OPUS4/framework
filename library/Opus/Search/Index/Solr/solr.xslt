@@ -61,6 +61,12 @@
                     <xsl:value-of select="/Opus/Opus_Model_Filter/PublishedDate/@Year" />
                 </xsl:element>
 
+                <!-- server_date_published -->
+                <xsl:element name="field">
+                    <xsl:attribute name="name">server_date_published</xsl:attribute>
+                    <xsl:value-of select="/Opus/Opus_Model_Filter/ServerDatePublished/@UnixTimestamp" />
+                </xsl:element>
+
                 <!-- language -->
                 <xsl:variable name="language" select="/Opus/Opus_Model_Filter/@Language" />
                 <xsl:element name="field">
