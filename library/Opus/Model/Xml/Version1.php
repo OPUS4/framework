@@ -191,6 +191,8 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
      * @param DOMDocument      $dom      General DOM document.
      * @param DOMNode          $rootNode Node where to add created structure.
      * @return void
+     *
+     * FIXME: remove code duplication (duplicates Opus_Model_Xml_Version*)
      */
     protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
         $fieldName = $field->getName();
@@ -202,17 +204,21 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         if (null === $modelClass) {
+            // create a new element
             $attr = $dom->createAttribute($fieldName);
             // workaround for simple fields with multiple values
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
             }
-            if ($fieldValues instanceOf Zend_Date) {
+            if ($fieldValues instanceOf Opus_Date || $fieldValues instanceOf Zend_Date) {
                 $fieldValues = $fieldValues->getIso();
             }
+            // set value
+            //if (empty($fieldValues) === false)
             $attr->value = htmlspecialchars($fieldValues);
             $rootNode->appendChild($attr);
-        } else {
+        }
+        else {
             if (!is_array($fieldValues)) {
                 $fieldValues = array($fieldValues);
             }
@@ -222,7 +228,8 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
                 if ($value instanceof Opus_Model_AbstractDb) {
                     if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
                         $modelId = $value->getLinkedModelId();
-                    } else {
+                    }
+                    else {
                         $modelId = $value->getId();
                     }
                     // Ignore compound keys.
@@ -231,10 +238,10 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
                     }
                 }
                 $rootNode->appendChild($childNode);
-                
+
                 // if a field has no value then is nothing more to do
                 // TODO maybe must be there an other solution
-                // FIIXME remove code duplication (duplicates Opus_Model_Xml_Version2)
+                // FIXME remove code duplication (duplicates Opus_Model_Xml_Version*)
                 if (is_null($value)) {
                     continue;
                 }
@@ -245,11 +252,13 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
                     $childNode->setAttribute('xlink:type', 'simple');
                     $childNode->setAttribute('xlink:href', $uri);
                     $this->_mapAttributes($value, $dom, $childNode, true);
-                } else {
+                }
+                else {
                     $this->_mapAttributes($value, $dom, $childNode);
                 }
             }
         }
+
     }
 
     /**
