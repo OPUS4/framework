@@ -438,7 +438,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         if (false === $success) {
             $errmsg = '';
             foreach (libxml_get_errors() as $error) {
-                $errmsg = $error . $error->message . "\n";
+                $errmsg = $errmsg . $error->message . "\n";
             }
             libxml_clear_errors();
             throw new Opus_Model_Exception($errmsg);
