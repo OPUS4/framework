@@ -485,11 +485,10 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
 
     /**
      * (non-PHPdoc)
-     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
+     * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setup()
      */
-    public function setDomDocument(DomDocument $dom) {
-        $this->_config->_dom = $dom;
-
+    public function setup(Opus_Model_Xml_Conf $conf) {
+        $this->_config = $conf;
     }
 
     /**
