@@ -452,7 +452,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
     public function updateFromXml($xml) {
-
+        throw new Opus_Model_Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
     }
 
 }
