@@ -89,7 +89,7 @@ class Opus_Account extends Opus_Model_AbstractDb
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null) {
         if (false === is_null($login) && false === empty($login)) {
             if (false === is_null($id) && false === empty($id)) {
-                 throw new Opus_Model_Exception('Login and id of an account are specified, specifie either id or login.');
+                 throw new Opus_Model_Exception('Login and id of an account are specified, specify either id or login.');
              }
             $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
             $id = $table->fetchRow($table->select()->where('login = ?', $login));
@@ -164,8 +164,10 @@ class Opus_Account extends Opus_Model_AbstractDb
      * @return Opus_Account Fluent interface.
      */
     public function setLogin($login) {
+        $login = $this->_convertToScalar($login);
         $loginField = $this->getField('Login');
         if ($loginField->getValidator()->isValid($login) === false) {
+            Zend_Registry::get('Zend_Log')->debug('Login not valid: ' . $login);
             throw new Opus_Security_Exception('Login name should only contain alpha numeric characters.');
         }
         $loginField->setValue($login);
@@ -181,9 +183,31 @@ class Opus_Account extends Opus_Model_AbstractDb
      * @return Opus_Account Fluent interface.
      */
     public function setPassword($password) {
+        $password = $this->_convertToScalar($password);
         $this->getField('Password')->setValue(sha1($password));
         return $this;
     }
+
+    /**
+     * Convert array parameter into scalar.
+     *
+     * The FormBuilder provides an array. The setValue method can handle it, but
+     * the validation and the sha1 function throw an exception.
+     *
+     * @param $value
+     * @return scalar
+     */
+    protected function _convertToScalar($value) {
+        if (true === is_array($value) and 1 === count($value)) {
+            $value = array_pop($value);
+        }
+        else if (true === is_array($value) and 0 === count($value)) {
+            $value = null;
+        }
+
+        return $value;
+    }
+
 
     /**
      * Check if a given string is the correct password for this account.
