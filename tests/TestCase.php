@@ -91,6 +91,8 @@ class TestCase extends PHPUnit_Framework_TestCase {
      */
     protected function clearTable($tablename) {
         $adapter = Zend_Db_Table::getDefaultAdapter();
+        $this->assertNotNull($adapter);
+
         $tablename = $adapter->quoteIdentifier($tablename);
         $adapter->query('TRUNCATE ' . $tablename);
     }
