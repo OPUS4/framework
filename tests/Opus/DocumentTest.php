@@ -389,6 +389,32 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
+     * Test if document with author can be deleted permanently.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentWithAuthorPermanently() {
+        $doc = new Opus_Document();
+        $doc->setType("doctoral_thesis");
+
+        $author = new Opus_Person();
+        $author->setFirstName('M.');
+        $author->setLastName('Gandi');
+
+        $doc->addPersonAuthor($author);
+        $modelId = $doc->store();
+
+        $linkId = $doc->getPersonAuthor(0)->getId();
+
+        $doc->deletePermanent();
+
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $doc = new Opus_Document($modelId);
+    }
+
+
+    /**
      * Test if corresponding links to persons are removed when deleting a document.
      *
      * @return void
@@ -402,7 +428,7 @@ class Opus_DocumentTest extends TestCase {
         $author->setLastName('Gandi');
 
         $doc->addPersonAuthor($author);
-        $doc->store();
+        $modelId = $doc->store();
 
         $linkId = $doc->getPersonAuthor(0)->getId();
 
