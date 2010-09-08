@@ -95,6 +95,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         'RoleDisplayFrontdoor' => array(
             'fetch' => 'lazy',
         ),
+        'RoleVisibleFrontdoor' => array(
+            'fetch' => 'lazy',
+        ),
         'SubCollections' => array(
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
@@ -116,7 +119,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _init() {
 
         $fields = array('Number', 'Name', 'OaiSubset',
-            'RoleId', 'Role', 'RoleName', 'RoleDisplayFrontdoor');
+            'RoleId', 'Role', 'RoleName',
+            'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -389,6 +393,22 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         if (!is_null($role)) {
             return $role->getDisplayFrontdoor();
         }
+    }
+
+    /**
+     * Fetches contents of role-field "VisibleFrontdoor".
+     *
+     * @return string
+     */
+    protected function _fetchRoleVisibleFrontdoor() {
+        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
+        $role = $this->getRole();
+        if (!is_null($role)) {
+            if ($role->getVisible() == 1 and $role->getVisibleFrontdoor() == 1) {
+                return 'true';
+            }
+        }
+        return 'false';
     }
 
     /**
