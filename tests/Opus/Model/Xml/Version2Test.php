@@ -145,12 +145,10 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         
         // serialize
         $xmlData = $dom->saveXML();
-
         $omx = new Opus_Model_Xml();
         // take first serialize data as source
         $omx->setXml($xmlData);
         
-        $omx->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         $omx->setStrategy($strategy);
         // build a model from xml
         $model = $omx->getModel();
