@@ -78,24 +78,6 @@ class Opus_Model_Xml {
     }
 
     /**
-     * Set up the list of XML attributes that get used for initializing
-     * newly created objects via constructor call rather then calls to set* methods.
-     *
-     * The order in wich the attributes are given must correspond to the order in
-     * wich the particular model constructor accepts the values.
-     *
-     * Such a map may look like: array('Model1' => array('Attr1', 'Attr2'))
-     * assuming the constructor signature of Model1 beeing: __construct($attr1, $attr2).
-     *
-     * @param array $map List of constructor attributes.
-     * @return Opus_Model_Xml Fluent interface
-     */
-    public function setConstructionAttributesMap(array $map) {
-        $this->_config->_constructionAttributesMap = $map;
-        return $this;
-    }
-
-    /**
      * Set up base URI for xlink URI generation.
      *
      * @param string $uri Base URI.

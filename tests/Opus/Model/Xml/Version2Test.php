@@ -193,7 +193,6 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $omx = new Opus_Model_Xml();
         // take first serialize data as source
         $omx->setXml($docXml);
-        $omx->setConstructionAttributesMap(array('Opus_Document' => array()));
         $omx->setStrategy(new Opus_Model_Xml_Version2);
         // build a model from xml
         $model = $omx->getModel();
@@ -277,7 +276,6 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $omx = new Opus_Model_Xml();
         // take first serialize data as source
         $omx->setXml($xml);
-        $omx->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         $omx->setStrategy(new Opus_Model_Xml_Version2);
         // build a model from xml
         $model = $omx->getModel();

@@ -441,6 +441,8 @@ class Opus_Model_Xml_Version1Test extends TestCase {
      * @return void
      */
     public function testAttributeCanBeUsedForClassConstruction() {
+        $this->markTestSkipped("setConstructionAttributesMap() has been removed.");
+
         $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
         $omx = new Opus_Model_Xml;
         $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array('Cons')));
@@ -456,6 +458,8 @@ class Opus_Model_Xml_Version1Test extends TestCase {
      * @return void
      */
     public function testNullCanBeUsedAsConstructionAttributeDefault() {
+        $this->markTestSkipped("setConstructionAttributesMap() has been removed.");
+
         $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
         $omx = new Opus_Model_Xml;
         $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array(null)));

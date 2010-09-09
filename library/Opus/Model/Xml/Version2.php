@@ -80,33 +80,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
         }
 
         // Handle constructor attributes
-        if (true === array_key_exists($classname, $this->_config->_constructionAttributesMap)) {
-            $init = array();
-            foreach ($this->_config->_constructionAttributesMap[$classname] as $constructorElement) {
-                if (null !== $constructorElement) {
-                    // get child node that has nodeName equal to constructor element
-                    $childElements = $element->childNodes;
-                    foreach ($childElements as $childElement) {
-                        if (XML_ELEMENT_NODE === $childElement->nodeType) {
-                            if ($constructorElement === $childElement->nodeName) {
-                                $init[] = $childElement->nodeValue;
-                                // remove constructor element from element list
-                                $element->removeChild($childElement);
-                            }
-                        }
-                    }
-                }
-                else {
-                    $init[] = null;
-                }
-            }
-            $creator = new ReflectionClass($classname);
-            $model = $creator->newInstanceArgs($init);
-        }
-        else {
-            $model = new $classname;
-        }
-
+        $model = new $classname;
         return $model;
 
     }

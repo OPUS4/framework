@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,7 +28,8 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -86,12 +88,5 @@ class Opus_Model_Xml_Conf {
      * @var array
      */
     public $_resourceNameMap = array();
-
-    /**
-     * Map of model class names to constructor attribute lists.
-     *
-     * @var array
-     */
-    public $_constructionAttributesMap = array();
 
 }
