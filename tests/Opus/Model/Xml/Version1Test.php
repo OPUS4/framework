@@ -435,40 +435,6 @@ class Opus_Model_Xml_Version1Test extends TestCase {
     }
 
     /**
-     * Test if a given attribute get used for construction of
-     * the new Model object.
-     *
-     * @return void
-     */
-    public function testAttributeCanBeUsedForClassConstruction() {
-        $this->markTestSkipped("setConstructionAttributesMap() has been removed.");
-
-        $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
-        $omx = new Opus_Model_Xml;
-        $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array('Cons')));
-        $omx->setXml($xml);
-        $model = $omx->getModel();
-        $this->assertEquals('ByConstructorCall', $model->cons, 'Value has not been set by constructor call.');
-    }
-
-    /**
-     * Test if null can be passed as default value to a constructor instead of
-     * querying an XML attribute.
-     *
-     * @return void
-     */
-    public function testNullCanBeUsedAsConstructionAttributeDefault() {
-        $this->markTestSkipped("setConstructionAttributesMap() has been removed.");
-
-        $xml = '<Opus><Opus_Model_ModelAbstract Cons="ByConstructorCall"/></Opus>';
-        $omx = new Opus_Model_Xml;
-        $omx->setConstructionAttributesMap(array('Opus_Model_ModelAbstract' => array(null)));
-        $omx->setXml($xml);
-        $model = $omx->getModel();
-        $this->assertNull($model->cons, 'Null has not been set by constructor call.');
-    }
-
-    /**
      * Test if an exception is thrown when one tries to deserialize invalid XML.
      *
      * @return void
