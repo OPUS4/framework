@@ -1161,7 +1161,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (false === isset($deserializer)) {
             $deserializer = new Opus_Model_Xml;
         }
-        $deserializer->setConstructionAttributesMap(array('Opus_Document' => array(null, 'Type')));
         return parent::fromXml($xml, $deserializer);
     }
 
