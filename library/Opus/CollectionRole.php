@@ -303,6 +303,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by oaiName.
      * Returns null if name is null *or* nothing found.
      *
+     * TODO: Return Opus_Model_NotFoundException?
+     *
      * @param  string $oai_name
      * @return Opus_CollectionRole
      */
