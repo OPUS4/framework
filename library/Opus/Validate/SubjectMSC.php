@@ -57,25 +57,28 @@ class Opus_Validate_SubjectMSC extends Zend_Validate_Abstract {
 
     public function isValid($value) {
         $log = Zend_Registry::get('Zend_Log');
-        
+
         if (false === is_string($value)) {
             $value = (string) ($value);
         }
 
-        $this->_setValue($value);
+        if (true === !empty($value)) {
+            $this->_setValue($value);
 
-        $role = Opus_CollectionRole::fetchByOaiName('msc');
-        
-        if ($role === null)
-            throw Opus_Model_Exception("No MSC Classes found in collections.");
-        else {
-            $collArray = Opus_Collection::fetchCollectionsByRoleNumber($role->getId(), $value);
-            
-            if (true === empty($collArray) || count($collArray) > 1) {
-                $this->_error(self::MSG_SUBJECTMSC);
-                return false;
+            $role = Opus_CollectionRole::fetchByOaiName('msc');
+
+            if ($role === null)
+                throw Opus_Model_Exception("No MSC Classes found in collections.");
+            else {
+                $collArray = Opus_Collection::fetchCollectionsByRoleNumber($role->getId(), $value);
+
+                if (true === empty($collArray) || count($collArray) > 1) {
+                    $this->_error(self::MSG_SUBJECTMSC);
+                    return false;
+                }
             }
         }
         return true;
     }
+
 }
