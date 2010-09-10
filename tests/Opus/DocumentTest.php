@@ -976,4 +976,18 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');
     }
 
+    public function testExistenceOfServerDatePublished() {
+        $this->markTestSkipped("Skipped due to existing bug in code base.");
+        $doc = new Opus_Document();
+        //$doc->store();
+        $doc->setServerState('published');
+        $doc->store();
+        $filter = new Opus_Model_Filter;
+        $filter->setModel($doc);
+        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1());       
+        $serverDatePublElements = $modelXml->getElementsByTagName("ServerDatePublished");
+        $this->assertEquals(1, count($serverDatePublElements));
+        $this->assertTrue($serverDatePublElements->item(0)->hasAttributes());
+    }
+
 }
