@@ -166,6 +166,10 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      */
     protected function _initLucene()
     {
+        // TODO: Remove to make unit tests work on CI server
+        // TODO: Has to be removed anyways.
+        return;
+
         $this->bootstrap('Database'); // TODO check dependencies
         $config = $this->getResource('Configuration');
         $lucenePath = $config->workspacePath . '/lucene_index';
