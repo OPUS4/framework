@@ -46,6 +46,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      */
     private function _clearTables() {
         $tables = array(
+            'dnb_institutes',
             'document_enrichments',
             'document_files',
             'document_identifiers',
