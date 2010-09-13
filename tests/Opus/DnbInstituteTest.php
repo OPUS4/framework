@@ -83,7 +83,25 @@ class Opus_DnbInstituteTests extends TestCase {
                 'Loaded other DNB contact ID, then stored.');
         $this->assertEquals($is_grantor, $loaded_institute->getIsGrantor(),
                 'Loaded other information about grantor status, then stored.');
+    }
 
+    /**
+     * Test if a set of dnb institutes can be retrieved by getAll().
+     *
+     * @return void
+     */
+    public function testRetrieveAllDnbInstitutes() {
+        $dnb_institutes = array();
+        for ($i = 1; $i <= 3; $i++) {
+            $dnb_institute = new Opus_DnbInstitute();
+            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
+            $dnb_institute->setCity('Calisota');
+            $dnb_institute->store();
+            $dnb_institutes[] = $dnb_institutes;
         }
+
+        $result = Opus_DnbInstitute::getAll();
+        $this->assertEquals(count($dnb_institutes), count($result), 'Wrong number of objects retrieved.');
+    }
 
 }

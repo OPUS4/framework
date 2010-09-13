@@ -25,51 +25,70 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Table gateway class for link table "link_accounts_roles".
+ * Abstract class for link DnbInstitute model in the Opus framework.
  *
  * @category    Framework
- * @package     Opus_Db
- *
+ * @package     Opus_Model
  */
-class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway {
-/**
-     * DB table name.
+class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependent_Link_Abstract
+{
+
+    /**
+     * Specify then table gateway.
+     *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     */
+    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsDnbInstitutes';
+
+    /**
+     * Primary key of the parent model.
+     *
+     * @var mixed $_parentId.
+     */
+    protected $_parentColumn = 'document_id';
+
+    /**
+     * The class of the model that is linked to.
      *
      * @var string
      */
-    protected $_name = 'link_documents_dnb_institutes';
+    protected $_modelClass = 'Opus_DnbInstitute';
 
     /**
-     * DB table primary key name.
+     * Initialize model with the following values:
+     * - DnbInstitute
      *
-     * @var string
+     * @return void
      */
-    protected $_primary = array('document_id', 'dnb_institute_id');
+    protected function _init() {
+        if (is_null($this->getId()) === false) {
+            $this->setModel(new Opus_DnbInstitute($this->_primaryTableRow->dnb_institute_id));
+        } else {
+            $this->setModel(new Opus_DnbInstitute());
+        }
+    }
 
     /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from (i.e. the referenced table)
+     * Persist foreign model & link.
      *
-     * @var array $_referenceMap
+     * @return void
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            'DnbInstitutes' => array(
-                'columns' => 'dnb_institute_id',
-                'refTableClass' => 'Opus_Db_DnbInstitutes',
-                'refColumns' => 'id'
-                )
-            );
+    public function store() {
+        $this->_primaryTableRow->dnb_institute_id = $this->_model->store();
+        // only store if something has changed
+        // this avoids duplicate entries
+        if ($this->getId() !== $this->_primaryTableRow->dnb_institute_id) {
+            parent::store();
+        }
+    }
+
 }

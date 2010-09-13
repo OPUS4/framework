@@ -293,6 +293,11 @@ class Opus_DocumentTest extends TestCase {
         $author->setDateOfBirth('1857-11-26');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
+        
+        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
+        $dnbInstitute->setCity('Calisota');
+        $document->addDnbInstitute($dnbInstitute);
 
         $licence = new Opus_Licence;
         $licence->setActive(1);
@@ -350,6 +355,8 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($document->getPersonAuthor(1)->getLastName(), 'de Saussure');
         $this->assertStringStartsWith('1857-11-26', $document->getPersonAuthor(1)->getDateOfBirth()->__toString());
         $this->assertEquals($document->getPersonAuthor(1)->getPlaceOfBirth(), 'Genf');
+        $this->assertEquals($document->getDnbInstitute(0)->getName(), 'Forschungsinstitut für Code Coverage');
+        $this->assertEquals($document->getDnbInstitute(0)->getCity(), 'Calisota');
         $this->assertEquals($document->getLicence(0)->getActive(), 1);
         $this->assertEquals($document->getLicence(0)->getLanguage(), 'de');
         $this->assertEquals($document->getLicence(0)->getLinkLicence(), 'http://creativecommons.org/');
@@ -436,6 +443,29 @@ class Opus_DocumentTest extends TestCase {
         $this->setExpectedException('Opus_Model_NotFoundException');
         $link = new Opus_Model_Dependent_Link_DocumentPerson($linkId);
     }
+
+    /**
+     * Test if corresponding links to dnb_institutes are removed when deleting a document.
+     *
+     * @return void
+     */
+    public function testDeleteDocumentCascadesDnbInstituteLink() {
+        $doc = new Opus_Document();
+        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
+        $dnbInstitute->setCity('Calisota');
+
+        $doc->addDnbInstitute($dnbInstitute);
+        $doc->store();
+        $linkid = $doc->getDnbInstitute(0)->getId();
+        $doc->deletePermanent();
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $link = new Opus_Model_Dependent_Link_DocumentDnbInstitute($linkid);
+
+        $this->fail("Document delete has not been cascaded.");
+    }
+
 
     /**
      * Test if corresponding links to licences are removed when deleting a document.

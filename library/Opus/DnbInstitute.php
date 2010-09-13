@@ -48,6 +48,15 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_DnbInstitutes';
 
     /**
+     * Retrieve all Opus_DnbInstitute instances from the database.
+     *
+     * @return array Array of Opus_DnbInstitute objects.
+     */
+    public static function getAll() {
+        return self::getAllFrom('Opus_DnbInstitute', 'Opus_Db_DnbInstitutes');
+    }
+
+    /**
      * Initialize model with the following fields:
      * - name
      * - address

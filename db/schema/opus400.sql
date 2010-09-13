@@ -522,7 +522,7 @@ CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
       ON UPDATE CASCADE,
     CONSTRAINT `fk_link_documents_dnb_institutes_dnb_institutes`
       FOREIGN KEY (`dnb_institute_id`)
-      REFERENCES `dnb_institute` (`id`)
+      REFERENCES `dnb_institutes` (`id`)
       ON DELETE CASCADE
       ON UPDATE CASCADE)
 ENGINE = InnoDB

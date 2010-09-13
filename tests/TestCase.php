@@ -68,6 +68,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'languages',
             'link_accounts_roles',
             'link_documents_collections',
+            'link_documents_dnb_institutes',
             'link_documents_licences',
             'link_ipranges_roles',
             'link_persons_documents',

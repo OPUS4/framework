@@ -31,6 +31,7 @@
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -202,7 +203,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
 //                'through' => 'Opus_Model_Link_DocumentInstitute',
 //                'fetch' => 'lazy'
 //            ),
-
+            'DnbInstitute' => array(
+                            'model' => 'Opus_DnbInstitute',
+                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
+                            'fetch' => 'lazy'
+            ),
             'Licence' => array(
                             'model' => 'Opus_Licence',
                             'through' => 'Opus_Model_Dependent_Link_DocumentLicence',
@@ -390,6 +395,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
                         ->setDefault(Zend_Registry::get('Available_Languages'))
                         ->setSelection(true);
             }
+        }
+
+        // Initialize available dnbInstitutes
+        if ($this->getField('DnbInstitute') !== null) {
+            $dnb_institues = Opus_DnbInstitute::getAll();
+            $this->getField('DnbInstitute')->setDefault($dnb_institues)
+                    ->setSelection(true);
         }
 
         // Initialize available licences
