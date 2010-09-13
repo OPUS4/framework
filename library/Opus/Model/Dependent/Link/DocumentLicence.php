@@ -71,7 +71,7 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
 
     /**
      * Initialize model with the following values:
-     * - Role
+     * - Licence
      *
      * @return void
      */
