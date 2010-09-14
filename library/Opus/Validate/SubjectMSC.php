@@ -67,15 +67,18 @@ class Opus_Validate_SubjectMSC extends Zend_Validate_Abstract {
 
             $role = Opus_CollectionRole::fetchByOaiName('msc');
 
-            if ($role === null)
-                throw Opus_Model_Exception("No MSC Classes found in collections.");
-            else {
+            if (isset($role)) {
+                        
                 $collArray = Opus_Collection::fetchCollectionsByRoleNumber($role->getId(), $value);
 
                 if (true === empty($collArray) || count($collArray) > 1) {
                     $this->_error(self::MSG_SUBJECTMSC);
                     return false;
                 }
+            }
+            else {
+                $log->err("ERROR in Opus_Validate_SubjectMSC => NO MSC CLASSES FOUND IN COLLECTION TABLE!!! Value can only be stored in subject table.");
+                return true;
             }
         }
         return true;
