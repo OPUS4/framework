@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -48,7 +49,7 @@ class Opus_Security_Realm {
      *  - 'administrate' means use of module /admin.
      *  - 'publish' means use of module /publish.
      *  - 'publishUnvalidated' means the possibility to ignore validation
-           while publishing.
+     *    while publishing.
      *  - 'readMetadata' checks if somone is allowed to read meatdata of
      *    a document (f.e. if the not published by an administrator yet).
      *    This privilege makes it necessary to give a document id with it.
@@ -69,69 +70,72 @@ class Opus_Security_Realm {
     /**
      * The current user roles.
      *
-	 * @var array
+     * @var array
      */
     protected $_roles = array('guest');
 
-	/**
-	 * The current username.
-	 *
-	 * @var string
-	 */
-	protected $_username = null;
+    /**
+     * The current username.
+     *
+     * @var string
+     */
+    protected $_username = null;
 
-	/**
-	 * Thre current ip address
-	 *
-	 * @var string
-	 */
-	protected $_ipaddress = null;
+    /**
+     * Thre current ip address
+     *
+     * @var string
+     */
+    protected $_ipaddress = null;
 
-	/**
-	 * Set the current username.
-	 *
-	 * @param string username username to be set.
-	 * @return Opus_Security_Realm Fluent interface.
-	 */
-	public function setUser($username) {
-		$this->_username = $username;
-		$this->_setRoles();
-		return $this;
-	}
+    /**
+     * Set the current username.
+     *
+     * @param string username username to be set.
+     * @return Opus_Security_Realm Fluent interface.
+     */
+    public function setUser($username) {
+        $this->_username = $username;
+        $this->_setRoles();
+        return $this;
 
-	/**
-	 * Set the current ip address.
-	 *
-	 * @param string ipaddress ip address to be set.
-	 * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
-	 * @return Opus_Security_Realm Fluent interface.
-	 */
-	public function setIp($ipaddress) {
-		$regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-		 		 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-				 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-				 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
-		if (false === is_null($ipaddress) && 1 !== preg_match($regex, $ipaddress)) {
-			throw new Opus_Security_Exception("$ipaddress is not a valid IP address!");
-		}
-		$this->_ipaddress = $ipaddress;
-		$this->_setRoles();
-		return $this;
-	}
+    }
 
-	/**
-	 * Set internal roles from current username/ipaddress.
-	 * Adds the default role "guest", if not done by username/ipaddress.
-	 *
-	 * @return Opus_Security_Realm Fluent interface.
-	 */
-	protected function _setRoles() {
-		$this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles());
+    /**
+     * Set the current ip address.
+     *
+     * @param string ipaddress ip address to be set.
+     * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
+     * @return Opus_Security_Realm Fluent interface.
+     */
+    public function setIp($ipaddress) {
+        $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
+        if (false === is_null($ipaddress) && 1 !== preg_match($regex, $ipaddress)) {
+            throw new Opus_Security_Exception("$ipaddress is not a valid IP address!");
+        }
+        $this->_ipaddress = $ipaddress;
+        $this->_setRoles();
+        return $this;
+
+    }
+
+    /**
+     * Set internal roles from current username/ipaddress.
+     * Adds the default role "guest", if not done by username/ipaddress.
+     *
+     * @return Opus_Security_Realm Fluent interface.
+     */
+    protected function _setRoles() {
+        $this->_roles = array_merge($this->_getIpaddressRoles(), $this->_getUsernameRoles());
         if (false === in_array('guest', $this->_roles)) {
             $this->_roles[] = 'guest';
         }
-		return $this;
-	}
+        return $this;
+
+    }
 
     /**
      * Get the roles that are assigned to the specified username.
@@ -148,7 +152,7 @@ class Opus_Security_Realm {
         $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         $account = $accounts->fetchRow($accounts->select()->where('login = ?', $this->_username));
         if (null === $account) {
-             throw new Opus_Security_Exception("An user with the given name: $this->_username could not be found.");
+            throw new Opus_Security_Exception("An user with the given name: $this->_username could not be found.");
         }
 
         $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
@@ -162,6 +166,7 @@ class Opus_Security_Realm {
         }
 
         return $result;
+
     }
 
     /**
@@ -177,19 +182,19 @@ class Opus_Security_Realm {
 
         $ip = array();
         $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
         if (1 !== preg_match($regex, $this->_ipaddress, $ip)) {
-             throw new Opus_Security_Exception('Your IP address could not be validated.');
+            throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
         $iprangeTable = Opus_Db_TableGateway::getInstance('Opus_Db_Ipranges');
         $iprows = $iprangeTable->fetchAll(
-                $iprangeTable->select()
-                ->where('startingip <= ?', sprintf("%u", ip2long($this->_ipaddress)))
-                ->where('endingip >= ?', sprintf("%u", ip2long($this->_ipaddress)))
-            );
+                                $iprangeTable->select()
+                                ->where('startingip <= ?', sprintf("%u", ip2long($this->_ipaddress)))
+                                ->where('endingip >= ?', sprintf("%u", ip2long($this->_ipaddress)))
+        );
         if (0 === count($iprows)) {
             return array();
         }
@@ -203,24 +208,24 @@ class Opus_Security_Realm {
                 $result[] = $arole->name;
             }
         }
-         // remove duplicated entries with array_unique, restore key structure with array_values.
+        // remove duplicated entries with array_unique, restore key structure with array_values.
         return array_values(array_unique($result));
+
     }
 
-
-	/**
-	 * Checks if a privilege is granted for actual context (usersession, ip address).
-	 * If administrator is one of the current roles true will be returned ingoring everything else.
-	 *
-	 * @param $privilege           string The privilege to check, a value out of Opus_Security_Realm->getPrivileges().
-	 * @param $documentServerState string The privilege readMetadata depends on the server_state of the document the metadata belongs to.
-	 *                                    Set this null for all other privileges.
-	 * @param $fileId              int    The privilege readFile depends on the fileId of the file to read.
+    /**
+     * Checks if a privilege is granted for actual context (usersession, ip address).
+     * If administrator is one of the current roles true will be returned ingoring everything else.
+     *
+     * @param $privilege           string The privilege to check, a value out of Opus_Security_Realm->getPrivileges().
+     * @param $documentServerState string The privilege readMetadata depends on the server_state of the document the metadata belongs to.
      *                                    Set this null for all other privileges.
-	 * @return boolean  Returns true only if a privilege for any role (guest, from the ip or a usersession) is stored in db table privilege.
-	 * @throws Opus_Security_Exception Throws Exception if a privilege is called with the wrong parameters or if the privilege is unkown.
-	 */
-	public function check($privilege, $documentServerState = null, $fileId = null) {
+     * @param $fileId              int    The privilege readFile depends on the fileId of the file to read.
+     *                                    Set this null for all other privileges.
+     * @return boolean  Returns true only if a privilege for any role (guest, from the ip or a usersession) is stored in db table privilege.
+     * @throws Opus_Security_Exception Throws Exception if a privilege is called with the wrong parameters or if the privilege is unkown.
+     */
+    public function check($privilege, $documentServerState = null, $fileId = null) {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
         $secu = $conf->security;
@@ -236,7 +241,7 @@ class Opus_Security_Realm {
             throw new Opus_Security_Exception('Unknown privilege checked!');
         }
 
-		switch ($privilege) {
+        switch ($privilege) {
             case 'administrate':
                 if (false === is_null($documentServerState) || false === is_null($fileId)) {
                     throw new Opus_Security_Exception('Privilege "administrate" can be checked only generally, not depending on document server state or for a file.');
@@ -283,134 +288,141 @@ class Opus_Security_Realm {
                 // Won't be reached, as long as the switch statements covers all values of $this->_privileges.
                 throw new Opus_Security_Exception("Internal Error in Opus_Security_Realm!");
                 break;
-	    }
-		return false;
-	}
+        }
+        return false;
 
-	/**
-	 * This messages checks if the privilege administrate is allowed for one of the current roles.
-	 * @return boolean true if the privilege administrate is granted for one of the current roles.
-	 */
-	protected function _checkAdministrate() {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll($db->select()
+    }
+
+    /**
+     * This messages checks if the privilege administrate is allowed for one of the current roles.
+     * @return boolean true if the privilege administrate is granted for one of the current roles.
+     */
+    protected function _checkAdministrate() {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll($db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
                                 ->join(array('r' => 'roles'), 'p.role_id = r.id')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('p.privilege = ?', 'administrate')
-                                );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-                return false;
-	}
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
-        /**
-	 * This messages checks if the privilege clearance is allowed for one of the current roles.
-	 * @return boolean true if the privilege clearance is granted for one of the current roles.
-	 */
-	protected function _checkClearance() {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll($db->select()
+    }
+
+    /**
+     * This messages checks if the privilege clearance is allowed for one of the current roles.
+     * @return boolean true if the privilege clearance is granted for one of the current roles.
+     */
+    protected function _checkClearance() {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll($db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
                                 ->join(array('r' => 'roles'), 'p.role_id = r.id')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('p.privilege = ?', 'clearance')
-                                );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-                return false;
-	}
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
+    }
 
     /**
      * This messages checks if the privilege publish is allowed for one of the current roles.
      * @return boolean true if the privilege publish is granted for one of the current roles.
      */
-	protected function _checkPublish() {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll(
-                            $db->select()
-                            ->from(array('p' => 'privileges'), array('id'))
-                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                            ->where('r.name IN (?)', $this->_roles)
-                            ->where('p.privilege = ?', 'publish')
-                            );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-            return false;
-	}
+    protected function _checkPublish() {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll(
+                                $db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'publish')
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
-	/**
+    }
+
+    /**
      * This messages checks if the privilege publishUnvalidated is allowed for one of the current roles.
      * @return boolean true if the privilege publishUnvalidated is granted for one of the current roles.
      */
-	protected function _checkPublishUnvalidated() {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll(
-                            $db->select()
-                            ->from(array('p' => 'privileges'), array('id'))
-                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                            ->where('r.name IN (?)', $this->_roles)
-                            ->where('p.privilege = ?', 'publishUnvalidated')
-                            );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-            return false;
-	}
+    protected function _checkPublishUnvalidated() {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll(
+                                $db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'publishUnvalidated')
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
-	/**
+    }
+
+    /**
      * This messages checks if the privilege readMetadata is allowed for one of the current roles  and the specified server state.
      * @param  string $docState The server_state the document to read has (f.e. 'published').
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
-	protected function _checkReadMetadata($docState) {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll(
-                            $db->select()
-                            ->from(array('p' => 'privileges'), array('id'))
-                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                            ->where('r.name IN (?)', $this->_roles)
-                            ->where('p.privilege = ?', 'readMetadata')
-                            ->where('p.document_server_state = ?', $docState)
-                            );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-            return false;
-	}
+    protected function _checkReadMetadata($docState) {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll(
+                                $db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'readMetadata')
+                                ->where('p.document_server_state = ?', $docState)
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
-	/**
+    }
+
+    /**
      * This messages checks if the privilege readMetadata is allowed for one of the current roles  and the specified server state.
      * @param string $fileId The id of the document_file, that should be read.
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
-	protected function _checkReadFile($fileId) {
-            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-            $privileges = $db->fetchAll(
-                            $db->select()
-                            ->from(array('p' => 'privileges'), array('id'))
-                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                            ->where('r.name IN (?)', $this->_roles)
-                            ->where('p.privilege = ?', 'readFile')
-                            ->where('p.file_id = ?', $fileId)
-                            );
-            if (1 <= count($privileges)) {
-                return true;
-            }
-            return false;
-	}
+    protected function _checkReadFile($fileId) {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $privileges = $db->fetchAll(
+                                $db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'readFile')
+                                ->where('p.file_id = ?', $fileId)
+        );
+        if (1 <= count($privileges)) {
+            return true;
+        }
+        return false;
 
-	/**
-	 * Returns an array with all known privileges.
-	 * @return array Array with all known privileges.
-	 */
-	public function getPrivileges() {
-	        return $this->_privileges;
-	}
+    }
+
+    /**
+     * Returns an array with all known privileges.
+     * @return array Array with all known privileges.
+     */
+    public function getPrivileges() {
+        return $this->_privileges;
+
+    }
 
     /********************************************************************************************/
     /* Singleton code below                                                                     */
@@ -423,7 +435,7 @@ class Opus_Security_Realm {
      */
     private static $instance = null;
 
-     /**
+    /**
      * Delivers the singleton instance.
      *
      * @return Opus_Security_Realm
