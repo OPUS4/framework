@@ -68,6 +68,7 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
         $privilege = new Opus_Model_Field('Privilege');
         $privilege->setDefault(array(
                     'administrate' => 'administrate',
+                    'clearance' => 'clearance',
                     'publish' => 'publish',
                     'publishUnvalidated' => 'publishUnvalidated',
                     'readMetadata' => 'readMetadata',

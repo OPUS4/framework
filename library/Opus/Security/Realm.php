@@ -59,6 +59,7 @@ class Opus_Security_Realm {
      */
     protected $_privileges = array(
         'administrate',
+        'clearance',
         'publish',
         'publishUnvalidated',
         'readMetadata',
@@ -242,6 +243,12 @@ class Opus_Security_Realm {
                 }
                 return $this->_checkAdministrate();
                 break;
+            case 'clearance':
+                if (false === is_null($documentServerState) || false === is_null($fileId)) {
+                    throw new Opus_Security_Exception('Privilege "publish" can be checked only generally, not depending on document server state or for a single file.');
+                }
+                return $this->_checkClearance();
+                break;
             case 'publish':
                 if (false === is_null($documentServerState) || false === is_null($fileId)) {
                     throw new Opus_Security_Exception('Privilege "publish" can be checked only generally, not depending on document server state or for a single file.');
@@ -285,36 +292,55 @@ class Opus_Security_Realm {
 	 * @return boolean true if the privilege administrate is granted for one of the current roles.
 	 */
 	protected function _checkAdministrate() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll($db->select()
-                            ->from(array('p' => 'privileges'), array('id'))
-                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                            ->where('r.name IN (?)', $this->_roles)
-                            ->where('p.privilege = ?', 'administrate')
-                            );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-	    return false;
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll($db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'administrate')
+                                );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+                return false;
 	}
 
-	/**
+        /**
+	 * This messages checks if the privilege clearance is allowed for one of the current roles.
+	 * @return boolean true if the privilege clearance is granted for one of the current roles.
+	 */
+	protected function _checkClearance() {
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll($db->select()
+                                ->from(array('p' => 'privileges'), array('id'))
+                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('p.privilege = ?', 'clearance')
+                                );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+                return false;
+	}
+
+
+    /**
      * This messages checks if the privilege publish is allowed for one of the current roles.
      * @return boolean true if the privilege publish is granted for one of the current roles.
      */
 	protected function _checkPublish() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                        $db->select()
-                        ->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                        ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'publish')
-                        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll(
+                            $db->select()
+                            ->from(array('p' => 'privileges'), array('id'))
+                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                            ->where('r.name IN (?)', $this->_roles)
+                            ->where('p.privilege = ?', 'publish')
+                            );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+            return false;
 	}
 
 	/**
@@ -322,18 +348,18 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege publishUnvalidated is granted for one of the current roles.
      */
 	protected function _checkPublishUnvalidated() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                        $db->select()
-                        ->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                        ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'publishUnvalidated')
-                        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll(
+                            $db->select()
+                            ->from(array('p' => 'privileges'), array('id'))
+                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                            ->where('r.name IN (?)', $this->_roles)
+                            ->where('p.privilege = ?', 'publishUnvalidated')
+                            );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+            return false;
 	}
 
 	/**
@@ -342,19 +368,19 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
 	protected function _checkReadMetadata($docState) {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                        $db->select()
-                        ->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                        ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'readMetadata')
-                        ->where('p.document_server_state = ?', $docState)
-                        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll(
+                            $db->select()
+                            ->from(array('p' => 'privileges'), array('id'))
+                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                            ->where('r.name IN (?)', $this->_roles)
+                            ->where('p.privilege = ?', 'readMetadata')
+                            ->where('p.document_server_state = ?', $docState)
+                            );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+            return false;
 	}
 
 	/**
@@ -363,19 +389,19 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
 	protected function _checkReadFile($fileId) {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                        $db->select()
-                        ->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                        ->where('r.name IN (?)', $this->_roles)
-                        ->where('p.privilege = ?', 'readFile')
-                        ->where('p.file_id = ?', $fileId)
-                        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+            $privileges = $db->fetchAll(
+                            $db->select()
+                            ->from(array('p' => 'privileges'), array('id'))
+                            ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                            ->where('r.name IN (?)', $this->_roles)
+                            ->where('p.privilege = ?', 'readFile')
+                            ->where('p.file_id = ?', $fileId)
+                            );
+            if (1 <= count($privileges)) {
+                return true;
+            }
+            return false;
 	}
 
 	/**
