@@ -52,7 +52,7 @@ class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'dnb_institute_id');
+    protected $_primary = array('document_id', 'dnb_institute_id', 'role');
 
     /**
      * Map foreign keys in this table to the column in the table they originate

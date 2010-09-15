@@ -294,11 +294,6 @@ class Opus_DocumentTest extends TestCase {
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
         
-        $dnbInstitute = new Opus_DnbInstitute();
-        $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
-        $dnbInstitute->setCity('Calisota');
-        $document->addDnbInstitute($dnbInstitute);
-
         $licence = new Opus_Licence;
         $licence->setActive(1);
         $licence->setLanguage('de');
@@ -308,6 +303,13 @@ class Opus_DocumentTest extends TestCase {
         $licence->setPodAllowed(1);
         $licence->setSortOrder(0);
         $document->addLicence($licence);
+
+        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
+        $dnbInstitute->setCity('Calisota');
+        $dnbInstitute->setIsGrantor(1);
+        $document->addThesisPublisher($dnbInstitute);
+        $document->addThesisGrantor($dnbInstitute);
 
         // Save document, modify, and save again.
         $id = $document->store();
@@ -355,8 +357,6 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($document->getPersonAuthor(1)->getLastName(), 'de Saussure');
         $this->assertStringStartsWith('1857-11-26', $document->getPersonAuthor(1)->getDateOfBirth()->__toString());
         $this->assertEquals($document->getPersonAuthor(1)->getPlaceOfBirth(), 'Genf');
-        $this->assertEquals($document->getDnbInstitute(0)->getName(), 'Forschungsinstitut für Code Coverage');
-        $this->assertEquals($document->getDnbInstitute(0)->getCity(), 'Calisota');
         $this->assertEquals($document->getLicence(0)->getActive(), 1);
         $this->assertEquals($document->getLicence(0)->getLanguage(), 'de');
         $this->assertEquals($document->getLicence(0)->getLinkLicence(), 'http://creativecommons.org/');
@@ -364,6 +364,12 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($document->getLicence(0)->getNameLong(), 'Creative Commons');
         $this->assertEquals($document->getLicence(0)->getPodAllowed(), 1);
         $this->assertEquals($document->getLicence(0)->getSortOrder(), 0);
+        $thesisPublishers = $document->getThesisPublisher();
+        $this->assertEquals($document->getThesisPublisher(0)->getName(), 'Forschungsinstitut für Code Coverage');
+        $this->assertEquals($document->getThesisPublisher(0)->getCity(), 'Calisota');
+        $this->assertEquals($document->getThesisGrantor(0)->getName(), 'Forschungsinstitut für Code Coverage');
+        $this->assertEquals($document->getThesisGrantor(0)->getCity(), 'Calisota');
+
     }
 
     /**
@@ -455,9 +461,9 @@ class Opus_DocumentTest extends TestCase {
         $dnbInstitute->setName('Forschungsinstitut für Code Coverage');
         $dnbInstitute->setCity('Calisota');
 
-        $doc->addDnbInstitute($dnbInstitute);
+        $doc->addThesisPublisher($dnbInstitute);
         $doc->store();
-        $linkid = $doc->getDnbInstitute(0)->getId();
+        $linkid = $doc->getThesisPublisher(0)->getId();
         $doc->deletePermanent();
 
         $this->setExpectedException('Opus_Model_NotFoundException');

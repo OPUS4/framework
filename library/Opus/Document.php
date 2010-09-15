@@ -196,18 +196,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Enrichment',
                             'fetch' => 'lazy'
             ),
-
-// FIXME: Removed while introducing the new collections.  Re-add.
-//            'Institute' => array(
-//                'model' => 'Opus_Institute',
-//                'through' => 'Opus_Model_Link_DocumentInstitute',
-//                'fetch' => 'lazy'
-//            ),
-            'DnbInstitute' => array(
-                            'model' => 'Opus_DnbInstitute',
-                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
-                            'fetch' => 'lazy'
-            ),
             'Licence' => array(
                             'model' => 'Opus_Licence',
                             'through' => 'Opus_Model_Dependent_Link_DocumentLicence',
@@ -298,13 +286,23 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
 
-            'Publisher' => array(
-                            'model' => 'Opus_Collection',
+//            'DnbInstitute' => array(
+//                            'model' => 'Opus_DnbInstitute',
+//                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
+//                            'fetch' => 'lazy'
+//            ),
+
+            'ThesisPublisher' => array(
+                            'model' => 'Opus_DnbInstitute',
+                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
+                            'options' => array('role' => 'publisher'),
                             'fetch' => 'lazy'
             ),
 
-            'Grantor' => array(
-                            'model' => 'Opus_Collection',
+            'ThesisGrantor' => array(
+                            'model' => 'Opus_DnbInstitute',
+                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
+                            'options' => array('role' => 'grantor'),
                             'fetch' => 'lazy'
             ),
     );
@@ -397,13 +395,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
 
-        // Initialize available dnbInstitutes
-        if ($this->getField('DnbInstitute') !== null) {
-            $dnb_institues = Opus_DnbInstitute::getAll();
-            $this->getField('DnbInstitute')->setDefault($dnb_institues)
-                    ->setSelection(true);
-        }
-
         // Initialize available licences
         if ($this->getField('Licence') !== null) {
             $licences = Opus_Licence::getAll();
@@ -435,18 +426,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available publishers
-        if ($this->getField('Publisher') !== null) {
-            // TODO: Fetching Publishers is not always neccessary.  Skip/defer?
-            $publishers = Opus_OrganisationalUnits::getPublishers();
-            $this->getField('Publisher')->setDefault($publishers)
+        if ($this->getField('ThesisPublisher') !== null) {
+            $publishers = Opus_DnbInstitute::getAll();
+            $this->getField('ThesisPublisher')->setDefault($publishers)
                     ->setSelection(true);
         }
 
         // Initialize available grantors
-        if ($this->getField('Grantor') !== null) {
-            // TODO: Fetching Grantors is not always neccessary.  Skip/defer?
-            $grantors = Opus_OrganisationalUnits::getGrantors();
-            $this->getField('Grantor')->setDefault($grantors)
+        if ($this->getField('ThesisGrantor') !== null) {
+            $grantors = Opus_DnbInstitute::getGrantors();
+            $this->getField('ThesisGrantor')->setDefault($grantors)
                     ->setSelection(true);
         }
 
@@ -1097,68 +1086,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Search for publisher collections that this document is assigend to.
-     *
-     * @return array An array of Opus_OrganisationalUnit objects.
-     *
-     * FIXME: Stupid code-duplication (@see _fetchGrantor())
-     * FIXME: Should be provided by Db_LinkDocumentsCollections()
-     */
-    protected function _fetchPublisher() {
-        $result = array();
-        return $result;
-
-        // TODO: Waiting for implementation of institutes.
-        if (false === $this->isNewRecord()) {
-            $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-            $db = $table->getAdapter();
-
-            $select = $table->select()->from($table, array('collection_id'))
-                    ->where('document_id = ?', $this->getId())
-                    ->where('role_id = ?', 1)
-                    ->where('link_type = ?', 'publisher');
-
-            $collection_ids = $db->fetchCol($select);
-            foreach ($collection_ids as $collection_id) {
-                $result[] = new Opus_Collection($collection_id);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
-     * Search for grantor collections that this document is assigend to.
-     *
-     * @return array An array of Opus_OrganisationalUnit objects.
-     *
-     * FIXME: Stupid code-duplication (@see _fetchPublisher())
-     * FIXME: Should be provided by Db_LinkDocumentsCollections()
-     */
-    protected function _fetchGrantor() {
-        $result = array();
-        return $result;
-
-        // TODO: Waiting for implementation of institutes.
-        if (false === $this->isNewRecord()) {
-            $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-            $db = $table->getAdapter();
-
-            $select = $table->select()->from($table, array('collection_id'))
-                    ->where('document_id = ?', $this->getId())
-                    ->where('role_id = ?', 1)
-                    ->where('link_type = ?', 'grantor');
-
-            $collection_ids = $db->fetchCol($select);
-            foreach ($collection_ids as $collection_id) {
-                $result[] = new Opus_Collection($collection_id);
-            }
-        }
-
-        return $result;
-    }
-
-    /**
      * Instantiates an Opus_Document from xml as delivered by the toXml()
      * method. Standard behaviour is overwritten due to the type parameter that
      * needs to be passed into the Opus_Document constructor.
@@ -1441,81 +1368,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $result = $table->getAdapter()->fetchCol($select);
         return $result;
     }
-
-    /**
-     * Stores publisher relationships between documents and organisational units.
-     * Bypasses just about every "normal" mechanism: cannot set 'option' parameter,
-     * because collection link tables are dynamic (i.e. role id in table name).
-     *
-     * @param  mixed  $publisher (An array of) Opus_OrganisationalUnit
-     * @return void
-     *
-     * FIXME: Stupid code-duplication (@see _storeGrantor())
-     * FIXME: Should be provided by Db_LinkDocumentsCollections()
-     */
-    protected function _storePublisher($publishers) {
-        if (true === empty($publishers)) {
-            // Lazy fetching has not been triggered yet, so no action taken.
-            return;
-        }
-        if (false === is_array($publishers)) {
-            $publishers = array($publishers);
-        }
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-
-        $constraints = array(
-                'document_id' => $this->getId(),
-                'link_type'   => 'publisher',
-        );
-
-        // TODO: Why delete all links?
-        $table->delete($constraints);
-
-        foreach ($publishers as $collection) {
-            $row = $table->createRow($constraints);
-            $row->collection_id = $collection->getId();
-            $row->role_id = $collection->getRoleId();
-            $row->save();
-        }
-    }
-
-    /**
-     * Stores grantor relationships between documents and organisational units.
-     * Bypasses just about every "normal" mechanism: cannot set 'option' parameter,
-     * because collection link tables are dynamic (i.e. role id in table name).
-     *
-     * @param  mixed  $grantor (An array of) Opus_OrganisationalUnit
-     * @return void
-     *
-     * FIXME: Stupid code-duplication (@see _storePublisher())
-     * FIXME: Should be provided by Db_LinkDocumentsCollections()
-     */
-    protected function _storeGrantor($grantors) {
-        if (true === empty($grantors)) {
-            // Lazy fetching has not been triggered yet, so no action taken.
-            return;
-        }
-        if (false === is_array($grantors)) {
-            $grantors = array($grantors);
-        }
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
-
-        $constraints = array(
-                'document_id' => $this->getId(),
-                'link_type'   => 'grantor',
-        );
-
-        // TODO: Why delete all links?
-        $table->delete($constraints);
-
-        foreach ($grantors as $collection) {
-            $row = $table->createRow($constraints);
-            $row->collection_id = $collection->getId();
-            $row->role_id = $collection->getRoleId();
-            $row->save();
-        }
-    }
-
 
     /**
      * Log document errors.  Prefixes every log entry with document id.

@@ -104,4 +104,24 @@ class Opus_DnbInstituteTests extends TestCase {
         $this->assertEquals(count($dnb_institutes), count($result), 'Wrong number of objects retrieved.');
     }
 
+    public function testRetrieveGrantors() {
+        $publishers = array();
+        $grantors = array();
+        for ($i = 1; $i <= 10; $i++) {
+            $dnb_institute = new Opus_DnbInstitute();
+            $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
+            $dnb_institute->setCity('Calisota');
+            if (0 == ($i % 2)) {
+                $dnb_institute->setIsGrantor(1);
+                $dnb_institute->store();
+                $grantors[] = $dnb_institute;
+            } else {
+                $dnb_institute->store();
+                $publishers[] = $dnb_institute;
+            }
+        }
+        $result = Opus_DnbInstitute::getGrantors();
+        $this->assertEquals(count($grantors), count($result), 'Wrong number of objects retrieved.');
+    }
+
 }

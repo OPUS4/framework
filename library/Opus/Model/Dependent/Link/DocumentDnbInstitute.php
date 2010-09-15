@@ -64,8 +64,18 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
     protected $_modelClass = 'Opus_DnbInstitute';
 
     /**
+     * Fields that should not be displayed on a form.
+     *
+     * @var array  Defaults to array('File').
+     */
+    protected $_internalFields = array(
+            'Role',
+        );
+
+    /**
      * Initialize model with the following values:
      * - DnbInstitute
+     * - Role
      *
      * @return void
      */
@@ -75,6 +85,9 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
         } else {
             $this->setModel(new Opus_DnbInstitute());
         }
+        
+        $role = new Opus_Model_Field('Role');
+        $this->addField($role);
     }
 
     /**

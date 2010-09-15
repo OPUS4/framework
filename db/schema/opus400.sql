@@ -512,7 +512,8 @@ COMMENT = 'Table for thesisPublishers or thesisGrantors.';
 CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
     `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
     `dnb_institute_id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-    PRIMARY KEY (`document_id`, `dnb_institute_id`) ,
+    `role` ENUM('publisher', 'grantor') NOT NULL COMMENT 'Role of the institute in the actual document-institute context.' ,
+    PRIMARY KEY (`document_id`, `dnb_institute_id`, `role`) ,
     INDEX `fk_link_documents_dnb_institutes_documents` (`document_id` ASC) ,
     INDEX `fk_link_documents_dnb_institutes_dnb_institutes` (`dnb_institute_id` ASC) ,
     CONSTRAINT `fk_link_documents_dnb_institutes_documents`

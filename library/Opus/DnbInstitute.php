@@ -57,6 +57,24 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns a list of organisational units that act as (thesis) grantors.
+     *
+     * @return array A list of Opus_DnbInstitutes that act as grantors.
+     */
+    public static function getGrantors() {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
+        $select = $table->select()
+                ->where('is_grantor = ?', 1);
+
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_DnbInstitute($row);
+        }
+        return $result;
+    }
+
+    /**
      * Initialize model with the following fields:
      * - name
      * - address
