@@ -204,8 +204,6 @@
                             <xsl:element name="field">
                                 <xsl:attribute name="name">project</xsl:attribute>
                                 <xsl:value-of select="@Number" />
-                                <xsl:text>: </xsl:text>
-                                <xsl:value-of select="@Name" />
                             </xsl:element>
                             <xsl:element name="field">
                                 <xsl:attribute name="name">app_area</xsl:attribute>
@@ -219,6 +217,11 @@
                             </xsl:element>
                         </xsl:when>
                     </xsl:choose>
+
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">collection_ids</xsl:attribute>
+                        <xsl:value-of select="@Id" />
+                    </xsl:element>
                 </xsl:for-each>
 
                 <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
