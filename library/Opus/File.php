@@ -202,7 +202,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->setMimeType( $mimetype );
 
             // create and append hash values
-            // $this->_createHashValues();
+            $this->_createHashValues();
         }
 
         // Rename file, if the stored name changed on existing record.  Rename
