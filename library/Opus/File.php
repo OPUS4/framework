@@ -45,6 +45,13 @@
 class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
+     * Holds storage object.
+     *
+     * @var Opus_Storage_File
+     */
+    private $_storage;
+
+    /**
      * Holds path of destination.
      *
      * @var string
@@ -148,6 +155,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $config = Zend_Registry::get('Zend_Config');
         $workspaceFiles = $config->workspacePath . "/files/";
         $this->_destinationPath = $workspaceFiles;
+        $this->_storage = new Opus_Storage_File($workspaceFiles);
     }
 
     /**
@@ -183,48 +191,25 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             return $result;
         }
 
-        $tempFile = $this->getTempFile();
-        $destinationPath = $this->getDestinationPath() . $this->getParentId();
-        $target = $this->getPath();
+        $destinationPath = $this->getParentId() . DIRECTORY_SEPARATOR;
+        $target = $destinationPath . $this->getPathName();
 
+        $tempFile = $this->getTempFile();
         if (false === empty($tempFile)) {
             if (false === file_exists($tempFile)) {
                 throw new Exception("File '$tempFile' does not exist.");
             }
 
+            $this->_storage->createSubdirectory( $destinationPath );
+            $this->_storage->copyFile($tempFile, $target);
+
             // set file size
-            $file_size = sprintf('%u', @filesize($tempFile));
+            $file_size = $this->_storage->getFileSize($target);
             $this->setFileSize($file_size);
 
             // set mime type
-            $mimetype = mime_content_type($tempFile);
-            $this->setMimeType($mimetype);
-
-            if (file_exists($destinationPath) === false) {
-                $mkdirResult = mkdir($destinationPath, 0755, true);
-                if (!$mkdirResult) {
-                    $message = "Error creating directory '$destinationPath'.";
-                    $this->getLogger()->err($message);
-                    throw new Exception($message);
-                }
-            }
-
-            $copyResult = copy($tempFile, $target);
-            if ($copyResult === false) {
-                $message = "Error copying file '" . $this->getTempFile() . "' to '$target'";
-                $this->getLogger()->err($message);
-                throw new Exception($message);
-            }
-
-            // TODO: Hotfix for upload bug.  Cannot create hash, if file is deleted.
-            if (false) {
-                if (true === is_uploaded_file($tempFile)) {
-                    if (@unlink($tempFile) === false) {
-                        $message = "Error removing temp file " . $this->getTempFile();
-                        $this->getLogger()->err($message);
-                    }
-                }
-            }
+            $mimetype = $this->_storage->getFileMimeEncoding($target);
+            $this->setMimeType( $mimetype );
 
             // create and append hash values
             // $this->_createHashValues();
@@ -238,10 +223,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
             if (!empty($storedPathName)) {
                 $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedPathName;
-                $result = @rename($oldName, $target);
-                if (false === $result) {
-                    throw new Exception('Could not rename file from "' . $oldName . '" to "' . $target . '"!');
-                }
+                $result = $this->_storage->renameFile($oldName, $target);
             }
         }
 
@@ -277,46 +259,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function doDelete($token) {
         parent::doDelete($token);
-        $path = $this->getDestinationPath() . $this->getParentId();
+        $destinationPath = $this->getParentId() . DIRECTORY_SEPARATOR;
+        $target = $destinationPath . $this->getPathName();
 
-        $result = false;
-        if ($this->exists()) {
-            $result = @unlink($this->getPath());
-        }
-        else {
-            $message = 'Cannot remove file ' . $this->getPath() . ' (cwd: ' . getcwd() . ')';
-            $this->getLogger()->warn($message);
-        }
-
-        // Delete directory.  If not empty, it will fail but suppress errors.
-        @rmdir($path);
-
-        // cleanup index
-        $searchEngine = 'Solr';
-
-        $config = Zend_Registry::get('Zend_Config');
-        if (!empty($config->searchengine->engine)) {
-            $searchEngine = $config->searchengine->engine;
-        }
-
-        // TODO: Disabled index update when not running Zend_Lucene.
-        if ($searchEngine === 'Lucene') {
-            // Reindex
-            $engineclass = 'Opus_Search_Index_' . $searchEngine . '_Indexer';
-            $indexer = new $engineclass();
-            try {
-                $indexer->removeFileFromEntryIndex($this);
-            }
-            catch (Exception $e) {
-                throw $e;
-            }
-
-            if ($result === false) {
-                $message = 'Cannot remove file ' . $this->getPath() . ' (cwd: ' . getcwd() . ')';
-                $this->getLogger()->err($message);
-                throw new Exception($message, '403');
-            }
-        }
+        $this->_storage->deleteFile($target);
     }
 
     /**
@@ -422,22 +368,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     private function getDestinationPath() {
         return $this->_destinationPath;
-    }
-
-    /**
-     * Adds to a given path a directory separator if not set.
-     *
-     * @param string $path Path with or withour directory separator.
-     * @return string Path with directory separator.
-     */
-    private function _addMissingDirectorySeparator($path) {
-        if (false === empty($path)) {
-            // TODO: if (DIRECTORY_SEPARATOR !== $path[mb_strlen($path) - 1]) {
-            if (DIRECTORY_SEPARATOR !== $path[strlen($path) - 1]) {
-                $path .= DIRECTORY_SEPARATOR;
-            }
-        }
-        return $path;
     }
 
     /**
