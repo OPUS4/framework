@@ -106,6 +106,28 @@ class Opus_Role extends Opus_Model_AbstractDb
         return $result;
     }
 
+    /**
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus_Role instance by name.  Returns null
+     * if name is null *or* nothing found.
+     *
+     * @param  string $name
+     * @return Opus_Role
+     */
+    public static function fetchByName($name = null) {
+        if (false === isset($name)) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->where('name = ?', $name);
+        $row = $table->fetchRow($select);
+
+        if (isset($row)) {
+            return new Opus_Role($row);
+        }
+
+        return;
+    }
 
     /**
      * Returns name.
