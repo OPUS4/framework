@@ -187,11 +187,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $destinationPath = $this->getDestinationPath() . $this->getParentId();
         $target = $this->getPath();
 
-        if (false === file_exists($tempFile)) {
-            throw new Exception("File '$tempFile' does not exist.");
-        }
-
         if (false === empty($tempFile)) {
+            if (false === file_exists($tempFile)) {
+                throw new Exception("File '$tempFile' does not exist.");
+            }
+
             // set file size
             $file_size = sprintf('%u', @filesize($tempFile));
             $this->setFileSize($file_size);
