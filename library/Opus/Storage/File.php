@@ -74,7 +74,12 @@ class Opus_Storage_File {
      */
     private function addDirectorySeparator($path) {
         if (false === empty($path)) {
-            if (DIRECTORY_SEPARATOR !== $path[mb_strlen($path) - 1]) {
+            $last_char = $path[strlen($path) - 1];
+            if (function_exists('mb_strlen')) {
+                $last_char = $path[mb_strlen($path) - 1];
+            }
+            
+            if (DIRECTORY_SEPARATOR !== $last_char) {
                 $path .= DIRECTORY_SEPARATOR;
             }
         }
