@@ -59,13 +59,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     private $_destinationPath = '../workspace/files/';
 
     /**
-     * Holds path of source.
-     *
-     * @var string
-     */
-    private $_sourcePath = null;
-
-    /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
@@ -196,9 +189,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $tempFile = $this->getTempFile();
         if (false === empty($tempFile)) {
-            if (false === file_exists($tempFile)) {
-                throw new Exception("File '$tempFile' does not exist.");
-            }
 
             $this->_storage->createSubdirectory( $destinationPath );
             $this->_storage->copyFile($tempFile, $target);
@@ -234,7 +224,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * Copy the uploaded file to it's final destination.
      *
-     * @throws Opus_Model_Exception Thrown if moving or copying failed.
      * @return void
      */
     protected function _storeTempFile() {

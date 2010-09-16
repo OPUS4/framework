@@ -52,6 +52,7 @@ class Opus_Storage_File {
      * working directory, in which all file modifications will take place.
      *
      * @param string $directory 
+     * @throws Opus_Storage_Exception
      */
     public function __construct($directory) {
         if (!is_dir($directory)) {
