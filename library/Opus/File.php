@@ -439,21 +439,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     }
 
     /**
-     * Set new destination path.
-     *
-     * @param string $sourcePath New directory path for destination files.
-     * @throws InvalidArgumentException Thrown if directory is not valid.
-     * @return void
-     */
-    public function setDestinationPath($destinationPath) {
-        $destinationPath = $this->_addMissingDirectorySeparator($destinationPath);
-        if (false === is_dir($destinationPath)) {
-            throw new InvalidArgumentException('"' . $destinationPath . '" is not a valid directory.');
-        }
-        $this->_destinationPath = $destinationPath;
-    }
-
-    /**
      * Set new source path.
      *
      * @param string $sourcePath New directory path for source files.
