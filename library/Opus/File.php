@@ -187,16 +187,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $destinationPath = $this->getDestinationPath() . $this->getParentId();
         $target = $this->getPath();
 
+        if (false === file_exists($tempFile)) {
+            throw new Exception("File '$tempFile' does not exist.");
+        }
+
         if (false === empty($tempFile)) {
-            // add source path if temp file does not have path information
-            if (false === file_exists($tempFile)) {
-                $tempFile = $this->getSourcePath() . $tempFile;
-            }
-
-            if (false === file_exists($tempFile)) {
-                throw new Exception("File $tempFile does not exist.");
-            }
-
             // set file size
             $file_size = sprintf('%u', @filesize($tempFile));
             $this->setFileSize($file_size);
@@ -430,30 +425,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     }
 
     /**
-     * Returns current source path.
-     *
-     * @return string
-     */
-    public function getSourcePath() {
-        return $this->_sourcePath;
-    }
-
-    /**
-     * Set new source path.
-     *
-     * @param string $sourcePath New directory path for source files.
-     * @throws InvalidArgumentException Thrown if directory is not valid.
-     * @return void
-     */
-    public function setSourcePath($sourcePath) {
-        $sourcePath = $this->_addMissingDirectorySeparator($sourcePath);
-        if (false === is_dir($sourcePath)) {
-            throw new InvalidArgumentException('"' . $sourcePath . '" is not a valid directory.');
-        }
-        $this->_sourcePath = $sourcePath;
-    }
-
-    /**
      * Adds to a given path a directory separator if not set.
      *
      * @param string $path Path with or withour directory separator.
@@ -478,12 +449,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashtypes = array('md5', 'sha512');
         $hashs = array();
         $tempFile = $this->getTempFile();
+
         if (false === file_exists($tempFile)) {
-            $tempFile = $this->getSourcePath() . $tempFile;
+            throw new Exception("File '$tempFile' does not exist.");
         }
-        if (false === file_exists($tempFile)) {
-            throw new Exception("File $tempFile does not exist.");
-        }
+
         foreach ($hashtypes as $type) {
             $hash = new Opus_HashValues();
             $hash->setType($type);

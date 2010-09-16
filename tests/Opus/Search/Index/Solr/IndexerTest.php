@@ -455,8 +455,7 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     private function _addFileToDocument($filename, $label) {
         $doc = new Opus_Document($this->document_id);
         $file = $doc->addFile();
-        $file->setSourcePath('fulltexts');
-        $file->setTempFile($filename);
+        $file->setTempFile('fulltexts/' . $filename);
         $file->setPathName($filename);
         $file->setLabel($label);
 

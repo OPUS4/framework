@@ -125,16 +125,14 @@ class Opus_FileTest extends TestCase {
      * @return Opus_Document 
      */
     private function _createDocumentWithFile($filename) {
-        touch($this->_src_path . DIRECTORY_SEPARATOR . $filename);
+        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        touch($filepath);
 
         $doc = new Opus_Document;
         $file = $doc->addFile();
 
-        $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
-        $file->setTempFile($filename);
-
+        $file->setTempFile($filepath);
         $file->setPathName('copied-' . $filename);
-
         $file->setLabel('Volltextdokument (PDF)');
 
         return $doc;
@@ -462,8 +460,7 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document;
         $file = $doc->addFile();
 
-        $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
-        $file->setTempFile('/foobar-nonzero.txt');
+        $file->setTempFile($filename_nonzero);
         $file->setPathName('copied-foobar-nonzero.txt');
 
         $doc->store();
