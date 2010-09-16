@@ -60,8 +60,6 @@ class Opus_FileTest extends TestCase {
     public function setUp() {
         parent::setUp();
 
-        $this->_config_backup = Zend_Registry::get('Zend_Config');
-
         // TODO: Replace by path relative to working directory
         $path = '/tmp/opus4-test/' . uniqid();
 
@@ -72,6 +70,7 @@ class Opus_FileTest extends TestCase {
         mkdir($this->_dest_path, 0777, true);
         mkdir($this->_dest_path . '/files', 0777, true);
 
+        $this->_config_backup = Zend_Registry::get('Zend_Config');
         Zend_Registry::set('Zend_Config', new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
                         )));
