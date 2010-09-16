@@ -144,6 +144,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($hashvalue)
                 ->addField($role)
                 ->addField($document_id);
+
+        $config = Zend_Registry::get('Zend_Config');
+        $workspaceFiles = $config->workspacePath . "/files/";
+        $this->_destinationPath = $workspaceFiles;
     }
 
     /**
@@ -293,10 +297,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         @rmdir($path);
 
         // cleanup index
+        $searchEngine = 'Solr';
+
         $config = Zend_Registry::get('Zend_Config');
-        $searchEngine = $config->searchengine->engine;
-        if (empty($searchEngine) === true) {
-            $searchEngine = 'Lucene';
+        if (!empty($config->searchengine->engine)) {
+            $searchEngine = $config->searchengine->engine;
         }
 
         // TODO: Disabled index update when not running Zend_Lucene.

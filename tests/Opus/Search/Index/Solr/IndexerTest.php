@@ -384,7 +384,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $doc = new Opus_Document($this->document_id);
 
         $file = $doc->addFile();
-        $file->setDestinationPath($this->files_dir);
         $file->setPathName('nonexistent.pdf');
         $file->setLabel('non-existent PDF fulltext');
 
@@ -458,7 +457,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $file = $doc->addFile();
         $file->setSourcePath('fulltexts');
         $file->setTempFile($filename);
-        $file->setDestinationPath($this->files_dir);
         $file->setPathName($filename);
         $file->setLabel($label);
 

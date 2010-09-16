@@ -68,8 +68,13 @@ class Opus_FileTest extends TestCase {
         $this->_src_path = $path . '/src';
         mkdir($this->_src_path, 0777, true);
 
-        $this->_dest_path = $path . '/dest';
+        $this->_dest_path = $path . '/dest/';
         mkdir($this->_dest_path, 0777, true);
+        mkdir($this->_dest_path . '/files', 0777, true);
+
+        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+                            'workspacePath' => $this->_dest_path,
+                        )));
 
     }
 
@@ -128,7 +133,6 @@ class Opus_FileTest extends TestCase {
         $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
         $file->setTempFile($filename);
 
-        $file->setDestinationPath($this->_dest_path);   // TODO: Remove setting of destination path.  Should come from config.
         $file->setPathName('copied-' . $filename);
 
         $file->setLabel('Volltextdokument (PDF)');
@@ -214,7 +218,7 @@ class Opus_FileTest extends TestCase {
         $file->setTempFile($this->_src_path . '/foobar.pdf');
         $id = $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
                 'File has not been copied.');
 
     }
@@ -229,7 +233,7 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $expectedPath = $this->_dest_path . "/$id/copied-foobar.pdf";
+        $expectedPath = $this->_dest_path . "/files/$id/copied-foobar.pdf";
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -246,7 +250,7 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $expectedPath = $this->_dest_path . "/$id/copied-foobar.pdf";
+        $expectedPath = $this->_dest_path . "/files/$id/copied-foobar.pdf";
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -270,7 +274,7 @@ class Opus_FileTest extends TestCase {
         $token = $file->delete();
 
         $this->assertNotNull($token, 'No deletion token returned.');
-        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
                 'File has been deleted.');
 
     }
@@ -289,15 +293,12 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($id);
         $file = $doc->getFile(0);
 
-        // TODO: Do not add _dest_path to file in order to delete.
-        $file->setDestinationPath($this->_dest_path);
-
         $doc->setFile(null);
-        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
                 'File has been deleted before the model has been stored.');
 
         $doc->store();
-        $this->assertFileNotExists($this->_dest_path . "/$id/copied-foobar.pdf",
+        $this->assertFileNotExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
                 'File has not been deleted after storing the model.');
 
     }
@@ -357,10 +358,9 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($docId);
         $file = $doc->getFile(0); // get first file
         $file->setPathName($fileNameCorrect);
-        $file->setDestinationPath($this->_dest_path); // TODO: Remove setting of destination path.  Should come from config.
         $doc->store();
 
-        $path = $this->_dest_path . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
+        $path = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId . DIRECTORY_SEPARATOR;
         $this->assertFileExists($path . $fileNameCorrect,
                 'Expecting file renamed properly.');
 
@@ -384,28 +384,21 @@ class Opus_FileTest extends TestCase {
 
         $doc = new Opus_Document($docId);
         $file = $doc->getFile(0); // get first file
-        // set wrong path to trigger error
-        $file->setDestinationPath($this->_src_path . DIRECTORY_SEPARATOR);
         $file->setPathName($fileNameCorrect);
 
+        $path = dirname( $file->getPath() );
         try {
+            @chmod($path, 0555);
             $doc->store();
-        }
-        catch (Opus_Model_Exception $ope) {
-            $expectedMessage = 'Could not rename file from';
-            $this->assertStringStartsWith($expectedMessage, $ope->getMessage(), 'Catched wrong exception!');
-            return;
-        }
-        catch (Exception $ex) {
+            @chmod($path, 0777);
+
             $this->fail('Expected exception not thrown.');
         }
-
-        $this->fail('It should be an exception thrown.');
-
-        $doc = new Opus_Document($docId);
-        $file = $doc->getFile(0);
-        $this->asserEquals($fileNameWrong, $file->getPathName(), 'Content of PathName should not be altered!');
-
+        catch (Opus_Model_Exception $e) {
+            @chmod($path, 0777);
+            $expectedMessage = 'Could not rename file from';
+            $this->assertStringStartsWith($expectedMessage, $e->getMessage(), 'Caught wrong exception!');
+        }
     }
 
     /**
@@ -423,14 +416,11 @@ class Opus_FileTest extends TestCase {
         $file2->setPathName('copied-foobar.pdf');
         $file2->setLabel('Volltextdokument (PDF) 2');
 
-        // TODO: Do not add _dest_path to file in order to delete.
-        $file2->setDestinationPath($this->_dest_path);
-
         $doc = new Opus_Document($id);
         $doc->setFile($file2);
         $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/$id/copied-foobar.pdf", 'File should not be deleted.');
+        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf", 'File should not be deleted.');
 
     }
 
@@ -468,14 +458,12 @@ class Opus_FileTest extends TestCase {
 
         fclose($fh);
 
-        
+
         $doc = new Opus_Document;
         $file = $doc->addFile();
 
         $file->setSourcePath($this->_src_path);   // TODO: Remove setting of source/temp path.  Should come from config.
         $file->setTempFile('/foobar-nonzero.txt');
-
-        $file->setDestinationPath($this->_dest_path);   // TODO: Remove setting of destination path.  Should come from config.
         $file->setPathName('copied-foobar-nonzero.txt');
 
         $doc->store();
