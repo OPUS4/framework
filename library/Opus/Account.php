@@ -36,7 +36,7 @@
  */
 
 /**
- * Domain model for licences in the Opus framework
+ * Domain model for accounts in the Opus framework
  *
  * @category    Framework
  * @package     Opus
