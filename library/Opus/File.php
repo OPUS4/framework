@@ -268,7 +268,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return string hash value
      */
     public function getRealHash($type) {
-        return hash_file($type, $this->getPath());
+        $hash = @hash_file($type, $this->getPath());
+
+        if (empty($hash)) {
+            throw new Exception("Empty HASH for file '" . $this->getPath() . "'");
+        }
+        
+        return $hash;
     }
 
     /**
@@ -304,42 +310,22 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 //    }
 
     /**
-     * Gets the verification file size limit from configuration
-     *
-     * @return int limit to that files should get verified
-     */
-    private function getMaxVerifyFilesize() {
-        $config = Zend_Registry::get('Zend_Config');
-
-        $maxVerifyFilesize = $config->checksum->maxVerificationSize;
-        $maxVerifyFilesize = str_replace(' ', '', strtolower($maxVerifyFilesize));
-        $returnVerifyFilesize = $maxVerifyFilesize;
-        if (stristr($maxVerifyFilesize, 'k') !== false) {
-            $maxVerifyFilesize = str_replace('k', '', strtolower($maxVerifyFilesize));
-            $returnVerifyFilesize = $maxVerifyFilesize * 1024;
-        }
-        if (stristr($maxVerifyFilesize, 'm') !== false) {
-            $maxVerifyFilesize = str_replace('m', '', strtolower($maxVerifyFilesize));
-            $returnVerifyFilesize = $maxVerifyFilesize * 1024 * 1024;
-        }
-        if (stristr($maxVerifyFilesize, 'g') !== false) {
-            $maxVerifyFilesize = str_replace('g', '', strtolower($maxVerifyFilesize));
-            $returnVerifyFilesize = $maxVerifyFilesize * 1024 * 1024 * 1024;
-        }
-
-        return $returnVerifyFilesize;
-    }
-
-    /**
      * Check if this file should perform live checksum verification
      *
      * @return boolean True if verification can get performed
      */
     public function canVerify() {
-        $maxVerifyFilesize = $this->getMaxVerifyFilesize();
-        if ($maxVerifyFilesize === 'u' || $maxVerifyFilesize > fileSize($this->getPath())) {
+        $config = Zend_Registry::get('Zend_Config');
+
+        $maxVerifyFilesize = -1;
+        if (isset($config->checksum->maxVerificationSize)) {
+            $maxVerifyFilesize = int($config->checksum->maxVerificationSize) * 1024 * 1024;
+        }
+
+        if ($maxVerifyFilesize < 0 || $maxVerifyFilesize > fileSize($this->getPath())) {
             return true;
         }
+
         return false;
     }
 
@@ -351,20 +337,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     private function _createHashValues() {
         $hashtypes = array('md5', 'sha512');
         $hashs = array();
-        $tempFile = $this->getTempFile();
-
-        if (false === file_exists($tempFile)) {
-            throw new Exception("File '$tempFile' does not exist.");
-        }
 
         foreach ($hashtypes as $type) {
             $hash = new Opus_HashValues();
             $hash->setType($type);
-            $hash_string = hash_file($type, $tempFile);
-
-            if (empty ($hash_string)) {
-                throw new Exception("Empty HASH for file $tempFile.");
-            }
+            $hash_string = $this->getRealHash($type);
 
             $hash->setValue($hash_string);
             $hashs[] = $hash;

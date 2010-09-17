@@ -340,6 +340,56 @@ class Opus_FileTest extends TestCase {
     }
 
     /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testHashValueOfEmptyFileAfterStore() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $actual_hash = $file->getRealHash('md5');
+        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertEquals($expected_hash, $actual_hash);
+    }
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testInvalidHashAlgorithmAfterStore() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $this->setExpectedException('Exception');
+        $actual_hash = $file->getRealHash('md23');
+
+    }
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testVerifyStoredFile() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $actual_hash = $file->getRealHash('md5');
+        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertEquals($expected_hash, $actual_hash);
+
+        $this->assertTrue($file->canVerify());
+    }
+
+    /**
      * Test if a changed path name results to a rename of the file.
      *
      * @return void
