@@ -213,7 +213,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
             $logLevelName = strtoupper($config->log->level);
         }
         else {
-            throw new Exception('Missing log level configuration.');
+            // throw new Exception('Missing log level configuration.');
         }
 
         $zendLogRefl = new ReflectionClass('Zend_Log');
