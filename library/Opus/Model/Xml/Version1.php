@@ -54,14 +54,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
     private $_version = '1.0';
 
     /**
-     * Holds models that have allready been serialized in order to prevent
-     * recursion.
-     *
-     * @var mixed  Defaults to array().
-     */
-    private $_visited = array();
-
-    /**
      * Use the given element to create a model instance. If a constructor attribute map is set
      * the object creation incorporates using constructor arguments from the XML element.
      *
@@ -143,12 +135,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
      * @return void
      */
     protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode, $unTunneled = false) {
-
-        // Track visited models.
-        if (true === in_array($model, $this->_visited, true)) {
-            return;
-        }
-        $this->_visited[] = $model;
 
         if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Link_Abstract)) {
             $fields = $model->describeUntunneled();
@@ -283,7 +269,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $childNode);
         }
-        $this->_visited = array();
 
     }
 

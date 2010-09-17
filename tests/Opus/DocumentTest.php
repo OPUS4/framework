@@ -1013,17 +1013,25 @@ class Opus_DocumentTest extends TestCase {
     }
 
     public function testExistenceOfServerDatePublished() {
-        $this->markTestSkipped("Skipped due to existing bug in code base.");
         $doc = new Opus_Document();
-        //$doc->store();
         $doc->setServerState('published');
         $doc->store();
         $filter = new Opus_Model_Filter;
         $filter->setModel($doc);
-        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1());       
+
+        $docXml = $doc->toXml(array(), new Opus_Model_Xml_Version1());
+        $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
+        $this->assertEquals(1, count($serverDatePublElements),
+                'document xml should contain one field "ServerDatePublished"');
+        $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(),
+                'document xml field "ServerDatePublished" should have attributes');
+
+        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1());
         $serverDatePublElements = $modelXml->getElementsByTagName("ServerDatePublished");
-        $this->assertEquals(1, count($serverDatePublElements));
-        $this->assertTrue($serverDatePublElements->item(0)->hasAttributes());
+        $this->assertEquals(1, count($serverDatePublElements),
+                'model xml should contain one field "ServerDatePublished"');
+        $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(),
+                'model xml field "ServerDatePublished" should have attributes');
     }
 
 }
