@@ -375,7 +375,7 @@ class Opus_Search_Index_Solr_Indexer {
             )
         );
         $response = new Apache_Solr_Response(@file_get_contents($this->index_server_url . '/update', false, $stream));
-        $this->log->debug('HTTP Status: ' . $response->getHttpStatus());
+        $this->log->debug('Solr Response Status: ' . $response->getHttpStatus());
     }
 
     /**
