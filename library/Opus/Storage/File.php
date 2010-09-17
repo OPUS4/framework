@@ -209,6 +209,16 @@ class Opus_Storage_File {
             $message = "Opus_Storage_File: Neither PECL fileinfo, nor mime_content_type could be found.";
             $logger = Zend_Registry::get('Zend_Log');
             $logger->err($message);
+
+            if (preg_match($file, ".pdf$" > 0)) {
+                $mimeEncoding = "application/pdf";
+            }
+            else if (preg_match($file, ".ps$" > 0)) {
+                $mimeEncoding = "application/postscript";
+            }
+            else if (preg_match($file, ".txt$" > 0)) {
+                $mimeEncoding = "text/plain";
+            }
         }
 
         return $mimeEncoding;
