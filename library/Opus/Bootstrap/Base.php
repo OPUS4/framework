@@ -127,7 +127,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         }
         catch (Zend_Db_Adapter_Exception $e) {
             $logger->err($e);
-            throw new Exception('OPUS Bootstrap Error: Database not found!', 0, $e);
+            throw new Exception('OPUS Bootstrap Error: Could not connect to database.');
         }
     }
 
