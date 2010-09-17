@@ -206,7 +206,36 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $writer = new Zend_Log_Writer_Stream($logfile);
         $logger = new Zend_Log($writer);
-        
+
+        $logLevelName = 'INFO';
+
+        if (isset($config->log->level)) {
+            $logLevelName = strtoupper($config->log->level);
+        }
+        else {
+            throw new Exception('Missing log level configuration.');
+        }
+
+        $zendLogRefl = new ReflectionClass('Zend_Log');
+
+        $invalidLogLevel = false;
+
+        $logLevel = $zendLogRefl->getConstant($logLevelName);
+
+        if (empty($logLevel)) {
+            $logLevel = Zend_Log::INFO;
+            $invalidLogLevel = true;
+        }
+
+        // filter log output
+        $priorityFilter = new Zend_Log_Filter_Priority($logLevel);
+        $logger->addFilter($priorityFilter);
+
+        if ($invalidLogLevel) {
+            $logger->err('Invalid log level \'' . $logLevelName .
+                    '\' configured.');
+        }
+
         Zend_Registry::set('Zend_Log', $logger);
 
         $logger->debug('Logging initialized');
