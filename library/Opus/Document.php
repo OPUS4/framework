@@ -308,37 +308,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     );
 
     /**
-     * Constructor.
-     *
-     * @param  integer|string $id   (Optional) Id an existing document.
-     * @param  string         $type (Optional) Type of a new document.
-     * @see    Opus_Model_Abstract::__construct()
-     * @throws Opus_Model_Exception             Thrown invalid type is passed.
-     */
-    public function __construct($id = null, $type = null) {
-        $this->logger('__construct()');
-
-        // TODO: Setting type value in constructor is deprecated and will be removed.
-        if ($id === null and $type !== null) {
-            $this->logger('Setting type in constructor is deprecated and will be removed soon.');
-            if ($type instanceof Opus_Document_Type) {
-                $type = $type->getName();
-            }
-            else {
-                $type = new Opus_Document_Type($type);
-                $type = $type->getName();
-            }
-        }
-
-        parent::__construct($id);
-
-        if ($id === null and $type !== null) {
-            $documentType = $this->getField('Type');
-            $documentType->setValue($type);
-        }
-    }
-
-    /**
      * Initialize the document's fields.  The language field needs special
      * treatment to initialize the default values.
      *
