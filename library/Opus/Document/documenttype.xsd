@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
@@ -44,10 +44,7 @@
 	An required option is set to "yes" if the field has to be filled during user input 
 	activities.
 -->
-<schema xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:opus="http://schemas.opus.org/documenttype"
-    targetNamespace="http://schemas.opus.org/documenttype"
-    elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:opus="http://schemas.opus.org/documenttype" targetNamespace="http://schemas.opus.org/documenttype" elementFormDefault="qualified">
 	<!-- Root element -->
 	<element name="documenttype" type="opus:OpusDocumentType"/>
 	<complexType name="OpusDocumentType">
@@ -87,9 +84,10 @@
 			<enumeration value="Integer"/>
 			<enumeration value="Title"/>
 			<enumeration value="Licence"/>
-                        <enumeration value="Institute"/>
-                        <enumeration value="Project"/>
-                        <enumeration value="Msc"/>
+			<enumeration value="Institute"/>
+			<enumeration value="Project"/>
+			<enumeration value="Msc"/>
+			<enumeration value="Language"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="validFormElements">
