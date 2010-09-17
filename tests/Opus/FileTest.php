@@ -73,6 +73,9 @@ class Opus_FileTest extends TestCase {
         $this->_config_backup = Zend_Registry::get('Zend_Config');
         Zend_Registry::set('Zend_Config', new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
+                            'checksum' => array(
+                                'maxVerificationSize' => 1,
+                            ),
                         )));
 
     }
@@ -340,56 +343,6 @@ class Opus_FileTest extends TestCase {
     }
 
     /**
-     * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
-     */
-    public function testHashValueOfEmptyFileAfterStore() {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
-        $file = $doc->getFile(0);
-        $doc->store();
-
-        $actual_hash = $file->getRealHash('md5');
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
-        $this->assertEquals($expected_hash, $actual_hash);
-    }
-
-    /**
-     * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
-     */
-    public function testInvalidHashAlgorithmAfterStore() {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
-        $file = $doc->getFile(0);
-        $doc->store();
-
-        $this->setExpectedException('Exception');
-        $actual_hash = $file->getRealHash('md23');
-
-    }
-
-    /**
-     * Test if md5 hash value of empty file matches expected value.
-     *
-     * @return void
-     */
-    public function testVerifyStoredFile() {
-
-        $doc = $this->_createDocumentWithFile("foobar.pdf");
-        $file = $doc->getFile(0);
-        $doc->store();
-
-        $actual_hash = $file->getRealHash('md5');
-        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
-        $this->assertEquals($expected_hash, $actual_hash);
-
-        $this->assertTrue($file->canVerify());
-    }
-
-    /**
      * Test if a changed path name results to a rename of the file.
      *
      * @return void
@@ -519,6 +472,106 @@ class Opus_FileTest extends TestCase {
         $this->assertEquals($file->getFileSize(), $rand,
                 'FileSize is not set as expected.');
 
+    }
+
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testHashValueOfEmptyFileAfterStore() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $actual_hash = $file->getRealHash('md5');
+        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertEquals($expected_hash, $actual_hash);
+
+        $this->assertTrue($file->canVerify());
+        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verifyAll());
+    }
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testHashValueOfModifiedFileAfterStore() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertTrue($file->canVerify());
+        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verifyAll());
+
+        $fh = fopen($file->getPath(), 'w');
+        if ($fh == false) {
+            $this->fail("Unable to write file " . $file->getPath());
+        }
+
+        fwrite($fh, "foo");
+        fclose($fh);
+
+        $this->assertFalse($file->verify('md5', $expected_hash));
+        $this->assertFalse($file->verifyAll());
+    }
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testInvalidHashAlgorithmAfterStore() {
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $this->setExpectedException('Exception');
+        $actual_hash = $file->getRealHash('md23');
+
+    }
+
+    /**
+     * Test if md5 hash value of empty file matches expected value.
+     *
+     * @return void
+     */
+    public function testDisabledVerifyInConfig() {
+
+        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+                            'workspacePath' => $this->_dest_path,
+                            'checksum' => array(
+                                'maxVerificationSize' => 0,
+                            ),
+                        )));
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $this->assertFalse($file->canVerify());
+
+
+        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+                            'workspacePath' => $this->_dest_path,
+                            'checksum' => array(
+                                'maxVerificationSize' => -1,
+                            ),
+                        )));
+
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $this->assertTrue($file->canVerify());
     }
 
 }

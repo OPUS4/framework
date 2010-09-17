@@ -50,21 +50,18 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var Opus_Storage_File
      */
     private $_storage;
-
     /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
      */
     protected $_parentColumn = 'document_id';
-
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_DocumentFiles';
-
     /**
      * The file models external fields, i.e. those not mapped directly to the
      * Opus_Db_DocumentFiles table gateway.
@@ -83,7 +80,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             'model' => 'Opus_HashValues'
         ),
     );
-    
+
     /**
      * Initialize model with the following fields:
      * - PathName
@@ -141,6 +138,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $config = Zend_Registry::get('Zend_Config');
         $workspaceFiles = $config->workspacePath . "/files";
         $this->_storage = new Opus_Storage_File($workspaceFiles);
+
     }
 
     /**
@@ -149,7 +147,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
-    	return file_exists($this->getPath());
+        return file_exists($this->getPath());
+
     }
 
     /**
@@ -158,6 +157,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function getPath() {
         $storageDirectory = $this->_storage->getWorkingDirectory();
         return $storageDirectory . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName();
+
     }
 
     /**
@@ -183,7 +183,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $tempFile = $this->getTempFile();
         if (false === empty($tempFile)) {
 
-            $this->_storage->createSubdirectory( $documentPath );
+            $this->_storage->createSubdirectory($documentPath);
             $this->_storage->copyExternalFile($tempFile, $target);
 
             // set file size
@@ -192,7 +192,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
             // set mime type
             $mimetype = $this->_storage->getFileMimeEncoding($target);
-            $this->setMimeType( $mimetype );
+            $this->setMimeType($mimetype);
 
             // create and append hash values
             $this->_createHashValues();
@@ -221,6 +221,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _storeTempFile() {
         return;
+
     }
 
     /**
@@ -230,6 +231,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _fetchTempFile() {
         return;
+
     }
 
     /**
@@ -245,6 +247,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $target = $documentPath . $this->getPathName();
 
         $this->_storage->deleteFile($target);
+
     }
 
     /**
@@ -256,9 +259,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function setFromPost(array $info) {
         // TODO: populate all fields
         $this->setPathName($info['name']);
-        $this->setMimeType($info['type']);
+        // $this->setMimeType($info['type']);
         $this->setTempFile($info['tmp_name']);
         $this->setLabel($info['name']);
+
     }
 
     /**
@@ -273,8 +277,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         if (empty($hash)) {
             throw new Exception("Empty HASH for file '" . $this->getPath() . "'");
         }
-        
+
         return $hash;
+
     }
 
     /**
@@ -282,32 +287,28 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @return boolean true if the checksum is valid, false if not
      */
-//    public function verify($type, $value = null) {
-//        throw new Exception("Method seems to be unused.  Remove.");
-//
-//        if (!empty($value) and $this->getRealHash($type) === $value)
-//            return true;
-//
-//        return false;
-//    }
+    public function verify($type, $value = null) {
+        if (!empty($value) and $this->getRealHash($type) === $value)
+            return true;
+
+        return false;
+
+    }
 
     /**
      * Perform a verification on all checksums
      *
-     * @return array boolean values of all checksums: true (valid) or false (invalid)
+     * @return boolean true (all value) or false (at least one hash invalid)
      */
-//    public function verifyAll() {
-//        throw new Exception("Method seems to be unused.  Remove.");
-//
-//        $hashes = $this->getHashValue();
-//        $return = array();
-//        foreach ($hashes as $hash) {
-//            $type = $hash->getType();
-//            $value = $hash->getValue();
-//            $return[$type] = $this->verify($type, $value);
-//        }
-//        return $return;
-//    }
+    public function verifyAll() {
+        foreach ($this->getHashValue() as $hash) {
+            if (!$this->verify($hash->getType(), $hash->getValue())) {
+                return false;
+            }
+        }
+        return true;
+
+    }
 
     /**
      * Check if this file should perform live checksum verification
@@ -319,7 +320,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $maxVerifyFilesize = -1;
         if (isset($config->checksum->maxVerificationSize)) {
-            $maxVerifyFilesize = int($config->checksum->maxVerificationSize) * 1024 * 1024;
+            $maxVerifyFilesize = 1024 * 1024 * (int) $config->checksum->maxVerificationSize;
         }
 
         if ($maxVerifyFilesize < 0 || $maxVerifyFilesize > fileSize($this->getPath())) {
@@ -327,6 +328,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         return false;
+
     }
 
     /**
@@ -347,6 +349,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);
+
     }
 
 }
