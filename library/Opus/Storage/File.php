@@ -67,6 +67,11 @@ class Opus_Storage_File {
 
     }
 
+    public function getWorkingDirectory() {
+        return $this->workingDirectory;
+    }
+
+
     /**
      * Adds to a given path a directory separator if not set.
      *
@@ -90,7 +95,7 @@ class Opus_Storage_File {
     }
 
     /**
-     * Creates subdirectory "$this->workingDirectory/$subdirectory"
+     * Creates subdirectory "$this->workingDirectory/$subdirectory".
      *
      * @param string $subdirectory Subdirectory of working dir to create.
      * @throws Opus_Storage_Exception
@@ -112,14 +117,16 @@ class Opus_Storage_File {
     }
 
     /**
-     * Copy a file from source to destination
+     * Copy a file from source to destination.  The first parameter must be an
+     * absolute path to a file outside the working directory.  The second
+     * parameter is relative to the working directory.
      *
      * @param string $sourceFile Absolute path.
      * @param string $destintationFile Path relative to workingDirectory.
      * @throws Opus_Storage_Exception
      * @return boolean
      */
-    public function copyFile($sourceFile, $destinationFile) {
+    public function copyExternalFile($sourceFile, $destinationFile) {
         $fullDestinationPath = $this->workingDirectory . $destinationFile;
         if (true === @copy($sourceFile, $fullDestinationPath)) {
             return true;
@@ -154,7 +161,7 @@ class Opus_Storage_File {
     }
 
     /**
-     * Deletes a given file.
+     * Deletes a given file inside the working directory.
      *
      * @param string $file
      * @throws Opus_Storage_Exception
