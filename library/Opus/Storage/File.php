@@ -210,13 +210,13 @@ class Opus_Storage_File {
             $logger = Zend_Registry::get('Zend_Log');
             $logger->err($message);
 
-            if (preg_match($file, ".pdf$") > 0) {
+            if (preg_match('/\.pdf$/', $file) > 0) {
                 $mimeEncoding = "application/pdf";
             }
-            else if (preg_match($file, ".ps$") > 0) {
+            else if (preg_match('/\.ps$/', $file) > 0) {
                 $mimeEncoding = "application/postscript";
             }
-            else if (preg_match($file, ".txt$") > 0) {
+            else if (preg_match('/\.txt$/', $file) > 0) {
                 $mimeEncoding = "text/plain";
             }
         }
