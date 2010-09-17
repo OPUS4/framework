@@ -52,13 +52,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     private $_storage;
 
     /**
-     * Holds path of destination.
-     *
-     * @var string
-     */
-    private $_destinationPath = '../workspace/files/';
-
-    /**
      * Primary key of the parent model.
      *
      * @var mixed $_parentId.
@@ -146,8 +139,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($document_id);
 
         $config = Zend_Registry::get('Zend_Config');
-        $workspaceFiles = $config->workspacePath . "/files/";
-        $this->_destinationPath = $workspaceFiles;
+        $workspaceFiles = $config->workspacePath . "/files";
         $this->_storage = new Opus_Storage_File($workspaceFiles);
     }
 
@@ -164,7 +156,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * Get full path of destination file.
      */
     public function getPath() {
-        return $this->getDestinationPath() . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName();
+        $storageDirectory = $this->_storage->getWorkingDirectory();
+        return $storageDirectory . $this->getParentId() . DIRECTORY_SEPARATOR . $this->getPathName();
     }
 
     /**
@@ -184,14 +177,14 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             return $result;
         }
 
-        $destinationPath = $this->getParentId() . DIRECTORY_SEPARATOR;
-        $target = $destinationPath . $this->getPathName();
+        $documentPath = $this->getParentId() . DIRECTORY_SEPARATOR;
+        $target = $documentPath . $this->getPathName();
 
         $tempFile = $this->getTempFile();
         if (false === empty($tempFile)) {
 
-            $this->_storage->createSubdirectory( $destinationPath );
-            $this->_storage->copyFile($tempFile, $target);
+            $this->_storage->createSubdirectory( $documentPath );
+            $this->_storage->copyExternalFile($tempFile, $target);
 
             // set file size
             $file_size = $this->_storage->getFileSize($target);
@@ -212,7 +205,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $storedPathName = $this->_primaryTableRow->path_name;
 
             if (!empty($storedPathName)) {
-                $oldName = $destinationPath . DIRECTORY_SEPARATOR . $storedPathName;
+                $oldName = $documentPath . $storedPathName;
                 $result = $this->_storage->renameFile($oldName, $target);
             }
         }
@@ -248,8 +241,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function doDelete($token) {
         parent::doDelete($token);
-        $destinationPath = $this->getParentId() . DIRECTORY_SEPARATOR;
-        $target = $destinationPath . $this->getPathName();
+        $documentPath = $this->getParentId() . DIRECTORY_SEPARATOR;
+        $target = $documentPath . $this->getPathName();
 
         $this->_storage->deleteFile($target);
     }
@@ -348,15 +341,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             return true;
         }
         return false;
-    }
-
-    /**
-     * Returns current destination path.
-     *
-     * @return string
-     */
-    private function getDestinationPath() {
-        return $this->_destinationPath;
     }
 
     /**
