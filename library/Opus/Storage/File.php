@@ -152,6 +152,10 @@ class Opus_Storage_File {
             throw new Opus_Storage_Exception('File to rename "' . $fullSourcePath . '" does not exist!');
         }
 
+        if (false === is_file($fullSourcePath)) {
+            throw new Opus_Storage_Exception('Tried to rename non-file "' . $fullSourcePath . '; abort"!');
+        }
+
         if (true === @rename($fullSourcePath, $fullDestinationPath)) {
             return true;
         }
@@ -173,6 +177,10 @@ class Opus_Storage_File {
             throw new Opus_Storage_Exception('File to delete "' . $fullFile . '" does not exist!');
         }
 
+        if (false === is_file($fullFile)) {
+            throw new Opus_Storage_Exception('Tried to delete non-file "' . $fullFile . '; abort"!');
+        }
+
         if (true === @unlink($fullFile)) {
             return true;
         }
@@ -191,38 +199,47 @@ class Opus_Storage_File {
      */
     public function getFileMimeEncoding($file) {
         $fullFile = $this->workingDirectory . $file;
-        $mimeEncoding = 'application/octet-stream';
 
-        // for PHP >= 5.30 or PECL fileinfo >= 0.1.0
         if (true === class_exists('finfo')) {
+            // for PHP >= 5.30 or PECL fileinfo >= 0.1.0
             $finfo = new finfo(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             if (false !== $finfo) {
-                $mimeEncoding = $finfo->file($fullFile);
-                $finfo = null;
+                return $finfo->file($fullFile);
             }
         }
         else if (function_exists('mime_content_type')) {
             // use mime_content_type for PHP < 5.3.0
-            $mimeEncoding = @mime_content_type($fullFile);
+            return @mime_content_type($fullFile);
         }
         else {
             $message = "Opus_Storage_File: Neither PECL fileinfo, nor mime_content_type could be found.";
             $logger = Zend_Registry::get('Zend_Log');
             $logger->err($message);
 
-            if (preg_match('/\.pdf$/', $file) > 0) {
-                $mimeEncoding = "application/pdf";
-            }
-            else if (preg_match('/\.ps$/', $file) > 0) {
-                $mimeEncoding = "application/postscript";
-            }
-            else if (preg_match('/\.txt$/', $file) > 0) {
-                $mimeEncoding = "text/plain";
-            }
+            return $this->getFileMimeTypeFromExtension($file);
+        }
+    }
+
+    /**
+     * Guesses mime type of file based on its file name.
+     *
+     * @param string $file Name of file, to guess mimetype for.
+     * @return string
+     */
+    public function getFileMimeTypeFromExtension($file) {
+        $mimeEncoding = 'application/octet-stream';
+
+        if (preg_match('/\.pdf$/', $file) > 0) {
+            $mimeEncoding = "application/pdf";
+        }
+        else if (preg_match('/\.ps$/', $file) > 0) {
+            $mimeEncoding = "application/postscript";
+        }
+        else if (preg_match('/\.txt$/', $file) > 0) {
+            $mimeEncoding = "text/plain";
         }
 
         return $mimeEncoding;
-
     }
 
     /**
