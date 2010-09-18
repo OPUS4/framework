@@ -208,12 +208,13 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $logger = new Zend_Log($writer);
 
         $logLevelName = 'INFO';
+        $logLevelNotConfigured = false;
 
         if (isset($config->log->level)) {
             $logLevelName = strtoupper($config->log->level);
         }
         else {
-            // throw new Exception('Missing log level configuration.');
+            $logLevelNotConfigured = true;
         }
 
         $zendLogRefl = new ReflectionClass('Zend_Log');
@@ -230,6 +231,10 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         // filter log output
         $priorityFilter = new Zend_Log_Filter_Priority($logLevel);
         $logger->addFilter($priorityFilter);
+
+        if ($logLevelNotConfigured) {
+            $logger->warn('Log level not configured, using default \'' . $logLevelName . '\'.');
+        }
 
         if ($invalidLogLevel) {
             $logger->err('Invalid log level \'' . $logLevelName .
