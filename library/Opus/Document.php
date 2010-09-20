@@ -694,12 +694,23 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Retrieve an array of all document titles associated with the corresponding
+     * document id.
+     *
+     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @return array array with all ids of the entries in the desired order.
+     */
+    public static function getAllDocumentsByAuthors($sort_reverse = '0') {
+        return self::getAllDocumentsByAuthorsByState(null, $sort_reverse);
+    }
+
+    /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      * This array is sorted by authors (first one only)
      *
-     * @param string $state state of the publications
-     * @param string [$sort_reverse] (optional) string interpreted indicator for list order: 1 = descending order, all other values (or none) = ascending order
+     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      */
     public static function getAllDocumentsByAuthorsByState($state, $sort_reverse = '0') {
@@ -712,42 +723,14 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 array('last_name', 'first_name'))
                 ->joinLeft(array('pd' => 'link_persons_documents'),
                 'pd.document_id = d.id and pd.person_id = p.id')
-                ->where('d.server_state = ?', $state)
                 ->where('pd.role = ?', 'author')
                 ->group('d.id')
                 ->order('p.last_name ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
         $rows = $db->fetchAll($select);
 
-
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['document_id'];
+        if (isset($state)) {
+            $select->where('d.server_state = ?', $state);
         }
-
-        return $result;
-    }
-
-    /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
-     *
-     * @param string [$sort_reverse] (optional) string interpreted indicator for list order: 1 = descending order, all other values (or none) = ascending order
-     * @return array array with all ids of the entries in the desired order.
-     */
-    public static function getAllDocumentsByAuthors($sort_reverse = '0') {
-        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
-        $select = $db->select()
-                ->from(array('d' => 'documents'),
-                array('id'))
-                ->join(array('p' => 'persons'),
-                NULL,
-                array('last_name', 'first_name'))
-                ->joinLeft(array('pd' => 'link_persons_documents'),
-                'pd.document_id = d.id and pd.person_id = p.id')
-                ->where('pd.role = ?', 'author')
-                ->group('d.id')
-                ->order('p.last_name ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-        $rows = $db->fetchAll($select);
 
         $result = array();
         foreach ($rows as $row) {
@@ -787,7 +770,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
 
         if (isset($state)) {
-            $select->where('d..server_state = ?', $state);
+            $select->where('d.server_state = ?', $state);
         }
 
         $rows = $db->fetchAll($select);
