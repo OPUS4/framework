@@ -529,6 +529,23 @@ CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, dnb_institutes).';
 
+-- -----------------------------------------
+-- Table holding scheduled job information
+-- -----------------------------------------
+CREATE TABLE IF NOT EXISTS `jobs` (
+    `id`          INT UNSIGNED    NOT NULL AUTO_INCREMENT,
+    `sha1_id`     VARCHAR(40)     NOT NULL,
+    `label`       VARCHAR(50)     NOT NULL,
+    `timestamp`   TIMESTAMP       DEFAULT CURRENT_TIMESTAMP,
+    `state`       VARCHAR(50),
+    `data`        MEDIUMTEXT,
+    `errors`      MEDIUMTEXT,
+    PRIMARY KEY (`id`),
+    INDEX `job_sha1_ids` (`sha1_id` ASC)
+)
+ENGINE = InnoDB
+COMMENT = 'Table for schedule jobs.';
+
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;

@@ -65,6 +65,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'collections_roles',
             'file_hashvalues',
             'ipranges',
+            'jobs',
             'languages',
             'link_accounts_roles',
             'link_documents_collections',
