@@ -75,6 +75,7 @@ class Opus_CollectionTest extends TestCase {
 
         $this->object = new Opus_Collection();
         $this->object->setRoleId( $role_id );
+        $this->object->setTheme( 'test-theme' );
         $this->object->store();
     }
 
@@ -114,12 +115,13 @@ class Opus_CollectionTest extends TestCase {
      * Test if we can retrieve stored themes from the database.
      */
     public function testGetTheme() {
-        $theme = $this->object->getTheme();
+        $collection = $this->object;
+        $this->assertEquals('test-theme', $collection->getTheme(),
+                'Stored theme does not match expectation.');
 
-        $this->assertNotNull($theme,
-                'Theme must not be null.');
-        $this->assertFalse(empty($theme),
-                'Theme must not be empty.');
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals('test-theme', $collection->getTheme(),
+                'Stored theme does not match expectation.');
      }
 
      /**
