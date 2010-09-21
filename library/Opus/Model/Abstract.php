@@ -258,15 +258,10 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      */
     protected function _add($fieldname, $arguments) {
         $field = $this->getField($fieldname);
-        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
-        if ($fieldIsExternal === true) {
-            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
-        }
+        $linkmodelclass = $field->getLinkModelClass();
 
         // get Modelclass if model is linked
-        if ($fieldIsExternal and $fieldHasThroughOption === true) {
-
-            $linkmodelclass = $this->_externalFields[$fieldname]['through'];
+        if (!is_null($linkmodelclass)) {
 
             // Check if $linkmodelclass is a known class name
             if (class_exists($linkmodelclass) === false) {
