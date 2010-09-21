@@ -214,9 +214,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
         $field = $this->getField($fieldname);
         if (empty($arguments) === true) {
             throw new Opus_Model_Exception('Argument required for setter function!');
-        } else if (is_null($arguments[0]) === false) {
+        }
+        else if (is_null($arguments[0]) === false) {
             $argumentModelGiven = true;
-        } else {
+        }
+        else {
             $argumentModelGiven = false;
         }
 
@@ -224,7 +226,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
 
         if (false === is_array($arguments[0])) {
             $values = array($arguments[0]);
-        } else {
+        }
+        else {
             $values = $arguments[0];
         }
 
@@ -232,7 +235,8 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
             foreach ($values as $i => $value) {
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                     $linkmodel = $value;
-                } else {
+                }
+                else {
                     $linkmodelclass = $this->_externalFields[$fieldname]['through'];
                     $linkmodel = new $linkmodelclass;
                     $linkmodel->setModel($value);
