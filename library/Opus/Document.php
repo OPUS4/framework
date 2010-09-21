@@ -966,6 +966,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         foreach ($collections AS $collection) {
+            if ($collection->isNewRecord()) {
+                $collection->store();
+            }
+
             if ($collection->holdsDocumentById($this->getId())) {
                 continue;
             }
