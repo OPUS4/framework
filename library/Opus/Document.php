@@ -345,11 +345,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         foreach ($this->_externalFields AS $fieldname => $options) {
             $field = new Opus_Model_Field($fieldname);
-
-            if (array_key_exists('model', $options)) {
-                $field->setLinkModelClass($options['model']);
-            }
-
             $field->setMultiplicity('*');
             $this->addField($field);
         }
