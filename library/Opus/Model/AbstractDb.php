@@ -717,10 +717,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $argumentModelGiven = false;
         }
 
-        $fieldIsExternal = array_key_exists($fieldname, $this->_externalFields);
-        if ($fieldIsExternal === true) {
-            $fieldHasThroughOption = array_key_exists('through', $this->_externalFields[$fieldname]);
-        }
+        $linkmodelclass = $field->getLinkModelClass();
 
         if (false === is_array($arguments[0])) {
             $values = array($arguments[0]);
@@ -728,14 +725,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
             $values = $arguments[0];
         }
 
-        if (($fieldIsExternal === true)
-                and ($fieldHasThroughOption === true)
-                and ($argumentModelGiven === true)) {
+        if (!is_null($linkmodelclass) and ($argumentModelGiven === true)) {
             foreach ($values as $i => $value) {
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                     $linkmodel = $value;
                 } else {
-                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
                     try {
                         $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
                     } catch (Exception $e) {
