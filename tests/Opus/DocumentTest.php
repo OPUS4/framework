@@ -1012,6 +1012,10 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');
     }
 
+    /**
+     * Test for Issue in Opus_Model_Xml_Version1.  The field ServerDatePublished
+     * disappeared from the XML-DOM-Tree after storing.
+     */
     public function testExistenceOfServerDatePublished() {
         $doc = new Opus_Document();
         $doc->setServerState('published');
