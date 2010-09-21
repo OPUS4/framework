@@ -705,4 +705,50 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertFalse($model->postStoreHasBeenCalled, 'Second store issued on non modified model.');
     }   
 
+    /**
+     * Test if a model retreives its external fields in the right order
+     *
+     * @return void
+     */
+    public function testFieldsInitializedInWrongOrder() {
+        $this->markTestIncomplete('Still waiting/looking for fix...');
+
+        // construct mockup class
+        $clazzez = '
+            class Opus_CheckFieldOrderDummyClass extends Opus_Model_AbstractDb {
+                protected static $_tableGatewayClass = "Opus_Model_AbstractTableProvider";
+
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field("Before"));
+                    $this->addField(new Opus_Model_Field("Target"));
+                    $this->addField(new Opus_Model_Field("After"));
+                }
+
+                protected function _fetchBefore() {
+                    if (!is_null($this->getTarget())) {
+                        return $this->getTarget();
+                    }
+                    return "bar";
+                }
+
+                protected function _fetchTarget() {
+                    return "foo";
+                }
+
+                protected function _fetchAfter() {
+                    if (!is_null($this->getTarget())) {
+                        return $this->getTarget();
+                    }
+                    return "baz";
+                }
+            }
+        ';
+        eval($clazzez);
+
+        $model = new Opus_CheckFieldOrderDummyClass();
+
+        $this->assertEquals($model->getBefore(), "foo");
+        $this->assertEquals($model->getAfter(), "foo");
+    }
+
 }
