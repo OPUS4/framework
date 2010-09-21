@@ -1166,6 +1166,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Proof-of-concept store method, which adds job to job queue.
+     */
+    public function store() {
+        parent::store();
+
+        $job = new Opus_Job();
+        $job->setLabel('opus-index-document');
+        $job->setData(array(
+            'documentId' => $this->getId(),
+        ));
+
+        // skip creating job if equal job already exists
+        if (true === $job->isUniqueInQueue()) {
+            $job->store();
+        }
+    }
+
+    /**
      * Returns an array of document ids based on restrictions from
      * an OAI request.
      *
