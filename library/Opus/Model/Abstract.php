@@ -237,7 +237,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
                     $linkmodel = $value;
                 }
                 else {
-                    $linkmodelclass = $this->_externalFields[$fieldname]['through'];
                     $linkmodel = new $linkmodelclass;
                     $linkmodel->setModel($value);
                 }
