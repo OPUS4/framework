@@ -1020,6 +1020,7 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document();
         $doc->setServerState('published');
         $doc->store();
+
         $filter = new Opus_Model_Filter;
         $filter->setModel($doc);
 
@@ -1037,5 +1038,59 @@ class Opus_DocumentTest extends TestCase {
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(),
                 'model xml field "ServerDatePublished" should have attributes');
     }
+
+    /**
+     * Test for storing collections
+     */
+     public function testStoreDocumentWithCollectionsTest() {
+         $role = new Opus_CollectionRole();
+         $role->setName('foobar-' . rand());
+         $role->setOaiName('foobar-oai-' . rand());
+         $role->store();
+
+         $collection1 = new Opus_Collection();
+         $collection1->setRoleId($role->getId());
+         $collection1->store();
+
+         $collection2 = new Opus_Collection();
+         $collection2->setRoleId($role->getId());
+
+         $document = new Opus_Document();
+         $document->setType('test');
+         $document->addCollection( $collection1 );
+         $document->addCollection( $collection2 );
+
+         $document->store();
+         $this->assertEquals(2, count($document->getCollection()),
+                 'After storing: document should have 2 collections.');
+
+         $document = new Opus_Document($document->getId());
+         $this->assertEquals(2, count($document->getCollection()),
+                 'After storing: document should have 2 collections.');
+     }
+
+    /**
+     * Test for storing collections, adding same collection twice.
+     */
+     public function testStoreDocumentWithDuplicateCollectionsTest() {
+         $role = new Opus_CollectionRole();
+         $role->setName('foobar-' . rand());
+         $role->setOaiName('foobar-oai-' . rand());
+         $role->store();
+
+         $collection1 = new Opus_Collection();
+         $collection1->setRoleId($role->getId());
+         $collection1->store();
+
+         $document = new Opus_Document();
+         $document->setType('test');
+         $document->addCollection( $collection1 );
+         $document->addCollection( $collection1 );
+         $document->store();
+
+         $document = new Opus_Document($document->getId());
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After storing: document should have 1 collections.');
+     }
 
 }
