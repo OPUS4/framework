@@ -1181,6 +1181,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (true === $job->isUniqueInQueue()) {
             $job->store();
         }
+
+        // Important to return current Id.  It's part of store() API.
+        return $this->getId();
     }
 
     /**
