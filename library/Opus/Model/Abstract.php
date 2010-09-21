@@ -604,9 +604,11 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      */
     protected function getLogger() {
         if (null === $this->_logger) {
-            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
             if (true === Zend_Registry::isRegistered('Zend_Log')) {
                 $this->_logger = Zend_Registry::get('Zend_Log');
+            }
+            else {
+                $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
             }
         }
         return $this->_logger;
