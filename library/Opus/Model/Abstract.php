@@ -52,23 +52,6 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
     protected $_fields = array();
 
     /**
-     * @TODO: Change name of this array to somewhat more general.
-     * @TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
-     *
-     * In this array extra information for each field of the model can be
-     * given, such like the classname of a referenced model object or specific options.
-     *
-     * It is an associative array referencing an declaration array for each field.
-     *
-     * 'MyField' => array(
-     *          'model' => 'Opus_Title',
-     *          'options' => array('type' => 'main'))
-     *
-     * @var array
-     */
-    protected $_externalFields = array();
-
-    /**
      * @TODO: This should be an option in externalFields[].
      *
      * Fields to be not reported by describe() and not accessable
@@ -306,6 +289,9 @@ abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
      * TODO: Refactor class: Handle _externalFields outside!
      */
     public function addField(Opus_Model_Field $field) {
+        $this->_fields[$field->getName()] = $field;
+        return $this;
+
         $fieldname = $field->getName();
         $this->_fields[$fieldname] = $field;
 

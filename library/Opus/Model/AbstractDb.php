@@ -41,8 +41,26 @@
  * @package     Opus_Model
  */
 
-abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
-{
+abstract class Opus_Model_AbstractDb
+    extends Opus_Model_Abstract
+    implements Opus_Model_ModificationTracking {
+
+    /**
+     * @TODO: Change name of this array to somewhat more general.
+     * @TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
+     *
+     * In this array extra information for each field of the model can be
+     * given, such like the classname of a referenced model object or specific options.
+     *
+     * It is an associative array referencing an declaration array for each field.
+     *
+     * 'MyField' => array(
+     *          'model' => 'Opus_Title',
+     *          'options' => array('type' => 'main'))
+     *
+     * @var array
+     */
+    protected $_externalFields = array();
 
     /**
      * Holds the primary database table row. The concrete class is responsible
@@ -124,6 +142,33 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract
         }
         parent::__construct();
         $this->_fetchValues();
+    }
+
+    
+    /**
+     * Add an field to the model. If a field with the same name has already been added,
+     * it will be replaced by the given field.
+     *
+     * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
+     * @return Opus_Model_Abstract Provide fluent interface.
+     */
+    public function addField(Opus_Model_Field $field) {
+        $result = parent::addField($field);
+        $fieldname = $field->getName();
+
+        // set Modelclass if a model exists
+        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
+                $model = $this->_externalFields[$fieldname]['model'];
+                $field->setValueModelClass($model);
+            }
+            if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                $linkmodel = $this->_externalFields[$fieldname]['through'];
+                $field->setLinkModelClass($linkmodel);
+            }
+        }
+
+        return $result;
     }
 
     /**
