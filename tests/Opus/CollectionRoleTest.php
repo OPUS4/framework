@@ -354,7 +354,6 @@ class Opus_CollectionRoleTest extends TestCase {
         // Initialize with data.
         $role = $this->object;
 
-        $role->setLinkDocsPathToRoot('both');
         $role->setDisplayBrowsing('Number, Name');
         $role->setDisplayFrontdoor('Name');
         $role->setDisplayOai('Number');
@@ -377,7 +376,6 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertNotNull($role->getName(), 'CollectionRole name check failed.');
         $this->assertNotNull($role->getOaiName(), 'CollectionRole oai_name check failed.');
 
-        $this->assertTrue(($role->getLinkDocsPathToRoot() === 'both'), 'CollectionRole link_docs_path_to_root check failed.');
         $this->assertTrue(($role->getDisplayBrowsing() === 'Number, Name'), 'CollectionRole display_browsing check failed.');
         $this->assertTrue(($role->getDisplayFrontdoor() === 'Name'), 'CollectionRole display_frontdoor check failed.');
         $this->assertTrue(($role->getDisplayOai() === 'Number'), 'CollectionRole display_oai check failed.');
