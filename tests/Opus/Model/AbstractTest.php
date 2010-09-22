@@ -115,33 +115,6 @@ class Opus_Model_AbstractTest extends TestCase {
         $model->getField('HiddenField');
     }
 
-
-    /**
-     * Test if the default display name of a model is returned.
-     *
-     * @return void
-     */
-    public function testDefaultDisplayNameIsReturned() {
-        $obj = new Opus_Model_ModelAbstract;
-        $result = $obj->getDisplayName();
-        $this->assertEquals('Opus_Model_ModelAbstract', $result, 'Default display name not properly formed.');
-    }
-
-    /**
-     * Test default getDisplayName() result of Opus_Model_Abstract
-     * is the class name.
-     *
-     * @return void
-     */
-    public function testAbstractDisplayName() {
-        $model = new Opus_Model_ModelWithHiddenField;
-        $dspln = $model->getDisplayName();
-        $this->assertEquals('Opus_Model_ModelWithHiddenField', $dspln, 'Expected class name.');
-    }
-
-
-
-
     /**
      * Test if set calls can be done in a flunet interface style.
      * E.g. $model->setField(1)->setAnotherField('Foo');
