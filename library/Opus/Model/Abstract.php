@@ -51,6 +51,13 @@ abstract class Opus_Model_Abstract {
     protected $_fields = array();
 
     /**
+     * Hold a logger instance.
+     *
+     * @var Zend_Log
+     */
+    private $_logger = null;
+
+    /**
      * @TODO: This should be an option in externalFields[].
      *
      * Fields to be not reported by describe() and not accessable
@@ -61,25 +68,30 @@ abstract class Opus_Model_Abstract {
     protected $_internalFields = array();
 
     /**
-     * Hold a logger instance.
+     * Call to _init().
      *
-     * @var Zend_Log
-     */
-    private $_logger = null;
-
-    /**
-     * @TODO: Provide a more fine grained workflow by implementing pre and post operations.
-     *
-     * Start standard model initialization workflow:
-     * 1 - _init();
-     * 2 - _addValidators();
-     * 3 - _addFilters();
-     *
-     * @throws Opus_Security_Exception Thrown if the 'create' permission is not granted to the
-     *                                 current role.
      */
     public function __construct() {
         $this->_init();
+    }
+
+    /**
+     * Return a logger either configured in Zend_Registry or null logger.
+     *
+     * Adds the Zend_Log instance registered with Zend_Registry with key 'Zend_Log'.
+     * If no such instance is configured, a standard logger will be set writing all
+     * log events to Zend_Log_Writer_Null.
+     *
+     * @return Zend_Log Logger instance.
+     */
+    protected function getLogger() {
+        if (null === $this->_logger) {
+            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
+            if (true === Zend_Registry::isRegistered('Zend_Log')) {
+                $this->_logger = Zend_Registry::get('Zend_Log');
+            }
+        }
+        return $this->_logger;
     }
 
     /**
@@ -101,6 +113,15 @@ abstract class Opus_Model_Abstract {
      */
     public function __call($name, array $arguments) {
         $accessor = substr($name, 0, 3);
+        $fieldname = substr($name, 3);
+
+        if (false === empty($arguments)) {
+            $argument = $arguments[0];
+            $argumentGiven = true;
+        } else {
+            $argumentGiven = false;
+        }
+        $this->getLogger()->debug("Access to '$fieldname' with operation '$accessor'");
 
         // Filter calls to unknown methods and turn them into an exception
         $validAccessors = array('set', 'get', 'add');
@@ -108,14 +129,21 @@ abstract class Opus_Model_Abstract {
             throw new BadMethodCallException($name . ' is no method in this object.');
         }
 
-        $fieldname = substr($name, 3);
-
-        if (array_key_exists($fieldname, $this->_fields) === false) {
-            throw new Opus_Model_Exception('Unknown field: ' . $fieldname . ' for ' . get_class($this), '404' );
+        // check if requested field is known
+        if (false === array_key_exists($fieldname, $this->_fields)) {
+            throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
         }
 
+        // check if set/add has been called with an argument
+        if ((false === $argumentGiven)
+        and ($accessor === 'set')) {
+            throw new Opus_Model_Exception('Argument required for set() calls, none given.');
+        }
+
+        $field = $this->getField($fieldname);
+
         if (true === in_array($fieldname, $this->_internalFields)) {
-            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname, '402');
+            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname);
         }
 
         switch ($accessor) {
@@ -519,27 +547,4 @@ abstract class Opus_Model_Abstract {
         return $result;
     }
 
-    /**
-     * Return a logger either configured in Zend_Registry or null logger.
-     *
-     * Adds the Zend_Log instance registered with Zend_Registry with key 'Zend_Log'.
-     * If no such instance is configured, a standard logger will be set writing all
-     * log events to Zend_Log_Writer_Null.
-     *
-     * (Copy-paste from Qucosa.)
-     *
-     * @return Zend_Log Logger instance.
-     */
-    protected function getLogger() {
-        if (null === $this->_logger) {
-            if (true === Zend_Registry::isRegistered('Zend_Log')) {
-                $this->_logger = Zend_Registry::get('Zend_Log');
-            }
-            else {
-                $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
-            }
-        }
-        return $this->_logger;
-
-    }
 }
