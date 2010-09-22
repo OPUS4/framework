@@ -552,7 +552,9 @@ class Opus_Model_FieldTest extends TestCase {
      * @return void
      */
     public function testIsModifiedReturnsTrueIfReferencedModelHasBeenModified() {
-        $model = new Opus_Model_ModelAbstract();
+        $model = new Opus_Model_ModelAbstractDbMock();
+        $model->addField(new Opus_Model_Field('FooField'));
+
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass(get_class($model));
         $field->setValue($model);

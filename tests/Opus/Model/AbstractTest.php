@@ -383,28 +383,6 @@ class Opus_Model_AbstractTest extends TestCase {
     }
 
     /**
-     * Test if modified flag can be triggered by changing  field values of
-     * sub models.
-     *
-     * @return void
-     */
-    public function testModifiedFlagCanBeTriggerdByChangingSubmodel() {
-        $model = new Opus_Model_ModelAbstract;
-        $submodel = new Opus_Model_ModelAbstract;
-        $field = new Opus_Model_Field('Submodel');
-        $field->setValueModelClass(get_class($submodel));
-        $field->setValue($submodel);
-        $model->addField($field);
-        $model->clearModified();
-
-        $model->getSubmodel()->setValue('new value');
-
-        $this->assertTrue($model->getSubmodel()->isModified(), 'Modified flag has not changed for field.');
-        $this->assertTrue($model->isModified(), 'Modified flag has not changed for model.');
-    }
-
-
-    /**
      * Test if the modified flag can be set back to false again.
      *
      * @return void

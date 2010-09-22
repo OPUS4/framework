@@ -41,8 +41,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-
-abstract class Opus_Model_Abstract implements Opus_Model_ModificationTracking {
+abstract class Opus_Model_Abstract {
 
     /**
      * Holds all fields of the domain model.
