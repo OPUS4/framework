@@ -258,18 +258,6 @@ class Opus_Model_AbstractTest extends TestCase {
     }
 
     /**
-     * Test if a models fields have their modified flag cleared after creation
-     * of the model.
-     *
-     * @return void
-     */
-    public function testFieldsSetToUnmodifiedAfterInit() {
-        $model = new Opus_Model_ModelAbstract;
-        $field = $model->getField('Value');
-        $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
-    }
-
-    /**
      * Test if a submodel gets validated by its supermodel when the containing
      * field is set to be mandatory.
      *
@@ -345,56 +333,5 @@ class Opus_Model_AbstractTest extends TestCase {
         $result = $model->isValid();
         $this->assertFalse($result, 'Validation should fail because submodel validation failes.');
     }
-
-
-    /**
-     * Test if the modified flag of a field is set to false if no field has changed.
-     *
-     * @return void
-     */
-    public function testModifiedFlagIsNotSetInitially() {
-        $model = new Opus_Model_ModelAbstract;
-        $result = $model->isModified();
-        $this->assertFalse($result, 'Modified flag is initially true.');
-    }
-
-    /**
-     * Test if modified flag can be triggered by setModified().
-     *
-     * @return void
-     */
-    public function testModifiedFlagCanBeTriggerdViaSetModified() {
-        $model = new Opus_Model_ModelAbstract;
-        $model->clearModified();
-        $model->setModified();
-        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
-    }
-
-    /**
-     * Test if modified flag can be triggered by changing a fields value.
-     *
-     * @return void
-     */
-    public function testModifiedFlagCanBeTriggerdCallToSetMethod() {
-        $model = new Opus_Model_ModelAbstract;
-        $model->clearModified();
-        $model->setValue('new value');
-        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
-    }
-
-    /**
-     * Test if the modified flag can be set back to false again.
-     *
-     * @return void
-     */
-    public function testModifiedFlagIsClearable() {
-        $model = new Opus_Model_ModelAbstract;
-        $model->setValue('new value');
-        $model->clearModified();
-        $after = $model->isModified();
-        $this->assertFalse($after, 'Modified flag has has not been cleared.');
-    }
-
-
 
 }

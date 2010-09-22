@@ -141,10 +141,59 @@ abstract class Opus_Model_AbstractDb
             $this->_isNewRecord = false;
         }
         parent::__construct();
+
         $this->_fetchValues();
+
+        $this->_clearFieldsModifiedFlag();
     }
 
-    
+    /**
+     * Clear the modified flag on all fields.
+     *
+     * @return void
+     */
+    protected function _clearFieldsModifiedFlag() {
+        foreach ($this->_fields as $field) {
+            $field->clearModified();
+        }
+    }
+
+    /**
+     * Tell whether there is a modified field.
+     *
+     * @return boolean
+     */
+    public function isModified() {
+        foreach ($this->_fields as $field) {
+            if (true === $field->isModified()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Set the modified flags for all fields back to false.
+     *
+     * @return void
+     */
+    public function clearModified() {
+        foreach ($this->_fields as $field) {
+            $field->clearModified();
+        }
+    }
+
+    /**
+     * Trigger indication of modification for all fields.
+     *
+     * @return void
+     */
+    public function setModified() {
+        foreach ($this->_fields as $field) {
+            $field->setModified();
+        }
+    }
+
     /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
