@@ -35,12 +35,6 @@
  * @version     $Id: CollectionOld.php -1$
  */
 
-/**
- *
- * @category    Framework
- * @package     Opus
- */
-
 class Opus_CollectionNode extends Opus_Model_AbstractDb {
 
     /**
@@ -469,6 +463,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
      * Compute documents counts.
      *
      * @return int Number of collection Entries.
+     * @deprecated Method will be removed shortly!
      * 
      * TODO: Add model fields such we can cache the returned counts.
      */
@@ -483,7 +478,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
                         ->where("collection_id = ?", $this->getCollectionId());
 
         $count = $db->fetchOne($select);
-        return (int)$count;
+        return (int) $count;
     }
 
     /**
@@ -505,6 +500,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
         $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
                         ->where("role_id = ?", $this->getRoleId())
                         ->where("collection_id IN ($subselect)");
+                        // TODO add server_state = published condition
 
         $count = $db->fetchOne($select);
         return (int) $count;

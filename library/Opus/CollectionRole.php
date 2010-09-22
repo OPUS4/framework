@@ -73,7 +73,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * - Name
      * - Position
-     * - LinkDocsPathToRoot
      * - Visible
      * - ...
      *
@@ -95,11 +94,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $visible = new Opus_Model_Field('Visible');
         $visible->setCheckbox(true);
         $this->addField($visible);
-
-        $links_docs_path_to_root = new Opus_Model_Field('LinkDocsPathToRoot');
-        $mapping = array('none' => 'none', 'count' => 'count', 'display' => 'display', 'both' => 'both');
-        $links_docs_path_to_root->setDefault($mapping)->setSelection(true);
-        $this->addField($links_docs_path_to_root);
 
         $visibleBrowsingStart = new Opus_Model_Field('VisibleBrowsingStart');
         $visibleBrowsingStart->setCheckbox(true);

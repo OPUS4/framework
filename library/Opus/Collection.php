@@ -36,11 +36,6 @@
  * @version     $Id: CollectionOld.php -1$
  */
 
-/**
- *
- * @category    Framework
- * @package     Opus
- */
 class Opus_Collection extends Opus_Model_AbstractDb {
 
     /**
