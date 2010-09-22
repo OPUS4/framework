@@ -325,6 +325,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "PageFirst", "PageLast", "PageNumber",
             "PublishedDate", "PublishedYear",
             "PublisherName",  "PublisherPlace",
+            "PublicationState",
             "ServerDateModified",
             "ServerDatePublished",
             "ServerDateUnlocking",
