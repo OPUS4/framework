@@ -205,19 +205,53 @@ abstract class Opus_Model_AbstractDb
         $result = parent::addField($field);
         $fieldname = $field->getName();
 
-        // set Modelclass if a model exists
-        if (array_key_exists($fieldname, $this->_externalFields) === true) {
-            if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
-                $model = $this->_externalFields[$fieldname]['model'];
-                $field->setValueModelClass($model);
-            }
-            if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
-                $linkmodel = $this->_externalFields[$fieldname]['through'];
-                $field->setLinkModelClass($linkmodel);
-            }
+        // set ValueModelClass if a through option is given
+        $valueModelClass = $this->_getValueModelClassForField($field);
+        if (null !== $valueModelClass) {
+            $field->setValueModelClass($valueModelClass);
+        }
+
+        // set LinkModelClass if a through option is given
+        $linkModelClass = $this->_getLinkModelClassForField($field);
+        if (null !== $linkModelClass) {
+            $field->setLinkModelClass($linkModelClass);
         }
 
         return $result;
+    }
+
+    /**
+     * Check if a given field instance is a value model field and
+     * return the value model class name as defined in the models
+     * $_externalFields array.
+     *
+     * @param Opus_Model_Field $field Field instance to check.
+     * @return mixed Class name if 'model' parameter is set for field, null otherwise
+     */
+    private function _getValueModelClassForField(Opus_Model_Field $field) {
+        $fieldname = $field->getName();
+        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
+                return $this->_externalFields[$fieldname]['model'];
+            }
+        }
+    }
+
+    /**
+     * Check if a given field instance is a link model field and
+     * return the link model class name as defined in the models
+     * $_externalFields array.
+     *
+     * @param Opus_Model_Field $field Field instance to check.
+     * @return mixed Class name if 'through' parameter is set for field, null otherwise
+     */
+    private function _getLinkModelClassForField(Opus_Model_Field $field) {
+        $fieldname = $field->getName();
+        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
+                return $this->_externalFields[$fieldname]['through'];
+            }
+        }
     }
 
     /**
