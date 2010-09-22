@@ -644,6 +644,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
                 protected function _init() {
                     $this->addField(new Opus_Model_Field(\'Value\'));
+                    $this->addField(new Opus_Model_Field(\'ExternalField\'));
                 }
 
             }';
