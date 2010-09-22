@@ -426,17 +426,18 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
-     * Test if the model of a field specified as external is not loaded on
+     * Test if the model of a field specified as lazy external is not loaded on
      * initialization.
      *
      * @return void
      */
-    public function testExternalModelIsNotLoadedOnInitialization() {
+    public function testLazyExternalModelIsNotLoadedOnInitialization() {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         // Query the mock
-        $this->assertNotContains('ExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The external field got loaded.');
+        $this->assertNotContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn,
+                'The lazy external field got loaded.');
     }
 
     /**

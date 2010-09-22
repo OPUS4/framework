@@ -67,7 +67,8 @@ class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
         'ExternalModel' => array(
             'model' => 'Opus_Model_ModelAbstractDbMock',
             'through' => 'Opus_Model_LinkToAbstractMock',
-            'options' => ''),
+            'options' => '',
+            'fetch' => 'eager'),
         'LazyExternalModel' => array(
             'model' => 'Opus_Model_ModelAbstract',
             'through' => '',
