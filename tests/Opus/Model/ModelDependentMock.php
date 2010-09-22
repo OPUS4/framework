@@ -44,6 +44,12 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
     
     public $doDeleteHasBeenCalled = false;
 
+    public $setParentIdHasBeenCalled = false;
+
+    public $id = null;
+
+    private $_discriminatorObject = null;
+
     public function __construct() {
     }
     
@@ -56,6 +62,34 @@ class Opus_Model_ModelDependentMock extends Opus_Model_Dependent_Abstract {
     
     public function doDelete($token) {
         $this->doDeleteHasBeenCalled = true;
+    }
+
+    public function setParentId($id) {
+        $this->setParentIdHasBeenCalled = true;
+    }
+
+    public function getId() {
+        if (null === $this->id) {
+            return parent::getId();
+        }
+        return $this->id;
+
+    }
+
+    public function setId($id) {
+        $this->id = $id;
+
+    }
+
+    /**
+     * Sets an object reference that helps to mime object
+     * references when comparing instances of this class.
+     *
+     * @param <type> $object An arbitrary object
+     */
+    public function setDiscriminatorObject($object) {
+        $this->_discriminatorObject = $object;
+
     }
 
 }

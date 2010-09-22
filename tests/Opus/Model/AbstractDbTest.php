@@ -705,7 +705,159 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model->postStoreHasBeenCalled = false;
         $id = $model->store();
         $this->assertFalse($model->postStoreHasBeenCalled, 'Second store issued on non modified model.');
-    }   
+    }
+
+    /**
+     * Test if loading a dependent model from database also sets the corresponding
+     * parent id to these models.
+     *
+     * @return void
+     */
+    public function testParentIdGetPropagatedToDependentModelsOnLoading() {
+        $clazz = '
+            class testParentIdGetPropagatedToDependentModelsOnLoading
+                extends Opus_Model_AbstractDb {
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+                protected $_externalFields = array(
+                    \'ExternalField1\' => array(
+                        \'model\' => \'Opus_Model_ModelDependentMock\'),
+                );
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field(\'Value\'));
+                    $this->addField(new Opus_Model_Field(\'ExternalField1\'));
+                }
+                protected function _fetchExternalField1() {
+                    return new Opus_Model_ModelDependentMock;
+                }
+            }';
+        eval($clazz);
+        $model = new testParentIdGetPropagatedToDependentModelsOnLoading(1);
+
+        $this->assertTrue($model->getExternalField1()->setParentIdHasBeenCalled, 'No parent id was set on fetching dependent model.');
+
+    }
+
+    /**
+     * Test if the modified flag of a field is set to false if no field has changed.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsNotSetInitially() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $result = $model->isModified();
+        $this->assertFalse($result, 'Modified flag is initially true.');
+
+    }
+
+    /**
+     * Test if modified flag can be triggered by setModified().
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdViaSetModified() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->clearModified();
+        $model->setModified();
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
+
+    }
+
+    /**
+     * Test if modified flag can be triggered by changing a fields value.
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdCallToSetMethod() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->clearModified();
+        $model->setValue('new value');
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
+
+    }
+
+    /**
+     * Test if modified flag can be triggered by changing  field values of
+     * sub models.
+     *
+     * @return void
+     */
+    public function testModifiedFlagCanBeTriggerdByChangingSubmodel() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $submodel = new Opus_Model_ModelAbstractDb;
+        $field = new Opus_Model_Field('Submodel');
+        $field->setValueModelClass(get_class($submodel));
+        $field->setValue($submodel);
+        $model->addField($field);
+        $model->clearModified();
+
+        $model->getSubmodel()->setValue('new value');
+
+        $this->assertTrue($model->getSubmodel()->isModified(), 'Modified flag has not changed for field.');
+        $this->assertTrue($model->isModified(), 'Modified flag has not changed for model.');
+
+    }
+
+    /**
+     * Test if the modified flag can be set back to false again.
+     *
+     * @return void
+     */
+    public function testModifiedFlagIsClearable() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $model->setValue('new value');
+        $model->clearModified();
+        $after = $model->isModified();
+        $this->assertFalse($after, 'Modified flag has has not been cleared.');
+
+    }
+
+    /**
+     * Test if updating a Model with its very own field values does not
+     * affect the modification state of the Model.
+     *
+     * @return void
+     */
+    public function testUpdateFromModelWithSameValuesRendersModelUnmodified() {
+        $clazzname = 'Opus_Model_AbstractTest_MockModel_3';
+        $clazz = 'class ' . $clazzname . ' extends Opus_Model_AbstractDb {
+            protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+            protected function _init() {
+                $this->addField(new Opus_Model_Field("Value"));
+            }
+        }';
+        if (false === class_exists($clazzname, false)) {
+            eval($clazz);
+        }
+
+        // original model
+        $m1 = new $clazzname;
+        $m1->setValue('Foo');
+        $m1->clearModified();
+
+        // update model of same type
+        $m2 = new $clazzname;
+        $m2->setValue('Foo');
+
+        // do the update
+        $m1->updateFrom($m2);
+
+        // check values
+        $this->assertFalse($m1->isModified(), 'Modification flag has been triggered.');
+
+    }
+
+    /**
+     * Test if a models fields have their modified flag cleared after creation
+     * of the model.
+     *
+     * @return void
+     */
+    public function testFieldsSetToUnmodifiedAfterInit() {
+        $model = new Opus_Model_ModelAbstractDb;
+        $field = $model->getField('Value');
+        $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
+
+    }
 
     /**
      * Test if a model retreives its external fields in the right order

@@ -615,13 +615,14 @@ abstract class Opus_Model_AbstractDb
             // Form return value
             if (count($rows) === 1) {
                 // Return a single object if threre is only one model in the result
-                // FIXME: (Thoralf) Is this really neccessary?  This check could be done in setValue()
                 $result = $result[0];
             } else if (count($rows) === 0) {
                 // Return explicitly null if no results have been found.
                 $result = null;
             }
         }
+        // Set the field value
+        $this->_fields[$fieldname]->setValue($result);
 
         // TODO: Write unit test.
         // iterate through dependend models and set parent id
@@ -637,8 +638,6 @@ abstract class Opus_Model_AbstractDb
             }
         }
 
-        // Set the field value
-        $this->_fields[$fieldname]->setValue($result);
     }
 
     /**
@@ -648,9 +647,11 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     public function delete() {
+        $modelId = $this->getId();
+
         // if no primary key is set the model has
         // not been stored yet, so delete gets skipped
-        if (null === $this->getId()) {
+        if (null === $modelId) {
             return;
         }
 
