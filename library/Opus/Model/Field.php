@@ -504,24 +504,49 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @return Mixed Whatever the value of the field might be.
      */
     public function getValue($index = null) {
+
+        // wrap start value in array if multivalue option is set for this field
+        $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
+
         // Caller requested a specific array index
         if (!is_null($index)) {
-            if (is_array($this->_value) and array_key_exists($index, $this->_value)) {
-                return $this->_value[$index];
+            if (true === is_array($this->_value)) {
+                if (true === array_key_exists($index, $this->_value)) {
+                    return $this->_value[$index];
+                }
+                else {
+                    throw new InvalidArgumentException('Unvalid index: ' . $index);
+                }
             }
-            throw new InvalidArgumentException('Invalid index: ' . $index);
+            else {
+                throw new InvalidArgumentException('Invalid index (' . $index . '). Requested value is not an array.');
+            }
         }
 
-        // If multiple values are possible return an array in every case
-        if ($this->hasMultipleValues() === true and !is_array($this->_value)) {
-            if (!is_null($this->_value)) {
-                return array($this->_value);
-            }
-            return array();
-        }
         return $this->_value;
     }
 
+    /**
+     * Wrap the passed value in a new array if this field can hold multiple values and the
+     * given parameter is not already an array. If the passed parameter is null, an empty
+     * array is returned.
+     *
+     * @param mixed $value Arbitrary value.
+     * @return mixed|array The parameter value, or an array holding the parameter value.
+     */
+    private function _wrapValueInArrayIfRequired($value) {
+        if ((false === is_array($value))
+                and ($this->hasMultipleValues())) {
+            if (null === $value) {
+                return array();
+            }
+            else {
+                return array($value);
+            }
+        }
+        return $value;
+
+    }
 
     /**
      * If the field can have multiple values, this method adds a new value
