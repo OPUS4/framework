@@ -547,4 +547,32 @@ abstract class Opus_Model_Abstract {
         return $result;
     }
 
+    /**
+     * Update the field values of this model by using
+     * another model instance having the same fields.
+     *
+     * All fields of the given Model that also occur in the
+     * the targeted Model (this instance) are used for update.
+     *
+     * To exclude fields from updating consider using a
+     * Opus_Model_Filter decorator for the given update model.
+     *
+     * @return void
+     */
+    public function updateFrom(Opus_Model_Abstract $model) {
+
+        // use all available fields for update
+        foreach ($model->describe() as $fieldname) {
+
+            // find corresponding field to update
+            $myfield = $this->_getField($fieldname);
+
+            if (null !== $myfield) {
+                // update the field
+                $fieldvalue = $model->getField($fieldname)->getValue();
+                $myfield->setValue($fieldvalue);
+            }
+        }
+    }
+
 }
