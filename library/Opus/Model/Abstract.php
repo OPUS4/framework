@@ -382,6 +382,17 @@ abstract class Opus_Model_Abstract {
     }
 
     /**
+     * By default, the textual representation of a modeled entity is
+     * its class name.
+     *
+     * @return string Model class name.
+     */
+    public function getDisplayName() {
+        return get_class($this);
+    }
+
+
+    /**
      * Magic method called when string representation of object is requested.
      *
      * @return string String representation of the object.
