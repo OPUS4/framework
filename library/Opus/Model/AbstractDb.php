@@ -228,13 +228,13 @@ abstract class Opus_Model_AbstractDb
      */
     protected function _fetchValues() {
         foreach ($this->_fields as $fieldname => $field) {
-
             // Field is declared as external and requires special handling
             if (array_key_exists($fieldname, $this->_externalFields) === true) {
                 // Determine the fields fetching mode
-                $fetchmode = 'lazy';
                 if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
                     $fetchmode = $this->_externalFields[$fieldname]['fetch'];
+                } else {
+                    $fetchmode = 'lazy';
                 }
 
                 if ($fetchmode === 'lazy') {
