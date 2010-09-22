@@ -716,7 +716,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->markTestIncomplete('Still waiting/looking for fix...');
 
         // construct mockup class
-        $clazzez = '
+        $model_class_mockup = '
             class Opus_CheckFieldOrderDummyClass extends Opus_Model_AbstractDb {
                 protected static $_tableGatewayClass = "Opus_Model_AbstractTableProvider";
 
@@ -745,7 +745,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
                 }
             }
         ';
-        eval($clazzez);
+        eval($model_class_mockup);
 
         $model = new Opus_CheckFieldOrderDummyClass();
 
