@@ -734,11 +734,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         if (count($nodes) === 1) {
             return $nodes[0];
-        } else if (count($nodes) > 1) {
+        }
+        if (count($nodes) > 1) {
             throw new Exception("Collections linked more than one node are not supported by this method, use getNodes() instead!");
         }
-
-        return;
+        return null;
     }
 
     /**
