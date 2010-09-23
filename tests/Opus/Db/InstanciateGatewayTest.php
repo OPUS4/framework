@@ -87,7 +87,6 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
             array('Opus_Db_Persons'),
             array('Opus_Db_Privileges'),
             array('Opus_Db_Roles'),
-            array('Opus_Db_Translations'),
         );
     }
 
@@ -106,6 +105,8 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
             $table = Opus_Db_TableGateway::getInstance($tableGateway);
             $this->assertNotNull($table);
             $this->assertNotNull(get_class($table) === $tableGateway);
+
+            $exampleRow = $table->createRow();
 
             // Test, if instance exists in instances array afterwards.
             $instances = Opus_Db_TableGateway::getAllInstances();
