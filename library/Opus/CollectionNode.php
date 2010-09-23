@@ -614,7 +614,7 @@ class Opus_CollectionNode extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Returns nodes for breadcrump path.
+     * Returns nodes for breadcrumb path.
      *
      * @return Array of Opus_CollectionNode objects.
      */
