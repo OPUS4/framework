@@ -74,6 +74,13 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         return self::$instances;
     }
 
+    /**
+     * Clear database instances.
+     */
+    final public static function clearInstances() {
+        self::$instances = array();
+    }
+
 
     /**
      * FIXME: Constructor should be private due to singleton pattern. This
