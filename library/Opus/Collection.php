@@ -149,7 +149,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Documentation.
      */
     public function _fetchSubCollections() {
-        if ($this->isNewRecord()) {
+        if (is_null($this->getId())) {
             return;
         }
 
@@ -194,7 +194,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Use attributes table for this and 'options' on $_externalFields.
      */
     protected function _fetchTheme() {
-        if ($this->isNewRecord()) {
+        if (is_null($this->getId())) {
             return;
         }
 
@@ -205,7 +205,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $theme = isset($config->theme) === true ? $config->theme : self::DEFAULT_THEME_NAME;
 
         // Search for theme in database and, if exists, overwrite default theme.
-        if (false === $this->isNewRecord()) {
+        if (false === is_null($this->getId())) {
             $select = $table->select()
                             ->where('key_name = ?', "theme")
                             ->where('collection_id = ?', $this->getId());
@@ -229,8 +229,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
     protected function _storeTheme($theme) {
-        if ($this->isNewRecord()) {
-            // FIXME: Maybe there is something to be done on isNewRecord?
+        if (is_null($this->getId())) {
             return;
         }
 
@@ -265,8 +264,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return Opus_Document|array Document(s).
      */
     protected function _fetchDocuments() {
-        if ($this->isNewRecord()) {
-            return;
+        if (is_null($this->getId())) {
+            return array();
         }
 
         assert(!is_null($this->getId()));
@@ -300,7 +299,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return array DocumentId(s).
      */
     public function getDocumentIds() {
-        if ($this->isNewRecord()) {
+        if (is_null($this->getId())) {
             return;
         }
 
@@ -383,7 +382,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     protected function _fetchRoleDisplayFrontdoor() {
-        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
         $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayFrontdoor();
@@ -396,7 +394,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     protected function _fetchRoleVisibleFrontdoor() {
-        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
         $role = $this->getRole();
         if (!is_null($role)) {
             if ($role->getVisible() == 1 and $role->getVisibleFrontdoor() == 1) {
@@ -412,7 +409,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     protected function _fetchRoleName() {
-        // TODO: Workaround for model bug!  Cannot call "getRole()" before it is defined...
         $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayName();
@@ -508,7 +504,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Usable return value.
      */
     public function linkDocumentById($document_id = null) {
-        if ($this->isNewRecord()) {
+        if (is_null($this->getId())) {
             throw new Exception("linkDocument() is not allowed on NewRecord.");
         }
 
@@ -538,7 +534,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Usable return value.
      */
     public function unlinkDocumentById($document_id = null) {
-        if ($this->isNewRecord() || is_null($document_id)) {
+        if (is_null($this->getId()) || is_null($document_id)) {
             return;
         }
 
@@ -749,7 +745,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public function getEntries() {
-        if ($this->isNewRecord()) {
+        if (is_null($this->getId())) {
             return array();
         }
 

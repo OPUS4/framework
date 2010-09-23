@@ -75,7 +75,6 @@ class Opus_CollectionTest extends TestCase {
 
         $this->object = new Opus_Collection();
         $this->object->setRoleId( $role_id );
-        $this->object->setTheme( 'test-theme' );
         $this->object->store();
     }
 
@@ -115,15 +114,16 @@ class Opus_CollectionTest extends TestCase {
      * Test if we can retrieve stored themes from the database.
      */
     public function testGetTheme() {
-        $this->markTestSkipped('Need to fix this bug.');
+        $this->object->setTheme( 'test-theme' );
+        $this->object->store();
 
         $collection = $this->object;
         $this->assertEquals('test-theme', $collection->getTheme(),
-                'Stored theme does not match expectation.');
+                'After store: Stored theme does not match expectation.');
 
         $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('test-theme', $collection->getTheme(),
-                'Stored theme does not match expectation.');
+                'After reload: Stored theme does not match expectation.');
      }
 
      /**
