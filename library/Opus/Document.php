@@ -1001,9 +1001,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _storeIdentifierUrn() {
-        $identifiers = $this->getField('IdentifierUrn')->getValue();
-
+    protected function _storeIdentifierUrn($identifiers) {
         if (false === is_array($identifiers)) {
             $identifiers = array($identifiers);
         }
@@ -1053,8 +1051,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _storeIdentifierUuid() {
-        if (true === is_null($this->_fields['IdentifierUuid']->getValue())) {
+    protected function _storeIdentifierUuid($value) {
+        if (true === is_null($value)) {
             $uuid_model = new Opus_Identifier;
             $uuid_model->setValue(Opus_Identifier_UUID::generate());
             $this->setIdentifierUuid($uuid_model);
