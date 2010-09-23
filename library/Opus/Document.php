@@ -1154,7 +1154,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return mixed Anything else then null will cancel the storage process.
      */
     protected function _preStore() {
-        parent::_preStore();
+        $result = parent::_preStore();
+
         $date = new Opus_Date();
         $date->setNow();
         if (true === $this->isNewRecord()) {
@@ -1163,13 +1164,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
         $this->setServerDateModified($date);
+        
+        return $result;
     }
 
     /**
      * Proof-of-concept store method, which adds job to job queue.
      */
     public function store() {
-        parent::store();
+        $result = parent::store();
 
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
@@ -1182,8 +1185,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $job->store();
         }
 
-        // Important to return current Id.  It's part of store() API.
-        return $this->getId();
+        // Important to return result of parent::store()!
+        return $result;
     }
 
     /**
