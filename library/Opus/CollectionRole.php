@@ -472,6 +472,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see modules/oai/controllers/IndexController.php
      */
     public static function getDocumentIdsInSet($oaiSetName) {
+        throw new Exception("fix it first!");
+
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
