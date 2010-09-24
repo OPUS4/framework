@@ -152,7 +152,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @return Zend_Db_Table_Select
      */
     private function selectNodeById($id) {
-        return $select = $this->select()
+        return $this->select()
                 ->from("{$this->_name} AS node")
                 ->where("node.{$this->_primary[1]} = ?", $id);
     }
@@ -197,7 +197,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred
         // NOTE: constraint checks.
         $stmt = "DELETE FROM {$this->_name}  WHERE {$this->_left} BETWEEN {$left} AND {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  DESC";
-        echo "statement: $stmt\n";
+        // echo "statement: $stmt\n";
         $res = $this->_db->query($stmt);
         $this->_db->query("UPDATE {$this->_name} SET {$this->_left}  = {$this->_left} - {$width}   WHERE {$this->_left} > {$right}  AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  ASC");
         $this->_db->query("UPDATE {$this->_name} SET {$this->_right} = {$this->_right} - {$width}  WHERE {$this->_right} > {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} ASC");
@@ -231,7 +231,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
                         ->group("node.{$this->_primary[1]}")
                         ->order("node.{$this->_left}");
 
-        echo "selectTreeDepthById($treeId) new: ", $select->__toString(), "\n";
+        // echo "selectTreeDepthById($treeId) new: ", $select->__toString(), "\n";
         return $select;
     }
 
