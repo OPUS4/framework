@@ -48,7 +48,7 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
      */
     public function authenticate() {
         
-        $config = new Zend_Config_Ini('../config/config.ini', 'production');
+        $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
         
         $log_path = $config->ldap->log_path;
         $admins = explode(',', $config->ldap->admin_accounts);
@@ -173,7 +173,7 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
      	
      	$return = array();
 
-        $config = new Zend_Config_Ini('../config/config.ini', 'production');
+        $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
         
         $log_path = $config->ldap->log_path;
         $multiOptions = $config->ldap->toArray();
