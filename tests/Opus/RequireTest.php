@@ -43,8 +43,6 @@
  */
 class Opus_RequireTest extends TestCase {
 
-    private $_classFiles = array();
-
     /**
      * Overwrite standard setUp method, no database connection needed.  Will
      * create a file listing of class files instead.
@@ -52,10 +50,6 @@ class Opus_RequireTest extends TestCase {
      * @return void
      */
     public function setUp() {
-        // Run find to locate all class files
-        $cmd = 'find ../library/Opus/ -type f -iname "*php" |cut -d/ -f3-';
-        // Result will be written to $this->_classFiles
-        exec($cmd, $this->_classFiles);
     }
 
     /**
@@ -74,8 +68,65 @@ class Opus_RequireTest extends TestCase {
      * @return void
      */
     public function testRequire() {
-        foreach ($this->_classFiles AS $file) {
+        $cmd = 'find ../library/Opus/ -type f -iname "*php" |cut -d/ -f3-';
+        $classFiles = array();
+        exec($cmd, $classFiles);
+
+        foreach ($classFiles AS $file) {
             require_once($file);
+        }
+    }
+
+    /**
+     * Try to load all class files and instanciate objects.
+     *
+     * @return void
+     */
+    public function testInstanciateTest() {
+        $cmd = 'find ../library/Opus/ -type f -iname "*php" -print0 |xargs -r0 grep -hE "class[[:space:]]+Opus_" |cut -d" " -f 2 |grep Opus_';
+        $classes = array();
+        exec($cmd, $classes);
+
+        $blacklist = array(
+           "Opus_Validate_MateDecorator",
+           "Opus_Db_Adapter_Pdo_Mysqlutf8",
+           "Opus_Bootstrap_Base",
+           "Opus_Statistic_LocalCounter",
+           "Opus_Identifier_Urn",
+           "Opus_GPG",
+           "Opus_SolrSearch_ResponseRenderer",
+           "Opus_SolrSearch_FacetItem",
+           "Opus_Document_Type",
+           "Opus_Security_Realm",
+           "Opus_Model_Field",
+           "Opus_Storage_File",
+
+           "Opus_Search_Highlighter",
+           "Opus_Search_Index_Lucene_Indexer",
+           "Opus_Search_Index_Document",
+           "Opus_Search_Query",
+           "Opus_Search_Iterator_DocumentTypeListIterator",
+           "Opus_Search_Iterator_ListIterator",
+           "Opus_Search_Iterator_HitListIterator",
+           "Opus_Search_Iterator_CollectionNodeListIterator",
+           "Opus_Search_Iterator_CollectionNodeDocumentIterator",
+           "Opus_Search_Iterator_PersonsListIterator",
+           "Opus_Search_Adapter_Lucene_SearchHitAdapter",
+           "Opus_Search_Adapter_Solr_SearchHitAdapter",
+           "Opus_Search_Adapter_DocumentTypeAdapter",
+           "Opus_Search_Adapter_PersonAdapter",
+        );
+
+        foreach ($classes AS $class) {
+            if (in_array($class, $blacklist)) {
+               continue;
+            }
+            try {
+               $object = new $class();
+            }
+            catch (Exception $e) {
+               $this->fail("Loading class $class failed: " . $e->getMessage());
+            }
         }
     }
 }
