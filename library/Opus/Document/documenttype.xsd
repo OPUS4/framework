@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (http://www.altova.com) by Doreen Thiede (Konrad-Zuse-Zentrum) -->
 <!--
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
@@ -58,6 +59,21 @@
 	<complexType name="FieldType">
 		<sequence minOccurs="0">
 			<element name="required-if-fulltext" minOccurs="0"/>
+			<element name="subfield">
+				<complexType>
+					<attribute name="required"/>
+					<attribute name="name"/>
+					<attribute name="formelement"/>
+					<attribute name="datatype"/>
+				</complexType>
+			</element>
+			<element name="default">
+				<complexType>
+					<attribute name="edit"/>
+					<attribute name="public"/>
+					<attribute name="value"/>
+				</complexType>
+			</element>
 		</sequence>
 		<attribute name="name" type="opus:validfieldname" use="required"/>
 		<attribute name="multiplicity" type="opus:multiplicity" default="1"/>
