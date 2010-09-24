@@ -59,7 +59,6 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'document_title_abstracts',
             'documents',
             'accounts',
-            'collections_nodes',
             'collections_enrichments',
             'collections',
             'collections_roles',
