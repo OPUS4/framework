@@ -256,7 +256,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     protected function _initDocumentType() {
         $this->bootstrap('Database'); // TODO is 'Configuration' sufficient?
         // Set location of xml document type definitions
-        Opus_Document_Type::setXmlDoctypePath(APPLICATION_PATH . '/config/xmldoctypes');
+        Opus_Document_Type::setXmlDoctypePath(APPLICATION_PATH . '/application/configs/doctypes');
     }
 
     /**
