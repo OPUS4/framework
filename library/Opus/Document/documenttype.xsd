@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- edited with XMLSpy v2010 rel. 3 sp1 (http://www.altova.com) by Doreen Thiede (Konrad-Zuse-Zentrum) -->
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Susanne Gottwald (Konrad-Zuse-Zentrum Berlin) -->
 <!--
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
@@ -26,7 +26,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
+ * @category    Framework, Document
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -35,14 +35,14 @@
  -->
 <!--
 	This schema describes the how to structure document type definition files
-	and serves as a source for validation of those files. 
-	
-	A document type definition basicly consists of field declarations. Each of them 
-	describes an Opus field that is used by the document type. A field declaration may 
-	have options to trigger language selection or multivalue capabilities if supported 
+	and serves as a source for validation of those files.
+
+	A document type definition basicly consists of field declarations. Each of them
+	describes an Opus field that is used by the document type. A field declaration may
+	have options to trigger language selection or multivalue capabilities if supported
 	by Opus for the specified field.
-	
-	An required option is set to "yes" if the field has to be filled during user input 
+
+	An required option is set to "yes" if the field has to be filled during user input
 	activities.
 -->
 <schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:opus="http://schemas.opus.org/documenttype" targetNamespace="http://schemas.opus.org/documenttype" elementFormDefault="qualified">
@@ -56,30 +56,33 @@
 		</sequence>
 		<attribute name="name" type="opus:validname" use="required"/>
 	</complexType>
+
 	<complexType name="FieldType">
 		<sequence minOccurs="0">
 			<element name="required-if-fulltext" minOccurs="0"/>
-			<element name="subfield">
-				<complexType>
-					<attribute name="required"/>
-					<attribute name="name"/>
-					<attribute name="formelement"/>
-					<attribute name="datatype"/>
-				</complexType>
-			</element>
-			<element name="default">
-				<complexType>
-					<attribute name="edit"/>
-					<attribute name="public"/>
-					<attribute name="value"/>
-				</complexType>
-			</element>
+			<element name="subfield" type="opus:SubFieldType" minOccurs="0" maxOccurs="unbounded"/>
+			<element name="default" type="opus:defaultField" minOccurs="0"/>
 		</sequence>
 		<attribute name="name" type="opus:validfieldname" use="required"/>
 		<attribute name="multiplicity" type="opus:multiplicity" default="1"/>
 		<attribute name="required" type="opus:yesno" default="no"/>
 		<attribute name="formelement" type="opus:validFormElements"/>
 		<attribute name="datatype" type="opus:availableDatatypes"/>
+	</complexType>
+
+	<complexType name="SubFieldType">
+		<sequence minOccurs="0">
+			<element name="default" type="opus:defaultField"/>
+		</sequence>
+		<attribute name="name" type="opus:validfieldname" use="required"/>
+		<attribute name="required" type="opus:yesno" default="no"/>
+		<attribute name="formelement" type="opus:validFormElements"/>
+		<attribute name="datatype" type="opus:availableDatatypes"/>
+	</complexType>
+	<complexType name="defaultField">
+		<attribute name="value"/>
+		<attribute name="edit"/>
+		<attribute name="public"/>
 	</complexType>
 	<complexType name="requiredType">
 		<attribute name="field" type="opus:validfieldname" use="required"/>
@@ -94,6 +97,7 @@
 	<simpleType name="availableDatatypes">
 		<restriction base="string">
 			<enumeration value="Text"/>
+			<enumeration value="text"/>
 			<enumeration value="Year"/>
 			<enumeration value="Person"/>
 			<enumeration value="Alpha"/>
@@ -102,8 +106,11 @@
 			<enumeration value="Licence"/>
 			<enumeration value="Institute"/>
 			<enumeration value="Project"/>
-			<enumeration value="Msc"/>
+			<enumeration value="msc"/>
+			<enumeration value="ddc"/>
 			<enumeration value="Language"/>
+			<enumeration value="Email"/>
+			<enumeration value="Date"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="validFormElements">
@@ -111,6 +118,9 @@
 			<enumeration value="Text"/>
 			<enumeration value="Textarea"/>
 			<enumeration value="Select"/>
+			<enumeration value="text"/>
+			<enumeration value="textarea"/>
+			<enumeration value="select"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="yesno">
@@ -137,14 +147,17 @@
 	<!-- FINGER WEG: Aenderungen fuehren zu Fehlern! Feldnamen haengen von Opus_Document ab! -->
 	<simpleType name="validfieldname">
 		<restriction base="string">
+			<enumeration value="AcademicTitle"/>
 			<enumeration value="Collection"/>
 			<enumeration value="CompletedDate"/>
 			<enumeration value="CompletedYear"/>
 			<enumeration value="ContributingCorporation"/>
 			<enumeration value="CreatingCorporation"/>
+			<enumeration value="DateOfBirth"/>
 			<enumeration value="DocumentType"/>
 			<enumeration value="Edition"/>
 			<enumeration value="Enrichment"/>
+			<enumeration value="Email"/>
 			<enumeration value="File"/>
 			<enumeration value="Institute"/>
 			<enumeration value="Issue"/>
@@ -163,6 +176,8 @@
 			<enumeration value="PersonEditor"/>
 			<enumeration value="PersonTranslator"/>
 			<enumeration value="PersonSubmitter"/>
+			<enumeration value="PlaceOfBirth"/>
+			<enumeration value="Project"/>
 			<enumeration value="PublicationState"/>
 			<enumeration value="PublishedDate"/>
 			<enumeration value="PublishedYear"/>
