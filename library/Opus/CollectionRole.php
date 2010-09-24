@@ -433,13 +433,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
 
-        $oaiPostfixColumn = $this->getDisplayOai();
-        $quotePostfixColumn = $db->quoteIdentifier("c.$oaiPostfixColumn");
         $quotePostfix = $db->quote("$oaiPostfix");
         $quoteRoleId = $db->quote($this->getId());
 
         $select = " SELECT c.id FROM collections AS c "
-                . " WHERE $quotePostfixColumn = $quotePostfix "
+                . " WHERE c.oai_subset = $quotePostfix "
                 . " AND c.role_id = $quoteRoleId "
                 . " AND EXISTS ( "
                 . "    SELECT l.document_id "
@@ -472,8 +470,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see modules/oai/controllers/IndexController.php
      */
     public static function getDocumentIdsInSet($oaiSetName) {
-        throw new Exception("fix it first!");
-
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
@@ -487,19 +483,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
 
-        $oaiPostfixColumn = $role->getDisplayOai();
-        $quotePostfixColumn = $db->quoteIdentifier("c.$oaiPostfixColumn");
         $quotePostfix = $db->quote("$oaiPostfix");
         $quoteRoleId = $db->quote($role->getId());
 
-        $subselect = "SELECT DISTINCT c.id FROM collections AS c "
-                . "   WHERE $quotePostfixColumn = $quotePostfix "
-                . "     AND c.role_id = $quoteRoleId "
-                . "     AND EXISTS ( "
-                . "              SELECT id FROM collections_nodes AS n "
-                . "              WHERE collection_id = n.id "
-                . "                AND visible = 1 "
-                . "     ) ";
+        $subselect = "SELECT DISTINCT id FROM collections "
+                . "   WHERE oai_subset = $quotePostfix "
+                . "     AND role_id = $quoteRoleId "
+                . "     AND visible = 1 ";
 
         $select = "SELECT DISTINCT document_id FROM link_documents_collections "
                 . " WHERE role_id = $quoteRoleId "
