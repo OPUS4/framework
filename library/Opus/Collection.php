@@ -30,7 +30,6 @@
  * @package     Opus
  * @author     	Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
  * @copyright  	Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: CollectionOld.php -1$
@@ -73,10 +72,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-        'Nodes' => array(
-            'model' => 'Opus_CollectionNode',
-            'fetch' => 'lazy',
-        ),
         'Theme' => array(
             'fetch' => 'lazy',
         ),
@@ -97,11 +92,30 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
         ),
-        'Documents' => array(
-            'model' => 'Opus_Document',
+        'Visibility' => array(
             'fetch' => 'lazy',
         ),
-        'Visibility' => array(
+
+
+
+        'PositionKey' => array(),
+        'PositionId' => array(),
+
+        // Will contain the Collections to the Root Collection
+        'Parents' => array(
+            'model' => 'Opus_Collection',
+            'fetch' => 'lazy',
+        ),
+
+        // Will contain the Collections with parentId = this->getId
+        'Children' => array(
+            'model' => 'Opus_Collection',
+            'fetch' => 'lazy',
+        ),
+
+        // Pending nodes.
+        'PendingNodes' => array(
+            'model' => 'Opus_Collection',
             'fetch' => 'lazy',
         ),
     );
@@ -126,45 +140,46 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $subCollections->setMultiplicity('*');
         $this->addField($subCollections);
 
-        // TODO: New field.  Create getter/setter.
-        $documents = new Opus_Model_Field('Documents');
-        $documents->setMultiplicity('*');
-        $this->addField($documents);
-
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');
         $theme->setDefault(self::$_themes);
         $theme->setSelection(true);
         $this->addField($theme);
 
-        // TODO: New field.  Create getter/setter.
-        $nodes = new Opus_Model_Field('Nodes');
-        $nodes->setMultiplicity('*');
-        $this->addField($nodes);
-    }
+        
+        /**
+         * External fields.
+         */
 
-    /**
-     * Fetch all children of the current node.
-     *
-     * FIXME: Documentation.
-     */
-    public function _fetchSubCollections() {
-        if (is_null($this->getId())) {
-            return;
-        }
+        $children = new Opus_Model_Field('Children');
+        $children->setMultiplicity('*');
+        $this->addField($children);
 
-        return $this->getNode()->getSubCollection();
-    }
+        // Contains the path back to the root node.
+        $parents = new Opus_Model_Field('Parents');
+        $parents->setMultiplicity('*');
+        $this->addField($parents);
 
-    /**
-     * Overwrites store procedure.
-     *
-     * @return void
-     */
-    protected function _storeSubCollections($subCollections) {
-        foreach ($subCollections AS $collection) {
-            $collection->store();
-        }
+
+        /*
+         * Fields used to define the position of new nodes.
+        */
+        $positionKeys = array( 'Root',
+                'FirstChild', 'LastChild',
+                'NextSibling', 'PrevSibling'
+        );
+
+        $positionKey = new Opus_Model_Field('PositionKey');
+        $positionKey->setDefault($positionKeys);
+        $this->addField($positionKey);
+
+        $positionId = new Opus_Model_Field('PositionId');
+        $this->addField($positionId);
+
+        $pending_nodes = new Opus_Model_Field('PendingNodes');
+        $pending_nodes->setMultiplicity('*');
+        $this->addField($pending_nodes);
+
     }
 
     /**
@@ -259,41 +274,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Internal method to fetch documents for this collection.
-     *
-     * @return Opus_Document|array Document(s).
-     */
-    protected function _fetchDocuments() {
-        if (is_null($this->getId())) {
-            return array();
-        }
-
-        assert(!is_null($this->getId()));
-        assert(!is_null($this->getRoleId()));
-
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-
-        // FIXME: Don't use internal knowledge of foreign models/tables.
-        // FIXME: Don't return documents if collection is hidden.
-        $subselect = $table->getAdapter()->select()
-                        ->from("link_documents_collections AS ldc", "document_id")
-                        ->where('collection_id = ?', $this->getId())
-                        ->where('role_id = ?', $this->getRoleId())
-                        ->distinct();
-
-        $select = $table->select()
-                        ->where("id IN ($subselect)");
-        $rows = $table->fetchAll($select);
-
-        $results = array();
-        foreach ($rows as $row) {
-            $results[] = new Opus_Document($row);
-        }
-
-        return $results;
-    }
-
-    /**
      * Method to fetch documents-ids assigned to this collection.
      *
      * @return array DocumentId(s).
@@ -322,33 +302,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Internal method for storing *and* linking documents.  Is called by the
-     * model, do not use manually.
-     *
-     * @param mixed $documents
-     *
-     * FIXME: Linking added documents currently disabled.
-     * FIXME: This method belongs to Opus_Db_Link_Documents_Collections.
-     */
-    protected function _storeDocuments($documents = null) {
-        assert(is_array($documents));
-        assert(!is_null($this->getId()));
-        assert(!is_null($this->getRoleId()));
-
-        if (is_null($this->getRoleId())) {
-            throw new Exception("foobar");
-        }
-
-        foreach ($documents AS $document) {
-            if ($document->isNewRecord()) {
-                $document->store();
-            }
-
-            $this->linkDocument($document->getId());
-        }
-    }
-
-    /**
      * Internal method to populate external field.
      */
 //    protected static $_role_cache = null;
@@ -373,7 +326,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * Internal method to store external field to model.
      */
     protected function _storeRole($role) {
-
     }
 
     /**
@@ -592,9 +544,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Seems unused.  Check if we still need it.
      */
     public function toArray($call = null) {
-        // TODO: Why should we log this?
-        $this->logger('toArray');
-
         $role = $this->getRole();
         $result = array(
             'Id' => $this->getId(),
@@ -605,7 +554,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'DisplayOai' => $this->getDisplayName('oai'),
         );
 
-        $exclude_fields = array('SubCollection', 'SubCollections', 'Nodes', 'Theme', 'Role', 'Documents');
+        $exclude_fields = array('SubCollections', 'Theme', 'Role');
         $search_fields = array_diff(array_keys($this->_fields), $exclude_fields);
 
         foreach ($search_fields as $fieldname) {
@@ -654,102 +603,14 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return DomDocument Xml representation of the collection.
      */
     public function toXml(array $excludeFields = null,  $strategy = null) {
-        // TODO: Why should we log this?
-        $this->logger('toXml');
         // TODO: comment why these fields should always be excluded.
-        $alwaysExclude = array('ParentCollection', 'Nodes', 'SubCollection', 'SubCollections', 'Theme', 'Documents');
+        $alwaysExclude = array('ParentCollection', 'SubCollections', 'Theme');
         if (is_null($excludeFields) === true) {
             $excludeFields = $alwaysExclude;
         } else {
             $excludeFields = array_merge($excludeFields, $alwaysExclude);
         }
         return parent::toXml($excludeFields, $strategy);
-    }
-
-    /**
-     * LEGACY.  Replace by ->getSubCollections().
-     *
-     * @deprecated
-     */
-    public function getSubCollection() {
-        return $this->getSubCollections();
-    }
-
-    /**
-     * LEGACY.  We probably don't need this any more.
-     * TODO: Work on Opus_CollectionNode instead!
-     *
-     * @deprecated
-     */
-    public function getSeveralAppearances() {
-        $nodes = $this->getNodes();
-        return count($nodes) !== 1;
-    }
-
-    /**
-     * LEGACY.  We probably don't need this any more.
-     *
-     * @deprecated
-     */
-    public function getParents() {
-        $node = $this->getNode();
-        $parent_nodes = $node->getParents();
-
-        $parent_collections = array();
-        foreach ($parent_nodes AS $node) {
-            $collection = $node->getCollection();
-
-            if (isset($collection)) {
-                $parent_collections[] = $collection;
-            }
-        }
-
-        return $parent_collections;
-    }
-
-    /**
-     * LEGACY.  Part of the old API.
-     * TODO: Work on Opus_CollectionNode instead!
-     *
-     * @deprecated
-     */
-    public function getVisibility() {
-        $node = $this->getNode();
-        return $node->getVisibility();
-    }
-
-    /**
-     * Get node.  Returns the node linked to this collection, if any, null
-     * otherwise.  The method throws an exception if mroe than one node was
-     * found.  In this case, use getNodes().
-     *
-     * @return Opus_CollectionNode
-     */
-    public function getNode() {
-        $nodes = $this->getNodes();
-
-        if (count($nodes) === 1) {
-            return $nodes[0];
-        }
-        if (count($nodes) > 1) {
-            throw new Exception("Collections linked more than one node are not supported by this method, use getNodes() instead!");
-        }
-        return null;
-    }
-
-    /**
-     * LEGACY.  Returns all documents in this collection.
-     *
-     * @return array|Opus_Document
-     *
-     * @deprecated
-     */
-    public function getEntries() {
-        if (is_null($this->getId())) {
-            return array();
-        }
-
-        return $this->getDocuments();
     }
 
     /**
@@ -876,15 +737,162 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $results;
     }
 
+
     /**
-     *  Debugging helper.  Sends the given message to Zend_Log.
-     *
-     * @param string $message
+     * If this node is new, PositionKey and PositionId define the position
+     * in the tree.  Do *not* store these values to any external model.
      */
-    protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-        $logger->info("Opus_Collection: $message");
+
+    public function _fetchPositionKey() {
+    }
+    public function _storePositionKey() {
+    }
+    public function _fetchPositionId() {
+    }
+    public function _storePositionId() {
+    }
+
+
+    /**
+     * Creating new collections.
+     */
+
+    public function addFirstChild($node = null) {
+        return $this->addPendingNodes('FirstChild', $node);
+    }
+
+    public function addLastChild($node = null) {
+        return $this->addPendingNodes('LastChild', $node);
+    }
+
+    public function addNextSibling($node = null) {
+        return $this->addPendingNodes('NextSibling', $node);
+    }
+
+    public function addPrevSibling($node = null) {
+        return $this->addPendingNodes('PrevSibling', $node);
+    }
+
+    /**
+     * _storeInternalFields(): Manipulate _primaryTableRow to preserve the
+     * nested set property.
+     *
+     * @return int The primary id of the created row.
+     */
+    public function _storeInternalFields() {
+
+        if (is_null( $this->getRoleId() )) {
+            throw new Exception("RoleId must be set when storing Collection!");
+        }
+
+        if ($this->isNewRecord()) {
+
+            $nested_sets = $this->_primaryTableRow->getTable();
+
+            // Insert new node into the tree.  The position is specified by
+            //     PositionKey = { root,   First-/LastChild, Next-/PrevSibling }
+            //     PositionId  = { roleId, ParentId,         SiblingId }
+            $position_key = $this->getPositionKey();
+            $position_id  = $this->getPositionId();
+
+            if (false === isset($position_key)) {
+                throw new Exception('PositionKey must be set!');
+            }
+
+            $data = null;
+            switch ($position_key) {
+                case 'FirstChild':
+                    $data = $nested_sets->insertFirstChild($position_id);
+                    break;
+                case 'LastChild':
+                    $data = $nested_sets->insertLastChild($position_id);
+                    break;
+                case 'NextSibling':
+                    $data = $nested_sets->insertNextSibling($position_id);
+                    break;
+                case 'PrevSibling':
+                    $data = $nested_sets->insertPrevSibling($position_id);
+                    break;
+                case 'Root':
+                    $data = $nested_sets->createRoot();
+                    break;
+                default:
+                    throw new Exception("PositionKey($position_key) invalid.");
+            }
+
+            // var_dump($data);
+
+            // Dirty fix: After storing the nested set information, the row
+            // has still the old information.  But we need the role_id in
+            // many other places!
+            // $this->setRoleId( $data['role_id'] );
+
+            // Store nested set information in current table row.
+            $this->_primaryTableRow->setFromArray($data);
+        }
+
+        // var_dump( $this->_primaryTableRow );
+        return parent::_storeInternalFields();
+    }
+
+
+    /**
+     * PendingNodes: Add new nodes to the tree.  The position depends on the
+     * $key parameter.
+     *
+     * @param string              $key  (First|Last)Child, (Next|Prev)Sibling.
+     * @param Opus_CollectionNode $collection
+     * @return <type>
+     */
+
+    protected function addPendingNodes($key = null, $collection = null) {
+        if (isset($collection)) {
+            $collection = parent::addPendingNodes($collection);
+        }
+        else {
+            $collection = parent::addPendingNodes();
+        }
+
+        // TODO: Workaround for missing/wrong parent-handling: If parent model
+        // TODO: is already stored, we can get it's Id and RoleId before we
+        // TODO: reach _storePendingNodes.  (Copy-paste!)
+        if ($collection->isNewRecord()) {
+            $collection->setRoleId($this->getRoleId());
+            $collection->setPositionId($this->getId());
+        }
+
+        $collection->setPositionKey($key);
+        return $collection;
+    }
+
+    /**
+     * This is an internal field, which doesn't get stored in the model.  There
+     * is no reason to "fetch" pending nodes.
+     */
+
+    public function _fetchPendingNodes() {
+    }
+
+    /**
+     * Storing pending nodes makes sure, that every node knowns which role_id
+     * it belongs to and next to which node it will be inserted.
+     */
+    public function _storePendingNodes($collections) {
+        if (is_null($collections)) {
+            return;
+        }
+
+        if (false === is_array($collections)) {
+            throw new Exception("Expecting array-value argument!");
+        }
+
+        foreach ($collections AS $collection) {
+            if ($collection->isNewRecord()) {
+                $collection->setRoleId( $this->getRoleId() );
+                $collection->setPositionId( $this->getId() );
+            }
+            $collection->store();
+        }
     }
 
 }

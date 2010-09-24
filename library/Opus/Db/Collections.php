@@ -40,7 +40,7 @@
  *
  */
 
-class Opus_Db_Collections extends Opus_Db_TableGateway {
+class Opus_Db_Collections extends Opus_Db_NestedSet {
 
     /**
      * Table name of the nested set table.
@@ -48,6 +48,39 @@ class Opus_Db_Collections extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'collections';
+
+    /**
+     * Table column holding the left-id for the nested set structure.
+     *
+     * @var string
+     */
+    protected $_left   = 'left_id';
+
+    /**
+     * Table column holding the right-id for the nested set structure.
+     *
+     * @var string
+     */
+    protected $_right  = 'right_id';
+
+    /**
+     * Table column holding the parent-id for the structure.  This actually is
+     * more than a nested set structure, but we need this for fast retrieval of
+     * one nodes' children.
+     *
+     * @var string
+     */
+    protected $_parent = 'parent_id';
+
+    /**
+     * Table column holding the tree-id for the structure.  We're holding more
+     * than one nested-set structure in the table and we're distinguishing the
+     * different trees by this ID.
+     *
+     * @var string
+     */
+    protected $_tree   = 'role_id';
+
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -61,6 +94,11 @@ class Opus_Db_Collections extends Opus_Db_TableGateway {
                             'refTableClass' => 'Opus_Db_CollectionsRoles',
                             'refColumns' => 'id',
             ),
+            'Parent' => array(
+                            'columns' => 'parent_id',
+                            'refTableClass' => 'Opus_Db_Collections',
+                            'refColumns' => 'id',
+            ),
     );
 
 
@@ -71,7 +109,7 @@ class Opus_Db_Collections extends Opus_Db_TableGateway {
      * @var array $_dependantTables
      */
     protected $_dependentTables = array(
-            'Opus_Db_CollectionsNodes',
+            'Opus_Db_Collections',
     );
 
 }

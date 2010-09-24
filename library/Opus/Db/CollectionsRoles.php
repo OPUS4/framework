@@ -57,6 +57,5 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
      */
     protected $_dependentTables = array(
             'Opus_Db_Collections',
-            'Opus_Db_CollectionsNodes',
     );
 }

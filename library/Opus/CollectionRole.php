@@ -61,8 +61,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     protected $_externalFields = array(
         // Will contain the Root Node of this Role.
-        'RootNode' => array(
-            'model' => 'Opus_CollectionNode',
+        'RootCollection' => array(
+            'model' => 'Opus_Collection',
             'options' => array('left_id' => 1),
             'fetch' => 'lazy',
         ),
@@ -120,8 +120,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
 
         // Virtual attributes, which depend on other tables.
-        $rootNode = new Opus_Model_Field('RootNode');
-        $this->addField($rootNode);
+        $rootCollection = new Opus_Model_Field('RootCollection');
+        $this->addField($rootCollection);
 
     }
 
@@ -199,7 +199,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $move_query = 'UPDATE collections_roles '
                 . ' SET position = position ' . $pos_shift
                 . ' WHERE ' . $range;
-        // $this->logger("move: $move_query");
         $db->query($move_query);
 
         // Update this row.
@@ -219,7 +218,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Check why this method isn't used any more.
      */
     public function toArray() {
-        $this->logger('toArray');
         $result = array();
         foreach ($this->getSubCollections() as $subCollection) {
             $result[] = array(
@@ -249,11 +247,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $row = $this->_primaryTableRow;
         $db = $row->getTable()->getAdapter();
-
-        // TODO: Don't use internal knowledge from "collections_nodes"
-        $statement_1 = 'DELETE FROM collections_nodes WHERE role_id = ? ORDER BY left_id DESC';
-        $statement_1 = $db->quoteInto($statement_1, $this->getId());
-        $db->query($statement_1);
 
         // TODO: Don't use internal knowledge from "link_documents_collections"
         $statement_2 = 'DELETE FROM link_documents_collections WHERE role_id = ?';
@@ -403,7 +396,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
                 . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
 
-        $this->logger("$select");
+        // $this->logger("$select");
 
         // FIXME: Add error handling for failed DB requests!
 
@@ -426,6 +419,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see modules/oai/controllers/IndexController.php
      */
     public function existsDocumentIdsInSet($oaiSetName) {
+        throw new Exception("deprecated?");
+
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
@@ -454,7 +449,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchOne($select);
-        $this->logger("$oaiSetName: $result");
+        // $this->logger("$oaiSetName: $result");
 
         if (true === isset($result)) {
             return true;
@@ -510,22 +505,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchCol($select);
-        $role->logger("$oaiSetName: #" . count($result));
+        // $role->logger("$oaiSetName: #" . count($result));
 
         return $result;
-
-    }
-
-    /**
-     *  Debugging helper.  Sends the given message to Zend_Log.
-     *
-     * @param string $message
-     */
-    protected function logger($message) {
-        $registry = Zend_Registry::getInstance();
-        $logger = $registry->get('Zend_Log');
-
-        $logger->info("Opus_CollectionRole: $message");
 
     }
 
@@ -534,52 +516,23 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ********************************************************************** */
 
     /**
-     * Forward method to same method in RootCollection.  Returns NULL, if no
-     * RootCollection is found.
+     * Store root collection: Initialize Node.
      *
-     * @return array|Opus_Collection SubCollections of root node.
-     *
-     * @deprecated
-     */
-    public function getSubCollection() {
-        $root = $this->getRootNode();
-        if (!is_null($root)) {
-            return $root->getSubCollection();
-        }
-        return array();
-
-    }
-
-    /**
-     * Store root node: Delegate storing of external field.  Initialize Node.
-     *
-     * @param Opus_CollectionNode $node Node to store as Root.
+     * @param Opus_Collection $collection Collection to store as Root.
      * @see Opus_Model_AbstractDb
      */
-    public function _storeRootNode($node) {
-        if (isset($node)) {
+    public function _storeRootCollection($collection) {
+        if (isset($collection)) {
 
-            if ($node->isNewRecord()) {
-                $node->setPositionKey('Root');
-                $node->setRoleId($this->getId());
+            if ($collection->isNewRecord()) {
+                $collection->setPositionKey('Root');
+                $collection->setRoleId($this->getId());
             }
 
-            $node->store();
+            $collection->store();
         }
 
     }
 
-    /**
-     * Get the path back to the root node.  Note: Only works in trees, where
-     * each collection is linked to one node.
-     *
-     * @return array|Opus_Collection
-     *
-     * TODO: Method shouldn't be in use any more.  Queue for removal.
-     */
-    public function getParents() {
-        return $this->getRootNode()->getCollection()->getParents();
-
-    }
 }
 ?>
