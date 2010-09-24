@@ -92,9 +92,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
         ),
-        'Visibility' => array(
-            'fetch' => 'lazy',
-        ),
 
 
 
@@ -127,7 +124,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        $fields = array('Number', 'Name', 'OaiSubset',
+        $fields = array('Number', 'Name', 'OaiSubset', 'Visible',
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor');
         foreach ($fields as $field) {
@@ -893,6 +890,53 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             }
             $collection->store();
         }
+    }
+
+    /**
+     * Returns documents of complete subtree.
+     *
+     * @return int Number of subtree Entries.
+     */
+
+    public function getNumSubtreeEntries() {
+        $nestedsets = $this->_primaryTableRow->getTable();
+        $subselect = $nestedsets
+                ->selectSubtreeById($this->getId(), 'id')
+                ->where("start.visible = 1")
+                ->where("node.visible = 1")
+                ->distinct();
+
+        // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
+        $db = $this->_primaryTableRow->getTable()->getAdapter();
+        $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
+                        ->where("role_id = ?", $this->getRoleId())
+                        ->where("collection_id IN ($subselect)");
+                        // TODO add server_state = published condition
+
+        $count = $db->fetchOne($select);
+        return (int) $count;
+    }
+
+    /**
+     * Returns nodes for breadcrumb path.
+     *
+     * @return Array of Opus_CollectionNode objects.
+     */
+
+    public function _fetchParents() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        // $row = $this->_primaryTableRow;
+        // return self::createObjects( $row->findDependentRowset('Opus_Db_CollectionsNodes', 'Parent') );
+
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectParentsById( $this->getId() );
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
     }
 
 }
