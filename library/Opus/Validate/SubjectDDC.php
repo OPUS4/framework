@@ -71,7 +71,7 @@ class Opus_Validate_SubjectDDC extends Zend_Validate_Abstract {
                         
                 $collArray = Opus_Collection::fetchCollectionsByRoleNumber($role->getId(), $value);
 
-                if (true === empty($collArray) || count($collArray) > 1) {
+                if (true === empty($collArray)) {
                     $this->_error(self::MSG_SUBJECTDDC);
                     return false;
                 }
