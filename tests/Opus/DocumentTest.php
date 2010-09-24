@@ -1048,12 +1048,14 @@ class Opus_DocumentTest extends TestCase {
          $role->setOaiName('foobar-oai-' . rand());
          $role->store();
 
-         $collection1 = new Opus_Collection();
-         $collection1->setRoleId($role->getId());
-         $collection1->store();
+         $root = $role->addRootCollection();
+         $role->store();
 
-         $collection2 = new Opus_Collection();
-         $collection2->setRoleId($role->getId());
+         $collection1 = $root->addFirstChild();
+         $root->store();
+
+         $collection2 = $root->addLastChild();
+         $root->store();
 
          $document = new Opus_Document();
          $document->setType('test');
@@ -1078,9 +1080,11 @@ class Opus_DocumentTest extends TestCase {
          $role->setOaiName('foobar-oai-' . rand());
          $role->store();
 
-         $collection1 = new Opus_Collection();
-         $collection1->setRoleId($role->getId());
-         $collection1->store();
+         $root = $role->addRootCollection();
+         $role->store();
+
+         $collection1 = $root->addFirstChild();
+         $root->store();
 
          $document = new Opus_Document();
          $document->setType('test');

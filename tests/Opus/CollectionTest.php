@@ -71,17 +71,16 @@ class Opus_CollectionTest extends TestCase {
         $this->role_fixture->setVisible(1);
         $this->role_fixture->setVisibleBrowsingStart(1);
         $this->role_fixture->store();
-        $role_id = $this->role_fixture->getId();
 
-        $this->object = new Opus_Collection();
-        $this->object->setRoleId( $role_id );
-        $this->object->store();
+        $this->object = $this->role_fixture->addRootCollection();
+        $this->role_fixture->store();
     }
 
     /**
      * Test constructor.
      */
-    public function testCollectionConstructor() {
+    public function testConstructorForExistingCollection() {
+
         $this->assertNotNull($this->object->getId(),
                 'Collection storing failed: should have an Id.');
         $this->assertNotNull($this->object->getRoleId(),
@@ -102,7 +101,7 @@ class Opus_CollectionTest extends TestCase {
     /** 
      * Test if delete really deletes.
      */
-    public function testCollectionDelete() {
+    public function testDeleteNoChildren() {
         $collection_id = $this->object->getId();
         $this->object->delete();
 

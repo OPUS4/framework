@@ -58,6 +58,8 @@ class Opus_CollectionNodeTest extends TestCase {
 
 
     public function setUp() {
+        $this->markTestSkipped("deprecated");
+
         parent::setUp();
 
         $this->_role_name     = "role-name-" . rand();
