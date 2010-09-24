@@ -235,6 +235,8 @@ class Opus_Search_List_CollectionNode extends Opus_Search_List_BasicList
    * @return array Documents in this node
    */
   public function getDocuments($alsoSubnodes = false) {
+                return;
+                
   		$docs = Opus_Collection_Information::getAllCollectionDocuments($this->roleId, $this->collectionId, $alsoSubnodes);
 		unset ($this->documents);
 		$this->documents = array();
