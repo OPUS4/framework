@@ -276,6 +276,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'options' => array('type' => 'msc'),
                             'fetch' => 'lazy'
             ),
+            'SubjectDDC' => array(
+                            'model' => 'Opus_Subject',
+                            'options' => array('type' => 'ddc'),
+                            'fetch' => 'lazy'
+            ),
             'File' => array(
                             'model' => 'Opus_File',
                             'fetch' => 'lazy'
