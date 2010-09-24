@@ -197,31 +197,24 @@ COMMENT = 'Table for external identifiers related to a person.';
 CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
   `person_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: persons.persons_id.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
-  `institute_id` INT UNSIGNED NULL COMMENT 'Foreign key to: institutes_contents.institutes_id.' ,
   `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator', 'owner', 'submitter') NOT NULL COMMENT 'Role of the person in the actual document-person context.' ,
   `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Sort order of the persons related to the document.' ,
   `allow_email_contact` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Is e-mail contact in the actual document-person context allowed? (1=yes, 0=no).' ,
   INDEX `fk_link_documents_persons_persons` (`person_id` ASC) ,
   PRIMARY KEY (`person_id`, `document_id`, `role`) ,
-  INDEX `fk_link_persons_publications_institutes_contents` (`institute_id` ASC) ,
   INDEX `fk_link_persons_documents_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_link_documents_persons_persons`
     FOREIGN KEY (`person_id` )
     REFERENCES `persons` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
-  CONSTRAINT `fk_link_persons_publications_institutes_contents`
-    FOREIGN KEY (`institute_id` )
-    REFERENCES `collections_contents_1` (`id` )
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_link_persons_documents_documents`
     FOREIGN KEY (`document_id` )
     REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (documents, persons, institutes_contents).';
+COMMENT = 'Relation table (documents, persons).';
 
 
 -- -----------------------------------------------------
