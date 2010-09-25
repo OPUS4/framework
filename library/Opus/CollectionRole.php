@@ -419,8 +419,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see modules/oai/controllers/IndexController.php
      */
     public function existsDocumentIdsInSet($oaiSetName) {
-        throw new Exception("deprecated?");
-
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
