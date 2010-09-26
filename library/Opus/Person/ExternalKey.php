@@ -30,7 +30,7 @@
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: Identifier.php 2535 2009-04-22 15:21:27Z claussnitzer $
+ * @version     $Id$
  */
 
 /**

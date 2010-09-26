@@ -29,7 +29,7 @@
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: SearchEngineAdapter.php 2791 2009-05-14 15:02:26Z marahrens $
+ * @version     $Id$
  */
 
 /**

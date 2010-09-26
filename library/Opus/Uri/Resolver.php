@@ -29,7 +29,7 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: Xml.php 2624 2009-05-06 10:49:05Z claussnitzer $
+ * @version     $Id$
  */
 
 /**

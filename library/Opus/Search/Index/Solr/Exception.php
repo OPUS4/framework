@@ -29,7 +29,7 @@
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: Indexer.php 3834 2009-11-18 16:28:06Z becker $
+ * @version     $Id$
  */
 class Opus_Search_Index_Solr_Exception extends Exception {
 
