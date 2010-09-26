@@ -84,6 +84,7 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   `language` VARCHAR(3) NULL COMMENT 'Language of the file.' ,
   `file_size` BIGINT UNSIGNED NOT NULL COMMENT 'File size in bytes.',
   `visible_in_frontdoor` BOOLEAN NOT NULL DEFAULT 1 COMMENT 'States, will be shown in the front door (1=yes, 0=no).' ,
+  `visible_in_oai` BOOLEAN NOT NULL DEFAULT 1 COMMENT 'States, will be shown in the OAI-PMH output (1=yes, 0=no).' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_files_documents` (`document_id` ASC) ,
   CONSTRAINT `fk_document_files_documents`
