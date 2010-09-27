@@ -154,34 +154,6 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         return $config;
     }
 
-
-
-    /**
-     * Setup Zend_Search_Lucene with Index
-     *
-     * It is assumed that the index is stored under lucene_index.
-     *
-     * @return void
-     *
-     */
-    protected function _initLucene()
-    {
-        // TODO: Remove to make unit tests work on CI server
-        // TODO: Has to be removed anyways.
-        return;
-
-        $this->bootstrap('Database'); // TODO check dependencies
-        $config = $this->getResource('Configuration');
-        $lucenePath = $config->workspacePath . '/lucene_index';
-        Zend_Search_Lucene_Search_QueryParser::setDefaultEncoding('utf-8');
-        #Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Opus_Search_Adapter_Lucene_NumberFinder());
-        Zend_Search_Lucene_Analysis_Analyzer::setDefault(new Zend_Search_Lucene_Analysis_Analyzer_Common_Utf8Num_CaseInsensitive());
-        Zend_Registry::set('Zend_LuceneIndexPath', $lucenePath);
-        $personslucenePath = $config->workspacePath. '/persons_index';
-        Zend_Registry::set('Zend_LucenePersonsIndexPath', $personslucenePath);
-    }
-
-
     /**
      * Setup Logging
      *
