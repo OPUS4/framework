@@ -1102,6 +1102,10 @@ class Opus_DocumentTest extends TestCase {
          $d->setPublicationState('published');
          $published_id = $d->store();
 
+         $d = new Opus_Document();
+         $d->setPublicationState('unpublished');
+         $unpublished_id = $d->store();
+
          $docs = Opus_Document::getAllDocumentsByAuthors();
          $this->assertContains($published_id, $docs);
          $this->assertNotContains($unpublished_id, $docs);
