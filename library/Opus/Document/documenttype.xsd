@@ -161,7 +161,6 @@
 			<enumeration value="File"/>
 			<enumeration value="Institute"/>
 			<enumeration value="Issue"/>
-			<enumeration value="Journal"/>
 			<enumeration value="Language"/>
 			<enumeration value="Licence"/>
 			<enumeration value="Note"/>
