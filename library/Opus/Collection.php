@@ -454,11 +454,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function linkDocumentById($document_id = null) {
         if (is_null($this->getId())) {
-            throw new Exception("linkDocument() is not allowed on NewRecord.");
+            throw new Exception("linkDocumentById() is not allowed on NewRecord.");
         }
 
         if (is_null($document_id)) {
-            throw new Exception("linkDocument() needs valid document_id.");
+            throw new Exception("linkDocumentById() needs valid document_id.");
         }
 
         $table = $this->_primaryTableRow->getTable();
