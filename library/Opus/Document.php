@@ -597,15 +597,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     public static function getAllDocumentsByAuthorsByState($state, $sort_reverse = '0') {
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
+
         $select = $db->select()
-                ->from(array('d' => 'documents'),
-                array('id'))
-                ->join(array('p' => 'persons'),
-                NULL,
-                array('last_name', 'first_name'))
-                ->joinLeft(array('pd' => 'link_persons_documents'),
-                'pd.document_id = d.id and pd.person_id = p.id')
-                ->where('pd.role = ?', 'author')
+                ->from(array('d' => 'documents'), array('id'))
+                ->joinLeft(array('pd' => 'link_persons_documents'), 'd.id = pd.document_id AND pd.role = "author"', array())
+                ->joinLeft(array('p' => 'persons'), 'pd.person_id = p.id', array())
                 ->group('d.id')
                 ->order('p.last_name ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
         $rows = $db->fetchAll($select);
@@ -616,7 +612,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         $result = array();
         foreach ($rows as $row) {
-            $result[] = $row['document_id'];
+            $result[] = $row['id'];
         }
 
         return $result;
@@ -646,7 +642,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
                 ->from(array('d' => 'documents'), array('d.id'))
-                ->join(array('t' => 'document_title_abstracts'), 't.document_id = d.id', array())
+                ->joinLeft(array('t' => 'document_title_abstracts'), 't.document_id = d.id', array())
                 ->where('t.type = ?', 'main')
                 ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') )
                 ->distinct();
