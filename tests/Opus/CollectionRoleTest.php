@@ -389,6 +389,10 @@ class Opus_CollectionRoleTest extends TestCase {
 
     }
 
+    /*
+     * Test if first storing role, then adding root collection and finally
+     * storing root works.
+     */
     public function testAddRootCollectionStoringRoleStoringChild() {
         $role = new Opus_CollectionRole();
         $role->setName('projects-'.rand());
@@ -409,6 +413,10 @@ class Opus_CollectionRoleTest extends TestCase {
 
     }
 
+    /*
+     * Test if first creating role, then adding root collection and finally
+     * storing role works.
+     */
     public function testAddRootCollectionStoringRoleOnly() {
         $role = new Opus_CollectionRole();
         $role->setName('projects-'.rand());
@@ -427,6 +435,9 @@ class Opus_CollectionRoleTest extends TestCase {
                 'Root->getId must be equal Root->Reload->getId');
     }
 
+    /*
+     * Test adding externally created root collection and finally storing role.
+     */
     public function testAddNewUnstoredRootCollectionStoringRole() {
         $role = new Opus_CollectionRole();
         $role->setName('projects-'.rand());
