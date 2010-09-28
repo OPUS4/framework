@@ -88,11 +88,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         'RoleVisibleFrontdoor' => array(
             'fetch' => 'lazy',
         ),
-        'SubCollections' => array(
-            'model' => 'Opus_Collection',
-            'fetch' => 'lazy',
-        ),
-
 
 
         'PositionKey' => array(),
@@ -131,11 +126,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
         }
-
-        // Add a field to hold subcollections
-        $subCollections = new Opus_Model_Field('SubCollections');
-        $subCollections->setMultiplicity('*');
-        $this->addField($subCollections);
 
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');
@@ -551,7 +541,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'DisplayOai' => $this->getDisplayName('oai'),
         );
 
-        $exclude_fields = array('SubCollections', 'Theme', 'Role');
+        $exclude_fields = array('Theme', 'Role');
         $search_fields = array_diff(array_keys($this->_fields), $exclude_fields);
 
         foreach ($search_fields as $fieldname) {
@@ -601,7 +591,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function toXml(array $excludeFields = null,  $strategy = null) {
         // TODO: comment why these fields should always be excluded.
-        $alwaysExclude = array('ParentCollection', 'SubCollections', 'Theme');
+        $alwaysExclude = array('ParentCollection', 'Theme');
         if (is_null($excludeFields) === true) {
             $excludeFields = $alwaysExclude;
         } else {
