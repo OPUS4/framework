@@ -200,7 +200,7 @@
                 <!-- collections: project, app_area, institute -->
                 <xsl:for-each select="/Opus/Opus_Model_Filter/Collection">
                     <xsl:choose>
-                        <xsl:when test="@RoleId = 11">
+                        <xsl:when test="@RoleName = 'projects'">
                             <xsl:element name="field">
                                 <xsl:attribute name="name">project</xsl:attribute>
                                 <xsl:value-of select="@Number" />
@@ -210,7 +210,7 @@
                                 <xsl:value-of select="substring(@Number, 0, 2)" />
                             </xsl:element>
                         </xsl:when>
-                        <xsl:when test="@RoleId = 12">
+                        <xsl:when test="@RoleName = 'institutes'">
                             <xsl:element name="field">
                                 <xsl:attribute name="name">institute</xsl:attribute>
                                 <xsl:value-of select="@Name" />
