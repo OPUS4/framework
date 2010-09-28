@@ -93,6 +93,15 @@ abstract class Opus_Model_AbstractDb
     protected $_isNewRecord = true;
 
     /**
+     * Array mapping plugin class names to model plugins.
+     *
+     * Copy-Paste from Qucosa-Code base.
+     *
+     * @var Array
+     */
+    protected $_plugins = array();
+
+    /**
      * Construct a new model instance and connect it a database table's row.
      * Pass an id to immediately fetch model data from the database. If not id is given
      * a new persistent intance gets created wich got its id set as soon as it is stored
@@ -141,6 +150,9 @@ abstract class Opus_Model_AbstractDb
             $this->_isNewRecord = false;
         }
         parent::__construct();
+
+        // initialize plugins
+        $this->_loadPlugins();
 
         $this->_fetchValues();
 
@@ -254,6 +266,63 @@ abstract class Opus_Model_AbstractDb
         }
     }
 
+     /**
+     * Instanciate and install plugins for this model.
+     *
+     * Copy-Paste from Qucosa-Code base.
+     *
+     * @return void
+     */
+    protected function _loadPlugins() {
+        foreach ($this->_plugins as $pluginname => $plugin) {
+           if (true === is_string($plugin)) {
+                $pluginname = $plugin;
+                $plugin = null;
+            }
+
+            if (null === $plugin) {
+                $plugin = new $pluginname;
+            }
+
+            $this->registerPlugin($plugin);
+        }
+    }
+
+    /**
+     * Register a pre- or post processing plugin.
+     *
+     * Copy-Paste from Qucosa-Code base.
+     *
+     * @param Opus_Model_Plugin_Interface $plugin Plugin to register for this very model.
+     * @return void
+     */
+    public function registerPlugin(Opus_Model_Plugin_Interface $plugin) {
+        $this->_plugins[get_class($plugin)] = $plugin;
+    }
+
+    /**
+     * Unregister a pre- or post processing plugin.
+     *
+     * Copy-Paste from Qucosa-Code base.
+     *
+     * @param string|object $plugin Instance or class name to unregister plugin.
+     * @throw Opus_Model_Exception Thrown if specified plugin does not exist.
+     * @return void
+     */
+    public function unregisterPlugin($plugin) {
+        $key = '';
+        if (true === is_string($plugin)) {
+            $key = $plugin;
+        }
+        if (true === is_object($plugin)) {
+            $key = get_class($plugin);
+        }
+        if (false === array_key_exists($key, $this->_plugins)) {
+            throw new Opus_Model_Exception('Cannot unregister specified plugin: ' . $key);
+        }
+        unset($this->_plugins[$key]);
+    }
+
     /**
      * Fetch attribute values from the table row and set up all fields. If fields containing
      * dependent models or link models those got fetched too.
@@ -314,6 +383,40 @@ abstract class Opus_Model_AbstractDb
     }
 
     /**
+     * Calls a specified plugin method in all available plugins.
+     *
+     * Copy-Paste from Qucosa-Code base.
+     *
+     * @param string $methodname Name of plugin method to call
+     * @param mixed  $parameter  Value that gets passed instead of the model instance.
+     */
+    private function _callPluginMethod($methodname, $parameter = null) {
+        try {
+            if (null === $parameter) {
+                $param = $this;
+            } else {
+                $param = $parameter;
+            }
+            foreach ($this->_plugins as $name=>$plugin) {
+                $plugin->$methodname($param);
+            }
+        } catch (Exception $ex) {
+            throw new Opus_Model_Exception('Plugin ' . $name . ' failed in ' . $methodname
+                    . ' with ' . $ex->getMessage());
+        }
+    }
+
+    /**
+     * Trigger preFetch plugins.
+     *
+     * @return void
+     * @throw Opus_Model_Exception Throws whenever a plugin failes.
+     */
+    protected function _preFetch() {
+        $this->_callPluginMethod('preFetch');
+    }
+
+    /**
      * Perform any actions needed to provide storing.
      *
      * Currently modification checking and validation.
@@ -321,6 +424,8 @@ abstract class Opus_Model_AbstractDb
      * @return mixed Anything else then null will cancel the storage process.
      */
     protected function _preStore() {
+        $this->_callPluginMethod('preStore');
+
         // do not perfom storing actions when model is not modified and not new
         if ((false === $this->isNewRecord()) and (false === $this->isModified())) {
             return $this->getId();
@@ -350,6 +455,7 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     protected function _postStore() {
+        $this->_callPluginMethod('postStore');
         $this->_isNewRecord = false;
     }
 
@@ -359,8 +465,18 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     protected function _postStoreInternalFields() {
+        $this->_callPluginMethod('postStoreInternal');
     }
 
+    /**
+     * Perform any actions needed after storing internal fields.
+     *
+     * @return void
+     * @throw Opus_Model_Exception Throws whenever an error occurs
+     */
+    function _postStoreExternalFields() {
+        $this->_callPluginMethod('postStoreExternal');
+     }
 
     /**
      * Persist all the models information to its database locations.
@@ -387,6 +503,7 @@ abstract class Opus_Model_AbstractDb
             $id = $this->_storeInternalFields();
             $this->_postStoreInternalFields();
             $this->_storeExternalFields();
+            $this->_postStoreExternalFields();
         } catch (Exception $e) {
             $dbadapter->rollBack();
             throw $e;
