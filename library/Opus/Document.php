@@ -646,10 +646,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
         $select = $db->select()
                 ->from(array('d' => 'documents'), array('d.id'))
-                ->join(array('t' => 'document_title_abstracts'), 't.document_id = d.id')
+                ->join(array('t' => 'document_title_abstracts'), 't.document_id = d.id', array())
                 ->where('t.type = ?', 'main')
-                ->group('document_id')
-                ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
+                ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') )
+                ->distinct();
 
         if (isset($state)) {
             $select->where('d.server_state = ?', $state);
