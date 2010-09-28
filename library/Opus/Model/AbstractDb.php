@@ -368,12 +368,6 @@ abstract class Opus_Model_AbstractDb
                         }
                     }
 
-                    // TODO: (Thoralf) Removed JSON to see what happens.
-                    if (true === $field->hasMultipleValues() && !empty($fieldvar)) {
-//                        $fieldval = json_decode($fieldval);
-                        throw new Exception("Prevented fetching JSON field values in field " . $fieldname . " (value: $fieldvar)");
-                    }
-
                     $field->setValue($fieldval);
                 }
             }
@@ -533,16 +527,6 @@ abstract class Opus_Model_AbstractDb
 
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $this->_fields[$fieldname]->getValue();
-                if (is_array($fieldValue) === true) {
-
-                    // TODO: (Thoralf) Removed to see what happens.
-                    if (count($fieldValue) > 0) {
-                        throw new Exception("Prevented storing JSON field values in field " . $fieldname);
-                    }
-
-                    // internal fields can never be a array, encode as json
-                    $fieldValue = json_encode($fieldValue);
-                }
 
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
