@@ -960,15 +960,16 @@ abstract class Opus_Model_AbstractDb
 
         if (!is_null($linkmodelclass) and ($argumentModelGiven === true)) {
             foreach ($values as $i => $value) {
+                $linkmodel = null;
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                     $linkmodel = $value;
                 }
                 else {
-                    try {
-                        $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
-                    }
-                    catch (Exception $e) {
+                    if (is_null($this->getId()) or is_null($value->getId())) {
                         $linkmodel = new $linkmodelclass;
+                    }
+                    else {
+                        $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
                     }
                     $linkmodel->setModel($value);
                 }
