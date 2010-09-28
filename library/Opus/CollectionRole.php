@@ -219,12 +219,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     public function toArray() {
         $result = array();
-        foreach ($this->getSubCollections() as $subCollection) {
+        foreach ($this->getChildren() as $child) {
             $result[] = array(
-                'Id' => $subCollection->getId(),
-                'Name' => $subCollection->getName(),
-//                    'RootCollection' => $this->getRootCollection()->getId(),
-//                    'SubCollection'  => $subCollection->toArray(),
+                'Id' => $child->getId(),
+                'Name' => $child->getName(),
             );
         }
         return $result;
