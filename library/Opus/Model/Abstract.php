@@ -302,28 +302,9 @@ abstract class Opus_Model_Abstract {
      *
      * @param Opus_Model_Field $field Field instance that gets appended to the models field collection.
      * @return Opus_Model_Abstract Provide fluent interface.
-     *
-     * TODO: Refactor class: Handle _externalFields outside!
      */
     public function addField(Opus_Model_Field $field) {
         $this->_fields[$field->getName()] = $field;
-        return $this;
-
-        $fieldname = $field->getName();
-        $this->_fields[$fieldname] = $field;
-
-        // set Modelclass if a model exists
-        if (array_key_exists($fieldname, $this->_externalFields) === true) {
-            if (array_key_exists('model', $this->_externalFields[$fieldname]) === true) {
-                $model = $this->_externalFields[$fieldname]['model'];
-                $field->setValueModelClass($model);
-            }
-            if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
-                $linkmodel = $this->_externalFields[$fieldname]['through'];
-                $field->setLinkModelClass($linkmodel);
-            }
-        }
-
         return $this;
     }
 
