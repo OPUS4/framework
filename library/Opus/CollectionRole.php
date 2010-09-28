@@ -522,5 +522,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     }
 
+
+    public function addRootCollection($collection = null) {
+        if (isset($collection)) {
+            $collection = parent::addRootCollection($collection);
+        }
+        else {
+            $collection = parent::addRootCollection();
+        }
+
+        if ($collection->isNewRecord() and !$this->isNewRecord()) {
+            $collection->setPositionKey('Root');
+            $collection->setRoleId($this->getId());
+        }
+
+        return $collection;
+    }
+
 }
 ?>

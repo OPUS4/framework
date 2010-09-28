@@ -389,4 +389,63 @@ class Opus_CollectionRoleTest extends TestCase {
 
     }
 
+    public function testAddRootCollectionStoringRoleStoringChild() {
+        $role = new Opus_CollectionRole();
+        $role->setName('projects-'.rand());
+        $role->setOaiName('projects-'.rand());
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $root->store();
+
+        $root = new Opus_Collection( $root->getId() );
+        $this->assertEquals($root->getRoleId(), $role->getId(),
+                'Root->getRoleId must be equal Role->getId');
+
+        $role = new Opus_CollectionRole( $role->getId() );
+        $root_new = $role->getRootCollection();
+        $this->assertEquals($root_new->getId(), $root->getId(),
+                'Root->getId must be equal Root->Reload->getId');
+
+    }
+
+    public function testAddRootCollectionStoringRoleOnly() {
+        $role = new Opus_CollectionRole();
+        $role->setName('projects-'.rand());
+        $role->setOaiName('projects-'.rand());
+
+        $root = $role->addRootCollection();
+        $role->store();
+
+        $root = new Opus_Collection( $root->getId() );
+        $this->assertEquals($root->getRoleId(), $role->getId(),
+                'Root->getRoleId must be equal Role->getId');
+
+        $role = new Opus_CollectionRole( $role->getId() );
+        $root_new = $role->getRootCollection();
+        $this->assertEquals($root_new->getId(), $root->getId(),
+                'Root->getId must be equal Root->Reload->getId');
+    }
+
+    public function testAddNewUnstoredRootCollectionStoringRole() {
+        $role = new Opus_CollectionRole();
+        $role->setName('projects-'.rand());
+        $role->setOaiName('projects-'.rand());
+
+        $root = new Opus_Collection();
+        $role->addRootCollection($root);
+        $role->store();
+
+        $root = new Opus_Collection( $root->getId() );
+        $this->assertEquals($root->getRoleId(), $role->getId(),
+                'Root->getRoleId must be equal Role->getId');
+
+        $role = new Opus_CollectionRole( $role->getId() );
+        $root_new = $role->getRootCollection();
+        $this->assertEquals($root_new->getId(), $root->getId(),
+                'Root->getId must be equal Root->Reload->getId');
+    }
+    
 }
+
+?>
