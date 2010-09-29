@@ -330,6 +330,9 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     protected function _fetchValues() {
+        // preFetch plugin hook
+        $this->_preFetch();
+
         foreach ($this->_fields as $fieldname => $field) {
             // Field is declared as external and requires special handling
             if (array_key_exists($fieldname, $this->_externalFields) === true) {
@@ -748,6 +751,8 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     public function delete() {
+        $this->_callPluginMethod('preDelete');
+
         $modelId = $this->getId();
 
         // if no primary key is set the model has
@@ -768,6 +773,8 @@ abstract class Opus_Model_AbstractDb
             $msg = $e->getMessage() . ' Model: ' . get_class($this);
             throw new Opus_Model_Exception($msg);
         }
+
+        $this->_callPluginMethod('postDelete', $modelId);
     }
 
     /**

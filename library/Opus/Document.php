@@ -55,6 +55,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
     /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+          'Opus_Document_Plugin_Index' => null,
+    );
+
+    /**
      * The documents external fields, i.e. those not mapped directly to the
      * Opus_Db_Documents table gateway.
      *
@@ -1062,27 +1071,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
         $this->setServerDateModified($date);
         
-        return $result;
-    }
-
-    /**
-     * Proof-of-concept store method, which adds job to job queue.
-     */
-    public function store() {
-        $result = parent::store();
-
-        $job = new Opus_Job();
-        $job->setLabel('opus-index-document');
-        $job->setData(array(
-            'documentId' => $this->getId(),
-        ));
-
-        // skip creating job if equal job already exists
-        if (true === $job->isUniqueInQueue()) {
-            $job->store();
-        }
-
-        // Important to return result of parent::store()!
         return $result;
     }
 
