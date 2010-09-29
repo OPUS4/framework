@@ -910,16 +910,13 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Returns nodes for breadcrumb path.
      *
-     * @return Array of Opus_CollectionNode objects.
+     * @return Array of Opus_Collection objects.
      */
 
     public function _fetchParents() {
         if (is_null($this->getId())) {
             return;
         }
-
-        // $row = $this->_primaryTableRow;
-        // return self::createObjects( $row->findDependentRowset('Opus_Db_CollectionsNodes', 'Parent') );
 
         $table = $this->_primaryTableRow->getTable();
 
@@ -929,5 +926,30 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
+    /**
+     * Returns children of current collection (replaces getSubCollections).
+     *
+     * @return Array of Opus_Collection objects.
+     */
+    protected function _fetchChildren() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $row = $this->_primaryTableRow;
+        return self::createObjects( $row->findDependentRowset('Opus_Db_Collections', 'Parent') );
+    }
+
+    /**
+     * Overwrite _store: We cannot add children directly.  This has to be done
+     * via "addLastChild" and "addFirstChild".
+     *
+     * @return void
+     */
+    protected function _storeChildren() {
+    }
+
+    
 }
+
 ?>

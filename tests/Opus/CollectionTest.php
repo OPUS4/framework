@@ -141,4 +141,41 @@ class Opus_CollectionTest extends TestCase {
                 'Field OaiSetName must contain OaiSubset.');
      }
 
+    /**
+     * Tests toArray().
+     */
+    public function testGetChildren() {
+        $root = $this->object;
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()),
+                'Root collection without children should return empty array.');
+
+        $child_1 = $root->addLastChild();
+        $root->store();
+
+        // FIXME: We have to reload model to get correct results!
+        $root = new Opus_Collection( $root->getId() );
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(1, count($root->getChildren()),
+                'Root collection should have one child.');
+
+        $child_2 = $root->addLastChild();
+        $root->store();
+
+        $child_1_1 = $child_1->addFirstChild();
+        $child_1->store();
+
+        // FIXME: We have to reload model to get correct results!
+        $root = new Opus_Collection( $root->getId() );
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(2, count($root->getChildren()),
+                'Root collection should have two children.');
+
+    }
+
+
+
 }
