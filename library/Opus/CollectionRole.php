@@ -254,9 +254,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $db = $row->getTable()->getAdapter();
 
         // TODO: Don't use internal knowledge from "collections"
-        $statement_3 = 'DELETE FROM collections WHERE role_id = ?';
-        $statement_3 = $db->quoteInto($statement_3, $this->getId());
-        $db->query($statement_3);
+        // TODO: Implement in Opus_Collection::deleteTree($role_id)?
+        $statement = 'DELETE FROM collections WHERE role_id = ?';
+        $statement = $db->quoteInto($statement, $this->getId());
+        $db->query($statement);
 
         parent::delete();
 
