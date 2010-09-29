@@ -604,12 +604,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->joinLeft(array('p' => 'persons'), 'pd.person_id = p.id', array())
                 ->group('d.id')
                 ->order('p.last_name ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-        $rows = $db->fetchAll($select);
 
         if (isset($state)) {
             $select->where('d.server_state = ?', $state);
         }
 
+        $rows = $db->fetchAll($select);
         $result = array();
         foreach ($rows as $row) {
             $result[] = $row['id'];

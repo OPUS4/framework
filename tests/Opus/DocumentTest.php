@@ -1111,16 +1111,16 @@ class Opus_DocumentTest extends TestCase {
          $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
 
          $docs = Opus_Document::getAllDocumentsByAuthorsByState('published');
-         $this->assertContains($published_id, $docs);
-         $this->assertNotContains($unpublished_id, $docs);
+         $this->assertContains($published_id, $docs, 'published list should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
 
          $docs = Opus_Document::getAllDocumentsByAuthorsByState('published', 0);
-         $this->assertContains($published_id, $docs);
-         $this->assertNotContains($unpublished_id, $docs);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
 
          $docs = Opus_Document::getAllDocumentsByAuthorsByState('published', 1);
-         $this->assertContains($published_id, $docs);
-         $this->assertNotContains($unpublished_id, $docs);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
      }
 
      public function testGetAllDocumentsByTitleReturnsDocumentsWithoutTitle() {
