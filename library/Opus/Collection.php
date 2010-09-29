@@ -531,6 +531,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Seems unused.  Check if we still need it.
      */
     public function toArray($call = null) {
+        throw new Exception("FIXME: Produces infinite recursion.  Fix it first.");
+
         $role = $this->getRole();
         $result = array(
             'Id' => $this->getId(),
