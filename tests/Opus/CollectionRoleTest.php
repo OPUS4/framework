@@ -164,31 +164,30 @@ class Opus_CollectionRoleTest extends TestCase {
     }
 
     /**
-     * @todo Implement testToArray().
+     * Tests toArray().
      */
     public function testToArray() {
-        $this->assertTrue(is_array($this->object->toArray()));
-        $this->assertEquals(0, count($this->object->toArray()),
+        $role = $this->object;
+
+        $this->assertTrue(is_array($role->toArray()));
+        $this->assertEquals(0, count($role->toArray()),
                 'No root collection should return empty array.');
 
-        $this->object->addRootCollection();
-        $this->object->store();
-        $this->assertTrue(is_array($this->object->toArray()));
-        $this->assertEquals(0, count($this->object->toArray()),
+        $role->addRootCollection();
+        $role->store();
+        $this->assertTrue(is_array($role->toArray()));
+        $this->assertEquals(0, count($role->toArray()),
                 'Root collection without children should return empty array.');
 
-        $root = $this->object->getRootCollection();
+        $root = $role->getRootCollection();
         $root->addLastChild();
         $root->store();
 
-        $this->markTestIncomplete('Bug in Opus_Collection: getChildren does not work properly.');
-        
-        $children = $root->getChildren();
-        $this->assertEquals(1, count($children),
-                'Root collection should have one child. (Bug in Opus_Collection!)');
+        // FIXME: We have to reload model to get correct results!
+        $role = new Opus_CollectionRole( $role->getId() );
 
-        $this->assertTrue(is_array($this->object->toArray()));
-        $this->assertEquals(1, count($this->object->toArray()),
+        $this->assertTrue(is_array($role->toArray()));
+        $this->assertEquals(1, count($role->toArray()),
                 'Root collection should have one child.');
     }
 
