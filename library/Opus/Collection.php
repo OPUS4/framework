@@ -170,23 +170,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Overwrites store procedure.
-     *
-     * @return void
-     */
-    protected function _storeParentCollections() {
-        // FIXME: Every method, that returns external fields, should store them!
-        // Storing parent collections is not possible.  But:
-        // FIXME: Maybe we want to propagate changes to the parent?
-        throw new Exception("Method not supported.  Check API.");
-
-        // Recursive updating can be expensive! - Try to avoid this.
-        if (false === $this->_getField('ParentCollections', true)->isModified()) {
-            return;
-        }
-    }
-
-    /**
      * Fetch the name of the theme that is associated with this collection.
      *
      * @return string The name of the theme.
@@ -593,7 +576,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function toXml(array $excludeFields = null,  $strategy = null) {
         // TODO: comment why these fields should always be excluded.
-        $alwaysExclude = array('ParentCollection', 'Theme');
+        $alwaysExclude = array('Theme');
         if (is_null($excludeFields) === true) {
             $excludeFields = $alwaysExclude;
         } else {
