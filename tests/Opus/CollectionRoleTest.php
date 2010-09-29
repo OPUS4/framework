@@ -289,7 +289,6 @@ class Opus_CollectionRoleTest extends TestCase {
         $role->store();
 
         $oai_set = $role->getOaiName() . ':' . $collection->getOaiSubset();
-        echo "$oai_set\n";
         
         $this->assertFalse($role->existsDocumentIdsInSet($oai_set));
 

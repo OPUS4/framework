@@ -401,10 +401,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
                 . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
 
-        // $this->logger("$select");
-
-        // FIXME: Add error handling for failed DB requests!
-
         $results = $db->fetchCol($select);
         return $results;
 
