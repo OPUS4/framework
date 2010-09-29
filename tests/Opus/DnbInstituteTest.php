@@ -124,4 +124,15 @@ class Opus_DnbInstituteTests extends TestCase {
         $this->assertEquals(count($grantors), count($result), 'Wrong number of objects retrieved.');
     }
 
+    /**
+     * Test if the DnbInstitute display name matches its name.
+     *
+     * @return void
+     */
+    public function testDisplayNameMatchesName() {
+        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbInstitute->setName('MyTestName');
+        $this->assertEquals($dnbInstitute->getName(), $dnbInstitute->getDisplayName(), 'Displayname does not match name.');
+    }
+
 }

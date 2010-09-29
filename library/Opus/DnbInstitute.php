@@ -111,4 +111,14 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
                 ->addField($is_grantor);
     }
 
+    /**
+     * Returns name.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     */
+    public function getDisplayName() {
+       return $this->getName();
+    }
+
+
 }
