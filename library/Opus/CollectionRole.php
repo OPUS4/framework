@@ -150,7 +150,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     protected function _storePosition($to = PHP_INT_MAX) {
         $field = $this->_getField('Position', true);
-        if (false === is_null($field->getValue()) && false === $field->isModified()) {
+        if (false === $field->isModified()) {
             return;
         }
 
@@ -163,8 +163,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $db = $row->getTable()->getAdapter();
 
         // Re-Order.
-        // TODO: This reorder-query is only nesseccary, if someone destroyed the strict ordering.
-        // TODO: If the table is strictly ordered, then the code below will preserve this property.
+        // TODO: This reorder-query is only nesseccary, if someone destroyed the
+        // TODO: strict ordering.  If the table is strictly ordered, then the
+        // TODO: code below will preserve this property.
         $reorder_query = 'SET @pos = 0; '
                 . ' UPDATE collections_roles '
                 . ' SET position = ( SELECT @pos := @pos + 1 ) '
@@ -432,7 +433,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $quotePostfix = $db->quote("$oaiPostfix");
         $quoteRoleId = $db->quote($this->getId());
 
-        $select = " SELECT c.id FROM collections AS c "
+        $select = " SELECT count(c.id) FROM collections AS c "
                 . " WHERE c.oai_subset = $quotePostfix "
                 . " AND c.role_id = $quoteRoleId "
                 . " AND EXISTS ( "
@@ -445,7 +446,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $result = $db->fetchOne($select);
         // $this->logger("$oaiSetName: $result");
 
-        if (true === isset($result)) {
+        if (isset($result) and $result > 0) {
             return true;
         }
 

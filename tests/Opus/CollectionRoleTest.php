@@ -75,8 +75,7 @@ class Opus_CollectionRoleTest extends TestCase {
         parent::setUp();
 
         // Create first dummy role, just to make sure ID=1 exists.
-        $role_1 = self::createRandomObject();
-        $role_1->store();
+        self::createRandomObject()->store();
 
         // Object is not stored.
         $this->object = self::createRandomObject();
@@ -263,11 +262,25 @@ class Opus_CollectionRoleTest extends TestCase {
      * @todo Implement testExistsDocumentIdsInSet().
      */
     public function testExistsDocumentIdsInSet() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $role = $this->object;
+        $role->store();
 
+        $root = $role->addRootCollection();
+        $collection = $root->addFirstChild();
+        $collection->setOaiSubset('foo');
+        $role->store();
+
+        $oai_set = $role->getOaiName() . ':' . $collection->getOaiSubset();
+        echo "$oai_set\n";
+        
+        $this->assertFalse($role->existsDocumentIdsInSet($oai_set));
+
+        $d = new Opus_Document();
+        $d->setServerState('published');
+        $d->addCollection($collection);
+        $d->store();
+
+        $this->assertTrue($role->existsDocumentIdsInSet($oai_set));
     }
 
     /**
@@ -394,9 +407,7 @@ class Opus_CollectionRoleTest extends TestCase {
      * storing root works.
      */
     public function testAddRootCollectionStoringRoleStoringChild() {
-        $role = new Opus_CollectionRole();
-        $role->setName('projects-'.rand());
-        $role->setOaiName('projects-'.rand());
+        $role = $this->object;
         $role->store();
 
         $root = $role->addRootCollection();
@@ -418,10 +429,7 @@ class Opus_CollectionRoleTest extends TestCase {
      * storing role works.
      */
     public function testAddRootCollectionStoringRoleOnly() {
-        $role = new Opus_CollectionRole();
-        $role->setName('projects-'.rand());
-        $role->setOaiName('projects-'.rand());
-
+        $role = $this->object;
         $root = $role->addRootCollection();
         $role->store();
 
@@ -439,10 +447,7 @@ class Opus_CollectionRoleTest extends TestCase {
      * Test adding externally created root collection and finally storing role.
      */
     public function testAddNewUnstoredRootCollectionStoringRole() {
-        $role = new Opus_CollectionRole();
-        $role->setName('projects-'.rand());
-        $role->setOaiName('projects-'.rand());
-
+        $role = $this->object;
         $root = new Opus_Collection();
         $role->addRootCollection($root);
         $role->store();
@@ -456,7 +461,7 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertEquals($root_new->getId(), $root->getId(),
                 'Root->getId must be equal Root->Reload->getId');
     }
-    
+
 }
 
 ?>
