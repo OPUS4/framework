@@ -59,7 +59,7 @@ class Opus_Model_Xml_Conf {
      *
      * @var array
      */
-    public $_excludeFields = array('ParentCollection', 'SubCollection');
+    public $_excludeFields = array();
 
     /**
      * True, if empty fields get excluded from serialization.

@@ -147,9 +147,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         // FIXME: Why doesn't Opus_Model_Xml_Conf->_excludeFields work here?
-        $excludeFields = array('ParentCollection', 'SubCollection', 'RootNode',
-            'Collection', 'Parents', 'Children', 'PendingNodes',
-            'Role', 'Nodes', 'SubCollections', 'Documents', 'Node');
+        $excludeFields = array('Collection', 'Parents', 'Children', 'Role', 'Documents');
         $excludeFields = array_merge($this->_config->_excludeFields, $excludeFields);
 
         if (count($excludeFields) > 0) {
