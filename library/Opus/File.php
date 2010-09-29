@@ -112,6 +112,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $filesize->setMandatory(true);
 
         $visible_in_frontdoor = new Opus_Model_Field('VisibleInFrontdoor');
+        $visible_in_oai = new Opus_Model_Field('VisibleInOai');
 
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
@@ -131,6 +132,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($tempfile)
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
+                ->addField($visible_in_oai)
                 ->addField($hashvalue)
                 ->addField($role)
                 ->addField($document_id);
