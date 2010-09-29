@@ -60,7 +60,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @var array
      */
     protected $_plugins = array(
-          'Opus_Document_Plugin_Index' => null,
+        'Opus_Document_Plugin_Index' => null,
+        'Opus_Document_Plugin_XmlCache' => null,
     );
 
     /**
