@@ -104,6 +104,29 @@ class Opus_CollectionRoleTest extends TestCase {
     }
 
     /**
+     * Tests delete method and if object is really deleted.
+     */
+    public function testDeleteRoleWithDocuments() {
+
+        $root = $this->object->addRootCollection();
+        $collection = $root->addLastChild();
+        $this->object->store();
+
+        $d = new Opus_Document();
+        $d->setServerState('published');
+        $d->addCollection($collection);
+        $d->store();
+
+        $role_id = $this->object->getId();
+        $role = new Opus_CollectionRole($role_id);
+        $role->delete();
+
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        new Opus_CollectionRole($role_id);
+
+    }
+
+    /**
      * Tests store method and if object can be reloaded after storing.
      */
     public function testStore() {

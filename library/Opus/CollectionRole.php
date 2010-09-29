@@ -253,11 +253,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $row = $this->_primaryTableRow;
         $db = $row->getTable()->getAdapter();
 
-        // TODO: Don't use internal knowledge from "link_documents_collections"
-        $statement_2 = 'DELETE FROM link_documents_collections WHERE role_id = ?';
-        $statement_2 = $db->quoteInto($statement_2, $this->getId());
-        $db->query($statement_2);
-
         // TODO: Don't use internal knowledge from "collections"
         $statement_3 = 'DELETE FROM collections WHERE role_id = ?';
         $statement_3 = $db->quoteInto($statement_3, $this->getId());
