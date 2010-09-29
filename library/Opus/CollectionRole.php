@@ -214,13 +214,19 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * collections.
      *
      * @return array A (nested) array representation of the model.
+     * @deprecated Method shouldn't be used any more.  Use object or xml.
      *
-     * FIXME: Only basic refactoing done.  Needs testing!  Which fields to use?
      * TODO: Check why this method isn't used any more.
      */
     public function toArray() {
         $result = array();
-        foreach ($this->getChildren() as $child) {
+
+        $root = $this->getRootCollection();
+        if (!isset($root)) {
+            return $result;
+        }
+
+        foreach ($root->getChildren() as $child) {
             $result[] = array(
                 'Id' => $child->getId(),
                 'Name' => $child->getName(),

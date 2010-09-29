@@ -167,11 +167,29 @@ class Opus_CollectionRoleTest extends TestCase {
      * @todo Implement testToArray().
      */
     public function testToArray() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $this->assertTrue(is_array($this->object->toArray()));
+        $this->assertEquals(0, count($this->object->toArray()),
+                'No root collection should return empty array.');
 
+        $this->object->addRootCollection();
+        $this->object->store();
+        $this->assertTrue(is_array($this->object->toArray()));
+        $this->assertEquals(0, count($this->object->toArray()),
+                'Root collection without children should return empty array.');
+
+        $root = $this->object->getRootCollection();
+        $root->addLastChild();
+        $root->store();
+
+        $this->markTestIncomplete('Bug in Opus_Collection: getChildren does not work properly.');
+        
+        $children = $root->getChildren();
+        $this->assertEquals(1, count($children),
+                'Root collection should have one child. (Bug in Opus_Collection!)');
+
+        $this->assertTrue(is_array($this->object->toArray()));
+        $this->assertEquals(1, count($this->object->toArray()),
+                'Root collection should have one child.');
     }
 
     /**
@@ -295,39 +313,6 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $this->assertTrue(is_array($sets), "Expected array return value.");
         $this->assertTrue(count($sets) === 0, "Expected empty array.");
-    }
-
-    /**
-     * @todo Implement testGetSubCollection().
-     */
-    public function testGetSubCollection() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    /**
-     * @todo Implement test_storeRootNode().
-     */
-    public function test_storeRootNode() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
-    }
-
-    /**
-     * @todo Implement testGetParents().
-     */
-    public function testGetParents() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
     }
 
     /**
