@@ -94,7 +94,7 @@ class Opus_Account extends Opus_Model_AbstractDb
             $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
             $id = $table->fetchRow($table->select()->where('login = ?', $login));
             if (is_null($id) === true) {
-                throw new Opus_Security_Exception('An account with the login name ' . $id . ' cannot be found.');
+                throw new Opus_Security_Exception('An account with the login name ' . $login . ' cannot be found.');
             }
         }
         parent::__construct($id, $tableGatewayModel);

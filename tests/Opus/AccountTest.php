@@ -65,8 +65,11 @@ class Opus_AccountTest extends TestCase {
      */
     public function testDeleteAccount() {
         $account = new Opus_Account(null, null, 'dummy');
+        $account_id = $account->store();
         $account->delete();
-        $this->markTestIncomplete('How do I check it best?');
+
+        $this->setExpectedException('Opus_Security_Exception');
+        $account = new Opus_Account(null, null, 'dummy');
     }
 
     /**
@@ -94,7 +97,6 @@ class Opus_AccountTest extends TestCase {
      * Test setting the roles of an account.
      */
     public function testSetRoleOfAccount() {
-        $this->markTestSkipped('Fails at the moment.');
         $account = new Opus_Account(null, null, 'dummy');
 
         $role = new Opus_Role();
