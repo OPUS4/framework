@@ -32,7 +32,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
-
+        return;
 
         $logger = Zend_Registry::get('Zend_Log');
         if (null !== $logger) {
@@ -40,7 +40,6 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
         }
 
         $model = new Opus_Document($model->getId());
-        return;
 
         $cache = new Opus_Model_Xml_Cache;
 
