@@ -80,7 +80,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             return $model;
         }
 
-        // Handle constructor attributes
         $model = new $classname;
         return $model;
 
@@ -472,7 +471,8 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         $success = $dom->loadXml($xml);
         if (false === $success) {
             $errmsg = '';
-            foreach (libxml_get_errors() as $error) {
+            $errors = libxml_get_errors();
+            foreach ($errors as $error) {
                 $errmsg = $errmsg . $error->message . "\n";
             }
             libxml_clear_errors();
