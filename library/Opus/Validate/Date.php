@@ -41,12 +41,26 @@
 
 class Opus_Validate_Date extends Zend_Validate_Date {
 
+    CONST FORMAT_DE = "DD.MM.YYYY";
+    CONST FORMAT_EN = "YYYY/MM/DD";
+
     /**
      * Set necessary locale information for validating.
      *
      */
     public function __construct() {
-        parent::__construct(Zend_Date::DATE_MEDIUM, 'de');
+        $log = Zend_Registry::get('Zend_Log');
+        $locale = new Zend_Locale();
+        $lang = $locale->getLanguage();        
+
+        switch ($lang) {
+            case 'en' : parent::__construct(array('format' => self::FORMAT_EN, 'locale' => 'en'));
+                break;
+            case 'de' : parent::__construct(array('format' => self::FORMAT_DE, 'locale' => 'de'));
+                break;
+            default :  parent::__construct(array('format' => self::FORMAT_EN, 'locale' => 'en'));
+                break;
+        }
     }
 
 }
