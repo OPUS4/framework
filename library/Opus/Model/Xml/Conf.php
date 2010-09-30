@@ -55,7 +55,6 @@ class Opus_Model_Xml_Conf {
 
     /**
      * List of fields to skip on serialization.
-     * FIXME: Hard coded definition of standard exclude fields.
      *
      * @var array
      */
