@@ -123,7 +123,7 @@ abstract class Opus_Model_Abstract {
         } else {
             $argumentGiven = false;
         }
-        $this->getLogger()->debug("Access to '$fieldname' with operation '$accessor'");
+        //$this->getLogger()->debug("Access to '$fieldname' with operation '$accessor'");
 
         // Filter calls to unknown methods and turn them into an exception
         $validAccessors = array('set', 'get', 'add');
