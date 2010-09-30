@@ -49,16 +49,21 @@ class Opus_Validate_Date extends Zend_Validate_Date {
      *
      */
     public function __construct() {
+        //return parent::__construct(array('format' => self::FORMAT_DE, 'locale' => "de"));
+        $session = new Zend_Session_Namespace();
+        $lang = $session->language;
         $log = Zend_Registry::get('Zend_Log');
-        $locale = new Zend_Locale();
-        $lang = $locale->getLanguage();        
+        //$locale = new Zend_Locale();
+        //$lang = Zend_Registry::get('Zend_Locale');
+        //$lang = $locale->getLanguage();
+        $log->debug("Language for Opus_Validate_Date: " . $lang . "**********************");
 
         switch ($lang) {
-            case 'en' : parent::__construct(array('format' => self::FORMAT_EN, 'locale' => 'en'));
+            case 'en' : parent::__construct(array('format' => self::FORMAT_EN, 'locale' => $lang));
                 break;
-            case 'de' : parent::__construct(array('format' => self::FORMAT_DE, 'locale' => 'de'));
+            case 'de' : parent::__construct(array('format' => self::FORMAT_DE, 'locale' => $lang));
                 break;
-            default :  parent::__construct(array('format' => self::FORMAT_EN, 'locale' => 'en'));
+            default :  parent::__construct(array('format' => self::FORMAT_EN, 'locale' => $lang));
                 break;
         }
     }
