@@ -524,6 +524,17 @@ CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
 ENGINE = InnoDB
 COMMENT = 'Relation table (documents, dnb_institutes).';
 
+-- -----------------------------------------------------
+-- document xml serializer cache
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `document_xml_cache` (
+    `document_id` INT UNSIGNED NOT NULL,
+    `xml_version` INT UNSIGNED NOT NULL,
+    `server_date_modified` VARCHAR(50) NULL,
+    `xml_data` MEDIUMTEXT,
+    PRIMARY KEY (`document_id`, `xml_version`)
+);
+
 -- -----------------------------------------
 -- Table holding scheduled job information
 -- -----------------------------------------
