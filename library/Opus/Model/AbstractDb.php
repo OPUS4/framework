@@ -971,12 +971,17 @@ abstract class Opus_Model_AbstractDb
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
                     $linkmodel = $value;
                 }
+                else if (is_null($this->getId()) or is_null($value->getId())) {
+                    // If any of the linked models hasn't been stored yet.
+                    $linkmodel = new $linkmodelclass;
+                    $linkmodel->setModel($value);
+                }
                 else {
-                    if (is_null($this->getId()) or is_null($value->getId())) {
-                        $linkmodel = new $linkmodelclass;
-                    }
-                    else {
+                    try {
                         $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
+                    }
+                    catch (Opus_Model_NotFoundException $e) {
+                        $linkmodel = new $linkmodelclass;
                     }
                     $linkmodel->setModel($value);
                 }
