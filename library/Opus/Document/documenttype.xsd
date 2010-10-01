@@ -96,21 +96,22 @@
 	</simpleType>
 	<simpleType name="availableDatatypes">
 		<restriction base="string">
-			<enumeration value="Text"/>
-			<enumeration value="text"/>
-			<enumeration value="Year"/>
-			<enumeration value="Person"/>
-			<enumeration value="Alpha"/>
-			<enumeration value="Integer"/>
-			<enumeration value="Title"/>
-			<enumeration value="Licence"/>
+                    	<enumeration value="Date"/>
+                        <enumeration value="ddc"/>
+                        <enumeration value="Email"/>
 			<enumeration value="Institute"/>
-			<enumeration value="Project"/>
-			<enumeration value="msc"/>
-			<enumeration value="ddc"/>
+                        <enumeration value="Integer"/>
 			<enumeration value="Language"/>
-			<enumeration value="Email"/>
-			<enumeration value="Date"/>
+                        <enumeration value="Licence"/>
+                        <enumeration value="msc"/>
+			<enumeration value="Person"/>
+			<enumeration value="Project"/>
+                        <enumeration value="Text"/>
+			<enumeration value="text"/>
+                        <enumeration value="Title"/>
+                        <enumeration value="ThesisGrantor"/>
+			<enumeration value="ThesisPublisher"/>
+                        <enumeration value="Year"/>
 		</restriction>
 	</simpleType>
 	<simpleType name="validFormElements">
