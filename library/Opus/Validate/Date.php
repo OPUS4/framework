@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,39 +25,28 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @author      Susanne Gottwald <gottwald@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @package     Opus_Validate
+ * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
+ * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-class Opus_Validate_Date extends Zend_Validate_Date {
+/**
+ * Validator for date fields.
+ *
+ * @category    Framework
+ * @package     Opus_Validate
+ */
 
-    CONST FORMAT_DE = "DD.MM.YYYY";
-    CONST FORMAT_EN = "YYYY/MM/DD";
+class Opus_Validate_Date extends Zend_Validate_Date {
 
     /**
      * Set necessary locale information for validating.
      *
      */
     public function __construct() {
-        //return parent::__construct(array('format' => self::FORMAT_DE, 'locale' => "de"));
-        $session = new Zend_Session_Namespace();
-        $lang = $session->language;
-        $log = Zend_Registry::get('Zend_Log');
-        //$locale = new Zend_Locale();
-        //$lang = Zend_Registry::get('Zend_Locale');
-        //$lang = $locale->getLanguage();
-        $log->debug("Language for Opus_Validate_Date: " . $lang . "**********************");
-
-        switch ($lang) {
-            case 'en' : parent::__construct(array('format' => self::FORMAT_EN, 'locale' => $lang));
-                break;
-            case 'de' : parent::__construct(array('format' => self::FORMAT_DE, 'locale' => $lang));
-                break;
-            default :  parent::__construct(array('format' => self::FORMAT_EN, 'locale' => $lang));
-                break;
-        }
+        parent::__construct(Zend_Date::DATE_MEDIUM, 'de');
     }
 
 }
