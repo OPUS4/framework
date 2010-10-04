@@ -73,6 +73,7 @@ searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belon
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
 log.prepare.xml = false
+log.level = DEBUG
 
 [testing : production]
 sql.schema.path =
