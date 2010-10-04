@@ -56,6 +56,14 @@ class Opus_Model_Xml {
     private $_strategy = null;
 
     /**
+     * TODO
+     * ...
+     *
+     * @var Opus_Model_Xml_Cache
+     */
+    private $_cache = null;
+
+    /**
      * Do some initial stuff like setting of a XML version and an empty
      * configuration.
      */
@@ -75,6 +83,37 @@ class Opus_Model_Xml {
         $this->_strategy = $strategy;
         $this->_strategy->setup($this->_config);
         return $this;
+    }
+
+    /**
+     * TODO
+     * ...
+     *
+     * @param Opus_Model_Xml_Cache $cache
+     * @return Opus_Model_Xml fluent interface.
+     */
+    public function setXmlCache(Opus_Model_Xml_Cache $cache) {
+        $this->_cache = $cache;
+        return $this;
+    }
+
+    /**
+     * ...
+     *
+     * @return Opus_Model_Xml fluent interface.
+     */
+    public function removeCache() {
+        $this->_cache = null;
+    }
+
+    /**
+     * TODO
+     * ...
+     *
+     * @return Opus_Model_Xml_Cache ...
+     */
+    public function getXmlCache() {
+        return $this->_cache;
     }
 
     /**
@@ -187,7 +226,52 @@ class Opus_Model_Xml {
      * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument() {
-        return $this->_strategy->getDomDocument();
+        $result = null;
+        $model = $this->_config->_model;
+        $model_name = get_class($model) . '#' . $model->getId();
+
+        if (null !== $this->_cache) {
+            $cached = $this->_cache->hasValidEntry(
+                $this->_config->_model->getId(),
+                (int) $this->_strategy->getVersion(),
+                $this->_config->_model->getServerDateModified()->__toString());
+
+            if (true === $cached) {
+                $logger = Zend_Registry::get('Zend_Log');
+                if (null !== $logger) {
+                    $logger->debug(__METHOD__ . ' cache hit for ' . $model_name);
+                }
+
+                $result = $this->_cache->get($this->_config->_model->getId(), (int) $this->_strategy->getVersion());
+            }
+        }
+        else {
+            $logger = Zend_Registry::get('Zend_Log');
+            if (null !== $logger) {
+                $logger->debug(__METHOD__ . ' skipping cache for ' . $model_name);
+            }
+        }
+
+        if (null === $result) {
+            $result = $this->_strategy->getDomDocument();
+
+            if (null !== $this->_cache) {
+
+                $logger = Zend_Registry::get('Zend_Log');
+                if (null !== $logger) {
+                    $logger->debug(__METHOD__ . ' with id ' . $this->_config->_model->getId());
+                }
+
+                $this->_cache->put(
+                    $this->_config->_model->getId(),
+                    (int) $this->_strategy->getVersion(),
+                    $this->_config->_model->getServerDateModified()->__toString(),
+                    $result);
+            }
+
+        }
+
+        return $result;
     }
 
     /**
