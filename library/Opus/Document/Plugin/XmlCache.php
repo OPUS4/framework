@@ -32,7 +32,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
-        return;
+
 
         $logger = Zend_Registry::get('Zend_Log');
         if (null !== $logger) {
@@ -51,6 +51,9 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
             ->setXmlCache($cache);
         $dom = $omx->getDomDocument();
 
+        // Skip caching of XML-Version2.
+        return;
+
         // xml version 2
         $omx = new Opus_Model_Xml();
         $omx->setStrategy(new Opus_Model_Xml_Version2)
@@ -64,7 +67,6 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
     public function postDelete($modelId) {
-        return;
 
         $cache = new Opus_Model_Xml_Cache();
         $omx = new Opus_Model_Xml;
