@@ -29,7 +29,7 @@
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: RunnerTest.php 4921 2009-12-21 14:03:11Z claussni $
  */
 
 /**
