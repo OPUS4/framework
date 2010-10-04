@@ -228,7 +228,6 @@ class Opus_Model_Xml {
     public function getDomDocument() {
         $result = null;
         $model = $this->_config->_model;
-        $model_name = get_class($model) . '#' . $model->getId();
 
         if (null !== $this->_cache) {
             $cached = $this->_cache->hasValidEntry(
@@ -239,7 +238,7 @@ class Opus_Model_Xml {
             if (true === $cached) {
                 $logger = Zend_Registry::get('Zend_Log');
                 if (null !== $logger) {
-                    $logger->debug(__METHOD__ . ' cache hit for ' . $model_name);
+                    $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
                 }
 
                 $result = $this->_cache->get($this->_config->_model->getId(), (int) $this->_strategy->getVersion());
@@ -248,7 +247,7 @@ class Opus_Model_Xml {
         else {
             $logger = Zend_Registry::get('Zend_Log');
             if (null !== $logger) {
-                $logger->debug(__METHOD__ . ' skipping cache for ' . $model_name);
+                $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
             }
         }
 
@@ -259,7 +258,7 @@ class Opus_Model_Xml {
 
                 $logger = Zend_Registry::get('Zend_Log');
                 if (null !== $logger) {
-                    $logger->debug(__METHOD__ . ' with id ' . $this->_config->_model->getId());
+                    $logger->debug(__METHOD__ . ' cache miss for ' . get_class($model) . '#' . $model->getId());
                 }
 
                 $this->_cache->put(
