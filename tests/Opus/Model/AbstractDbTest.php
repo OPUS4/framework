@@ -28,7 +28,8 @@
  * @package     Opus_Model
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -94,9 +95,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function setUp() {
-        // Instantiate the Zend_Db_Table
-        $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
-        $dba = $this->dbProvider->getAdapter();
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
         $dba->query('CREATE TABLE testtable (
             testtable_id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -105,6 +104,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // load table data
         parent::setUp();
 
+        // Instantiate the Zend_Db_Table
+        $this->dbProvider = Opus_Db_TableGateway::getInstance('Opus_Model_AbstractTableProvider');
     }
 
     /**
@@ -113,7 +114,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      */
     public function tearDown() {
-        $dba = $this->dbProvider->getAdapter();
+        $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
     }
 
@@ -123,7 +124,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testAddWithoutPropertLinkModelClassThrowsException() {
+    public function testAddWithoutProperLinkModelClassThrowsException() {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
         $this->setExpectedException('Opus_Model_Exception');
@@ -539,13 +540,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         try {
             $mockup->addLazyExternalModel();
-        } catch (Exception $ex) {
+        }
+        catch (Opus_Model_Exception $ex) {
             // Expect exception because of missing link model class
             $noop = 42;
         }
 
         // Check that _loadExternal has been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after add call.');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after add call.');
     }
 
     /**
@@ -734,9 +736,149 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model = new testParentIdGetPropagatedToDependentModelsOnLoading(1);
 
         $this->assertTrue($model->getExternalField1()->setParentIdHasBeenCalled, 'No parent id was set on fetching dependent model.');
-
     }
 
+   /**
+     * Provide names of plugin methods to be called with a given method.
+     *
+     * @return array Method names.
+     */
+    public function pluginCallnameProvider() {
+        return array(
+            array('store', 'preStore'),
+            array('store', 'postStore'),
+            array('store', 'postStoreInternal'),
+            array('store', 'postStoreExternal'),
+            array('delete', 'preDelete'),
+//           array('delete', 'postDelete'),
+        );
+    }
+
+    /**
+     * Test if an registered Plugin gets called.
+     *
+     * @return void
+     *
+     * @dataProvider pluginCallnameProvider
+     */
+    public function testRegisteredPluginGetsCalled($call, $expect) {
+        // create mock plugin to register method calls
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+
+        // define expectation
+        $getsCalled = $plugin->expects($this->once())
+                        ->method($expect);
+
+        // create test model register plugin with it
+        $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
+
+        // need to clone object because it gets altered by store/delete calls
+        $getsCalled->with(clone $model);
+
+        // trigger plugin behavior
+        $model->$call();
+    }
+
+    /**
+     * Test if preFetch hook gets called.
+     *
+     * @return void
+     */
+    public function testRegisteredPluginPreFetchGetsCalledOnCreation() {
+        // create mock plugin to register method calls
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+
+        // define expectation
+        $plugin->expects($this->once())
+                ->method('preFetch');
+
+        // create test model register plugin with it
+        $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
+    }
+
+    /**
+     * Test if postDelete hook gets called.
+     *
+     * @return void
+     */
+    public function testRegisteredPluginPostDeleteGetsCalledOnCreation() {
+        // create mock plugin to register method calls
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
+
+        // create persistent test model
+        $model = new Opus_Model_ModelAbstractDb();
+        $id = $model->store();
+        $model = new Opus_Model_ModelAbstractDb($id);
+
+        // define expectation
+        $plugin->expects($this->once())
+                ->method('postDelete')
+                ->with($id);
+
+        // trigger plugin behavior
+        $model->registerPlugin($plugin);
+        $model->delete();
+    }
+
+    /**
+     * Test if a registered plugin can be unregistered by its class name.
+     *
+     * @return void
+     */
+    public function testUnregisterPluginByClassname() {
+        $model = new Opus_Model_ModelAbstractDb;
+
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract',
+                        array('postStoreInternal'));
+        $plugin->expects($this->never())
+                ->method('postStoreInternal');
+
+        $model->registerPlugin($plugin);
+        $model->unregisterPlugin(get_class($plugin));
+
+        $id = $model->store();
+    }
+
+    /**
+     * Test if a registered plugin can be unregistered by instance.
+     *
+     * @return void
+     */
+    public function testUnregisterPluginByInstance() {
+        $model = new Opus_Model_ModelAbstractDb;
+
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract',
+                        array('postStoreInternal'));
+        $plugin->expects($this->never())
+                ->method('postStoreInternal');
+
+        $model->registerPlugin($plugin);
+        $model->unregisterPlugin($plugin);
+
+        $id = $model->store();
+    }
+
+    /**
+     * Unregistering a plugin that does not exist should throw an exception.
+     *
+     * @return void
+     */
+    public function testUnregisteringPluginThatDoesNotExistShouldThrowException() {
+        $model = new Opus_Model_ModelAbstractDb;
+
+        $plugin = $this->getMock('Opus_Model_Plugin_Abstract',
+                        array('postStoreInternal'));
+        $plugin->expects($this->never())
+                ->method('postStoreInternal');
+
+        $model->registerPlugin($plugin);
+
+        $this->setExpectedException('Opus_Model_Exception', 'Cannot unregister specified plugin: foobar');
+
+        $model->unregisterPlugin('foobar');
+    }
+
+    
     /**
      * Test if the modified flag of a field is set to false if no field has changed.
      *
@@ -746,7 +888,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model = new Opus_Model_ModelAbstractDb;
         $result = $model->isModified();
         $this->assertFalse($result, 'Modified flag is initially true.');
-
     }
 
     /**

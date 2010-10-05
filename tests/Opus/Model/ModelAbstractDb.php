@@ -52,6 +52,14 @@ class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
      */
     protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
 
+
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = array()) {
+        foreach ($plugins as $plugin) {
+            $this->registerPlugin($plugin);
+        }
+        parent::__construct($id, $tableGatewayModel);
+    }
+
     /**
      * Initialize model with the a single field "value".
      *
