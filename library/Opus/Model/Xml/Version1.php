@@ -178,8 +178,12 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         $modelClass = $field->getValueModelClass();
         $fieldValues = $field->getValue();
 
-        if ((true === empty($fieldValues)) and (true === $this->_config->_excludeEmpty)) {
-            return;
+        if (true === $this->_config->_excludeEmpty) {
+            if (true === is_null($fieldValues)
+                    or (is_string($fieldValues) && trim($fieldValues) == '')
+                    or (is_array($fieldValues) && empty($fieldValues)) ) {
+                return;
+            }
         }
 
         if (null === $modelClass) {
