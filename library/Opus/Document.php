@@ -301,12 +301,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
 
-//            'DnbInstitute' => array(
-//                            'model' => 'Opus_DnbInstitute',
-//                            'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
-//                            'fetch' => 'lazy'
-//            ),
-
             'ThesisPublisher' => array(
                             'model' => 'Opus_DnbInstitute',
                             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
@@ -366,7 +360,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available languages
-        if ($this->getField('Language') !== null) {
+        if (false && $this->getField('Language') !== null) {
             if (Zend_Registry::isRegistered('Available_Languages') === true) {
                 $this->getField('Language')
 //                        ->setMultiplicity('*')
@@ -376,13 +370,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available licences
-        if ($this->getField('Licence') !== null) {
+        if (false && $this->getField('Licence') !== null) {
             $licences = Opus_Licence::getAll();
             $this->getField('Licence')->setDefault($licences)
                     ->setSelection(true);
         }
 
-//        // Add the server (publication) state as a field
+        // Add the server (publication) state as a field
         if ($this->getField('ServerState') !== null) {
             $serverState = $this->getField('ServerState');
             $serverState->setDefault(array(
@@ -400,7 +394,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
             if (null !== $field) {
-                // $field->setValidator(new Opus_Validate_Date);
                 $field->setValueModelClass('Opus_Date');
             }
         }
@@ -420,7 +413,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Check if document has non-existing attachments.
-        if (false === is_null($this->getId()) and $this->hasField('File')) {
+        if (!$this->isNewRecord() and $this->hasField('File')) {
             // check files for non-existing ones and strip them out
             $files = $this->_getField('File')->getValue();
             $return = array();
