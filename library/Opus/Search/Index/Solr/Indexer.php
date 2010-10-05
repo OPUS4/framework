@@ -207,10 +207,16 @@ class Opus_Search_Index_Solr_Indexer {
      * @return DOMDocument
      */
     private function getSolrXmlDocument($doc) {
-        // Set up filter and get XML representation of filtered document.
-        $filter = new Opus_Model_Filter;
-        $filter->setModel($doc);
-        $modelXml = $filter->toXml(array(), new Opus_Model_Xml_Version1(), false);
+        // Set up caching xml-model and get XML representation of document.
+        $caching_xml_model = new Opus_Model_Xml;
+        $caching_xml_model->setModel($doc);
+        // $xmlModel->excludeEmptyFields(); // needed for preventing handling errors
+        $caching_xml_model->setStrategy(new Opus_Model_Xml_Version1);
+        $caching_xml_model->setXmlCache(new Opus_Model_Xml_Cache);
+
+        $modelXml = $caching_xml_model->getDomDocument();
+
+        // extract fulltext from file and append it to the generated xml.
         $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
 
         // Set up XSLT stylesheet
@@ -245,9 +251,9 @@ class Opus_Search_Index_Solr_Indexer {
      * @return void
      */
     private function attachFulltextToXml($modelXml, $files, $docId) {
-        $docXml = $modelXml->getElementsByTagName('Opus_Model_Filter')->item(0);
+        $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
-            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $doc->getId());
+            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);
             $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
         }
