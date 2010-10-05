@@ -147,12 +147,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      */
     protected function _initConfiguration() {
-        $config = new Zend_Config($this->getOptions(), true);
-        
-        $config->configPath = APPLICATION_PATH . '/application/configs';
-
-        $config->setReadOnly();
-        
+        $config = new Zend_Config($this->getOptions());
         Zend_Registry::set('Zend_Config', $config);
 
         return $config;
