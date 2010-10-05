@@ -210,7 +210,6 @@ class Opus_Search_Index_Solr_Indexer {
         // Set up caching xml-model and get XML representation of document.
         $caching_xml_model = new Opus_Model_Xml;
         $caching_xml_model->setModel($doc);
-        // $xmlModel->excludeEmptyFields(); // needed for preventing handling errors
         $caching_xml_model->setStrategy(new Opus_Model_Xml_Version1);
         $caching_xml_model->setXmlCache(new Opus_Model_Xml_Cache);
 
