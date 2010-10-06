@@ -40,6 +40,8 @@
  */
 class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
 
+    private $synchronous = true;
+
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
@@ -50,11 +52,22 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        // immediate indexing attempt
-        $createJob = true;
+        if ($this->synchronous) {
+            $logger = Zend_Registry::get('Zend_Log');
+            if (null !== $logger) {
+                $logger->debug(__METHOD__ . ' adding/updating document with id ' . $model->getId() . ' to Solr index');
+            }
 
-        // create index job including fulltext index generation
-        if (true === $createJob) {
+            $indexer = new Opus_Search_Index_Solr_Indexer;
+            $indexer->addDocumentToEntryIndex($model);
+            $indexer->commit();
+        }
+        else {
+            $logger = Zend_Registry::get('Zend_Log');
+            if (null !== $logger) {
+                $logger->debug(__METHOD__ . ' adding index-document job for document with id ' . $model->getId() . ' to job queue');
+            }
+
             $job = new Opus_Job();
             $job->setLabel('opus-index-document');
             $job->setData(array(
@@ -66,7 +79,6 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
                 $job->store();
             }
         }
-
     }
 
     /**
@@ -78,13 +90,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        return;
-        throw new Exception("Check if Solr-Indexer can handle document-ids.");
+        $logger = Zend_Registry::get('Zend_Log');
+        if (null !== $logger) {
+            $logger->debug(__METHOD__ . ' removing id ' . $modelId . ' from Solr index');
+        }
 
         $indexer = new Opus_Search_Index_Solr_Indexer;
-        $indexer->removeDocumentFromEntryIndex($modelId);
+        $indexer->removeDocumentFromEntryIndexById($modelId);
         $indexer->commit();
-
     }
 
 
