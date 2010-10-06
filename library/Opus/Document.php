@@ -248,12 +248,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'options'  => array('role' => 'other'),
                             'fetch' => 'lazy'
             ),
-            'PersonOwner' => array(
-                            'model' => 'Opus_Person',
-                            'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'owner'),
-                            'fetch' => 'lazy'
-            ),
             'PersonTranslator' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
