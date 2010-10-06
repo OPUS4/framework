@@ -43,6 +43,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
     private $synchronous = true;
 
     /**
+     * Post-store hook will be called right after the document has been stored
+     * to the database.  If set to synchronous, update index.  Otherwise add
+     * job to worker-queue.
+     *
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
@@ -52,20 +56,36 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
+        // create-job flag to determine, if we need to enqueue an index-job.
+        $create_job = true;
+
+        // if synchronous is set, try to index document
         if ($this->synchronous) {
             $logger = Zend_Registry::get('Zend_Log');
             if (null !== $logger) {
-                $logger->debug(__METHOD__ . ' adding/updating document with id ' . $model->getId() . ' to Solr index');
+                $message = 'Indexing document ' . $model->getId() . '.';
+                $logger->debug(__METHOD__ . ': ' . $message);
             }
 
-            $indexer = new Opus_Search_Index_Solr_Indexer;
-            $indexer->addDocumentToEntryIndex($model);
-            $indexer->commit();
+            try {
+                $indexer = new Opus_Search_Index_Solr_Indexer;
+                $indexer->addDocumentToEntryIndex($model);
+                $indexer->commit();
+                $create_job = false;
+            }
+            catch (Opus_Search_Index_Solr_Exception $e) {
+                $message = 'Indexing document ' . $model->getId() . ' failed: ';
+                $message .= $e->getMessage();
+                $logger->debug(__METHOD__ . ': ' . $message);
+            }
         }
-        else {
+
+        // enqueue job, if synchronous update disabled *or* failed
+        if ($create_job) {
             $logger = Zend_Registry::get('Zend_Log');
             if (null !== $logger) {
-                $logger->debug(__METHOD__ . ' adding index-document job for document with id ' . $model->getId() . ' to job queue');
+                $message = 'Adding index job for document ' . $model->getId() . '.';
+                $logger->debug(__METHOD__ . ': ' . $message);
             }
 
             $job = new Opus_Job();
@@ -82,6 +102,8 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
     }
 
     /**
+     * Remove document from index.
+     *
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
     public function postDelete($modelId) {
@@ -92,14 +114,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
 
         $logger = Zend_Registry::get('Zend_Log');
         if (null !== $logger) {
-            $logger->debug(__METHOD__ . ' removing id ' . $modelId . ' from Solr index');
+            $message = 'Removing document ' . $modelId . ' from index.';
+            $logger->debug(__METHOD__ . ': ' . $message);
         }
 
         $indexer = new Opus_Search_Index_Solr_Indexer;
         $indexer->removeDocumentFromEntryIndexById($modelId);
         $indexer->commit();
     }
-
 
 }
 
