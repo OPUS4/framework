@@ -215,7 +215,6 @@ abstract class Opus_Model_AbstractDb
      */
     public function addField(Opus_Model_Field $field) {
         $result = parent::addField($field);
-        $fieldname = $field->getName();
 
         // set ValueModelClass if a through option is given
         $valueModelClass = $this->_getValueModelClassForField($field);
