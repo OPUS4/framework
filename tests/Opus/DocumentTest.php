@@ -1149,4 +1149,56 @@ class Opus_DocumentTest extends TestCase {
          $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
      }
 
+     public function testGetAllDocumentsByDoctype() {
+         $d = new Opus_Document();
+         $d->setServerState('published');
+         $published_id = $d->store();
+
+         $d = new Opus_Document();
+         $d->setServerState('unpublished');
+         $unpublished_id = $d->store();
+
+         $docs = Opus_Document::getAllDocumentsByDoctype();
+         $this->assertContains($published_id, $docs, 'all should contain "published"');
+         $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+
+         $docs = Opus_Document::getAllDocumentsByDoctypeByState('published');
+         $this->assertContains($published_id, $docs, 'published list should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+
+         $docs = Opus_Document::getAllDocumentsByDoctypeByState('published', 0);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+         $docs = Opus_Document::getAllDocumentsByDoctypeByState('published', 1);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+     }
+
+     public function testGetAllDocumentsByPubDate() {
+         $d = new Opus_Document();
+         $d->setServerState('published');
+         $published_id = $d->store();
+
+         $d = new Opus_Document();
+         $d->setServerState('unpublished');
+         $unpublished_id = $d->store();
+
+         $docs = Opus_Document::getAllDocumentsByPubDate();
+         $this->assertContains($published_id, $docs, 'all should contain "published"');
+         $this->assertContains($unpublished_id, $docs, 'all should contain "unpublished"');
+
+         $docs = Opus_Document::getAllDocumentsByPubDateByState('published');
+         $this->assertContains($published_id, $docs, 'published list should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list should not contain unpublished');
+
+         $docs = Opus_Document::getAllDocumentsByPubDateByState('published', 0);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 0) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 0) should not contain unpublished');
+
+         $docs = Opus_Document::getAllDocumentsByPubDateByState('published', 1);
+         $this->assertContains($published_id, $docs, 'published list (sorted, 1) should contain published');
+         $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
+     }
+
 }
