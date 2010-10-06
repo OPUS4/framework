@@ -52,14 +52,15 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
         $dom = $omx->getDomDocument();
 
         // Skip caching of XML-Version2.
-        return;
-
-        // xml version 2
-        $omx = new Opus_Model_Xml();
-        $omx->setStrategy(new Opus_Model_Xml_Version2)
-            ->setModel($model)
-            ->setXmlCache($cache);
-        $dom = $omx->getDomDocument();
+        $index_version_two = false;
+        if ($index_version_two) {
+            // xml version 2
+            $omx = new Opus_Model_Xml();
+            $omx->setStrategy(new Opus_Model_Xml_Version2)
+                ->setModel($model)
+                ->setXmlCache($cache);
+            $dom = $omx->getDomDocument();
+        }
 
     }
 
