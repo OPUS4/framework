@@ -935,6 +935,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     
+    /**
+     * Overwrite describe: Do not export external fields to XML.
+     *
+     * @return array
+     */
+    public function describe() {
+        $excludeFields = array( 'Children', 'Role', 'PendingNodes', 'Parents' );
+        return array_diff(parent::describe(), $excludeFields);
+    }
+
 }
 
 ?>
