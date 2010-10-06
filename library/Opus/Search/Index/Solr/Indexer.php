@@ -184,16 +184,34 @@ class Opus_Search_Index_Solr_Indexer {
      * @throws InvalidArgumentException If given document $doc is null.
      * @throws Opus_Search_Index_Solr_Exception If deleting document failed.
      * @return void
+     *
+     * @see removeDocumentFromEntryIndexById()
      */
     public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
         if (true !== isset($doc)) {
             throw new InvalidArgumentException("Document parameter must not be NULL.");
         }
+        $this->removeDocumentFromEntryIndexById($doc->getId());
+    }
+
+    /**
+     * Removes a document from the index.  The changes are not visible and a
+     * subsequent call to commit is required, to make the changes visible.
+     *
+     * @param int $documentId Id document that should be removed to the index
+     * @throws InvalidArgumentException If given document $documentId is null.
+     * @throws Opus_Search_Index_Solr_Exception If deleting document failed.
+     * @return void
+     */
+    public function removeDocumentFromEntryIndexById($documentId = null) {
+        if (true !== isset($documentId)) {
+            throw new InvalidArgumentException("DocumentId parameter must not be NULL.");
+        }
         try {
-            $this->index_server->deleteById($doc->getId());
+            $this->index_server->deleteById($documentId);
         }
         catch (Apache_Solr_Exception $e) {
-            $msg = 'Error while deleting document with id ' . $doc->getId();
+            $msg = 'Error while deleting document with id ' . $documentId;
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
         }
