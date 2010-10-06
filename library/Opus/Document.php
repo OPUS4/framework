@@ -78,7 +78,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
             'TitleAbstract' => array(
-                            'model' => 'Opus_Title',
+                            'model' => 'Opus_TitleAbstract',
                             'options' => array('type' => 'abstract'),
                             'fetch' => 'lazy'
             ),
@@ -367,6 +367,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
                         ->setDefault(Zend_Registry::get('Available_Languages'))
                         ->setSelection(true);
             }
+        }
+
+        // Bibliography field is boolean, so make it a checkbox
+        if ($this->getField('BelongsToBibliography') !== null) {
+            $bibliography = $this->getField('BelongsToBibliography');
+            $bibliography->setCheckbox(true);
         }
 
         // Initialize available licences
