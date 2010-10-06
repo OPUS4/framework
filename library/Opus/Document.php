@@ -480,9 +480,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
         return self::getAllFrom('Opus_Document', 'Opus_Db_Documents', $ids);
     }
 
+    /**
+     * Returns all external fields.  Needed by the publication module.
+     *
+     * TODO: Replace by something that doesn't rely on internal attributes.
+     *
+     * @deprecated
+     * @return array
+     */
     public function getAllExternalFields() {
         return array_keys($this->_externalFields);
     }
+
     /**
      * Returns all document that are in a specific server (publication) state.
      *
