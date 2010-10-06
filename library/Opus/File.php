@@ -70,12 +70,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-        'AccessPermission' => array(
-            'model' => 'Opus_Role',
-            'through' => 'Opus_Model_Dependent_Link_FileRole',
-            'options' => array('privilege' => 'readFile'),
-            'fetch' => 'lazy'
-        ),
         'HashValue' => array(
             'model' => 'Opus_HashValues'
         ),
@@ -118,11 +112,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
 
-        $role = new Opus_Model_Field('AccessPermission');
-        $role->setMultiplicity('*');
-        $role->setDefault(Opus_Role::getAll());
-        $role->setSelection(true);
-
         $document_id = new Opus_Model_Field('DocumentId');
 
         $this->addField($filepathname)
@@ -134,13 +123,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
                 ->addField($hashvalue)
-                ->addField($role)
                 ->addField($document_id);
 
         $config = Zend_Registry::get('Zend_Config');
         $workspaceFiles = $config->workspacePath . "/files";
         $this->_storage = new Opus_Storage_File($workspaceFiles);
-
     }
 
     /**

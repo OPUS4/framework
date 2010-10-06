@@ -27,6 +27,7 @@
  *
  * @category    Framework
  * @package     Opus
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -57,6 +58,23 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
     protected static $_tableGatewayClass = 'Opus_Db_Privileges';
 
     /**
+     * The privileges external fields.
+     *
+     * @var array
+     * @see Opus_Model_Abstract::$_externalFields
+     */
+    protected $_externalFields = array(
+        'Role' => array(
+            'model' => 'Opus_Role',
+            'fetch' => 'lazy',
+        ),
+        'File' => array(
+            'model' => 'Opus_File',
+            'fetch' => 'lazy',
+        )
+    );
+
+    /**
      * Initialize model with the following fields:
      * - Privilege
      * - DocumentServerState
@@ -83,5 +101,106 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
                     'deleted' => 'deleted'))
             ->setSelection(true);
         $this->addField($documentServerState);
+
+        $this->addField(new Opus_Model_Field('FileId'));
+
+        $this->addField(new Opus_Model_Field('Role'));
+        $this->addField(new Opus_Model_Field('File'));
+
+    }
+
+    /**
+     * Internal method to populate external field.
+     */
+    protected function _fetchRole() {
+        // if role_id is empty, it returns a new Opus_Role.
+        return new Opus_Role($this->_primaryTableRow->role_id);
+    }
+
+    /**
+     * Internal method to store external field to model.
+     */
+    protected function _storeRole($role) {
+    }
+
+    /**
+     * Do not use this method. Privileges contains roles only for convenience!
+     * Opus_Privilege is a dependent model. Do not add a role to a privilege,
+     * add a privilege to a role!
+     *
+     * @param mixed $role
+     */
+    public function addRole($role) {
+        $message = 'Opus_Privilege is a dependent Model.'
+                   .' Add a privilege to a role, not a role to a privilege!';
+        throw new Opus_Model_Exception($message);
+    }
+
+    /**
+     * Do not use this method. Privileges contains roles only for convenience!
+     * Opus_Privilege is a dependent model. Do not set roles to privileges,
+     * set privileges to roles!
+     *
+     * @param mixed $role
+     */
+    public function setRole($role) {
+        $message = 'Opus_Privilege is a dependent Model.'
+                   .' Set privileges to roles, not roles to privileges!';
+        throw new Opus_Model_Exception($message);
+    }
+
+    /**
+     * Internal method to populate external field.
+     */
+    protected function _fetchFile() {
+        // if file_id is empty, it returns a new Opus_File.
+        return new Opus_File($this->_primaryTableRow->file_id);
+    }
+
+    /**
+     * Internal method to store external field to model.
+     */
+    protected function _storeFile($file) {
+        $file = is_array($file) ? $file : array($file);
+        if (count($file) > 1) {
+            throw new Opus_Model_Exception
+                ('Opus_Privilege can store a link to one file only. Got more then one File');
+        } else if (count($file) === 1 && false === is_null($file[0])) {
+            $this->_primaryTableRow->file_id = $file[0]->getId();
+        } else {
+            $this->_primaryTableRow->file_id = null;
+        }
+    }
+
+    public function store() {
+        if ($this->getPrivilege() === 'readFile') {
+            $file = $this->getFile();
+            if ($file instanceof Opus_File) {
+                $this->_primaryTableRow->file_id = $file->getId();
+            } else if (true === is_null($file)) {
+                throw new Opus_Model_Exception
+                    ('You are trying to store a readFile privilege without an file_id! Which File should be readable?');
+            } else {
+                throw new IllegalArgumentException('Expected an Opus_File, got anything else.');
+            }
+        }
+        parent::store();
+    }
+
+    public static function fetchPrivilegeIdsByFile($file) {
+        if (false === isset($file)) {
+            return;
+        }
+        $file_id = $file instanceof Opus_File ? $file->getId() : $file;
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->from($table, array('id' => 'id'))->where('file_id = ?', $file_id);
+        $rows = $table->fetchAll($select);
+
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = $row['id'];
+        }
+        return $result;
     }
 }
