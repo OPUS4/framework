@@ -41,6 +41,7 @@ class Opus_SolrSearch_Query {
     const ADVANCED = 'advanced';
     const FACET_ONLY = 'facet_only';
     const LATEST_DOCS = 'latest';
+    const ALL_DOCS = 'all_docs';
 
     const DEFAULT_START = 0;
     const DEFAULT_ROWS = 10;
@@ -82,8 +83,8 @@ class Opus_SolrSearch_Query {
             $this->setRows(0);
             return;
         }
-        if ($searchType === self::LATEST_DOCS) {
-            $this->searchType = self::LATEST_DOCS;
+        if ($searchType === self::LATEST_DOCS || $searchType === self::ALL_DOCS) {
+            $this->searchType = $searchType;
             $this->sortField = 'server_date_published';
             $this->sortOrder = 'desc';
             return;
@@ -247,7 +248,7 @@ class Opus_SolrSearch_Query {
             }
             return $this->escape($this->getCatchAll());
         }
-        if ($this->searchType === self::FACET_ONLY || $this->searchType === self::LATEST_DOCS) {
+        if ($this->searchType === self::FACET_ONLY || $this->searchType === self::LATEST_DOCS || $this->searchType === self::ALL_DOCS) {
             return '*:*';
         }
         return $this->buildAdvancedQString();
@@ -347,6 +348,9 @@ class Opus_SolrSearch_Query {
         }
         if ($this->searchType === self::LATEST_DOCS) {
             return 'search for latest documents with query *:*';
+        }
+        if ($this->searchType === self::ALL_DOCS) {
+            return 'search for all documents';
         }
         return 'advanced search with query  ' . $this->getQ();
     }
