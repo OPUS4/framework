@@ -56,12 +56,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        // create-job flag to determine, if we need to enqueue an index-job.
-        $create_job = true;
+        $logger = Zend_Registry::get('Zend_Log');
 
         // if synchronous is set, try to index document
         if ($this->synchronous) {
-            $logger = Zend_Registry::get('Zend_Log');
             if (null !== $logger) {
                 $message = 'Indexing document ' . $model->getId() . '.';
                 $logger->debug(__METHOD__ . ': ' . $message);
@@ -71,34 +69,36 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
                 $indexer = new Opus_Search_Index_Solr_Indexer;
                 $indexer->addDocumentToEntryIndex($model);
                 $indexer->commit();
-                $create_job = false;
+
+                // Return immediately if successful - no more actions required.
+                return;
             }
             catch (Opus_Search_Index_Solr_Exception $e) {
-                $message = 'Indexing document ' . $model->getId() . ' failed: ';
-                $message .= $e->getMessage();
-                $logger->debug(__METHOD__ . ': ' . $message);
+                if (null !== $logger) {
+                    $message = 'Indexing document ' . $model->getId() . ' failed: ';
+                    $message .= $e->getMessage();
+                    $logger->debug(__METHOD__ . ': ' . $message);
+                }
             }
         }
 
         // enqueue job, if synchronous update disabled *or* failed
-        if ($create_job) {
-            $logger = Zend_Registry::get('Zend_Log');
-            if (null !== $logger) {
-                $message = 'Adding index job for document ' . $model->getId() . '.';
-                $logger->debug(__METHOD__ . ': ' . $message);
-            }
-
-            $job = new Opus_Job();
-            $job->setLabel('opus-index-document');
-            $job->setData(array(
-                'documentId' => $model->getId(),
-            ));
-
-            // skip creating job if equal job already exists
-            if (true === $job->isUniqueInQueue()) {
-                $job->store();
-            }
+        if (null !== $logger) {
+            $message = 'Adding index job for document ' . $model->getId() . '.';
+            $logger->debug(__METHOD__ . ': ' . $message);
         }
+
+        $job = new Opus_Job();
+        $job->setLabel('opus-index-document');
+        $job->setData(array(
+            'documentId' => $model->getId(),
+        ));
+
+        // skip creating job if equal job already exists
+        if (true === $job->isUniqueInQueue()) {
+            $job->store();
+        }
+
     }
 
     /**
