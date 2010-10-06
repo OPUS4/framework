@@ -27,7 +27,8 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework, Document
- * @author      Susanne Gottwald <gottwald@zib.de>
+ * @author	Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de) 
+ * @author     	Susanne Gottwald <gottwald@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -56,7 +57,9 @@
 		</sequence>
 		<attribute name="name" type="opus:validname" use="required"/>
 	</complexType>
-
+	
+	<!-- a valid field can have the subelements required-if-fulltext, subfield, default
+	moreover it has to have all the attributes name, multiplicity, required, formelement, datatype -->
 	<complexType name="FieldType">
 		<sequence minOccurs="0">
 			<element name="required-if-fulltext" minOccurs="0"/>
@@ -69,7 +72,10 @@
 		<attribute name="formelement" type="opus:validFormElements"/>
 		<attribute name="datatype" type="opus:availableDatatypes"/>
 	</complexType>
-
+	
+	<!-- a valid subfield can have default subelement and the attributes
+	name, required, formelement, datatype. multiplicity is not allowed,
+	 this is regularized by the parent element -->
 	<complexType name="SubFieldType">
 		<sequence minOccurs="0">
 			<element name="default" type="opus:defaultField"/>
@@ -79,14 +85,16 @@
 		<attribute name="formelement" type="opus:validFormElements"/>
 		<attribute name="datatype" type="opus:availableDatatypes"/>
 	</complexType>
+	
+	<!-- defaultField can be used for defining default values for form elements
+	value is the default value, edit describes if the element can be changed,
+	public states if the element can be seen with its value -->
 	<complexType name="defaultField">
 		<attribute name="value"/>
 		<attribute name="edit"/>
 		<attribute name="public"/>
 	</complexType>
-	<complexType name="requiredType">
-		<attribute name="field" type="opus:validfieldname" use="required"/>
-	</complexType>
+	
 	<!-- Multiplicity attributes accept only integers for quantities,
 		or the star "*" symbol to represent unlimited quantity.-->
 	<simpleType name="multiplicity">
@@ -94,26 +102,31 @@
 			<pattern value="([1-9][0-9]*)|\*"/>
 		</restriction>
 	</simpleType>
+	
+		<!-- availableDatatypes is used as values for attribute DATATYPE 
+		they are represented in publish/models/validation.php -->
 	<simpleType name="availableDatatypes">
 		<restriction base="string">
-                    	<enumeration value="Date"/>
-                        <enumeration value="ddc"/>
-                        <enumeration value="Email"/>
+			<enumeration value="Date"/>
+			<enumeration value="ddc"/>
+			<enumeration value="Email"/>
 			<enumeration value="Institute"/>
-                        <enumeration value="Integer"/>
+			<enumeration value="Integer"/>
 			<enumeration value="Language"/>
-                        <enumeration value="Licence"/>
-                        <enumeration value="msc"/>
+			<enumeration value="Licence"/>
+			<enumeration value="msc"/>
 			<enumeration value="Person"/>
 			<enumeration value="Project"/>
-                        <enumeration value="Text"/>
+			<enumeration value="Text"/>
 			<enumeration value="text"/>
-                        <enumeration value="Title"/>
-                        <enumeration value="ThesisGrantor"/>
+			<enumeration value="Title"/>
+			<enumeration value="ThesisGrantor"/>
 			<enumeration value="ThesisPublisher"/>
-                        <enumeration value="Year"/>
+			<enumeration value="Year"/>
 		</restriction>
 	</simpleType>
+	
+	<!-- validFormElements is used as values for attribute FORMELEMENT -->
 	<simpleType name="validFormElements">
 		<restriction base="string">
 			<enumeration value="Text"/>
@@ -122,21 +135,20 @@
 			<enumeration value="text"/>
 			<enumeration value="textarea"/>
 			<enumeration value="select"/>
+			<enumeration value="Checkbox"/>
+			<enumeration value="checkbox"/>
 		</restriction>
 	</simpleType>
+	
+	<!-- yesno ist used as values for attribute REQUIRED -->
 	<simpleType name="yesno">
 		<restriction base="string">
 			<enumeration value="yes"/>
 			<enumeration value="no"/>
 		</restriction>
 	</simpleType>
-	<simpleType name="onoff">
-		<restriction base="string">
-			<enumeration value="on"/>
-			<enumeration value="off"/>
-		</restriction>
-	</simpleType>
-	<!-- A valid field name has only lowercase characters and digits.
+	
+	<!-- A valid document type name has only lowercase characters and digits.
 		It always starts with characters. Words can be separated by the
 		underscore character "_".
 	-->
@@ -145,10 +157,12 @@
 			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
 		</restriction>
 	</simpleType>
-	<!-- FINGER WEG: Aenderungen fuehren zu Fehlern! Feldnamen haengen von Opus_Document ab! -->
+	
+<!-- DO NOT TOUCH!!! Changes will lead to errors! All validfieldnames depend on Opus_Document! -->
 	<simpleType name="validfieldname">
 		<restriction base="string">
 			<enumeration value="AcademicTitle"/>
+			<enumeration value="AllowEmailContact"/>
 			<enumeration value="Collection"/>
 			<enumeration value="CompletedDate"/>
 			<enumeration value="CompletedYear"/>
@@ -160,6 +174,17 @@
 			<enumeration value="Enrichment"/>
 			<enumeration value="Email"/>
 			<enumeration value="File"/>
+			<enumeration value="IdentifierIsbn"/>
+			<enumeration value="IdentifierUrn"/>
+			<enumeration value="IdentifierDoi"/>
+			<enumeration value="IdentifierHandle"/>
+			<enumeration value="IdentifierUrl"/>
+			<enumeration value="IdentifierIssn"/>
+			<enumeration value="IdentifierStdDoi"/>
+			<enumeration value="IdentifierCrisLink"/>
+			<enumeration value="IdentifierSplashUrl"/>
+			<enumeration value="IdentifierOpus3"/>
+			<enumeration value="IdentifierOpac"/>
 			<enumeration value="Institute"/>
 			<enumeration value="Issue"/>
 			<enumeration value="Language"/>
@@ -183,6 +208,15 @@
 			<enumeration value="PublishedYear"/>
 			<enumeration value="PublisherName"/>
 			<enumeration value="PublisherPlace"/>
+			<enumeration value="ReferenceIsbn"/>
+			<enumeration value="ReferenceUrn"/>
+			<enumeration value="ReferenceDoi"/>
+			<enumeration value="ReferenceHandle"/>
+			<enumeration value="ReferenceUrl"/>
+			<enumeration value="ReferenceIssn"/>
+			<enumeration value="ReferenceStdDoi"/>
+			<enumeration value="ReferenceCrisLink"/>
+			<enumeration value="ReferenceSplashUrl"/>
 			<enumeration value="ServerDateUnlocking"/>
 			<enumeration value="SubjectDdc"/>
 			<enumeration value="SubjectMSC"/>
@@ -198,26 +232,6 @@
 			<enumeration value="TitleSub"/>
 			<enumeration value="TitleAdditional"/>
 			<enumeration value="Volume"/>
-			<enumeration value="IdentifierIsbn"/>
-			<enumeration value="IdentifierUrn"/>
-			<enumeration value="IdentifierDoi"/>
-			<enumeration value="IdentifierHandle"/>
-			<enumeration value="IdentifierUrl"/>
-			<enumeration value="IdentifierIssn"/>
-			<enumeration value="IdentifierStdDoi"/>
-			<enumeration value="IdentifierCrisLink"/>
-			<enumeration value="IdentifierSplashUrl"/>
-			<enumeration value="IdentifierOpus3"/>
-			<enumeration value="IdentifierOpac"/>
-			<enumeration value="ReferenceIsbn"/>
-			<enumeration value="ReferenceUrn"/>
-			<enumeration value="ReferenceDoi"/>
-			<enumeration value="ReferenceHandle"/>
-			<enumeration value="ReferenceUrl"/>
-			<enumeration value="ReferenceIssn"/>
-			<enumeration value="ReferenceStdDoi"/>
-			<enumeration value="ReferenceCrisLink"/>
-			<enumeration value="ReferenceSplashUrl"/>
 		</restriction>
 	</simpleType>
 </schema>
