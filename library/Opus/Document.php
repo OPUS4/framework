@@ -360,7 +360,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available languages
-        if (false && $this->getField('Language') !== null) {
+        if ($this->getField('Language') !== null) {
             if (Zend_Registry::isRegistered('Available_Languages') === true) {
                 $this->getField('Language')
 //                        ->setMultiplicity('*')
@@ -376,7 +376,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available licences
-        if (false && $this->getField('Licence') !== null) {
+        if ($this->getField('Licence') !== null) {
             $licences = Opus_Licence::getAll();
             $this->getField('Licence')->setDefault($licences)
                     ->setSelection(true);
