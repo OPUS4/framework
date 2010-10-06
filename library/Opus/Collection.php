@@ -129,7 +129,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $visible = new Opus_Model_Field('Visible');        
         $visible->setCheckbox(true);
-        $this->addField($field);
+        $this->addField($visible);
 
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');
