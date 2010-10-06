@@ -61,7 +61,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * Name of the default theme.
      *
      */
-    const DEFAULT_THEME_NAME = 'default';
+    const DEFAULT_THEME_NAME = 'opus4';
 
 
     /**
@@ -119,13 +119,17 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        $fields = array('Number', 'Name', 'OaiSubset', 'Visible',
+        $fields = array('Number', 'Name', 'OaiSubset',
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
         }
+
+        $visible = new Opus_Model_Field('Visible');        
+        $visible->setCheckbox(true);
+        $this->addField($field);
 
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');

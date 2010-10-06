@@ -69,21 +69,18 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     );
 
     /**
-     * Initialize model with the following fields:
-     *
-     * - Name
-     * - Position
-     * - Visible
-     * - ...
-     *
+     * Initialize model.
+     * 
      * @return void
      */
     protected function _init() {
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
+        $name->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($name);
 
         $oaiName = new Opus_Model_Field('OaiName');
+        $oaiName->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($oaiName);
 
         $position = new Opus_Model_Field('Position');
