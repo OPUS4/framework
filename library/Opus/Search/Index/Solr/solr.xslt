@@ -224,6 +224,14 @@
                     </xsl:element>
                 </xsl:for-each>
 
+                <!-- title parent -->
+                <xsl:for-each select="/Opus/Opus_Document/TitleParent">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">title_parent</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
                 <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
                 <!--xsl:for-each select="/Opus/Opus_Document/*">
                     <xsl:if test="substring(name(), 1, 6)='Person'">
@@ -240,7 +248,6 @@
 
                 <!-- TODO: PublisherName, PublisherPlace -->
 
-                <!-- TODO: TitleParent -->
 
             </xsl:element>
         </xsl:element>
