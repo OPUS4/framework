@@ -912,7 +912,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Returns children of current collection (replaces getSubCollections).
+     * Returns children of current collection.
      *
      * @return Array of Opus_Collection objects.
      */

@@ -205,8 +205,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      */
     public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true) {
         if (is_null($excludeFields) === true) {
-            // FIXME: Hard coded definition of standard exclude fields.
-            $excludeFields = array('SubCollection', 'SubCollections', 'Documents', 'Role');
+            $excludeFields = array();
         }
         if (is_null($strategy) === true) {
             $strategy = new Opus_Model_Xml_Version1();
