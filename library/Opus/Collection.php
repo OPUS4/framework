@@ -521,10 +521,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Seems unused.  Check if we still need it.
      */
     public function toArray($call = null) {
-        throw new Exception("FIXME: Produces infinite recursion.  Fix it first.");
-
         $role = $this->getRole();
-        $result = array(
+        return array(
             'Id' => $this->getId(),
             'RoleId' => $this->getRoleId(),
             'RoleName' => $role->getDisplayName(),
@@ -532,46 +530,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
             'DisplayOai' => $this->getDisplayName('oai'),
         );
-
-        $exclude_fields = array('Theme', 'Role');
-        $search_fields = array_diff(array_keys($this->_fields), $exclude_fields);
-
-        foreach ($search_fields as $fieldname) {
-            $field = $this->_getField($fieldname);
-
-            if (!isset($field)) {
-                continue;
-            }
-
-            $fieldvalue = $field->getValue();
-
-            if ($field->hasMultipleValues()) {
-                $fieldvalues = array();
-                foreach ($fieldvalue as $value) {
-                    if ($value instanceof Opus_Collection) {
-                        $val = $value->toArray($fieldname);
-                        if (false !== $val) {
-                            $fieldvalues[] = $val;
-                        }
-                    } else {
-                        $fieldvalues[] = $value;
-                    }
-                }
-                if (false === empty($fieldvalues)) {
-                    $result[$fieldname] = $fieldvalues;
-                }
-            } else {
-                if ($fieldvalue instanceof Opus_Collection) {
-                    $val = $fieldvalue->toArray($fieldname);
-                    if (false !== $val) {
-                        $result[$fieldname] = $val;
-                    }
-                } else {
-                    $result[$fieldname] = $fieldvalue;
-                }
-            }
-        }
-        return $result;
     }
 
     /**
@@ -581,7 +539,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return DomDocument Xml representation of the collection.
      */
-    public function toXml(array $excludeFields = null,  $strategy = null) {
+    public function toXml(array $excludeFields = null, $strategy = null) {
         // TODO: comment why these fields should always be excluded.
         $alwaysExclude = array('Theme');
         if (is_null($excludeFields) === true) {

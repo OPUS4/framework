@@ -169,9 +169,31 @@ class Opus_CollectionTest extends TestCase {
     public function testSetTheme() {
         $this->object->setTheme(Opus_Collection::DEFAULT_THEME_NAME);
         $this->object->store();
-     }
+    }
 
+    public function testDocumentIds() {
+        $docIds = $this->object->getDocumentIds();
+        $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
 
+        $d = new Opus_Document();
+        $d->addCollection( $this->object );
+        $d->store();
 
+        $docIds = $this->object->getDocumentIds();
+        $this->assertTrue(count($docIds) == 1, 'Expected one element in array');
+    }
 
+    public function testGetDisplayName() {
+        $this->role_fixture->setDisplayBrowsing('Name');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('fooblablub');
+        $this->object->setNumber('thirteen');
+        $this->object->store();
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $this->assertEquals( 'fooblablub', $collection->getDisplayName('browsing') );
+        $this->assertEquals( 'thirteen', $collection->getDisplayName('frontdoor') );
+    }
 }
