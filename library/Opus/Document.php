@@ -890,24 +890,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Instantiates an Opus_Document from xml as delivered by the toXml()
-     * method. Standard behaviour is overwritten due to the type parameter that
-     * needs to be passed into the Opus_Document constructor.
-     *
-     * @param  string|DomDocument  $xml The xml representing the model.
-     * @param  Opus_Model_Xml      $customDeserializer (Optional) Specify a custom deserializer object.
-     *                                                 Please note that the construction attributes setting
-     *                                                 will be overwritten.
-     * @return Opus_Model_Abstract The Opus_Model derived from xml.
-     */
-    public static function fromXml($xml, Opus_Model_Xml $deserializer = null) {
-        if (false === isset($deserializer)) {
-            $deserializer = new Opus_Model_Xml;
-        }
-        return parent::fromXml($xml, $deserializer);
-    }
-
-    /**
      * Add URN identifer if no identifier has been added yet.
      *
      * @return void
