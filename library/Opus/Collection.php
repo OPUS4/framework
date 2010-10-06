@@ -233,8 +233,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $row = $table->fetchRow($select);
 
         if (self::DEFAULT_THEME_NAME === $theme) {
-            // No need to store default theme setting.
-            $row->delete();
+            // No need to store default theme setting.  Delete row if exists.
+            if (isset($row)) {
+                $row->delete();
+            }
+            return;
         }
 
         if (true === is_null($row)) {

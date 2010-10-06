@@ -167,7 +167,6 @@ class Opus_CollectionTest extends TestCase {
     }
 
     public function testSetTheme() {
-        $this->markTestIncomplete();
         $this->object->setTheme(Opus_Collection::DEFAULT_THEME_NAME);
         $this->object->store();
      }
