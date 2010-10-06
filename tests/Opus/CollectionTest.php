@@ -32,16 +32,6 @@
  * @version     $Id$
  */
 
-
-/**
- * Test cases for class Opus_Collection.
- *
- * @category    Tests
- * @package     Opus_Collection
- *
- * @group       CollectionTests
- *
- */
 class Opus_CollectionTest extends TestCase {
 
     /**
@@ -175,6 +165,13 @@ class Opus_CollectionTest extends TestCase {
                 'Root collection should have two children.');
 
     }
+
+    public function testSetTheme() {
+        $this->markTestIncomplete();
+        $this->object->setTheme(Opus_Collection::DEFAULT_THEME_NAME);
+        $this->object->store();
+     }
+
 
 
 
