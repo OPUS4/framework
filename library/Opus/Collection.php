@@ -260,7 +260,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $select = $table->select()
                         ->from("link_documents_collections AS ldc", "document_id")
                         ->where('collection_id = ?', $this->getId())
-                        ->where('role_id = ?', $this->getRoleId())
                         ->distinct();
 
         $results = $table->getAdapter()->fetchAll($select);
@@ -839,9 +838,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
         $db = $this->_primaryTableRow->getTable()->getAdapter();
         $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
-                        ->where("role_id = ?", $this->getRoleId())
-                        ->where("collection_id IN ($subselect)");
-                        // TODO add server_state = published condition
+                        ->from('documents AS d', array())
+                        ->where("ldc.document_id = d.id")
+                        ->where("d.server_state = ?", 'published')
+                        ->where("ldc.collection_id IN ($subselect)");
 
         $count = $db->fetchOne($select);
         return (int) $count;

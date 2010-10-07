@@ -217,4 +217,26 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals( 'fooblablub', $collection->getDisplayName('browsing') );
         $this->assertEquals( 'thirteen', $collection->getDisplayName('frontdoor') );
     }
+
+    public function testGetNumSubTreeEntries() {
+        $this->object->setVisible(1);
+        $this->object->store();
+
+        $this->assertEquals(0, $this->object->getNumSubtreeEntries(),
+                'Initially, collection should have zero entries.');
+
+        $d1 = new Opus_Document();
+        $d1->setServerState('unpublished');
+        $d1->addCollection($this->object);
+        $d1->store();
+
+        $this->assertEquals(0, $this->object->getNumSubtreeEntries(),
+                'Collection has one entry, but no published.');
+
+        $d1->setServerState('published');
+        $d1->store();
+
+        $this->assertEquals(1, $this->object->getNumSubtreeEntries(),
+                'Collection has one published entry.');
+    }
 }
