@@ -43,25 +43,20 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @see Opus_Db_Collections
      */
     protected static $_tableGatewayClass = 'Opus_Db_Collections';
+
     /**
      * Path to location of available themes.
      *
      * @var string
      */
     protected static $_themesPath = '';
+
     /**
      * Available themes from directory self::$_themesPath.
      *
      * @var array
      */
     protected static $_themes = array();
-
-
-    /**
-     * Name of the default theme.
-     *
-     */
-    const DEFAULT_THEME_NAME = 'opus4';
 
 
     /**
@@ -188,10 +183,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
-        // $config = Zend_Registry::get('Zend_Config');
 
-        // Find default theme: if not set in config file, set to default.
-        $theme = isset($config->theme) === true ? $config->theme : self::DEFAULT_THEME_NAME;
+        // Get default theme from config.  If not set in config file.
+        $theme = Zend_Registry::get('Zend_Config')->theme;
 
         // Search for theme in database and, if exists, overwrite default theme.
         if (false === is_null($this->getId())) {
@@ -232,7 +226,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
-        if (self::DEFAULT_THEME_NAME === $theme) {
+        if (Zend_Registry::get('Zend_Config')->theme === $theme) {
             // No need to store default theme setting.  Delete row if exists.
             if (isset($row)) {
                 $row->delete();
