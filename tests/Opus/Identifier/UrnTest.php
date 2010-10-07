@@ -29,6 +29,7 @@
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Frank Niebling <niebling@slub-dresden.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -77,9 +78,26 @@ class Opus_Identifier_UrnTest extends TestCase {
      */
     public function badProvider() {
         return array(
-        array('!ERROR!', '14', 'opus', 'Used invalid first subnamespace identifier.'),
-        array('swb', '!ERROR!', 'opus', 'Used invalid second subnamespace identifier.'),
-        array('swb', '14', '!ERROR!', 'Used invalid namespace specific string.')
+            // test invalid nids
+            // containing unallowed characters.
+            array('ERROR!', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            // beginning with a hyphen.
+            array('-abc', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            // being to short.
+            array('a', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            // empty string
+            array('', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            // null object
+            array(null, 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            //test invalid nss
+            // containing spaces
+            array('nbn', 'a b', 'Used invalid namespace specific string. See RFC 2141.'),
+            // containing german umlauts.
+            array('nbn', 'bäh', 'Used invalid namespace specific string. See RFC 2141.'),
+            // empty string
+            array('nbn', '', 'Used invalid namespace specific string. See RFC 2141.'),
+            // null object.
+            array('nbn', null, 'Used invalid namespace specific string. See RFC 2141.'),
         );
     }
 
@@ -105,7 +123,7 @@ class Opus_Identifier_UrnTest extends TestCase {
      * @dataProvider provider
      */
     public function testUrn($document_id, $urn, $checkdigit) {
-        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
         $this->assertEquals($urn . $checkdigit, $generated, 'Generated URN is not valid.');
     }
@@ -121,7 +139,7 @@ class Opus_Identifier_UrnTest extends TestCase {
      * @dataProvider provider
      */
     public function testCheckDigit($document_id, $urn, $checkdigit) {
-        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);
         $this->assertEquals($checkdigit, $generated, 'Generated check digit is not valid.');
     }
@@ -137,9 +155,9 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider badProvider
      */
-    public function testInitializeWithInvalidValues($snid1, $snid2, $niss, $msg) {
+    public function testInitializeWithInvalidValues($nid, $nss, $msg) {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn($snid1, $snid2, $niss);
+        $identifier = new Opus_Identifier_Urn($nid, $nss);
     }
 
     /**
@@ -153,7 +171,7 @@ class Opus_Identifier_UrnTest extends TestCase {
      */
     public function testCallUrnGeneratorWithInvalidValue($document_id, $msg) {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
     }
 
@@ -168,7 +186,7 @@ class Opus_Identifier_UrnTest extends TestCase {
      */
     public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg) {
         $this->setExpectedException('InvalidArgumentException', $msg);
-        $identifier = new Opus_Identifier_Urn('swb', '14', 'opus');
+        $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);
     }
 }

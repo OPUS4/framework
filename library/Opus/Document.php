@@ -918,12 +918,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $config = Zend_Registry::get('Zend_Config');
 
             if (isset($config) and is_object($config->urn) === true) {
-                $unionSnid = $config->urn->snid->union;
-                $libSnid = $config->urn->snid->libid;
-                $prefixNiss = $config->urn->niss->prefix;
+                $nid = $config->urn->nid;
+                $nss = $config->urn->nss;
 
-                if (empty($unionSnid) !== true && empty($libSnid) !== true) {
-                    $urn = new Opus_Identifier_Urn($unionSnid, $libSnid, $prefixNiss);
+                if (empty($nid) !== true && empty($nss) !== true) {
+                    $urn = new Opus_Identifier_Urn($nid, $nss);
                     $urn_value = $urn->getUrn($this->getId());
                     $urn_model = new Opus_Identifier();
                     $urn_model->setValue($urn_value);
