@@ -183,20 +183,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
-
-        // Get default theme from config.  If not set in config file.
         $theme = Zend_Registry::get('Zend_Config')->theme;
 
         // Search for theme in database and, if exists, overwrite default theme.
-        if (false === is_null($this->getId())) {
-            $select = $table->select()
-                            ->where('key_name = ?', "theme")
-                            ->where('collection_id = ?', $this->getId());
-            $row = $table->fetchRow($select);
+        $select = $table->select()
+                        ->where('key_name = ?', "theme")
+                        ->where('collection_id = ?', $this->getId());
+        $row = $table->fetchRow($select);
 
-            if (false === is_null($row)) {
-                $theme = $row->value;
-            }
+        if (!is_null($row)) {
+            $theme = $row->value;
         }
 
         return $theme;
@@ -211,13 +207,13 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Create model for these fields - don't ask the database manually!
      * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
-    protected function _storeTheme($theme) {
+    protected function _storeTheme($theme = '') {
         if (is_null($this->getId())) {
             return;
         }
 
         if (true === is_null($theme)) {
-            return;
+            $theme = '';
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
@@ -226,7 +222,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
-        if (Zend_Registry::get('Zend_Config')->theme === $theme) {
+        if ($theme == '' || Zend_Registry::get('Zend_Config')->theme === $theme) {
             // No need to store default theme setting.  Delete row if exists.
             if (isset($row)) {
                 $row->delete();

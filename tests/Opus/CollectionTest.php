@@ -63,6 +63,7 @@ class Opus_CollectionTest extends TestCase {
         $this->role_fixture->store();
 
         $this->object = $this->role_fixture->addRootCollection();
+        $this->object->setTheme('dummy');
         $this->role_fixture->store();
     }
 
@@ -166,9 +167,29 @@ class Opus_CollectionTest extends TestCase {
 
     }
 
-    public function testSetTheme() {
-        $this->object->setTheme(Opus_Collection::DEFAULT_THEME_NAME);
+    public function testGetDefaultThemeIfSetDefaultTheme() {
+        $default_theme = Zend_Registry::get('Zend_Config')->theme;
+        $this->assertFalse(empty($default_theme),
+                'Could not get theme from config');
+
+        $this->object->setTheme($default_theme);
         $this->object->store();
+
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals($default_theme, $collection->getTheme(),
+                'Expect default theme if non set');
+    }
+    public function testGetDefaultThemeIfSetNullTheme() {
+        $this->object->setTheme(null);
+        $this->object->store();
+
+        $default_theme = Zend_Registry::get('Zend_Config')->theme;
+        $this->assertFalse(empty($default_theme),
+                'Could not get theme from config');
+
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals($default_theme, $collection->getTheme(),
+                'Expect default theme if non set');
     }
 
     public function testDocumentIds() {
