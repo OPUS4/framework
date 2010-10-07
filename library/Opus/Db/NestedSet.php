@@ -84,6 +84,14 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     protected $_parent;
 
     /**
+     * Table column holding the sort-key for the structure.  This is needed
+     * to allow swapping elements easily without changing the whole tree.
+     *
+     * @var string
+     */
+    protected $_sort;
+
+    /**
      * Table column holding the tree-id for the structure.  We're holding more
      * than one nested-set structure in the table and we're distinguishing the
      * different trees by this ID.
@@ -312,6 +320,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $select = $this->select()
                         ->from("{$this->_name} AS node", $cols)
                         ->where("node.{$this->_parent} = ?", $id)
+                        ->order("node.{$this->_sort} ASC")
                         ->order("node.{$this->_left} ASC");
         return $select;
     }

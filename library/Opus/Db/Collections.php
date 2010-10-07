@@ -73,6 +73,14 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
     protected $_parent = 'parent_id';
 
     /**
+     * Table column holding the sort-key for the structure.  This is needed
+     * to allow swapping elements easily without changing the whole tree.
+     *
+     * @var string
+     */
+    protected $_sort = 'sort_order';
+
+    /**
      * Table column holding the tree-id for the structure.  We're holding more
      * than one nested-set structure in the table and we're distinguishing the
      * different trees by this ID.

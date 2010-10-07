@@ -114,7 +114,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        $fields = array('Number', 'Name', 'OaiSubset',
+        $fields = array('Number', 'Name', 'OaiSubset', 'SortOrder',
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor');
         foreach ($fields as $field) {
