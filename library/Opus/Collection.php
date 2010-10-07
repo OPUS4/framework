@@ -876,8 +876,12 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return;
         }
 
-        $row = $this->_primaryTableRow;
-        return self::createObjects( $row->findDependentRowset('Opus_Db_Collections', 'Parent') );
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectChildrenById( $this->getId() );
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
     }
 
     /**
