@@ -33,6 +33,11 @@
 ; Have a look on Zend_Db::factory() method for information about adapter creation.
 
 [production]
+; The 'theme' setting can be used to select a different theme.
+; Need theme for unit tests.
+theme = foobar
+
+;DB SETTINGS
 db.params.host = 
 db.params.username = 
 db.params.password = 
