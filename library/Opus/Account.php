@@ -149,7 +149,7 @@ class Opus_Account extends Opus_Model_AbstractDb
         try {
             return parent::store();
         } catch (Exception $ex) {
-            $logger = $registry->get('Zend_Log');
+            $logger = Zend_Registry::get('Zend_Log');
             if (null !== $logger) {
                 $message = "Unknown exception while storing account: ";
                 $message .= $ex->getMessage();
