@@ -175,6 +175,19 @@ class Opus_Account extends Opus_Model_AbstractDb
     }
 
     /**
+     * Alternate constructor to fetch account-objects by login name.
+     *
+     * @return Opus_Account
+     */
+    public static function fetchAccountByLogin($login) {
+        $row = self::fetchAccountRowByLogin($login);
+
+        if (isset($row)) {
+            return new self($row);
+        }
+    }
+
+    /**
      * Validate the login before accepting the value.
      *
      * @param string $login Login name.
