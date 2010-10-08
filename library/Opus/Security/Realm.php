@@ -230,8 +230,7 @@ class Opus_Security_Realm {
     public function check($privilege, $documentServerState = null, $fileId = null) {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
-        $secu = $conf->security;
-        if ($secu === '0') {
+        if (isset($conf) and $conf->security === '0') {
             return true;
         }
 
@@ -243,31 +242,9 @@ class Opus_Security_Realm {
             throw new Opus_Security_Exception('Unknown privilege checked!');
         }
 
+        // We need this switch-case to handle special cases, which cannot be
+        // handled with "_checkPrivilege".
         switch ($privilege) {
-            case 'administrate':
-                if (false === is_null($documentServerState) || false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "administrate" can be checked only generally, not depending on document server state or for a file.');
-                }
-                return $this->_checkAdministrate();
-                break;
-            case 'clearance':
-                if (false === is_null($documentServerState) || false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "publish" can be checked only generally, not depending on document server state or for a single file.');
-                }
-                return $this->_checkClearance();
-                break;
-            case 'publish':
-                if (false === is_null($documentServerState) || false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "publish" can be checked only generally, not depending on document server state or for a single file.');
-                }
-                return $this->_checkPublish();
-                break;
-            case 'publishUnvalidated':
-                if (false === is_null($documentServerState) || false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "publishUnvalidated" can be checked only generally, not depending on document server state or for a single file.');
-                }
-                return $this->_checkPublishUnvalidated();
-                break;
             case 'readMetadata':
                 if (true === is_null($documentServerState) || true === empty($documentServerState)) {
                     throw new Opus_Security_Exception('Missing argument: Privilege "readMetadata" needs a documentServerState.');
@@ -287,13 +264,13 @@ class Opus_Security_Realm {
                 return $this->_checkReadFile($fileId);
                 break;
             default:
+                if (false === is_null($documentServerState) || false === is_null($fileId)) {
+                    throw new Opus_Security_Exception('Privilege "'. $privilege . '" can be checked only generally, not depending on document server state or for a file.');
+                }
                 return $this->_checkPrivilege($privilege);
-                // Won't be reached, as long as the switch statements covers all values of $this->_privileges.
-                throw new Opus_Security_Exception("Internal Error in Opus_Security_Realm!");
                 break;
         }
         return false;
-
     }
 
     /**
@@ -312,10 +289,7 @@ class Opus_Security_Realm {
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('p.privilege = ?', $privilege)
         );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
+        return (1 <= count($privileges)) ? true : false;
     }
 
     /**
@@ -331,18 +305,7 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege clearance is granted for one of the current roles.
      */
     protected function _checkClearance() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll($db->select()
-                                ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                                ->where('r.name IN (?)', $this->_roles)
-                                ->where('p.privilege = ?', 'clearance')
-        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
-
+        return $this->_checkPrivilege('clearance');
     }
 
     /**
@@ -350,19 +313,7 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege publish is granted for one of the current roles.
      */
     protected function _checkPublish() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                                $db->select()
-                                ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                                ->where('r.name IN (?)', $this->_roles)
-                                ->where('p.privilege = ?', 'publish')
-        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
-
+        return $this->_checkPrivilege('publish');
     }
 
     /**
@@ -370,19 +321,7 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege publishUnvalidated is granted for one of the current roles.
      */
     protected function _checkPublishUnvalidated() {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll(
-                                $db->select()
-                                ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                                ->where('r.name IN (?)', $this->_roles)
-                                ->where('p.privilege = ?', 'publishUnvalidated')
-        );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
-
+        return $this->_checkPrivilege('publishUnvalidated');
     }
 
     /**
@@ -400,11 +339,7 @@ class Opus_Security_Realm {
                                 ->where('p.privilege = ?', 'readMetadata')
                                 ->where('p.document_server_state = ?', $docState)
         );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
-
+        return (1 <= count($privileges)) ? true : false;
     }
 
     /**
@@ -422,11 +357,7 @@ class Opus_Security_Realm {
                                 ->where('p.privilege = ?', 'readFile')
                                 ->where('p.file_id = ?', $fileId)
         );
-        if (1 <= count($privileges)) {
-            return true;
-        }
-        return false;
-
+        return (1 <= count($privileges)) ? true : false;
     }
 
     /**
@@ -435,7 +366,6 @@ class Opus_Security_Realm {
      */
     public function getPrivileges() {
         return $this->_privileges;
-
     }
 
     /********************************************************************************************/
