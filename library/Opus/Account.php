@@ -139,9 +139,9 @@ class Opus_Account extends Opus_Model_AbstractDb
 
         // Check if there is a account with the same
         // loginname before creating a new record.
-        if (is_null($this->getId() === true)) {
+        if (is_null($this->getId()) === true) {
             $row = Opus_Account::fetchAccountRowByLogin($this->getLogin());
-            if ($row === false) {
+            if (is_null($row) === false) {
                 throw new Opus_Security_Exception('Account with login name ' . $this->getLogin() . ' already exists.');
             }
         }
