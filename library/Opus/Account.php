@@ -91,9 +91,8 @@ class Opus_Account extends Opus_Model_AbstractDb
             if (false === is_null($id) && false === empty($id)) {
                  throw new Opus_Model_Exception('Login and id of an account are specified, specify either id or login.');
              }
-            $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-            $id = $table->fetchRow($table->select()->where('login = ?', $login));
-            if (is_null($id) === true) {
+            $id = Opus_Account::fetchAccountRowByLogin($login);
+            if (!isset($id)) {
                 throw new Opus_Security_Exception('An account with the login name ' . $login . ' cannot be found.');
             }
         }
@@ -141,19 +140,38 @@ class Opus_Account extends Opus_Model_AbstractDb
         // Check if there is a account with the same
         // loginname before creating a new record.
         if (is_null($this->getId() === true)) {
-            // brand new record here
-            $accounts = Opus_Db_TableGateway::getInstance($tableGatewayClassName);
-            $select = $accounts->select()->where('login=?', $this->getLogin());
-            $row = $accounts->fetchRow($select);
+            $row = Opus_Account::fetchAccountRowByLogin($this->getLogin());
             if ($row === false) {
                 throw new Opus_Security_Exception('Account with login name ' . $this->getLogin() . ' already exists.');
             }
         }
+        // Now really store.
         try {
-            parent::store();
+            return parent::store();
         } catch (Exception $ex) {
-            throw new Opus_Security_Exception($ex->getMessage());
+            $logger = $registry->get('Zend_Log');
+            if (null !== $logger) {
+                $message = "Unknown exception while storing account: ";
+                $message .= $ex->getMessage();
+                $logger->err(__METHOD__ . ': ' . $message);
+            }
+
+            $message = "Caught exception.  Please consult the server logfile.";
+            throw new Opus_Security_Exception($message);
         }
+    }
+
+    /**
+     * Helper method to fetch account-rows by login name.
+     */
+    private static function fetchAccountRowByLogin($login) {
+        if (false === isset($login)) {
+            return;
+        }
+
+        $accounts = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $accounts->select()->where('login = ?', $login);
+        return $accounts->fetchRow($select);
     }
 
     /**

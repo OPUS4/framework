@@ -61,6 +61,22 @@ class Opus_AccountTest extends TestCase {
     }
 
     /**
+     * Test double-create account.
+     */
+    public function testDoubleCreateAccount() {
+        $account = new Opus_Account();
+        $account->setLogin('dummy3');
+        $account->setPassword('dummypassword');
+        $account->store();
+
+        $account = new Opus_Account();
+        $account->setLogin('dummy3');
+
+        $this->setExpectedException('Opus_Security_Exception');
+        $account->store();
+    }
+
+    /**
      * @depends testCreateAccount
      */
     public function testDeleteAccount() {
