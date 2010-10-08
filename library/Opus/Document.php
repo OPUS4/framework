@@ -877,6 +877,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
             return;
         }
 
+        Opus_Collection::unlinkCollectionsByDocumentId($this->getId());
+
         foreach ($collections AS $collection) {
             if ($collection->isNewRecord()) {
                 $collection->store();
@@ -979,18 +981,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     public function delete() {
-        $config = Zend_Registry::get('Zend_Config');
-
-        $searchEngine = 'Lucene';
-        if (is_null($config) !== true and is_null($config->searchengine) === false and empty($searchEngine) === false) {
-            $searchEngine = $config->searchengine->engine;
-        }
-
         // De-fatalize Search Index errors.
         try {
-            $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
-            // Remove from index
-            $indexer = new $engineclass();
+            // Remove from index            
+            $indexer = new Opus_Search_Index_Solr_Indexer();
             $indexer->removeDocumentFromEntryIndex($this);
         }
         catch (Exception $e) {
@@ -1010,17 +1004,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * TODO: Only remove if document does not have an URN/DOI!
      */
     public function deletePermanent() {
-        /* @var $config Zend_Config */
-        $config = Zend_Registry::get('Zend_Config');
-
-        $searchEngine = 'Lucene';
-        if (is_null($config) !== true and is_null($config->searchengine) === false and empty($searchEngine) === false) {
-            $searchEngine = $config->searchengine->engine;
-        }
-
-        $engineclass = 'Opus_Search_Index_'.$searchEngine.'_Indexer';
         // Remove from index
-        $indexer = new $engineclass();
+        $indexer = new Opus_Search_Index_Solr_Indexer();
         $indexer->removeDocumentFromEntryIndex($this);
 
         // remove all files permanently

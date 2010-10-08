@@ -398,7 +398,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     // TODO: Add documentation for method.
-    public function linkDocument($document_id) {
+    protected function linkDocument($document_id) {
         if (isset($document_id) === false) {
             throw new Exception("linkDocument() needs documend_id parameter.");
         }
@@ -451,16 +451,15 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function unlinkDocumentById($document_id = null) {
-        if (is_null($this->getId()) || is_null($document_id)) {
+    public static function unlinkCollectionsByDocumentId($document_id = null) {
+        if (is_null($document_id)) {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
         $db = $table->getAdapter();
 
         $condition = array(
-            'collection_id = ?' => $this->getId(),
             'document_id = ?' => $document_id
         );
 
