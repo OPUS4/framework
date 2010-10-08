@@ -70,22 +70,22 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
 
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
-        $recipient = $this->getRecipients();
+        $recipient = $this->getRecipients($projects);
 
         if (empty($recipient)) {
-            $this->logger->info('No referees configured. Mail canceled.');
+            $this->_logger->info('No referees configured. Mail canceled.');
             return true;
         }
 
         $mailSendMail = new Opus_Mail_SendMail();
 
         try {
-            $this->logger->debug('Send publish notification.');
-            $this->logger->debug('address = ' . $from);
+            $this->_logger->debug('Send publish notification.');
+            $this->_logger->debug('address = ' . $from);
             $mailSendMail->sendMail(
                     $from, $fromName, $subject, $message, $recipient);
         } catch (Exception $e) {
-            $this->logger->err($e);
+            $this->_logger->err($e);
             return false;
         }
 
@@ -127,15 +127,19 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
      *
      * @return <type>
      */
-    public function getRecipients() {
+    public function getRecipients($projects = null) {
+        if (!is_array($projects)) {
+            $projects = array($projects);
+        }
+
         $allRecipients = $this->getGlobalRecipients();
 
         if (empty($allRecipients)) {
             $allRecipients = array();
         }
 
-        if (!empty($this->projects)) {
-            foreach ($this->projects as $project) {
+        if (!empty($projects)) {
+            foreach ($projects as $project) {
                 $collection = substr($project, 0, 1); // MATHEON get first letter of project
 
                 $collection = strtolower($collection);

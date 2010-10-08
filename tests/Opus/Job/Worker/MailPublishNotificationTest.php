@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,50 +24,45 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @category    Framework Unit Test
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-// Setup error reporting.
-// TODO leave to Zend and config?
-error_reporting(E_ALL | E_STRICT);
-ini_set('display_errors', 1);
 
-// Define path to application directory
-defined('APPLICATION_PATH')
-        || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
+class Opus_Job_Worker_MailPublishNotifcationTest extends TestCase {
 
-// Define application environment (use 'production' by default)
-define('APPLICATION_ENV', 'testing');
+    /**
+     * Tests getting global recipients.
+     */
+    public function testGetRecipients() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $recipients = $mail->getRecipients();
+        $this->assertNotNull($recipients);
+        $this->assertEquals(1, count($recipients));
+    }
 
-// Configure include path.
-set_include_path('.' . PATH_SEPARATOR
-        . PATH_SEPARATOR . dirname(__FILE__)
-        . PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
-        . PATH_SEPARATOR . get_include_path());
+    /**
+     * Tests getting recipients for one project.
+     */
+    public function testGetRecipientsForProject() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $recipients = $mail->getRecipients('a1');
+        $this->assertNotNull($recipients);
+        $this->assertEquals(2, count($recipients));
+    }
 
-// enable fallback autoloader for testing
-require_once 'Zend/Loader/Autoloader.php';
-$autoloader = Zend_Loader_Autoloader::getInstance();
-$autoloader->suppressNotFoundWarnings(false);
-$autoloader->setFallbackAutoloader(true);
+    /**
+     * Tests getting recipients for two projects.
+     */
+    public function testgetRecipientsForTwoProjects() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $recipients = $mail->getRecipients(array('a1', 'b1'));
+        $this->assertNotNull($recipients);
+        $this->assertEquals(3, count($recipients));
+    }
 
-// Zend_Loader is'nt available yet. We have to do a require_once in order
-// to find the bootstrap class.
-require_once 'Zend/Application.php';
+}
 
-// Do test environment initializiation.
-$application = new Zend_Application(APPLICATION_ENV, 
-            array(
-                "config" => array(
-                    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'tests.ini',
-                    APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'config.ini'
-                )
-            )
-        );
-
-
-$application->bootstrap(array('Database','Temp','OpusLocale'));
+?>
