@@ -27,7 +27,8 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author		Pascal-Nicolas Becker <becker@zib.de>
+ * @author	Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
@@ -59,6 +60,7 @@ class Opus_Security_Realm {
      * @var array
      */
     protected $_privileges = array(
+        'remotecontrol',
         'administrate',
         'clearance',
         'publish',
@@ -285,6 +287,7 @@ class Opus_Security_Realm {
                 return $this->_checkReadFile($fileId);
                 break;
             default:
+                return $this->_checkPrivilege($privilege);
                 // Won't be reached, as long as the switch statements covers all values of $this->_privileges.
                 throw new Opus_Security_Exception("Internal Error in Opus_Security_Realm!");
                 break;
@@ -297,19 +300,30 @@ class Opus_Security_Realm {
      * This messages checks if the privilege administrate is allowed for one of the current roles.
      * @return boolean true if the privilege administrate is granted for one of the current roles.
      */
-    protected function _checkAdministrate() {
+    private function _checkPrivilege($privilege) {
+        if (is_null($privilege) || !is_string($privilege) || $privilege == '') {
+            return false;
+        }
+
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
         $privileges = $db->fetchAll($db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
                                 ->join(array('r' => 'roles'), 'p.role_id = r.id')
                                 ->where('r.name IN (?)', $this->_roles)
-                                ->where('p.privilege = ?', 'administrate')
+                                ->where('p.privilege = ?', $privilege)
         );
         if (1 <= count($privileges)) {
             return true;
         }
         return false;
+    }
 
+    /**
+     * This messages checks if the privilege administrate is allowed for one of the current roles.
+     * @return boolean true if the privilege administrate is granted for one of the current roles.
+     */
+    protected function _checkAdministrate() {
+        return $this->_checkPrivilege('administrate');
     }
 
     /**
