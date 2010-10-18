@@ -310,21 +310,101 @@ class Opus_Search_Index_Solr_Indexer {
         if (!$this->hasSupportedMimeType($file)) {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
-        $fulltext = '';
+
+        // Check for cached ...
+        $fulltext = $this->getCachedFileContent($file);
+        if (is_string($fulltext) and strlen($fulltext) > 0) {
+            $this->log->info('Found cached fulltext for file ' . $file->getPath());
+            return $fulltext;
+        }
+
+        $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );
         try {
-            $params = array( 'extractOnly' => 'true', 'extractFormat' => 'text' );            
             $response = $this->extract_server->extract($file->getPath(), $params);
             // TODO add mime type information
             $jsonResponse = Zend_Json_Decoder::decode($response->getRawResponse());
             if (array_key_exists('', $jsonResponse)) {                
-                return trim($jsonResponse['']);
+                $fulltext = trim($jsonResponse['']);
+
+                $this->setCachedFileContent($file, $fulltext);
+                return $fulltext;
                 // TODO evaluate additional data in json response
             }
         }
         catch (Exception $e) {
             throw new Opus_Search_Index_Solr_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
         }        
-        return $fulltext;
+        return '';
+    }
+
+
+    /**
+     * Construct name of fulltext cache file for given Opus_File object.
+     *
+     * @param Opus_File $file
+     * @return string Name of full absolute name of fulltext cache file.
+     */
+    private function getCachedFileName(Opus_File $file) {
+        $config = Zend_Registry::get('Zend_Config');
+        $file_hash = $file->getId() . "-" . $file->getRealHash('md5');
+        $cache_path = realpath($config->workspacePath . "/cache/");
+        $cache_filename = "solr_cache---$file_hash.txt";
+        return $cache_path . DIRECTORY_SEPARATOR . $cache_filename;
+    }
+
+    /**
+     * Cache extracted fulltext.  Do not create file if given fulltext is empty.
+     *
+     * @param Opus_File $file
+     * @param string $fulltext
+     * @return void
+     */
+    private function setCachedFileContent(Opus_File $file, $fulltext) {
+        if (empty($fulltext)) {
+            return;
+        }
+
+        $cache_file = $this->getCachedFileName($file);
+
+        $cache_fh = fopen($cache_file, 'w');
+        if ($cache_fh == false) {
+            $this->log->info('Failed writing fulltext cache file ' . $cache_file);
+            return;
+        }
+
+        fwrite($cache_fh, $fulltext);
+        fclose($cache_fh);
+
+        return;
+    }
+
+    /**
+     * Try to load cached fulltext for given Opus_File object.
+     *
+     * @param Opus_File $file
+     * @return void|string cached fulltext if found, void otherwise
+     */
+    private function getCachedFileContent(Opus_File $file) {
+        $cache_file = $this->getCachedFileName($file);
+
+        if (file_exists($cache_file) and is_readable($cache_file)) {
+            // TODO: Check size of file... don't load huge files.
+
+            $cache_fh = fopen($cache_file, 'r');
+            if ($cache_fh == false) {
+                $this->log->info('Failed reading fulltext cache file ' . $cache_file);
+            }
+
+            $fulltext_buffer = '';
+            while (!feof($cache_fh)) {
+               $fulltext_buffer .= fread($cache_fh, 1024*1024);
+            }
+
+            fclose($cache_fh);
+            return $fulltext_buffer;
+        }
+
+        return;
     }
 
     /**
