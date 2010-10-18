@@ -293,38 +293,6 @@ class Opus_Security_Realm {
     }
 
     /**
-     * This messages checks if the privilege administrate is allowed for one of the current roles.
-     * @return boolean true if the privilege administrate is granted for one of the current roles.
-     */
-    protected function _checkAdministrate() {
-        return $this->_checkPrivilege('administrate');
-    }
-
-    /**
-     * This messages checks if the privilege clearance is allowed for one of the current roles.
-     * @return boolean true if the privilege clearance is granted for one of the current roles.
-     */
-    protected function _checkClearance() {
-        return $this->_checkPrivilege('clearance');
-    }
-
-    /**
-     * This messages checks if the privilege publish is allowed for one of the current roles.
-     * @return boolean true if the privilege publish is granted for one of the current roles.
-     */
-    protected function _checkPublish() {
-        return $this->_checkPrivilege('publish');
-    }
-
-    /**
-     * This messages checks if the privilege publishUnvalidated is allowed for one of the current roles.
-     * @return boolean true if the privilege publishUnvalidated is granted for one of the current roles.
-     */
-    protected function _checkPublishUnvalidated() {
-        return $this->_checkPrivilege('publishUnvalidated');
-    }
-
-    /**
      * This messages checks if the privilege readMetadata is allowed for one of the current roles  and the specified server state.
      * @param  string $docState The server_state the document to read has (f.e. 'published').
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
