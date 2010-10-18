@@ -348,6 +348,18 @@ abstract class Opus_Model_Abstract {
     }
 
     /**
+     * Checks if a given field exists as internal or external field.
+     *
+     * @param string $name Name of the requested field.
+     * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
+     */
+    public function hasMultipleValueField($name) {
+        return (true === array_key_exists($name, $this->_fields))
+                and (false === in_array($name, $this->_internalFields, true))
+                and (true === $this->_fields[$name]->getMultiplicity());
+    }
+
+    /**
      * Get a list of all fields attached to the model. Filters all fieldnames
      * that are defined to be inetrnal in $_internalFields.
      *
