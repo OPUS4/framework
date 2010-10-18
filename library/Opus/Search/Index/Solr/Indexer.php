@@ -401,7 +401,7 @@ class Opus_Search_Index_Solr_Indexer {
             }
 
             fclose($cache_fh);
-            return $fulltext_buffer;
+            return trim($fulltext_buffer);
         }
 
         return;
