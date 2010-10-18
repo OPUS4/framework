@@ -364,16 +364,29 @@ class Opus_Search_Index_Solr_Indexer {
             return;
         }
 
-        $cache_file = $this->getCachedFileName($file);
+        $config = Zend_Registry::get('Zend_Config');
 
-        $cache_fh = fopen($cache_file, 'w');
-        if ($cache_fh == false) {
-            $this->log->info('Failed writing fulltext cache file ' . $cache_file);
+        $cache_file = $this->getCachedFileName($file);
+        $cache_path = realpath($config->workspacePath . "/cache/");
+
+        // Create tempfile with unique name.  This has to be done, to prevent
+        // that two processes are writing their output to the same file.
+        $tmp_path = realpath($config->workspacePath . "/tmp/");
+        $tmp_file = tempnam($tmp_path, 'solr_tmp---');
+
+        $temp_fh = fopen($tmp_file, 'w');
+        if ($temp_fh == false) {
+            $this->log->info('Failed writing fulltext temp file ' . $tmp_file);
             return;
         }
 
-        fwrite($cache_fh, $fulltext);
-        fclose($cache_fh);
+        fwrite($temp_fh, $fulltext);
+        fclose($temp_fh);
+
+        // Move temp file to final destination.
+        if (true !== rename($tmp_file, $cache_file)) {
+            $this->log->info('Failed renaming temp file to fulltext cache file ' . $cache_file);
+        }
 
         return;
     }
