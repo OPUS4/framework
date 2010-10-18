@@ -395,13 +395,17 @@ class Opus_Search_Index_Solr_Indexer {
      * Try to load cached fulltext for given Opus_File object.
      *
      * @param Opus_File $file
-     * @return void|string cached fulltext if found, void otherwise
+     * @return void|string Fulltext if loaded successfully, void otherwise.
      */
     private function getCachedFileContent(Opus_File $file) {
         $cache_file = $this->getCachedFileName($file);
 
         if (file_exists($cache_file) and is_readable($cache_file)) {
-            // TODO: Check size of file... don't load huge files.
+            $max_cache_file_size = 1024*1024*16;
+            if (filesize($cache_file) > $max_cache_file_size) {
+                $this->log->info('Skipped reading fulltext HUGE cache file ' . $cache_file);
+                return;
+            }
 
             $cache_fh = fopen($cache_file, 'r');
             if ($cache_fh == false) {
