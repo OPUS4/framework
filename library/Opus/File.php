@@ -257,7 +257,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * Get the hash value of the file
      *
-     * @param string $type Type of the hash value
+     * @param string $type Type of the hash value, @see hash_file();
      * @return string hash value
      */
     public function getRealHash($type) {

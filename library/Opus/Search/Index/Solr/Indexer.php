@@ -224,7 +224,7 @@ class Opus_Search_Index_Solr_Indexer {
      * @param Opus_Document $doc
      * @return DOMDocument
      */
-    private function getSolrXmlDocument($doc) {
+    private function getSolrXmlDocument(Opus_Document $doc) {
         // Set up caching xml-model and get XML representation of document.
         $caching_xml_model = new Opus_Model_Xml;
         $caching_xml_model->setModel($doc);
@@ -302,7 +302,7 @@ class Opus_Search_Index_Solr_Indexer {
      * @throws Opus_Search_Index_Solr_Exception
      * @return extracted fulltext
      */    
-    private function getFileContent($file) {
+    private function getFileContent(Opus_File $file) {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
