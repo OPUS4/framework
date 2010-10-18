@@ -56,6 +56,12 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
+        // Skip indexing if document has not been published yet.
+        // TODO: Write unit test.
+        if ($model->getServerState() !== 'published') {
+            return;
+        }
+
         $logger = Zend_Registry::get('Zend_Log');
 
         // if synchronous is set, try to index document
