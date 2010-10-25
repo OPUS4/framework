@@ -104,6 +104,7 @@ class Opus_Model_Xml {
      */
     public function removeCache() {
         $this->_cache = null;
+        return $this;
     }
 
     /**
