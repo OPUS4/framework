@@ -476,5 +476,22 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         );
     }
 
+    /**
+     * Check if node is root node.
+     */
+    public function isRoot($data) {
+        return array_key_exists($this->_left, $data)
+                and ($data[$this->_left] == 1);
+    }
+
+    /**
+     * Check if node is leaf node.
+     */
+    public function isLeaf($data) {
+        return array_key_exists($this->_left, $data) 
+                and array_key_exists($this->_right, $data)
+                and ($data[$this->_left] + 1 == $data[$this->_right]);
+    }
+
 }
 ?>

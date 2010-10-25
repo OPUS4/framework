@@ -903,6 +903,18 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return array_diff(parent::describe(), $excludeFields);
     }
 
+    /**
+     * isRoot()
+     */
+    public function isRoot() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        return $this->_primaryTableRow->getTable()->isRoot(
+            $this->_primaryTableRow->toArray()
+        );
+    }
 }
 
 ?>
