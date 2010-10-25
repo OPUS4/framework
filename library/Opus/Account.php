@@ -109,13 +109,20 @@ class Opus_Account extends Opus_Model_AbstractDb
     protected function _init() {
         $login = new Opus_Model_Field('Login');
         $loginValidator = new Zend_Validate;
-        $loginValidator->addValidator(new Zend_Validate_Alnum);
-        $login->setValidator($loginValidator)->setMandatory(true);
+        $loginValidator->addValidator(new Zend_Validate_StringLength(array('min' => 2)));
+        $login->setValidator($loginValidator);
+        $login->setMandatory(true);
         $this->addField($login);
 
         $password = new Opus_Model_Field('Password');
         $password->setMandatory(true);
         $this->addField($password);
+
+        $email = new Opus_Model_Field('Email');
+        $emailValidator = new Zend_Validate;
+        $emailValidator->addValidator(new Zend_Validate_EmailAddress());
+        $email->setMandatory(true);
+        $this->addField($email);
 
     	$role = new Opus_Model_Field('Role');
     	$role->setMultiplicity('*');
