@@ -105,6 +105,14 @@ class Opus_Storage_File {
         $subFullPath = $this->workingDirectory . DIRECTORY_SEPARATOR . $subdirectory;
 
         if (is_dir($subFullPath)) {
+            if (!is_readable($this->workingDirectory)) {
+                throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not readable. (cwd: " . getcwd() . ")");
+            }
+
+            if (!is_writable($this->workingDirectory)) {
+                throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not writable. (cwd: " . getcwd() . ")");
+            }
+
             return true;
         }
 
