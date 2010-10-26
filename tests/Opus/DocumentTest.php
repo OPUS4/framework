@@ -1201,7 +1201,11 @@ class Opus_DocumentTest extends TestCase {
          $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
      }
 
-     public function testDocumentCacheContainsFileWithDocumentIdField() {
+     /**
+      * We had a problem, that we were caching the xml document of a newly
+      * created document, which had incomplete File entries.
+      */
+     public function testDocumentCacheContainsFileWithOutdatedData() {
         $config = Zend_Registry::get('Zend_Config');
         $filename = $config->workspacePath;
         touch($filename);
@@ -1214,6 +1218,7 @@ class Opus_DocumentTest extends TestCase {
         $d->store();
 
         $d = new Opus_Document($d->getId());
+        $f = $d->getFile(0);
 
         $xmlModel = new Opus_Model_Xml;
         $xmlModel->setModel($d);
@@ -1223,9 +1228,13 @@ class Opus_DocumentTest extends TestCase {
         $xml_file = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
         $this->assertType('DOMNode', $xml_file);
 
-        $expected_document_id = $d->getId();
-        $actual_document_id_in_file = $xml_file->getAttribute('DocumentId');
-        $this->assertEquals($expected_document_id, $actual_document_id_in_file);
+        $expected_visible_field = $f->getVisibleInFrontdoor();
+        $actual_visible_field = $xml_file->getAttribute('VisibleInFrontdoor');
+        $this->assertEquals($expected_visible_field, $actual_visible_field);
+
+        $expected_visible_field = $f->getVisibleInOai();
+        $actual_visible_field = $xml_file->getAttribute('VisibleInOai');
+        $this->assertEquals($expected_visible_field, $actual_visible_field);
      }
 
 }
