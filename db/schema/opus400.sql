@@ -317,6 +317,7 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
 ENGINE = InnoDB
 COMMENT = 'Table for licence related data.';
 
+
 -- -----------------------------------------------------
 -- Table `accounts`
 -- -----------------------------------------------------
@@ -325,6 +326,8 @@ CREATE  TABLE IF NOT EXISTS `accounts` (
   `login` VARCHAR(45) NOT NULL COMMENT 'Login name.' ,
   `password` VARCHAR(45) NOT NULL COMMENT 'Password.' ,
   `email` VARCHAR(255) NOT NULL COMMENT 'Email address.',
+  `first_name` VARCHAR(255) NOT NULL COMMENT 'First name of person.',
+  `last_name` VARCHAR(255) NOT NULL COMMENT 'Last name of person.',
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC) )
 ENGINE = InnoDB
