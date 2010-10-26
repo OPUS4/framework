@@ -38,15 +38,7 @@
         <whitelist>
             <directory suffix=".php">../library/Opus</directory>
             <exclude>
-                <directory suffix=".php">../library/Opus/Search/Adapter</directory>
-                <directory suffix=".php">../library/Opus/Search/Index/FileFormatConverter</directory>
-                <directory suffix=".php">../library/Opus/Search/Index/Lucene</directory>
-                <directory suffix=".php">../library/Opus/Search/Iterator</directory>
-                <directory suffix=".php">../library/Opus/Search/List</directory>
-                <file>../library/Opus/Search/Index/Document.php</file>
-                <file>../library/Opus/Search/Highlighter.php</file>
-                <file>../library/Opus/Search/Query.php</file>
-                <file>../library/Opus/Search/SearchHit.php</file>
+                <!-- <file>../library/Opus/...</file> -->
             </exclude>
         </whitelist>
     </filter>

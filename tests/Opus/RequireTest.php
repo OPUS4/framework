@@ -100,21 +100,6 @@ class Opus_RequireTest extends TestCase {
            "Opus_Security_Realm",
            "Opus_Model_Field",
            "Opus_Storage_File",
-
-           "Opus_Search_Highlighter",
-           "Opus_Search_Index_Lucene_Indexer",
-           "Opus_Search_Index_Document",
-           "Opus_Search_Query",
-           "Opus_Search_Iterator_DocumentTypeListIterator",
-           "Opus_Search_Iterator_ListIterator",
-           "Opus_Search_Iterator_HitListIterator",
-           "Opus_Search_Iterator_CollectionNodeListIterator",
-           "Opus_Search_Iterator_CollectionNodeDocumentIterator",
-           "Opus_Search_Iterator_PersonsListIterator",
-           "Opus_Search_Adapter_Lucene_SearchHitAdapter",
-           "Opus_Search_Adapter_Solr_SearchHitAdapter",
-           "Opus_Search_Adapter_DocumentTypeAdapter",
-           "Opus_Search_Adapter_PersonAdapter",
         );
 
         foreach ($classes AS $class) {
