@@ -112,8 +112,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
 
-        $document_id = new Opus_Model_Field('DocumentId');
-
         $this->addField($filepathname)
                 ->addField($filelabel)
                 ->addField($mimetype)
@@ -122,8 +120,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
-                ->addField($hashvalue)
-                ->addField($document_id);
+                ->addField($hashvalue);
 
         $config = Zend_Registry::get('Zend_Config');
         $workspaceFiles = $config->workspacePath . "/files";
