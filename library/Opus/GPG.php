@@ -185,9 +185,9 @@ class Opus_GPG extends Crypt_GPG
     		$key_id = $this->getMasterkey()->getPrimaryKey()->getId();
 
     		// FIXME: hardcoded path
-    		$filepath = '../workspace/files/' . $file->getDocumentId() . '/';
+    		$filepath = '../workspace/files/' . $file->getParentId() . '/';
 
-    		$doc = new Opus_Document($file->getDocumentId());
+    		$doc = new Opus_Document($file->getParentId());
 
     		foreach ($doc->getFile() as $f)
     		{
