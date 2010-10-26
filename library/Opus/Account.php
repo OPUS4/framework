@@ -109,7 +109,11 @@ class Opus_Account extends Opus_Model_AbstractDb
     protected function _init() {
         $login = new Opus_Model_Field('Login');
         $loginValidator = new Zend_Validate;
-        $loginValidator->addValidator(new Zend_Validate_Alnum);
+
+        // FIXME: Outsource regexp to application.ini file.
+        // FIXME: Or remove, to keep opus config simple.
+        $pattern = '/^[A-Za-z0-9@.-]+$/';
+        $loginValidator->addValidator(new Zend_Validate_Regex($pattern));
         $login->setValidator($loginValidator)->setMandatory(true);
 
         $password = new Opus_Model_Field('Password');
