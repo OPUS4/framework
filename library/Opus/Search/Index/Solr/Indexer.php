@@ -313,7 +313,7 @@ class Opus_Search_Index_Solr_Indexer {
 
         // Check for cached ...
         $fulltext = $this->getCachedFileContent($file);
-        if (is_string($fulltext) and strlen($fulltext) > 0) {
+        if ($fulltext !== false and is_string($fulltext)) {
             $this->log->info('Found cached fulltext for file ' . $file->getPath());
             return $fulltext;
         }
@@ -346,9 +346,9 @@ class Opus_Search_Index_Solr_Indexer {
      */
     private function getCachedFileName(Opus_File $file) {
         $config = Zend_Registry::get('Zend_Config');
-        $file_hash = $file->getId() . "-" . $file->getRealHash('md5');
+        $hash = $file->getRealHash('md5') . "-" . $file->getRealHash('sha256');
         $cache_path = realpath($config->workspacePath . "/cache/");
-        $cache_filename = "solr_cache---$file_hash.txt";
+        $cache_filename = "solr_cache---$hash.txt";
         return $cache_path . DIRECTORY_SEPARATOR . $cache_filename;
     }
 
@@ -365,9 +365,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
 
         $config = Zend_Registry::get('Zend_Config');
-
         $cache_file = $this->getCachedFileName($file);
-        $cache_path = realpath($config->workspacePath . "/cache/");
 
         // Create tempfile with unique name.  This has to be done, to prevent
         // that two processes are writing their output to the same file.
@@ -395,7 +393,7 @@ class Opus_Search_Index_Solr_Indexer {
      * Try to load cached fulltext for given Opus_File object.
      *
      * @param Opus_File $file
-     * @return void|string Fulltext if loaded successfully, void otherwise.
+     * @return false|string Fulltext if loaded successfully, false otherwise.
      */
     private function getCachedFileContent(Opus_File $file) {
         $cache_file = $this->getCachedFileName($file);
@@ -421,7 +419,7 @@ class Opus_Search_Index_Solr_Indexer {
             return trim($fulltext_buffer);
         }
 
-        return;
+        return false;
     }
 
     /**
