@@ -111,23 +111,29 @@ class Opus_Account extends Opus_Model_AbstractDb
         $loginValidator = new Zend_Validate;
         $loginValidator->addValidator(new Zend_Validate_Alnum);
         $login->setValidator($loginValidator)->setMandatory(true);
-        $this->addField($login);
 
         $password = new Opus_Model_Field('Password');
         $password->setMandatory(true);
-        $this->addField($password);
 
         $email = new Opus_Model_Field('Email');
         $emailValidator = new Zend_Validate;
         $emailValidator->addValidator(new Zend_Validate_EmailAddress());
         $email->setMandatory(true);
-        $this->addField($email);
+
+        $first_name = new Opus_Model_Field('FirstName');
+        $last_name = new Opus_Model_Field('LastName');
 
     	$role = new Opus_Model_Field('Role');
     	$role->setMultiplicity('*');
     	$role->setDefault(Opus_Role::getAll());
     	$role->setSelection(true);
-    	$this->addField($role);
+
+        $this->addField($login)
+                ->addField($password)
+                ->addField($email)
+                ->addField($first_name)
+                ->addField($last_name)
+                ->addField($role);
     }
 
     /**
