@@ -1201,4 +1201,31 @@ class Opus_DocumentTest extends TestCase {
          $this->assertNotContains($unpublished_id, $docs, 'published list (sorted, 1) should not contain unpublished');
      }
 
+     public function testDocumentCacheContainsFileWithDocumentIdField() {
+        $config = Zend_Registry::get('Zend_Config');
+        $filename = $config->workspacePath;
+        touch($filename);
+
+        $d = new Opus_Document();
+        $d->setType('test');
+        $d->setServerState('published');
+        $f = $d->addFile();
+        $f->setPathName($filename);
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+
+        $xmlModel = new Opus_Model_Xml;
+        $xmlModel->setModel($d);
+        $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
+        $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
+
+        $xml_file = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
+        $this->assertType('DOMNode', $xml_file);
+
+        $expected_document_id = $d->getId();
+        $actual_document_id_in_file = $xml_file->getAttribute('DocumentId');
+        $this->assertEquals($expected_document_id, $actual_document_id_in_file);
+     }
+
 }

@@ -56,8 +56,11 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        // Skip indexing if document has not been published yet.
+        // Skip indexing if document has not been published yet.  First we need
+        // to reload the document, just to make sure the object is new,
+        // unmodified and clean...
         // TODO: Write unit test.
+        $model = new Opus_Document($model->getId());
         if ($model->getServerState() !== 'published') {
             return;
         }
