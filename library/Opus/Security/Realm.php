@@ -283,12 +283,11 @@ class Opus_Security_Realm {
         }
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
-        $privileges = $db->fetchAll($db->select()
-                                ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
-                                ->where('r.name IN (?)', $this->_roles)
-                                ->where('p.privilege = ?', $privilege)
-        );
+        $select = $db->select()->from(array('p' => 'privileges'), array('id'))
+                        ->join(array('r' => 'roles'), 'p.role_id = r.id', '')
+                        ->where('r.name IN (?)', $this->_roles)
+                        ->where('p.privilege = ?', $privilege);
+        $privileges = $db->fetchAll($select);
         return (1 <= count($privileges)) ? true : false;
     }
 
