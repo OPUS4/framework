@@ -132,7 +132,7 @@ class Opus_GPG extends Crypt_GPG
     public function verifyPublicationFile($file)
     {
     		// FIXME: hardcoded path
-    		$filepath = '../workspace/files/' . $file->getDocumentId() . '/';
+    		$filepath = '../workspace/files/' . $file->getParentId() . '/';
     		$hashes = $file->getHashValue();
     		if (true === is_array($hashes))
     		{
