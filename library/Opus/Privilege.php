@@ -87,6 +87,7 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
         $privilege->setDefault(array(
                     'administrate' => 'administrate',
                     'clearance' => 'clearance',
+                    'remotecontrol' => 'remotecontrol',
                     'publish' => 'publish',
                     'publishUnvalidated' => 'publishUnvalidated',
                     'readMetadata' => 'readMetadata',
