@@ -70,12 +70,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-        'AccessPermission' => array(
-            'model' => 'Opus_Role',
-            'through' => 'Opus_Model_Dependent_Link_FileRole',
-            'options' => array('privilege' => 'readFile'),
-            'fetch' => 'lazy'
-        ),
         'TempFile' => array(),
         'HashValue' => array(
             'model' => 'Opus_HashValues'
@@ -119,11 +113,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
 
-        $role = new Opus_Model_Field('AccessPermission');
-        $role->setMultiplicity('*');
-        $role->setDefault(Opus_Role::getAll());
-        $role->setSelection(true);
-
         $this->addField($filepathname)
                 ->addField($filelabel)
                 ->addField($mimetype)
@@ -132,8 +121,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
-                ->addField($hashvalue)
-                ->addField($role);
+                ->addField($hashvalue);
 
         $config = Zend_Registry::get('Zend_Config');
         $workspaceFiles = $config->workspacePath . "/files";
@@ -350,15 +338,4 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $this->setHashValue($hashs);
 
     }
-
-    /**
-     * Overwrite describe: Do not export external fields to XML.
-     *
-     * @return array
-     */
-    public function describe() {
-        $excludeFields = array( 'AccessPermission' );
-        return array_diff(parent::describe(), $excludeFields);
-    }
-
 }
