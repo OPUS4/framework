@@ -574,5 +574,19 @@ class Opus_FileTest extends TestCase {
         $this->assertTrue($file->canVerify());
     }
 
+    /**
+     * Test exists() function for Opus_File.
+     */
+    public function testFileExists() {
+        $this->markTestIncomplete('Test disabled, until fixed.');
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+        $fileId = $doc->getFile(0)->getId();
+        $this->assertNotNull($fileId);
+        $file = new Opus_File($fileId);
+        $this->assertTrue($file->exists());
+    }
+
 }
 
