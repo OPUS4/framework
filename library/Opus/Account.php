@@ -110,10 +110,7 @@ class Opus_Account extends Opus_Model_AbstractDb
         $login = new Opus_Model_Field('Login');
         $loginValidator = new Zend_Validate;
 
-        // FIXME: Outsource regexp to application.ini file.
-        // FIXME: Or remove, to keep opus config simple.
-        $pattern = '/^[A-Za-z0-9@.-]+$/';
-        $loginValidator->addValidator(new Zend_Validate_Regex($pattern));
+        $loginValidator->addValidator(new Zend_Validate_Regex('/^[A-Za-z0-9@._-]+$/'));
         $login->setValidator($loginValidator)->setMandatory(true);
 
         $password = new Opus_Model_Field('Password');
@@ -215,7 +212,7 @@ class Opus_Account extends Opus_Model_AbstractDb
         $loginField = $this->getField('Login');
         if ($loginField->getValidator()->isValid($login) === false) {
             Zend_Registry::get('Zend_Log')->debug('Login not valid: ' . $login);
-            throw new Opus_Security_Exception('Login name should only contain alpha numeric characters.');
+            throw new Opus_Security_Exception('Login name is empty or contains invalid characters.');
         }
         $loginField->setValue($login);
         return $this;
