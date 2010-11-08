@@ -33,7 +33,13 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: CollectionOld.php -1$
  */
-
+/**
+ * Test cases for Opus_Role.
+ *
+ * @package Opus
+ * @category Tests
+ * @group RoleTests
+ */
 class Opus_RoleTest extends TestCase {
     /**
      * @var    Opus_Role
@@ -93,6 +99,25 @@ class Opus_RoleTest extends TestCase {
         $this->markTestIncomplete(
           'This test has not been implemented yet.'
         );
+    }
+
+    /*
+     * Creates a role and a privilege. Test loading of role and privilege.
+     * Perforems toArray, to ensure, there's no loop between role and privielge.
+     *
+     * @return void
+     */
+    public function testToArray() {
+        $role = new Opus_Role();
+        $role->setName('Test');
+        $priv = $role->addPrivilege();
+        $priv->setPrivilege('administrate');
+        $role->store();
+
+        $role = new Opus_Role($role->getId());
+        $this->assertEquals(1, count($role->getPrivilege()), 'Stored one Privlege, loaded more or less.');
+
+        $array = $role->toArray();
     }
 }
 ?>

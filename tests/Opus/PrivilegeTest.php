@@ -269,8 +269,10 @@ class Opus_PrivilegeTest extends TestCase {
                         $priv->getFile()->getPathName(),
                         'Got privilege for another file!'
                 );
+
+                $role = new Opus_Role($priv->getParentId());
                 // check Role
-                $this->assertContains($priv->getRole()->getName(),
+                $this->assertContains($role->getName(),
                         $roles_by_file[$file->getPathName()],
                         'Loaded a readFile privilege for a role that should not be allowed to read this file!'
                 );
