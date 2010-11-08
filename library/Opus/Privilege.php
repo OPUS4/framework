@@ -64,10 +64,6 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-        'Role' => array(
-            'model' => 'Opus_Role',
-            'fetch' => 'lazy',
-        ),
         'File' => array(
             'model' => 'Opus_File',
             'fetch' => 'lazy',
@@ -105,49 +101,8 @@ class Opus_Privilege extends Opus_Model_Dependent_Abstract
 
         $this->addField(new Opus_Model_Field('FileId'));
 
-        $this->addField(new Opus_Model_Field('Role'));
         $this->addField(new Opus_Model_Field('File'));
 
-    }
-
-    /**
-     * Internal method to populate external field.
-     */
-    protected function _fetchRole() {
-        // if role_id is empty, it returns a new Opus_Role.
-        return new Opus_Role($this->_primaryTableRow->role_id);
-    }
-
-    /**
-     * Internal method to store external field to model.
-     */
-    protected function _storeRole($role) {
-    }
-
-    /**
-     * Do not use this method. Privileges contains roles only for convenience!
-     * Opus_Privilege is a dependent model. Do not add a role to a privilege,
-     * add a privilege to a role!
-     *
-     * @param mixed $role
-     */
-    public function addRole($role) {
-        $message = 'Opus_Privilege is a dependent Model.'
-                   .' Add a privilege to a role, not a role to a privilege!';
-        throw new Opus_Model_Exception($message);
-    }
-
-    /**
-     * Do not use this method. Privileges contains roles only for convenience!
-     * Opus_Privilege is a dependent model. Do not set roles to privileges,
-     * set privileges to roles!
-     *
-     * @param mixed $role
-     */
-    public function setRole($role) {
-        $message = 'Opus_Privilege is a dependent Model.'
-                   .' Set privileges to roles, not roles to privileges!';
-        throw new Opus_Model_Exception($message);
     }
 
     /**
