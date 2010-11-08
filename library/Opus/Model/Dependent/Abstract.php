@@ -71,6 +71,27 @@ abstract class Opus_Model_Dependent_Abstract
     private $_deletionToken = null;
 
     /**
+     * Construct a new model instance and connect it a database table's row.
+     * Pass an id to immediately fetch model data from the database. If not id is given
+     * a new persistent intance gets created wich got its id set as soon as it is stored
+     * via a call to _store().
+     *
+     * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
+     * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
+     * @throws Opus_Model_Exception     Thrown if passed id is invalid.
+     * @see Opus_Model_AbstractDb#__construct()
+     */
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+        parent::__construct($id, $tableGatewayModel);
+        if (false === is_null($this->_parentColumn) && $this->_parentColumn != '') {
+            $parentId = $this->_primaryTableRow->{$this->_parentColumn};
+            if (false === is_null($parentId)) {
+                $this->setParentId($parentId);
+            }
+        }
+    }
+
+    /**
      * Setter for $_parentId.
      *
      * @param integer $parentId The id of the parent Opus_Model
