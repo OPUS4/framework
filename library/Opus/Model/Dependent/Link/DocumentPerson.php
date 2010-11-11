@@ -67,8 +67,8 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      * @var array  Defaults to array('File').
      */
     protected $_internalFields = array(
-            'Role',
-            'SortOrder',
+//            'Role',
+//            'SortOrder',
         );
 
 
