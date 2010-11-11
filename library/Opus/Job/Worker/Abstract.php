@@ -41,7 +41,7 @@ abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
      *
      * @var Zend_Log
      */
-    private $_logger = null;
+    protected $_logger = null;
 
     /**
      * Set logging facility.
