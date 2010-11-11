@@ -594,7 +594,12 @@ abstract class Opus_Model_AbstractDb
                 // Clear modification status of successfully stored field.
                 $this->_fields[$fieldname]->clearModified();
             }
-        } catch (Exception $e) {
+        }
+        catch (Zend_Db_Exception $zdbe) {
+            // workaround: throw database adapter exceptions                                                                                                                                                       
+            throw $zdbe;
+        }
+        catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
             // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
             // workaround:
