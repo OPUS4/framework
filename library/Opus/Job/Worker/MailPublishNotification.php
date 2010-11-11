@@ -38,12 +38,15 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
 
     const LABEL = 'opus-mail-publish-notification';
 
+    private $config = null;
+
     /**
      * Constructs worker.
      * @param Zend_Log $logger
      */
     public function __construct($logger = null) {
         $this->setLogger($logger);
+        $this->config = Zend_Registry::get('Zend_Config');
     }
 
     /**
