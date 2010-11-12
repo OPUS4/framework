@@ -1128,6 +1128,20 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $select->where($dateWhere);
         }
 
+        Zend_Registry::get('Zend_Log')->err("sql select: $select");
+        $result = $table->getAdapter()->fetchCol($select);
+        return $result;
+    }
+
+    /**
+     * Fetch a list of all available document types.
+     */
+    public static function fetchDocumentTypes() {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
+        $select = $table->select()->from($table, array('type'))
+            ->where('server_state = ?', 'published')
+            ->group('type');
+        
         $result = $table->getAdapter()->fetchCol($select);
         return $result;
     }
