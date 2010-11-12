@@ -1089,13 +1089,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (true === array_key_exists('Date', $restriction) and
                 true === is_array($restriction['Date'])) {
 
-            if (false === array_key_exists('from', $restriction['Date'])) {
+            if (false === array_key_exists('from', $restriction['Date'])
+                    or is_null($restriction['Date']['from'])) {
                 $from = new Zend_Date(self::getEarliestPublicationDate());
             } else {
                 $from = new Zend_Date($restriction['Date']['from']);
             }
 
-            if (false === array_key_exists('until', $restriction['Date'])) {
+            if (false === array_key_exists('until', $restriction['Date'])
+                    or is_null($restriction['Date']['until'])) {
                 $until = new Zend_Date;
             } else {
                 $until = new Zend_Date($restriction['Date']['until']);
