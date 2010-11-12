@@ -696,8 +696,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve an array of all document titles associated with the corresponding
-     * document id.
+     * Retrieve an array of all document_id titles associated with the given
+     * (identifier, value)
      *
      * @param string $value value of the identifer that should be queried in DB
      * @param string [$type] optional string describing the type of identifier (default is urn)
@@ -1077,8 +1077,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
             foreach ($restriction['Type'] as $pubType) {
                 $typeRestr[] = 'type = "' . $pubType . '"';
             }
-            $typeWhere = implode(' OR ', $typeRestr);
-            $select->where($typeWhere);
+
+            // TODO
+            if (count($typeRestr) > 0) {
+                $typeWhere = implode(' OR ', $typeRestr);
+                $select->where($typeWhere);
+            }
         }
 
         // date restrictions
