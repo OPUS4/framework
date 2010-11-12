@@ -80,9 +80,12 @@ class Opus_Licence extends Opus_Model_AbstractDb
         $active->setCheckbox(true);
         
         $comment_internal = new Opus_Model_Field('CommentInternal');
+        $comment_internal->setTextarea(true);
         
         $desc_markup = new Opus_Model_Field('DescMarkup');
+        $desc_markup->setTextarea(true);
         $desc_text = new Opus_Model_Field('DescText');
+        $desc_text->setTextarea(true);
         
         $licence_language = new Opus_Model_Field('Language');
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
