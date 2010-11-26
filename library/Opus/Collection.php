@@ -855,6 +855,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return array
      */
     public function filterSubtreeDocumentIds($docIds) {
+        if (is_null($docIds) or (is_array($docIds) && empty($docIds))) {
+            return array();
+        }
+
         $nestedsets = $this->_primaryTableRow->getTable();
         $subselect = $nestedsets
                 ->selectSubtreeById($this->getId(), 'id')
@@ -862,9 +866,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
         $db = $this->_primaryTableRow->getTable()->getAdapter();
-        $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
+        $select = $db->select()->from('link_documents_collections AS ldc', 'ldc.document_id')
                         ->where("ldc.collection_id IN ($subselect)")
-                        ->where("ldc.document_id IN (?)", $docIds);
+                        ->where("ldc.document_id IN (?)", $docIds)
+                        ->distinct();
 
         return $db->fetchCol($select);
     }
