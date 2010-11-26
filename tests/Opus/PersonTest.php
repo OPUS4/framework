@@ -33,7 +33,6 @@
  * @version     $Id$
  */
 
-
 /**
  * Test cases for class Opus_Person.
  *

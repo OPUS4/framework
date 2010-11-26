@@ -558,7 +558,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $role_id)
-                        ->where('number = ?', $number);
+                        ->where('number = ?', "$number");
         $rows = $table->fetchAll($select);
 
         return self::createObjects($rows);
@@ -844,6 +844,29 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $count = $db->fetchOne($select);
         return (int) $count;
+    }
+
+    /**
+     * Filter documents from subtree from a given list of document-ids.  The
+     * first argument is mandadory and can be an int-array or a SQL-query used
+     * as a subselect.  This query must have only have an id-column.
+     *
+     * @param  $docIds 
+     * @return array
+     */
+    public function filterSubtreeDocumentIds($docIds) {
+        $nestedsets = $this->_primaryTableRow->getTable();
+        $subselect = $nestedsets
+                ->selectSubtreeById($this->getId(), 'id')
+                ->distinct();
+
+        // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
+        $db = $this->_primaryTableRow->getTable()->getAdapter();
+        $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
+                        ->where("ldc.collection_id IN ($subselect)")
+                        ->where("ldc.document_id IN (?)", $docIds);
+
+        return $db->fetchCol($select);
     }
 
     /**

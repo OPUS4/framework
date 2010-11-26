@@ -33,6 +33,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: CollectionOld.php -1$
  */
+
 /**
  * Test cases for Opus_Role.
  *
