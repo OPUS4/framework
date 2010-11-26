@@ -100,6 +100,7 @@ class Opus_RequireTest extends TestCase {
            "Opus_Security_Realm",
            "Opus_Model_Field",
            "Opus_Storage_File",
+           "Opus_Reviewer",
         );
 
         foreach ($classes AS $class) {

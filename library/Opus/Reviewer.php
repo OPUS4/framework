@@ -166,7 +166,7 @@ class Opus_Reviewer extends Opus_Model_Abstract {
      *
      * @param <type> $reviewer
      */
-    public function __construct($reviewer) {
+    public function __construct($reviewer = null) {
         $this->log = Zend_Registry::get('Zend_Log');
 
         if (is_null(self::$reviewers) or empty(self::$reviewers)) {
@@ -253,13 +253,11 @@ class Opus_Reviewer extends Opus_Model_Abstract {
             foreach ($numbers AS $number) {
                 $collections = Opus_Collection::fetchCollectionsByRoleNumber($c_role_id, $number);
 
-                if (count($collections) !== 1) {
-                    continue;
+                if (count($collections) === 1) {
+                    $collection = $collections[0];
+                    $docIds_more = $collection->filterSubtreeDocumentIds($docIds_input);
+                    $docIds = array_unique( array_merge($docIds, $docIds_more) );
                 }
-
-                $collection = $collections[0];
-                $docIds_more = $collection->filterSubtreeDocumentIds($docIds_input);
-                $docIds = array_unique( array_merge($docIds, $docIds_more) );
             }
         }
 
