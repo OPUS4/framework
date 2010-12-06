@@ -228,6 +228,10 @@ class Opus_Reviewer extends Opus_Model_Abstract {
             $reviewers = array_merge($reviewers, $more_reviewers);
         }
 
+        $log = Zend_Registry::get('Zend_Log');
+        $log->debug("Reviewer: documentID =>" . $doc->getId());
+        $log->debug("Reviewer: Reviewer =>" . implode(";", $reviewers));
+
         return array_unique($reviewers);
     }
 

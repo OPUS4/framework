@@ -1,4 +1,5 @@
 <?php
+
 /*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -35,7 +36,6 @@
  * Worker for sending out email notifications for newly published documents.
  */
 class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
-
     const LABEL = 'opus-mail-publish-notification';
 
     private $config = null;
@@ -69,11 +69,15 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
 
         $message = $data->message;
         $subject = $data->subject;
-        $projects = $data->projects;
+        $users = $data->users;
+        //$projects = $data->projects;
 
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
-        $recipient = $this->getRecipients($projects);
+
+        $recipient = $this->getRecipients($users);
+
+        //$recipient = $this->getRecipients($projects);
 
         if (empty($recipient)) {
             $this->_logger->info('No referees configured. Mail canceled.');
@@ -85,8 +89,7 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
         try {
             $this->_logger->debug('Send publish notification.');
             $this->_logger->debug('address = ' . $from);
-            $mailSendMail->sendMail(
-                    $from, $fromName, $subject, $message, $recipient);
+            $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
         } catch (Exception $e) {
             $this->_logger->err($e);
             return false;
@@ -130,32 +133,56 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
      *
      * @return <type>
      */
-    public function getRecipients($projects = null) {
-        if (!is_array($projects)) {
-            $projects = array($projects);
+//    public function getRecipients($projects = null) {
+//        if (!is_array($projects)) {
+//            $projects = array($projects);
+//        }
+//
+//        $allRecipients = $this->getGlobalRecipients();
+//
+//        if (empty($allRecipients)) {
+//            $allRecipients = array();
+//        }
+//
+//        if (!empty($projects)) {
+//            foreach ($projects as $project) {
+//                $collection = substr($project, 0, 1); // MATHEON get first letter of project
+//
+//                $collection = strtolower($collection);
+//
+//                $recipients = $this->getRecipientsForCollection($collection);
+//
+//                if (!empty($recipients)) {
+//                    $allRecipients = array_merge($allRecipients, $recipients);
+//                }
+//            }
+//        }
+//
+//        // TODO remove duplicates
+//
+//        return $allRecipients;
+//    }
+
+    public function getRecipients($users = null) {
+
+        $allRecipients = array();
+
+        if (!is_array($users)) {
+            $users = array($users);
         }
 
-        $allRecipients = $this->getGlobalRecipients();
+        $index = 0;
+        if (!empty($users)) {
+            foreach ($users AS $user) {
+                $email_recipient = new Opus_Account(null, null, $user);
+                $mail = $email_recipient->getEmail();
+                $first = $email_recipient->getFirstName();
+                $last = $email_recipient->getLastName();
 
-        if (empty($allRecipients)) {
-            $allRecipients = array();
-        }
-
-        if (!empty($projects)) {
-            foreach ($projects as $project) {
-                $collection = substr($project, 0, 1); // MATHEON get first letter of project
-
-                $collection = strtolower($collection);
-
-                $recipients = $this->getRecipientsForCollection($collection);
-
-                if (!empty($recipients)) {
-                    $allRecipients = array_merge($allRecipients, $recipients);
-                }
+                $allRecipients[$index] = array('name' => $first . ' ' . $last, 'address' => $mail);
+                $index++;
             }
         }
-
-        // TODO remove duplicates
 
         return $allRecipients;
     }
