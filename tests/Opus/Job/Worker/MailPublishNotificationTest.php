@@ -31,7 +31,7 @@
  * @version     $Id$
  */
 
-class Opus_Job_Worker_MailPublishNotifcationTest extends TestCase {
+class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
 
     /**
      * Tests getting global recipients.
@@ -53,7 +53,12 @@ class Opus_Job_Worker_MailPublishNotifcationTest extends TestCase {
 //        $this->assertEquals(2, count($recipients));
 //    }
 
-    public function testGetRecipients() {
+    public function testNewGetRecipients() {
+        $a = new Opus_Account();
+        $a->setLogin('admin');
+        $a->store();
+
+
         $mail = new Opus_Job_Worker_MailPublishNotification();
         $users = array('admin');
         $recipients = $mail->getRecipients($users);
