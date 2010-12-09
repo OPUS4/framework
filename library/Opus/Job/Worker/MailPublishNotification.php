@@ -36,8 +36,8 @@
  * Worker for sending out email notifications for newly published documents.
  */
 class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
-    const LABEL = 'opus-mail-publish-notification';
 
+    const LABEL = 'opus-mail-publish-notification';
     private $config = null;
 
     /**
@@ -134,17 +134,24 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
 
         $allRecipients = array();
         foreach ($users AS $user) {
-            $email_recipient = new Opus_Account(null, null, $user);
-            $mail = $email_recipient->getEmail();
-            $first = $email_recipient->getFirstName();
-            $last = $email_recipient->getLastName();
+            $account = Opus_Account::fetchAccountByLogin($user);
 
-            if (is_null($mail) or trim($mail) == '') {
-                $this->_logger->warn("No mail address for user '$user'... skipping mail");
+            if (is_null($account)) {
+                $this->_logger->warn("User '$user' does not exist... skipping mail.");
                 continue;
             }
 
-            $allRecipients[] = array('name' => $first . ' ' . $last, 'address' => $mail);
+            $mail = $account->getEmail();
+            if (is_null($mail) or trim($mail) == '') {
+                $this->_logger->warn("No mail address for user '$user'... skipping mail.");
+                continue;
+            }
+
+            $allRecipients[] = array(
+                'login' => $user,
+                'name' => $account->getFirstName() . ' ' . $account->getLastName(),
+                'address' => $mail,
+            );
         }
 
         return $allRecipients;
@@ -158,17 +165,13 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
     public function getGlobalRecipients() {
         $config = Zend_Registry::get('Zend_Config');
 
-        $referees = $config->referees;
-        if (is_null($referees) or empty($referees)) {
-           return null;
+        if (isset($config->reviewer->global)) {
+            $reviewer = $config->reviewer->global->toArray();
+            return $this->getRecipients( $reviewer );
         }
 
-        $recipients = array();
-        foreach ($referees as $name => $address) {
-            $recipients[] = array('name' => $name, 'address' => $address);
-        }
-
-        return $recipients;
+        $this->_logger->debug("No global reviewer section in config.");
+        return array();
     }
 
 }

@@ -103,7 +103,7 @@ class Opus_Mail_SendMail {
     // mit dem Fake-SMTP-Server zu ermöglichen. Wird ein leerer String übergeben, siehe Z.104
     public function __construct() {
         $this->createSmtpTransport();
-        $this->_mail = new Zend_Mail();
+        $this->_mail = new Zend_Mail('utf-8');
         $this->_mail->clearFrom();
     }
 
@@ -511,8 +511,9 @@ class Opus_Mail_SendMail {
      * @return boolean             True if mail could be sent
      */
     private function send() {
+        $logger = Zend_Registry::get('Zend_Log');
+
         if ($this->_disabled) {
-            $logger = Zend_Registry::get('Zend_Log');
             $logger->warn('Not sending mail: Mail server not configured.');
             return true;
         }
@@ -523,12 +524,12 @@ class Opus_Mail_SendMail {
         $subject = $this->getSubject();
         $text = $this->getBodyText();
 
-        if ($from === '') {
+        if (trim($from) === '') {
             throw new Opus_Mail_Exception('No sender address given.');
         }
 
-        if ($subject === '') {
-            throw new Opus_Mail_Exception('No text given.');
+        if (trim($subject) === '') {
+            throw new Opus_Mail_Exception('No subject text given.');
         }
 
         $error = '';
@@ -550,8 +551,10 @@ class Opus_Mail_SendMail {
                 $mail->setBodyText($text);
                 try {
                     $mail->send();
+                    $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
                 } catch (Exception $e) {
                     $error .= $e . ' ';
+                    $logger->err('SendMail: Failed sending mail to ' . $recip['address']);
                 }
             } else {
                 $mail->addTo($recip['address'], $recip['name']);
@@ -561,12 +564,14 @@ class Opus_Mail_SendMail {
         if ($this->getOneMailToAll() === TRUE) {
             try {
                 $mail->send();
+                $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
             } catch (Exception $e) {
                 $error .= $e . ' ';
+                $logger->err('SendMail: Failed sending mail to ' . $recip['address']);
             }
         }
 
-        if (!($error === '')) {
+        if (trim($error) !== '') {
             throw new Opus_Mail_Exception('One or more mails could not be sent: ' . $error);
         }
 

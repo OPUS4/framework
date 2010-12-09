@@ -26,6 +26,7 @@
  *
  * @category    Framework Unit Test
  * @author      Jens Schwidder <schwidder@zib.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -33,49 +34,78 @@
 
 class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
 
-    /**
-     * Tests getting global recipients.
-     */
-    public function testGetRecipients() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
-        $recipients = $mail->getRecipients();
-        $this->assertNotNull($recipients);
-        $this->assertEquals(1, count($recipients));
+    protected function setUp() {
+        parent::setUp();
+
+        $account = new Opus_Account();
+        $account->setLogin('admin')
+            ->setPassword('foobar-'.rand())
+            ->store();
+
+        $account = new Opus_Account();
+        $account->setLogin('hasmail')
+            ->setPassword('foobar-'.rand())
+            ->setEmail('has@mail.de')
+            ->store();
     }
 
     /**
-     * Tests getting recipients for one project.
+     * Tests getting global recipients.
      */
-//    public function testGetRecipientsForProject() {
-//        $mail = new Opus_Job_Worker_MailPublishNotification();
-//        $recipients = $mail->getRecipients('a1');
-//        $this->assertNotNull($recipients);
-//        $this->assertEquals(2, count($recipients));
-//    }
+    public function testGetGlobalRecipients() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
 
-    public function testNewGetRecipients() {
-        $a = new Opus_Account();
-        $a->setLogin('admin');
-        $a->store();
+        // Only one user exists *and* has an email address
+        $recipients = $mail->getGlobalRecipients();
+        $this->assertNotNull($recipients);
+        $this->assertEquals(1, count($recipients));
 
+        // The uses is called "hasemail" and his mail is "has@mail.de"
+        $this->assertEquals('hasmail', $recipients[0]['login']);
+        $this->assertEquals('has@mail.de', $recipients[0]['address']);
+    }
 
+    /**
+     * Tests getting recipients (from empty list)
+     */
+    public function testGetRecipientsForEmptyList() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $recipients = $mail->getRecipients();
+        $this->assertNotNull($recipients);
+        $this->assertEquals(0, count($recipients));
+    }
+
+    /**
+     * Tests getting recipients (from invalid list)
+     */
+    public function testGetRecipientsForInvalidUser() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $users = array('doesnotexist');
+        $recipients = $mail->getRecipients($users);
+        $this->assertNotNull($recipients);
+        $this->assertEquals(0, count($recipients));
+    }
+
+    /**
+     * Tests getting recipients (from existing user, without mail)
+     */
+    public function testGetRecipientsForUserWithoutMail() {
         $mail = new Opus_Job_Worker_MailPublishNotification();
         $users = array('admin');
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
-        //$this->assertEquals(2, count($recipients));
+        $this->assertEquals(0, count($recipients));
     }
 
     /**
-     * Tests getting recipients for two projects.
+     * Tests getting recipients (from existing user, without mail)
      */
-//    public function testgetRecipientsForTwoProjects() {
-//        $mail = new Opus_Job_Worker_MailPublishNotification();
-//        $recipients = $mail->getRecipients(array('a1', 'b1'));
-//        $this->assertNotNull($recipients);
-//        $this->assertEquals(3, count($recipients));
-//    }
+    public function testGetRecipientsForUserWithMail() {
+        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $users = array('hasmail');
+        $recipients = $mail->getRecipients($users);
+        $this->assertNotNull($recipients);
+        $this->assertEquals(1, count($recipients));
+    }
 
 }
-
-?>
