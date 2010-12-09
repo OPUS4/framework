@@ -70,25 +70,22 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
         $message = $data->message;
         $subject = $data->subject;
         $users = $data->users;
-        //$projects = $data->projects;
-
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
 
+        $this->_logger->debug('MailPublish: Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
         $recipient = $this->getRecipients($users);
 
-        //$recipient = $this->getRecipients($projects);
-
         if (empty($recipient)) {
-            $this->_logger->info('No referees configured. Mail canceled.');
+            $this->_logger->info('MailPublish: No referees configured.  Mail canceled.');
             return true;
         }
 
         $mailSendMail = new Opus_Mail_SendMail();
 
         try {
-            $this->_logger->debug('Send publish notification.');
-            $this->_logger->debug('address = ' . $from);
+            $this->_logger->info('MailPublish: Sending publish notification...');
+            $this->_logger->debug('MailPublish: address = ' . $from);
             $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
         } catch (Exception $e) {
             $this->_logger->err($e);
@@ -129,81 +126,28 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
         return $fromName;
     }
 
-    /**
-     *
-     * @return <type>
-     */
-//    public function getRecipients($projects = null) {
-//        if (!is_array($projects)) {
-//            $projects = array($projects);
-//        }
-//
-//        $allRecipients = $this->getGlobalRecipients();
-//
-//        if (empty($allRecipients)) {
-//            $allRecipients = array();
-//        }
-//
-//        if (!empty($projects)) {
-//            foreach ($projects as $project) {
-//                $collection = substr($project, 0, 1); // MATHEON get first letter of project
-//
-//                $collection = strtolower($collection);
-//
-//                $recipients = $this->getRecipientsForCollection($collection);
-//
-//                if (!empty($recipients)) {
-//                    $allRecipients = array_merge($allRecipients, $recipients);
-//                }
-//            }
-//        }
-//
-//        // TODO remove duplicates
-//
-//        return $allRecipients;
-//    }
-
     public function getRecipients($users = null) {
-
-        $allRecipients = array();
 
         if (!is_array($users)) {
             $users = array($users);
         }
 
-        $index = 0;
-        if (!empty($users)) {
-            foreach ($users AS $user) {
-                $email_recipient = new Opus_Account(null, null, $user);
-                $mail = $email_recipient->getEmail();
-                $first = $email_recipient->getFirstName();
-                $last = $email_recipient->getLastName();
+        $allRecipients = array();
+        foreach ($users AS $user) {
+            $email_recipient = new Opus_Account(null, null, $user);
+            $mail = $email_recipient->getEmail();
+            $first = $email_recipient->getFirstName();
+            $last = $email_recipient->getLastName();
 
-                $allRecipients[$index] = array('name' => $first . ' ' . $last, 'address' => $mail);
-                $index++;
+            if (is_null($mail) or trim($mail) == '') {
+                $this->_logger->warn("No mail address for user '$user'... skipping mail");
+                continue;
             }
+
+            $allRecipients[] = array('name' => $first . ' ' . $last, 'address' => $mail);
         }
 
         return $allRecipients;
-    }
-
-    /**
-     *
-     * @param <type> $collection
-     * @return <type>
-     */
-    public function getRecipientsForCollection($collection) {
-        $config = Zend_Registry::get('Zend_Config');
-
-        if (!isset($config->events->collections->$collection)) {
-            return null;
-        }
-
-        $referees = $config->events->collections->$collection->referees;
-
-        $recipients = $this->_readRecipients($referees);
-
-        return $recipients;
     }
 
     /**
@@ -215,34 +159,16 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
         $config = Zend_Registry::get('Zend_Config');
 
         $referees = $config->referees;
-
-        $recipients = $this->_readRecipients($referees);
-
-        return $recipients;
-    }
-
-    /**
-     *
-     * @param <type> $referees
-     * @return string
-     */
-    protected function _readRecipients($referees) {
-        $recipients = array();
-
-        if (!empty($referees)) {
-            $index = 1;
-            foreach ($referees as $name => $address) {
-                $recipients[$index] = array('name' => $name, 'address' => $address);
-                $index++;
-            }
+        if (is_null($referees) or empty($referees)) {
+           return null;
         }
-        else {
-            $recipients = null;
+
+        $recipients = array();
+        foreach ($referees as $name => $address) {
+            $recipients[] = array('name' => $name, 'address' => $address);
         }
 
         return $recipients;
     }
 
 }
-
-?>
