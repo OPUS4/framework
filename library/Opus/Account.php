@@ -90,7 +90,7 @@ class Opus_Account extends Opus_Model_AbstractDb
         if (false === is_null($login) && false === empty($login)) {
             if (false === is_null($id) && false === empty($id)) {
                  throw new Opus_Model_Exception('Login and id of an account are specified, specify either id or login.');
-             }
+            }
             $id = Opus_Account::fetchAccountRowByLogin($login);
             if (!isset($id)) {
                 throw new Opus_Security_Exception('An account with the login name ' . $login . ' cannot be found.');
@@ -178,7 +178,7 @@ class Opus_Account extends Opus_Model_AbstractDb
      * Helper method to fetch account-rows by login name.
      */
     private static function fetchAccountRowByLogin($login) {
-        if (false === isset($login)) {
+        if (false === isset($login) or false === is_string($login)) {
             return;
         }
 
