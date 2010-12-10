@@ -218,17 +218,36 @@ class Opus_Account extends Opus_Model_AbstractDb
         return $this;
     }
 
-
     /**
-     * Set a new password and reset isNewPasswordRequired flag.
-     * The password goes through the PHP sha1 hash algorithm.
+     * Set a new password.  The password goes through the PHP sha1 hash
+     * algorithm.
      *
      * @param string $password The new password to set.
      * @return Opus_Account Fluent interface.
      */
-    public function setPassword($password) {
+     public function setPassword($password) {
         $password = $this->_convertToScalar($password);
         $this->getField('Password')->setValue(sha1($password));
+        return $this;
+    }
+
+    /**
+     * The field "Password" only contains hashed passwords.  This method sets
+     * the password directly without hashing it.  Helpful for migration.
+     *
+     * @param string $password The new password to set.
+     * @return Opus_Account Fluent interface.
+     */
+    public function setPasswordDirectly($password) {
+        $logger = Zend_Registry::get('Zend_Log');
+        if (null !== $logger) {
+            $message = "WARNING: Setting password directly for user '" . $this->getLogin() . "'.";
+            $logger->warn(__METHOD__ . ': ' . $message);
+            $message = "WARNING: Setting password directly should only be used when migrating!";
+            $logger->warn(__METHOD__ . ': ' . $message);
+        }
+
+        $this->getField('Password')->setValue($password);
         return $this;
     }
 
@@ -252,7 +271,6 @@ class Opus_Account extends Opus_Model_AbstractDb
         return $value;
     }
 
-
     /**
      * Check if a given string is the correct password for this account.
      *
@@ -261,6 +279,22 @@ class Opus_Account extends Opus_Model_AbstractDb
      */
     public function isPasswordCorrect($password) {
         return ($this->getPassword() === sha1($password));
+    }
+
+    /**
+     * For migration of old password hashes to new ones: Check if a given
+     * string is the correct password for this account, but to another
+     * hashing algorithm.
+     *
+     * @param string $password Password.
+     * @return boolean
+     */
+    public function isPasswordCorrectOldHash($password) {
+        if ($this->getPassword() === md5($password)) {
+           return true;
+        }
+
+        return false;
     }
 
     /**

@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Security
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -100,17 +101,22 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
                 array('The supplied identity could not be found.'));
         }
 
+        // Check if password is correcct, but for old hashes.  Neede for
+        // migrating md5-hashed passwords to SHA1-hashes.
+        if ($account->isPasswordCorrectOldHash($this->_password) === true) {
+           Zend_Registry::get('Zend_Log')->warn('Migrating old password-hash for user: ' . $this->_login);
+           $account->setPassword($this->_password)->store();
+           $account = new Opus_Account(null, null, $this->_login);
+        }
+
         // Check the password
         $pass = $account->isPasswordCorrect($this->_password);
         if ($pass === true) {
             return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->_login,
                 array('Authentication successful.'));
-        } else {
-            return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
-                array('Supplied credential is invalid.'));
         }
 
-        return $authresult;
-    }
-
+        return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
+            array('Supplied credential is invalid.'));
+     }
 }
