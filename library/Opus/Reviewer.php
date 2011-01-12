@@ -161,6 +161,19 @@ class Opus_Reviewer extends Opus_Model_Abstract {
         }
     }
 
+    public static function getNumbersForLoginRole($login, $role) {
+        if (false === array_key_exists($login, self::$reviewers)) {
+            return array();
+        }
+
+        if (false === array_key_exists($role, self::$reviewers[$login])) {
+            return array();
+        }
+
+        return self::$reviewers[$login][$role];
+    }
+
+
     /**
      * Reviewer-constructor.  First argument should be a valid user name.
      *
