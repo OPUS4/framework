@@ -1,4 +1,3 @@
-<?php
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -39,50 +38,50 @@
  * @package     Opus
  * @uses        Opus_Db_Documents
  */
-class Opus_DocumentSearcher {
+class Opus_DocumentFinder {
 
     public static function selfTest() {
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        var_dump($searcher->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
+        $finder = new Opus_DocumentFinder();
+        var_dump($finder->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
 
-        $searcher = new Opus_DocumentSearcher();
-        $ids = $searcher->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(true)->ids();
+        $finder = new Opus_DocumentFinder();
+        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(true)->ids();
         var_dump($ids[0]);
 
-        $searcher = new Opus_DocumentSearcher();
-        $ids = $searcher->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(false)->ids();
+        $finder = new Opus_DocumentFinder();
+        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(false)->ids();
         var_dump($ids[0]);
 
-        $searcher = new Opus_DocumentSearcher();
-        $ids = $searcher->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(true)->ids();
+        $finder = new Opus_DocumentFinder();
+        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(true)->ids();
         var_dump($ids[0]);
 
-        $searcher = new Opus_DocumentSearcher();
-        $ids = $searcher->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(false)->ids();
+        $finder = new Opus_DocumentFinder();
+        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(false)->ids();
         var_dump($ids[0]);
 
-        $d = new Opus_Document(); $d->setServerState('published')->store(); $searcher = new Opus_DocumentSearcher(); echo $searcher->setServerDatePublishedRange('2011', '2012')->count() . "\n";
+        $d = new Opus_Document(); $d->setServerState('published')->store(); $finder = new Opus_DocumentFinder(); echo $finder->setServerDatePublishedRange('2011', '2012')->count() . "\n";
     }
 
 
@@ -158,7 +157,7 @@ class Opus_DocumentSearcher {
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdRange($start, $end) {
         $this->setIdRangeStart($start)->setIdRangeEnd($end);
@@ -169,7 +168,7 @@ class Opus_DocumentSearcher {
      * Add range-start-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdRangeStart($start) {
         $this->select->where('d.id >= ', $start);
@@ -180,7 +179,7 @@ class Opus_DocumentSearcher {
      * Add range-end-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdRangeEnd($end) {
         $this->select->where('d.id <= ', $end);
@@ -191,7 +190,7 @@ class Opus_DocumentSearcher {
      * Add subset-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdSubset($subset) {
         // Hotfix: If $subset is empty, don't do nothing.
@@ -213,7 +212,7 @@ class Opus_DocumentSearcher {
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setType($type) {
         $this->select->where('type = ?', $type);
@@ -224,7 +223,7 @@ class Opus_DocumentSearcher {
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerState($server_state) {
         $this->select->where('server_state = ?', $server_state);
@@ -235,7 +234,7 @@ class Opus_DocumentSearcher {
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDatePublishedRange($from, $until) {
         $this->select->where('d.server_date_published >= ?', $from)
@@ -248,7 +247,7 @@ class Opus_DocumentSearcher {
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until) {
         $this->select->where('d.server_date_modified >= ?%', $from)
@@ -260,7 +259,7 @@ class Opus_DocumentSearcher {
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setEnrichmentKeyExists($key_name) {
         $this->select->where('EXISTS (SELECT id FROM document_enrichments AS e WHERE document_id = d.id AND key_name = ?)', $key_name);
@@ -271,7 +270,7 @@ class Opus_DocumentSearcher {
      * Add constraints to be applied on the result set.
      *
      * @param  string $type
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function setEnrichmentKeyValue($key_name, $value) {
         $quoted_key_name = $this->db->quote($key_name);
@@ -286,7 +285,7 @@ class Opus_DocumentSearcher {
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function orderByAuthorLastname($order = true) {
         $this->select
@@ -301,7 +300,7 @@ class Opus_DocumentSearcher {
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function orderByTitleMain($order = true) {
         $this->select
@@ -315,7 +314,7 @@ class Opus_DocumentSearcher {
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function orderById($order = true) {
         $this->select->order('d.id ' . ($order ? 'ASC' : 'DESC'));
@@ -326,7 +325,7 @@ class Opus_DocumentSearcher {
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function orderByType($order = true) {
         $this->select->order('d.type ' . ($order ? 'ASC' : 'DESC'));
@@ -337,7 +336,7 @@ class Opus_DocumentSearcher {
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
-     * @return Opus_DocumentSearcher Fluent interface.
+     * @return Opus_DocumentFinder Fluent interface.
      */
     public function orderByServerDatePublished($order = true) {
         $this->select->order('d.server_date_published ' . ($order ? 'ASC' : 'DESC'));

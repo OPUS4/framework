@@ -492,9 +492,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllByState($state) {
-        $searcher = new Opus_DocumentSearcher();
-        $searcher->setServerState($state);
-        return self::getAll( $searcher->ids() );
+        $finder = new Opus_DocumentFinder();
+        $finder->setServerState($state);
+        return self::getAll( $finder->ids() );
     }
 
     /**
@@ -521,12 +521,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllDocumentsByDoctypeByState($state, $sort_reverse = '0') {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
         if (isset($state)) {
-            $searcher->setServerState($state);
+            $finder->setServerState($state);
         }
-        $searcher->orderByType($sort_reverse != 1);
-        return $searcher->ids();
+        $finder->orderByType($sort_reverse != 1);
+        return $finder->ids();
     }
 
     /**
@@ -553,12 +553,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllDocumentsByPubDateByState($state, $sort_reverse = '0') {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
         if (isset($state)) {
-            $searcher->setServerState($state);
+            $finder->setServerState($state);
         }
-        $searcher->orderByServerDatePublished($sort_reverse != 1);
-        return $searcher->ids();
+        $finder->orderByServerDatePublished($sort_reverse != 1);
+        return $finder->ids();
     }
 
     /**
@@ -586,12 +586,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllDocumentsByAuthorsByState($state, $sort_reverse = '0') {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
         if (isset($state)) {
-            $searcher->setServerState($state);
+            $finder->setServerState($state);
         }
-        $searcher->orderByAuthorLastname($sort_reverse != 1);
-        return $searcher->ids();
+        $finder->orderByAuthorLastname($sort_reverse != 1);
+        return $finder->ids();
     }
 
     /**
@@ -618,12 +618,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllDocumentsByTitlesByState($state, $sort_reverse = '0') {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
         if (isset($state)) {
-            $searcher->setServerState($state);
+            $finder->setServerState($state);
         }
-        $searcher->orderByTitleMain($sort_reverse != 1);
-        return $searcher->ids();
+        $finder->orderByTitleMain($sort_reverse != 1);
+        return $finder->ids();
     }
 
     /**
@@ -648,12 +648,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllIdsByState($state = 'published', $sort_reverse = '0') {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
         if (isset($state)) {
-            $searcher->setServerState($state);
+            $finder->setServerState($state);
         }
-        $searcher->orderById($sort_reverse != 1);
-        return $searcher->ids();
+        $finder->orderById($sort_reverse != 1);
+        return $finder->ids();
     }
 
     /**
@@ -693,17 +693,17 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getAllPublishedIds($start, $end) {
-        $searcher = new Opus_DocumentSearcher();
+        $finder = new Opus_DocumentFinder();
 
         if (isset($start)) {
-            $searcher->setIdRangeStart($start);
+            $finder->setIdRangeStart($start);
         }
 
         if (isset($end)) {
-            $searcher->setIdRangeEnd($end);
+            $finder->setIdRangeEnd($end);
         }
 
-        return $searcher->ids();
+        return $finder->ids();
     }
 
     /**
@@ -733,9 +733,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getIdsForDocType($typename) {
-        $searcher = new Opus_DocumentSearcher();
-        $searcher->setType($typename);
-        return $searcher->ids();
+        $finder = new Opus_DocumentFinder();
+        $finder->setType($typename);
+        return $finder->ids();
     }
 
     /**
@@ -1102,11 +1102,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Fetch a list of all available document types.
+     *
+     * @deprecated
      */
     public static function fetchDocumentTypes() {
-        $searcher = new Opus_DocumentSearcher();
-        $searcher->setServerState('published');
-        return $searcher->groupedTypes();
+        $finder = new Opus_DocumentFinder();
+        $finder->setServerState('published');
+        return $finder->groupedTypes();
     }
 
     /**
