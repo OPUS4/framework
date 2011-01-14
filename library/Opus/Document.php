@@ -475,6 +475,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Retrieve all Opus_Document instances from the database.
      *
      * @return array Array of Opus_Document objects.
+     *
+     * @deprecated
      */
     public static function getAll(array $ids = null) {
         return self::getAllFrom('Opus_Document', 'Opus_Db_Documents', $ids);
@@ -486,15 +488,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $state The state to check for.
      * @throws Opus_Model_Exception Thrown if an unknown state is encountered.
      * @return array The list of documents in the specified state.
+     *
+     * @deprecated
      */
     public static function getAllByState($state) {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $rows = $table->fetchAll($table->select()->where('server_state = ?', $state));
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = new Opus_Document($row);
-        }
-        return $result;
+        $searcher = new Opus_DocumentSearcher();
+        $searcher->setServerState($state);
+        return self::getAll( $searcher->ids() );
     }
 
     /**
@@ -503,6 +503,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByDoctype($sort_reverse = '0') {
         return self::getAllDocumentsByDoctypeByState(null, $sort_reverse);
@@ -515,25 +517,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByDoctypeByState($state, $sort_reverse = '0') {
-        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
-        $select = $db->select()
-                ->from(array('d' => 'documents'),
-                array('id', 'type'))
-                ->order('type ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-
+        $searcher = new Opus_DocumentSearcher();
         if (isset($state)) {
-            $select->where('d.server_state = ?', $state);
+            $searcher->setServerState($state);
         }
-
-        $rows = $db->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-
-        return $result;
+        $searcher->orderByType($sort_reverse != 1);
+        return $searcher->ids();
     }
 
     /**
@@ -542,6 +535,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByPubDate($sort_reverse = '0') {
         return self::getAllDocumentsByPubDateByState(null, $sort_reverse);
@@ -554,25 +549,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByPubDateByState($state, $sort_reverse = '0') {
-        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
-        $select = $db->select()
-                ->from(array('d' => 'documents'),
-                array('id', 'server_date_published'))
-                ->order('server_date_published ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-
+        $searcher = new Opus_DocumentSearcher();
         if (isset($state)) {
-            $select->where('d.server_state = ?', $state);
+            $searcher->setServerState($state);
         }
-
-        $rows = $db->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-
-        return $result;
+        $searcher->orderByServerDatePublished($sort_reverse != 1);
+        return $searcher->ids();
     }
 
     /**
@@ -581,6 +567,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByAuthors($sort_reverse = '0') {
         return self::getAllDocumentsByAuthorsByState(null, $sort_reverse);
@@ -594,28 +582,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByAuthorsByState($state, $sort_reverse = '0') {
-        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
-
-        $select = $db->select()
-                ->from(array('d' => 'documents'), array('id'))
-                ->joinLeft(array('pd' => 'link_persons_documents'), 'd.id = pd.document_id AND pd.role = "author"', array())
-                ->joinLeft(array('p' => 'persons'), 'pd.person_id = p.id', array())
-                ->group('d.id')
-                ->order('p.last_name ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-
+        $searcher = new Opus_DocumentSearcher();
         if (isset($state)) {
-            $select->where('d.server_state = ?', $state);
+            $searcher->setServerState($state);
         }
-
-        $rows = $db->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-
-        return $result;
+        $searcher->orderByAuthorLastname($sort_reverse != 1);
+        return $searcher->ids();
     }
 
     /**
@@ -624,6 +600,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
+     *
+     * @deprecated
      */
     public static function getAllDocumentsByTitles($sort_reverse = '0') {
         return self::getAllDocumentsByTitlesByState(null, $sort_reverse);
@@ -637,26 +615,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
+     * @deprecated
      */
     public static function getAllDocumentsByTitlesByState($state, $sort_reverse = '0') {
-        $db = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass)->getAdapter();
-        $select = $db->select()
-                ->from(array('d' => 'documents'), array('d.id'))
-                ->joinLeft(array('t' => 'document_title_abstracts'), 't.document_id = d.id AND t.type = "main"', array())
-                ->group('d.id')
-                ->order('t.value ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-
+        $searcher = new Opus_DocumentSearcher();
         if (isset($state)) {
-            $select->where('d.server_state = ?', $state);
+            $searcher->setServerState($state);
         }
-
-        $rows = $db->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-
-        return $result;
+        $searcher->orderByTitleMain($sort_reverse != 1);
+        return $searcher->ids();
     }
 
     /**
@@ -664,6 +631,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array Array of document ids.
+     *
+     * @deprecated
      */
     public static function getAllIds($sort_reverse = '0') {
         return self::getAllIdsByState(null, $sort_reverse);
@@ -675,24 +644,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
      * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array The list of documents in the specified state.
+     *
+     * @deprecated
      */
     public static function getAllIdsByState($state = 'published', $sort_reverse = '0') {
-
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()
-                ->from($table, array('id'))
-                ->order( 'id ' . ($sort_reverse === '1' ? 'DESC' : 'ASC') );
-
+        $searcher = new Opus_DocumentSearcher();
         if (isset($state)) {
-            $select->where('server_state = ?', $state);
+            $searcher->setServerState($state);
         }
-
-        $rows = $table->fetchAll($select);
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row['id'];
-        }
-        return $result;
+        $searcher->orderById($sort_reverse != 1);
+        return $searcher->ids();
     }
 
     /**
@@ -702,6 +663,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param string $value value of the identifer that should be queried in DB
      * @param string [$type] optional string describing the type of identifier (default is urn)
      * @return array array with all ids of the entries.
+     *
+     * @deprecated
      */
     public static function getDocumentByIdentifier($value, $type = 'urn') {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentIdentifiers');
@@ -726,27 +689,29 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param int $start The smallest document id to be considered.
      * @param int $end The largest document id to be considered.
      * @return array The list of document ids within the given range.
+     *
+     * @deprecated
      */
     public static function getAllPublishedIds($start, $end) {
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->from('documents', 'id')
-                ->where('server_state = "published"');
+        $searcher = new Opus_DocumentSearcher();
 
         if (isset($start)) {
-            $select = $select->where('id >= ?', $start);
+            $searcher->setIdRangeStart($start);
         }
 
         if (isset($end)) {
-            $select = $select->where('id <= ?', $end);
+            $searcher->setIdRangeEnd($end);
         }
 
-        return $table->getAdapter()->fetchCol($select);
+        return $searcher->ids();
     }
 
     /**
      * Returns the earliest date (server_date_published) of all documents.
      *
      * @return int
+     *
+     * @deprecated
      */
     public static function getEarliestPublicationDate() {
         // TODO: This method can be removed, when we refactor getEarliestPublicationDate()!
@@ -764,17 +729,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @param  string  $typename The name of the document type.
      * @return array Array of document ids.
+     *
+     * @deprecated
      */
     public static function getIdsForDocType($typename) {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $select = $table->select()
-                ->from($table, array('id'))->where('type = ?', $typename);
-        $rows = $table->fetchAll($select)->toArray();
-        $ids = array();
-        foreach ($rows as $row) {
-            $ids[] = $row['id'];
-        }
-        return $ids;
+        $searcher = new Opus_DocumentSearcher();
+        $searcher->setType($typename);
+        return $searcher->ids();
     }
 
     /**
@@ -783,6 +744,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param  string  $from    (Optional) The earliest publication date to include.
      * @param  string  $until   (Optional) The latest publication date to include.
      * @return array Array of document ids.
+     *
+     * @deprecated
      */
     public static function getIdsForDateRange($from = null, $until = null) {
         try {
@@ -1141,13 +1104,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Fetch a list of all available document types.
      */
     public static function fetchDocumentTypes() {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $select = $table->select()->from($table, array('type'))
-            ->where('server_state = ?', 'published')
-            ->group('type');
-        
-        $result = $table->getAdapter()->fetchCol($select);
-        return $result;
+        $searcher = new Opus_DocumentSearcher();
+        $searcher->setServerState('published');
+        return $searcher->groupedTypes();
     }
 
     /**
