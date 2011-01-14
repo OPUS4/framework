@@ -73,6 +73,10 @@ class Opus_Job_Worker_MailPublishNotification extends Opus_Job_Worker_Abstract {
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
 
+        if (!is_null($users) and !is_array($users)) {
+            $users = array($users);
+        }
+
         $this->_logger->debug('MailPublish: Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
         $recipient = $this->getRecipients($users);
 
