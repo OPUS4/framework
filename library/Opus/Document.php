@@ -694,6 +694,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     public static function getAllPublishedIds($start, $end) {
         $finder = new Opus_DocumentFinder();
+        $finder->setServerState('published');
 
         if (isset($start)) {
             $finder->setIdRangeStart($start);
