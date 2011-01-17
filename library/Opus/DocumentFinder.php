@@ -172,7 +172,7 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdRangeStart($start) {
-        $this->select->where('d.id >= ', $start);
+        $this->select->where('d.id >= ?', $start);
         return $this;
     }
 
@@ -183,7 +183,7 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdRangeEnd($end) {
-        $this->select->where('d.id <= ', $end);
+        $this->select->where('d.id <= ?', $end);
         return $this;
     }
 
