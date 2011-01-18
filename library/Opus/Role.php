@@ -122,4 +122,23 @@ class Opus_Role extends Opus_Model_AbstractDb
        return $this->getName();
     }
 
+
+    /**
+     * Get a list of all account IDs for the current role instance.
+     *
+     * @return array
+     */
+    public function getAllAccountIds() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_LinkAccountsRoles");
+        $select = $table->select(true)->columns('account_id AS id')
+                ->where('role_id = ?', $this->getId())
+                ->distinct();
+
+        return $table->getAdapter()->fetchCol($select);
+    }
+
 }
