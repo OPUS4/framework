@@ -267,6 +267,11 @@ class Opus_Model_Xml {
                     (int) $this->_strategy->getVersion(),
                     $this->_config->_model->getServerDateModified()->__toString(),
                     $result);
+
+                if (null !== $logger) {
+                    $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
+                }
+
             }
 
         }
