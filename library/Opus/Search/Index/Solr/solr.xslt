@@ -69,10 +69,12 @@
                 </xsl:element>
 
                 <!-- server_date_published -->
-                <xsl:element name="field">
-                    <xsl:attribute name="name">server_date_published</xsl:attribute>
-                    <xsl:value-of select="/Opus/Opus_Document/ServerDatePublished/@UnixTimestamp" />
-                </xsl:element>
+                <xsl:if test="/Opus/Opus_Document/ServerDatePublished/@UnixTimestamp != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">server_date_published</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/ServerDatePublished/@UnixTimestamp" />
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- language -->
                 <xsl:variable name="language" select="/Opus/Opus_Document/@Language" />
