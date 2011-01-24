@@ -260,6 +260,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'options'  => array('role' => 'submitter'),
                             'fetch' => 'lazy'
             ),
+            'Subject' => array(
+                            'model' => 'Opus_Subject',
+                            'fetch' => 'lazy'
+            ),
             'SubjectSwd' => array(
                             'model' => 'Opus_SubjectSwd',
                             'options' => array('type' => 'swd'),
