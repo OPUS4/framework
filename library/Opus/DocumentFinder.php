@@ -283,6 +283,21 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Add constraints to be applied on the result set.
+     *
+     * @param  string $type
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setIdentifierTypeValue($type, $value) {
+        $quoted_type  = $this->db->quote($type);
+        $quoted_value = $this->db->quote($value);
+        $subselect = "SELECT id FROM document_identifiers AS i WHERE i.document_id = d.id AND type = $quoted_type AND value = $quoted_value";
+
+        $this->select->where("EXISTS ($subselect)");
+        return $this;
+    }
+
+    /**
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
