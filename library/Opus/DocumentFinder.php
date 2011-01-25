@@ -41,52 +41,6 @@
  */
 class Opus_DocumentFinder {
 
-    public static function selfTest() {
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('preprintmatheon')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('matheonpreprint')->setServerState('unpublished')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('preprintmatheon')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 2)->count());
-
-        $finder = new Opus_DocumentFinder();
-        var_dump($finder->setType('matheonpreprint')->setServerState('published')->setEnrichmentKeyExists('reviewer.user_id')->setEnrichmentKeyValue('submitter.user_id', 3)->count());
-
-        $finder = new Opus_DocumentFinder();
-        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(true)->ids();
-        var_dump($ids[0]);
-
-        $finder = new Opus_DocumentFinder();
-        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByAuthorLastname(false)->ids();
-        var_dump($ids[0]);
-
-        $finder = new Opus_DocumentFinder();
-        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(true)->ids();
-        var_dump($ids[0]);
-
-        $finder = new Opus_DocumentFinder();
-        $ids = $finder->setType('matheonpreprint')->setServerState('published')->orderByTitleMain(false)->ids();
-        var_dump($ids[0]);
-
-        $d = new Opus_Document(); $d->setServerState('published')->store(); $finder = new Opus_DocumentFinder(); echo $finder->setServerDatePublishedRange('2011', '2012')->count() . "\n";
-    }
-
-
-
     /**
      * Table gateway class for the documents table.
      *
@@ -188,9 +142,10 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdSubset($subset) {
-        // Hotfix: If $subset is empty, don't do nothing.
-        if (count($subset) < 1) {
-            return;
+        // Hotfix: If $subset is empty, return empty set.
+        if (!is_array($subset) or count($subset) < 1) {
+            $this->select->where('1 = 0');
+            return $this;
         }
 
         $quoted_subset = array();
