@@ -123,8 +123,6 @@ class Opus_DocumentFinder {
     public function count() {
         $this->select->reset('columns');
         $this->select->distinct(true)->columns("count(id)");
-
-//        echo "select: " . $this->select . "\n";
         return $this->db->fetchOne($this->select);
     }
 
@@ -136,8 +134,6 @@ class Opus_DocumentFinder {
     public function ids() {
         $this->select->reset('columns');
         $this->select->distinct(true)->columns("id");
-
-//        echo "select: " . $this->select . "\n";
         return $this->db->fetchCol($this->select);
     }
 
@@ -149,8 +145,6 @@ class Opus_DocumentFinder {
     public function groupedTypes() {
         $this->select->reset('columns');
         $this->select->columns("type")->distinct(true);
-
-//        echo "select: " . $this->select . "\n";
         return $this->db->fetchCol($this->select);
     }
 
@@ -205,7 +199,6 @@ class Opus_DocumentFinder {
         }
 
         $this->select->where('id IN (?)', $subset);
-        echo "select: " . $this->select . "\n";
         return $this;
     }
 
@@ -240,7 +233,6 @@ class Opus_DocumentFinder {
     public function setServerDatePublishedRange($from, $until) {
         $this->select->where('d.server_date_published >= ?', $from)
                 ->where('d.server_date_published < ?', $until);
-        echo $this->select . "\n";
         return $this;
     }
 
