@@ -136,7 +136,13 @@ class Opus_DocumentFinderTest extends TestCase {
                ->setServerState('published')
                ->setType('fooprintbar')
                ->setServerDateModifiedRange('2010-01-01', '2000-01-01')
-               ->setServerDatePublishedRange('1999-12-31', '1900-01-01');
+               ->setServerDatePublishedRange('1999-12-31', '1900-01-01')
+               ->setIdSubset(null)
+               ->setIdSubset(array())
+               ->setIdSubset(array(1))
+               ->setIdSubset(array(-1))
+               ->setIdSubset(array(1, 2))
+               ->setIdSubset(array('foo'));
                 
         $this->assertEquals(0, $finder->count());
         $this->assertEquals(0, count($finder->ids()));
@@ -243,5 +249,4 @@ class Opus_DocumentFinderTest extends TestCase {
         $finder->orderByType();
         $this->assertEquals(6, count($finder->ids()));
     }
-
 }
