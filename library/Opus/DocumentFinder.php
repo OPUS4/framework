@@ -251,8 +251,8 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until) {
-        $this->select->where('d.server_date_modified >= ?%', $from)
-                ->where('d.server_date_modified < ?%', $until);
+        $this->select->where('d.server_date_modified >= ?', $from)
+                ->where('d.server_date_modified < ?', $until);
         return $this;
     }
 
