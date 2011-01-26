@@ -40,13 +40,6 @@
  */
 interface Opus_Model_ModificationTracking {
 
-   /**
-     * Clear modification status.
-     *
-     * @return void
-     */
-    public function clearModified();
-
     /**
      * Returns true if modification status is set.
      *

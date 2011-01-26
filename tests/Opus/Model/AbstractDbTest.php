@@ -292,7 +292,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
             array(1));
 
         // Clear modified flag just to be sure
-        $mock->clearModified();
+        $mock->getField('Value')->clearModified();
 
         // Expect getValue never to be called
         $mock->expects($this->never())->method('_storeInternalFields');
@@ -897,7 +897,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      */
     public function testModifiedFlagCanBeTriggerdCallToSetMethod() {
         $model = new Opus_Model_ModelAbstractDb;
-        $model->clearModified();
+        $model->getField('Value')->clearModified();
         $model->setValue('new value');
         $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
 
@@ -916,7 +916,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $field->setValueModelClass(get_class($submodel));
         $field->setValue($submodel);
         $model->addField($field);
-        $model->clearModified();
+        $model->getField('Value')->clearModified();
 
         $model->getSubmodel()->setValue('new value');
 
@@ -933,7 +933,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testModifiedFlagIsClearable() {
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('new value');
-        $model->clearModified();
+        $model->getField('Value')->clearModified();
         $after = $model->isModified();
         $this->assertFalse($after, 'Modified flag has has not been cleared.');
 
@@ -960,7 +960,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         // original model
         $m1 = new $clazzname;
         $m1->setValue('Foo');
-        $m1->clearModified();
+        $m1->getField('Value')->clearModified();
 
         // update model of same type
         $m2 = new $clazzname;

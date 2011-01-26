@@ -255,14 +255,4 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     public function isModified() {
         return ($this->_isModified) or (parent::isModified());
     }
-
-    /**
-     * Set the modified flags for all fields back to false.
-     *
-     * @return void
-     */
-    public function clearModified() {
-        parent::clearModified();
-        $this->_isModified = false;
-    }
 }
