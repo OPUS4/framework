@@ -1097,6 +1097,92 @@ class Opus_DocumentTest extends TestCase {
                  'After storing: document should have 1 collections.');
      }
 
+    /**
+     * Test for storing collections, check that collection still exists after
+     * second store.
+     */
+     public function testStoreDocumentDoesNotDeleteCollectionTest() {
+         $role = new Opus_CollectionRole();
+         $role->setName('foobar-' . rand());
+         $role->setOaiName('foobar-oai-' . rand());
+
+         $root = $role->addRootCollection();
+         $collection = $root->addFirstChild();
+         $role->store();
+
+         $document = new Opus_Document();
+         $document->setType('test');
+         $document->addCollection( $collection );
+         $docId = $document->store();
+
+         // Check if we created what we're expecting later.
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After storing: document should have 1 collection.');
+
+         // Storing
+         $document = new Opus_Document($docId);
+         $document->store();
+
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After 2nd store(): document should still have 1 collection.');
+
+         // Storing
+         $document = new Opus_Document($docId);
+         $document->setType('test');
+         $document->store();
+
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After 3rd store(): document should still have 1 collection.');
+
+         // Storing
+         $document = new Opus_Document($docId);
+         $c = $document->getCollection();
+         $document->store();
+
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After 4th store(): document should still have 1 collection.');
+     }
+
+    /**
+     * Test for storing collections, check that collection still exists after
+     * second store.
+     */
+     public function testIsModifiedAndStoreDoesNotDeleteCollectionTest() {
+         $role = new Opus_CollectionRole();
+         $role->setName('foobar-' . rand());
+         $role->setOaiName('foobar-oai-' . rand());
+
+         $root = $role->addRootCollection();
+         $collection = $root->addFirstChild();
+         $role->store();
+
+         $document = new Opus_Document();
+         $document->setType('test');
+         $document->addCollection( $collection );
+         $docId = $document->store();
+
+         // Check if we created what we're expecting later.
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After storing: document should have 1 collection.');
+
+         $this->markTestIncomplete('Current Bug: Using $doc->isModified()->store() deletes collections.');
+
+         // Storing
+         $document = new Opus_Document($docId);
+         $document->setModified();
+         $document->store();
+
+         $document = new Opus_Document($docId);
+         $this->assertEquals(1, count($document->getCollection()),
+                 'After 2nd store(): document should still have 1 collection.');
+
+     }
+
      public function testGetAllDocumentsByAuthorsReturnsDocumentsWithoutAuthor() {
          $d = new Opus_Document();
          $d->setServerState('published');

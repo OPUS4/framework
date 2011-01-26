@@ -579,8 +579,11 @@ abstract class Opus_Model_AbstractDb
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
                 if (method_exists($this, $callname) === true) {
-                    // Call custom store method
-                    $this->$callname($this->_fields[$fieldname]->getValue());
+                    $field = $this->_getField($fieldname, true);
+                    if (true === $field->isModified()) {
+                        // Call custom store method
+                        $this->$callname($this->_fields[$fieldname]->getValue());
+                    }
                 }
                 else {
                     $options = null;
