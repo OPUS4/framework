@@ -891,19 +891,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
-     * Test if modified flag can be triggered by setModified().
-     *
-     * @return void
-     */
-    public function testModifiedFlagCanBeTriggerdViaSetModified() {
-        $model = new Opus_Model_ModelAbstractDb;
-        $model->clearModified();
-        $model->setModified();
-        $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
-
-    }
-
-    /**
      * Test if modified flag can be triggered by changing a fields value.
      *
      * @return void

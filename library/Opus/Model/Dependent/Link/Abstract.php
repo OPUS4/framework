@@ -265,14 +265,4 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         parent::clearModified();
         $this->_isModified = false;
     }
-
-    /**
-     * Trigger indication of modification for all fields.
-     *
-     * @return void
-     */
-    public function setModified() {
-        parent::setModified();
-        $this->_isModified = true;
-    }
 }

@@ -196,17 +196,6 @@ abstract class Opus_Model_AbstractDb
     }
 
     /**
-     * Trigger indication of modification for all fields.
-     *
-     * @return void
-     */
-    public function setModified() {
-        foreach ($this->_fields as $field) {
-            $field->setModified();
-        }
-    }
-
-    /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
      *

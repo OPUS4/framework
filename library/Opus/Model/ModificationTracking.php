@@ -40,14 +40,7 @@
  */
 interface Opus_Model_ModificationTracking {
 
-    /**
-     * Trigger indication of modification.
-     *
-     * @return void
-     */
-    public function setModified();
-
-    /**
+   /**
      * Clear modification status.
      *
      * @return void

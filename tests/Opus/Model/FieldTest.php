@@ -561,7 +561,7 @@ class Opus_Model_FieldTest extends TestCase {
         $field->clearModified();
 
         // set modification
-        $model->setModified();
+        $model->getField('FooField')->setValue('Bar');
 
         // assert modified field
         $this->assertTrue($field->isModified(), 'Field is not marked as modified.');
