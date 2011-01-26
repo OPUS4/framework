@@ -74,10 +74,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         if (($model instanceof $this->_modelClass) === false) {
             throw new Opus_Model_Exception(get_class($this) . ' expects ' . $this->_modelClass . ' as a link target, ' .
                     get_class($model) . ' given.');
-        } else {
-            $this->_model = $model;
-            $this->_isModified = true;
         }
+
+        $this->_model = $model;
+        $this->_isModified = true;
     }
 
     /**
