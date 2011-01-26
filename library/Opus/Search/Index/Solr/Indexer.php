@@ -160,10 +160,14 @@ class Opus_Search_Index_Solr_Indexer {
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param Opus_Document $doc Model of the document that should be added to the index
+     * @throws InvalidArgumentException If given document $doc is null.
      * @throws Opus_Search_Index_Solr_Exception If adding document to Solr index failed.
      * @return void
      */
     public function addDocumentToEntryIndex(Opus_Document $doc) {
+        if (is_null($doc)) {
+            throw new InvalidArgumentException("Document parameter must not be NULL.");
+        }
         try {            
             // send xml directly to solr server instead of wrapping the document data
             // into an Apache_Solr_Document object offered by the solr php client library
@@ -188,7 +192,7 @@ class Opus_Search_Index_Solr_Indexer {
      * @see removeDocumentFromEntryIndexById()
      */
     public function removeDocumentFromEntryIndex(Opus_Document $doc = null) {
-        if (true !== isset($doc)) {
+        if (is_null($doc)) {
             throw new InvalidArgumentException("Document parameter must not be NULL.");
         }
         $this->removeDocumentFromEntryIndexById($doc->getId());

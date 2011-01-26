@@ -164,6 +164,11 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
                     $logger->debug(__METHOD__ . ': ' . $message);
                 }
             }
+            catch (InvalidArgumentException $e) {
+                if (!is_null($logger)) {
+                    $logger->warn(__METHOD__ . ': ' . $e->getMessage());
+                }
+            }
         }
 
         // enqueue job, if synchronous update disabled *or* failed
