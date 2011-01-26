@@ -270,8 +270,7 @@ class Opus_Search_Index_Solr_Indexer {
     private function attachFulltextToXml($modelXml, $files, $docId) {
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
-            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);
-            $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
+            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);            
             return;
         }
         if (count($files) == 0) {

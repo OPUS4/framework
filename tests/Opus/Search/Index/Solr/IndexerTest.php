@@ -469,5 +469,14 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         Zend_Registry::set('Zend_Config', $this->config);
     }
 
+    public function testAttachFulltextToNull() {
+        // apply a hack to be able to test a private method directly
+        $class = new ReflectionClass('Opus_Search_Index_Solr_Indexer');
+        $method = $class->getMethod('attachFulltextToXml');
+        $method->setAccessible(true);
+        $indexer = new Opus_Search_Index_Solr_Indexer();
+        $method->invokeArgs($indexer, array(new DomDocument(), null, 1));
+    }
+
 }
 ?>
