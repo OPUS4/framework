@@ -910,28 +910,26 @@ abstract class Opus_Model_AbstractDb
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     protected function _getField($name, $ignorePending = false) {
-        if (array_key_exists($name, $this->_fields) === true) {
-
-            // Check if the field is in suspended fetch state
-            if (in_array($name, $this->_pending) === true and $ignorePending === false) {
-                // Ensure that _loadExternal is called only on external fields
-                if (array_key_exists($name, $this->_externalFields)) {
-                    $this->_loadExternal($name);
-                    // Workaround for: unset($this->_pending[$name]);
-                    $result = array();
-                    foreach ($this->_pending as $fieldname) {
-                        if ($fieldname !== $name) {
-                            $result[] = $fieldname;
-                        }
-                    }
-                    $this->_pending = $result;
-                }
-            }
-            return $this->_fields[$name];
-
-        } else {
+        if (array_key_exists($name, $this->_fields) !== true) {
             return null;
         }
+
+        // Check if the field is in suspended fetch state
+        if (in_array($name, $this->_pending) === true and $ignorePending === false) {
+            // Ensure that _loadExternal is called only on external fields
+            if (array_key_exists($name, $this->_externalFields)) {
+                $this->_loadExternal($name);
+                // Workaround for: unset($this->_pending[$name]);
+                $result = array();
+                foreach ($this->_pending as $fieldname) {
+                    if ($fieldname !== $name) {
+                        $result[] = $fieldname;
+                    }
+                }
+                $this->_pending = $result;
+            }
+        }
+        return $this->_fields[$name];
     }
 
     /**
