@@ -66,6 +66,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     protected $config;
 
     /**
+     * @var Opus_Document
+     */
+    protected $nullDoc;
+
+    /**
      * Valid document data.
      *
      * @var array  An array of arrays of arrays. Each 'inner' array must be an
@@ -478,5 +483,16 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $method->invokeArgs($indexer, array(new DomDocument(), null, 1));
     }
 
+    public function testAddNullDocumentToIndex() {
+        $this->markTestSkipped('passing null is not allowed: throws PHP Catchable fatal error');
+        $this->indexer->addDocumentToEntryIndex(null);
+        $this->setExpectedException('InvalidArgumentException');
+    }
+
+    public function testRemoveNullDocumentFromIndex() {
+        $this->markTestSkipped('passing null is not allowed: throws PHP Catchable fatal error');
+        $this->indexer->addDocumentToEntryIndex(null);
+        $this->setExpectedException('InvalidArgumentException');
+    }
 }
 ?>
