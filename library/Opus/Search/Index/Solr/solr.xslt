@@ -163,7 +163,7 @@
                 </xsl:element>
 
                 <!-- subject (swd) -->
-                <xsl:for-each select="/Opus/Opus_Document/SubjectSwd">
+                <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'swd']">
                     <xsl:element name="field">
                         <xsl:attribute name="name">subject</xsl:attribute>
                         <xsl:value-of select="@Value" />
@@ -171,7 +171,7 @@
                 </xsl:for-each>
 
                 <!-- subject (uncontrolled) -->
-                <xsl:for-each select="/Opus/Opus_Document/SubjectUncontrolled">
+                <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'uncontrolled']">
                     <xsl:element name="field">
                         <xsl:attribute name="name">subject</xsl:attribute>
                         <xsl:value-of select="@Value" />
@@ -179,7 +179,7 @@
                 </xsl:for-each>
 
                 <!-- subject (msc) -->
-                <xsl:for-each select="/Opus/Opus_Document/SubjectMSC">
+                <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'msc']">
                     <xsl:element name="field">
                         <xsl:attribute name="name">subject_msc</xsl:attribute>
                         <xsl:value-of select="@Value" />
