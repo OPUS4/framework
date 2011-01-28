@@ -1,0 +1,16 @@
+In this paper we consider de
+ation and augmentation techniques for accelerating the
+convergence of Krylov subspace methods for the solution of nonsingular linear algebraic systems. The
+two techniques are conceptually dierent from preconditioning. De
+ation \removes" certain parts
+from the operator, while augmentation adds a subspace to the Krylov subspace. Both approaches
+have been used in a variety of methods and settings. For Krylov subspace methods that satisfy a
+(Petrov-) Galerkin condition we show that augmentation can in general be achieved implicitly by
+projecting the residuals appropriately and correcting the approximate solutions in a nal step. In
+this context, we analyze known methods to de
+ate CG, GMRes and MinRes. Our analysis reveals
+that the recently proposed RMinRes method can break down. We show how such breakdowns can be
+avoided by choosing a special initial guess, and we derive a breakdown-free de
+ated MinRes method.
+In numerical experiments we study the properties of dierent variants of MinRes analyzed in this
+paper.
