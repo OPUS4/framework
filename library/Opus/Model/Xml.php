@@ -229,6 +229,7 @@ class Opus_Model_Xml {
     public function getDomDocument() {
         $result = null;
         $model = $this->_config->_model;
+        $logger = Zend_Registry::get('Zend_Log');
 
         if (null !== $this->_cache) {
             $cached = $this->_cache->hasValidEntry(
@@ -237,30 +238,19 @@ class Opus_Model_Xml {
                 $this->_config->_model->getServerDateModified()->__toString());
 
             if (true === $cached) {
-                $logger = Zend_Registry::get('Zend_Log');
-                if (null !== $logger) {
-                    $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
-                }
-
+                $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
                 $result = $this->_cache->get($this->_config->_model->getId(), (int) $this->_strategy->getVersion());
             }
         }
         else {
-            $logger = Zend_Registry::get('Zend_Log');
-            if (null !== $logger) {
-                $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
-            }
+            $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
         }
 
         if (null === $result) {
             $result = $this->_strategy->getDomDocument();
 
             if (null !== $this->_cache) {
-
-                $logger = Zend_Registry::get('Zend_Log');
-                if (null !== $logger) {
-                    $logger->debug(__METHOD__ . ' cache miss for ' . get_class($model) . '#' . $model->getId());
-                }
+                $logger->debug(__METHOD__ . ' cache miss for ' . get_class($model) . '#' . $model->getId());
 
                 $this->_cache->put(
                     $this->_config->_model->getId(),
@@ -268,10 +258,7 @@ class Opus_Model_Xml {
                     $this->_config->_model->getServerDateModified()->__toString(),
                     $result);
 
-                if (null !== $logger) {
-                    $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
-                }
-
+                $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
             }
 
         }
