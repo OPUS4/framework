@@ -147,8 +147,8 @@ class Opus_SolrSearch_Searcher {
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
             'facet.limit' => 10
         );
-        $fq = $query->getFilterQueriesString();
-        if (!is_null($fq)) {
+        $fq = $query->getFilterQueries();
+        if (!empty($fq)) {
             $params['fq'] = $fq;
         }
         return $params;

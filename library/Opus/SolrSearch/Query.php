@@ -147,33 +147,24 @@ class Opus_SolrSearch_Query {
 
     /**
      *
-     * @return string A combined string representation of all specified filter queries
-     * that can be directly used as a value for Solr's fq parameter.
+     * @return array An array that contains all specified filter queries.
      */
-    public function getFilterQueriesString() {
-        if (count($this->filterQueries) === 0) {
-            return null;
-        }
-        $first = true;
-        $fqString = '';
-        foreach ($this->filterQueries as $fq) {
-            $fq = str_replace(' ', '\ ', $fq);
-            if ($first === true) {
-                $fqString = '+' . $fq;
-                $first = false;
-            }
-            else {
-                $fqString = $fqString . ' +' . $fq;
-            }
-        }
-        return $fqString;
+    public function getFilterQueries() {
+        return $this->filterQueries;
     }
 
     /**
      *
-     * @param string $filterQuery A query that should be used as a filter query.
+     * @param string $filterField The field that should be used in a filter query.
+     * @param string $filterValue The field value that should be used in a filter query.
      */
-    public function addFilterQuery($filterQuery) {
+    public function addFilterQuery($filterField, $filterValue) {
+        if ($filterField == 'has_fulltext') {
+            $filterQuery = $filterField . ':' . $filterValue;
+        }
+        else {
+            $filterQuery = '{!raw f=' . $filterField . '}' . $filterValue;
+        }
         array_push($this->filterQueries, $filterQuery);
     }
 
