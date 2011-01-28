@@ -65,12 +65,12 @@ class Opus_Model_Xml_Cache {
             libxml_clear_errors();
             $dom->loadXML($xmlData);
             $err = libxml_get_last_error();
-            if ($err > 0) {
+            if ($err != false) {
                 $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
-                    'error level: ' . $errMsg->level . "\n" .
+                    'error level: ' . $err->level . "\n" .
                     'error code: ' . $err->code . "\n" .
                     'error message: ' . $err->message . "\n" .
-                    'line:column: ' . $err->line . ':' . $err->code;
+                    'line:column: ' . $err->line . ':' . $err->column;
                 Zend_Registry::get('Zend_Log')->err($errMsg);
                 throw new Opus_Model_Exception($errMsg);
             }
