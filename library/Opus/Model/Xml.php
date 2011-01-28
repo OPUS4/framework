@@ -223,7 +223,7 @@ class Opus_Model_Xml {
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
-     *
+     * @throws Opus_XML_Exception in case an error occurred while processing XML
      * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument() {

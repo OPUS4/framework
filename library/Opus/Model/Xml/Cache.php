@@ -51,6 +51,7 @@ class Opus_Model_Xml_Cache {
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
+     * @throws Opus_Model_Exception in case an XML processing error occurred
      * @return DOMDocument
      */
     public function get($documentId, $xmlVersion) {
@@ -61,6 +62,15 @@ class Opus_Model_Xml_Cache {
         if (1 === $rowSet->count()) {
             $xmlData = $rowSet->current()->xml_data;
             $dom->loadXML($xmlData);
+            $err = libxml_get_last_error();
+            if ($err > 0) {
+                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
+                    'error level: ' . $errMsg->level . "\n" .
+                    'error code: ' . $err->code . "\n" .
+                    'error message: ' . $err->message . "\n" .
+                    'file:line:column: ' . $err->file . ':' . $err->line . ':' . $err->code;
+                throw new Opus_Model_Exception($errMsg);
+            }
         }
 
         return $dom;
