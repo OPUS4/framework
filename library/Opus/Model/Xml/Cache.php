@@ -61,6 +61,8 @@ class Opus_Model_Xml_Cache {
         $rowSet = $this->_table->find($documentId, $xmlVersion);
         if (1 === $rowSet->count()) {
             $xmlData = $rowSet->current()->xml_data;
+
+            libxml_clear_errors();
             $dom->loadXML($xmlData);
             $err = libxml_get_last_error();
             if ($err > 0) {
@@ -68,7 +70,8 @@ class Opus_Model_Xml_Cache {
                     'error level: ' . $errMsg->level . "\n" .
                     'error code: ' . $err->code . "\n" .
                     'error message: ' . $err->message . "\n" .
-                    'file:line:column: ' . $err->file . ':' . $err->line . ':' . $err->code;
+                    'line:column: ' . $err->line . ':' . $err->code;
+                Zend_Registry::get('Zend_Log')->err($errMsg);
                 throw new Opus_Model_Exception($errMsg);
             }
         }

@@ -223,47 +223,67 @@ class Opus_Model_Xml {
     /**
      * If a model has been set this method generates and returnes
      * DOM representation of it.
-     * @throws Opus_XML_Exception in case an error occurred while processing XML
      * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument() {
-        $result = null;
         $model = $this->_config->_model;
         $logger = Zend_Registry::get('Zend_Log');
 
+        $result = $this->getDomDocumentFromXmlCache();
+        if (null !== $result) {
+            return $result;
+        }
+
+        $result = $this->_strategy->getDomDocument();
+
         if (null !== $this->_cache) {
-            $cached = $this->_cache->hasValidEntry(
-                $this->_config->_model->getId(),
-                (int) $this->_strategy->getVersion(),
-                $this->_config->_model->getServerDateModified()->__toString());
-
-            if (true === $cached) {
-                $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
-                $result = $this->_cache->get($this->_config->_model->getId(), (int) $this->_strategy->getVersion());
-            }
-        }
-        else {
-            $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
-        }
-
-        if (null === $result) {
-            $result = $this->_strategy->getDomDocument();
-
-            if (null !== $this->_cache) {
-                $logger->debug(__METHOD__ . ' cache miss for ' . get_class($model) . '#' . $model->getId());
-
-                $this->_cache->put(
-                    $this->_config->_model->getId(),
+            $this->_cache->put(
+                    $model->getId(),
                     (int) $this->_strategy->getVersion(),
-                    $this->_config->_model->getServerDateModified()->__toString(),
+                    $model->getServerDateModified()->__toString(),
                     $result);
 
-                $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
-            }
-
+            $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
         }
 
         return $result;
+    }
+
+    /**
+     * This method tries to load the current model from the xml cache.  Returns
+     * null in case of an error/cache miss/cache disabled.  Returns DOMDocument
+     * otherwise.
+     *
+     * @return DOMDocument DOM representation of the current Model.
+     */
+    private function getDomDocumentFromXmlCache() {
+        $model = $this->_config->_model;
+        $logger = Zend_Registry::get('Zend_Log');
+
+        if (null === $this->_cache) {
+            $logger->debug(__METHOD__ . ' skipping cache for ' . get_class($model));
+            return null;
+        }
+
+        $cached = $this->_cache->hasValidEntry(
+                        $model->getId(),
+                        (int) $this->_strategy->getVersion(),
+                        $model->getServerDateModified()->__toString());
+
+        if (true !== $cached) {
+            $logger->debug(__METHOD__ . ' cache miss for ' . get_class($model) . '#' . $model->getId());
+            return null;
+        }
+
+        $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
+        try {
+            return $this->_cache->get($model->getId(), (int) $this->_strategy->getVersion());
+        }
+        catch (Opus_Model_Exception $e) {
+            $logger->warn(__METHOD__ . " Access to XML cache failed on " . get_class($model) . '#' . $model->getId() . ".  Trying to recover.");
+        }
+
+        return null;
     }
 
     /**
