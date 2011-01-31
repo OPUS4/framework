@@ -158,11 +158,23 @@ class Opus_Model_FieldTest extends TestCase {
      * @return void
      */
     public function testSinglevaluedFieldTakesSingleValue() {
-        $this->markTestIncomplete( 'This is invalid as long as _ignoreMultiplicity is set.' );
-
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $this->setExpectedException('InvalidArgumentException');
+        $field->setValue(array('single', 'sungle', 'sangle'));
+    }
+
+    /**
+     * Test if a field is set to have single value it, accepts an array as
+     * its input value IFF ->setIgnoreMultiplicity(true) has been called!
+     *
+     * @return void
+     */
+    public function testSinglevaluedFieldTakesArrayValueIfIgnoreMultiplicity() {
+        $field = new Opus_Model_Field('MyField');
+        $field->setMultiplicity(1);
+        $field->setIgnoreMultiplicity();
+        // $this->setExpectedException('InvalidArgumentException');
         $field->setValue(array('single', 'sungle', 'sangle'));
     }
 

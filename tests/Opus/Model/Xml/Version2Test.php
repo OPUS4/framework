@@ -58,7 +58,9 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $document = new Opus_Document();
         $document->setType("doctoral_thesis");
 
+        $document->getField('Language')->setIgnoreMultiplicity(true);
         $document->setLanguage(array('deu', 'eng'));
+
         $document->setPublishedDate(date('d.m.Y'));
         $document->setServerState('unpublished');
 
@@ -114,7 +116,9 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $document = new Opus_Document();
         $document->setType("doctoral_thesis");
 
+        $document->getField('Language')->setIgnoreMultiplicity(true);
         $document->setLanguage(array('deu', 'eng'));
+
         $document->setPublishedDate(date('d.m.Y'));
         $document->setServerState('unpublished');
 

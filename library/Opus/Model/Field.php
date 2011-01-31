@@ -144,9 +144,13 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     protected $_pendingDeletes = array();
     
 
-    // TODO: Dirty hack to set this "true".  You should have a good reason!  If
-    // TODO: you find an issue related to this field, please file a bug report.
-    private $ignoreMultiplicity = true;
+    /**
+     * Disable multiplicity-check for the current field.  Defaults to false,
+     * but can be changed with setIgnoreMultiplicity().
+     * 
+     * @var boolean
+     */
+    private $_ignoreMultiplicity = false;
 
 
     /**
@@ -241,6 +245,19 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     }
 
     /**
+     * Changes the handling of internal fields with multiplicity > 1.  If set
+     * to true, internal fields are allowed to have more that one value.  If
+     * set to false, an exception will be thrown when trying to set the value.
+     *
+     * @param  boolean true|false
+     * @return Opus_Model_Field Provide fluent interface.
+     */
+    public function setIgnoreMultiplicity($ignore = true) {
+        $this->_ignoreMultiplicity = $ignore;
+        return $this;
+    }
+
+    /**
      * Return whether the field has a multiplicity greater 1.
      *
      * @return Boolean True, if field can have multiple values.
@@ -311,7 +328,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             $arrayCondition = is_array($value);
 
             // Reject input if an array is required but not is given
-            if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->ignoreMultiplicity === false)) {
+            if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->_ignoreMultiplicity === false)) {
                 throw new InvalidArgumentException('Multivalue option and input argument do not match. (Field ' . $this->_name . ')');
             }
 
