@@ -45,7 +45,8 @@ class Opus_Storage_File {
      *
      * @var string
      */
-    private $workingDirectory = null;
+    private $filesDirectory = null;
+    private $subDirectory = null;
 
     /**
      * Construct storage object.  The first parameter $directory states the
@@ -54,7 +55,7 @@ class Opus_Storage_File {
      * @param string $directory 
      * @throws Opus_Storage_Exception
      */
-    public function __construct($directory) {
+    public function __construct($directory, $subdirectory) {
         if (!is_dir($directory)) {
             throw new Opus_Storage_Exception("Storage directory '$directory' does not exist. (cwd: " . getcwd() . ")");
         }
@@ -63,12 +64,12 @@ class Opus_Storage_File {
             throw new Opus_Storage_Exception("Storage directory '$directory' is not executable. (cwd: " . getcwd() . ")");
         }
 
-        $this->workingDirectory = $this->addDirectorySeparator($directory);
-
+        $this->filesDirectory = $this->addDirectorySeparator($directory);
+        $this->subDirectory = $this->addDirectorySeparator($subdirectory);
     }
 
     public function getWorkingDirectory() {
-        return $this->workingDirectory;
+        return $this->filesDirectory . $this->subDirectory;
     }
 
 
@@ -101,15 +102,15 @@ class Opus_Storage_File {
      * @throws Opus_Storage_Exception
      * @return boolean
      */
-    public function createSubdirectory($subdirectory) {
-        $subFullPath = $this->workingDirectory . DIRECTORY_SEPARATOR . $subdirectory;
+    public function createSubdirectory() {
+        $subFullPath = $this->getWorkingDirectory();
 
         if (is_dir($subFullPath)) {
-            if (!is_readable($this->workingDirectory)) {
+            if (!is_readable($this->filesDirectory)) {
                 throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not readable. (cwd: " . getcwd() . ")");
             }
 
-            if (!is_writable($this->workingDirectory)) {
+            if (!is_writable($this->filesDirectory)) {
                 throw new Opus_Storage_Exception("Storage directory '$subFullPath' is not writable. (cwd: " . getcwd() . ")");
             }
 
@@ -125,7 +126,7 @@ class Opus_Storage_File {
     }
 
     /**
-     * Copy a file from source to destination.  The first parameter must be an
+     * Move a file from source to destination.  The first parameter must be an
      * absolute path to a file outside the working directory.  The second
      * parameter is relative to the working directory.
      *
@@ -135,13 +136,18 @@ class Opus_Storage_File {
      * @return boolean
      */
     public function copyExternalFile($sourceFile, $destinationFile) {
-        $fullDestinationPath = $this->workingDirectory . $destinationFile;
-        if (true === @copy($sourceFile, $fullDestinationPath)) {
-            return true;
+
+        $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
+
+        if (file_exists($fullDestinationPath)) {
+            throw new Opus_Storage_Exception('Destination file already exists: "' . $fullDestinationPath . '"!');
         }
 
-        throw new Opus_Storage_Exception('Could not copy file from "' . $sourceFile . '" to "' . $fullDestinationPath . '"!');
+        if (true !== @copy($sourceFile, $fullDestinationPath)) {
+            throw new Opus_Storage_Exception('Could not copy file from "' . $sourceFile . '" to "' . $fullDestinationPath . '"!');
+        }
 
+        return true;
     }
 
     /**
@@ -153,8 +159,8 @@ class Opus_Storage_File {
      * @return boolean
      */
     public function renameFile($sourceFile, $destinationFile) {
-        $fullSourcePath = $this->workingDirectory . $sourceFile;
-        $fullDestinationPath = $this->workingDirectory . $destinationFile;
+        $fullSourcePath = $this->getWorkingDirectory() . $sourceFile;
+        $fullDestinationPath = $this->getWorkingDirectory() . $destinationFile;
 
         if (false === file_exists($fullSourcePath)) {
             throw new Opus_Storage_Exception('File to rename "' . $fullSourcePath . '" does not exist!');
@@ -180,7 +186,7 @@ class Opus_Storage_File {
      * @return boolean
      */
     public function deleteFile($file) {
-        $fullFile = $this->workingDirectory . $file;
+        $fullFile = $this->getWorkingDirectory() . $file;
         if (false === file_exists($fullFile)) {
             throw new Opus_Storage_Exception('File to delete "' . $fullFile . '" does not exist!');
         }
@@ -206,7 +212,7 @@ class Opus_Storage_File {
      * @return string
      */
     public function getFileMimeEncoding($file) {
-        $fullFile = $this->workingDirectory . $file;
+        $fullFile = $this->getWorkingDirectory() . $file;
 
         if (true === class_exists('finfo')) {
             // for PHP >= 5.30 or PECL fileinfo >= 0.1.0
@@ -257,17 +263,15 @@ class Opus_Storage_File {
      * return integer
      */
     public function getFileSize($file) {
-        $fullFile = $this->workingDirectory . $file;
-
-        $fileSize = 0;
-        if (true === file_exists($fullFile)) {
-            // Common workaround for php limitation (2 / 4 GB file size)
-            // look at http://php.net/manual/en/function.filesize.php
-            // more information
-            $fileSize = sprintf('%u', @filesize($fullFile));
+        $fullFile = $this->getWorkingDirectory() . $file;
+        if (false === file_exists($fullFile)) {
+            throw new Exception("File does not exist.");
         }
 
-        return $fileSize;
+        // Common workaround for php limitation (2 / 4 GB file size)
+        // look at http://php.net/manual/en/function.filesize.php
+        // more information
+        return sprintf('%u', @filesize($fullFile));
 
     }
 

@@ -29,7 +29,7 @@
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -467,10 +467,10 @@ class Opus_FileTest extends TestCase {
 
         $doc->store();
 
-        $this->assertTrue($file->getFileSize() >= 1,
-                'FileSize should be bigger zero.');
         $this->assertEquals($file->getFileSize(), $rand,
                 'FileSize is not set as expected.');
+        $this->assertTrue($file->getFileSize() >= 1,
+                'FileSize should be bigger zero.');
 
     }
 
@@ -578,7 +578,6 @@ class Opus_FileTest extends TestCase {
      * Test exists() function for Opus_File.
      */
     public function testFileExists() {
-        $this->markTestIncomplete('Test disabled, until fixed.');
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
         $doc->store();
@@ -586,6 +585,37 @@ class Opus_FileTest extends TestCase {
         $this->assertNotNull($fileId);
         $file = new Opus_File($fileId);
         $this->assertTrue($file->exists());
+    }
+
+    /**
+     * Test if added files with tempory path get moved to destination path target filename.
+     *
+     * @return void
+     */
+    public function testAddFilesTwiceDoesNotOverwrite() {
+        $filename = 'foobar.pdf';
+        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        touch($filepath);
+
+        $doc = new Opus_Document;
+
+        $file = $doc->addFile();
+        $file->setTempFile($filepath);
+        $file->setPathName('copied-' . $filename);
+        $file->setLabel('Volltextdokument-1 (PDF)');
+
+        $file = $doc->addFile();
+        $file->setTempFile($filepath);
+        $file->setPathName('copied-' . $filename);
+        $file->setLabel('Volltextdokument-2 (PDF)');
+
+        $this->setExpectedException("Opus_Model_Exception");
+        $doc->store();
+
+        foreach ($doc->getFile() AS $file) {
+            echo "file: " . $file->getPath() . "\n";
+        }
+
     }
 
 }
