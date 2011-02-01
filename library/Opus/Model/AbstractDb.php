@@ -723,7 +723,7 @@ abstract class Opus_Model_AbstractDb
         // Set the field value
         $this->_fields[$fieldname]->setValue($result);
 
-        // TODO: Write unit test.
+        // TODO: Could be removed!  Needs more testing before doing so...
         // iterate through dependend models and set parent id
         $list = $result;
         if (false === is_array($result)) {
