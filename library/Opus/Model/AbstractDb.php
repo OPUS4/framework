@@ -959,6 +959,17 @@ abstract class Opus_Model_AbstractDb
         }
 
         if (!is_null($linkmodelclass) and ($argumentModelGiven === true)) {
+
+            // Workaround for link_-tables with ternary relations.  It's not
+            // beautyful, but it works for now.  There won't be an easier
+            // solution without major changes on the framework/schema, since
+            // we cannot know the type of ternary relations at this point.
+            $addToPrimaryKey = array();
+            if (array_key_exists($fieldname, $this->_externalFields) and
+                array_key_exists('addprimarykey', $this->_externalFields[$fieldname])) {
+                $addToPrimaryKey = $this->_externalFields[$fieldname]['addprimarykey'];
+            }
+
             foreach ($values as $i => $value) {
                 $linkmodel = null;
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
@@ -971,10 +982,13 @@ abstract class Opus_Model_AbstractDb
                 }
                 else {
                     try {
-                        $linkmodel = new $linkmodelclass(array($this->getId(), $value->getId()));
+                        $linkId = array($this->getId(), $value->getId());
+                        $linkId = array_merge($linkId, $addToPrimaryKey);
+
+                        $linkmodel = new $linkmodelclass($linkId);
                     }
                     catch (Opus_Model_NotFoundException $e) {
-                        $linkmodel = new $linkmodelclass;
+                      $linkmodel = new $linkmodelclass;
                     }
                     $linkmodel->setModel($value);
                 }

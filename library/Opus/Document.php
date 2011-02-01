@@ -303,6 +303,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_DnbInstitute',
                             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
                             'options' => array('role' => 'publisher'),
+                            'addprimarykey' => array('publisher'),
                             'fetch' => 'lazy'
             ),
 
@@ -310,6 +311,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_DnbInstitute',
                             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
                             'options' => array('role' => 'grantor'),
+                            'addprimarykey' => array('grantor'),
                             'fetch' => 'lazy'
             ),
     );
