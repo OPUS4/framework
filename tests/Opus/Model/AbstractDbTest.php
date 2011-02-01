@@ -738,6 +738,38 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertTrue($model->getExternalField1()->setParentIdHasBeenCalled, 'No parent id was set on fetching dependent model.');
     }
 
+    /**
+     * Test if loading a dependent model from database also sets the corresponding
+     * parent id to these models.
+     *
+     * @return void
+     */
+    public function testParentIdGetPropagatedToDependentModelsOnAddModel() {
+        $clazz = '
+            class testParentIdGetPropagatedToDependentModelsOnAdd
+                extends Opus_Model_AbstractDb {
+                protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
+                protected $_externalFields = array(
+                    \'ExternalField1\' => array(
+                        \'model\' => \'Opus_Model_ModelDependentMock\'),
+                );
+                protected function _init() {
+                    $this->addField(new Opus_Model_Field(\'Value\'));
+                    $this->addField(new Opus_Model_Field(\'ExternalField1\'));
+                }
+                protected function _fetchExternalField1() {
+                    return array();
+                }
+            }';
+        eval($clazz);
+        $model = new testParentIdGetPropagatedToDependentModelsOnAdd(1);
+        $this->assertNotNull($model->getId());
+
+        $externalField = $model->addExternalField1();
+        $this->assertTrue($externalField->setParentIdHasBeenCalled,
+                'No parent id was set on adding dependent model.');
+    }
+
    /**
      * Provide names of plugin methods to be called with a given method.
      *

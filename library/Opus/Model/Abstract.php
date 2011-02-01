@@ -290,6 +290,10 @@ abstract class Opus_Model_Abstract {
                 $modelclass = $field->getValueModelClass();
                 $model = new $modelclass;
             }
+
+            if (is_object($model) and ($model instanceof Opus_Model_Dependent_Abstract)) {
+                $model->setParentId($this->getId());
+            }
         }
 
         $field->addValue($model);

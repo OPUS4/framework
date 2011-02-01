@@ -618,5 +618,27 @@ class Opus_FileTest extends TestCase {
 
     }
 
+    /**
+     * Testing if ParentId will be set for Opus_Model_Dependant_Abstract.
+     */
+    public function testSettingParentId() {
+        $doc = new Opus_Document;
+        $doc->store();
+        $this->assertNotNull($doc->getId());
+
+        $filename = "foobar.pdf";
+        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+        touch($filepath);
+
+        $file = $doc->addFile();
+        $file->setTempFile($filepath);
+        $file->setPathName('copied-' . $filename);
+        $file->setLabel('Volltextdokument (PDF)');
+
+        $this->assertEquals($doc->getId(), $file->getParentId());
+
+        $file->store();
+    }
+
 }
 
