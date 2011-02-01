@@ -125,7 +125,7 @@ abstract class Opus_Model_Dependent_Abstract
      * Set up the foreign key of the parent before storing.
      *
      * @throws Opus_Model_Exception Thrown if trying to store without parent.
-     * @return void
+     * @return mixed $id    Primary key of the models primary table row.
      */
     public function store() {
         if (null === $this->_parentId) {
@@ -137,7 +137,7 @@ abstract class Opus_Model_Dependent_Abstract
                     . ' needs to know name of the parent-id column.');
         } 
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
-        parent::store();
+        return parent::store();
     }
     
     /**

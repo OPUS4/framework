@@ -132,6 +132,18 @@ class Opus_CollectionTest extends TestCase {
                 'Field OaiSetName must contain OaiSubset.');
      }
 
+     /**
+      * Test if "store()" returns primary key of current object.
+      */
+     public function testStoreReturnsId() {
+        $collection_id = $this->object->store();
+        $this->assertNotNull($collection_id);
+
+        $test_object = new Opus_Collection($collection_id);
+        $this->assertEquals($this->object->getParentId(), $test_object->getParentId());
+        $this->assertEquals($this->object->getOaiSetName(), $test_object->getOaiSetName());
+     }
+
     /**
      * Tests toArray().
      */
