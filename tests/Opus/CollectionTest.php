@@ -94,7 +94,7 @@ class Opus_CollectionTest extends TestCase {
      */
     public function testDeleteNoChildren() {
         $collection_id = $this->object->getId();
-        $this->object->delete();
+        $this->object->doDelete( $this->object->delete() );
 
         $this->setExpectedException('Opus_Model_NotFoundException');
         new Opus_Collection($collection_id);
@@ -121,11 +121,15 @@ class Opus_CollectionTest extends TestCase {
       */
      public function testGetOaiName() {
         $this->object->setOaiSubset("subset");
+        $this->assertEquals('subset', $this->object->getOaiSubset());
+
         $collection_id = $this->object->store();
+        $this->assertNotNull($collection_id);
 
         $collection = new Opus_Collection($collection_id);
-        $oai_name = $collection->getOaiSetName();
+        $this->assertEquals('subset', $this->object->getOaiSubset());
 
+        $oai_name = $collection->getOaiSetName();
         $this->assertNotNull($oai_name,
                 'Field OaiName must not be null/empty.');
         $this->assertTrue(preg_match("/:subset/", $oai_name) == 1,

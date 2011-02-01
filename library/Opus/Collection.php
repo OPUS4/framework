@@ -35,7 +35,14 @@
  * @version     $Id: CollectionOld.php -1$
  */
 
-class Opus_Collection extends Opus_Model_AbstractDb {
+class Opus_Collection extends Opus_Model_Dependent_Abstract {
+
+    /**
+     * Primary key of the parent model.
+     *
+     * @var mixed $_parentColumn.
+     */
+    protected $_parentColumn = 'role_id';
 
     /**
      * Specify the table gateway.
@@ -783,6 +790,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         // TODO: reach _storePendingNodes.  (Copy-paste!)
         if ($collection->isNewRecord()) {
             $collection->setRoleId($this->getRoleId());
+            $collection->setParentId($this->getParentId());
             $collection->setPositionId($this->getId());
         }
 
@@ -814,6 +822,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         foreach ($collections AS $collection) {
             if ($collection->isNewRecord()) {
                 $collection->setRoleId( $this->getRoleId() );
+                $collection->setParentId( $this->getRoleId() );
                 $collection->setPositionId( $this->getId() );
             }
             $collection->store();

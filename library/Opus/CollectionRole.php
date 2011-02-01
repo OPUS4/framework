@@ -511,6 +511,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             if ($collection->isNewRecord()) {
                 $collection->setPositionKey('Root');
                 $collection->setRoleId($this->getId());
+                $collection->setParentId($this->getId());
             }
 
             $collection->store();
@@ -529,6 +530,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         if ($collection->isNewRecord() and !$this->isNewRecord()) {
             $collection->setPositionKey('Root');
+            $collection->setParentId($this->getId());
             $collection->setRoleId($this->getId());
         }
 
