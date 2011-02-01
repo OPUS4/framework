@@ -673,19 +673,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @deprecated
      */
     public static function getDocumentByIdentifier($value, $type = 'urn') {
-        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentIdentifiers');
-        $select = $table->select()
-                ->from($table, array('document_id'))
-                ->where('type = ?', $type)
-                ->where('value = ?', $value);
-        $rows = $table->fetchAll($select);
-
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = $row->document_id;
-        }
-
-        return $result;
+        $finder = new Opus_DocumentFinder();
+        $finder->setIdentifierTypeValue($type, $value);
+        return $finder->ids();
     }
 
     /**
