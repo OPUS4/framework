@@ -51,13 +51,6 @@ abstract class Opus_Model_Abstract {
     protected $_fields = array();
 
     /**
-     * Hold a logger instance.
-     *
-     * @var Zend_Log
-     */
-    private $_logger = null;
-
-    /**
      * @TODO: This should be an option in externalFields[].
      *
      * Fields to be not reported by describe() and not accessable
@@ -73,27 +66,6 @@ abstract class Opus_Model_Abstract {
      */
     public function __construct() {
         $this->_init();
-    }
-
-    /**
-     * Return a logger either configured in Zend_Registry or null logger.
-     *
-     * Adds the Zend_Log instance registered with Zend_Registry with key 'Zend_Log'.
-     * If no such instance is configured, a standard logger will be set writing all
-     * log events to Zend_Log_Writer_Null.
-     *
-     * @return Zend_Log Logger instance.
-     */
-    protected function getLogger() {
-        if (null === $this->_logger) {
-            if (true === Zend_Registry::isRegistered('Zend_Log')) {
-                $this->_logger = Zend_Registry::get('Zend_Log');
-            }
-            else {
-                $this->_logger = new Zend_Log(new Zend_Log_Writer_Null);
-            }
-        }
-        return $this->_logger;
     }
 
     /**
