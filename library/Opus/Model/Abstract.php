@@ -268,16 +268,18 @@ abstract class Opus_Model_Abstract {
                 throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
             }
 
-            if ((count($arguments) === 1)) {
-                if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                    $linkmodel = $arguments[0];
-                } else {
-                    $linkmodel = new $linkmodelclass;
-                    $linkmodel->setModel($arguments[0]);
-                }
-            } else {
+            if (count($arguments) !== 1) {
                 throw new InvalidArgumentException('Argument required when adding to a link field.');
             }
+
+            if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
+                $linkmodel = $arguments[0];
+            }
+            else {
+                $linkmodel = new $linkmodelclass;
+                $linkmodel->setModel($arguments[0]);
+            }
+
             $model = $linkmodel;
 
         } else {
