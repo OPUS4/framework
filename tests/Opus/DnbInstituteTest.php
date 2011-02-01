@@ -40,15 +40,7 @@
  *
  * @group DnbInstituteTests
  */
-class Opus_DnbInstituteTests extends TestCase {
-
-    public function setUp() {
-        parent::setUp();
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-    }
+class Opus_DnbInstituteTest extends TestCase {
 
     public function testStoreAndLoadDnbInstitute() {
         $name = 'Forschungsinstitut für Code Coverage';
