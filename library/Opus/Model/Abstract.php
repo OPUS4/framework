@@ -414,27 +414,26 @@ abstract class Opus_Model_Abstract {
             $field = $this->_getField($fieldname);
             $fieldvalue = $field->getValue();
 
-            if ($field->hasMultipleValues()) {
-                $fieldvalues = array();
-                foreach($fieldvalue as $value) {
-                    if ($value instanceof Opus_Model_Abstract) {
-                        $fieldvalues[] = $value->toArray();
-                    } else if ($value instanceOf Zend_Date) {
-                        $fieldvalues[] = $value->toArray();
-                    } else {
-                        $fieldvalues[] = $value;
-                    }
-                }
-                $result[$fieldname] = $fieldvalues;
-            } else {
-                if ($fieldvalue instanceof Opus_Model_Abstract) {
-                    $result[$fieldname] = $fieldvalue->toArray();
-                } else if ($fieldvalue instanceOf Zend_Date) {
-                    $result[$fieldname] = $fieldvalue->toArray();
+            if (!$field->hasMultipleValues()) {
+                $fieldvalue = array($fieldvalue);
+            }
+
+            $fieldvalues = array();
+            foreach ($fieldvalue as $value) {
+                if ($value instanceof Opus_Model_Abstract) {
+                    $fieldvalues[] = $value->toArray();
+                } else if ($value instanceOf Zend_Date) {
+                    $fieldvalues[] = $value->toArray();
                 } else {
-                    $result[$fieldname] = $fieldvalue;
+                    $fieldvalues[] = $value;
                 }
             }
+
+            if (!$field->hasMultipleValues()) {
+                $fieldvalues = $fieldvalues[0];
+            }
+
+            $result[$fieldname] = $fieldvalues;
         }
         return $result;
     }
