@@ -988,7 +988,7 @@ abstract class Opus_Model_AbstractDb
                         $linkmodel = new $linkmodelclass($linkId);
                     }
                     catch (Opus_Model_NotFoundException $e) {
-                      $linkmodel = new $linkmodelclass;
+                        $linkmodel = new $linkmodelclass;
                     }
                     $linkmodel->setModel($value);
                 }
