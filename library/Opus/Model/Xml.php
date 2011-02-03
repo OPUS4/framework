@@ -230,22 +230,21 @@ class Opus_Model_Xml {
         $logger = Zend_Registry::get('Zend_Log');
 
         $result = $this->getDomDocumentFromXmlCache();
-        if (null !== $result) {
+        if (!is_null($result)) {
             return $result;
         }
 
         $result = $this->_strategy->getDomDocument();
-
-        if (null !== $this->_cache) {
-            $this->_cache->put(
-                    $model->getId(),
-                    (int) $this->_strategy->getVersion(),
-                    $model->getServerDateModified()->__toString(),
-                    $result);
-
-            $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
+        if (is_null($this->_cache)) {
+            return $result;
         }
 
+        $this->_cache->put(
+                $model->getId(),
+                (int) $this->_strategy->getVersion(),
+                $model->getServerDateModified()->__toString(),
+                $result);
+        $logger->debug(__METHOD__ . ' cache refreshed for ' . get_class($model) . '#' . $model->getId());
         return $result;
     }
 

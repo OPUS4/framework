@@ -170,7 +170,7 @@ class Opus_Search_Index_Solr_Indexer {
         }
         try {            
             // send xml directly to solr server instead of wrapping the document data
-            // into an Apache_Solr_Document object offered by the solr php client library
+            // into an Apache_Solr_Document object provided by the solr php client library
             $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
         }
         catch (Exception $e) {
