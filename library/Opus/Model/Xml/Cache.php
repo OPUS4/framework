@@ -55,7 +55,6 @@ class Opus_Model_Xml_Cache {
      * @return DOMDocument
      */
     public function get($documentId, $xmlVersion) {
-
         $dom = new DOMDocument('1.0', 'utf-8');
 
         $rowSet = $this->_table->find($documentId, $xmlVersion);
@@ -63,19 +62,22 @@ class Opus_Model_Xml_Cache {
             $xmlData = $rowSet->current()->xml_data;
 
             libxml_clear_errors();
-            $dom->loadXML($xmlData);
-            $err = libxml_get_last_error();
-            if ($err != false) {
-                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
-                    'error level: ' . $err->level . "\n" .
-                    'error code: ' . $err->code . "\n" .
-                    'error message: ' . $err->message . "\n" .
-                    'line:column: ' . $err->line . ':' . $err->column;
+            $result = $dom->loadXML($xmlData);
+            $errors = libxml_get_errors();
+            if ($result === FALSE) {
+                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" . 
+                    'number of errors: ' . count($errors) . "\n";
+                foreach ($errors as $errnum => $error) {
+                    $errMsg .= "\n" . 'error #' . $errnum . "\n\t" .
+                    'error level: ' . $error->level . "\n\t" .
+                    'error code: ' . $error->code . "\n\t" .
+                    'error message: ' . $error->message . "\n\t" .
+                    'line:column: ' . $error->line . ':' . $error->column;
+                }
                 Zend_Registry::get('Zend_Log')->err($errMsg);
                 throw new Opus_Model_Exception($errMsg);
             }
         }
-
         return $dom;
     }
 

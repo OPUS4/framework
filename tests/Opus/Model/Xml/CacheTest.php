@@ -217,6 +217,40 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $this->assertEquals($expectedXML, $result->saveXML(), 'Expecting empty DOMDocument.');
     }
 
+    public function testGetWithValidXML() {
+        $doc = new Opus_Document();
+        $doc->store();
+        $cache = new Opus_Model_Xml_Cache;
+        $dom = $cache->get($doc->getId(), '1.0');
+        $this->assertNotNull($dom);
+    }
+
+    public function testGetWithInvalidXML() {
+        $doc = new Opus_Document();
+        $abstract = new Opus_TitleAbstract();
+        $abstract->setLanguage('eng');
+        $handle = fopen('fulltexts/bad_abstract.txt', "rb");
+        $contents = fread($handle, filesize('fulltexts/bad_abstract.txt'));
+        $abstract->setValue($contents);
+        fclose($handle);
+        $doc->setTitleAbstract($abstract);
+        $doc->store();
+
+        // need to be set: otherwise PHPUnit will throw an error        
+        libxml_use_internal_errors(true);
+        
+        $cache = new Opus_Model_Xml_Cache;
+        $dom = null;
+        try {
+            $dom = $cache->get($doc->getId(), '1.0');
+        }
+        catch (Opus_Model_Exception $e) {
+            $this->assertNotNull($e);
+            return;
+        }
+        $this->assertNotNull($dom);
+    }
+
     /**
      *
      *
