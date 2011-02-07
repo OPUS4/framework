@@ -150,7 +150,15 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function exists() {
         return file_exists($this->getPath());
+    }
 
+    /**
+     * checks if the file is readable (and exists)
+     *
+     * @return boolean true if the file is readable, otherwise false
+     */
+    public function isReadable() {
+        return is_readable($this->getPath());
     }
 
     /**

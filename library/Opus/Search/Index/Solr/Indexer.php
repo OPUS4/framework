@@ -304,6 +304,9 @@ class Opus_Search_Index_Solr_Indexer {
         if (!$file->exists()) {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
         }
+        if (!$file->isReadable()) {
+            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' is not readable.');
+        }
         if (!$this->hasSupportedMimeType($file)) {
             throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
@@ -395,7 +398,7 @@ class Opus_Search_Index_Solr_Indexer {
     private function getCachedFileContent(Opus_File $file) {
         $cache_file = $this->getCachedFileName($file);
 
-        if (file_exists($cache_file) and is_readable($cache_file)) {
+        if (is_readable($cache_file)) {
             $max_cache_file_size = 1024*1024*16;
             if (filesize($cache_file) > $max_cache_file_size) {
                 $this->log->info('Skipped reading fulltext HUGE cache file ' . $cache_file);
