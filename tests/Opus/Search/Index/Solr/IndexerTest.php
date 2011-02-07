@@ -103,7 +103,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     /**
-     * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp() {
@@ -126,7 +125,6 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
     }
 
     /**
-     * Tears down the fixture, for example, closes a network connection.
      * This method is called after a test is executed.
      */
     protected function tearDown() {
@@ -137,9 +135,11 @@ class Opus_Search_Index_Solr_IndexerTest extends TestCase {
         $this->indexer->commit();
         // remove test documents under tests/workspace/files/$document_id
         $dirname = $this->files_dir . DIRECTORY_SEPARATOR .$this->document_id;
-        if (file_exists($dirname)) {
+        if (is_dir($dirname) && is_readable($dirname)) {
             foreach (glob($dirname . "/*") as $filename) {
-                unlink($filename);
+                if (is_readable($filename)) {
+                    unlink($filename);
+                }
             }
             rmdir($dirname);
         }
