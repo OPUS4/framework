@@ -55,6 +55,8 @@ class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp {
             $port = $config->port;
         }
 
+        $logger = Zend_Registry::get('Zend_Log');
+        $logger->info("Opus_Mail_Transport: Using mail server {$smtp}:{$port}");
         parent::__construct($smtp, array('port' => $port));
     }
 
