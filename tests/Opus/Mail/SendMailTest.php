@@ -121,63 +121,6 @@ class Opus_Mail_SendMailTest extends TestCase {
     public function tearDown() {}
 
     /**
-     * Tests the setter for a mail text.
-     *
-     * @return void
-     */
-    public function testSetBodyText() {
-        $this->_mail->setBodyText($this->_text);
-        $this->assertEquals($this->_mail->getBodyText(), $this->_text);
-    }
-
-    /**
-     * Tests the setter for a subject.
-     *
-     * @return void
-     */
-    public function testSetSubject() {
-        $this->_mail->setSubject($this->_subject);
-        $this->assertEquals($this->_mail->getSubject(), $this->_subject);
-    }
-
-    /**
-     * Tests the setter for a sender address.
-     *
-     * @return void
-     */
-    public function testSetFrom() {
-        try {
-            $error = false;
-            $this->_mail->setFrom($this->_addressSenderIncorrect);
-            $this->assertTrue($error);
-        }
-        catch (Exception $e) {
-        }
-        $this->_mail->setFrom($this->_addressSender);
-        $this->assertEquals($this->_mail->getFrom(), $this->_addressSender);
-    }
-
-    /**
-     * Tests the setter for a sender name.
-     *
-     * @return void
-     */
-    public function testSetFromName() {
-        $this->_mail->setFromName($this->_nameSender);
-        $this->assertEquals($this->_mail->getFromName(), $this->_nameSender);
-    }
-
-    /**
-     * Tests the setter for recipients.
-     *
-     * @return void
-     */
-    public function testSetRecipients() {
-        $this->_mail->setRecipients($this->_recipient);
-        $this->assertEquals($this->_mail->getRecipients(), $this->_recipient);
-    }
-
-    /**
      * Tests the sending of an e-mail
      *
      * @return void
