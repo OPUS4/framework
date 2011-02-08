@@ -42,11 +42,9 @@
 class Opus_Mail_SendMail {
 
     /**
-     * Holds the properties of the mail specified by the sender
-     *
-     * @var Zend_Mail
+     * @var Opus_Mail_Transport
      */
-    private $_mail;
+    private $_transport = null;
 
     /**
      * Holds the e-mail address of the sender
@@ -84,58 +82,15 @@ class Opus_Mail_SendMail {
     private $_bodyText;
 
     /**
-     * Holds information whether one mail should be sent to all recipients or one to every recipient
-     *
-     * @var unknown_type
-     */
-    private $_oneMailToAll;
-
-    /**
-     * Flag for disabling sending of email.
-     */
-    private $_disabled = false;
-
-
-    /**
      * Create a new SendMail instance
      */
-    // @todo Der Konstruktor soll den SMTP-Server als Parameter entgegennehmen, um Unittests
-    // mit dem Fake-SMTP-Server zu ermöglichen. Wird ein leerer String übergeben, siehe Z.104
     public function __construct() {
-        $this->createSmtpTransport();
-        $this->_mail = new Zend_Mail('utf-8');
-        $this->_mail->clearFrom();
-    }
-
-   /**
-    * Creates and registers the SMTP transport.
-    * The SMTP server address should be sourced out to a configuration file.
-    *
-    * @return void
-    */
-    private function createSmtpTransport() {
-        // @todo IP-Adresse des SMTP-Servers und Port müssen noch in config.ini / Bootstrap ausgelagert werden.
-        // Port 25000 braucht man, um SendMail mit dem Fake-SMTP-Server benutzen zu können.
         $config = Zend_Registry::get('Zend_Config');
-
-        if (isset($config->mail->opus->smtp)) {
-            $smtp = $config->mail->opus->smtp;
+        if (!isset($config, $config->mail->opus)) {
+            return;
         }
 
-        if (isset($config->mail->opus->port)) {
-            $port = $config->mail->opus->port;
-        }
-        else {
-            $port = 25;
-        }
-
-        if (empty($smtp)) {
-            $this->_disabled = true;
-        }
-        else {
-            $transport = new Zend_Mail_Transport_Smtp($smtp, array('port' => $port));
-            Zend_Mail::setDefaultTransport($transport);
-        }
+        $this->_transport = new Opus_Mail_Transport($config->mail->opus);
     }
 
     /**
@@ -146,25 +101,6 @@ class Opus_Mail_SendMail {
      */
     public function setRecipients(array $recipients) {
         $this->_recipients = $recipients;
-    }
-
-    /**
-     * set oneMailToAll flag
-     *
-     * @param boolean $flag
-     * @return void
-     */
-    protected function setOneMailToAll($flag) {
-        $this->_oneMailToAll = $flag;
-    }
-
-    /**
-     * get oneMailToAll flag
-     *
-     * @return boolean
-     */
-    protected function getOneMailToAll() {
-        return $this->_oneMailToAll;
     }
 
     /**
@@ -241,7 +177,7 @@ class Opus_Mail_SendMail {
      * @return  void
      */
     public function setBodyText($bodyText) {
-        $this->_bodyText = strip_tags($bodyText);
+        $this->_bodyText = $bodyText;
     }
 
     /**
@@ -254,215 +190,6 @@ class Opus_Mail_SendMail {
     }
 
     /**
-     * Creates and sends an e-mail to the specified recipients.
-     *
-     * @param   integer|Opus_Person|array $recipient Recipient(s)
-     * @param   string                    $subject   Subject
-     * @param   string                    $bodyText  Text
-     * @param   string                    $from      (Optional) Sender address - if not set, the administrator's address is taken
-     * @param   string                    $fromName  (Optional) Sender name - if not set, the administator's name is taken
-     * @throws  Opus_Mail_Exception       Thrown if either the sender e-mail address or name is not given
-     * @return  boolean                   True if mail was sent
-     */
-    public function sendMailToAuthor($recipient, $subject, $bodyText, $from = '', $fromName = '') {
-        if (($from === '') and ($fromName === '')) {
-            $config = Zend_Registry::get('Zend_Config');
-            $from = $config->mail->opus->address;
-            $fromName = $config->mail->opus->name;
-        } else if (($from === '') xor ($fromName === '')) {
-            throw new Opus_Mail_Exception('Sender is not well-defined.');
-        }
-
-        // Change the content of $recipient, if it isn't yet an array of person objects
-
-        // If recipient is an array of person IDs, build a new array with the corresponding person objects
-        if (is_array($recipient) === true and is_int($recipient[0]) === true) {
-            $recs = array();
-            $recipient = array_unique($recipient);
-            foreach ($recipient as $rec) {
-                $recipient = new Opus_Person($rec);
-                array_push($recs, $recipient);
-            }
-            $recipient = $recs;
-        // If recipient is a person ID, build an array with the corresponding person object
-        } else if (is_int($recipient) === true) {
-            $recipient = array(new Opus_Person($recipient));
-        // If recipient is a person object, build an array around it
-        } else if (is_object($recipient) === true) {
-            $recipient = array($recipient);
-        }
-
-        $recips = array('recipients' => array('address' => '', 'name' => ''));
-        foreach ($recipient as $rec) {
-            $recFormed = $this->formRecipient($rec);
-            array_push($recips, $recFormed);
-        }
-
-        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
-    }
-
-    /**
-     * Creates and sends an e-mail to the administrator.
-     * The author of the specified document will be set as sender.
-     *
-     * @param   integer|Opus_Document $document Document
-     * @param   string                $subject  Subject
-     * @param   string                $bodyText Text
-     * @throws  Opus_Mail_Exception   Thrown if the author / the document cannot be found
-     * @return  boolean               True if mail could be sent
-     */
-    public function sendMailToAdmin($document, $subject, $bodyText) {
-        $config = Zend_Registry::get('Zend_Config');
-        $to = $config->mail->opus->address;
-        $toName = $config->mail->opus->name;
-        $recips = array('recipients' => array('address' => $to, 'name' => $toName));
-
-        // If $document is a document ID, build an array with the corresponding document object
-        if (is_int($document) === true) {
-            $document = new Opus_Document($document);
-        }
-
-        $author = new Opus_Person($document->getField('PersonAuthor')->getValue());
-        $recips = array('recipients' => array('address' => '', 'name' => ''));
-        $recFormed = $this->formRecipient($author);
-        array_push($recips, $recFormed);
-
-        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
-    }
-
-    /**
-     * Creates and sends an e-mail to all persons connected to the specified document / documents.
-     *
-     * @param   integer|Opus_Document|array $document Document
-     * @param   string                      $subject  Subject
-     * @param   string                      $bodyText Text
-     * @param   string                      $from     (Optional) If $from and $fromName not set, the standard sender address is taken
-     * @param   string                      $fromName (Optional) If $fromName and $from not set, the standard sender name is taken
-     * @throws  Opus_Mail_Exception Thrown if either no sender e-mail address or sender name is given
-     * @return  boolean             True if mail could be sent
-     */
-    public function sendMailToDocument($document, $subject, $bodyText, $from = '', $fromName = '') {
-        if (($from === '') and ($fromName === '')) {
-            $config = Zend_Registry::get('Zend_Config');
-            $from = $config->mail->opus->address;
-            $fromName = $config->mail->opus->name;
-        } else if (($from === '') xor ($fromName === '')) {
-            throw new Opus_Mail_Exception('Sender is not well-defined.');
-        }
-
-        // Change the content of $document, if it isn't yet an array of document objects
-
-        // If document is an array of document IDs, build a new array with the corresponding document objects
-        if ((is_array($document) === true) and (is_int($document[0]) === true)) {
-            $docs = array();
-            $document = array_unique($document);
-            foreach ($document as $doc) {
-                $myDoc = new Opus_Document($doc);
-                array_push($docs, $myDoc);
-            }
-            $document = $docs;
-        // If document is a document ID, build an array with the corresponding document object
-        } else if (is_int($document) === true) {
-            $document = array(new Opus_Document($document));
-        // If document is a document object, build an array around it
-        } else if (is_object($document) === true) {
-            $document = array($document);
-        }
-
-        foreach ($document as $doc) {
-            // Get all persons related to the document
-            $advisor = new Opus_Person($doc->getField('PersonAdvisor')->getValue());
-            $author = new Opus_Person($doc->getField('PersonAuthor')->getValue());
-            $contributor = new Opus_Person($doc->getField('PersonContributor')->getValue());
-            $editor = new Opus_Person($doc->getField('PersonEditor')->getValue());
-            $referee = new Opus_Person($doc->getField('PersonReferee')->getValue());
-            $other = new Opus_Person($doc->getField('PersonOther')->getValue());
-            $translator = new Opus_Person($doc->getField('PersonTranslator')->getValue());
-
-            $connectedPersons = array('advisor' => $advisor,
-                                'author' => $author,
-                                'contributor' => $contributor,
-                                'editor' => $editor,
-                                'referee' => $referee,
-                                'other' => $other,
-                                'translator' => $translator);
-
-            $recips = array('recipients' => array('address', 'name'));
-
-            foreach ($connectedPersons as $connected) {
-                $recFormed = $this->formRecipient($connected);
-                array_push($recips, $recFormed);
-            }
-        }
-
-        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
-    }
-
-    /**
-     * Creates and sends an e-mail to all authors of the specified collection / collections.
-     *
-     * @param   integer|Opus_Collection|array $collection Collection(s)
-     * @param   string                        $subject    Subject
-     * @param   string                        $bodyText   Text
-     * @return  boolean                       True if mail could be sent
-     */
-    public function sendMailToCollection($collection, $subject, $bodyText) {
-        $config = Zend_Registry::get('Zend_Config');
-        $from = $config->mail->opus->address;
-        $fromName = $config->mail->opus->name;
-
-        // Change the content of $collection, if it isn't yet an array of collection objects
-
-        // If $collection is an array of collection IDs, build a new array with the corresponding collection objects
-        if ((is_array($collection) === true) and (is_int($collection[0]) === true)) {
-            $collections = array();
-            $collection = array_unique($collection);
-            foreach ($collection as $collect) {
-                $myCollection = new Opus_Collection(null, $collect);
-                array_push($collections, $myCollection);
-            }
-            $collections = $collections;
-        // If $collection is a collection ID, build an array with the corresponding collection object
-        } else if (is_int($collection) === true) {
-            $collection = array(new Opus_Collection(null, $collection));
-        // If $collection is a collection object, build an array around it
-        } else if (is_object($collection) === true) {
-            $collection = array($collection);
-        }
-
-        // Get all documents of the selected collections
-        $documents = array();
-        foreach ($collection as $collect) {
-            array_push($documents, $collect->getEntries());
-        }
-
-        $recips = array('recipients' => array('address', 'name'));
-        foreach ($documents as $doc) {
-            $author = new Opus_Person($doc->getField('PersonAuthor')->getValue());
-            $recFormed = $this->formRecipient($author);
-            array_push($recips, 'recipients', $recFormed);
-        }
-
-        return $this->sendMail($from, $fromName, $subject, $bodyText, $recips);
-    }
-
-    /**
-     * Forms an array with address and composed name from a user object.
-     *
-     * @param   Opus_Person $recipient Recipient
-     * @return  array                        Recipients' addresses and names
-     */
-    private function formRecipient(Opus_Person $recipient) {
-        $recip = array('address' => '', 'name' => '');
-        $recip['address'] = $this->validateAddress($recipient->getField('EMail')->getValue());
-        $firstName = $recipient->getField('FirstName')->getValue();
-        $lastName = $recipient->getField('LastName')->getValue();
-        $recip['name'] = $firstName . ' ' . $lastName;
-
-        return $recip;
-    }
-
-    /**
      * Validates an e-mail address
      *
      * @param   string $address Address
@@ -470,6 +197,8 @@ class Opus_Mail_SendMail {
      * @return  string              Address
      */
     private function validateAddress($address) {
+        return $address;
+
         $validator = new Zend_Validate_EmailAddress();
         if ($validator->isValid($address) === false) {
             foreach ($validator->getMessages() as $message) {
@@ -484,7 +213,6 @@ class Opus_Mail_SendMail {
      * Creates and sends an e-mail to the specified recipient using the SMTP transport.
      * This method should be used carefully, particularly with regard to the possibility
      * of sending mails anonymously to user-defined recipients.
-     * Recommendation:  Please use the "sendMailTo..." methods
      *
      * @param   string $from       Sender address
      * @param   string $fromName   Sender name
@@ -493,13 +221,12 @@ class Opus_Mail_SendMail {
      * @param   array  $recipients Recipients (array [#] => array ('name' => '...', 'address' => '...'))
      * @return  boolean            True if mail was sent
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients, $oneMailToAll = false) {
+    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
         $this->setRecipients($recipients);
         $this->setSubject($subject);
         $this->setBodyText($bodyText);
         $this->setFrom($from);
         $this->setFromName($fromName);
-        $this->setOneMailToAll($oneMailToAll);
         return $this->send();
     }
 
@@ -513,7 +240,7 @@ class Opus_Mail_SendMail {
     private function send() {
         $logger = Zend_Registry::get('Zend_Log');
 
-        if ($this->_disabled) {
+        if (!isset($this->_transport)) {
             $logger->warn('Not sending mail: Mail server not configured.');
             return true;
         }
@@ -532,47 +259,21 @@ class Opus_Mail_SendMail {
             throw new Opus_Mail_Exception('No subject text given.');
         }
 
-        $error = '';
-
-        if ($this->getOneMailToAll() === TRUE) {
-            $mail = new Zend_Mail();
-            $mail->setFrom($from, $fromName);
-            $mail->setSubject($subject);
-            $mail->setBodyText($text);
-        }
+        $mail = new Zend_Mail('utf-8');
+        $mail->setFrom($from, $fromName);
+        $mail->setSubject($subject);
+        $mail->setBodyText($text);
 
         foreach ($recipients as $recip) {
-
-            if ($this->getOneMailToAll() === FALSE) {
-                $mail = new Zend_Mail();
-                $mail->addTo($recip['address'], $recip['name']);
-                $mail->setFrom($from, $fromName);
-                $mail->setSubject($subject);
-                $mail->setBodyText($text);
-                try {
-                    $mail->send();
-                    $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
-                } catch (Exception $e) {
-                    $error .= $e . ' ';
-                    $logger->err('SendMail: Failed sending mail to ' . $recip['address']);
-                }
-            } else {
-                $mail->addTo($recip['address'], $recip['name']);
-            }
+            $mail->addTo($recip['address'], $recip['name']);
         }
 
-        if ($this->getOneMailToAll() === TRUE) {
-            try {
-                $mail->send();
-                $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
-            } catch (Exception $e) {
-                $error .= $e . ' ';
-                $logger->err('SendMail: Failed sending mail to ' . $recip['address']);
-            }
-        }
-
-        if (trim($error) !== '') {
-            throw new Opus_Mail_Exception('One or more mails could not be sent: ' . $error);
+        try {
+            $mail->send($this->_transport);
+            $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
+        } catch (Exception $e) {
+            $logger->err('SendMail: Failed sending mail to ' . $recip['address'] . ', error: ' . $e);
+            throw new Opus_Mail_Exception('One or more mails could not be sent.');
         }
 
         return true;
