@@ -121,7 +121,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @param  int  $treeId  ID of tree you want to use.
      * @param  int  $id       Primary key of the node.
-     * @throws Exception
+     * @throws Opus_Model_Exception
      * @return Zend_Db_Row
      */
     private function getNodeById($id) {
@@ -129,7 +129,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $row = $this->fetchRow($select);
 
         if (true === is_null($row)) {
-            throw new Exception("Node $id not found.");
+            throw new Opus_Model_Exception("Node $id not found.");
         }
 
         return $row;
@@ -139,7 +139,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * Retrieve root node, i.e. node with $leftId=1.
      *
      * @param  int  $treeId  ID of tree you want to use.
-     * @throws Exception
+     * @throws Opus_Model_Exception
      * @return Zend_Db_Row
      */
     public function getRootNode($treeId) {
@@ -147,10 +147,10 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $row = $this->fetchRow($select);
 
         if (true === is_null($row)) {
-            throw new Exception("Root node for tree {$treeId} not found.");
+            throw new Opus_Model_Exception("Root node for tree {$treeId} not found.");
         }
 
-        return $node;
+        return $row;
     }
 
     /**
@@ -416,6 +416,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
      * @param  integer $id  The sibling row ID (must be unique in schema!).
+     * @throws Opus_Model_Exception
      * @return array
      */
     public function insertNextSibling($id) {
@@ -426,7 +427,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
-            throw new Exception("Root node can't have siblings");
+            throw new Opus_Model_Exception("Root node can't have siblings");
         }
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks
@@ -451,6 +452,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
      * @param  integer $id  The sibling row ID (must be unique in schema!).
+     * @throws Opus_Model_Exception
      * @return array
      */
     public function insertPrevSibling($id) {
@@ -461,7 +463,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $parent = $row->{$this->_parent};
 
         if ($left === 1) {
-            throw new Exception("Root node can't have siblings");
+            throw new Opus_Model_Exception("Root node can't have siblings");
         }
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks
