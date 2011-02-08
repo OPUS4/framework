@@ -229,7 +229,13 @@ class Opus_Search_Index_Solr_Indexer {
      * @return DOMDocument
      */
     private function getSolrXmlDocument(Opus_Document $doc) {
-        $modelXml = $doc->toXml();
+        // Set up caching xml-model and get XML representation of document.
+        $caching_xml_model = new Opus_Model_Xml;
+        $caching_xml_model->setModel($doc);
+        $caching_xml_model->setStrategy(new Opus_Model_Xml_Version1);
+        $caching_xml_model->setXmlCache(new Opus_Model_Xml_Cache);
+
+        $modelXml = $caching_xml_model->getDomDocument();
 
         // extract fulltext from file and append it to the generated xml.
         $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
