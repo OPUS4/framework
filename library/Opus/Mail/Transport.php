@@ -44,7 +44,7 @@ class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp {
     /**
      * Create a new Zend_Mail_Transport instance.
      */
-    public function __construct( $config ) {
+    public function __construct($config = null) {
         $smtp = 'localhost';
         if (isset($config->smtp)) {
             $smtp = $config->smtp;
