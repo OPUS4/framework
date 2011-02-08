@@ -80,5 +80,11 @@ searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belon
 log.prepare.xml = false
 log.level = DEBUG
 
+;DUMMY MAIL SERVER; See "server/scripts/opus-smtp-dumpserver.php" for a dummy
+;mail server, which accepts all mail.
+; mail.opus.smtp = localhost
+; mail.opus.port = 25000
+
+
 [testing : production]
 sql.schema.path =
