@@ -109,51 +109,6 @@ class Opus_Language extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve languages by natural name.
-     *
-     * @param  string  $letter Letter(s) the wanted languages begin(s) with.
-     * @return array Array of Opus_Language objects.
-     *
-     * @todo REMOVE method: not used any more.
-     * @deprecated
-     */
-    public static function getAllByName($letter) {
-        throw new Exception('Method marked for removal.');
-
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $rows = $table->fetchAll($table->select()
-                    ->where("ref_name LIKE ?", $letter . '%')
-                    ->order('ref_name ASC'));
-        $result = array();
-        foreach ($rows as $row) {
-            $result[] = new Opus_Language($row);
-        }
-        return $result;
-    }
-
-    /**
-     * Fetch language by ISO 639-1 (two-letter) code.
-     *
-     * @param  string  $part1 ISO 639-1 (two-letter) code
-     * @return Opus_Language The language that corresponds to the ISO 639-1 code.
-     *
-     * @todo REMOVE method: not used any more.
-     * @deprecated
-     */
-    public static function getByPart1($part1) {
-        throw new Exception('Method marked for removal.');
-
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $row = $table->fetchRow($table->select()->where("part1 = ?", $part1));
-        
-        if (false === is_null($row)) {
-            return new Opus_Language($row);
-        }
-        
-        return null;
-    }
-
-    /**
      * Returns reference language name.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
