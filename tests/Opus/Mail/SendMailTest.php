@@ -27,8 +27,7 @@
  * @category    Tests
  * @package     Opus_Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Eva Kranz <s9evkran@stud.uni-saarland.de>
- * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -43,68 +42,8 @@
  */
 class Opus_Mail_SendMailTest extends TestCase {
 
-    /**
-     * Holds a syntactically correct sender e-mail address.
-     *
-     * @var string
-     */
-    protected $_addressSender = 'sender@testmail.de';
-
-    /**
-     * Holds a syntactically incorrect sender e-mail address.
-     *
-     * @var string
-     */
-    protected $_addressSenderIncorrect = 'sender@testmailde';
-
-    /**
-     * Holds a syntactically correct recipient e-mail address.
-     *
-     * @var string
-     */
-    protected $_addressRecipient = 'recipient@testmail.de';
-
-    /**
-     * Holds a sender name
-     *
-     * @var string
-     */
-    protected $_nameSender = 'John S. Public';
-
-    /**
-     * Holds a recipient name
-     *
-     * @var string
-     */
-    protected $_nameRecipient = 'John R. Public';
-
-    /**
-     * Holds a recipient (address and name)
-     *
-     * @var array
-     */
-    protected $_recipient = array('recipients' => array('address' => 'recipient@testmail.de', 'name' => 'John R. Public'));
-
-    /**
-     * Holds a subject
-     *
-     * @var string
-     */
-    protected $_subject = 'My subject';
-
-    /**
-     * Holds a text
-     *
-     * @var string
-     */
-    protected $_text = 'Lorem ipsum dolor sit amet, consectetuer ad.';
-
-    /**
-     * Holds a mail object
-     *
-     * @var OPUS_MAIL
-     */
-    protected $_mail = null;
+    protected $_config_backup = null;
+    protected $_config_dummy = null;
 
     /**
      * Set up test fixtures.
@@ -112,35 +51,99 @@ class Opus_Mail_SendMailTest extends TestCase {
      * @return void
      */
     public function setUp() {
-        $this->_mail = new Opus_Mail_SendMail();
+        $this->_config_backup = Zend_Registry::get('Zend_Config');
+        $this->_config_dummy = new Zend_Config(array(
+            'mail' => array( 'opus' => array(
+                'smtp' => 'host.does.not.exists.hopefully',
+                'port' => 22,
+            )),
+        ));
     }
 
     /**
      * Overwrite parent methods.
      */
-    public function tearDown() {}
+    public function tearDown() {
+        Zend_Registry::set('Zend_Config', $this->_config_backup);
+    }
 
     /**
-     * Tests the sending of an e-mail
-     *
-     * @return void
-     *
-    public function testSendMail() {
-        try {
-            $error = false;
-            $this->sendMail('', $this->_nameSender, $this->_subject, $this->_text, $this->_recipient);
-            $this->assertTrue($error);
-        }
-        catch (Exception $e) {
+     * Test construtor.
+     */
+    public function testConstructor() {
+        Zend_Registry::set('Zend_Config', $this->_config_dummy);
+        $mail = new Opus_Mail_SendMail();
+    }
+
+    /**
+     * Test construtor without config.
+     */
+    public function testConstructorWoConfig() {
+        Zend_Registry::set('Zend_Config', null);
+        $mail = new Opus_Mail_SendMail();
+    }
+
+    /**
+     * Test sending mail.
+     */
+    public function testSendmailWoParameters() {
+        Zend_Registry::set('Zend_Config', null);
+        $mail = new Opus_Mail_SendMail();
+        $this->setExpectedException('Opus_Mail_Exception');
+        $mail->sendMail(null, null, null, null, null);
+    }
+
+    /**
+     * Test sending mail.
+     */
+    public function testSendmailRemoteHostDoesNotExist() {
+        $mail = new Opus_Mail_SendMail();
+        $this->setExpectedException('Opus_Mail_Exception');
+        $mail->sendMail(
+                'Sender', 'sender@does.not.exists.hopefully.mil',
+                'no subject',
+                'no body',
+                array(array(
+                        'name' => 'Recipient',
+                        'address' => 'sender@does.not.exists.hopefully.mil',
+                ))
+        );
+    }
+
+    /**
+     * Tests the sending of an e-mail, but without mail body.
+     */
+    public function testSendMailNoMailFrom() {
+        $mail = new Opus_Mail_SendMail();
+        $recipient = array('recipients' => array('address' => 'recipient@testmail.de', 'name' => 'John R. Public'));
+
+        $this->setExpectedException('Opus_Mail_Exception');
+        $mail->sendMail('', 'John S. Public', 'My subject', 'My Text', $recipient);
+    }
+
+    /**
+     * Tests the sending of an e-mail, but without mail from.
+     */
+    public function testSendMailNoMailBody() {
+        $mail = new Opus_Mail_SendMail();
+        $recipient = array('recipients' => array('address' => 'recipient@testmail.de', 'name' => 'John R. Public'));
+
+        $this->setExpectedException('Opus_Mail_Exception');
+        $mail->sendMail('recipient@testmail.de', 'John S. Public', '', 'My Text', $recipient);
+    }
+
+    /**
+     * Tests the sending of an e-mail.
+     */
+    public function testSendMailSuccess() {
+        $recipient = array('recipients' => array('address' => 'recipient@testmail.de', 'name' => 'John R. Public'));
+
+        $config = Zend_Registry::get('Zend_Config');
+        if (!isset($config, $config->mail->opus)) {
+            $this->markTestSkipped('Test mail server is not configured yet.');
         }
 
-        try {
-            $error = false;
-            $this->sendMail($this->_addressSender, $this->_nameSender, '', $this->_text, $this->_recipient);
-            $this->assertTrue($error);
-        }
-        catch (Exception $e) {
-        }
+        $mail = new Opus_Mail_SendMail();
+        $mail->sendMail('recipient@testmail.de', 'John S. Public', 'Mail Body', 'My Text', $recipient);
     }
-    */
 }

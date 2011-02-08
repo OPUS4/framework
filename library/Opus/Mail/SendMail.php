@@ -52,11 +52,11 @@ class Opus_Mail_SendMail {
      */
     public function __construct() {
         $config = Zend_Registry::get('Zend_Config');
-        if (!isset($config, $config->mail->opus)) {
+        if (isset($config, $config->mail->opus)) {
+            $this->_transport = new Opus_Mail_Transport($config->mail->opus);
             return;
         }
-
-        $this->_transport = new Opus_Mail_Transport($config->mail->opus);
+        $this->_transport = new Opus_Mail_Transport();
     }
 
     /**
@@ -92,13 +92,8 @@ class Opus_Mail_SendMail {
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
      * @throws Opus_Mail_Exception Thrown if the from address is invalid.
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, array $recipients) {
+    public function sendMail($from, $fromName, $subject, $bodyText, $recipients) {
         $logger = Zend_Registry::get('Zend_Log');
-
-        if (!isset($this->_transport)) {
-            $logger->warn('Not sending mail: Mail server not configured.');
-            return true;
-        }
 
         if (trim($from) === '') {
             throw new Opus_Mail_Exception('No sender address given.');
@@ -124,7 +119,7 @@ class Opus_Mail_SendMail {
             $logger->debug('SendMail: Successfully sent mail to ' . $recip['address']);
         } catch (Exception $e) {
             $logger->err('SendMail: Failed sending mail to ' . $recip['address'] . ', error: ' . $e);
-            throw new Opus_Mail_Exception('SendMail: Mails could not be sent.');
+            throw new Opus_Mail_Exception('SendMail: Mail could not be sent.');
         }
 
         return true;
