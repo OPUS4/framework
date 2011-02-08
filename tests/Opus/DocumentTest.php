@@ -1287,7 +1287,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($expected_visible_field, $actual_visible_field);
      }
 
-     public function testDnb() {
+     public function testAddDnbInstitute() {
         $dnb_institute = new Opus_DnbInstitute();
         $dnb_institute->setName('Forschungsinstitut für Code Coverage')
                 ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
@@ -1298,13 +1298,35 @@ class Opus_DocumentTest extends TestCase {
         // store
         $id = $dnb_institute->store();
 
-        echo "dnb-id: $id\n";
-
         $document = new Opus_Document();
         $document->store();
 
         $document->addThesisGrantor( $dnb_institute );
+        $docId = $document->store();
+
+        $document = new Opus_Document( $docId );
+        $this->assertEquals(1, count($document->getThesisGrantor()));
+     }
+
+     public function testSetDnbInstitute() {
+        $dnb_institute = new Opus_DnbInstitute();
+        $dnb_institute->setName('Forschungsinstitut für Code Coverage')
+                ->setAddress('Musterstr. 23 - 12345 Entenhausen - Calisota')
+                ->setCity('Calisota')
+                ->setPhone('+1 234 56789')
+                ->setDnbContactId('F1111-1111')
+                ->setIsGrantor('1');
+        // store
+        $id = $dnb_institute->store();
+
+        $document = new Opus_Document();
+        $document->store();
+
         $document->setThesisGrantor( $dnb_institute );
+        $docId = $document->store();
+
+        $document = new Opus_Document( $docId );
+        $this->assertEquals(1, count($document->getThesisGrantor()));
      }
 
 }
