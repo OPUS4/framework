@@ -98,7 +98,7 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
             $account = new Opus_Account(null, null, $this->_login);
         } catch (Exception $ex) {
             return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, $this->_login,
-                array('The supplied identity could not be found.'));
+                array('auth_error_invalid_credentials'));
         }
 
         // Check if password is correcct, but for old hashes.  Neede for
@@ -113,10 +113,10 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
         $pass = $account->isPasswordCorrect($this->_password);
         if ($pass === true) {
             return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->_login,
-                array('Authentication successful.'));
+                array('auth_login_success'));
         }
 
         return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
-            array('Supplied credential is invalid.'));
+            array('auth_error_invalid_crednetials'));
      }
 }
