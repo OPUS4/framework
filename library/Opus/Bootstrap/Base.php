@@ -166,7 +166,17 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $config = $this->getResource('Configuration');
 
-        $logfilePath = $config->workspacePath . '/log/opus.log';
+        $logFilename = null;
+
+        if (isset($config->log->filename)) {
+            $logFilename = $config->log->filename;
+        }
+
+        if (empty($logFilename)) {
+            $logFilename = "opus-console.log";
+        }
+
+        $logfilePath = $config->workspacePath . '/log/' . $logFilename;
 
         $logfile = @fopen($logfilePath, 'a', false);
         
