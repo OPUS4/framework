@@ -117,6 +117,6 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
         }
 
         return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
-            array('auth_error_invalid_crednetials'));
+            array('auth_error_invalid_credentials'));
      }
 }
