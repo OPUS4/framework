@@ -237,7 +237,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $doc->store();
 
         // need to be set: otherwise PHPUnit will throw an error        
-        libxml_use_internal_errors(true);
+        $tmp = libxml_use_internal_errors(true);
         
         $cache = new Opus_Model_Xml_Cache;
         $dom = null;
@@ -249,6 +249,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
             return;
         }
         $this->assertNotNull($dom);
+        
+        // undo changes
+        libxml_use_internal_errors($tmp);
     }
 
     /**
