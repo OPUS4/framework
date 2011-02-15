@@ -136,6 +136,26 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Fixes ordering of all CollectionRoles by re-numbering position columns.
+     *
+     * @return <type>
+     */
+    public static function fixPositions() {
+        $row = $this->_primaryTableRow;
+        $db = $row->getTable()->getAdapter();
+
+        // FIXME: Hardcoded table and column names.
+        $reorder_query = 'SET @pos = 0; '
+                . ' UPDATE collections_roles '
+                . ' SET position = ( SELECT @pos := @pos + 1 ) '
+                . ' ORDER BY position, id ASC;';
+        // echo "reorder: $reorder_query\n";
+        $db->query($reorder_query);
+
+        return;
+    }
+
+    /**
      * Overwrite standard storage procedure to shift positions.  The parameter
      * describes the new position of the current role.
      *
@@ -163,12 +183,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // TODO: This reorder-query is only nesseccary, if someone destroyed the
         // TODO: strict ordering.  If the table is strictly ordered, then the
         // TODO: code below will preserve this property.
-        $reorder_query = 'SET @pos = 0; '
-                . ' UPDATE collections_roles '
-                . ' SET position = ( SELECT @pos := @pos + 1 ) '
-                . ' ORDER BY position, id ASC;';
-        // echo "reorder: $reorder_query\n";
-        $db->query($reorder_query);
+        self::fixPositions();
 
         // Find the current position of the current row in the new ordering.
         // Case 1: If row is new, shift all nodes plus one.
