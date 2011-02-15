@@ -141,8 +141,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return <type>
      */
     public static function fixPositions() {
-        $row = $this->_primaryTableRow;
-        $db = $row->getTable()->getAdapter();
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $db = $table->getAdapter();
 
         // FIXME: Hardcoded table and column names.
         $reorder_query = 'SET @pos = 0; '
