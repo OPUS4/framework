@@ -954,9 +954,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * TODO: Only remove if document does not have an URN/DOI!
      */
     public function deletePermanent() {
-        // Remove from index
-        $indexer = new Opus_Search_Index_Solr_Indexer();
-        $indexer->removeDocumentFromEntryIndex($this);
+        $this->delete();
 
         // remove all files permanently
         $files = $this->getFile();
