@@ -166,13 +166,9 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         $config = $this->getResource('Configuration');
 
-        $logFilename = null;
-
-        if (isset($config->log->filename)) {
-            $logFilename = $config->log->filename;
-        }
-
-        if (empty($logFilename)) {
+        // Detect if running in CGI environment.
+        $logFilename = 'opus.log';
+        if (!array_key_exists('SERVER_PROTOCOL', $_SERVER) and !array_key_exists('REQUEST_METHOD', $_SERVER)) {
             $logFilename = "opus-console.log";
         }
 
