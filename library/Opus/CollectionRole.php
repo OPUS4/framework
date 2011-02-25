@@ -532,16 +532,16 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @see Opus_Model_AbstractDb
      */
     public function _storeRootCollection($collection) {
-        if (isset($collection)) {
-
-            if ($collection->isNewRecord()) {
-                $collection->setPositionKey('Root');
-                $collection->setRoleId($this->getId());
-            }
-
-            $collection->store();
+        if (!isset($collection)) {
+            return;
         }
 
+        if ($collection->isNewRecord()) {
+            $collection->setPositionKey('Root');
+            $collection->setRoleId($this->getId());
+        }
+
+        $collection->store();
     }
 
 
