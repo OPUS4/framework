@@ -510,6 +510,21 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Everything which depends on $this->getRootNode() goes here:
      * ********************************************************************** */
 
+    protected function _fetchRootCollection() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $root = $collections->getRootNode($this->getId());
+
+        if (!isset($root)) {
+            return;
+        }
+
+        return new Opus_Collection($root);
+    }
+
     /**
      * Store root collection: Initialize Node.
      *
