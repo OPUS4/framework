@@ -136,7 +136,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     }
 
     /**
-     * Retrieve root node, i.e. node with $leftId=1.
+     * Retrieve root node, i.e. node with $leftId=1.  Returns NULL if row was
+     * not found.
      *
      * @param  int  $treeId  ID of tree you want to use.
      * @throws Opus_Model_Exception
@@ -145,10 +146,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     public function getRootNode($treeId) {
         $select = $this->selectNodeByLeftId($treeId, 1);
         $row = $this->fetchRow($select);
-
-        if (true === is_null($row)) {
-            throw new Opus_Model_Exception("Root node for tree {$treeId} not found.");
-        }
 
         return $row;
     }
