@@ -94,7 +94,7 @@ class Opus_CollectionTest extends TestCase {
      */
     public function testDeleteNoChildren() {
         $collection_id = $this->object->getId();
-        $this->object->doDelete( $this->object->delete() );
+        $this->object->delete();
 
         $this->setExpectedException('Opus_Model_NotFoundException');
         new Opus_Collection($collection_id);
@@ -144,7 +144,7 @@ class Opus_CollectionTest extends TestCase {
         $this->assertNotNull($collection_id);
 
         $test_object = new Opus_Collection($collection_id);
-        $this->assertEquals($this->object->getParentId(), $test_object->getParentId());
+        $this->assertEquals($this->object->getRoleId(), $test_object->getRoleId());
         $this->assertEquals($this->object->getOaiSetName(), $test_object->getOaiSetName());
      }
 
@@ -254,5 +254,23 @@ class Opus_CollectionTest extends TestCase {
 
         $this->assertEquals(1, $this->object->getNumSubtreeEntries(),
                 'Collection has one published entry.');
+    }
+
+    public function testDeleteCollectionFromDocumentDoesNotDeleteCollection() {
+        $this->object->setVisible(1);
+        $collectionId = $this->object->store();
+
+        $d = new Opus_Document();
+        $d->addCollection( $this->object );
+        $docId = $d->store();
+
+        $d = new Opus_Document( $docId );
+        $c = $d->getCollection();
+        $this->assertEquals(1, count($c));
+
+        $d->setCollection(array());
+        $d->store();
+
+        $collection = new Opus_Collection($collectionId);
     }
 }
