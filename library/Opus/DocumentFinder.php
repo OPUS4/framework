@@ -103,6 +103,17 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Returns a list of distinct years given by server_date_published
+     *
+     * @return array
+     */
+    public function groupedServerYearPublished() {
+        $this->select->reset('columns');
+        $this->select->columns("substr(server_date_published, 1, 4)")->distinct(true);
+        return $this->db->fetchCol($this->select);
+    }
+
+    /**
      * Add range-constraints to be applied on the result set.
      *
      * @param  string $type
