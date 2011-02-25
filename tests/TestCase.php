@@ -80,6 +80,11 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'schema_version',
         );
 
+        // This is needed to workaround the constraints on the parent_id column.
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $this->assertNotNull($adapter);
+        $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
+
         foreach ($tables as $tableName) {
             self::clearTable($tableName);
         }
@@ -87,7 +92,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
 
     /**
      * Use the standard database adapter to remove all records from
-     * a table.
+     * a table.  Check, if the table is really empty.
      *
      * @param string $tablename Name of the table to be cleared.
      * @return void
@@ -98,6 +103,9 @@ class TestCase extends PHPUnit_Framework_TestCase {
 
         $tablename = $adapter->quoteIdentifier($tablename);
         $adapter->query('TRUNCATE ' . $tablename);
+
+        $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
+        $this->assertEquals(0, $count, "Table $tablename is not empty!");
     }
 
     /**
