@@ -67,6 +67,11 @@ class Opus_CollectionTest extends TestCase {
         $this->role_fixture->store();
     }
 
+    protected function tearDown() {
+        $this->role_fixture->delete();
+        parent::tearDown();
+    }
+
     /**
      * Test constructor.
      */
