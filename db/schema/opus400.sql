@@ -80,6 +80,7 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `path_name` TEXT NOT NULL COMMENT 'File and path name.' ,
   `label` TEXT NOT NULL COMMENT 'Display text of the file.' ,
+  `comment` TEXT NULL COMMENT 'Comment for a file.',
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type of the file.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the file.' ,
   `file_size` BIGINT UNSIGNED NOT NULL COMMENT 'File size in bytes.',
