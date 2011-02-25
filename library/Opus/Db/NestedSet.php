@@ -182,7 +182,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @param  int     $treeId The id of the tree you want to delete.
      * @return int
      */
-    public function deleteTreeXXX($treeId) {
+    public function deleteTree($treeId) {
         return $this->_db->query("DELETE FROM {$this->_name} WHERE {$this->_tree} = {$treeId}  ORDER BY {$this->_left}  DESC");
     }
 
