@@ -193,7 +193,8 @@ class Opus_DocumentFinder {
     /**
      * Add range-constraints to be applied on the result set.
      *
-     * @param  string $type
+     * @param  string $from
+     * @param  string $until
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDatePublishedRange($from, $until) {
@@ -205,7 +206,8 @@ class Opus_DocumentFinder {
     /**
      * Add range-constraints to be applied on the result set.
      *
-     * @param  string $type
+     * @param  string $from
+     * @param  string $until
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until) {
