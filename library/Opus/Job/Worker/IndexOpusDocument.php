@@ -1,19 +1,34 @@
 <?php
 /**
+ * This file is part of OPUS. The software OPUS has been originally developed
+ * at the University of Stuttgart with funding from the German Research Net,
+ * the Federal Department of Higher Education and Research and the Ministry
+ * of Science, Research and the Arts of the State of Baden-Wuerttemberg.
+ *
+ * OPUS 4 is a complete rewrite of the original OPUS software and was developed
+ * by the Stuttgart University Library, the Library Service Center
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
+ *
  * LICENCE
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * OPUS is free software; you can redistribute it and/or modify it under the
+ * terms of the GNU General Public License as published by the Free Software
+ * Foundation; either version 2 of the Licence, or any later version.
+ * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
+ * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
+ * @category    TODO
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2009-2010
- *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2009-2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -49,22 +64,12 @@ class Opus_Job_Worker_IndexOpusDocument
      */
     private $_logger = null;
     
-    
     /**
-     * Holds file base path for locating attached documents.
-     *
-     * @var string
-     */
-    private $_basePath = '';
-
-    /**
-     *
-     *
      * @param mixed $logger (Optional)
      * @return void
      */
     public function __construct($logger = null) {
-        $this->setLogger($logger);        
+        $this->setLogger($logger);
     }
 
     /**
@@ -98,23 +103,10 @@ class Opus_Job_Worker_IndexOpusDocument
      * @param Opus_Search_Index_Interface $index Index implementation.
      * @return void
      */
-    public function setIndex(Opus_Search_Index_Interface $index) {
+    public function setIndex(Opus_Search_Index_Solr_Indexer $index) {
         $this->_index = $index;
     }
     
-    /**
-     * Set a file path pattern to help the indexer determine the path
-     * to concrete files. 
-     *
-     * @param string $basePath Path pattern containing $documentId variable.
-     * @return void
-     */
-    public function setFileBasePathPattern($basePath) {
-        // TODO check if valid
-        // TODO Replace stuff like this by a Resource Manager component
-        $this->_basePath = $basePath;
-    }
-
     /**
      * Load a document from database and optional file(s) and index them.
      *
@@ -133,39 +125,7 @@ class Opus_Job_Worker_IndexOpusDocument
 
         // create index document
         $document = new Opus_Document($documentId);
-        $idxDocument = Opus_Search_Solr_Document_OpusDocument::loadOpusDocument($document);
-        
-        // add fulltext index information if document is 'published'
-        if ('published' === $document->getServerState()) {
-            $files = $document->getFile();
-            $fulltext = array();
-            foreach ($files as $file) {
-
-                // skip files which are invisible on frontdoor
-                if (false == $file->getFrontdoorVisible()) {
-                    continue;
-                }
-
-                $filepath = str_replace('$documentId', $documentId, $this->_basePath);
-                $filepath .= DIRECTORY_SEPARATOR . $file->getPathName();
-
-                $mimeType = mime_content_type($filepath);
-
-                if ($mimeType === 'application/pdf') {
-                    $idxPdf = Opus_Search_Solr_Document_Pdf::loadPdf($filepath);
-                    if (false === empty($idxPdf->body)) {
-                        $fulltext = array_merge_recursive($fulltext, $idxPdf->body);
-                    }
-                }
-            }
-
-            if (false === empty($fulltext)) {
-                $idxDocument->setField('fulltext', $fulltext);
-            }
-        }
-        
-        
-        $this->_index->put($idxDocument);
+        $this->_index->addDocumentToEntryIndex($document);
         $this->_index->commit();
     }
 
