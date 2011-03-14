@@ -492,5 +492,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
                 and ($data[$this->_left] + 1 == $data[$this->_right]);
     }
 
+    /**
+     * Getter for parent-node-id field.
+     */
+    public function getParentFieldName() {
+        return $this->_parent;
+    }
+
 }
 ?>

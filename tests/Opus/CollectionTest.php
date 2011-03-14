@@ -278,4 +278,14 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection($collectionId);
     }
+
+    public function testGettingIdOfParentNode() {
+        $this->object->setVisible(1);
+        $collectionId = $this->object->store();
+
+        $child = $this->object->addFirstChild();
+        $child->store();
+
+        $this->assertEquals($collectionId, $child->getParentNodeId());
+    }
 }
