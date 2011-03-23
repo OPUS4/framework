@@ -63,27 +63,38 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
     }
 
     /**
+     * Setup zend cache directory.
+     *
+     * @return void
+     */
+    protected function _initZendCache() {
+        $this->bootstrap('Configuration');
+        $config = $this->getResource('Configuration');
+
+        $frontendOptions = array(
+            'lifetime' => 600, // in seconds
+            'automatic_serialization' => true,
+        );
+
+        $backendOptions = array(
+            // Directory where to put the cache files. Must be writeable for
+            // application server
+            'cache_dir' => $config->workspacePath . '/cache/'
+        );
+
+        return Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+    }
+
+    /**
      * Setup database cache.
      *
      * @return void
      */
     protected function _initDatabaseCache() {
-        $this->bootstrap(array('Configuration','Logging'));
-        $config = $this->getResource('Configuration');
-
-        $cache = null;
-        $frontendOptions = array(
-        // Set cache lifetime to 5 minutes (in seconds)
-            'lifetime' => 600,
-            'automatic_serialization' => true,
-        );
-
-        // Directory where to put the cache files. Must be writeable for application server
-        $backendOptions = array('cache_dir' => $config->workspacePath . '/cache/');
-
-        $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
+        $this->bootstrap(array('ZendCache'));
 
         // enable db metadata caching
+        $cache = $this->getResource('ZendCache');
         Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
     }
 
