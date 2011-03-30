@@ -268,6 +268,28 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Method to fetch IDs of all documents in server_state published.
+     */
+    public function getPublishedDocumentIds() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
+
+        // FIXME: Don't use internal knowledge of foreign models/tables.
+        $select = $table->select()
+                        ->from('link_documents_collections AS ldc', 'document_id')
+                        ->from('documents AS d', array())
+                        ->where('ldc.document_id = d.id')
+                        ->where('ldc.collection_id = ?', $this->getId())
+                        ->where("d.server_state = 'published'")
+                        ->distinct();
+
+        return $table->getAdapter()->fetchAll($select);
+    }
+
+    /**
      * Internal method to populate external field.
      */
 //    protected static $_role_cache = null;
@@ -847,7 +869,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         // TODO: Kapselung verletzt: Benutzt Informationen über anderes Model.
         $db = $this->_primaryTableRow->getTable()->getAdapter();
-        $select = $db->select()->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
+        $select = $db->select()
+                        ->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
                         ->from('documents AS d', array())
                         ->where("ldc.document_id = d.id")
                         ->where("d.server_state = ?", 'published')
