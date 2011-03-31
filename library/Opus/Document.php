@@ -847,33 +847,21 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @return void
      */
     protected function _storeIdentifierUrn($identifiers) {
-        if (false === is_array($identifiers)) {
+        if (!is_array($identifiers)) {
             $identifiers = array($identifiers);
         }
 
-        $set = true;
-        foreach ($identifiers as $identifier) {
-            if (true === ($identifier instanceof Opus_Identifier)) {
-                $tmp = $identifier->getValue();
-                if (false === empty($tmp)) {
-                    $set = false;
-                }
-            } else if (false === empty($identifier)) {
-                $set = false;
-            }
-        }
-
-        if (true === $set) {
+        if ($this->isIdentifierSet($identifiers)) {
             // get constructor values from configuration file
             // if nothing has been configured there, do not build an URN!
             // at least the first two values MUST be set
             $config = Zend_Registry::get('Zend_Config');
 
-            if (isset($config) and is_object($config->urn) === true) {
+            if (isset($config) && is_object($config->urn)) {
                 $nid = $config->urn->nid;
                 $nss = $config->urn->nss;
 
-                if (empty($nid) !== true && empty($nss) !== true) {
+                if (!empty($nid) && !empty($nss)) {
                     $urn = new Opus_Identifier_Urn($nid, $nss);
                     $urn_value = $urn->getUrn($this->getId());
                     $urn_model = new Opus_Identifier();
@@ -884,10 +872,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         $options = null;
-        if (array_key_exists('options', $this->_externalFields['IdentifierUrn']) === true) {
+        if (array_key_exists('options', $this->_externalFields['IdentifierUrn'])) {
             $options = $this->_externalFields['IdentifierUrn']['options'];
         }
         $this->_storeExternal($this->_fields['IdentifierUrn']->getValue(), $options);
+    }
+
+    private function isIdentifierSet($identifiers) {
+        foreach ($identifiers as $identifier) {
+            if ($identifier instanceof Opus_Identifier) {
+                $tmp = $identifier->getValue();
+                if (!empty($tmp)) {
+                    return false;
+                }
+            } else if (!empty($identifier)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
