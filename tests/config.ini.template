@@ -65,8 +65,6 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
-; searchengine to be used: Lucene or Solr
-searchengine.engine = Solr
 searchengine.index.host =
 searchengine.index.port =
 searchengine.index.app =
