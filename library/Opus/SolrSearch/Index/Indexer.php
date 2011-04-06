@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,13 +25,13 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Search
+ * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-class Opus_Search_Index_Solr_Indexer {
+class Opus_SolrSearch_Index_Indexer {
 
     /**
      * Connection to Solr server
@@ -70,7 +69,7 @@ class Opus_Search_Index_Solr_Indexer {
      * if $deleteAllDocs is set to true.
      *
      * @param boolean $deleteAllDocs Delete all docs.  Defaults to false.
-     * @throws Opus_Search_Index_Solr_Exception If Solr server does not react or at least one
+     * @throws Opus_SolrSearch_Index_Exception If Solr server does not react or at least one
      * searchengine related parameter in configuration file is missing or empty.
      */
     public function __construct($deleteAllDocs = false) {
@@ -92,13 +91,13 @@ class Opus_Search_Index_Solr_Indexer {
      * Pings the given server. Throws an exception if it does not react.
      *
      * @param string $server Server that should be pinged against.
-     * @throws Opus_Search_Index_Solr_Exception If the given server does not react.
+     * @throws Opus_SolrSearch_Index_Exception If the given server does not react.
      */
     private function ping($server) {
         $url = $server . '_url';
         if (false === $this->$server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->$url . ' could not be established.');
-            throw new Opus_Search_Index_Solr_Exception('Solr server ' . $this->$url . ' is not responding.');
+            throw new Opus_SolrSearch_Index_Exception('Solr server ' . $this->$url . ' is not responding.');
         }
         $this->log->info('Connection to Solr server ' . $this->$url . ' was successfully established.');
     }
@@ -108,7 +107,7 @@ class Opus_Search_Index_Solr_Indexer {
      * with the Solr server.
      *
      * @return Apache_Solr_Server
-     * @throws Opus_Search_Index_Solr_Exception If no connection could be established.
+     * @throws Opus_SolrSearch_Index_Exception If no connection could be established.
      */
     private function getSolrServer($server) {
         $config = Zend_Registry::get('Zend_Config');
@@ -118,7 +117,7 @@ class Opus_Search_Index_Solr_Indexer {
             if (!isset($config->searchengine->$server->$param)) {
                 $errMsg = sprintf($errMsg, $server, $param);
                 $this->log->err($errMsg);
-                throw new Opus_Search_Index_Solr_Exception($errMsg);
+                throw new Opus_SolrSearch_Index_Exception($errMsg);
             }
         }
         $host = $this->checkForExistence($config, $server, 'host');
@@ -133,7 +132,7 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Apache_Solr_Exception $e) {
             $msg = 'Connection to Solr server' . $this->$urlVarName . 'could not be established';
             $this->log->err($msg . ": " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, null, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, null, $e);
         }
     }
 
@@ -142,7 +141,7 @@ class Opus_Search_Index_Solr_Indexer {
      * @param string $configParamName Name of the config parameter needed for output purposes.
      * @return string Returns the value of the given configuration parameter if
      * it exists in config file and is not empty.
-     * @throws Opus_Search_Index_Solr_Exception If the given configuration parameter
+     * @throws Opus_SolrSearch_Index_Exception If the given configuration parameter
      * is empty.
      */
     private function checkForExistence($config, $server, $param) {
@@ -150,7 +149,7 @@ class Opus_Search_Index_Solr_Indexer {
         if (empty($paramValue)) {
             $msg = "Configuration parameter searchengine.$server.$param is empty.";
             $this->log->err($msg);
-            throw new Opus_Search_Index_Solr_Exception($msg);
+            throw new Opus_SolrSearch_Index_Exception($msg);
         }
         return trim($paramValue);
     }
@@ -161,7 +160,7 @@ class Opus_Search_Index_Solr_Indexer {
      *
      * @param Opus_Document $doc Model of the document that should be added to the index
      * @throws InvalidArgumentException If given document $doc is null.
-     * @throws Opus_Search_Index_Solr_Exception If adding document to Solr index failed.
+     * @throws Opus_SolrSearch_Index_Exception If adding document to Solr index failed.
      * @return void
      */
     public function addDocumentToEntryIndex(Opus_Document $doc) {
@@ -176,7 +175,7 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Exception $e) {
             $msg = 'Error while adding document with id ' . $doc->getId();
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
     }
 
@@ -186,7 +185,7 @@ class Opus_Search_Index_Solr_Indexer {
      *
      * @param Opus_Document $doc Model of the document that should be removed to the index
      * @throws InvalidArgumentException If given document $doc is null.
-     * @throws Opus_Search_Index_Solr_Exception If deleting document failed.
+     * @throws Opus_SolrSearch_Index_Exception If deleting document failed.
      * @return void
      *
      * @see removeDocumentFromEntryIndexById()
@@ -204,7 +203,7 @@ class Opus_Search_Index_Solr_Indexer {
      *
      * @param int $documentId Id document that should be removed to the index
      * @throws InvalidArgumentException If given document $documentId is null.
-     * @throws Opus_Search_Index_Solr_Exception If deleting document failed.
+     * @throws Opus_SolrSearch_Index_Exception If deleting document failed.
      * @return void
      */
     public function removeDocumentFromEntryIndexById($documentId = null) {
@@ -217,7 +216,7 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Apache_Solr_Exception $e) {
             $msg = 'Error while deleting document with id ' . $documentId;
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
     }
 
@@ -292,7 +291,7 @@ class Opus_Search_Index_Solr_Indexer {
                     $docXml->appendChild($element);
                 }
             }
-            catch (Opus_Search_Index_Solr_Exception $e) {
+            catch (Opus_SolrSearch_Index_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
         }
@@ -303,19 +302,19 @@ class Opus_Search_Index_Solr_Indexer {
      * case of errors
      *
      * @param Opus_File $file
-     * @throws Opus_Search_Index_Solr_Exception
+     * @throws Opus_SolrSearch_Index_Exception
      * @return extracted fulltext
      */    
     private function getFileContent(Opus_File $file) {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
-            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' does not exist.');
+            throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' does not exist.');
         }
         if (!$file->isReadable()) {
-            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' is not readable.');
+            throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' is not readable.');
         }
         if (!$this->hasSupportedMimeType($file)) {
-            throw new Opus_Search_Index_Solr_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
+            throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
 
         // Check for cached ...
@@ -339,7 +338,7 @@ class Opus_Search_Index_Solr_Indexer {
             }
         }
         catch (Exception $e) {
-            throw new Opus_Search_Index_Solr_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
+            throw new Opus_SolrSearch_Index_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
         }        
         return '';
     }
@@ -452,7 +451,7 @@ class Opus_Search_Index_Solr_Indexer {
      * subsequent call to commit is required, to make the changes visible.
      *
      * @param query
-     * @throws Opus_Search_Index_Solr_Exception If deletion of all documents failed.
+     * @throws Opus_SolrSearch_Index_Exception If deletion of all documents failed.
      * @return void
      */
     public function deleteAllDocs() {
@@ -465,7 +464,7 @@ class Opus_Search_Index_Solr_Indexer {
      * make the changes visible.
      *
      * @param query
-     * @throws Opus_Search_Index_Solr_Exception If delete by query $query failed.
+     * @throws Opus_SolrSearch_Index_Exception If delete by query $query failed.
      * @return void
      */
     public function deleteDocsByQuery($query) {
@@ -476,7 +475,7 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Apache_Solr_Exception $e) {
             $msg = 'Error while deleting all documents that match query ' . $query;
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
     }
 
@@ -506,7 +505,7 @@ class Opus_Search_Index_Solr_Indexer {
     /**
      * Commits changes to the index
      *
-     * @throws Opus_Search_Index_Solr_Exception If commit failed.
+     * @throws Opus_SolrSearch_Index_Exception If commit failed.
      * @return void
      */
     public function commit() {
@@ -516,14 +515,14 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Apache_Solr_Exception $e) {
             $msg = 'Error while committing changes';
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
     }
 
     /**
      * Optimizes the index
      *
-     * @throws Opus_Search_Index_Solr_Exception If index optimization failed.
+     * @throws Opus_SolrSearch_Index_Exception If index optimization failed.
      * @return void
      */
     public function optimize() {
@@ -533,7 +532,7 @@ class Opus_Search_Index_Solr_Indexer {
         catch (Apache_Solr_Exception $e) {
             $msg = 'Error while optimizing changes';
             $this->log->err("$msg : " . $e->getMessage());
-            throw new Opus_Search_Index_Solr_Exception($msg, 0, $e);
+            throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
     }
 }

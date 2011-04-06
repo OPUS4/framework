@@ -24,7 +24,9 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
+ * @category    Framework
+ * @package     Opus_Job
+ * @subpackage  Worker
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
@@ -36,9 +38,6 @@
 /**
  * Worker class for indexing Opus documents.
  *
- * @category    Framework
- * @package     Opus_Job
- * @subpackage  Worker
  */
 class Opus_Job_Worker_IndexOpusDocument
     implements Opus_Job_Worker_Interface {
@@ -46,7 +45,7 @@ class Opus_Job_Worker_IndexOpusDocument
     /**
      * Holds the index.
      *
-     * @var Opus_Search_Index_Interface
+     * @var Opus_SolrSearch_Index_Indexer
      */
     private $_index = null;
 
@@ -100,10 +99,10 @@ class Opus_Job_Worker_IndexOpusDocument
     /**
      * Set the search index to add documents to.
      *
-     * @param Opus_Search_Index_Interface $index Index implementation.
+     * @param Opus_SolrSearch_Index_Indexer $index Index implementation.
      * @return void
      */
-    public function setIndex(Opus_Search_Index_Solr_Indexer $index) {
+    public function setIndex(Opus_SolrSearch_Index_Indexer $index) {
         $this->_index = $index;
     }
     

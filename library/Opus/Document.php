@@ -936,7 +936,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // De-fatalize Search Index errors.
         try {
             // Remove from index            
-            $indexer = new Opus_Search_Index_Solr_Indexer();
+            $indexer = new Opus_SolrSearch_Index_Indexer();
             $indexer->removeDocumentFromEntryIndex($this);
         }
         catch (Exception $e) {

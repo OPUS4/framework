@@ -24,7 +24,7 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
+ * @category    Framework
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -102,14 +102,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
         }
 
         try {
-            $indexer = new Opus_Search_Index_Solr_Indexer;
+            $indexer = new Opus_SolrSearch_Index_Indexer;
             $indexer->removeDocumentFromEntryIndexById($documentId);
             $indexer->commit();
 
             // Return immediately if successful - no more actions required.
             return;
         }
-        catch (Opus_Search_Index_Solr_Exception $e) {
+        catch (Opus_SolrSearch_Index_Exception $e) {
             if (null !== $logger) {
                 $message = 'Removing document-id ' . $documentId . ' from index failed: ';
                 $message .= $e->getMessage();
@@ -152,14 +152,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             }
 
             try {
-                $indexer = new Opus_Search_Index_Solr_Indexer;
+                $indexer = new Opus_SolrSearch_Index_Indexer;
                 $indexer->addDocumentToEntryIndex($document);
                 $indexer->commit();
 
                 // Return immediately if successful - no more actions required.
                 return;
             }
-            catch (Opus_Search_Index_Solr_Exception $e) {
+            catch (Opus_SolrSearch_Index_Exception $e) {
                 if (null !== $logger) {
                     $message = 'Indexing document ' . $document->getId() . ' failed: ';
                     $message .= $e->getMessage();
