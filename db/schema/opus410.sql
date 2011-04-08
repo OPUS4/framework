@@ -60,7 +60,7 @@ COMMENT = 'Document related data (monolingual, unreproducible colums).';
 CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id', 'uuid', 'serial', 'old', 'pmid', 'arxiv', 'local') NOT NULL COMMENT 'Type of the identifier.' ,
+  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id', 'uuid', 'serial', 'old', 'pmid', 'arxiv') NOT NULL COMMENT 'Type of the identifier.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the identifier.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_identifiers_documents` (`document_id` ASC) ,
