@@ -42,19 +42,9 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $log->debug('IdentifierUrn postStoreInternal for ' . $id);
 
-        if(!isset($config->urn->autoCreate)) {
-            $log->debug('URN auto creation is not configured. skipping...');
-            return;
-        }
-
-        if(!$config->urn->autoCreate) {
-            $log->debug('URN auto creation is turned off. skipping...');
-            return;
-        }
-
         if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
             $log->debug('URN data is not present in config. Aborting...');
-            throw new Exception('Unable to auto generate URN: URN data is not present in config.');
+            return;
         }
 
         $log->debug('config.ini is set to support urn auto generation');
