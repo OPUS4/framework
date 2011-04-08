@@ -54,7 +54,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
             $log->debug('URN data is not present in config. Aborting...');
-            return;
+            throw new Exception('Unable to auto generate URN: URN data is not present in config.');
         }
 
         $log->debug('config.ini is set to support urn auto generation');
