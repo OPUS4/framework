@@ -53,7 +53,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        $log->debug('config ist ok');
+        $log->debug('config.ini is set to support urn auto generation');
 
         $urnFieldName = 'IdentifierUrn';
         $identifierUrns = $model->getField($urnFieldName)->getValue();
@@ -67,17 +67,10 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $nid = $config->urn->nid;
         $nss = $config->urn->nss;
 
-//        $urn = new Opus_Identifier_Urn($nid, $nss);
-//        $urn_value = $urn->getUrn($this->getId());
-
-
-        // create new URN
         $urn = new Opus_Identifier_Urn($nid, $nss);
         $urn_value = $urn->getUrn($id);
         $urn_model = new Opus_Identifier();
         $urn_model->setValue($urn_value);
-        // TODO wie muss die URN aussehen und wie setzt man sie?
-//        $model->setField($urnFieldName, array($urn));
         $model->setIdentifierUrn($urn_model);
     }
 }
