@@ -28,9 +28,13 @@
 class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStoreInternal}
+     * Generates a new URN for any document that has no URN assigned yet.
+     * URN's are generated for Opus_Document instances only.
      */
     public function postStoreInternal(Opus_Model_AbstractDb $model) {
+
+        if(!($model instanceof Opus_Document))
+            return;
 
         $config = Zend_Registry::get('Zend_Config');
         $log = Zend_Registry::get('Zend_Log');
@@ -55,8 +59,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $log->debug('config.ini is set to support urn auto generation');
 
-        $urnFieldName = 'IdentifierUrn';
-        $identifierUrns = $model->getField($urnFieldName)->getValue();
+        $identifierUrns = $model->getIdentifierUrn();
         if(count($identifierUrns) > 0) {
             $log->debug('Document #' . $id . ' already has a URN. Skipping automatic generation.');
             return;
@@ -71,7 +74,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $urn_value = $urn->getUrn($id);
         $urn_model = new Opus_Identifier();
         $urn_model->setValue($urn_value);
-        $model->setIdentifierUrn($urn_model);
+        $model->addIdentifierUrn($urn_model);
     }
 }
 
