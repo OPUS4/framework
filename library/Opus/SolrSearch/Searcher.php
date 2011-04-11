@@ -122,26 +122,26 @@ class Opus_SolrSearch_Searcher {
      */
     private function getParams($query) {
         if ($query->getSearchType() === Opus_SolrSearch_Query::LATEST_DOCS) {
-            $params = array(
-                'fl' => '* score',
+            return array(
+                'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
                 'facet' => 'false',
                 'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
             );
-            return $params;
         }
+
         if ($query->getSearchType() === Opus_SolrSearch_Query::FACET_ONLY) {
-            $params = array(
+            return array(
                 'fl' => '',
                 'facet' => 'true',
                 'facet.field' => $query->getFacetField(),
                 'facet.mincount' => 1,
                 'facet.limit' => -1
             );
-            return $params;
         }
+        
         $params = array( 
-            'fl' => '* score',
-            'facet' => 'true',
+            'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
+            'facet' => $query->isReturnIdsOnly() ? 'false' : 'true',
             'facet.field' => $this->setFacetFieldsFromConfig(),
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
