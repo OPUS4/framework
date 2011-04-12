@@ -176,26 +176,6 @@ COMMENT = 'Person related data.';
 
 
 -- -----------------------------------------------------
--- Table `person_external_keys`
--- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `person_external_keys` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `person_id` INT UNSIGNED NULL COMMENT 'Foreign key to: persons.persons_id.' ,
-  `type` ENUM('pnd','local') NOT NULL COMMENT 'Type of the external identifer, i. e. PND-Number (Personennormdatei) or local identifier number (e.g. library card number).' ,
-  `value` TEXT NOT NULL COMMENT 'Value of the external identifier.' ,
-  `resolver` VARCHAR(255) NULL COMMENT 'URI to external resolving machanism for this identifier type.' ,
-  PRIMARY KEY (`id`) ,
-  INDEX `fk_person_external_keys_persons` (`person_id` ASC) ,
-  CONSTRAINT `fk_person_external_keys_persons`
-    FOREIGN KEY (`person_id` )
-    REFERENCES `persons` (`id` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
-COMMENT = 'Table for external identifiers related to a person.';
-
-
--- -----------------------------------------------------
 -- Table `link_persons_documents`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
