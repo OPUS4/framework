@@ -340,30 +340,66 @@ CREATE  TABLE IF NOT EXISTS `roles` (
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
--- Table `privileges`
+-- Table `access_documents`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `privileges` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `role_id` INT UNSIGNED NOT NULL COMMENT 'Role that has some privilege.',
-  `privilege` enum('administrate', 'clearance', 'publish', 'remotecontrol', 'publishUnvalidated', 'readMetadata', 'readFile') NOT NULL COMMENT 'Privilege somone has.',
-  `document_server_state` ENUM('published', 'unpublished', 'deleted') COMMENT 'Status of publication process of a document in the repository.' ,
-  `file_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readFile, else set null.',
-  PRIMARY KEY (`id`),
-  INDEX `fk_privilege_has_role` (`role_id` ASC) ,
-  INDEX `fk_privilege_has_document_file` (`file_id` ASC) ,
-  UNIQUE INDEX `unique_privileges_lookup_index` (`role_id`, `privilege`, `document_server_state`, `file_id`),
-  CONSTRAINT `fk_privilege_has_role`
+CREATE TABLE IF NOT EXISTS `access_documents` (
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `document_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: documents.id" ,
+  PRIMARY KEY (`role_id`, `document_id`) ,
+  INDEX `fk_access_documents_role` (`role_id` ASC) ,
+  CONSTRAINT `fk_access_documents_role`
     FOREIGN KEY (`role_id` )
     REFERENCES `roles` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE ,
-  CONSTRAINT `fk_privilege_has_document_file`
+    ON UPDATE CASCADE,
+  INDEX `fk_access_documents_document` (`document_id` ASC) ,
+  CONSTRAINT `fk_access_documents_document`
+    FOREIGN KEY (`document_id` )
+    REFERENCES `documents` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE
+) ENGINE = InnoDB
+COMMENT =  'Contains access rights for (given groups) to (documents).';
+
+-- -----------------------------------------------------
+-- Table `access_files`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `access_files` (
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `file_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: document_files.id" ,
+  PRIMARY KEY (`role_id`, `file_id`) ,
+  INDEX `fk_access_files_role` (`role_id` ASC) ,
+  CONSTRAINT `fk_access_files_role`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  INDEX `fk_access_files_file` (`file_id` ASC) ,
+  CONSTRAINT `fk_access_files_file`
     FOREIGN KEY (`file_id` )
     REFERENCES `document_files` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE )
-ENGINE = InnoDB,
-COMMENT = 'Contains privileges to access and change files and metadata.';
+    ON UPDATE CASCADE
+) ENGINE = InnoDB
+COMMENT =  'Contains access rights for (given groups) to (files).';
+
+-- -----------------------------------------------------
+-- Table `access_modules`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `access_modules` (
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `module_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of application module" ,
+    `controller_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of module controller" ,
+  PRIMARY KEY (`role_id`, `module_name`, `controller_name`) ,
+  INDEX `fk_access_modules_role` (`role_id` ASC) ,
+  CONSTRAINT `fk_access_modules_role`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  INDEX `fk_access_modules_module` (`module_name` ASC)
+) ENGINE = InnoDB
+COMMENT =  'Contains access rights for (given groups) to (modules/controllers).';
 
 -- -----------------------------------------------------
 -- Table `link_accounts_roles`
