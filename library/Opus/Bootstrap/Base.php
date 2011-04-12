@@ -192,9 +192,15 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
             throw new Exception('Failed to open logging file:' . $logfilePath);
         }
 
-        $writer = new Zend_Log_Writer_Stream($logfile);
-        $logger = new Zend_Log($writer);
+        $GLOBALS['id_string'] = uniqid(); // Write ID string to global variables, so we can identify/match individual runs.
 
+        $format = '%timestamp% %priorityName% (%priority%, ID '.$GLOBALS['id_string'].'): %message%' . PHP_EOL;
+        $formatter = new Zend_Log_Formatter_Simple($format);
+
+        $writer = new Zend_Log_Writer_Stream($logfile);
+        $writer->setFormatter($formatter);
+
+        $logger = new Zend_Log($writer);
         $logLevelName = 'INFO';
         $logLevelNotConfigured = false;
 
