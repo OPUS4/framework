@@ -82,7 +82,6 @@ class Opus_Db_InstanciateGatewayTest extends TestCase {
             array('Opus_Db_LinkDocumentsLicences'),
             array('Opus_Db_LinkIprangesRoles'),
             array('Opus_Db_LinkPersonsDocuments'),
-            array('Opus_Db_PersonExternalKeys'),
             array('Opus_Db_Persons'),
             array('Opus_Db_Privileges'),
             array('Opus_Db_Roles'),
