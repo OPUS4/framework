@@ -50,19 +50,6 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     protected static $_tableGatewayClass = 'Opus_Db_Persons';
 
-    protected $_externalFields = array(
-        'IdentifierPnd' => array(
-            'model' => 'Opus_Person_ExternalKey',
-            'options' => array('type' => 'pnd'),
-            'fetch' => 'lazy'
-        ),
-        'IdentifierLocal' => array(
-            'model' => 'Opus_Person_ExternalKey',
-            'options' => array('type' => 'local'),
-            'fetch' => 'lazy'
-        ),
-    );
-
     /**
      * Initialize model with the following fields:
      * - AcademicTitle
@@ -97,16 +84,6 @@ class Opus_Person extends Opus_Model_AbstractDb
             ->addField($date_of_birth)
             ->addField($place_of_birth)
             ->addField($email);
-
-        // Add fields to be used as external identifiers (optional only).
-        $pndField = new Opus_Model_Field('IdentifierPnd');
-        $pndField->setMultiplicity(1);
-        $pndField->setMandatory(false);
-        $this->addField($pndField);
-        $localIdField = new Opus_Model_Field('IdentifierLocal');
-        $localIdField->setMultiplicity(1);
-        $localIdField->setMandatory(false);
-        $this->addField($localIdField);
     }
 
     /**

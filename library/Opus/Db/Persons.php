@@ -57,6 +57,5 @@ class Opus_Db_Persons extends Opus_Db_TableGateway {
      */
     protected $_dependentTables = array(
             'Opus_Db_LinkPersonsDocuments',
-            'Opus_Db_PersonExternalKeys',
             );
 }
