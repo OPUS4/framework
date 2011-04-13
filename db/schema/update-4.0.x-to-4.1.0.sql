@@ -86,10 +86,12 @@ COMMENT =  'Contains access rights for (given groups) to (files).';
 -- Table `access_modules`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `access_modules` (
+    `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
     `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: user_roles.id" ,
     `module_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of application module" ,
     `controller_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of module controller" ,
-  PRIMARY KEY (`role_id`, `module_name`, `controller_name`) ,
+  PRIMARY KEY (`id` ) ,
+  UNIQUE INDEX (`role_id`, `module_name`, `controller_name`) ,
   INDEX `fk_access_modules_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_modules_role`
     FOREIGN KEY (`role_id` )
