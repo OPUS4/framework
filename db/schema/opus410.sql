@@ -331,25 +331,26 @@ ENGINE = InnoDB
 COMMENT = 'Table for ranges of ip addresses.';
 
 -- -----------------------------------------------------
--- Table `roles`
+-- Table `user_roles`
 -- -----------------------------------------------------
-CREATE  TABLE IF NOT EXISTS `roles` (
+CREATE  TABLE IF NOT EXISTS `user_roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY (`id`) )
-ENGINE = InnoDB;
+ENGINE = InnoDB
+COMMENT = 'Table for managing user roles (i.e. groups of users).';
 
 -- -----------------------------------------------------
 -- Table `access_documents`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `access_documents` (
-    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: user_roles.id" ,
     `document_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: documents.id" ,
   PRIMARY KEY (`role_id`, `document_id`) ,
   INDEX `fk_access_documents_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_documents_role`
     FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   INDEX `fk_access_documents_document` (`document_id` ASC) ,
@@ -365,13 +366,13 @@ COMMENT =  'Contains access rights for (given groups) to (documents).';
 -- Table `access_files`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `access_files` (
-    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: user_roles.id" ,
     `file_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: document_files.id" ,
   PRIMARY KEY (`role_id`, `file_id`) ,
   INDEX `fk_access_files_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_files_role`
     FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   INDEX `fk_access_files_file` (`file_id` ASC) ,
@@ -387,19 +388,19 @@ COMMENT =  'Contains access rights for (given groups) to (files).';
 -- Table `access_modules`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `access_modules` (
-    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: roles.id" ,
+    `role_id` INT UNSIGNED NOT NULL COMMENT "Primary key and foreign key to: user_roles.id" ,
     `module_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of application module" ,
     `controller_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of module controller" ,
   PRIMARY KEY (`role_id`, `module_name`, `controller_name`) ,
   INDEX `fk_access_modules_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_modules_role`
     FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   INDEX `fk_access_modules_module` (`module_name` ASC)
 ) ENGINE = InnoDB
-COMMENT =  'Contains access rights for (given groups) to (modules/controllers).';
+COMMENT =  'Contains access rights for (user groups) to (modules).';
 
 -- -----------------------------------------------------
 -- Table `link_accounts_roles`
@@ -417,23 +418,24 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
     ON UPDATE CASCADE,
   CONSTRAINT `fk_accounts_roles_link_roles`
     FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+COMMENT = 'Relation table (user_roles, accounts).';
 
 -- -----------------------------------------------------
 -- Table `link_ipranges_roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `link_ipranges_roles` (
-  `role_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: roles.id.' ,
+  `role_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: user_roles.id.' ,
   `iprange_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: ipranges.id.' ,
   PRIMARY KEY (`role_id`, `iprange_id`) ,
   INDEX `fk_iprange_has_roles` (`role_id` ASC) ,
   INDEX `fk_role_has_ipranges` (`iprange_id` ASC) ,
   CONSTRAINT `fk_iprange_has_role`
     FOREIGN KEY (`role_id` )
-    REFERENCES `roles` (`id` )
+    REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   CONSTRAINT `fk_role_has_ipranges`
@@ -442,7 +444,7 @@ CREATE  TABLE IF NOT EXISTS `link_ipranges_roles` (
     ON DELETE CASCADE
     ON UPDATE CASCADE)
 ENGINE = InnoDB
-COMMENT = 'Relation table (roles, ipranges).';
+COMMENT = 'Relation table (user_roles, ipranges).';
 
 
 -- -----------------------------------------------------
