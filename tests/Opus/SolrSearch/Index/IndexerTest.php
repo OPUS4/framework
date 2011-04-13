@@ -90,7 +90,6 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         'PageNumber' => 297,
         'CompletedYear' => 1960,
         'CompletedDate' => '1901-01-01',
-        'ServerDateUnlocking' => '2008-12-01',
     );
 
     /**
