@@ -211,11 +211,10 @@ class Opus_Security_Realm {
         $results = $db->fetchAll(
                                 $db->select()
                                 ->from(array('m' => 'access_modules'), array('module_name'))
-                                ->join(array('r' => 'user_roles'), 'm.role_id = r.id')
+                                ->join(array('r' => 'user_roles'), 'm.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('m.module_name = ?', $module)
                                 ->where('m.controller_name = ? OR m.controller_name = "*"', $controller)
-                                ->distinct()
         );
         return (1 <= count($results)) ? true : false;
     }

@@ -91,7 +91,7 @@ CREATE TABLE IF NOT EXISTS `access_modules` (
     `module_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of application module" ,
     `controller_name` VARCHAR(255) NOT NULL COMMENT "Primary key and name of module controller" ,
   PRIMARY KEY (`id` ) ,
-  UNIQUE INDEX (`role_id`, `module_name`, `controller_name`) ,
+  UNIQUE INDEX (`module_name`, `controller_name`, `role_id` ) ,
   INDEX `fk_access_modules_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_modules_role`
     FOREIGN KEY (`role_id` )
