@@ -336,6 +336,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "PublishedDate", "PublishedYear",
             "PublisherName",  "PublisherPlace",
             "PublicationState",
+            "ServerDateCreated",
             "ServerDateModified",
             "ServerDatePublished",
             "ServerDateDeleted",
@@ -397,6 +398,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // if the particular field is present
         $dateFields = array(
             'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
+            'ServerDateCreated',
             'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
@@ -985,6 +987,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $date = new Opus_Date();
         $date->setNow();
         if (true === $this->isNewRecord()) {
+            $this->setServerDateCreated($date);
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($date);
             }
