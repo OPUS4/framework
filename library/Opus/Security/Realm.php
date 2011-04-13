@@ -192,6 +192,36 @@ class Opus_Security_Realm {
     }
 
     /**
+     * Checks, if the logged user is allowed to access (module|controller).
+     *
+     * @param string $module     Name of the module to check
+     * @param string $controller Name of the controller to check
+     * @return boolean  Returns true only if access is granted.
+     */
+    public function checkModuleController($module = null, $controller = null) {
+        if (empty($module) or empty($controller)) {
+            return false;
+        }
+
+        if (true === in_array('administrator', $this->_roles)) {
+            return true;
+        }
+
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
+        $results = $db->fetchAll(
+                                $db->select()
+                                ->from(array('m' => 'access_modules'), array('module_name'))
+                                ->join(array('r' => 'user_roles'), 'm.role_id = r.id')
+                                ->where('r.name IN (?)', $this->_roles)
+                                ->where('m.module_name = ?', $module)
+                                ->where('m.controller_name = ? OR m.controller_name = "*"', $controller)
+                                ->distinct()
+        );
+        return (1 <= count($results)) ? true : false;
+    }
+
+
+    /**
      * Checks if a privilege is granted for actual context (usersession, ip address).
      * If administrator is one of the current roles true will be returned ingoring everything else.
      *
