@@ -46,30 +46,6 @@
 class Opus_Security_Realm {
 
     /**
-     * Array of privileges that are defined in database:
-     *  - 'administrate' means use of module /admin.
-     *  - 'publish' means use of module /publish.
-     *  - 'publishUnvalidated' means the possibility to ignore validation
-     *    while publishing.
-     *  - 'readMetadata' checks if somone is allowed to read meatdata of
-     *    a document (f.e. if the not published by an administrator yet).
-     *    This privilege makes it necessary to give a document id with it.
-     *  - 'readFile' is checked before a document_file will be delivered.
-     *    This privilege makes it necessary to give a file id with it.
-     *
-     * @var array
-     */
-    protected $_privileges = array(
-        'remotecontrol',
-        'administrate',
-        'clearance',
-        'publish',
-        'publishUnvalidated',
-        'readMetadata',
-        'readFile',
-    );
-
-    /**
      * The current user roles.
      *
      * @var array
@@ -226,6 +202,8 @@ class Opus_Security_Realm {
      *                                    Set this null for all other privileges.
      * @return boolean  Returns true only if a privilege for any role (guest, from the ip or a usersession) is stored in db table privilege.
      * @throws Opus_Security_Exception Throws Exception if a privilege is called with the wrong parameters or if the privilege is unkown.
+     *
+     * @deprecated
      */
     public function check($privilege, $documentServerState = null, $fileId = null) {
         // Check if security is switched off
@@ -238,44 +216,14 @@ class Opus_Security_Realm {
             return true;
         }
 
-        if (false === in_array($privilege, $this->_privileges)) {
-            throw new Opus_Security_Exception('Unknown privilege checked!');
-        }
-
-        // We need this switch-case to handle special cases, which cannot be
-        // handled with "_checkPrivilege".
-        switch ($privilege) {
-            case 'readMetadata':
-                if (true === is_null($documentServerState) || true === empty($documentServerState)) {
-                    throw new Opus_Security_Exception('Missing argument: Privilege "readMetadata" needs a documentServerState.');
-                }
-                if (false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "readMetadata" can be checked only depending on a document server state, not for a single file.');
-                }
-                return $this->_checkReadMetadata($documentServerState);
-                break;
-            case 'readFile':
-                if (true === is_null($fileId) || true === empty($fileId)) {
-                    throw new Opus_Security_Exception('Missing argument: Privilege "readFile" needs a fileId.');
-                }
-                if (false === is_null($documentServerState)) {
-                    throw new Opus_Security_Exception('Privilege "readFile" can be checked only for a single file, not depending on a document server state.');
-                }
-                return $this->_checkReadFile($fileId);
-                break;
-            default:
-                if (false === is_null($documentServerState) || false === is_null($fileId)) {
-                    throw new Opus_Security_Exception('Privilege "'. $privilege . '" can be checked only generally, not depending on document server state or for a file.');
-                }
-                return $this->_checkPrivilege($privilege);
-                break;
-        }
         return false;
     }
 
     /**
      * This messages checks if the privilege administrate is allowed for one of the current roles.
      * @return boolean true if the privilege administrate is granted for one of the current roles.
+     *
+     * @deprecated
      */
     private function _checkPrivilege($privilege) {
         if (is_null($privilege) || !is_string($privilege) || $privilege == '') {
@@ -295,8 +243,10 @@ class Opus_Security_Realm {
      * This messages checks if the privilege readMetadata is allowed for one of the current roles  and the specified server state.
      * @param  string $docState The server_state the document to read has (f.e. 'published').
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
+     *
+     * @deprecated
      */
-    protected function _checkReadMetadata($docState) {
+    private function _checkReadMetadata($docState) {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $privileges = $db->fetchAll(
                                 $db->select()
@@ -313,8 +263,10 @@ class Opus_Security_Realm {
      * This messages checks if the privilege readMetadata is allowed for one of the current roles  and the specified server state.
      * @param string $fileId The id of the document_file, that should be read.
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
+     *
+     * @deprecated
      */
-    protected function _checkReadFile($fileId) {
+    private function _checkReadFile($fileId) {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $privileges = $db->fetchAll(
                                 $db->select()
@@ -325,14 +277,6 @@ class Opus_Security_Realm {
                                 ->where('p.file_id = ?', $fileId)
         );
         return (1 <= count($privileges)) ? true : false;
-    }
-
-    /**
-     * Returns an array with all known privileges.
-     * @return array Array with all known privileges.
-     */
-    public function getPrivileges() {
-        return $this->_privileges;
     }
 
     /********************************************************************************************/
