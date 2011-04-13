@@ -199,6 +199,12 @@ class Opus_Security_Realm {
      * @return boolean  Returns true only if access is granted.
      */
     public function checkModuleController($module = null, $controller = null) {
+        // Check if security is switched off
+        $conf = Zend_Registry::get('Zend_Config');
+        if (isset($conf) and $conf->security === '0') {
+            return true;
+        }
+
         if (empty($module) or empty($controller)) {
             return false;
         }
