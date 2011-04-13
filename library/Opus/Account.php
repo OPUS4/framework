@@ -128,9 +128,6 @@ class Opus_Account extends Opus_Model_AbstractDb
     	$role->setMultiplicity('*');
     	$role->setSelection(true);
 
-// TODO: Check, if nobody uses this value and remove it!
-//    	$role->setDefault(Opus_Role::getAll());
-
         $this->addField($login)
                 ->addField($password)
                 ->addField($email)
