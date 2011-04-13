@@ -111,6 +111,9 @@ class Opus_RoleTest extends TestCase {
     public function testToArray() {
         $role = new Opus_Role();
         $role->setName('Test');
+
+        // TODO: Remove, since not supported any more.
+        throw new Exception("TODO: Remove, since not supported any more.");
         $priv = $role->addPrivilege();
         $priv->setPrivilege('administrate');
         $role->store();

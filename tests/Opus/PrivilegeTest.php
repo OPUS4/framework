@@ -44,6 +44,8 @@ class Opus_PrivilegeTest extends TestCase {
     private $_serverStates;
 
     public function setUp() {
+        $this->markTestIncomplete("TODO: Remove, since not supported any more.");
+
         parent::setUp();
 
         $this->_roles = array();

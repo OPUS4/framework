@@ -58,7 +58,6 @@ class Opus_Db_DocumentFiles extends Opus_Db_TableGateway {
      */
     protected $_dependentTables = array(
             'Opus_Db_FileHashvalues',
-            'Opus_Db_Privileges',
             );
 
     /**

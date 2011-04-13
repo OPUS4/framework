@@ -58,10 +58,11 @@ class Opus_Role extends Opus_Model_AbstractDb
      * @see Opus_Model_Abstract::$_externalFields
      */
     protected $_externalFields = array(
-            'Privilege' => array(
-                'model' => 'Opus_Privilege',
-                'fetch' => 'lazy'
-            ),
+// TODO: Remove, since not supported any more.
+//            'Privilege' => array(
+//                'model' => 'Opus_Privilege',
+//                'fetch' => 'lazy'
+//            ),
         );
 
     /**
@@ -83,11 +84,6 @@ class Opus_Role extends Opus_Model_AbstractDb
         $name = new Opus_Model_Field('Name');
         $name->setMandatory(true);
         $this->addField($name);
-
-        $privilege = new Opus_Model_Field('Privilege');
-        $privilege->setMandatory(true);
-        $privilege->setMultiplicity('*');
-        $this->addField($privilege);
     }
 
     /**
