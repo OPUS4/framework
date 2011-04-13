@@ -40,7 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Role extends Opus_Model_AbstractDb
+class Opus_UserRole extends Opus_Model_AbstractDb
 {
 
     /**
@@ -48,7 +48,7 @@ class Opus_Role extends Opus_Model_AbstractDb
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_Roles';
+    protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
 
     /**
      * The privileges external fields, i.e. those not mapped directly to the
@@ -66,12 +66,12 @@ class Opus_Role extends Opus_Model_AbstractDb
         );
 
     /**
-     * Retrieve all Opus_Roles instances from the database.
+     * Retrieve all Opus_Db_UserRoles instances from the database.
      *
-     * @return array Array of Opus_Roles objects.
+     * @return array Array of Opus_UserRole objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Role', 'Opus_Db_Roles');
+        return self::getAllFrom('Opus_UserRole', 'Opus_Db_UserRoles');
     }
 
     /**
@@ -87,11 +87,11 @@ class Opus_Role extends Opus_Model_AbstractDb
     }
 
     /**
-     * ALTERNATE CONSTRUCTOR: Retrieve Opus_Role instance by name.  Returns null
-     * if name is null *or* nothing found.
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus_UserRole instance by name.  Returns
+     * null if name is null *or* nothing found.
      *
      * @param  string $name
-     * @return Opus_Role
+     * @return Opus_UserRole
      */
     public static function fetchByName($name = null) {
         if (false === isset($name)) {
@@ -103,7 +103,7 @@ class Opus_Role extends Opus_Model_AbstractDb
         $row = $table->fetchRow($select);
 
         if (isset($row)) {
-            return new Opus_Role($row);
+            return new Opus_UserRole($row);
         }
 
         return;

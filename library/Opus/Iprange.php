@@ -59,7 +59,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
      */
     protected $_externalFields = array(
             'Role' => array(
-                'model' => 'Opus_Role',
+                'model' => 'Opus_UserRole',
                 'through' => 'Opus_Model_Dependent_Link_IprangeRole',
                 'fetch' => 'lazy'
             ),
@@ -95,7 +95,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb
             ->setValidator(new Zend_Validate_NotEmpty())
             ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
 		$role->setMultiplicity('*')
-			->setDefault(Opus_Role::getAll())
+			->setDefault(Opus_UserRole::getAll())
 			->setSelection(true);
         
         $this->addField($startingip)

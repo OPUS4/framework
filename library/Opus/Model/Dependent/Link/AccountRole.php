@@ -61,7 +61,7 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_Role';
+    protected $_modelClass = 'Opus_UserRole';
 
     /**
      * The name of the field containing an identifying string.
@@ -78,9 +78,9 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Role($this->_primaryTableRow->role_id));
+            $this->setModel(new Opus_UserRole($this->_primaryTableRow->role_id));
         } else {
-            $this->setModel(new Opus_Role);
+            $this->setModel(new Opus_UserRole);
         }
     }
 

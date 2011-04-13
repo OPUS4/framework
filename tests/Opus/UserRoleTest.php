@@ -35,15 +35,15 @@
  */
 
 /**
- * Test cases for Opus_Role.
+ * Test cases for Opus_UserRole.
  *
  * @package Opus
  * @category Tests
  * @group RoleTests
  */
-class Opus_RoleTest extends TestCase {
+class Opus_UserRoleTest extends TestCase {
     /**
-     * @var    Opus_Role
+     * @var    Opus_UserRole
      * @access protected
      */
     protected $object;
@@ -56,7 +56,7 @@ class Opus_RoleTest extends TestCase {
      */
     protected function setUp()
     {
-        $this->object = new Opus_Role;
+        $this->object = new Opus_UserRole;
     }
 
     /**
@@ -109,7 +109,7 @@ class Opus_RoleTest extends TestCase {
      * @return void
      */
     public function testToArray() {
-        $role = new Opus_Role();
+        $role = new Opus_UserRole();
         $role->setName('Test');
 
         // TODO: Remove, since not supported any more.
@@ -119,7 +119,7 @@ class Opus_RoleTest extends TestCase {
         $priv->setPrivilege('administrate');
         $role->store();
 
-        $role = new Opus_Role($role->getId());
+        $role = new Opus_UserRole($role->getId());
         $this->assertEquals(1, count($role->getPrivilege()), 'Stored one Privlege, loaded more or less.');
 
         $array = $role->toArray();

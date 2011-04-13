@@ -94,7 +94,7 @@ class Opus_AccountTest extends TestCase {
     public function testAddRoleToAccount() {
         $account = new Opus_Account(null, null, 'dummy');
 
-        $role = new Opus_Role();
+        $role = new Opus_UserRole();
         $role->setName('role1');
         $role->store();
 
@@ -115,7 +115,7 @@ class Opus_AccountTest extends TestCase {
     public function testSetRoleOfAccount() {
         $account = new Opus_Account(null, null, 'dummy');
 
-        $role = new Opus_Role();
+        $role = new Opus_UserRole();
         $role->setName('role1');
         $role->store();
 

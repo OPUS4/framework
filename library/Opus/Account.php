@@ -61,7 +61,7 @@ class Opus_Account extends Opus_Model_AbstractDb
      */
     protected $_externalFields = array(
             'Role' => array(
-                'model' => 'Opus_Role',
+                'model' => 'Opus_UserRole',
                 'through' => 'Opus_Model_Dependent_Link_AccountRole',
                 'fetch' => 'lazy'
             ),

@@ -50,7 +50,7 @@ class Opus_PrivilegeTest extends TestCase {
 
         $this->_roles = array();
         for ($i=1; $i<=10; $i++) {
-            $role = new Opus_Role();
+            $role = new Opus_UserRole();
             $role->setName('Role' . rand());
             $role->store();
             $this->_roles[] = $role;
@@ -73,7 +73,7 @@ class Opus_PrivilegeTest extends TestCase {
         }
         $this->_roles = array();
         foreach($ids as $id) {
-            $this->_roles[] = new Opus_Role($id);
+            $this->_roles[] = new Opus_UserRole($id);
         }
     }
 
@@ -272,7 +272,7 @@ class Opus_PrivilegeTest extends TestCase {
                         'Got privilege for another file!'
                 );
 
-                $role = new Opus_Role($priv->getParentId());
+                $role = new Opus_UserRole($priv->getParentId());
                 // check Role
                 $this->assertContains($role->getName(),
                         $roles_by_file[$file->getPathName()],
