@@ -109,7 +109,6 @@ class Opus_DocumentTest extends TestCase {
                 'PageNumber' => 297,
                 'CompletedYear' => 1960,
                 'CompletedDate' => '1901-01-01',
-                'ServerDateUnlocking' => '2008-12-01',
                 'BelongsToBibliography' => 1,
             )
         )
@@ -972,7 +971,6 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document();
 
         $doc->setPublishedDate('05.10.2008');
-        $doc->setServerDateUnlocking('05.04.2009');
 
         $personAuthor = new Opus_Person();
         $personAuthor->setFirstName('Real');
@@ -989,13 +987,11 @@ class Opus_DocumentTest extends TestCase {
 
         $doc = new Opus_Document($docId);
         $publishedDate = $doc->getPublishedDate();
-        $serverDateUnlocking = $doc->getServerDateUnlocking();
         $personAuthor = $doc->getPersonAuthor(0);
         $patent = $doc->getPatent(0);
         
         $localeFormatDate = Zend_Locale_Format::getDateFormat($locale);
         $this->assertEquals('05.10.2008', $publishedDate->getZendDate()->toString($localeFormatDate), 'Setting a date through string does not work.');
-        $this->assertEquals('05.04.2009', $serverDateUnlocking->getZendDate()->toString($localeFormatDate), 'Setting a date through Zend_Date does not work.');
         $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getZendDate()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
         $this->assertEquals('07.07.2008', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
     }
