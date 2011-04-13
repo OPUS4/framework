@@ -217,7 +217,6 @@
 			<enumeration value="ReferenceStdDoi"/>
 			<enumeration value="ReferenceCrisLink"/>
 			<enumeration value="ReferenceSplashUrl"/>
-			<enumeration value="ServerDateUnlocking"/>
 			<enumeration value="SubjectDdc"/>
 			<enumeration value="SubjectMSC"/>
 			<enumeration value="SubjectPsyndex"/>
