@@ -403,6 +403,32 @@ CREATE TABLE IF NOT EXISTS `access_modules` (
 COMMENT =  'Contains access rights for (user groups) to (modules).';
 
 -- -----------------------------------------------------
+-- Table `privileges`
+-- -----------------------------------------------------
+CREATE  TABLE IF NOT EXISTS `privileges` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `role_id` INT UNSIGNED NOT NULL COMMENT 'Role that has some privilege.',
+  `privilege` enum('administrate', 'clearance', 'publish', 'remotecontrol', 'publishUnvalidated', 'readMetadata', 'readFile') NOT NULL COMMENT 'Privilege somone has.',
+  `document_server_state` ENUM('published', 'unpublished', 'deleted') COMMENT 'Status of publication process of a document in the repository.' ,
+  `file_id` INT UNSIGNED COMMENT 'Necessary if privilege ist readFile, else set null.',
+  PRIMARY KEY (`id`),
+  INDEX `fk_privilege_has_role` (`role_id` ASC) ,
+  INDEX `fk_privilege_has_document_file` (`file_id` ASC) ,
+  UNIQUE INDEX `unique_privileges_lookup_index` (`role_id`, `privilege`, `document_server_state`, `file_id`),
+  CONSTRAINT `fk_privilege_has_role`
+    FOREIGN KEY (`role_id` )
+    REFERENCES `user_roles` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE ,
+  CONSTRAINT `fk_privilege_has_document_file`
+    FOREIGN KEY (`file_id` )
+    REFERENCES `document_files` (`id` )
+    ON DELETE CASCADE
+    ON UPDATE CASCADE )
+ENGINE = InnoDB,
+COMMENT = 'Contains privileges to access and change files and metadata.';
+
+-- -----------------------------------------------------
 -- Table `link_accounts_roles`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
