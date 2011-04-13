@@ -284,7 +284,7 @@ class Opus_Security_Realm {
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
         $select = $db->select()->from(array('p' => 'privileges'), array('id'))
-                        ->join(array('r' => 'roles'), 'p.role_id = r.id', '')
+                        ->join(array('r' => 'user_roles'), 'p.role_id = r.id', '')
                         ->where('r.name IN (?)', $this->_roles)
                         ->where('p.privilege = ?', $privilege);
         $privileges = $db->fetchAll($select);
@@ -301,7 +301,7 @@ class Opus_Security_Realm {
         $privileges = $db->fetchAll(
                                 $db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->join(array('r' => 'user_roles'), 'p.role_id = r.id')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('p.privilege = ?', 'readMetadata')
                                 ->where('p.document_server_state = ?', $docState)
@@ -319,7 +319,7 @@ class Opus_Security_Realm {
         $privileges = $db->fetchAll(
                                 $db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
-                                ->join(array('r' => 'roles'), 'p.role_id = r.id')
+                                ->join(array('r' => 'user_roles'), 'p.role_id = r.id')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('p.privilege = ?', 'readFile')
                                 ->where('p.file_id = ?', $fileId)

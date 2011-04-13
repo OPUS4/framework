@@ -45,7 +45,7 @@ class Opus_Db_Roles extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_name = 'roles';
+    protected $_name = 'user_roles';
 
     /**
      * All dependant Tables,

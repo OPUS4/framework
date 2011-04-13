@@ -74,7 +74,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
             'link_ipranges_roles',
             'link_persons_documents',
             'persons',
-            'roles',
+            'user_roles',
             'schema_version',
         );
 
