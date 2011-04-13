@@ -68,7 +68,7 @@ class Opus_Db_LinkAccountsRoles extends Opus_Db_TableGateway {
                 ),
             'Roles' => array(
                 'columns' => 'role_id',
-                'refTableClass' => 'Opus_Db_Roles',
+                'refTableClass' => 'Opus_Db_UserRoles',
                 'refColumns' => 'id'
                 )
             );

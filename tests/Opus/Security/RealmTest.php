@@ -66,7 +66,7 @@ class Opus_Security_RealmTest extends TestCase {
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
         
         // create role
-        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $rolId = $rol->insert(array('name' => 'role'));
         
         // connect role and account
@@ -95,7 +95,7 @@ class Opus_Security_RealmTest extends TestCase {
         $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
         
         // create role
-        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $rolId[] = $rol->insert(array('name' => 'role1'));
         $rolId[] = $rol->insert(array('name' => 'role2'));
         
@@ -156,7 +156,7 @@ class Opus_Security_RealmTest extends TestCase {
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
         // create role
-        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $rolId = $rol->insert(array('name' => 'role'));
         
         // connect role and ip
@@ -183,7 +183,7 @@ class Opus_Security_RealmTest extends TestCase {
         $ipId = $ip->insert(array('ipaddress' => '127.0.0.1'));
         
         // create role
-        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $rolId[0] = $rol->insert(array('name' => 'role1'));
         $rolId[1] = $rol->insert(array('name' => 'role2'));
         

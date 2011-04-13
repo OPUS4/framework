@@ -56,7 +56,7 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
     protected $_referenceMap = array(
             'Roles' => array(
                 'columns' => 'role_id',
-                'refTableClass' => 'Opus_Db_Roles',
+                'refTableClass' => 'Opus_Db_UserRoles',
                 'refColumns' => 'id',
                 ),
             'DocumentFiles' => array(

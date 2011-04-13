@@ -39,7 +39,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Roles extends Opus_Db_TableGateway {
+class Opus_Db_UserRoles extends Opus_Db_TableGateway {
     /**
      * Table schema name.
      *

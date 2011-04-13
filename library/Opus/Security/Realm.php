@@ -157,7 +157,7 @@ class Opus_Security_Realm {
             throw new Opus_Security_Exception("An user with the given name: $this->_username could not be found.");
         }
 
-        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
         $assignedRoles = $account->findManyToManyRowset($roles, $link);
 
@@ -202,7 +202,7 @@ class Opus_Security_Realm {
         }
 
         $result = array();
-        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_Roles');
+        $roles = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
         $link = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIprangesRoles');
         foreach ($iprows as $iprow) {
             $assignedRoles = $iprow->findManyToManyRowset($roles, $link);
@@ -282,7 +282,7 @@ class Opus_Security_Realm {
             return false;
         }
 
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $select = $db->select()->from(array('p' => 'privileges'), array('id'))
                         ->join(array('r' => 'user_roles'), 'p.role_id = r.id', '')
                         ->where('r.name IN (?)', $this->_roles)
@@ -297,7 +297,7 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
     protected function _checkReadMetadata($docState) {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $privileges = $db->fetchAll(
                                 $db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
@@ -315,7 +315,7 @@ class Opus_Security_Realm {
      * @return boolean true if the privilege readMetadata is granted for one of the current roles and the specified server state.
      */
     protected function _checkReadFile($fileId) {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_Roles')->getAdapter();
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $privileges = $db->fetchAll(
                                 $db->select()
                                 ->from(array('p' => 'privileges'), array('id'))
