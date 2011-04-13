@@ -338,7 +338,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "PublicationState",
             "ServerDateModified",
             "ServerDatePublished",
-            "ServerDateUnlocking",
+            "ServerDateDeleted",
             "ServerState",
             "Type",
             "Volume",
@@ -397,7 +397,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // if the particular field is present
         $dateFields = array(
             'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateUnlocking');
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
         foreach ($dateFields as $fieldName) {
             $field = $this->_getField($fieldName);
             if (null !== $field) {
