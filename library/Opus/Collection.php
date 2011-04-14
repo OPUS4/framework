@@ -262,9 +262,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->where('collection_id = ?', $this->getId())
                         ->distinct();
 
-        $results = $table->getAdapter()->fetchAll($select);
-
-        return $results;
+        return $table->getAdapter()->fetchCol($select);
     }
 
     /**

@@ -213,7 +213,7 @@ class Opus_CollectionTest extends TestCase {
                 'Expect default theme if non set');
     }
 
-    public function testDocumentIds() {
+    public function testGetDocumentIds() {
         $docIds = $this->object->getDocumentIds();
         $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
 
@@ -223,6 +223,29 @@ class Opus_CollectionTest extends TestCase {
 
         $docIds = $this->object->getDocumentIds();
         $this->assertTrue(count($docIds) == 1, 'Expected one element in array');
+    }
+
+    public function testGetDocumentIdsMaxElements() {
+        $docIds = $this->object->getDocumentIds();
+        $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
+
+        $max = 4;
+        $storedIds = array();
+        for ($i = 0; $i < $max; $i++) {
+            $d = new Opus_Document();
+            $d->addCollection( $this->object );
+            $d->store();
+
+            $storedIds[] = $d->getId();
+        }
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $docIds = $collection->getDocumentIds();
+        $this->assertEquals($max, count($docIds), 'Expected '.$max.' element in array');
+
+        sort($storedIds);
+        sort($docIds);
+        $this->assertEquals($storedIds, $docIds);
     }
 
     public function testGetDisplayName() {
