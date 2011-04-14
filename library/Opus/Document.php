@@ -158,6 +158,14 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Identifier',
                             'options' => array('type' => 'opac-id')
             ),
+            'IdentifierArxiv' => array(
+                            'model' => 'Opus_Identifier',
+                            'options' => array('type' => 'arxiv')
+            ),
+            'IdentifierPubmed' => array(
+                            'model' => 'Opus_Identifier',
+                            'options' => array('type' => 'pmid')
+            ),
             'ReferenceIsbn' => array(
                             'model' => 'Opus_Reference',
                             'options' => array('type' => 'isbn'),
@@ -194,6 +202,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'ReferenceSplashUrl' => array(
                             'model' => 'Opus_Reference',
                             'options' => array('type' => 'splash-url')
+            ),
+            'ReferenceOpus4' => array(
+                            'model' => 'Opus_Reference',
+                            'options' => array('type' => 'opus4-id')
             ),
             'Note' => array(
                             'model' => 'Opus_Note',
