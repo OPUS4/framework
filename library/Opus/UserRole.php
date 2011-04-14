@@ -122,4 +122,21 @@ class Opus_UserRole extends Opus_Model_AbstractDb
         return $table->getAdapter()->fetchCol($select);
     }
 
+    /**
+     * Returns an array of all known module-access-permissions for the current
+     * role.  The associative array looks (for example) as follows:
+     *
+     * array(
+     *    "default" => array( "auth" ),
+     *    "solrsearch" => array( "*" ),
+     *    "admin" => array( "index", "statistics" )
+     * );
+     *
+     * @return array
+     */
+    public function listAccessModules() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
+        return $table->listByRoleId( $this->getId() );
+    }
+
 }
