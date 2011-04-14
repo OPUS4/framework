@@ -51,21 +51,6 @@ class Opus_UserRole extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
 
     /**
-     * The privileges external fields, i.e. those not mapped directly to the
-     * Opus_Db_Privileges table gateway.
-     *
-     * @var array
-     * @see Opus_Model_Abstract::$_externalFields
-     */
-    protected $_externalFields = array(
-// TODO: Remove, since not supported any more.
-//            'Privilege' => array(
-//                'model' => 'Opus_Privilege',
-//                'fetch' => 'lazy'
-//            ),
-        );
-
-    /**
      * Retrieve all Opus_Db_UserRoles instances from the database.
      *
      * @return array Array of Opus_UserRole objects.
