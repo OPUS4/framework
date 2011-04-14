@@ -14,7 +14,7 @@ ALTER TABLE `document_files`
 
 ALTER TABLE `document_references`
     MODIFY COLUMN `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus4-id') NOT NULL COMMENT 'Type of the identifier.' ,
-    ADD COLUMN `relation` ENUM('updated-by', 'updates') COMMENT 'Describes the type of the relation.' AFTER `type`;
+    ADD COLUMN `relation` ENUM('updates', 'updated-by', 'other') COMMENT 'Describes the type of the relation.' AFTER `type`;
 
 ALTER TABLE `dnb_institutes`
     MODIFY COLUMN `is_grantor` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution grantor of academic degrees?' ,
