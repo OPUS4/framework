@@ -506,7 +506,7 @@ CREATE  TABLE IF NOT EXISTS `document_references` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to referencing document.' ,
   `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus4-id') NOT NULL COMMENT 'Type of the identifier.' ,
-  `relation` ENUM('updated-by', 'updates') COMMENT 'Describes the type of the relation.',
+  `relation` ENUM('updates', 'updated-by', 'other') COMMENT 'Describes the type of the relation.',
   `value` TEXT NOT NULL COMMENT 'Value of the identifier.' ,
   `label` TEXT NOT NULL COMMENT 'Display text of the identifier.' ,
   PRIMARY KEY (`id`) ,
