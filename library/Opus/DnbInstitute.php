@@ -75,6 +75,24 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     }
 
     /**
+     * Returns a list of organisational units that act as (thesis) publishers.
+     *
+     * @return array A list of Opus_DnbInstitutes that act as publishers.
+     */
+    public static function getPublishers() {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
+        $select = $table->select()
+                ->where('is_publisher = ?', 1);
+
+        $rows = $table->fetchAll($select);
+        $result = array();
+        foreach ($rows as $row) {
+            $result[] = new Opus_DnbInstitute($row);
+        }
+        return $result;
+    }
+
+    /**
      * Initialize model with the following fields:
      * - name
      * - address
@@ -103,12 +121,16 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
         $is_grantor = new Opus_Model_Field('IsGrantor');
         $is_grantor->setCheckbox(true);
 
+        $is_publisher = new Opus_Model_Field('IsPublisher');
+        $is_publisher->setCheckbox(true);
+
         $this->addField($name)
                 ->addField($address)
                 ->addField($city)
                 ->addField($phone)
                 ->addField($dnb_contact_id)
-                ->addField($is_grantor);
+                ->addField($is_grantor)
+                ->addField($is_publisher);
     }
 
     /**
