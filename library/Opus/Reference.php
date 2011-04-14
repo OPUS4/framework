@@ -72,8 +72,11 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
         $label->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
+        $relation = new Opus_Model_Field('Relation');
+
         $this->addField($value);
         $this->addField($label);
+        $this->addField($relation);
     }
 
 }
