@@ -290,22 +290,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Internal method to populate external field.
      */
-//    protected static $_role_cache = null;
     protected function _fetchRole() {
         $role = new Opus_CollectionRole($this->getRoleId());
         return $role;
-
-        // TODO: Experiments with role object caching.
-        // TODO: protected static $_role_cache = null;
-//        if ( !is_null(self::$_role_cache) && self::$_role_cache->getId() === $this->getRoleId() ) {
-//            $this->logger('Role: Restoring from cache.');
-//        }
-//        else {
-//            $this->logger('Role: new');
-//            self::$_role_cache = new Opus_CollectionRole( $this->getRoleId() );
-//        }
-//
-//        return self::$_role_cache;
     }
 
     /**
