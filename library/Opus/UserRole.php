@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,7 +29,8 @@
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,8 +42,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_UserRole extends Opus_Model_AbstractDb
-{
+class Opus_UserRole extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -49,6 +50,13 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
+
+    /**
+     * List of pending AccessModule actions.
+     *
+     * @var array
+     */
+    private $_pendingAccessModules = array();
 
     /**
      * Retrieve all Opus_Db_UserRoles instances from the database.
@@ -100,9 +108,9 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
     public function getDisplayName() {
-       return $this->getName();
-    }
+        return $this->getName();
 
+    }
 
     /**
      * Get a list of all account IDs for the current role instance.
@@ -116,8 +124,8 @@ class Opus_UserRole extends Opus_Model_AbstractDb
 
         $table = Opus_Db_TableGateway::getInstance("Opus_Db_LinkAccountsRoles");
         $select = $table->select(true)->columns('account_id AS id')
-                ->where('role_id = ?', $this->getId())
-                ->distinct();
+                        ->where('role_id = ?', $this->getId())
+                        ->distinct();
 
         return $table->getAdapter()->fetchCol($select);
     }
@@ -136,7 +144,90 @@ class Opus_UserRole extends Opus_Model_AbstractDb
      */
     public function listAccessModules() {
         $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
-        return $table->listByRoleId( $this->getId() );
+        return $table->listByRoleId($this->getId());
+
+    }
+
+    /**
+     * Append (module, controller) to list of allowed ressources.
+     *
+     * @param string $module
+     * @param string $controller
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function appendAccessModule($module, $controller) {
+        $this->_pendingAccessModules[] = array(
+            'append', $module, $controller,
+        );
+        return $this;
+
+    }
+
+    /**
+     * Remove (module, controller) from list of allowed ressources.
+     *
+     * @param string $module
+     * @param string $controller
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function removeAccessModule($module, $controller) {
+        $this->_pendingAccessModules[] = array(
+            'remove', $module, $controller,
+        );
+        return $this;
+
+    }
+
+    /**
+     * Flush all pending AccessModule actions.
+     */
+    private function _flushAccessModuleQueue() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
+        $role_id = $this->getId();
+
+        foreach ($this->_pendingAccessModules AS $entry) {
+            $action = $entry[0];
+
+            $data = array(
+                'role_id' => $role_id,
+                'module_name' => $entry[1],
+                'controller_name' => $entry[2],
+            );
+
+            if ($action == 'append') {
+                echo "append:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
+                $table->insertIgnoreDuplicate($data);
+            }
+            else if ($action == 'remove') {
+                echo "remove:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
+                $table->deleteWhereArray($data);
+            }
+        }
+        $this->_pendingAccessModules = array();
+    }
+
+    /**
+     * Overriding storing of internal fields: This is the place where we flush
+     * the queued data.
+     */
+    protected function _postStoreInternalFields() {
+        parent::_postStoreInternalFields();
+
+        $this->_flushAccessModuleQueue();
+    }
+
+    /**
+     * Overriding isModified() method.  Returning TRUE if one of the HASHES
+     * changed, otherwise call parent::isModified().
+     *
+     * @return boolean
+     */
+    public function isModified() {
+        if (count($this->_pendingAccessModules) > 0) {
+            return true;
+        }
+
+        return parent::isModified();
     }
 
 }
