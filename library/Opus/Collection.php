@@ -284,7 +284,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                         ->where("d.server_state = 'published'")
                         ->distinct();
 
-        return $table->getAdapter()->fetchAll($select);
+        return $table->getAdapter()->fetchCol($select);
     }
 
     /**

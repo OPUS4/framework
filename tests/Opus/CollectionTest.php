@@ -239,13 +239,35 @@ class Opus_CollectionTest extends TestCase {
             $storedIds[] = $d->getId();
         }
 
+        // Add some published documents.
+        $max = 4;
+        $storedPublishedIds = array();
+        for ($i = 0; $i < $max; $i++) {
+            $d = new Opus_Document();
+            $d->addCollection( $this->object );
+            $d->setServerState('published');
+            $d->store();
+
+            $storedIds[] = $d->getId();
+            $storedPublishedIds[] = $d->getId();
+        }
+
+        // Check if getDocumentIds returns *all* documents.
         $collection = new Opus_Collection( $this->object->getId() );
         $docIds = $collection->getDocumentIds();
-        $this->assertEquals($max, count($docIds), 'Expected '.$max.' element in array');
+        $this->assertEquals(2*$max, count($docIds), 'Expected '.(2*$max).' element in array');
 
         sort($storedIds);
         sort($docIds);
         $this->assertEquals($storedIds, $docIds);
+
+        // Check if getDocumentIds returns only published documents.
+        $publishedIds = $collection->getPublishedDocumentIds();
+        $this->assertEquals($max, count($publishedIds), 'Expected '.$max.' element in array');
+
+        sort($storedPublishedIds);
+        sort($publishedIds);
+        $this->assertEquals($storedPublishedIds, $publishedIds);
     }
 
     public function testGetDisplayName() {
