@@ -82,6 +82,8 @@ class Opus_Licence extends Opus_Model_AbstractDb
         $comment_internal = new Opus_Model_Field('CommentInternal');
         $comment_internal->setTextarea(true);
         
+        $desc_markup = new Opus_Model_Field('DescMarkup');
+        $desc_markup->setTextarea(true);
         $desc_text = new Opus_Model_Field('DescText');
         $desc_text->setTextarea(true);
         
@@ -98,6 +100,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
         
         $link_logo = new Opus_Model_Field('LinkLogo');
         $link_sign = new Opus_Model_Field('LinkSign');
+        $mime_type = new Opus_Model_Field('MimeType');
         
         $name_long = new Opus_Model_Field('NameLong');
         $name_long->setMandatory(true)
@@ -110,11 +113,13 @@ class Opus_Licence extends Opus_Model_AbstractDb
 
         $this->addField($active)
             ->addField($comment_internal)
+            ->addField($desc_markup)
             ->addField($desc_text)
             ->addField($licence_language)
             ->addField($link_licence)
             ->addField($link_logo)
             ->addField($link_sign)
+            ->addField($mime_type)
             ->addField($name_long)
             ->addField($sort_order)
             ->addField($pod_allowed);
