@@ -43,7 +43,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $log->debug('IdentifierUrn postStoreInternal for ' . $id);
 
         if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
-            $log->debug('URN data is not present in config. Aborting...');
+            throw new Exception('URN data is not present in config. Aborting...');
             return;
         }
 
