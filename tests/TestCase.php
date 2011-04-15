@@ -122,6 +122,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @return void
      */
     protected function tearDown() {
+        Zend_Registry::set('Zend_Config', null);
         parent::tearDown();
     }
 }
