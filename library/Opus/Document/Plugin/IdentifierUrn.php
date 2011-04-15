@@ -42,7 +42,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $log->debug('IdentifierUrn postStoreInternal for ' . $id);
 
-        if(!isset($config->urn->autoCreate) or $config->urn->autoCreate !== '1') {
+        if(!isset($config->urn->autoCreate) or $config->urn->autoCreate != '1') {
             $log->debug('URN auto creation is not configured. skipping...');
             return;
         }
