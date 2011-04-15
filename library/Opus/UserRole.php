@@ -195,11 +195,11 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
             );
 
             if ($action == 'append') {
-                echo "append:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
+                // echo "append:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
                 $table->insertIgnoreDuplicate($data);
             }
             else if ($action == 'remove') {
-                echo "remove:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
+                // echo "remove:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
                 $table->deleteWhereArray($data);
             }
         }

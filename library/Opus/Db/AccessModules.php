@@ -115,10 +115,8 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway {
                         'module_name',
                         'controller_name'
         );
-        var_dump($returnHash);
 
         return $returnHash;
-
     }
 
     /**
