@@ -20,6 +20,10 @@ ALTER TABLE `dnb_institutes`
     MODIFY COLUMN `is_grantor` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution grantor of academic degrees?' ,
     ADD COLUMN `is_publisher` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution of academic theses?';
 
+ALTER TABLE `document_licences`
+    DROP COLUMN `mime_type`,
+    DROP COLUMN `desc_markup`;
+
 DROP TABLE `person_external_keys`;
 
 -- -----------------------------------------------------
