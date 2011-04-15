@@ -43,6 +43,11 @@
  */
 class Opus_Security_RealmTest extends TestCase {
 
+    protected function tearDown() {
+        parent::tearDown();
+        Zend_Registry::set('Zend_Config', null);
+    }
+
     private function setUpUserAdmin() {
         // create role
         $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');

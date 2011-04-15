@@ -46,6 +46,9 @@ class TestCase extends PHPUnit_Framework_TestCase {
      */
     private function _clearTables() {
         $tables = array(
+            'access_modules',
+            'access_documents',
+            'access_files',
             'dnb_institutes',
             'document_enrichments',
             'document_files',
@@ -122,7 +125,6 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @return void
      */
     protected function tearDown() {
-        Zend_Registry::set('Zend_Config', null);
         parent::tearDown();
     }
 }
