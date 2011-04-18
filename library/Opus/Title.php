@@ -74,8 +74,12 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
+        $type = new Opus_Model_Field('Type');
+        $type->setMandatory(false);
+
         $this->addField($language)
-            ->addField($value);
+            ->addField($value)
+            ->addField($type);
     }
 
 }

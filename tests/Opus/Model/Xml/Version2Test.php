@@ -102,7 +102,8 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $this->assertEquals(1, $opusTag->getElementsByTagName('TitleAbstract')->length, 'There should be one title abstract.');
         $this->assertEquals(2, $opusTag->getElementsByTagName('PersonAuthor')->length, 'There should be two person author.');
         $this->assertEquals(2, $opusTag->getElementsByTagName('LastName')->length, 'There should be two last name.');
-        $this->assertEquals(1, $opusTag->getElementsByTagName('Type')->length, 'There should be one document type.');
+        // TODO 2 'type' elements come from child models (TitleMain, TitleAbstract)
+        $this->assertEquals(3, $opusTag->getElementsByTagName('Type')->length, 'There should be one document type.');
         $this->assertEquals(1, $opusTag->getElementsByTagName('PublishedDate')->length, 'There should be one published date.');
         $this->assertEquals(1, $opusTag->getElementsByTagName('Opus_Document')->length, 'There should be one opus document tag.');
     }

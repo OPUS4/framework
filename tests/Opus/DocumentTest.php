@@ -743,6 +743,7 @@ class Opus_DocumentTest extends TestCase {
         $expected = array(
             'Language' => 'de',
             'Value' => 'Ein deutscher Titel',
+            'Type' => 'main'
 //            'SortOrder' => null
             );
         $this->assertEquals($expected, $result, 'toArray() deliver not expected title data.');
