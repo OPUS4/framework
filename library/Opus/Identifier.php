@@ -69,6 +69,11 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($value);
+
+        $value = new Opus_Model_Field('Type');
+        $value->setMandatory(false); // TODO maybe should be mandatory
+        //    ->setValidator(new Zend_Validate_NotEmpty());
+        $this->addField($value);
     }
 
 }
