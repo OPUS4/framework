@@ -76,6 +76,13 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false);
+        $type->setSelection(true);
+        $type->setDefault(array(
+            'main' => 'main',
+            'parent' => 'parent',
+            'sub' => 'sub',
+            'additional' => 'additional'
+        ));
 
         $this->addField($language)
             ->addField($value)
