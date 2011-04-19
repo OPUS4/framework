@@ -25,8 +25,6 @@ DROP TABLE `person_external_keys`;
 -- -----------------------------------------------------
 -- Changing security model: drop, rename and create tables
 -- -----------------------------------------------------
-DROP TABLE `privileges`;
-
 ALTER TABLE `link_accounts_roles`
     COMMENT =  'Relation table (user_roles, accounts).';
 
@@ -101,5 +99,10 @@ CREATE TABLE IF NOT EXISTS `access_modules` (
 COMMENT =  'Contains access rights for (user groups) to (modules).';
 
 
+-- -----------------------------------------------------
+-- Migrate data from table `privileges` to table `access_modules`
+-- -----------------------------------------------------
+INSERT access_files (role_id,file_id)
+    SELECT p.role_id, p.file_id FROM privileges AS p WHERE p.privilege = 'readFile';
 
-
+DROP TABLE `privileges`;
