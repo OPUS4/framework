@@ -45,6 +45,15 @@
 class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_File_Plugin_DefaultAccess' => null
+    );
+
+    /**
      * Holds storage object.
      *
      * @var Opus_Storage_File
