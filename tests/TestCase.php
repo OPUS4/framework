@@ -119,12 +119,4 @@ class TestCase extends PHPUnit_Framework_TestCase {
         self::_clearTables();
     }
 
-    /**
-     * Tear down unit tests.
-     *
-     * @return void
-     */
-    protected function tearDown() {
-        parent::tearDown();
-    }
 }

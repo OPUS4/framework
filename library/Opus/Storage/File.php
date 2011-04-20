@@ -55,7 +55,7 @@ class Opus_Storage_File {
      * @param string $directory 
      * @throws Opus_Storage_Exception
      */
-    public function __construct($directory, $subdirectory) {
+    public function __construct($directory = null, $subdirectory = null) {
         if (!is_dir($directory)) {
             throw new Opus_Storage_Exception("Storage directory '$directory' does not exist. (cwd: " . getcwd() . ")");
         }

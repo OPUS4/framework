@@ -58,10 +58,12 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function setUp() {
-        parent::setUp();
+        // Clearing database tables is not needed for this testcase.
+        // parent::setUp();
 
-        // TODO: Replace by path relative to working directory
-        $path = '/tmp/opus4-test/' . uniqid();
+        $config = Zend_Registry::get('Zend_Config');
+        $this->_config_backup = $config;
+        $path = $config->workspacePath . '/' . uniqid();
 
         $this->_src_path = $path . '/src';
         mkdir($this->_src_path, 0777, true);
@@ -70,7 +72,6 @@ class Opus_FileTest extends TestCase {
         mkdir($this->_dest_path, 0777, true);
         mkdir($this->_dest_path . '/files', 0777, true);
 
-        $this->_config_backup = Zend_Registry::get('Zend_Config');
         Zend_Registry::set('Zend_Config', new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
                             'checksum' => array(
