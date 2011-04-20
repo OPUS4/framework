@@ -52,6 +52,20 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
 
     /**
+     * List of pending Document actions.
+     *
+     * @var array
+     */
+    private $_pendingAccessDocuments = array();
+
+    /**
+     * List of pending File actions.
+     *
+     * @var array
+     */
+    private $_pendingAccessFiles = array();
+
+    /**
      * List of pending AccessModule actions.
      *
      * @var array
@@ -146,6 +160,34 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Append (document_id) to list of allowed ressources.
+     *
+     * @param string $document_id
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function appendAccessDocument($document_id) {
+        $this->_pendingAccessDocuments[] = array(
+            'append', $document_id,
+        );
+        return $this;
+
+    }
+
+    /**
+     * Remove (document_id) from list of allowed ressources.
+     *
+     * @param string $document_id
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function removeAccessDocument($document_id) {
+        $this->_pendingAccessDocuments[] = array(
+            'remove', $document_id,
+        );
+        return $this;
+
+    }
+
+    /**
      * Return an array of all file-ids, which are assigned to the current role.
      *
      * @return array
@@ -158,6 +200,34 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
                         ->where('role_id = ?', $this->getId());
 
         return $adapter->fetchCol($select);
+    }
+
+    /**
+     * Append (file_id) to list of allowed ressources.
+     *
+     * @param string $file_id
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function appendAccessFile($file_id) {
+        $this->_pendingAccessFiles[] = array(
+            'append', $file_id,
+        );
+        return $this;
+
+    }
+
+    /**
+     * Remove (file_id) from list of allowed ressources.
+     *
+     * @param string $file_id
+     * @return Opus_UserRole Provide fluent interface.
+     */
+    public function removeAccessFile($file_id) {
+        $this->_pendingAccessFiles[] = array(
+            'remove', $file_id,
+        );
+        return $this;
+
     }
 
     /**
@@ -211,6 +281,56 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Flush all pending AccessModule actions.
      */
+    private function _flushAccessDocumentQueue() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments");
+        $role_id = $this->getId();
+
+        foreach ($this->_pendingAccessDocuments AS $entry) {
+            $action = $entry[0];
+
+            $data = array(
+                'role_id' => $role_id,
+                'document_id' => $entry[1],
+            );
+
+            if ($action == 'append') {
+                $table->insertIgnoreDuplicate($data);
+            }
+            else if ($action == 'remove') {
+                $table->deleteWhereArray($data);
+            }
+        }
+        $this->_pendingAccessDocuments = array();
+    }
+
+    /**
+     * Flush all pending AccessModule actions.
+     */
+    private function _flushAccessFileQueue() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles");
+        $role_id = $this->getId();
+
+        foreach ($this->_pendingAccessFiles AS $entry) {
+            $action = $entry[0];
+
+            $data = array(
+                'role_id' => $role_id,
+                'file_id' => $entry[1],
+            );
+
+            if ($action == 'append') {
+                $table->insertIgnoreDuplicate($data);
+            }
+            else if ($action == 'remove') {
+                $table->deleteWhereArray($data);
+            }
+        }
+        $this->_pendingAccessFiles = array();
+    }
+
+    /**
+     * Flush all pending AccessModule actions.
+     */
     private function _flushAccessModuleQueue() {
         $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
         $role_id = $this->getId();
@@ -225,11 +345,9 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
             );
 
             if ($action == 'append') {
-                // echo "append:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
                 $table->insertIgnoreDuplicate($data);
             }
             else if ($action == 'remove') {
-                // echo "remove:  {$data['role_id']},{$data['module_name']},{$data['controller_name']}\n";
                 $table->deleteWhereArray($data);
             }
         }
@@ -243,6 +361,8 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     protected function _postStoreInternalFields() {
         parent::_postStoreInternalFields();
 
+        $this->_flushAccessDocumentQueue();
+        $this->_flushAccessFileQueue();
         $this->_flushAccessModuleQueue();
     }
 
@@ -253,6 +373,14 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * @return boolean
      */
     public function isModified() {
+        if (count($this->_pendingAccessDocuments) > 0) {
+            return true;
+        }
+
+        if (count($this->_pendingAccessFiles) > 0) {
+            return true;
+        }
+
         if (count($this->_pendingAccessModules) > 0) {
             return true;
         }
