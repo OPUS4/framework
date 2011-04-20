@@ -415,7 +415,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $serverState->setDefault(array(
                 'unpublished' => 'unpublished',
                 'published' => 'published',
-                'deleted' => 'deleted'));
+                'deleted' => 'deleted',
+                'restricted' => 'restricted',
+                'inprogress' => 'inprogress'));
             $serverState->setSelection(true);
         }
 
