@@ -50,54 +50,6 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway {
     protected $_name = 'access_modules';
 
     /**
-     * Insert given array into table and ignore duplicate entries.  (Silently
-     * skipping insert, if unique constraint has been violated.)
-     *
-     * @param array $data
-     * @return void
-     */
-    public function insertIgnoreDuplicate($data) {
-        $adapter = $this->getAdapter();
-
-        $q_keys = array();
-        $q_values = array();
-        foreach ($data AS $key => $value) {
-            $q_keys[] = $adapter->quoteIdentifier($key);
-            $q_values[] = $adapter->quote($value);
-        }
-
-
-        $insert = 'INSERT IGNORE INTO ' . $adapter->quoteTableAs($this->_name) .
-                ' (' . implode(', ', $q_keys) . ') ' .
-                ' VALUES (' . implode(', ', $q_values) . ') ';
-
-        $adapter->query($insert);
-        return;
-    }
-
-    /**
-     * Delete the table row that matches the given array.  (Silently ignoring
-     * deletes of non-existent entries.)
-     *
-     * @param array $data
-     * @return void
-     */
-    public function deleteWhereArray($data) {
-        $adapter = $this->getAdapter();
-
-        $q_clauses = array();
-        foreach ($data AS $key => $value) {
-            $q_key = $adapter->quoteIdentifier($key);
-            $q_value = $adapter->quote($value);
-            $q_clauses[] = $q_key . " = " . $q_value;
-        }
-
-        $where = implode(" AND ", $q_clauses);
-        $this->delete($where);
-        return;
-    }
-
-    /**
      * For a given role-id, return a hash of module-access-rights.
      *
      * @param  int $role_id
