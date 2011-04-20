@@ -131,6 +131,36 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Return an array of all document-ids, which are assigned to the current role.
+     *
+     * @return array
+     */
+    public function listAccessDocuments() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments");
+        $adapter = $table->getAdapter();
+        $select = $adapter->select()
+                        ->from('access_documents', array('document_id'))
+                        ->where('role_id = ?', $this->getId());
+
+        return $adapter->fetchCol($select);
+    }
+
+    /**
+     * Return an array of all file-ids, which are assigned to the current role.
+     *
+     * @return array
+     */
+    public function listAccessFiles() {
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles");
+        $adapter = $table->getAdapter();
+        $select = $adapter->select()
+                        ->from('access_files', array('file_id'))
+                        ->where('role_id = ?', $this->getId());
+
+        return $adapter->fetchCol($select);
+    }
+
+    /**
      * Returns an array of all known module-access-permissions for the current
      * role.  The associative array looks (for example) as follows:
      *
