@@ -25,7 +25,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus_Collection
+ * @package     Opus_File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,9 +34,9 @@
 
 
 /**
- * Test cases for class Opus_Storage_File.
+ * Test cases for class Opus_File_Plugin_DefaultAccessTest.
  *
- * @package Opus
+ * @package Opus_File
  * @category Tests
  *
  * @group FileTest
