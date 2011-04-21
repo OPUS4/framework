@@ -86,6 +86,19 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
         }
 
         $role = new Opus_Model_Field('Role');
+        $role->setSelection(true);
+        $role->setMandatory(false); // TODO change later maybe
+        $role->setDefault(array(
+            'advisor' => 'advisor',
+            'author' => 'author',
+            'contributor' => 'contributor',
+            'editor' => 'editor',
+            'referee' => 'referee',
+            'other' => 'other',
+            'translator' => 'translator',
+            'submitter' => 'submitter'
+        ));
+
         $sortOrder = new Opus_Model_Field('SortOrder');
         $allowEmailContact = new Opus_Model_Field('AllowEmailContact');
         $allowEmailContact->setCheckbox(true);
