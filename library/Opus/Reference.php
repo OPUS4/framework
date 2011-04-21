@@ -74,9 +74,26 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
 
         $relation = new Opus_Model_Field('Relation');
 
+        $type = new Opus_Model_Field('Type');
+        $type->setMandatory(false); // TODO change later
+        $type->setSelection(true);
+        $type->setDefault(array(
+            'isbn' => 'isbn',
+            'urn' => 'urn',
+            'doi' => 'doi',
+            'handle' => 'handle',
+            'url' => 'url',
+            'issn' => 'issn',
+            'std-doi' => 'std-doi',
+            'cris-link' => 'cris-link',
+            'splash-url' => 'splash-url',
+            'opus4-id' => 'opus4-id'
+                ));
+
         $this->addField($value);
         $this->addField($label);
         $this->addField($relation);
+        $this->addField($type);
     }
 
 }
