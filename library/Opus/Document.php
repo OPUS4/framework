@@ -465,6 +465,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->_getField('File')->setValue($return);
         }
 
+        if ($this->getField('Type') !== null) {
+            $type = $this->_getField('Type');
+            $type->setSelection(true);
+        }
+
     }
 
     /**
