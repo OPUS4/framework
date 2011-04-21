@@ -50,7 +50,7 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway {
     protected $_name = 'access_modules';
 
     /**
-     * For a given role-id, return a hash of module-access-rights.
+     * For a given role-id, return an array of module-access-rights.
      *
      * @param  int $role_id
      * @return array
@@ -58,48 +58,11 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway {
     public function listByRoleId($role_id) {
         $adapter = $this->getAdapter();
         $select = $adapter->select()
-                        ->from($this->_name, array('module_name', 'controller_name'))
+                        ->from($this->_name, array('module_name'))
                         ->where('role_id = ?', $role_id)
                         ->order('module_name');
 
-        $returnHash = $this->groupKeyValue(
-                        $adapter->fetchAll($select),
-                        'module_name',
-                        'controller_name'
-        );
-
-        return $returnHash;
-    }
-
-    /**
-     * Given a database result from fetchAll, groups the results by key-names.
-     * The grouped values will be array to an associative array of the
-     * following form:
-     * 
-     * array(
-     *   "key" => array(grouped values),
-     * );
-     *
-     * @param array $array
-     * @param string $key_name
-     * @param string $value_name
-     * @return array
-     */
-    private static function groupKeyValue($array, $key_name, $value_name) {
-        $returnHash = array();
-
-        foreach ($array AS $row) {
-            $key   = $row[$key_name];
-            $value = $row[$value_name];
-
-            if (!array_key_exists($key, $returnHash)) {
-                $returnHash[$key] = array();
-            }
-
-            $returnHash[$key][] = $value;
-        }
-
-        return $returnHash;
+        return $adapter->fetchCol($select);
     }
 
 }

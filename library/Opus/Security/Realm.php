@@ -224,18 +224,17 @@ class Opus_Security_Realm {
     }
 
     /**
-     * Checks, if the logged user is allowed to access (module|controller).
+     * Checks, if the logged user is allowed to access (module_name).
      *
-     * @param string $module     Name of the module to check
-     * @param string $controller Name of the controller to check
+     * @param string $module_name Name of the module to check
      * @return boolean  Returns true only if access is granted.
      */
-    public function checkModuleController($module = null, $controller = null) {
+    public function checkModule($module_name = null) {
         if ($this->skipSecurityChecks()) {
             return true;
         }
 
-        if (empty($module) or empty($controller)) {
+        if (empty($module_name)) {
             return false;
         }
 
@@ -245,8 +244,7 @@ class Opus_Security_Realm {
                                 ->from(array('am' => 'access_modules'), array('module_name'))
                                 ->join(array('r' => 'user_roles'), 'am.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->_roles)
-                                ->where('am.module_name = ?', $module)
-                                ->where('am.controller_name = ? OR am.controller_name = "*"', $controller)
+                                ->where('am.module_name = ?', $module_name)
         );
         return (1 <= count($results)) ? true : false;
     }

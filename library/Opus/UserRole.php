@@ -52,25 +52,11 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_UserRoles';
 
     /**
-     * List of pending Document actions.
+     * List of pending accessResource actions.
      *
      * @var array
      */
-    private $_pendingAccessDocuments = array();
-
-    /**
-     * List of pending File actions.
-     *
-     * @var array
-     */
-    private $_pendingAccessFiles = array();
-
-    /**
-     * List of pending AccessModule actions.
-     *
-     * @var array
-     */
-    private $_pendingAccessModules = array();
+    private $_pendingAccessResources = array();
 
     /**
      * Retrieve all Opus_Db_UserRoles instances from the database.
@@ -166,8 +152,8 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * @return Opus_UserRole Provide fluent interface.
      */
     public function appendAccessDocument($document_id) {
-        $this->_pendingAccessDocuments[] = array(
-            'append', $document_id,
+        $this->_pendingAccessResources[] = array(
+            'append', 'document_id', $document_id,
         );
         return $this;
 
@@ -180,8 +166,8 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * @return Opus_UserRole Provide fluent interface.
      */
     public function removeAccessDocument($document_id) {
-        $this->_pendingAccessDocuments[] = array(
-            'remove', $document_id,
+        $this->_pendingAccessResources[] = array(
+            'remove', 'document_id', $document_id,
         );
         return $this;
 
@@ -209,8 +195,8 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * @return Opus_UserRole Provide fluent interface.
      */
     public function appendAccessFile($file_id) {
-        $this->_pendingAccessFiles[] = array(
-            'append', $file_id,
+        $this->_pendingAccessResources[] = array(
+            'append', 'file_id', $file_id,
         );
         return $this;
 
@@ -223,22 +209,16 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * @return Opus_UserRole Provide fluent interface.
      */
     public function removeAccessFile($file_id) {
-        $this->_pendingAccessFiles[] = array(
-            'remove', $file_id,
+        $this->_pendingAccessResources[] = array(
+            'remove', 'file_id', $file_id,
         );
         return $this;
 
     }
 
     /**
-     * Returns an array of all known module-access-permissions for the current
-     * role.  The associative array looks (for example) as follows:
-     *
-     * array(
-     *    "default" => array( "auth" ),
-     *    "solrsearch" => array( "*" ),
-     *    "admin" => array( "index", "statistics" )
-     * );
+     * Return an array of all modules_names, which are assigned to the current
+     * role.
      *
      * @return array
      */
@@ -249,30 +229,28 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Append (module, controller) to list of allowed ressources.
+     * Append (module) to list of allowed ressources.
      *
-     * @param string $module
-     * @param string $controller
+     * @param string $module_name
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function appendAccessModule($module, $controller) {
-        $this->_pendingAccessModules[] = array(
-            'append', $module, $controller,
+    public function appendAccessModule($module_name) {
+        $this->_pendingAccessResources[] = array(
+            'append', 'module_name', $module_name,
         );
         return $this;
 
     }
 
     /**
-     * Remove (module, controller) from list of allowed ressources.
+     * Remove (module) from list of allowed ressources.
      *
-     * @param string $module
-     * @param string $controller
+     * @param string $module_name
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function removeAccessModule($module, $controller) {
-        $this->_pendingAccessModules[] = array(
-            'remove', $module, $controller,
+    public function removeAccessModule($module_name) {
+        $this->_pendingAccessResources[] = array(
+            'remove', 'module_name', $module_name,
         );
         return $this;
 
@@ -281,16 +259,23 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Flush all pending AccessModule actions.
      */
-    private function _flushAccessDocumentQueue() {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments");
+    private function _flushAccessResourceQueue() {
+        $resource_tables = array(
+            'document_id' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments"),
+            'file_id'     => Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles"),
+            'module_name' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules"),
+        );
         $role_id = $this->getId();
 
-        foreach ($this->_pendingAccessDocuments AS $entry) {
-            $action = $entry[0];
+        foreach ($this->_pendingAccessResources AS $entry) {
+            $action        = $entry[0];
+            $resource_name = $entry[1];
+            $resource_id   = $entry[2];
 
+            $table = $resource_tables[$resource_name];
             $data = array(
                 'role_id' => $role_id,
-                'document_id' => $entry[1],
+                $resource_name => $resource_id,
             );
 
             if ($action == 'append') {
@@ -300,58 +285,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
                 $table->deleteWhereArray($data);
             }
         }
-        $this->_pendingAccessDocuments = array();
-    }
-
-    /**
-     * Flush all pending AccessModule actions.
-     */
-    private function _flushAccessFileQueue() {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles");
-        $role_id = $this->getId();
-
-        foreach ($this->_pendingAccessFiles AS $entry) {
-            $action = $entry[0];
-
-            $data = array(
-                'role_id' => $role_id,
-                'file_id' => $entry[1],
-            );
-
-            if ($action == 'append') {
-                $table->insertIgnoreDuplicate($data);
-            }
-            else if ($action == 'remove') {
-                $table->deleteWhereArray($data);
-            }
-        }
-        $this->_pendingAccessFiles = array();
-    }
-
-    /**
-     * Flush all pending AccessModule actions.
-     */
-    private function _flushAccessModuleQueue() {
-        $table = Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules");
-        $role_id = $this->getId();
-
-        foreach ($this->_pendingAccessModules AS $entry) {
-            $action = $entry[0];
-
-            $data = array(
-                'role_id' => $role_id,
-                'module_name' => $entry[1],
-                'controller_name' => $entry[2],
-            );
-
-            if ($action == 'append') {
-                $table->insertIgnoreDuplicate($data);
-            }
-            else if ($action == 'remove') {
-                $table->deleteWhereArray($data);
-            }
-        }
-        $this->_pendingAccessModules = array();
+        $this->_pendingAccessResources = array();
     }
 
     /**
@@ -361,27 +295,17 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     protected function _postStoreInternalFields() {
         parent::_postStoreInternalFields();
 
-        $this->_flushAccessDocumentQueue();
-        $this->_flushAccessFileQueue();
-        $this->_flushAccessModuleQueue();
+        $this->_flushAccessResourceQueue();
     }
 
     /**
-     * Overriding isModified() method.  Returning TRUE if one of the HASHES
-     * changed, otherwise call parent::isModified().
+     * Overriding isModified() method.  Returning TRUE if the pending queues
+     * have been changed, otherwise call parent::isModified().
      *
      * @return boolean
      */
     public function isModified() {
-        if (count($this->_pendingAccessDocuments) > 0) {
-            return true;
-        }
-
-        if (count($this->_pendingAccessFiles) > 0) {
-            return true;
-        }
-
-        if (count($this->_pendingAccessModules) > 0) {
+        if (count($this->_pendingAccessResources) > 0) {
             return true;
         }
 

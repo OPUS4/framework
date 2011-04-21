@@ -76,7 +76,7 @@ class Opus_Security_RealmTest extends TestCase {
 
         // connect role and module
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_AccessModules');
-        $lar->insert(array('role_id' => $rolId, 'module_name' => 'admin', 'controller_name' => 'index'));
+        $lar->insert(array('role_id' => $rolId, 'module_name' => 'admin'));
 
 
         // create account
@@ -95,7 +95,7 @@ class Opus_Security_RealmTest extends TestCase {
 
         // connect role and module
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_AccessModules');
-        $lar->insert(array('role_id' => $rolId, 'module_name' => 'oai', 'controller_name' => 'index'));
+        $lar->insert(array('role_id' => $rolId, 'module_name' => 'oai'));
 
 
         // create ip
@@ -183,49 +183,45 @@ class Opus_Security_RealmTest extends TestCase {
     }
 
     /**
-     * checkModuleController()
+     * checkModule()
      */
-    public function testCheckModuleControllerForUser() {
+    public function testcheckModuleForUser() {
         $this->setUpUserUser();
 
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModuleController('admin','index'),
-                'Expect successful admin-index-access by user.');
-        $this->assertFalse($realm->checkModuleController('oai','index'),
-                'Expect failed oai-index-access by user.');
+        $this->assertTrue($realm->checkModule('admin'),
+                'Expect successful admin-access by user.');
+        $this->assertFalse($realm->checkModule('oai'),
+                'Expect failed oai-access by user.');
 
-        $this->assertFalse($realm->checkModuleController('foobar','index'),
-                'Expect failed foobar-index-access by user.');
-        $this->assertFalse($realm->checkModuleController('','index'),
+        $this->assertFalse($realm->checkModule('foobar'),
+                'Expect failed foobar-access by user.');
+        $this->assertFalse($realm->checkModule(''),
                 'Expect failed empty module.');
-        $this->assertFalse($realm->checkModuleController('index',''),
-                'Expect failed empty controller.');
     }
 
-    public function testCheckModuleControllerForIp() {
+    public function testcheckModuleForIp() {
         $this->setUpIp();
 
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('');
         $realm->setIp('127.0.0.22');
 
-        $this->assertFalse($realm->checkModuleController('admin','index'),
-                'Expect failed admin-index-access by IP.');
-        $this->assertTrue($realm->checkModuleController('oai','index'),
-                'Expect successful oai-index-access by IP.');
+        $this->assertFalse($realm->checkModule('admin'),
+                'Expect failed admin-access by IP.');
+        $this->assertTrue($realm->checkModule('oai'),
+                'Expect successful oai-access by IP.');
 
-        $this->assertFalse($realm->checkModuleController('foobar','index'),
-                'Expect failed foobar-index-access by IP.');
-        $this->assertFalse($realm->checkModuleController('','index'),
+        $this->assertFalse($realm->checkModule('foobar'),
+                'Expect failed foobar-access by IP.');
+        $this->assertFalse($realm->checkModule(''),
                 'Expect failed empty module.');
-        $this->assertFalse($realm->checkModuleController('index',''),
-                'Expect failed empty controller.');
     }
 
-    public function testCheckModuleControllerForUserAndIp() {
+    public function testcheckModuleForUserAndIp() {
         $this->setUpUserUser();
         $this->setUpIp();
 
@@ -233,20 +229,18 @@ class Opus_Security_RealmTest extends TestCase {
         $realm->setUser('user');
         $realm->setIp('127.0.0.22');
 
-        $this->assertTrue($realm->checkModuleController('admin','index'),
-                'Expect successful admin-index-access by user-ip.');
-        $this->assertTrue($realm->checkModuleController('oai','index'),
-                'Expect successful oai-index-access by user-ip.');
+        $this->assertTrue($realm->checkModule('admin'),
+                'Expect successful admin-access by user-ip.');
+        $this->assertTrue($realm->checkModule('oai'),
+                'Expect successful oai-access by user-ip.');
 
-        $this->assertFalse($realm->checkModuleController('foobar','index'),
-                'Expect failed foobar-index-access by user.');
-        $this->assertFalse($realm->checkModuleController('','index'),
+        $this->assertFalse($realm->checkModule('foobar'),
+                'Expect failed foobar-access by user.');
+        $this->assertFalse($realm->checkModule(''),
                 'Expect failed empty module.');
-        $this->assertFalse($realm->checkModuleController('index',''),
-                'Expect failed empty controller.');
     }
 
-    public function testCheckModuleControllerForDisabledSecurity() {
+    public function testcheckModuleForDisabledSecurity() {
         $config = new Zend_Config(array(
             'security' => '0',
         ));
@@ -258,37 +252,33 @@ class Opus_Security_RealmTest extends TestCase {
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModuleController('admin','index'),
-                'Expect successful admin-index-access by admin.');
-        $this->assertTrue($realm->checkModuleController('oai','index'),
-                'Expect successful oai-index-access by admin.');
+        $this->assertTrue($realm->checkModule('admin'),
+                'Expect successful admin-access by admin.');
+        $this->assertTrue($realm->checkModule('oai'),
+                'Expect successful oai-access by admin.');
 
-        $this->assertTrue($realm->checkModuleController('foobar','index'),
-                'Expect successful foobar-index-access by admin.');
-        $this->assertTrue($realm->checkModuleController('','index'),
+        $this->assertTrue($realm->checkModule('foobar'),
+                'Expect successful foobar-access by admin.');
+        $this->assertTrue($realm->checkModule(''),
                 'Expect successful empty module.');
-        $this->assertTrue($realm->checkModuleController('index',''),
-                'Expect successful empty controller.');
     }
 
-    public function testCheckModuleControllerForAdmin() {
+    public function testcheckModuleForAdmin() {
         $this->setUpUserAdmin();
 
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('admin');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModuleController('admin','index'),
-                'Expect successful admin-index-access by admin.');
-        $this->assertTrue($realm->checkModuleController('oai','index'),
-                'Expect successful oai-index-access by admin.');
+        $this->assertTrue($realm->checkModule('admin'),
+                'Expect successful admin-access by admin.');
+        $this->assertTrue($realm->checkModule('oai'),
+                'Expect successful oai-access by admin.');
 
-        $this->assertTrue($realm->checkModuleController('foobar','index'),
-                'Expect successful foobar-index-access by admin.');
-        $this->assertTrue($realm->checkModuleController('','index'),
+        $this->assertTrue($realm->checkModule('foobar'),
+                'Expect successful foobar-access by admin.');
+        $this->assertTrue($realm->checkModule(''),
                 'Expect successful empty module.');
-        $this->assertTrue($realm->checkModuleController('index',''),
-                'Expect successful empty controller.');
     }
 
     /**
