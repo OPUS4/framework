@@ -131,6 +131,27 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Get a list of all account IDs for the current role instance.
+     *
+     * @return array
+     */
+    public function getAllAccountNames() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance("Opus_Db_LinkAccountsRoles");
+        $adapter = $table->getAdapter();
+        $select = $adapter->select()
+                        ->from('link_accounts_roles AS lr', '')
+                        ->join('accounts AS a', "a.id = lr.account_id", 'a.login')
+                        ->where('lr.role_id = ?', $this->getId())
+                        ->distinct();
+
+        return $table->getAdapter()->fetchCol($select);
+    }
+
+    /**
      * Return an array of all document-ids, which are assigned to the current role.
      *
      * @return array
