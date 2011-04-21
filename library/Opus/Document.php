@@ -436,7 +436,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         // Initialize available publishers
         if ($this->getField('ThesisPublisher') !== null) {
-            $publishers = Opus_DnbInstitute::getAll();
+            $publishers = Opus_DnbInstitute::getPublishers();
             $this->getField('ThesisPublisher')->setDefault($publishers)
                     ->setSelection(true);
         }
