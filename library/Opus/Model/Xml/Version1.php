@@ -184,8 +184,6 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         if (null === $modelClass) {
-            // create a new element
-            $attr = $dom->createAttribute($fieldName);
             // workaround for simple fields with multiple values
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
@@ -193,10 +191,10 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             if ($fieldValues instanceOf Opus_Date || $fieldValues instanceOf Zend_Date) {
                 $fieldValues = $fieldValues->getIso();
             }
-            // set value
-            //if (empty($fieldValues) === false)
-            $attr->value = htmlspecialchars($fieldValues);
-            $rootNode->appendChild($attr);
+
+            // Replace invalid XML-1.0-Characters by UTF-8 replacement character.
+            $fieldValues = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', "\xEF\xBF\xBD ", $fieldValues);
+            $rootNode->setAttribute($fieldName, $fieldValues);
         }
         else {
             if (!is_array($fieldValues)) {
