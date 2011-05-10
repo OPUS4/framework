@@ -20,8 +20,6 @@ ALTER TABLE `dnb_institutes`
     MODIFY COLUMN `is_grantor` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution grantor of academic degrees?' ,
     ADD COLUMN `is_publisher` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution of academic theses?';
 
-DROP TABLE `person_external_keys`;
-
 -- -----------------------------------------------------
 -- Changing security model: drop, rename and create tables
 -- -----------------------------------------------------
@@ -99,11 +97,30 @@ CREATE TABLE IF NOT EXISTS `access_modules` (
 ) ENGINE = InnoDB
 COMMENT =  'Contains access rights for (user groups) to (modules).';
 
-
 -- -----------------------------------------------------
 -- Migrate data from table `privileges` to table `access_modules`
 -- -----------------------------------------------------
 INSERT access_files (role_id,file_id)
     SELECT p.role_id, p.file_id FROM privileges AS p WHERE p.privilege = 'readFile';
 
+-- -----------------------------------------------------
+-- Initialize "access_modules".
+-- assumes: 1: admin, 2: guest, 4: reviewer
+-- -----------------------------------------------------
+INSERT INTO access_modules (role_id, module_name) VALUES
+(1, 'admin'),
+(2, 'home'),
+(2, 'frontdoor'),
+(2, 'default'),
+(2, 'solrsearch'),
+(2, 'publish'),
+(2, 'rewrite'),
+(2, 'rss'),
+(2, 'citationExport'),
+(4, 'review');
+
+-- -----------------------------------------------------
+-- Remove obsolete tables.
+-- -----------------------------------------------------
+DROP TABLE `person_external_keys`;
 DROP TABLE `privileges`;
