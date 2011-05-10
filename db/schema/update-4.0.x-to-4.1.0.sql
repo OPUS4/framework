@@ -29,8 +29,10 @@ ALTER TABLE `link_accounts_roles`
     COMMENT =  'Relation table (user_roles, accounts).';
 
 ALTER TABLE `link_ipranges_roles`
-    COMMENT =  'Relation table (user_roles, ipranges).'
-    ALTER TABLE  `link_ipranges_roles` CHANGE  `role_id`  `role_id` INT( 10 ) UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: user_roles.id.';
+    COMMENT =  'Relation table (user_roles, ipranges).';
+
+ALTER TABLE  `link_ipranges_roles` 
+    CHANGE  `role_id`  `role_id` INT( 10 ) UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: user_roles.id.';
 
 RENAME TABLE `roles` TO `user_roles` ;
 ALTER TABLE `user_roles`
