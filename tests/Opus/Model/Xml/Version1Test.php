@@ -776,4 +776,65 @@ class Opus_Model_Xml_Version1Test extends TestCase {
         $this->assertEquals('after', $preModel->getLink()->getValue(), 'Sub model has not been updated correctly.');
     }
 
+    /**
+     * Small helper to create invalid utf8 strings.
+     *
+     * @return string 
+     */
+    private static function createInvalidUTF8String() {
+        $invalid_chars = array(
+            1, 2, 3, 4, 5, 6, 7, 8, // \x01-\x08
+            11, 12, // \x0B\x0C
+            14, 15,
+            16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
+            26, 27, 28, 29, 30, 31, // \x0E-\x1F
+            127, // \x7F
+        );
+
+        $string = '';
+        foreach ($invalid_chars as $char) {
+            $string .= " " . $char . ":" . chr($char);
+        }
+
+        return $string;
+    }
+
+    /**
+     * Test if a XML child element os generated for each sub model.
+     *
+     * @return void
+     */
+    public function testSerializingInvalidUTF8Chars() {
+
+        $invalidValue = "foo... " . self::createInvalidUTF8String() . " ...bar";
+
+        $model = new Opus_Model_ModelAbstract;
+        $model->setValue($invalidValue);
+
+        // Serialize model to XML.
+        $xml = new Opus_Model_Xml;
+        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml->setModel($model);
+        $dom = $xml->getDomDocument();
+        $xmlString = $dom->saveXML();
+
+        // first, check that the string contains all required substrings.
+        $this->assertContains('foo...', $xmlString);
+        $this->assertContains('...bar', $xmlString);
+
+        // second, check that xml string does *not* contain invalid characters.
+        $this->assertNotRegExp('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', $xmlString);
+
+        // last, check that string can be serialized to model.
+        $xml = new Opus_Model_Xml;
+        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml->setXml($xmlString);
+
+        $model = $xml->getModel();
+        $this->assertInstanceOf('Opus_Model_ModelAbstract', $model);
+        $this->assertContains('foo...', $model->getValue());
+        $this->assertContains('...bar', $model->getValue());
+
+    }
+
 }
