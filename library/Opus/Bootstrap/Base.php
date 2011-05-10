@@ -47,8 +47,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return void
      */
     protected function _initBackend() {
-        $this->bootstrap(array('DatabaseCache','Logging'));
-        $this->bootstrap('Database');
+        $this->bootstrap(array('ZendCache', 'OpusLocale', 'Database', 'Logging'));
     }
 
     /**
@@ -82,22 +81,15 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
             'cache_dir' => $config->workspacePath . '/cache/'
         );
 
-        return Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
-    }
+        $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
 
-    /**
-     * Setup database cache.
-     *
-     * @return void
-     */
-    protected function _initDatabaseCache() {
-        $this->bootstrap(array('ZendCache'));
-
-        // enable db metadata caching
-        $cache = $this->getResource('ZendCache');
+        Zend_Translate::setCache($cache);
+        Zend_Locale::setCache($cache);
+        Zend_Locale_Data::setCache($cache);
         Zend_Db_Table_Abstract::setDefaultMetadataCache($cache);
-    }
 
+        return $cache;
+    }
 
     /**
      * Setup a database connection and store the adapter in the registry.
@@ -107,7 +99,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * TODO put into configuration file
      */
     protected function _initDatabase() {
-        $this->bootstrap(array('Logging','Configuration'));
+        $this->bootstrap(array('ZendCache', 'Logging','Configuration'));
 
         $logger = $this->getResource('Logging');
         $logger->debug('Initializing database.');
@@ -248,11 +240,11 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * Registers locale with key Zend_Locale as mentioned in the ZF documentation.
      *
      * @return void
-     *
-     * FIXME: This should be done in configuration.
-     * FIXME: Merge methods that transfer configuration into registry.
      */
     protected function _initOpusLocale() {
+        // Need cache initializatino for Zend_Locale.
+        $this->bootstrap('ZendCache');
+
         // This avoids an exception if the locale cannot determined automatically.
         // TODO setup in config, still put in registry?
         $locale = new Zend_Locale("de");
