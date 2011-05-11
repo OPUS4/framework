@@ -1037,6 +1037,42 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
+     * Tests initialization of ServerDate-Fields.
+     *
+     * @return void
+     */
+    public function testInitializationOfServerDateFields() {
+        $exampleCreateDate    = '2010-05-11T18:20:17+02:00';
+        $examplePublishedDate = '2010-05-09T18:20:17+02:00';
+
+        $d = new Opus_Document();
+        $id = $d->store();
+
+        $d = new Opus_Document($id);
+        $this->assertNotNull($d->getServerDateCreated());
+        $this->assertNotNull($d->getServerDatePublished());
+    }
+
+    /**
+     * Tests overriding the initialization of ServerDate-Fields.
+     *
+     * @return void
+     */
+    public function testInitializationOfServerDateFieldsOverride() {
+        $exampleCreateDate    = '2010-05-11T18:20:17+02:00';
+        $examplePublishedDate = '2010-05-09T18:20:17+02:00';
+
+        $d = new Opus_Document();
+        $d->setServerDateCreated($exampleCreateDate);
+        $d->setServerDatePublished($examplePublishedDate);
+        $id = $d->store();
+
+        $d = new Opus_Document($id);
+        $this->assertEquals($exampleCreateDate, $d->getServerDateCreated()->__toString());
+        $this->assertEquals($examplePublishedDate, $d->getServerDatePublished()->__toString());
+    }
+
+    /**
      * Test for storing collections
      */
      public function testStoreDocumentWithCollectionsTest() {

@@ -1019,7 +1019,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $date = new Opus_Date();
         $date->setNow();
         if (true === $this->isNewRecord()) {
-            $this->setServerDateCreated($date);
+            if (is_null( $this->getServerDateCreated() )) {
+                $this->setServerDateCreated($date);
+            }
             if (null === $this->getServerDatePublished()) {
                 $this->setServerDatePublished($date);
             }
