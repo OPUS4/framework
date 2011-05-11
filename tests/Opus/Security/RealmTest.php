@@ -162,6 +162,27 @@ class Opus_Security_RealmTest extends TestCase {
         $realm->setUser('userbla');
     }
 
+    public function testSetUserFailsOnUnknownUserAndResetsRoles() {
+        $this->setUpUserUser();
+
+        // OAI permitted for given IP
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('user');
+        $realm->setIp('');
+        $this->assertTrue($realm->checkModule('admin'),
+                'Expect successful admin-access by user.');
+
+        // Try to set invalid IP address
+        try {
+            $realm->setUser('userbla');
+            $this->fail('Expecting. security exception.');
+        }
+        catch (Opus_Security_Exception $e) {
+            $this->assertFalse($realm->checkModule('admin'),
+                'Expect denied admin-access after failed setUser().');
+        }
+    }
+
     public function testSetIpSuccess() {
         $this->setUpIp();
 
@@ -180,6 +201,27 @@ class Opus_Security_RealmTest extends TestCase {
 
         $this->setExpectedException('Opus_Security_Exception');
         $realm->setIp('12.7.0.0.1');
+    }
+
+    public function testSetIpFailsOnInvalidIpAndResetsRoles() {
+        $this->setUpIp();
+
+        // OAI permitted for given IP
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('');
+        $realm->setIp('127.0.0.22');
+        $this->assertTrue($realm->checkModule('oai'),
+                'Expect successful oai-access by IP.');
+
+        // Try to set invalid IP address
+        try {
+            $realm->setIp('12.7.0.0.1');
+            $this->fail('Expecting. security exception.');
+        }
+        catch (Opus_Security_Exception $e) {
+            $this->assertFalse($realm->checkModule('oai'),
+                'Expect denied oai-access after failed setIp().');
+        }
     }
 
     /**

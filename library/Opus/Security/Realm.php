@@ -74,6 +74,10 @@ class Opus_Security_Realm {
      * @return Opus_Security_Realm Fluent interface.
      */
     public function setUser($username) {
+        // reset "old" credentials
+        $this->_userRoles = array();
+        $this->_setRoles();
+
         $this->_userRoles = self::_getUsernameRoles($username);
         $this->_setRoles();
         return $this;
@@ -87,6 +91,10 @@ class Opus_Security_Realm {
      * @return Opus_Security_Realm Fluent interface.
      */
     public function setIp($ipaddress) {
+        // reset "old" credentials
+        $this->_ipaddressRoles = array();
+        $this->_setRoles();
+
         $this->_ipaddressRoles = self::_getIpaddressRoles($ipaddress);
         $this->_setRoles();
         return $this;
@@ -98,7 +106,7 @@ class Opus_Security_Realm {
      *
      * @return Opus_Security_Realm Fluent interface.
      */
-    protected function _setRoles() {
+    private function _setRoles() {
         $this->_roles = array_merge($this->_userRoles, $this->_ipaddressRoles);
         $this->_roles[] = 'guest';
 
@@ -113,7 +121,7 @@ class Opus_Security_Realm {
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return array Array of assigned roles or an empty array.
      */
-    protected static function _getUsernameRoles($username) {
+    private static function _getUsernameRoles($username) {
         if (true === is_null($username) || true === empty($username)) {
             return array();
         }
@@ -144,7 +152,7 @@ class Opus_Security_Realm {
      * @throws Opus_Security_Exception Thrown if the supplied ip is not valid.
      * @return array Array of assigned roles or an empty array.
      */
-    protected static function _getIpaddressRoles($ipaddress) {
+    private static function _getIpaddressRoles($ipaddress) {
         if (true === is_null($ipaddress) || true === empty($ipaddress)) {
             return array();
         }
