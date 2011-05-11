@@ -111,4 +111,19 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');        
     }
 
+    /**
+     * Test if Opus_Date/Zend_Date swaps month/year when locale == en
+     *
+     * @return void
+     */
+    function testIfParsingOfIsoDateSwapsDayAndMonth() {
+        $locale = new Zend_Locale("en");
+        Zend_Registry::set('Zend_Locale', $locale);
+        $date = new Opus_Date('2010-06-04T02:36:53Z');
+
+        $this->markTestIncomplete('Incomplete until OPUSVIER-1141 and OPUSVIER-1411 fixed.');
+        $this->assertEquals(4, $date->getDay());
+        $this->assertEquals(6, $date->getMonth());
+    }
+
 }
