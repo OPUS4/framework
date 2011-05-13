@@ -59,11 +59,11 @@
                 <xsl:element name="field">
                     <xsl:attribute name="name">year</xsl:attribute>
                     <xsl:choose>
-                        <xsl:when test="/Opus/Opus_Document/CompletedDate/@Year != ''">
-                            <xsl:value-of select="/Opus/Opus_Document/CompletedDate/@Year" />
+                        <xsl:when test="/Opus/Opus_Document/PublishedDate/@Year != ''">
+                            <xsl:value-of select="/Opus/Opus_Document/PublishedDate/@Year" />
                         </xsl:when>
                         <xsl:otherwise>
-                            <xsl:value-of select="/Opus/Opus_Document/@CompletedYear" />
+                            <xsl:value-of select="/Opus/Opus_Document/@PublishedYear" />
                         </xsl:otherwise>
                     </xsl:choose>
                 </xsl:element>
