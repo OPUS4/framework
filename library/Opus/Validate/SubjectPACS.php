@@ -30,7 +30,7 @@
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: SubjectDDC.php 5888 2010-09-26 17:06:42Z tklein $
+ * @version     $Id$
  */
 
 /**
