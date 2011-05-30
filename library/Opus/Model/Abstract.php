@@ -364,13 +364,16 @@ abstract class Opus_Model_Abstract {
         return get_class($this);
     }
 
-
     /**
      * Magic method called when string representation of object is requested.
      *
      * @return string String representation of the object.
      */
     public function __toString() {
+        if (is_null($this->getDisplayName())) {
+            return '';
+        }
+
         return $this->getDisplayName();
     }
 
