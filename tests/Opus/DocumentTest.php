@@ -1362,4 +1362,38 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($document->getThesisGrantor()));
      }
 
+     public function testSortOrderForNewAuthors() {
+        $author_count = 16;
+
+        $document = new Opus_Document();
+        for ($i = 0; $i < $author_count; $i++) {
+            $person = new Opus_Person();
+            $person->setFirstName('firstname-$i=' . $i);
+            $person->setLastName('lastname-$i=' . $i);
+
+            $document->addPersonAuthor($person);
+        }
+        $docId = $document->store();
+
+        $document = new Opus_Document($docId);
+
+        // First check, if everybody is in place.
+        $authors = $document->getPersonAuthor();
+        for ($i = 0; $i < $author_count; $i++) {
+            $this->assertEquals('firstname-$i=' . $i, $authors[$i]->getFirstName());
+            $this->assertEquals('lastname-$i=' . $i, $authors[$i]->getLastName());
+        }
+
+        // Second check, if no number duplicate sort number
+        $authors = $document->getPersonAuthor();
+        $numbers = array();
+        foreach ($authors AS $author) {
+            $this->assertNotNull( $author->getSortOrder() );
+            $numbers[] = $author->getSortOrder();
+        }
+
+        $unique_numbers = array_unique($numbers);
+        $this->assertEquals($author_count, count($unique_numbers));
+    }
+
 }

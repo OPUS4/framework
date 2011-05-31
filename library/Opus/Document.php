@@ -250,6 +250,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'author'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonContributor' => array(

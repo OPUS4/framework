@@ -206,6 +206,12 @@ abstract class Opus_Model_AbstractDb
             $field->setLinkModelClass($linkModelClass);
         }
 
+        // set SortOrderField, if a "sort_field" option is given.
+        $sortFieldName = $this->_getSortFieldNameForField($field);
+        if (null !== $sortFieldName) {
+            $field->setSortFieldName($sortFieldName);
+        }
+
         return $result;
     }
 
@@ -239,6 +245,22 @@ abstract class Opus_Model_AbstractDb
         if (array_key_exists($fieldname, $this->_externalFields) === true) {
             if (array_key_exists('through', $this->_externalFields[$fieldname]) === true) {
                 return $this->_externalFields[$fieldname]['through'];
+            }
+        }
+    }
+
+    /**
+     * Check if a given field instance is a sorted field and return the field
+     * name as defined in the models $_externalFields array.
+     *
+     * @param Opus_Model_Field $field Field instance to check.
+     * @return mixed Field name if 'sort_field' parameter is set for field, null otherwise
+     */
+    private function _getSortFieldNameForField(Opus_Model_Field $field) {
+        $fieldname = $field->getName();
+        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (array_key_exists('sort_field', $this->_externalFields[$fieldname]) === true) {
+                return $this->_externalFields[$fieldname]['sort_field'];
             }
         }
     }

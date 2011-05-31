@@ -91,6 +91,13 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     protected $_linkModelClass = null;
 
     /**
+     * Holds the name of the sort field...
+     *
+     * @var string
+     */
+    protected $_sortFieldName = null;
+
+    /**
      * Holds the fields default values. For selection list fields this should
      * contain the list of options.
      *
@@ -607,6 +614,28 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
 
+        if (is_string($this->_sortFieldName)) {
+            $sort_field = $this->_sortFieldName;
+
+            $sort_value_max = 0;
+            foreach ($this->_value AS $value_old) {
+                $sort_value = $value_old->getField($sort_field)->getValue();
+                if ($sort_value > $sort_value_max) {
+                    $sort_value_max = $sort_value;
+                }
+            }
+
+            $values = $value;
+            if (!is_array($values)) {
+                $values = array($values);
+            }
+
+            foreach ($values AS $value_new) {
+                $sort_value_max++;
+                $value_new->getField($sort_field)->setValue($sort_value_max);
+            }
+        }
+
         // Add the value to the array
         if (is_array($value) === true) {
             $this->_value = array_merge($this->_value, $value);
@@ -727,6 +756,17 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     public function setLinkModelClass($classname) {
         $this->_linkModelClass = $classname;
+        return $this;
+    }
+
+    /**
+     * Set the name of model field for sorting.
+     *
+     * @param  string $classname The field name used as model for sorting.
+     * @return Opus_Model_Field Fluent interface.
+     */
+    public function setSortFieldName($fieldname) {
+        $this->_sortFieldName = $fieldname;
         return $this;
     }
 
