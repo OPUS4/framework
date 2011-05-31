@@ -1362,9 +1362,92 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($document->getThesisGrantor()));
      }
 
-     public function testSortOrderForNewAuthors() {
-        $author_count = 16;
+     public function testSortOrderForAddPersonAuthors() {
+        $document = $this->_createDocumentWithPersonAuthors(16);
+        $docId = $document->store();
 
+        // Reload document; sanity check of SortOrder...
+        $document = new Opus_Document($docId);
+        $this->_checkPersonAuthorSortOrderForDocument($document);
+
+        // First check, if everybody is in place.
+        $authors = $document->getPersonAuthor();
+        for ($i = 0; $i < count($authors); $i++) {
+            $this->assertEquals('firstname-$i=' . $i, $authors[$i]->getFirstName());
+            $this->assertEquals('lastname-$i=' . $i, $authors[$i]->getLastName());
+        }
+    }
+
+     public function testSortOrderForSetPersonAuthorReverse() {
+        $document = $this->_createDocumentWithPersonAuthors(16);
+        $docId = $document->store();
+
+        // Reload document; sanity check of SortOrder...
+        $document = new Opus_Document($docId);
+        $this->_checkPersonAuthorSortOrderForDocument($document);
+
+        // Do something with authors: reverse
+        $authors = $document->getPersonAuthor();
+        $new_authors = array_reverse($authors);
+        $document->setPersonAuthor($new_authors);
+        $document->store();
+
+        // Reload document; sanity check of SortOrder...
+        $document = new Opus_Document($docId);
+        $this->_checkPersonAuthorSortOrderForDocument($document);
+
+        // First check, if everybody is in place.
+        $authors = $document->getPersonAuthor();
+        $this->assertTrue(is_array($authors));
+        $this->assertTrue(is_array($new_authors));
+        $this->assertEquals(count($new_authors), count($authors));
+
+        for ($i = 0; $i < count($new_authors); $i++) {
+            $this->assertEquals($new_authors[$i]->getFirstName(), $authors[$i]->getFirstName());
+            $this->assertEquals($new_authors[$i]->getLastName(), $authors[$i]->getLastName());
+        }
+    }
+
+     public function testSortOrderForSetPersonAuthorShuffleDeleteAdd() {
+        $document = $this->_createDocumentWithPersonAuthors(16);
+        $docId = $document->store();
+
+        // Reload document; sanity check of SortOrder...
+        $document = new Opus_Document($docId);
+        $this->_checkPersonAuthorSortOrderForDocument($document);
+
+        // Do something with authors: shuffle, remove some, add one...
+        $authors = $document->getPersonAuthor();
+        $new_authors = $authors;
+
+        shuffle($new_authors);
+        array_pop($new_authors);
+        array_shift($new_authors);
+
+        $new_authors[] = $document->addPersonAuthor(new Opus_Person)
+                ->setFirstName("new")
+                ->setLastName("new");
+
+        $document->setPersonAuthor($new_authors);
+        $document->store();
+
+        // Reload document; sanity check of SortOrder...
+        $document = new Opus_Document($docId);
+        $this->_checkPersonAuthorSortOrderForDocument($document);
+
+        // First check, if everybody is in place.
+        $authors = $document->getPersonAuthor();
+        $this->assertTrue(is_array($authors));
+        $this->assertTrue(is_array($new_authors));
+        $this->assertEquals(count($new_authors), count($authors));
+
+        for ($i = 0; $i < count($new_authors); $i++) {
+            $this->assertEquals($new_authors[$i]->getFirstName(), $authors[$i]->getFirstName());
+            $this->assertEquals($new_authors[$i]->getLastName(), $authors[$i]->getLastName());
+        }
+    }
+
+    private function _createDocumentWithPersonAuthors($author_count) {
         $document = new Opus_Document();
         for ($i = 0; $i < $author_count; $i++) {
             $person = new Opus_Person();
@@ -1373,18 +1456,10 @@ class Opus_DocumentTest extends TestCase {
 
             $document->addPersonAuthor($person);
         }
-        $docId = $document->store();
+        return $document;
+    }
 
-        $document = new Opus_Document($docId);
-
-        // First check, if everybody is in place.
-        $authors = $document->getPersonAuthor();
-        for ($i = 0; $i < $author_count; $i++) {
-            $this->assertEquals('firstname-$i=' . $i, $authors[$i]->getFirstName());
-            $this->assertEquals('lastname-$i=' . $i, $authors[$i]->getLastName());
-        }
-
-        // Second check, if no number duplicate sort number
+    private function _checkPersonAuthorSortOrderForDocument($document) {
         $authors = $document->getPersonAuthor();
         $numbers = array();
         foreach ($authors AS $author) {
@@ -1392,8 +1467,9 @@ class Opus_DocumentTest extends TestCase {
             $numbers[] = $author->getSortOrder();
         }
 
+        // Check if all numbers are unique
         $unique_numbers = array_unique($numbers);
-        $this->assertEquals($author_count, count($unique_numbers));
+        $this->assertEquals(count($authors), count($unique_numbers));
     }
 
 }
