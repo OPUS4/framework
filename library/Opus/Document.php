@@ -235,12 +235,14 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'Person' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonAdvisor' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'advisor'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonAuthor' => array(
@@ -254,36 +256,42 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'contributor'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonEditor' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'editor'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonReferee' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'referee'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonOther' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'other'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonTranslator' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'translator'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'PersonSubmitter' => array(
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'submitter'),
+                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
                             'fetch' => 'lazy'
             ),
             'Subject' => array(
