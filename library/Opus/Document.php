@@ -236,6 +236,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Person',
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonAdvisor' => array(
@@ -243,6 +244,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'advisor'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonAuthor' => array(
@@ -258,6 +260,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'contributor'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonEditor' => array(
@@ -265,6 +268,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'editor'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonReferee' => array(
@@ -272,6 +276,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'referee'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonOther' => array(
@@ -279,6 +284,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'other'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonTranslator' => array(
@@ -286,6 +292,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'translator'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'PersonSubmitter' => array(
@@ -293,6 +300,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
                             'options'  => array('role' => 'submitter'),
                             'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
             'Subject' => array(
