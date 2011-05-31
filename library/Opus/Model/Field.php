@@ -585,15 +585,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
 
-        // No value set yet.
-        if (is_null($this->_value) === true) {
-           $this->_value = array();
-        } else {
-            // If the value is not an array, make one
-            if (is_array($this->_value) === false) {
-                $this->_value = array($this->_value);
-            }
-        }
+        $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
 
         // Check type of the values if _valueModelClass is set
         // and reject any input that is not of this type
