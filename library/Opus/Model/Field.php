@@ -361,6 +361,19 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 $value = $values[0];
             }
         }
+
+        // Re-set sort order:
+        if (is_string($this->_sortFieldName)) {
+            $sort_field = $this->_sortFieldName;
+            $sort_value = 1;
+
+            $values_new = $this->_wrapValueInArrayIfRequired($value);
+            foreach ($values_new AS $value_new) {
+                $value_new->getField($sort_field)->setValue($sort_value);
+                $sort_value++;
+            }
+        }
+
         $this->_value = $value;
         $this->_modified = true;
         return $this;
@@ -625,12 +638,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 }
             }
 
-            $values = $value;
-            if (!is_array($values)) {
-                $values = array($values);
-            }
-
-            foreach ($values AS $value_new) {
+            $values_new = $this->_wrapValueInArrayIfRequired($value);
+            foreach ($values_new AS $value_new) {
                 $sort_value_max++;
                 $value_new->getField($sort_field)->setValue($sort_value_max);
             }
