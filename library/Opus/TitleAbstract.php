@@ -40,7 +40,7 @@
  */
 class Opus_TitleAbstract extends Opus_Title
 {
-
+    
     /**
      * Set textarea flag for Value field.
      *
@@ -50,6 +50,12 @@ class Opus_TitleAbstract extends Opus_Title
         parent::_init();
 
         $this->getField('Value')->setTextarea(true);
+        
+        $type = $this->getField('Type');
+        $type->setMandatory(false);
+        $type->setSelection(true);
+        $type->setDefault(array('abstract' => 'abstract'));
+        
     }
 
 }
