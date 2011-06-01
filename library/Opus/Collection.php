@@ -949,7 +949,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return;
         }
 
-        return $this->_primaryTableRow->getTable()->isLeaf(
+        return !$this->_primaryTableRow->getTable()->isLeaf(
             $this->_primaryTableRow->toArray()
         );
     }
