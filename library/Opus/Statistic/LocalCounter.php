@@ -254,7 +254,6 @@ public function countFiles($documentId, $fileId) {
         $registry = Zend_Registry::getInstance();
         $tempDir = $registry->get('temp_dir');
         //initialize log data
-        //$time = time();
         $md5Ip = "h".md5($ip);
 
 
@@ -269,15 +268,20 @@ public function countFiles($documentId, $fileId) {
             $dom->load($tempDir . '~localstat.xml');
         }
 
+        $xmlAccess = $dom->getElementsByTagName("access")->item(0);
+        if (is_null($xmlAccess)) {
+            $message = 'Error loading click-log "' . $tempDir . '~localstat.xml"';
+            throw new Opus_Model_Exception($message);
+        }
+
         //if global file access timestamp too old, the whole log file can be removed
         $xmlTime = $dom->getElementsByTagName("time")->item(0);
-        if ($xmlTime != null && (time() - $xmlTime->nodeValue) > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
+        if ($xmlTime != null && ($time - $xmlTime->nodeValue) > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             $xmlAccess = $dom->getElementsByTagName("access")->item(0);
             $dom->removeChild($xmlAccess);
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
         }
-        $xmlAccess = $dom->getElementsByTagName("access")->item(0);
 
         $xmlTime = $xmlAccess->getElementsByTagName('time')->item(0);
         if ($xmlTime != null) {
@@ -323,7 +327,12 @@ public function countFiles($documentId, $fileId) {
         }
 
         $xmlFileId->setAttribute('lastAccess', $time);
-        $dom->save($tempDir . '~localstat.xml');
+        $return = $dom->save($tempDir . '~localstat.xml');
+        if ($return === false) {
+            $message = 'Error saving click-log "' . $tempDir . '~localstat.xml"';
+            throw new Opus_Model_Exception($message);
+        }
+
         return $doubleClick;
     }
 
