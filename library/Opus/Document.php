@@ -397,46 +397,43 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->addField($field);
         }
 
-        foreach ($this->_externalFields AS $fieldname => $options) {
+        foreach (array_keys($this->_externalFields) AS $fieldname) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMultiplicity('*');
             $this->addField($field);
         }
 
         // Initialize available languages
-        if ($this->getField('Language') !== null) {
-            if (Zend_Registry::isRegistered('Available_Languages') === true) {
-                $this->getField('Language')
-//                        ->setMultiplicity('*')
-                        ->setDefault(Zend_Registry::get('Available_Languages'))
-                        ->setSelection(true);
-            }
-        }
-
-        // Bibliography field is boolean, so make it a checkbox
-        if ($this->getField('BelongsToBibliography') !== null) {
-            $bibliography = $this->getField('BelongsToBibliography');
-            $bibliography->setCheckbox(true);
-        }
-
-        // Initialize available licences
-        if ($this->getField('Licence') !== null) {
-            $licences = Opus_Licence::getAll();
-            $this->getField('Licence')->setDefault($licences)
+        if (Zend_Registry::isRegistered('Available_Languages') === true) {
+            $this->getField('Language')
+                    ->setDefault(Zend_Registry::get('Available_Languages'))
                     ->setSelection(true);
         }
 
+        // Type field should be shown as drop-down.
+        // TODO: ->setDefault( somehow::getAvailableDocumentTypes() )
+        $this->getField('Type')
+                ->setSelection(true);
+
+        // Bibliography field is boolean, so make it a checkbox
+        $this->getField('BelongsToBibliography')
+                ->setCheckbox(true);
+
+        // Initialize available licences
+        $licences = Opus_Licence::getAll();
+        $this->getField('Licence')
+                ->setDefault($licences)
+                ->setSelection(true);
+
         // Add the server (publication) state as a field
-        if ($this->getField('ServerState') !== null) {
-            $serverState = $this->getField('ServerState');
-            $serverState->setDefault(array(
-                'unpublished' => 'unpublished',
-                'published' => 'published',
-                'deleted' => 'deleted',
-                'restricted' => 'restricted',
-                'inprogress' => 'inprogress'));
-            $serverState->setSelection(true);
-        }
+        $serverState = $this->getField('ServerState')
+                ->setDefault(array(
+                    'unpublished' => 'unpublished',
+                    'published' => 'published',
+                    'deleted' => 'deleted',
+                    'restricted' => 'restricted',
+                    'inprogress' => 'inprogress'))
+                ->setSelection(true);
 
         // Initialize available date fields and set up date validator
         // if the particular field is present
@@ -445,25 +442,21 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'ServerDateCreated',
             'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
         foreach ($dateFields as $fieldName) {
-            $field = $this->_getField($fieldName);
-            if (null !== $field) {
-                $field->setValueModelClass('Opus_Date');
-            }
+            $this->getField($fieldName)
+                    ->setValueModelClass('Opus_Date');
         }
 
         // Initialize available publishers
-        if ($this->getField('ThesisPublisher') !== null) {
-            $publishers = Opus_DnbInstitute::getPublishers();
-            $this->getField('ThesisPublisher')->setDefault($publishers)
-                    ->setSelection(true);
-        }
+        $publishers = Opus_DnbInstitute::getPublishers();
+        $this->getField('ThesisPublisher')
+                ->setDefault($publishers)
+                ->setSelection(true);
 
         // Initialize available grantors
-        if ($this->getField('ThesisGrantor') !== null) {
-            $grantors = Opus_DnbInstitute::getGrantors();
-            $this->getField('ThesisGrantor')->setDefault($grantors)
-                    ->setSelection(true);
-        }
+        $grantors = Opus_DnbInstitute::getGrantors();
+        $this->getField('ThesisGrantor')
+                ->setDefault($grantors)
+                ->setSelection(true);
 
         // Check if document has non-existing attachments.
         if (!$this->isNewRecord() and $this->hasField('File')) {
@@ -481,12 +474,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
             $this->_getField('File')->setValue($return);
         }
-
-        if ($this->getField('Type') !== null) {
-            $type = $this->_getField('Type');
-            $type->setSelection(true);
-        }
-
     }
 
     /**
