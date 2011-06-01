@@ -426,7 +426,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->setSelection(true);
 
         // Add the server (publication) state as a field
-        $serverState = $this->getField('ServerState')
+        $this->getField('ServerState')
                 ->setDefault(array(
                     'unpublished' => 'unpublished',
                     'published' => 'published',
