@@ -127,10 +127,7 @@ class Opus_Statistic_LocalCounter  {
     }
 
     private function isRedirectStatusOk($redirectStatus) {
-        if ($redirectStatus != 200 || $redirectStatus != 304) {
-            return true;
-        }
-        return false;
+        return $redirectStatus == 200 || $redirectStatus == 304;
     }
 
 
