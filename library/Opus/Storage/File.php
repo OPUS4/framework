@@ -180,7 +180,7 @@ class Opus_Storage_File {
      *
      * @param string $file
      * @throws Opus_Storage_Exception
-     * @return boolean
+     * @return void
      */
     public function deleteFile($file) {
         $fullFile = $this->getWorkingDirectory() . $file;
@@ -192,12 +192,36 @@ class Opus_Storage_File {
             throw new Opus_Storage_Exception('Tried to delete non-file "' . $fullFile . '; abort"!');
         }
 
-        if (true === @unlink($fullFile)) {
-            return true;
+        if (false === @unlink($fullFile)) {
+            throw new Opus_Storage_Exception('File "' . $fullFile . '" could not be deleted!');
         }
 
-        throw new Opus_Storage_Exception('File "' . $fullFile . '" could not be deleted!');
+        return;
+    }
 
+    /**
+     * Deletes current working directory if empty.
+     *
+     * @throws Opus_Storage_Exception If directory is empty but deleting failed.
+     * @return boolean true on success, false if not found or not empty
+     */
+    public function removeEmptyDirectory() {
+        $directory = $this->getWorkingDirectory();
+
+        if (!is_dir($directory)) {
+            return false;
+        }
+
+        $is_empty = (count(glob($directory . "/*")) === 0);
+        if (!$is_empty) {
+            return false;
+        }
+
+        if (false === @rmdir($directory)) {
+            throw new Opus_Storage_Exception('Empty directory "$directory" could not be deleted!');
+        }
+
+        return true;
     }
 
     /**

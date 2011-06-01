@@ -261,12 +261,15 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * Deletes a file from filespace and if directory are empty it will be deleted too.
      *
      * @see    library/Opus/Model/Opus_Model_AbstractDb#doDelete()
-     * @throws Exception Thrown if deleting of file failed.
+     * @throws Opus_Storage_Exception Thrown if deleting of file/directory failed.
      * @return void
      */
     public function doDelete($token) {
         parent::doDelete($token);
         $this->getStorage()->deleteFile( $this->getPathName() );
+
+        // TODO: Check return value of removeEmptyDirectory()?
+        $this->getStorage()->removeEmptyDirectory();
     }
 
     /**

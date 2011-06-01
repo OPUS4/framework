@@ -262,6 +262,33 @@ class Opus_FileTest extends TestCase {
     }
 
     /**
+     * Test if added files with tempory path get moved to destination path target filename.
+     *
+     * @return void
+     */
+    public function testDoDeleteReallyDeletesFileAndWorkingDirectory() {
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $id = $doc->store();
+
+        $workingDir = $this->_dest_path . "/files/$id";
+        $expectedPath = $workingDir . "/copied-foobar.pdf";
+
+        $this->assertFileExists($expectedPath, 'File has not been copied.');
+        $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
+        $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
+
+        $token = $file->delete();
+        $this->assertNotNull($token, 'No deletion token returned.');
+        $this->assertFileExists($expectedPath, 'File should still exist.');
+
+        $token = $file->doDelete($token);
+        $this->assertFileNotExists($expectedPath, 'File should be deleted.');
+        $this->assertFalse(file_exists($workingDir));
+        $this->assertFalse(is_dir($workingDir));
+    }
+
+    /**
      * Test if DeletionToken implementation as defined in Opus_Model_Dependent_Abstract
      * is provided by Opus_File.
      *
