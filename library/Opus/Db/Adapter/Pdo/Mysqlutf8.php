@@ -65,7 +65,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         }
 
         $config = Zend_Registry::get('Zend_Config');
-        if (isset($config->db->debug) && $config->db->debug) {
+        if (isset($config, $config->db->debug) && $config->db->debug) {
             $logger = Zend_Registry::get('Zend_Log');
             $logger->debug("Mysqlutf8: created new adapter");
 
@@ -138,15 +138,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         }
         $this->_runningTransactions--;
         return true;
-    }
-
-    /**
-     * Log document errors.  Prefixes every log entry with class name.
-     *
-     * @param string $message
-     */
-    protected function logger($message) {
-        info( "Mysqlutf8: $message");
     }
 
 }
