@@ -941,6 +941,20 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
     
     /**
+     * An unexpensive way to find out, if the current collection has children,
+     * i.e. if it is a leaf node in the tree.
+     */
+    public function hasChildren() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        return $this->_primaryTableRow->getTable()->isLeaf(
+            $this->_primaryTableRow->toArray()
+        );
+    }
+
+    /**
      * Overwrite describe: Do not export external fields to XML.
      *
      * @return array
