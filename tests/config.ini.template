@@ -42,6 +42,7 @@ db.params.host =
 db.params.username = 
 db.params.password = 
 db.params.dbname =
+db.debug = 1
 
 ;OPUS SETTINGS
 workspacePath = APPLICATION_PATH "/tests/workspace"
