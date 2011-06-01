@@ -729,19 +729,26 @@ class Opus_Document extends Opus_Model_AbstractDb {
     /**
      * Returns the earliest date (server_date_published) of all documents.
      *
-     * @return int
+     * @return string|null /^\d{4}-\d{2}-\d{2}$/ on success, null otherwise
      *
      * @deprecated
      */
     public static function getEarliestPublicationDate() {
-        // TODO: This method can be removed, when we refactor getEarliestPublicationDate()!
-
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
         $select = $table->select()->from($table, 'min(server_date_published) AS min_date')
                 ->where('server_date_published IS NOT NULL')
                 ->where('TRIM(server_date_published) != \'\'');
         $timestamp = $table->fetchRow($select)->toArray();
-        return $timestamp['min_date'];
+
+        if (!array_key_exists('min_date', $timestamp)) {
+            return null;
+        }
+
+        $matches = array();
+        if (preg_match("/^(\d{4}-\d{2}-\d{2})T/", $timestamp['min_date'], $matches) > 0) {
+            return $matches[1];
+        }
+        return null;
     }
 
     /**

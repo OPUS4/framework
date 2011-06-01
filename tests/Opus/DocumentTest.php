@@ -1472,4 +1472,22 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(count($authors), count($unique_numbers));
     }
 
+    public function testGetEarliestPublicationDate() {
+        $nullDate = Opus_Document::getEarliestPublicationDate();
+        $this->assertNull( $nullDate, "Expected NULL on empty database." );
+
+        // Insert valid entry through framework.
+        $document = new Opus_Document();
+        $document->setServerDatePublished('2011-06-01T00:00');
+        $document->store();
+        $validDate = Opus_Document::getEarliestPublicationDate();
+        $this->assertEquals( '2011-06-01', $validDate );
+
+        // Insert invalid entry into database...
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
+        $table->insert(array('server_date_published' => '1234'));
+        $invalidDate = Opus_Document::getEarliestPublicationDate();
+        $this->assertNull( $invalidDate, "Expected NULL on invalid date." );
+    }
+
 }
