@@ -112,24 +112,24 @@ abstract class Opus_Model_AbstractDb
      * @throws Opus_Model_Exception     Thrown if passed id is invalid.
      */
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+        $gatewayClass = self::getTableGatewayClass();
+
         // Ensure that a default table gateway class is set
-        if ((is_null($this->getTableGatewayClass()) === true) and (is_null($tableGatewayModel) === true)) {
+        if ((is_null($gatewayClass) === true) and (is_null($tableGatewayModel) === true)) {
             throw new Opus_Model_Exception('No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this));
         }
 
         if ($tableGatewayModel === null) {
             // Try to query table gateway from internal attribute
-            // Create an instance
-            $classname = $this->getTableGatewayClass();
-            $tableGatewayModel = Opus_Db_TableGateway::getInstance($classname);
+            $tableGatewayModel = Opus_Db_TableGateway::getInstance($gatewayClass);
         }
 
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
         } else if ($id instanceof Zend_Db_Table_Row) {
-            if ($id->getTableClass() !== $this->getTableGatewayClass()) {
+            if ($id->getTableClass() !== $gatewayClass) {
                 throw new Opus_Model_Exception('Mistyped table row passed. Expected row from ' .
-                $this->getTableGatewayClass() . ', got row from ' . $id->getTableClass() . '.');
+                        $gatewayClass . ', got row from ' . $id->getTableClass() . '.');
             }
             $this->_primaryTableRow = $id;
             $this->_isNewRecord = false;
@@ -841,7 +841,7 @@ abstract class Opus_Model_AbstractDb
      *
      * @return string Table gateway class name.
      */
-    public function getTableGatewayClass() {
+    public static function getTableGatewayClass() {
         return static::$_tableGatewayClass;
     }
 
