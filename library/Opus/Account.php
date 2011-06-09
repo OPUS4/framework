@@ -124,9 +124,9 @@ class Opus_Account extends Opus_Model_AbstractDb
         $first_name = new Opus_Model_Field('FirstName');
         $last_name = new Opus_Model_Field('LastName');
 
-    	$role = new Opus_Model_Field('Role');
-    	$role->setMultiplicity('*');
-    	$role->setSelection(true);
+        $role = new Opus_Model_Field('Role');
+        $role->setMultiplicity('*');
+        $role->setSelection(true);
 
         $this->addField($login)
                 ->addField($password)

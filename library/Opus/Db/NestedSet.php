@@ -25,12 +25,12 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category	Framework
- * @package	Opus_Collections
- * @author     	Thoralf Klein <thoralf.klein@zib.de>
- * @copyright  	Copyright (c) 2010, OPUS 4 development team
- * @license    	http://www.gnu.org/licenses/gpl.html General Public License
- * @version    	$Id$
+ * @category    Framework
+ * @package     Opus_Collections
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ * @version     $Id$
  */
 
 /**

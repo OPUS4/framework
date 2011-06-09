@@ -28,10 +28,10 @@
  *
  * @category    Framework
  * @package     Opus
- * @author     	Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @copyright  	Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */

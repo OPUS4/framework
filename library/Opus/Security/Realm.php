@@ -27,7 +27,7 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author	Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)

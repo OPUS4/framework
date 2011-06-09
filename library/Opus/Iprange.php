@@ -86,22 +86,22 @@ class Opus_Iprange extends Opus_Model_AbstractDb
         $startingip = new Opus_Model_Field('Startingip');
         $endingip = new Opus_Model_Field('Endingip');
         $name = new Opus_Model_Field('Name');
-    	$role = new Opus_Model_Field('Role');
+        $role = new Opus_Model_Field('Role');
         
         $startingip->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty())
-            ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
+                ->setValidator(new Zend_Validate_NotEmpty())
+                ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
         $endingip->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty())
-            ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
-		$role->setMultiplicity('*')
-			->setDefault(Opus_UserRole::getAll())
-			->setSelection(true);
-        
+                ->setValidator(new Zend_Validate_NotEmpty())
+                ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
+        $role->setMultiplicity('*')
+                ->setDefault(Opus_UserRole::getAll())
+                ->setSelection(true);
+
         $this->addField($startingip)
-            ->addField($endingip)
-            ->addField($name)
-			->addField($role);
+                ->addField($endingip)
+                ->addField($name)
+                ->addField($role);
     }
 
     /**

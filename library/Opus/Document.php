@@ -996,7 +996,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 $f->doDelete($f->delete());
             }
             catch (Exception $e) {
-            	throw $e;
+                throw $e;
             }
         }
 

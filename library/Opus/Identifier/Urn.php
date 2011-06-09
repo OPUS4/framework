@@ -210,8 +210,8 @@ class Opus_Identifier_Urn {
 
         // array of characters to match
         $search_pattern = array('/9/', '/8/', '/7/', '/6/', '/5/', '/4/', '/3/', '/2/', '/1/', '/0/', '/a/', '/b/', '/c/',
-            	'/d/', '/e/', '/f/', '/g/', '/h/', '/i/', '/j/', '/k/', '/l/', '/m/', '/n/', '/o/', '/p/', '/q/', '/r/', '/s/',
-            	'/t/', '/u/', '/v/', '/w/', '/x/', '/y/', '/z/', '/-/', '/:/');
+            '/d/', '/e/', '/f/', '/g/', '/h/', '/i/', '/j/', '/k/', '/l/', '/m/', '/n/', '/o/', '/p/', '/q/', '/r/', '/s/',
+            '/t/', '/u/', '/v/', '/w/', '/x/', '/y/', '/z/', '/-/', '/:/');
 
         // array of corresponding replacements, '9' will be temporarily replaced with placeholder '_' to prevent
         // replacement of '41' with '52'
