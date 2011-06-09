@@ -695,10 +695,8 @@ abstract class Opus_Model_AbstractDb
             }
 
             // Get the table gateway class
-            // Workaround for missing late static binding.
-            // Should look like this one day (from PHP 5.3.0 on) static::$_tableGatewayClass
-            eval('$tablename = ' . $modelclass . '::$_tableGatewayClass;');
-            $table = Opus_Db_TableGateway::getInstance($tablename);
+            $tableclass = $modelclass::getTableGatewayClass();
+            $table = Opus_Db_TableGateway::getInstance($tableclass);
 
             // Get name of id column in target table
             $select = $table->select();
@@ -848,10 +846,7 @@ abstract class Opus_Model_AbstractDb
      * @return string Table gateway class name.
      */
     public function getTableGatewayClass() {
-        // Use get_class as a workaround for late static binding.
-        $modelClass = get_class($this);
-        eval('$tableGatewayClass = ' . $modelClass . '::$_tableGatewayClass;');
-        return $tableGatewayClass;
+        return static::$_tableGatewayClass;
     }
 
     /**
