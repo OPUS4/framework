@@ -109,12 +109,9 @@ abstract class Opus_Model_Abstract {
         }
 
         // check if set/add has been called with an argument
-        if ((false === $argumentGiven)
-        and ($accessor === 'set')) {
+        if ((false === $argumentGiven) and ($accessor === 'set')) {
             throw new Opus_Model_Exception('Argument required for set() calls, none given.');
         }
-
-        $field = $this->getField($fieldname);
 
         if (true === in_array($fieldname, $this->_internalFields)) {
             throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname);
