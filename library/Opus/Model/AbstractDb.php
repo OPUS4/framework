@@ -675,14 +675,10 @@ abstract class Opus_Model_AbstractDb
                 $modelclass = $this->_externalFields[$fieldname]['model'];
             }
 
-            if (empty($modelclass)) {
-                throw new Opus_Model_Exception('Definition of external field "' . $fieldname . '" must contain "model" or "through" key.');
-            }
-
             // Make sure that a field's value model is inherited from Opus_Model_AbstractDb
-            if (is_subclass_of($modelclass, 'Opus_Model_AbstractDb') === false) {
-                throw new Opus_Model_Exception('Value of ' . $fieldname . ' does not extend Opus_Model_AbstractDb.
-                        Define _fetch' . $fieldname . ' method in model class.');
+            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_AbstractDb') === false) {
+                $message = "Field $fieldname must extend Opus_Model_AbstractDb.";
+                throw new Opus_Model_Exception($message);
             }
 
             // Prepare field value

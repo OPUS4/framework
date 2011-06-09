@@ -132,6 +132,17 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     }
 
     /**
+     * Test if get on abstract model, defined as external field, throws an
+     * exception.
+     */
+    public function testGetAbstractModelInExternalFieldThrowsException() {
+        // Build a mockup to observe calls to _loadExternal
+        $mockup = new Opus_Model_ModelDefiningAbstractExternalField();
+        $this->setExpectedException('Opus_Model_Exception');
+        $return = $mockup->getLazyAbstractModel();
+    }
+
+    /**
      * Test if setting a field containing a link model to null removes link
      * model.
      *
