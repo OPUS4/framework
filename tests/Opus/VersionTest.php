@@ -28,10 +28,10 @@
  *
  * @category    Framework
  * @package     Opus
- * @author     	Thoralf Klein <thoralf.klein@zib.de>
- * @copyright  	Copyright (c) 2010, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: CollectionOld.php -1$
+ * @version     $Id$
  */
 
 class Opus_VersionTest extends TestCase {
