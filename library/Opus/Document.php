@@ -991,13 +991,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // remove all files permanently
         $files = $this->getFile();
         foreach ($files as $file) {
-            $f = new Opus_File($file->getId());
-            try {
-                $f->doDelete($f->delete());
-            }
-            catch (Exception $e) {
-                throw $e;
-            }
+            $file->doDelete($file->delete());
         }
 
         parent::delete();
