@@ -89,13 +89,10 @@ abstract class Opus_Model_Abstract {
         $accessor = substr($name, 0, 3);
         $fieldname = substr($name, 3);
 
+        $argumentGiven = false;
         if (false === empty($arguments)) {
-            $argument = $arguments[0];
             $argumentGiven = true;
-        } else {
-            $argumentGiven = false;
         }
-        //$this->getLogger()->debug("Access to '$fieldname' with operation '$accessor'");
 
         // Filter calls to unknown methods and turn them into an exception
         $validAccessors = array('set', 'get', 'add');
