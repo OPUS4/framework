@@ -156,13 +156,19 @@ public function countFiles($documentId, $fileId) {
             return 0;
         }
         if ($ip == null || $ip == '') {
-            $ip = $_SERVER['REMOTE_ADDR'];
+            if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+                $ip = $_SERVER['REMOTE_ADDR'];
+            }
         }
         if ($userAgent == null || $userAgent == '') {
-            $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+                $userAgent = $_SERVER['HTTP_USER_AGENT'];
+            }
         }
         if ($redirectStatus == null || $redirectStatus == '') {
-            $redirectStatus = $_SERVER['REDIRECT_STATUS'];
+            if (array_key_exists('REDIRECT_STATUS', $_SERVER)) {
+                $redirectStatus = $_SERVER['REDIRECT_STATUS'];
+            }
         }
 
 
@@ -247,7 +253,10 @@ public function countFiles($documentId, $fileId) {
      * @return bool is it a double click
      */
     public function logClick($documentId, $fileId, $time) {
-        $ip = $_SERVER['REMOTE_ADDR'];
+        $ip = '';
+        if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
+            $ip = $_SERVER['REMOTE_ADDR'];
+        }
         $registry = Zend_Registry::getInstance();
         $tempDir = $registry->get('temp_dir');
         //initialize log data
