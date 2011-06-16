@@ -101,7 +101,7 @@ COMMENT =  'Contains access rights for (user groups) to (modules).';
 -- Migrate data from table `privileges` to table `access_modules`
 -- -----------------------------------------------------
 INSERT access_files (role_id,file_id)
-    SELECT p.role_id, p.file_id FROM privileges AS p WHERE p.privilege = 'readFile';
+    SELECT DISTINCT p.role_id, p.file_id FROM privileges AS p WHERE p.privilege = 'readFile';
 
 -- -----------------------------------------------------
 -- Initialize "access_modules".
