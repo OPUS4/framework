@@ -588,9 +588,27 @@ class Opus_Model_FieldTest extends TestCase {
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass('Zend_Date');
         $this->setExpectedException('Opus_Model_Exception');
-        $field->setValue('Foo');
+        $field->setValue(new stdClass());
     }
-    
+
+    /**
+     * Test if an excpetion occurs if value of unexpected type is set.
+     *
+     * @return void
+     */
+    public function testValueOfUncastableDataThrowsException() {
+        $field = new Opus_Model_Field('myfield');
+        $field->setValueModelClass('Zend_Date');
+
+        try {
+            $field->setValue('Foo');
+            $this->fail('Missing exception!');
+        }
+        catch (Opus_Model_Exception $ome) {
+            $this->assertStringStartsWith("Failed to cast value 'Foo'", $ome->getMessage());
+        }
+    }
+
     /**
      * Test if a value gets casted to the fields valueModelClass if possible.
      *

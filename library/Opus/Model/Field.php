@@ -522,16 +522,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @return array Set of new models of type _valueModelClass or the given values.
      */
     private function _tryCastValuesToModel(array $values) {
-        if (null !== $this->_valueModelClass) {
-            foreach ($values as $i => $value) {
-                if ((false === is_object($value)) and (null !== $value)) {
-                    try {
-                        $valueObj = new $this->_valueModelClass($value);
-                        $values[$i] = $valueObj;
-                    } catch (Exception $ex) {
-                        $values[$i] = $value;
-                    }
-                }
+        if (is_null($this->_valueModelClass)) {
+            return $values;
+        }
+
+        foreach ($values as $i => $value) {
+            if (is_object($value) or is_null($value)) {
+                continue;
+            }
+
+            try {
+                $valueObj = new $this->_valueModelClass($value);
+                $values[$i] = $valueObj;
+            } catch (Exception $ex) {
+                throw new Opus_Model_Exception("Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})", null, $ex);
             }
         }
         return $values;
