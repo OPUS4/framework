@@ -475,29 +475,14 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     private function _deleteDependentModels(array $removees = null) {
         if (null === $removees) {
-            if (is_array($this->_value)) {
-                foreach ($this->_value as $submodel) {
-                    if ($submodel instanceof Opus_Model_Dependent_Abstract) {
-                        $token = $submodel->delete();
-                        $objhash = spl_object_hash($submodel);
-                        $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
-                    }
-                }
-            } else {
-                if ($this->_value instanceof Opus_Model_Dependent_Abstract) {
-                    $submodel = $this->_value;
-                    $token = $submodel->delete();
-                    $objhash = spl_object_hash($submodel);
-                    $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
-                }
-            }
-        } else {
-            foreach ($removees as $submodel) {
-                if ($submodel instanceof Opus_Model_Dependent_Abstract) {
-                    $token = $submodel->delete();
-                    $objhash = spl_object_hash($submodel);
-                    $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
-                }
+            $removees = is_array($this->_value) ? $this->_value : array($this->_value);
+        }
+
+        foreach ($removees as $submodel) {
+            if ($submodel instanceof Opus_Model_Dependent_Abstract) {
+                $token = $submodel->delete();
+                $objhash = spl_object_hash($submodel);
+                $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
             }
         }
     }
