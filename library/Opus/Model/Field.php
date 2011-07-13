@@ -63,6 +63,13 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     protected $_multiplicity = 1;
 
     /**
+     * Simple check for multiple values.
+     *
+     * @var bool
+     */
+    private $_hasMultipleValues = false;
+
+    /**
      * Specifiy whether the field is required or not.
      *
      * @var unknown_type
@@ -239,6 +246,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
         $this->_multiplicity = $max;
+        $this->_hasMultipleValues = (($max > 1) or ($max === '*'));
         return $this;
     }
 
@@ -270,8 +278,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @return Boolean True, if field can have multiple values.
      */
     public function hasMultipleValues() {
-        $mult = $this->getMultiplicity();
-        return (($mult > 1) or ($mult === '*'));
+        return $this->_hasMultipleValues;
     }
 
     /**
