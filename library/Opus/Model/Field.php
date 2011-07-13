@@ -583,17 +583,15 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @return mixed|array The parameter value, or an array holding the parameter value.
      */
     private function _wrapValueInArrayIfRequired($value) {
-        if ((false === is_array($value))
-                and ($this->hasMultipleValues())) {
-            if (null === $value) {
-                return array();
-            }
-            else {
-                return array($value);
-            }
+        if (is_array($value) or !$this->hasMultipleValues()) {
+           return $value;
         }
-        return $value;
+    
+        if (is_null($value)) {
+           return array();
+        }
 
+        return array($value);
     }
 
     /**
