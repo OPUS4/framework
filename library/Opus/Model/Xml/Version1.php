@@ -188,8 +188,8 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
             }
-            if ($fieldValues instanceOf Opus_Date || $fieldValues instanceOf Zend_Date) {
-                $fieldValues = $fieldValues->getIso();
+            if ($fieldValues instanceOf DateTimeZone) {
+                $fieldValues = $fieldValues->getName();
             }
 
             // Replace invalid XML-1.0-Characters by UTF-8 replacement character.

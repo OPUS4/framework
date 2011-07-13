@@ -53,11 +53,14 @@ class Opus_Date extends Opus_Model_Abstract {
         if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
         } else
+        if ($value instanceof DateTime) {
+            $this->setDateTime($value);
+        } else
         if (is_string($value)) {
             $this->setFromString($value);
         } else
         if ($value instanceof Opus_Date) {
-            $this->setZendDate($value->getZendDate());
+            $this->setDateTime($value->getDateTime());
         } else {
             // set all fields to 0
             $this->setYear(0)
@@ -66,7 +69,7 @@ class Opus_Date extends Opus_Model_Abstract {
                 ->setHour(0)
                 ->setMinute(0)
                 ->setSecond(0)
-                ->setTimezone('')
+                ->setTimezone('UTC')
                 ->setUnixTimestamp(0);
         }
     }
@@ -121,6 +124,64 @@ class Opus_Date extends Opus_Model_Abstract {
     }
 
     /**
+     * Sets timezone of Date object.  If input is not of type DateTimeZone, then
+     * it must be a valid timezone that works with
+     *     new DateTimeZone($timezone)
+     *
+     * @param string|DateTimeZone $timezone
+     * @return Opus_Date Provide fluent interface.
+     */
+    public function setTimezone($timezone = 'UTC') {
+        if (!$timezone instanceof DateTimeZone) {
+            $timezone = @timezone_open($timezone);
+        }
+
+        if (!$timezone instanceof DateTimeZone) {
+            throw new InvalidArgumentException('Could not get DateTimeZone object from timezone parameter.');
+        }
+
+        parent::setTimezone($timezone);
+        return $this;
+    }
+
+    /**
+     * Returns a DateTime instance properly set up with
+     * date values as described in the Models fields.
+     *
+     * @return DateTime
+     */
+    public function getDateTime() {
+        $datetime = new DateTime(null, $this->getTimezone());
+        $datetime->setDate($this->getYear(), $this->getMonth(), $this->getDay());
+        $datetime->setTime($this->getHour(), $this->getMinute(), $this->getSecond());
+        return $datetime;
+    }
+
+    /**
+     * Set date values from DateTime instance.
+     *
+     * @param DateTime $date DateTime instance to use.
+     * @return Opus_Date provide fluent interface.
+     */
+    public function setDateTime($datetime) {
+        if (!$datetime instanceof DateTime) {
+            throw new InvalidArgumentException('Invalid DateTime object.');
+        }
+
+        $this->setYear($datetime->format("Y"));
+        $this->setMonth($datetime->format("m"));
+        $this->setDay($datetime->format("d"));
+        $this->setHour($datetime->format("H"));
+        $this->setMinute($datetime->format("i"));
+        $this->setSecond($datetime->format("s"));
+
+        $this->setTimezone($datetime->getTimezone());
+        $this->setUnixTimestamp($datetime->getTimestamp());
+
+        return $this;
+    }
+
+    /**
      * Set date values from Zend_Date instance.
      *
      * @param Zend_Date $date Zend_Date instance to use.
@@ -147,9 +208,18 @@ class Opus_Date extends Opus_Model_Abstract {
      */
     public function setFromString($date) {
         if (true === empty($date)) {
-            $date = null;
+            throw new InvalidArgumentException('Empty date string passed.');
         }
-        $this->setZendDate(new Zend_Date($date));
+
+        $datetime = null;
+        if (strlen($date) >= 18) {
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:sP', $date);
+        }
+        else if (strlen($date) >= 10) {
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s', substr($date, 0, 10) . 'T00:00:00');
+        }
+
+        $this->setDateTime($datetime);
     }
     
     /**
@@ -158,16 +228,17 @@ class Opus_Date extends Opus_Model_Abstract {
      * @return void
      */
     public function setNow() {
-        $this->setZendDate(new Zend_Date);
+        $this->setDateTime(new DateTime());
     }
     
     /**
-     * Return ISO 8601 string representation of the date.
+     * Return ISO 8601 string representation of the date.  For instance:
+     *    2011-02-28T23:59:59[+-]01:30
      *
      * @return string ISO 8601 date string.
      */
     public function __toString() {
-        return $this->getZendDate()->getIso();
+        return $this->getDateTime()->format('Y-m-d\TH:i:sP');
     }
 
 }

@@ -544,7 +544,7 @@ class Opus_DocumentTest extends TestCase {
 
         $patent = new Opus_Patent();
         $patent->setNumber('X0815');
-        $patent->setDateGranted('01-01-2001');
+        $patent->setDateGranted('2001-01-01');
 
         $doc->addPatent($patent);
         $doc->store();
@@ -971,17 +971,17 @@ class Opus_DocumentTest extends TestCase {
         $locale = new Zend_Locale('de_DE');
         $doc = new Opus_Document();
 
-        $doc->setPublishedDate('05.10.2008');
+        $doc->setPublishedDate('2008-10-05');
 
         $personAuthor = new Opus_Person();
         $personAuthor->setFirstName('Real');
         $personAuthor->setLastName('Tester');
-        $personAuthor->setDateOfBirth('23.06.1965');
+        $personAuthor->setDateOfBirth('1965-06-23');
         $doc->addPersonAuthor($personAuthor);
 
         $patent = new Opus_Patent();
         $patent->setNumber('08 15');
-        $patent->setDateGranted('07.07.2008');
+        $patent->setDateGranted('2008-07-07');
         $doc->addPatent($patent);
 
         $docId = $doc->store();
@@ -991,10 +991,10 @@ class Opus_DocumentTest extends TestCase {
         $personAuthor = $doc->getPersonAuthor(0);
         $patent = $doc->getPatent(0);
         
-        $localeFormatDate = Zend_Locale_Format::getDateFormat($locale);
-        $this->assertEquals('05.10.2008', $publishedDate->getZendDate()->toString($localeFormatDate), 'Setting a date through string does not work.');
-        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getZendDate()->toString($localeFormatDate), 'Setting a date on a model doesn not work.');
-        $this->assertEquals('07.07.2008', $patent->getDateGranted()->getZendDate()->toString($localeFormatDate), 'Setting a date on a dependent model doesn not work.');
+        $formatDate = 'd.m.Y';
+        $this->assertEquals('05.10.2008', $publishedDate->getDateTime()->format($formatDate), 'Setting a date through string does not work.');
+        $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getDateTime()->format($formatDate), 'Setting a date on a model doesn not work.');
+        $this->assertEquals('07.07.2008', $patent->getDateGranted()->getDateTime()->format($formatDate), 'Setting a date on a dependent model doesn not work.');
     }
 
     /**

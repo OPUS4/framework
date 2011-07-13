@@ -61,13 +61,13 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $document->getField('Language')->setIgnoreMultiplicity(true);
         $document->setLanguage(array('deu', 'eng'));
 
-        $document->setPublishedDate(date('d.m.Y'));
+        $document->setPublishedDate(date('Y-m-d'));
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
-        $author->setDateOfBirth('14.06.1963');
+        $author->setDateOfBirth('1963-06-12');
 
         $document->addPersonAuthor($author);
         $document->addPersonAuthor($author);
@@ -120,13 +120,13 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         $document->getField('Language')->setIgnoreMultiplicity(true);
         $document->setLanguage(array('deu', 'eng'));
 
-        $document->setPublishedDate(date('d.m.Y'));
+        $document->setPublishedDate(date('Y-m-d'));
         $document->setServerState('unpublished');
 
         $author = new Opus_Person();
         $author->setFirstName('Ludwig');
         $author->setLastName('Wittgenstein');
-        $author->setDateOfBirth('14.06.1963');
+        $author->setDateOfBirth('1963-06-12');
 
         $document->addPersonAuthor($author);
         $document->addPersonAuthor($author);

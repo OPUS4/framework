@@ -92,7 +92,7 @@ class Opus_DateTest extends TestCase {
      * @return void
      */
     public function testCreateWithStringConstructionArgument() {
-        $od = new Opus_Date('10.11.1972');
+        $od = new Opus_Date('1972-11-10');
         $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');        
         $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');        
         $this->assertEquals(10, (int) $od->getDay(), 'Day values dont match.');        
@@ -106,13 +106,40 @@ class Opus_DateTest extends TestCase {
     public function testCreateWithZendDateConstructionArgument() {
         $now = new Zend_Date;
         $od = new Opus_Date($now);
-        $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');        
-        $this->assertEquals($od->getMonth(), $now->get(Zend_Date::MONTH), 'Month values dont match.');        
-        $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');        
+        $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');
+        $this->assertEquals($od->getMonth(), $now->get(Zend_Date::MONTH), 'Month values dont match.');
+        $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');
     }
 
     /**
-     * Test if Opus_Date/Zend_Date swaps month/year when locale == en
+     * Test creation by passing Opus_Date as constructor argument.
+     *
+     * @return void
+     */
+    public function testCreateWithOpusDateConstructionArgument() {
+        $now = new Opus_Date;
+        $now->setNow();
+        $od = new Opus_Date($now);
+        $this->assertEquals($od->getYear(), $now->getYear(), 'Year values dont match.');
+        $this->assertEquals($od->getMonth(), $now->getMonth(), 'Month values dont match.');
+        $this->assertEquals($od->getDay(), $now->getDay(), 'Day values dont match.');
+    }
+
+    /**
+     * Test creation by passing DateTime as constructor argument.
+     *
+     * @return void
+     */
+    public function testCreateWithDateTimeConstructionArgument() {
+        $now = new DateTime;
+        $od = new Opus_Date($now);
+        $this->assertEquals($od->getYear(), $now->format('Y'), 'Year values dont match.');
+        $this->assertEquals($od->getMonth(), $now->format('m'), 'Month values dont match.');
+        $this->assertEquals($od->getDay(), $now->format('d'), 'Day values dont match.');
+    }
+
+    /**
+     * Test if Opus_Date swaps month/year when locale == en
      *
      * @return void
      */
@@ -121,9 +148,117 @@ class Opus_DateTest extends TestCase {
         Zend_Registry::set('Zend_Locale', $locale);
         $date = new Opus_Date('2010-06-04T02:36:53Z');
 
-        $this->markTestIncomplete('Incomplete until OPUSVIER-1141 and OPUSVIER-1411 fixed.');
         $this->assertEquals(4, $date->getDay());
         $this->assertEquals(6, $date->getMonth());
+    }
+
+    /**
+     * Test if setNow really sets now.
+     *
+     * @return void
+     */
+    function testSetNow() {
+        $date = new Opus_Date();
+        $date->setNow();
+
+        $this->assertEquals(date('Y'), $date->getYear());
+        $this->assertEquals(date('m'), $date->getMonth());
+        $this->assertEquals(date('d'), $date->getDay());
+    }
+
+    /**
+     * Test if converting from-to string is invariant.
+     *
+     * @return void
+     */
+    function testFromStringToStringIsInvariant() {
+        $date = new Opus_Date();
+        $date->setFromString('2010-06-04T22:36:53Z');
+
+        $this->assertEquals(2010, $date->getYear());
+        $this->assertEquals(06, $date->getMonth());
+        $this->assertEquals(04, $date->getDay());
+
+        $this->assertEquals(22, $date->getHour());
+        $this->assertEquals(36, $date->getMinute());
+        $this->assertEquals(53, $date->getSecond());
+
+        $this->assertEquals('2010-06-04T22:36:53+00:00', "$date");
+    }
+
+    /**
+     * Test if converting from-to string is invariant.
+     *
+     * @return void
+     */
+    function testFromStringToStringKeepsTimeZone() {
+        $date = new Opus_Date();
+        $date->setFromString('2010-06-04T22:36:53+2:3');
+
+        $this->assertEquals(2010, $date->getYear());
+        $this->assertEquals(06, $date->getMonth());
+        $this->assertEquals(04, $date->getDay());
+
+        $this->assertEquals(22, $date->getHour());
+        $this->assertEquals(36, $date->getMinute());
+        $this->assertEquals(53, $date->getSecond());
+
+        $this->assertEquals('2010-06-04T22:36:53+02:03', "$date");
+    }
+
+    /**
+     * Test if setFromString() handles broken dates correctly.
+     *
+     * @return void
+     */
+    function testSetFromStringErrorHandling() {
+
+        $invalidStrings = array(
+            '',
+            null,
+            '2010',
+            '2011-12-bla',
+            '01.01.2010',
+            '2011-12-12T23:59:59',
+            '2011-12-12X99:99:99Z',
+        );
+        foreach ($invalidStrings AS $invalidString) {
+            try {
+                $date = new Opus_Date();
+                $date->setFromString($invalidString);
+                $this->fail("Missing expected InvalidArgumentException for invalid string '{$invalidString}'.");
+            }
+            catch (InvalidArgumentException $e) {
+                // OK.
+            }
+        }
+
+    }
+
+    /**
+     * Test if setFromString() handles invalid time zone parameter.
+     *
+     * @return void
+     */
+    function testSetTimezoneErrorHandling() {
+
+        $invalidStrings = array(
+            null,
+            new stdClass(),
+            '',
+            'bla',
+        );
+        foreach ($invalidStrings AS $invalidString) {
+            try {
+                $date = new Opus_Date();
+                $date->setTimezone($invalidString);
+                $this->fail("Missing expected InvalidArgumentException for invalid timezone '{$invalidString}'.");
+            }
+            catch (InvalidArgumentException $e) {
+                // OK.
+            }
+        }
+
     }
 
 }

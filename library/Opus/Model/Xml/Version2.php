@@ -190,8 +190,8 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             if (true === $field->hasMultipleValues()) {
                 $fieldValues = implode(',', $fieldValues);
             }
-            if ($fieldValues instanceOf Opus_Date || $fieldValues instanceOf Zend_Date) {
-                $fieldValues = $fieldValues->getIso();
+            if ($fieldValues instanceOf DateTimeZone) {
+                $fieldValues = $fieldValues->getName();
             }
             // set value
             //if (empty($fieldValues) === false)
