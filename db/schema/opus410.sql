@@ -559,7 +559,9 @@ CREATE TABLE IF NOT EXISTS `document_xml_cache` (
     `server_date_modified` VARCHAR(50) NULL,
     `xml_data` MEDIUMTEXT,
     PRIMARY KEY (`document_id`, `xml_version`)
-);
+)
+ENGINE = InnoDB
+COMMENT = 'Caches XML for Opus_Document objects.';
 
 -- -----------------------------------------
 -- Table holding scheduled job information
