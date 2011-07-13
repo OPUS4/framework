@@ -109,6 +109,17 @@ class Opus_Language extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Get all active languages.
+     *
+     * @return array Array of Opus_Language objects which are active.
+     */
+    public static function getAllActiveTable() {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $rows = $table->fetchAll($table->select()->where('active = ?', 1))->toArray();
+        return $rows;
+    }
+
+    /**
      * Returns reference language name.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
