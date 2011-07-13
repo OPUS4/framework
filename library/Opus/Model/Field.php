@@ -431,17 +431,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @return void
      */
     private function _typeCheckValues(array $values) {
-        if (null !== $this->_valueModelClass) {
-            // typecheck each array element
-            foreach ($values as $v) {
+        if (is_null($this->_valueModelClass)) {
+            return;
+        }
+
+        // determine expected type
+        $etype = $this->_valueModelClass;
+
+        // typecheck each array element
+        foreach ($values as $v) {
                 // skip null values
                 if (null === $v) {
                     continue;
                 }
-                
-                // determine expected type            
-                $etype = $this->_valueModelClass;
-                
+
                 // values must be objects - should be checked before get_class.
                 if (false === is_object($v)) {
                     throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})");
@@ -460,7 +463,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                         throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
                     }
                 }
-            }
         }
     }
 
