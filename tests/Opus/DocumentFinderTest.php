@@ -123,8 +123,6 @@ class Opus_DocumentFinderTest extends TestCase {
      * @return void
      */
     public function testAllConstraints() {
-        $this->prepareDocuments();
-
         // published
         $finder = new Opus_DocumentFinder();
         $finder->setEnrichmentKeyExists('foobar')
@@ -134,7 +132,9 @@ class Opus_DocumentFinderTest extends TestCase {
                ->setIdRangeEnd(1)
                ->setIdentifierTypeValue('opus-3', 23)
                ->setServerState('published')
+               ->setServerStateInList(array('published'))
                ->setType('fooprintbar')
+               ->setTypeInList(array('fooprintbar'))
                ->setServerDateModifiedRange('2010-01-01', '2000-01-01')
                ->setServerDatePublishedRange('1999-12-31', '1900-01-01')
                ->setIdSubset(null)

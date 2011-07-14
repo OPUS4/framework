@@ -182,11 +182,33 @@ class Opus_DocumentFinder {
     /**
      * Add constraints to be applied on the result set.
      *
+     * @param  string $type_array
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setTypeInList($type_array) {
+        $this->select->where('type IN (?)', $type_array);
+        return $this;
+    }
+
+    /**
+     * Add constraints to be applied on the result set.
+     *
      * @param  string $type
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerState($server_state) {
         $this->select->where('server_state = ?', $server_state);
+        return $this;
+    }
+
+    /**
+     * Add constraints to be applied on the result set.
+     *
+     * @param  string $server_state_array
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setServerStateInList($server_state_array) {
+        $this->select->where('server_state IN (?)', $server_state_array);
         return $this;
     }
 
@@ -223,8 +245,30 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setServerDateModifiedRange($from, $until) {
-        $this->select->where('d.server_date_modified >= ?', $from)
-                ->where('d.server_date_modified < ?', $until);
+        $this->setServerDateModifiedAfter($from)
+                ->setServerDateModifiedBefore($until);
+        return $this;
+    }
+
+    /**
+     * Add range-constraints to be applied on the result set.
+     *
+     * @param  string $from
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setServerDateModifiedAfter($from) {
+        $this->select->where('d.server_date_modified >= ?', $from);
+        return $this;
+    }
+
+    /**
+     * Add range-constraints to be applied on the result set.
+     *
+     * @param  string $from
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setServerDateModifiedBefore($until) {
+        $this->select->where('d.server_date_modified < ?', $until);
         return $this;
     }
 
