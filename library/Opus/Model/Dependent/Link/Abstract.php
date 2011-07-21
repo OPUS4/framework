@@ -108,21 +108,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return mixed
      */
     public function __call($name, array $arguments) {
-        $accessor = substr($name, 0, 3);
-
-        // Filter calls to unknown methods and turn them into an exception
-        $validAccessors = array('set', 'get', 'add');
-        if (in_array($accessor, $validAccessors) === false) {
-            throw new BadMethodCallException($name . ' is no method in this object.');
-        }
-
         $fieldname = substr($name, 3);
 
         // use own __call method if field is appended to the link model
         if (true === isset($this->_fields[$fieldname])) {
             return parent::__call($name, $arguments);
         } else {
-            if (isset($arguments[0]) === true) {
+            if (array_key_exists(0, $arguments) === true) {
                 return $this->_model->$name($arguments[0]);
             } else {
                 return $this->_model->$name();
@@ -138,11 +130,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return array    List of fields
      */
     public function describe() {
-        $result = array();
+        $result = parent::describe();
         if (null !== $this->_model) {
-            $result = $this->_model->describe();
+            $result = array_merge($this->_model->describe(), $result);
         }
-        $result = array_merge($result, parent::describe());
         return $result;
     }
 
@@ -154,9 +145,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return array    List of fields
      */
     public function describeAll() {
-        $result = $this->_model->describeAll();
-        $result = array_merge($result, parent::describeAll());
-        return $result;
+        return array_merge($this->_model->describeAll(), parent::describeAll());
     }
 
     /**
