@@ -115,7 +115,7 @@ abstract class Opus_Model_Abstract {
 
         switch ($accessor) {
             case 'get':
-                return $this->_get($field, $arguments);
+                return $this->_getFieldValue($field, $argument);
                 break;
 
             case 'set':
@@ -137,31 +137,16 @@ abstract class Opus_Model_Abstract {
      * Implements field getter mechanism.
      *
      * @param Opus_Model_Field $field The field to work on.
-     * @param mixed  $arguments Arguments passed in the get-call.
+     * @param mixed            $index Index of the element to fetch.
      *
      * @return mixed    The value of the field.
      */
-    protected function _get(Opus_Model_Field $field, $arguments) {
-        $fieldvalue = $field->getValue();
-        if (false === is_array($fieldvalue)) {
-            $fieldvalue = array($fieldvalue);
+    protected function _getFieldValue(Opus_Model_Field $field, $index) {
+        if (!is_null($index)) {
+            return $field->getValue($index);
         }
 
-        if (true === $field->hasMultipleValues()) {
-
-            if (empty($arguments) === false) {
-                $index = $arguments[0];
-                $result =  $fieldvalue[$index];
-            } else {
-                $result =  $fieldvalue;
-            }
-
-        } else {
-            $result = $fieldvalue[0];
-        }
-
-        return $result;
-
+        return $field->getValue();
     }
 
     /**
