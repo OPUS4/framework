@@ -619,7 +619,7 @@ abstract class Opus_Model_AbstractDb
             }
 
             if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
-                throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . get_class($modelclass) . '.');
+                throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . $modelclass . '.');
             }
 
             // Do nothing if the current model has not been persisted
