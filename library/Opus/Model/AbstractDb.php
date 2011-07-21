@@ -476,12 +476,12 @@ abstract class Opus_Model_AbstractDb
             foreach ($this->_fields as $fieldname => $field) {
                 
                 // Skip external fields.
-                if (in_array($fieldname, array_keys($this->_externalFields))) {
+                if (isset($this->_externalFields[$fieldname])) {
                     continue;
                 }
 
                 // map field values: Cannot process array-valued fields
-                $fieldValue = $this->_fields[$fieldname]->getValue();
+                $fieldValue = $field->getValue();
 
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
@@ -522,10 +522,10 @@ abstract class Opus_Model_AbstractDb
     protected function _storeExternalFields() {
         try {
             // Store external fields.
-            foreach (array_keys($this->_externalFields) as $fieldname) {
+            foreach ($this->_externalFields as $fieldname => $field_info) {
 
                 // Skip external fields, that have not been added to the model.
-                if (in_array($fieldname, array_keys($this->_fields)) === false) {
+                if (!isset($this->_fields[$fieldname])) {
                     continue;
                 }
 
