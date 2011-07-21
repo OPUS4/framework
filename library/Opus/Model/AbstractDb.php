@@ -914,6 +914,7 @@ abstract class Opus_Model_AbstractDb
                 $addToPrimaryKey = $this->_externalFields[$fieldname]['addprimarykey'];
             }
 
+            $values = is_array($values) ? $values : array($values);
             foreach ($values as $i => $value) {
                 $linkmodel = null;
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {

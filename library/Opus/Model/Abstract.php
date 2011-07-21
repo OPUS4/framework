@@ -94,7 +94,6 @@ abstract class Opus_Model_Abstract {
         if (false === empty($arguments)) {
             $argumentGiven = true;
             $argument = $arguments[0];
-            $argument = is_array($argument) ? $argument : array($argument);
         }
 
         // Filter calls to unknown methods and turn them into an exception
