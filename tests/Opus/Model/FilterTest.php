@@ -90,7 +90,9 @@ class Opus_Model_FilterTest extends TestCase {
      * @return void
      */
     public function testFilterWithoutBlacklistReturnsAllFields() {
-        $this->assertEquals($this->filter->describe(), $this->model->describe(),
+        $this->assertEquals(
+            array_values($this->filter->describe()),
+            array_values($this->model->describe()),
             'Filter fieldlist result differs from model fieldlist.');
     }
 
