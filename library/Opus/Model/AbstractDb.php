@@ -908,13 +908,14 @@ abstract class Opus_Model_AbstractDb
             // beautyful, but it works for now.  There won't be an easier
             // solution without major changes on the framework/schema, since
             // we cannot know the type of ternary relations at this point.
-            $addToPrimaryKey = array();
-            if (array_key_exists($fieldname, $this->_externalFields) and
-                array_key_exists('addprimarykey', $this->_externalFields[$fieldname])) {
-                $addToPrimaryKey = $this->_externalFields[$fieldname]['addprimarykey'];
+            $addTypeForTernaryRelation = null;
+            if (isset($this->_externalFields[$fieldname]['addprimarykey'][0])) {
+                $addTypeForTernaryRelation = $this->_externalFields[$fieldname]['addprimarykey'][0];
             }
 
+            $values_as_array = is_array($values);
             $values = is_array($values) ? $values : array($values);
+
             foreach ($values as $i => $value) {
                 $linkmodel = null;
                 if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
@@ -926,10 +927,12 @@ abstract class Opus_Model_AbstractDb
                     $linkmodel->setModel($value);
                 }
                 else {
-                    try {
-                        $linkId = array($this->getId(), $value->getId());
-                        $linkId = array_merge($linkId, $addToPrimaryKey);
+                    $linkId = array($this->getId(), $value->getId());
+                    if (isset($addTypeForTernaryRelation)) {
+                        $linkId[] = $addTypeForTernaryRelation;
+                    }
 
+                    try {
                         $linkmodel = new $linkmodelclass($linkId);
                     }
                     catch (Opus_Model_NotFoundException $e) {
@@ -939,9 +942,47 @@ abstract class Opus_Model_AbstractDb
                 }
                 $values[$i] = $linkmodel;
             }
+
+            if (!$values_as_array) {
+                $values = $values[0];
+            }
         }
 
         return parent::_setFieldValue($field, $values);
+    }
+
+    /**
+     * Implements adder mechanism.
+     *
+     * @see Opus_Model_Abstract::_addFieldValue()
+     */
+    protected function _addFieldValue(Opus_Model_Field $field, $value) {
+        // get Modelclass if model is linked
+        $linkmodelclass = $field->getLinkModelClass();
+        if (!is_null($linkmodelclass)) {
+
+            // Check if $linkmodelclass is a known class name
+            if (class_exists($linkmodelclass) === false) {
+                throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
+            }
+
+            if (is_null($value)) {
+                throw new InvalidArgumentException('Argument required when adding to a link field.');
+            }
+
+            if (!$value instanceof Opus_Model_Dependent_Link_Abstract) {
+                $linkmodel = new $linkmodelclass;
+                $linkmodel->setModel($value);
+                $value = $linkmodel;
+            }
+        }
+
+        $value = parent::_addFieldValue($field, $value);
+        if ($value instanceof Opus_Model_Dependent_Abstract) {
+            $value->setParentId($this->getId());
+        }
+
+        return $value;
     }
 
     /**

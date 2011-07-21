@@ -123,7 +123,7 @@ abstract class Opus_Model_Abstract {
                 break;
 
             case 'add':
-                return $this->_add($field, $arguments);
+                return $this->_addFieldValue($field, $argument);
                 break;
 
             default:
@@ -184,49 +184,17 @@ abstract class Opus_Model_Abstract {
      *
      * @return Opus_Model_Abstract The added model (can be a new model).
      */
-    protected function _add(Opus_Model_Field $field, $arguments) {
-        $linkmodelclass = $field->getLinkModelClass();
-
-        // get Modelclass if model is linked
-        if (!is_null($linkmodelclass)) {
-
-            // Check if $linkmodelclass is a known class name
-            if (class_exists($linkmodelclass) === false) {
-                throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
+    protected function _addFieldValue(Opus_Model_Field $field, $value) {
+        if (is_null($value)) {
+            $modelclass = $field->getValueModelClass();
+            if (is_null($modelclass)) {
+                throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
             }
-
-            if (count($arguments) !== 1) {
-                throw new InvalidArgumentException('Argument required when adding to a link field.');
-            }
-
-            if (($arguments[0] instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                $linkmodel = $arguments[0];
-            }
-            else {
-                $linkmodel = new $linkmodelclass;
-                $linkmodel->setModel($arguments[0]);
-            }
-
-            $model = $linkmodel;
-
-        } else {
-            if ((count($arguments) === 1)) {
-                $model = $arguments[0];
-            } else {
-                if (is_null($field->getValueModelClass()) === true) {
-                    throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
-                }
-                $modelclass = $field->getValueModelClass();
-                $model = new $modelclass;
-            }
-
-            if (is_object($model) and ($model instanceof Opus_Model_Dependent_Abstract)) {
-                $model->setParentId($this->getId());
-            }
+            $value = new $modelclass;
         }
 
-        $field->addValue($model);
-        return $model;
+        $field->addValue($value);
+        return $value;
     }
 
     /**
