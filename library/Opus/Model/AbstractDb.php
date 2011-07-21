@@ -618,6 +618,10 @@ abstract class Opus_Model_AbstractDb
                 throw new Opus_Model_Exception($message);
             }
 
+            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
+                throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . get_class($modelclass) . '.');
+            }
+
             // Do nothing if the current model has not been persisted
             // (if no identifier given)
             if ($this->getId() === null) {
@@ -651,10 +655,6 @@ abstract class Opus_Model_AbstractDb
             // Create new model for each row
             foreach ($rows as $row) {
                 $newModel = new $modelclass($row);
-
-                if (!($newModel instanceof Opus_Model_Dependent_Abstract)) {
-                    throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . get_class($newModel) . '.');
-                }
 
                 if (is_null($newModel->getParentId())) {
                     throw new Opus_Model_Exception('Object in ' . $fieldname . ' contains empty ParentId.  Please check class ' . get_class($newModel) . '.');
