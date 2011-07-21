@@ -371,20 +371,34 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         }
 
         // Re-set sort order:
-        if (is_string($this->_sortFieldName)) {
-            $sort_field = $this->_sortFieldName;
-            $sort_value = 1;
-
-            $values_new = $this->_wrapValueInArrayIfRequired($value);
-            foreach ($values_new AS $value_new) {
-                $value_new->getField($sort_field)->setValue($sort_value);
-                $sort_value++;
-            }
-        }
+        $this->_fixSortOrder($value);
 
         $this->_value = $value;
         $this->_modified = true;
         return $this;
+    }
+
+    /**
+     * Fixes sort order for a given array of fields.
+     *
+     * @param array $values
+     * @return void
+     */
+    private function _fixSortOrder($values, $sort_value = 1) {
+        if (is_null($values)) {
+            return;
+        }
+
+        $sort_field = $this->_sortFieldName;
+        if (!is_string($sort_field)) {
+            return;
+        }
+
+        $values = is_array($values) ? $values : array($values);
+        foreach ($values AS $value_new) {
+            $value_new->getField($sort_field)->setValue($sort_value);
+            $sort_value++;
+        }
     }
 
     /**
