@@ -617,14 +617,14 @@ abstract class Opus_Model_AbstractDb
                 throw new Opus_Model_Exception($message);
             }
 
-            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
-                throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . $modelclass . '.');
-            }
-
             // Do nothing if the current model has not been persisted
             // (if no identifier given)
             if ($this->getId() === null) {
                 return;
+            }
+
+            if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
+                throw new Opus_Model_Exception('Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class ' . $modelclass . '.');
             }
 
             $tableclass = $modelclass::getTableGatewayClass();
