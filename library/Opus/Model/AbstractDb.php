@@ -597,32 +597,19 @@ abstract class Opus_Model_AbstractDb
      * @return void
      */
     protected function _loadExternal($fieldname) {
+        $field = $this->_fields[$fieldname];
+
         // Check if the fetch mechanism for the field is overwritten in model.
         $callname = '_fetch' . $fieldname;
         if (method_exists($this, $callname) === true) {
             $result = $this->$callname();
         } else {
-            // Get declared options if any
-            $options = null;
-            if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
-                $options = $this->_externalFields[$fieldname]['options'];
-            }
-
-            // Get declared sort order if any
-            $sort_order = null;
-            if (array_key_exists('sort_order', $this->_externalFields[$fieldname]) === true) {
-                $sort_order = $this->_externalFields[$fieldname]['sort_order'];
-            }
-
             // Determine the class of the field values model
-            $modelclass = null;
-            if (array_key_exists('through', $this->_externalFields[$fieldname])) {
-                // If handling a link model, fetch modelclass from 'through' option.
-                $modelclass = $this->_externalFields[$fieldname]['through'];
-            } 
-            else if (array_key_exists('model', $this->_externalFields[$fieldname])) {
-                // Otherwise just use the 'model' option.
-                $modelclass = $this->_externalFields[$fieldname]['model'];
+            // For handling a link model, see 'through' option.
+            $modelclass = $field->getLinkModelClass();
+            if (!isset($modelclass)) {
+                // For handling a value model, see 'model' option.
+                $modelclass = $field->getValueModelClass();
             }
 
             // Make sure that a field's value model is inherited from Opus_Model_AbstractDb
@@ -631,35 +618,34 @@ abstract class Opus_Model_AbstractDb
                 throw new Opus_Model_Exception($message);
             }
 
-            // Prepare field value
-            $result = array();
-
             // Do nothing if the current model has not been persisted
             // (if no identifier given)
             if ($this->getId() === null) {
                 return;
             }
 
-            // Get the table gateway class
             $tableclass = $modelclass::getTableGatewayClass();
             $table = Opus_Db_TableGateway::getInstance($tableclass);
-
-            // Get name of id column in target table
             $select = $table->select();
-            if (is_array($options)) {
+
+            // If any declared constraints, add them to query
+            if (isset($this->_externalFields[$fieldname]['options'])) {
+                $options = $this->_externalFields[$fieldname]['options'];
                 foreach ($options as $column => $value) {
                     $select = $select->where("$column = ?", $value);
                 }
             }
 
-            // TODO: $sort_order does not work if no $options are given?
-            if (is_array($sort_order)) {
+            // If sort_order is defined, add to query
+            if (isset($this->_externalFields[$fieldname]['sort_order'])) {
+                $sort_order = $this->_externalFields[$fieldname]['sort_order'];
                 foreach ($sort_order as $column => $order) {
                     $select = $select->order("$column $order");
                 }
             }
 
             // Get dependent rows
+            $result = array();
             $rows = $this->_primaryTableRow->findDependentRowset($table, null, $select);
 
             // Create new model for each row
@@ -687,7 +673,7 @@ abstract class Opus_Model_AbstractDb
             }
         }
         // Set the field value
-        $this->_fields[$fieldname]->setValue($result);
+        $field->setValue($result);
 
         // TODO: Could be removed!  Needs more testing before doing so...
         // iterate through dependend models and set parent id
