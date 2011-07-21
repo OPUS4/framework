@@ -119,10 +119,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         $fieldname = substr($name, 3);
 
         // use own __call method if field is appended to the link model
-        if (true === array_key_exists($fieldname, $this->_fields)) {
+        if (true === isset($this->_fields[$fieldname])) {
             return parent::__call($name, $arguments);
         } else {
-            if (array_key_exists(0, $arguments) === true) {
+            if (isset($arguments[0]) === true) {
                 return $this->_model->$name($arguments[0]);
             } else {
                 return $this->_model->$name();
