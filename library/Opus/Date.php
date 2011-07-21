@@ -60,7 +60,7 @@ class Opus_Date extends Opus_Model_Abstract {
             $this->setFromString($value);
         } else
         if ($value instanceof Opus_Date) {
-            $this->setDateTime($value->getDateTime());
+            $this->updateFrom($value);
         } else {
             // set all fields to 0
             $this->setYear(0)
