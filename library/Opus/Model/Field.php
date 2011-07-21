@@ -649,11 +649,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 }
             }
 
-            $values_new = $this->_wrapValueInArrayIfRequired($value);
-            foreach ($values_new AS $value_new) {
-                $sort_value_max++;
-                $value_new->getField($sort_field)->setValue($sort_value_max);
-            }
+            $this->_fixSortOrder($value, $sort_value_max+1);
         }
 
         // Add the value to the array
