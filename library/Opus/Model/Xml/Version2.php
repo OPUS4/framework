@@ -139,7 +139,7 @@ class Opus_Model_Xml_Version2 implements Opus_Model_Xml_Strategy {
             $fields = $model->describeUntunneled();
         }
         else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
-            $fields = array();
+            return; // short-circuit
         }
         else {
             $fields = $model->describe();
