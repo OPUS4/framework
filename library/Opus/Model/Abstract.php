@@ -229,7 +229,7 @@ abstract class Opus_Model_Abstract {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function hasField($name) {
-        return (true === array_key_exists($name, $this->_fields))
+        return (true === isset($this->_fields[$name]))
                 and (false === in_array($name, $this->_internalFields, true));
     }
 
@@ -240,7 +240,7 @@ abstract class Opus_Model_Abstract {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function hasMultipleValueField($name) {
-        return (true === array_key_exists($name, $this->_fields))
+        return (true === isset($this->_fields[$name]))
                 and (false === in_array($name, $this->_internalFields, true))
                 and (true === $this->_fields[$name]->getMultiplicity());
     }

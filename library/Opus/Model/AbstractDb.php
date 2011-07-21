@@ -266,7 +266,7 @@ abstract class Opus_Model_AbstractDb
         if (true === is_object($plugin)) {
             $key = get_class($plugin);
         }
-        if (false === array_key_exists($key, $this->_plugins)) {
+        if (false === isset($this->_plugins[$key])) {
             throw new Opus_Model_Exception('Cannot unregister specified plugin: ' . $key);
         }
         unset($this->_plugins[$key]);
@@ -284,12 +284,11 @@ abstract class Opus_Model_AbstractDb
 
         foreach ($this->_fields as $fieldname => $field) {
             // Field is declared as external and requires special handling
-            if (array_key_exists($fieldname, $this->_externalFields) === true) {
+            if (isset($this->_externalFields[$fieldname]) === true) {
                 // Determine the fields fetching mode
-                if (array_key_exists('fetch', $this->_externalFields[$fieldname]) === true) {
+                $fetchmode = 'lazy';
+                if (isset($this->_externalFields[$fieldname]['fetch']) === true) {
                     $fetchmode = $this->_externalFields[$fieldname]['fetch'];
-                } else {
-                    $fetchmode = 'lazy';
                 }
 
                 if ($fetchmode === 'lazy') {
@@ -537,7 +536,7 @@ abstract class Opus_Model_AbstractDb
                 }
                 else {
                     $options = null;
-                    if (array_key_exists('options', $this->_externalFields[$fieldname]) === true) {
+                    if (isset($this->_externalFields[$fieldname]['options']) === true) {
                         $options = $this->_externalFields[$fieldname]['options'];
                     }
                     $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
@@ -847,14 +846,14 @@ abstract class Opus_Model_AbstractDb
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     protected function _getField($name, $ignorePending = false) {
-        if (array_key_exists($name, $this->_fields) !== true) {
+        if (isset($this->_fields[$name]) !== true) {
             return null;
         }
 
         // Check if the field is in suspended fetch state
         if (in_array($name, $this->_pending) === true and $ignorePending === false) {
             // Ensure that _loadExternal is called only on external fields
-            if (array_key_exists($name, $this->_externalFields)) {
+            if (isset($this->_externalFields[$name])) {
                 $this->_loadExternal($name);
                 // Workaround for: unset($this->_pending[$name]);
                 $result = array();

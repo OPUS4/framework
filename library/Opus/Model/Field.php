@@ -561,7 +561,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         // Caller requested a specific array index
         if (!is_null($index)) {
             if (true === is_array($this->_value)) {
-                if (true === array_key_exists($index, $this->_value)) {
+                if (true === isset($this->_value[$index])) {
                     return $this->_value[$index];
                 }
                 else {
