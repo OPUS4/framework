@@ -511,7 +511,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $result = $db->fetchRow($select);
 
-        if (is_array($result) && array_key_exists('document_id', $result)) {
+        if (is_array($result) && isset($result['document_id'])) {
             return true;
         }
 

@@ -186,7 +186,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name, $ignore_pending = false) {
-        if (true === array_key_exists($name, $this->_fields)) {
+        if (true === isset($this->_fields[$name])) {
             return parent::getField($name, $ignore_pending);
         }
         return $this->_model->getField($name, $ignore_pending);

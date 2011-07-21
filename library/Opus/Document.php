@@ -389,7 +389,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         );
 
         foreach ($fields as $fieldname) {
-            if (array_key_exists($fieldname, $this->_externalFields)) {
+            if (isset($this->_externalFields[$fieldname])) {
                 throw new Exception( "Field $fieldname exists in _externalFields" );
             }
 
@@ -740,7 +740,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->where('TRIM(server_date_published) != \'\'');
         $timestamp = $table->fetchRow($select)->toArray();
 
-        if (!array_key_exists('min_date', $timestamp)) {
+        if (!isset($timestamp['min_date'])) {
             return null;
         }
 
