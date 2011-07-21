@@ -192,30 +192,27 @@ abstract class Opus_Model_AbstractDb
      * @return Opus_Model_Abstract Provide fluent interface.
      */
     public function addField(Opus_Model_Field $field) {
-        $result = parent::addField($field);
         $fieldname = $field->getName();
-
-        $options = array();
-        if (array_key_exists($fieldname, $this->_externalFields) === true) {
+        if (isset($fieldname, $this->_externalFields[$fieldname])) {
             $options = $this->_externalFields[$fieldname];
+
+            // set ValueModelClass if a through option is given
+            if (isset($options['model'])) {
+                $field->setValueModelClass($options['model']);
+            }
+
+            // set LinkModelClass if a through option is given
+            if (isset($options['through'])) {
+                $field->setLinkModelClass($options['through']);
+            }
+
+            // set SortOrderField, if a "sort_field" option is given.
+            if (isset($options['sort_field'])) {
+                $field->setSortFieldName($options['sort_field']);
+            }
         }
 
-        // set ValueModelClass if a through option is given
-        if (array_key_exists('model', $options) === true) {
-            $field->setValueModelClass($options['model']);
-        }
-
-        // set LinkModelClass if a through option is given
-        if (array_key_exists('through', $options) === true) {
-            $field->setLinkModelClass($options['through']);
-        }
-
-        // set SortOrderField, if a "sort_field" option is given.
-        if (array_key_exists('sort_field', $options) === true) {
-            $field->setSortFieldName($options['sort_field']);
-        }
-
-        return $result;
+        return parent::addField($field);
     }
 
      /**
