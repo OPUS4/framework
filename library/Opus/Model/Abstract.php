@@ -120,8 +120,7 @@ abstract class Opus_Model_Abstract {
                 break;
 
             case 'set':
-                $this->_setFieldValue($field, $argument);
-                return $this;
+                return $this->_setFieldValue($field, $argument);
                 break;
 
             case 'add':
@@ -171,10 +170,11 @@ abstract class Opus_Model_Abstract {
      *
      * @param Opus_Model_Field $field The field to work on.
      * @param array|null       $values Any value to set.
-     * @return void
+     * @return Opus_Model_Abstract Provide fluent interface.
      */
     protected function _setFieldValue(Opus_Model_Field $field, $values) {
         $field->setValue($values);
+        return $this;
     }
 
     /**

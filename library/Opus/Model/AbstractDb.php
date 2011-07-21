@@ -940,8 +940,7 @@ abstract class Opus_Model_AbstractDb
             }
         }
 
-        $field->setValue($values);
-
+        return parent::_setFieldValue($field, $values);
     }
 
     /**
