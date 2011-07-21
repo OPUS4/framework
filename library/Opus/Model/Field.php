@@ -317,6 +317,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         // If the fields value is not going to change, leave.
         if (is_object($value) === true) {
             // weak comparison for objects
+            // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
             if ($value == $this->_value) {
                 return $this;
             }

@@ -140,7 +140,9 @@ class Opus_Date extends Opus_Model_Abstract {
             throw new InvalidArgumentException('Could not get DateTimeZone object from timezone parameter.');
         }
 
-        parent::setTimezone($timezone);
+        // TODO: We need array($timezone) to workaround model bug.
+        // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
+        parent::setTimezone(array($timezone));
         return $this;
     }
 

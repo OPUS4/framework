@@ -236,6 +236,17 @@ class Opus_DateTest extends TestCase {
     }
 
     /**
+     * @return void
+     */
+    function testSetTimezone() {
+        $date = new Opus_Date();
+        $date->setNow();
+
+        $date->setTimezone('Europe/Berlin');
+        $this->assertEquals('Europe/Berlin', $date->getTimezone()->getName());
+    }
+
+    /**
      * Test if setFromString() handles invalid time zone parameter.
      *
      * @return void
