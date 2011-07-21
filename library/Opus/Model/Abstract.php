@@ -294,7 +294,7 @@ abstract class Opus_Model_Abstract {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     protected function _getField($name) {
-        if (array_key_exists($name, $this->_fields) === true) {
+        if (isset($this->_fields[$name])) {
             return $this->_fields[$name];
         } else {
             return null;
@@ -332,13 +332,7 @@ abstract class Opus_Model_Abstract {
      * @return array    List of fields
      */
     public function describe() {
-        $result = array();
-        foreach (array_keys($this->_fields) as $fieldname) {
-            if (in_array($fieldname, $this->_internalFields) === false) {
-                $result[] = $fieldname;
-            }
-        }
-        return $result;
+        return array_diff(array_keys($this->_fields), $this->_internalFields);
     }
 
     /**
