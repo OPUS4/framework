@@ -101,7 +101,8 @@ abstract class Opus_Model_Abstract {
         }
 
         // check if requested field is known
-        if (false === array_key_exists($fieldname, $this->_fields)) {
+        $field = $this->getField($fieldname);
+        if (!isset($field)) {
             throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
         }
 
@@ -110,22 +111,18 @@ abstract class Opus_Model_Abstract {
             throw new Opus_Model_Exception('Argument required for set() calls, none given.');
         }
 
-        if (true === in_array($fieldname, $this->_internalFields)) {
-            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $fieldname);
-        }
-
         switch ($accessor) {
             case 'get':
-                return $this->_get($fieldname, $arguments);
+                return $this->_get($field, $arguments);
                 break;
 
             case 'set':
-                $this->_set($fieldname, $arguments);
+                $this->_set($field, $arguments);
                 return $this;
                 break;
 
             case 'add':
-                return $this->_add($fieldname, $arguments);
+                return $this->_add($field, $arguments);
                 break;
 
             default:
@@ -138,14 +135,12 @@ abstract class Opus_Model_Abstract {
     /**
      * Implements field getter mechanism.
      *
-     * @param string $fieldname The name of the field.
+     * @param Opus_Model_Field $field The field to work on.
      * @param mixed  $arguments Arguments passed in the get-call.
      *
      * @return mixed    The value of the field.
      */
-    protected function _get($fieldname, $arguments) {
-        $field = $this->getField($fieldname);
-
+    protected function _get(Opus_Model_Field $field, $arguments) {
         $fieldvalue = $field->getValue();
         if (false === is_array($fieldvalue)) {
             $fieldvalue = array($fieldvalue);
@@ -171,13 +166,12 @@ abstract class Opus_Model_Abstract {
     /**
      * Implements setter mechanism.
      *
-     * @param string $fieldname The name of the field.
+     * @param Opus_Model_Field $field The field to work on.
      * @param mixed  $arguments Arguments passed in the get-call.
      *
      * @return void
      */
-    protected function _set($fieldname, $arguments) {
-        $field = $this->getField($fieldname);
+    protected function _set(Opus_Model_Field $field, $arguments) {
         if (empty($arguments) === true) {
             throw new Opus_Model_Exception('Argument required for setter function!');
         }
@@ -217,13 +211,12 @@ abstract class Opus_Model_Abstract {
     /**
      * Implements adder mechanism.
      *
-     * @param string $fieldname The name of the field.
+     * @param Opus_Model_Field $field The field to work on.
      * @param mixed  $arguments Arguments passed in the get-call.
      *
      * @return Opus_Model_Abstract The added model (can be a new model).
      */
-    protected function _add($fieldname, $arguments) {
-        $field = $this->getField($fieldname);
+    protected function _add(Opus_Model_Field $field, $arguments) {
         $linkmodelclass = $field->getLinkModelClass();
 
         // get Modelclass if model is linked

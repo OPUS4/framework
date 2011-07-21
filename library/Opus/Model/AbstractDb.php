@@ -898,13 +898,13 @@ abstract class Opus_Model_AbstractDb
     /**
      * Overwrited setter mechanism to handle link retrieval properly.
      *
-     * @param string $fieldname The name of the field.
+     * @param Opus_Model_Field $field The field to work on.
      * @param mixed  $arguments Arguments passed in the get-call.
      *
      * @return void
      */
-    protected function _set($fieldname, $arguments) {
-        $field = $this->getField($fieldname);
+    protected function _set(Opus_Model_Field $field, $arguments) {
+        $fieldname = $field->getName();
         if (empty($arguments) === true) {
             throw new Opus_Model_Exception('Argument required for setter function!');
         }
