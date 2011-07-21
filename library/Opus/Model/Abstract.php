@@ -90,8 +90,11 @@ abstract class Opus_Model_Abstract {
         $fieldname = substr($name, 3);
 
         $argumentGiven = false;
+        $argument      = null;
         if (false === empty($arguments)) {
             $argumentGiven = true;
+            $argument = $arguments[0];
+            $argument = is_array($argument) ? $argument : array($argument);
         }
 
         // Filter calls to unknown methods and turn them into an exception
@@ -117,7 +120,7 @@ abstract class Opus_Model_Abstract {
                 break;
 
             case 'set':
-                $this->_set($field, $arguments);
+                $this->_setFieldValue($field, $argument);
                 return $this;
                 break;
 
@@ -167,45 +170,11 @@ abstract class Opus_Model_Abstract {
      * Implements setter mechanism.
      *
      * @param Opus_Model_Field $field The field to work on.
-     * @param mixed  $arguments Arguments passed in the get-call.
-     *
+     * @param array|null       $values Any value to set.
      * @return void
      */
-    protected function _set(Opus_Model_Field $field, $arguments) {
-        if (empty($arguments) === true) {
-            throw new Opus_Model_Exception('Argument required for setter function!');
-        }
-        else if (is_null($arguments[0]) === false) {
-            $argumentModelGiven = true;
-        }
-        else {
-            $argumentModelGiven = false;
-        }
-
-        $linkmodelclass = $field->getLinkModelClass();
-
-        if (false === is_array($arguments[0])) {
-            $values = array($arguments[0]);
-        }
-        else {
-            $values = $arguments[0];
-        }
-
-        if (!is_null($linkmodelclass) and ($argumentModelGiven === true)) {
-            foreach ($values as $i => $value) {
-                if (($value instanceof Opus_Model_Dependent_Link_Abstract) === true) {
-                    $linkmodel = $value;
-                }
-                else {
-                    $linkmodel = new $linkmodelclass;
-                    $linkmodel->setModel($value);
-                }
-                $values[$i] = $linkmodel;
-            }
-        }
-
+    protected function _setFieldValue(Opus_Model_Field $field, $values) {
         $field->setValue($values);
-
     }
 
     /**

@@ -898,34 +898,12 @@ abstract class Opus_Model_AbstractDb
     /**
      * Overwrited setter mechanism to handle link retrieval properly.
      *
-     * @param Opus_Model_Field $field The field to work on.
-     * @param mixed  $arguments Arguments passed in the get-call.
-     *
-     * @return void
+     * @see Opus_Model_Abstract::_setFieldValue()
      */
-    protected function _set(Opus_Model_Field $field, $arguments) {
+    protected function _setFieldValue(Opus_Model_Field $field, $values) {
         $fieldname = $field->getName();
-        if (empty($arguments) === true) {
-            throw new Opus_Model_Exception('Argument required for setter function!');
-        }
-        else if (is_null($arguments[0]) === false) {
-            $argumentModelGiven = true;
-        }
-        else {
-            $argumentModelGiven = false;
-        }
-
         $linkmodelclass = $field->getLinkModelClass();
-
-        if (false === is_array($arguments[0])) {
-            $values = array($arguments[0]);
-        }
-        else {
-            $values = $arguments[0];
-        }
-
-        if (!is_null($linkmodelclass) and ($argumentModelGiven === true)) {
-
+        if (!is_null($values) and !is_null($linkmodelclass)) {
             // Workaround for link_-tables with ternary relations.  It's not
             // beautyful, but it works for now.  There won't be an easier
             // solution without major changes on the framework/schema, since
