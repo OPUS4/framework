@@ -49,13 +49,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     protected $_validator = null;
 
     /**
-     * Hold value filter.
-     *
-     * @var Zend_Filter
-     */
-    protected $_filter = null;
-
-    /**
      * Hold multiplicity constraint.
      *
      * @var Integer|String
@@ -209,27 +202,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     public function getValidator() {
         return $this->_validator;
-    }
-
-
-    /**
-     * Set a filter for the field.
-     *
-     * @param Zend_Filter_Interface $filter A filter.
-     * @return Opus_Model_Field Provide fluent interface.
-     */
-    public function setFilter(Zend_Filter_Interface $filter) {
-        $this->_filter = $filter;
-        return $this;
-    }
-
-    /**
-     * Get the assigned filter for the field.
-     *
-     * @return Zend_Filter The fields filter if one is assigned.
-     */
-    public function getFilter() {
-        return $this->_filter;
     }
 
     /**
