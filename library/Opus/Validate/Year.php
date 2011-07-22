@@ -26,17 +26,24 @@
  *
  * @category    Framework
  * @package     Opus_Validate
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Validator for CompletedYear field.
+ * Validator for Year fields.
  *
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_CompletedYear extends Opus_Validate_Year  {
+class Opus_Validate_Year extends Zend_Validate_Between  {
+
+    /**
+     * Limit valid dates to interval (including) 1000 and 2100.
+     */    
+    public function __construct() {
+        parent::__construct(array('min' => 1000, 'max' => 2100));
+    }
 }

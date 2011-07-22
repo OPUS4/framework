@@ -38,14 +38,5 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_PublishedYear extends Zend_Validate_GreaterThan  {
-    
-    /**
-     * Set the smallest valid year to 1900.
-     * 
-     */
-    public function __construct() {
-        parent::__construct(1900);
-    }
-    
+class Opus_Validate_PublishedYear extends Opus_Validate_Year  {
 }
