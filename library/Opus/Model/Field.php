@@ -152,15 +152,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     
 
     /**
-     * Disable multiplicity-check for the current field.  Defaults to false,
-     * but can be changed with setIgnoreMultiplicity().
-     * 
-     * @var boolean
-     */
-    private $_ignoreMultiplicity = false;
-
-
-    /**
      * Create an new field instance and set the given name.
      *
      * Creating a new instance also sets some default values:
@@ -229,19 +220,6 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      */
     public function getMultiplicity() {
         return $this->_multiplicity;
-    }
-
-    /**
-     * Changes the handling of internal fields with multiplicity > 1.  If set
-     * to true, internal fields are allowed to have more that one value.  If
-     * set to false, an exception will be thrown when trying to set the value.
-     *
-     * @param  boolean true|false
-     * @return Opus_Model_Field Provide fluent interface.
-     */
-    public function setIgnoreMultiplicity($ignore = true) {
-        $this->_ignoreMultiplicity = $ignore;
-        return $this;
     }
 
     /**
@@ -315,7 +293,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             $arrayCondition = is_array($value);
 
             // Reject input if an array is required but not is given
-            if (($multiValueCondition === false) and ($arrayCondition === true) and ($this->_ignoreMultiplicity === false)) {
+            if (($multiValueCondition === false) and ($arrayCondition === true)) {
                 throw new InvalidArgumentException('Multivalue option and input argument do not match. (Field ' . $this->_name . ')');
             }
 

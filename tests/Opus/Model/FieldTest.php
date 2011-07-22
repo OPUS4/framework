@@ -165,20 +165,6 @@ class Opus_Model_FieldTest extends TestCase {
     }
 
     /**
-     * Test if a field is set to have single value it, accepts an array as
-     * its input value IFF ->setIgnoreMultiplicity(true) has been called!
-     *
-     * @return void
-     */
-    public function testSinglevaluedFieldTakesArrayValueIfIgnoreMultiplicity() {
-        $field = new Opus_Model_Field('MyField');
-        $field->setMultiplicity(1);
-        $field->setIgnoreMultiplicity();
-        // $this->setExpectedException('InvalidArgumentException');
-        $field->setValue(array('single', 'sungle', 'sangle'));
-    }
-
-    /**
      * Test if only valid integer values greater zero or "*" can be set
      * as multiplicity.
      *
