@@ -64,7 +64,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
     /**
      * Fields that should not be displayed on a form.
      *
-     * @var array  Defaults to array('File').
+     * @var array
      */
     protected $_internalFields = array(
 //            'Role',

@@ -91,7 +91,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     /**
      * Initialize model with the following fields:
      * - PathName
-     * - SortOrder
      * - Label
      * - FileType
      * - MimeType

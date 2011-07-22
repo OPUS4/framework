@@ -55,7 +55,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
      * @return array Array of Opus_Licence objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Licence', 'Opus_Db_DocumentLicences');
+        return self::getAllFrom('Opus_Licence', 'Opus_Db_DocumentLicences', null, 'sort_order');
     }
 
     /**
