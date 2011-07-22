@@ -357,7 +357,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      */
     public function insertFirstChild($id) {
         $row = $this->getNodeById($id);
-        $right = (int) $row->{$this->_right};
+//        $right = (int) $row->{$this->_right};
         $left = (int) $row->{$this->_left};
         $tree = $row->{$this->_tree};
 
@@ -388,7 +388,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     public function insertLastChild($id) {
         $row = $this->getNodeById($id);
         $right = (int) $row->{$this->_right};
-        $left = (int) $row->{$this->_left};
+//        $left = (int) $row->{$this->_left};
         $tree = $row->{$this->_tree};
 
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred constraint checks.
@@ -454,7 +454,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      */
     public function insertPrevSibling($id) {
         $row = $this->getNodeById($id);
-        $right = (int) $row->{$this->_right};
+//        $right = (int) $row->{$this->_right};
         $left = (int) $row->{$this->_left};
         $tree = $row->{$this->_tree};
         $parent = $row->{$this->_parent};

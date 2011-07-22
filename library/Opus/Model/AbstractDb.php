@@ -536,8 +536,8 @@ abstract class Opus_Model_AbstractDb
                 }
                 else {
                     $options = null;
-                    if (isset($this->_externalFields[$fieldname]['options']) === true) {
-                        $options = $this->_externalFields[$fieldname]['options'];
+                    if (isset($field_info['options']) === true) {
+                        $options = $field_info['options'];
                     }
                     $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
                 }
@@ -661,15 +661,6 @@ abstract class Opus_Model_AbstractDb
 
                 $result[] = $newModel;
             }
-
-            // Form return value
-            if (count($rows) === 1) {
-                // Return a single object if threre is only one model in the result
-                $result = $result[0];
-            } else if (count($rows) === 0) {
-                // Return explicitly null if no results have been found.
-                $result = null;
-            }
         }
         // Set the field value
         $field->setValue($result);
@@ -785,7 +776,7 @@ abstract class Opus_Model_AbstractDb
      * to the database.
      *
      * @param string $modelClassName        Name of the model class.
-     * @param string $tableGatewayClassName Name of the table gateway class
+     * @param string $tableGatewayClass     Name of the table gateway class
      *                                      to determine the table entities shall
      *                                      be fetched from.
      * @param array  $ids                   A list of ids to fetch.
@@ -796,17 +787,17 @@ abstract class Opus_Model_AbstractDb
      *
      * TODO: Include options array to parametrize query.
      */
-    public static function getAllFrom($modelClassName = null, $tableGatewayClassName = null, array $ids = null, $orderBy = null) {
+    public static function getAllFrom($modelClassName = null, $tableGatewayClass = null, array $ids = null, $orderBy = null) {
 
         // As we are in static context, we have no chance to retrieve
         // those class names.
-        if ((is_null($modelClassName) === true) or (is_null($tableGatewayClassName) === true)) {
+        if ((is_null($modelClassName) === true) or (is_null($tableGatewayClass) === true)) {
             throw new InvalidArgumentException('Both model class and table gateway class must be given.');
         }
 
         // As this is calling from static context we cannot
         // use the instance variable $_tableGateway here.
-        $table = Opus_Db_TableGateway::getInstance($tableGatewayClassName);
+        $table = Opus_Db_TableGateway::getInstance($tableGatewayClass);
 
         // Fetch all entries in one query and pass result table rows
         // directly to models.
@@ -890,9 +881,9 @@ abstract class Opus_Model_AbstractDb
             // beautyful, but it works for now.  There won't be an easier
             // solution without major changes on the framework/schema, since
             // we cannot know the type of ternary relations at this point.
-            $addTypeForTernaryRelation = null;
+            $ternaryRelationName = null;
             if (isset($this->_externalFields[$fieldname]['addprimarykey'][0])) {
-                $addTypeForTernaryRelation = $this->_externalFields[$fieldname]['addprimarykey'][0];
+                $ternaryRelationName = $this->_externalFields[$fieldname]['addprimarykey'][0];
             }
 
             $values_as_array = is_array($values);
@@ -910,8 +901,8 @@ abstract class Opus_Model_AbstractDb
                 }
                 else {
                     $linkId = array($this->getId(), $value->getId());
-                    if (isset($addTypeForTernaryRelation)) {
-                        $linkId[] = $addTypeForTernaryRelation;
+                    if (isset($ternaryRelationName)) {
+                        $linkId[] = $ternaryRelationName;
                     }
 
                     try {
