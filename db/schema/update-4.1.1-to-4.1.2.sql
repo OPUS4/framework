@@ -16,3 +16,6 @@ ALTER TABLE  `documents` CHANGE  `published_year`  `published_year` SMALLINT( 4 
 ALTER TABLE  `document_patents` CHANGE  `year_applied`  `year_applied` YEAR( 4 ) NULL DEFAULT NULL;
 UPDATE `document_patents` SET year_applied = NULL WHERE year_applied = '0000';
 ALTER TABLE  `document_patents` CHANGE  `year_applied`  `year_applied` SMALLINT( 4 ) UNSIGNED ZEROFILL NOT NULL;
+
+-- Change NULL constraints on date fields (see OPUSVIER-1334)
+ALTER TABLE  `documents` CHANGE  `server_date_published`  `server_date_published` VARCHAR( 50 ) NULL;
