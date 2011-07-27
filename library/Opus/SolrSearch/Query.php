@@ -75,21 +75,25 @@ class Opus_SolrSearch_Query {
      */
     public function  __construct($searchType = self::SIMPLE) {
         $this->invalidQCache();
-        if ($searchType === self::SIMPLE || $searchType === self::ADVANCED) {
+        
+        if ($searchType === self::SIMPLE || $searchType === self::ADVANCED || $searchType === self::ALL_DOCS) {
             $this->searchType = $searchType;
             return;
         }
+        
         if ($searchType === self::FACET_ONLY) {
             $this->searchType = self::FACET_ONLY;
             $this->setRows(0);
             return;
         }
-        if ($searchType === self::LATEST_DOCS || $searchType === self::ALL_DOCS) {
-            $this->searchType = $searchType;
+
+        if ($searchType === self::LATEST_DOCS) {
+            $this->searchType = self::LATEST_DOCS;
             $this->sortField = 'server_date_published';
             $this->sortOrder = 'desc';
             return;
         }
+
         throw new Opus_SolrSearch_Exception("searchtype $searchType is not supported");
     }
 
@@ -127,7 +131,14 @@ class Opus_SolrSearch_Query {
 
     public function setSortField($sortField) {
         if ($sortField === self::DEFAULT_SORTFIELD) {
-            $this->sortField = self::DEFAULT_SORTFIELD;
+            if ($this->searchType === self::ALL_DOCS) {
+                // change the default sortfield for searchtype all
+                // since sorting by relevance does not make any sense here
+                $this->sortField = 'server_date_published';
+            }
+            else {
+                $this->sortField = self::DEFAULT_SORTFIELD;
+            }
             return;
         }
         $this->sortField = $sortField;
