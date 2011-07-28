@@ -141,6 +141,24 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($embargodate);
     }
 
+    public static function fetchByDocIdPathName($docId, $pathName) {
+        $files = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $files->select()
+                ->where('document_id = ?', $docId)
+                ->where('path_name = ?', $pathName);
+        $row = $files->fetchRow($select);
+
+        if (!is_null($row)) {
+            return new Opus_File($row);
+        }
+        return null;
+    }
+
+    /**
+     * Prepare and return Opus_Storage_File object for filesystem manipulation.
+     *
+     * @return Opus_Storage_File Storage object.
+     */
     private function getStorage() {
         if (!is_null($this->_storage)) {
             return $this->_storage;
