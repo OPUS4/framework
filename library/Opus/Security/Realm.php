@@ -304,7 +304,8 @@ class Opus_Security_Realm {
      */
     final public static function getInstance() {
         if (null === self::$instance) {
-            self::$instance = new Opus_Security_Realm;
+            $class = get_called_class();
+            self::$instance = new $class;
         }
         return self::$instance;
     }
