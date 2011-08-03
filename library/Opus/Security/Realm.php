@@ -43,7 +43,7 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Realm {
+class Opus_Security_Realm implements Opus_Security_IRealm {
 
     /**
      * The current user roles (merged userRoles and ipaddressRoles).
