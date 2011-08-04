@@ -47,26 +47,23 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
-        $logger = Zend_Registry::get('Zend_Log');
-        $logger->err(__METHOD__ . ': Called... !');
-
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
             return;
         }
 
-        $logger->err(__METHOD__ . ': Is file... !');
         // only new Opus_File instances
         if (true !== $model->isNewRecord()) {
             return;
         }
 
-        $logger->err(__METHOD__ . ': Is new... !');
         $guestRole = Opus_UserRole::fetchByName('guest');
 
         if (is_null($guestRole)) {
             $logger = Zend_Registry::get('Zend_Log');
-            $logger->err(__METHOD__ . ': Failed to load user role "guest"!');
+            if (!is_null($logger)) {
+                $logger->err(__METHOD__ . ': Failed to add guest-role to file ' . $model->getId() . '; "guest" role does not exist!');
+            }
             return;
         }
 
