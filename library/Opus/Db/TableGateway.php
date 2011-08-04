@@ -59,10 +59,9 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
     final public static function getInstance($class) {
         if (!isset(self::$instances[$class])) {
             $object = new $class();
-            return self::$instances[$class] = $object;
-        } else {
-            return self::$instances[$class];
+            self::$instances[$class] = $object;
         }
+        return self::$instances[$class];
     }
 
     /**
