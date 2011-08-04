@@ -193,5 +193,16 @@ class Opus_Model_Xml_Cache {
         return false;
     }
 
+    /**
+     * Removes a all cache entries for a given document.
+     *
+     * @param mixed $documentId
+     * @return void
+     */
+    public function removeAllEntriesWhereDocumentId($documentId) {
+        $where = array('document_id' => $documentId);
+        $this->_table->deleteWhereArray($where);
+    }
+
 }
 
