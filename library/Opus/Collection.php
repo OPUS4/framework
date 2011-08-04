@@ -716,6 +716,22 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $this->addPendingNodes('PrevSibling', $node);
     }
 
+    public function delete() {
+        if ($this->isNewRecord()) {
+            return;
+        }
+
+        $row = $this->_primaryTableRow;
+        $db = $row->getTable()->getAdapter();
+
+        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
+        $collections->deleteSubTree($this->getId());
+
+        parent::delete();
+    }
+
+
+
     /**
      * _storeInternalFields(): Manipulate _primaryTableRow to preserve the
      * nested set property.

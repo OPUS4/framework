@@ -187,12 +187,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     }
 
     /**
-     * Delete node with it's child(s) and return affected rows.
+     * Delete node including *all* it's child(s) and return affected rows.
      *
      * @param  int   $id
      * @return int   The number of affected rows.
      */
-    public function deleteNodeXXX($id) {
+    public function deleteSubTree($id) {
         $row = $this->getNodeById($id);
         $tree = $row->{$this->_tree};
         $right = (int) $row->{$this->_right};
