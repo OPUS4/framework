@@ -319,6 +319,36 @@ class Opus_Model_Xml_CacheTest extends TestCase {
      *
      * @return void
      */
+    public function testRemoveAllEntriesWhereDocumentId() {
+
+        $this->_fillCache();
+        $dataSet = $this->_getRandomDataSet();
+        $documentId = $dataSet['document_id'];
+        $xmlVersion = $dataSet['xml_version'];
+        $serverDateModified = $dataSet['server_date_modified'];
+
+        $table = new Opus_Db_DocumentXmlCache();
+        $beforeRemove = $table->fetchAll()->count();
+
+        $cache = new Opus_Model_Xml_Cache();
+        $cache->removeAllEntriesWhereDocumentId($documentId);
+
+        $afterRemove = $table->fetchAll()->count();
+
+        $this->assertEquals($beforeRemove, $afterRemove + 1, 'Expecting one cache entry are removed.');
+        $this->assertTrue(!$cache->hasCacheEntry($documentId, $xmlVersion),
+                'Expecting all cache entries (version $xmlVersion) have been removed.');
+        $this->assertTrue(!$cache->hasCacheEntry($documentId, 1),
+                'Expecting all cache entries (version 1) have been removed.');
+        $this->assertTrue(!$cache->hasCacheEntry($documentId, 2),
+                'Expecting all cache entries (version 2) have been removed.');
+    }
+
+    /**
+     *
+     *
+     * @return void
+     */
     public function testIfADocumentIsCached() {
 
         $this->_fillCache();
