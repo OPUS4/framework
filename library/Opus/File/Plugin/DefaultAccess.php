@@ -53,17 +53,15 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
         }
 
         // only new Opus_File instances
-        if (true !== $model->isNewRecord()) {
+        if (true == $model->isNewRecord()) {
             return;
         }
 
         $guestRole = Opus_UserRole::fetchByName('guest');
-
         if (is_null($guestRole)) {
             $logger = Zend_Registry::get('Zend_Log');
-            if (!is_null($logger)) {
-                $logger->err(__METHOD__ . ': Failed to add guest-role to file ' . $model->getId() . '; "guest" role does not exist!');
-            }
+            $logger->err(__METHOD__ . ': Failed to add guest-role to file ' .
+                    $model->getId() . '; "guest" role does not exist!');
             return;
         }
 

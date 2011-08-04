@@ -41,39 +41,54 @@
  *
  * @group FileTest
  */
-class Opus_File_Plugin_DefaultAccessTest extends PHPUnit_Framework_TestCase {
+class Opus_File_Plugin_DefaultAccessTest extends TestCase {
 
-    /**
-     * @var Opus_File_Plugin_DefaultAccess
-     */
-    protected $object;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
     protected function setUp() {
-        $this->object = new Opus_File_Plugin_DefaultAccess;
+        parent::setUp();
 
+        $guestRole = new Opus_UserRole();
+        $guestRole->setName('guest');
+        $guestRole->store();
     }
 
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
+    public function testPostStoreIgnoreNewModel() {
+        $guestRole = Opus_UserRole::fetchByName('guest');
+        $list_before = $guestRole->listAccessFiles();
 
+        $newFile = new Opus_File();
+        $object = new Opus_File_Plugin_DefaultAccess;
+        $object->postStore($newFile);
+
+        $list_after = $guestRole->listAccessFiles();
+        $this->assertEquals(count($list_before), count($list_after),
+                'File access list counts should not have changed.');
+        $this->assertEquals($list_before, $list_after,
+                'File access lists should not have changed.');
     }
 
-    /**
-     * @todo Implement testPostStore().
-     */
-    public function testPostStore() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+    public function testPostStoreSkipIfGuestRoleNotExists() {
+        $file = new Opus_File_Plugin_DefaultAccessTest_FileMockNew();
+        $object = new Opus_File_Plugin_DefaultAccess;
+        $object->postStore($file);
     }
 
+    public function testPostStoreSkipIfGuestRoleExists() {
+        $this->markTestIncomplete('Cannot test method without file in database');
+
+        $file = new Opus_File_Plugin_DefaultAccessTest_FileMockNotNew(1234);
+
+        $object = new Opus_File_Plugin_DefaultAccess;
+        $object->postStore($file);
+
+        $guestRole = Opus_UserRole::fetchByName('guest');
+        $list = $guestRole->listAccessFiles();
+        $this->assertContains(1234, $list);
+    }
+
+}
+
+class Opus_File_Plugin_DefaultAccessTest_FileMockNew extends Opus_File {
+    function isNewRecord() {
+        return true;
+    }
 }
