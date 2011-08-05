@@ -333,4 +333,26 @@ class Opus_CollectionTest extends TestCase {
 
         $this->assertEquals($collectionId, $child->getParentNodeId());
     }
+
+    public function testDeleteNonRootCollectionWithChild() {
+        $root = $this->object;
+
+        $child = $root->addLastChild();
+        $root->store();
+
+        // FIXME: We have to reload model to get correct results!
+        $root = new Opus_Collection($root->getId());
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+
+        $child->addFirstChild();
+        $child->store();
+
+        $child->delete();
+
+        // FIXME: We have to reload model to get correct results!
+        $root = new Opus_Collection($root->getId());
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection should have no child.');
+    }
 }
