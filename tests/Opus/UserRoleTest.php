@@ -42,87 +42,108 @@
  * @group RoleTests
  */
 class Opus_UserRoleTest extends TestCase {
-    /**
-     * @var    Opus_UserRole
-     * @access protected
-     */
-    protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @access protected
-     */
-    protected function setUp()
-    {
-        $this->object = new Opus_UserRole;
+    protected function setUp() {
+        parent::setUp();
+
+        $ur = new Opus_UserRole();
+        $ur->setName('unit-test');
+        $ur->store();
     }
 
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     *
-     * @access protected
-     */
-    protected function tearDown()
-    {
+    public function testGetAll() {
+        $all_roles = Opus_UserRole::getAll();
+        $this->assertEquals(1, count($all_roles));
     }
 
-    /**
-     * @todo Implement testGetAll().
-     */
-    public function testGetAll()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    public function testFetchByNameReturnsNullIfNoneExists() {
+        $ur = Opus_UserRole::fetchByName(null);
+        $this->assertNull($ur);
+
+        $ur = Opus_UserRole::fetchByName('empty');
+        $this->assertNull($ur);
     }
 
-    /**
-     * @todo Implement testFetchByName().
-     */
-    public function testFetchByName()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    public function testFetchByNameSuccessIfExists() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $this->assertType('Opus_UserRole', $ur);
+        $this->assertEquals('unit-test', $ur->getName());
     }
 
-    /**
-     * @todo Implement testGetDisplayName().
-     */
-    public function testGetDisplayName()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    public function testGetDisplayName() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $display_name = $ur->getDisplayName();
+        $this->assertTrue(is_string($display_name), 'DisplayName is not a string');
+        $this->assertTrue(strlen($display_name)>0, 'DisplayName is an empty string');
     }
 
-    /*
-     * Creates a role and a privilege. Test loading of role and privilege.
-     * Perforems toArray, to ensure, there's no loop between role and privielge.
-     *
-     * @return void
-     */
-    public function testToArray() {
-        $role = new Opus_UserRole();
-        $role->setName('Test');
-
-        // TODO: Remove, since not supported any more.
-        $this->markTestIncomplete("TODO: Remove, since not supported any more.");
-
-        $priv = $role->addPrivilege();
-        $priv->setPrivilege('administrate');
-        $role->store();
-
-        $role = new Opus_UserRole($role->getId());
-        $this->assertEquals(1, count($role->getPrivilege()), 'Stored one Privlege, loaded more or less.');
-
-        $array = $role->toArray();
+    public function testListAccessDocuments() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $list_empty = $ur->listAccessDocuments();
+        $this->assertEquals(0, count($list_empty));
     }
+
+    public function testAccessDocumentsInsertRemove() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+
+        try {
+            $ur->appendAccessDocument(1)->store();
+            $this->fail('Expecting exception on non-existent document.');
+        }
+        catch (Zend_Db_Statement_Exception $e) {}
+
+        $d = new Opus_Document();
+        $docId = $d->store();
+
+        $ur->appendAccessDocument($docId)->store();
+        $list_all = $ur->listAccessDocuments();
+        $this->assertEquals(1, count($list_all));
+        $this->assertEquals(array($docId), $list_all);
+
+        $ur->removeAccessDocument($docId)->store();
+        $list_empty = $ur->listAccessDocuments();
+        $this->assertEquals(0, count($list_empty));
+
+        $ur->removeAccessDocument($docId)->store();
+    }
+
+    public function testListAccessFiles() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $list_empty = $ur->listAccessFiles();
+        $this->assertEquals(0, count($list_empty));
+    }
+
+    public function testListAccessModules() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $list_empty = $ur->listAccessModules();
+        $this->assertEquals(0, count($list_empty));
+    }
+
+    public function testAccessModulesInsertRemove() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $ur->appendAccessModule('oai')->store();
+
+        $list_all = $ur->listAccessModules();
+        $this->assertEquals(1, count($list_all));
+        $this->assertEquals(array('oai'), $list_all);
+
+        $ur->removeAccessModule('oai')->store();
+        $list_empty = $ur->listAccessModules();
+        $this->assertEquals(0, count($list_empty));
+
+        $ur->removeAccessModule('oai')->store();
+    }
+    
+    public function testGetAllAccountIdsEmpty() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $list_empty = $ur->getAllAccountIds();
+        $this->assertEquals(0, count($list_empty));
+    }
+
+    public function testGetAllAccountNamesEmpty() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+        $list_empty = $ur->getAllAccountNames();
+        $this->assertEquals(0, count($list_empty));
+    }
+
 }
-?>
