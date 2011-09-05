@@ -20,18 +20,19 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License
+ * details. You should        }
+ have received a copy of the GNU General Public License
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
  * @package     Opus_File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 
 /**
  * Test cases for class Opus_Storage_File.
@@ -43,18 +44,30 @@
  */
 class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
 
-    /**
-     * @var Opus_Storage_File
-     */
-    protected $object;
+    private $__src_path = '';
+
+    private $__dest_path = '';
+
+    private $__config_backup = null;
 
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp() {
-//        $this->object = new Opus_Storage_File;
+        // Clearing database tables is not needed for this testcase
+        // parent::setUp();
 
+        $config = Zend_Registry::get('Zend_Config');
+        $this->__config_backup = $config;
+
+        $path = $config->workspacePath . '/' . uniqid();
+
+        $this->__src_path = $path . '/src';
+        mkdir($this->__src_path, 0777, true);
+
+        $this->__dest_path = $path . '/dest';
+        mkdir($this->__dest_path, 0777, true);
     }
 
     /**
@@ -62,11 +75,16 @@ class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
+        Opus_Util_File::deleteDirectory($this->__src_path);
+        Opus_Util_File::deleteDirectory($this->__dest_path);
 
+        Zend_Registry::set('Zend_Config', $this->__config_backup);
+
+        parent::tearDown();
     }
 
     /**
-     * @todo Implement testGetWorkingDirectory().
+     * Tests using constructor without parameters.
      */
     public function testConstructorFail() {
         $this->setExpectedException('Opus_Storage_Exception');
@@ -74,91 +92,170 @@ class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
-     * @todo Implement testGetWorkingDirectory().
+     * Tests getting the working directory of a Opus_Storage_File object.
      */
     public function testGetWorkingDirectory() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir1');
+        $this->assertEquals($this->__dest_path . DIRECTORY_SEPARATOR . 'subdir1'
+                . DIRECTORY_SEPARATOR, $storage->getWorkingDirectory());
     }
 
     /**
-     * @todo Implement testCreateSubdirectory().
+     * Tests creating subdirectory.
      */
     public function testCreateSubdirectory() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir2');
+        $storage->createSubdirectory();
+        $this->assertTrue(is_dir($storage->getWorkingDirectory()));
+        $storage->removeEmptyDirectory();
     }
 
     /**
-     * @todo Implement testCopyExternalFile().
+     * Test copying external file into working directory.
      */
     public function testCopyExternalFile() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir3');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'copiedtest.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertTrue(is_file($storage->getWorkingDirectory()
+                . 'copiedtest.txt'));
     }
 
     /**
-     * @todo Implement testRenameFile().
+     * Test renaming file.
      */
     public function testRenameFile() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir4');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $storage->renameFile('test.txt', 'renamedtest.txt');
+        $this->assertTrue(is_file($storage->getWorkingDirectory()
+                . 'renamedtest.txt'));
+        $this->assertFalse(is_file($storage->getWorkingDirectory()
+                . 'test.txt'));
     }
 
     /**
-     * @todo Implement testDeleteFile().
+     * Test deleting file.
      */
     public function testDeleteFile() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir5');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $storage->deleteFile($destination);
+        $this->assertFalse(is_file($storage->getWorkingDirectory()
+                . 'test.txt'));
     }
 
     /**
-     * @todo Implement testGetFileMimeEncoding().
+     * Test getting mime type from encoding for text file.
      */
     public function testGetFileMimeEncoding() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir5');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
 
+        $fh = fopen($source, 'w');
+
+        if ($fh == false) {
+            $this->fail("Unable to write file $source.");
+        }
+
+        $rand = rand(1, 100);
+        for ($i = 0; $i < $rand; $i++) {
+            fwrite($fh, ".");
+        }
+
+        fclose($fh);
+
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals('text/plain', $storage->getFileMimeEncoding($destination));
     }
 
     /**
-     * @todo Implement testGetFileMimeTypeFromExtension().
+     * Test getting mime type from file extension for text file.
      */
     public function testGetFileMimeTypeFromExtension() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
-
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals('text/plain', $storage->getFileMimeTypeFromExtension($destination));
     }
 
     /**
-     * @todo Implement testGetFileSize().
+     * Tests getting file size of empty file.
      */
     public function testGetFileSize() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir7');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals(0, $storage->getFileSize($destination));
+    }
 
+    /**
+     * Tests getting file size of file with size 10.
+     */
+    public function testGetFileSizeForNonEmptyFile() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir7');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+
+                $fh = fopen($source, 'w');
+
+        if ($fh == false) {
+            $this->fail("Unable to write file $source.");
+        }
+
+        fwrite($fh, "1234567890");
+
+        fclose($fh);
+
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals(10, $storage->getFileSize($destination));
+    }
+
+    /**
+     * Tests removing an empty directory.
+     */
+    public function testRemoveEmptyDirectory() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir8');
+        $storage->createSubdirectory();
+        $this->assertTrue(is_dir($storage->getWorkingDirectory()));
+        $this->assertTrue($storage->removeEmptyDirectory());
+        $this->assertFalse(is_dir($storage->getWorkingDirectory()));
+    }
+
+    /**
+     * Tests attempting to delete non-empty directory.
+     */
+    public function testFailedRemoveEmptyDirectory() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir8');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.txt";
+        touch($source);
+        $destination = 'test.txt';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertFalse($storage->removeEmptyDirectory());
+        $this->assertTrue(is_dir($storage->getWorkingDirectory()));
     }
 
 }

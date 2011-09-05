@@ -27,17 +27,16 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * General exception for Opus_Storage classes (e.g. Opus_Storage_File).
+ * Thrown if a file cannot be accessed, e.g because of permission problems.
  */
-class Opus_Storage_Exception extends Exception {
+class Opus_Storage_FileAccessException extends Opus_Storage_Exception {
 }
 
+?>

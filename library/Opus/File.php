@@ -177,7 +177,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
      * checks if the file exists physically
-     * 
+     *
      * @return boolean false if the file does not exist, true if it exists
      */
     public function exists() {
@@ -278,7 +278,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * Deletes a file from filespace and if directory are empty it will be deleted too.
      *
      * @see    library/Opus/Model/Opus_Model_AbstractDb#doDelete()
-     * @throws Opus_Storage_Exception Thrown if deleting of file/directory failed.
+     * @throws Opus_Storage_Exception if not a file, or empty directory could not be deleted
+     * @throws Opus_Storage_FileNotFoundException  if file does not exist
+     * @throws Opus_Storage_FileAccessException if file could not be deleted
      * @return void
      */
     public function doDelete($token) {

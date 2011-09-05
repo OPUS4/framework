@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,18 +25,63 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @package     Opus
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * General exception for Opus_Storage classes (e.g. Opus_Storage_File).
+ * Utility class for common methods handling files and directories.
  */
-class Opus_Storage_Exception extends Exception {
+class Opus_Util_File {
+
+    /**
+     * Remove a directory and its entries recursivly.
+     *
+     * @param string $dir Directory to delete.
+     * @return bool Result of rmdir() call.
+     */
+    public static function deleteDirectory($dir) {
+        if (false === file_exists($dir)) {
+            return true;
+        }
+        if (false === is_dir($dir)) {
+            return unlink($dir);
+        }
+        foreach (scandir($dir) as $item) {
+            if ($item == '.' || $item == '..') {
+                continue;
+            }
+            if (false === Opus_Util_File::deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
+                return false;
+            }
+        }
+
+        return rmdir($dir);
+    }
+
+    /**
+     * Adds to a given path a directory separator if not set.
+     *
+     * @param string $path Path with or without directory separator.
+     * @return string Path with directory separator.
+     */
+    public static function addDirectorySeparator($path) {
+        if (false === empty($path)) {
+            rtrim($path); // remove trailing whitespaces
+
+            $last_index = mb_strlen($path) - 1;
+
+            if (DIRECTORY_SEPARATOR !== $path[$last_index]) {
+                $path .= DIRECTORY_SEPARATOR;
+            }
+        }
+
+        return $path;
+    }
+
 }
 
+?>

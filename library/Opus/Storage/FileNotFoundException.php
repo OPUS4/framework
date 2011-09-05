@@ -27,17 +27,45 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
- * @copyright   Copyright (c) 2010 Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * General exception for Opus_Storage classes (e.g. Opus_Storage_File).
+ * Thrown if a file is not found.
  */
-class Opus_Storage_Exception extends Exception {
+class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception {
+
+    /**
+     * Filename that was not found.
+     * @var string Name of file
+     */
+    private $filename;
+
+    /**
+     * Constructs exception for file not found.
+     * @param string $filename Name of file not found
+     */
+    public function __construct($filename = null, $message = null) {
+        if (!empty($message)) {
+            parent::__construct($message);
+        }
+        else {
+            parent::__construct('File ' . $filename . ' does not exist!');
+        }
+        $this->filename = $filename;
+    }
+
+    /**
+     * Getter for filename property.
+     * @return string Name of file that was not found
+     */
+    public function getFilename() {
+        return $this->filename;
+    }
+
 }
 
+?>

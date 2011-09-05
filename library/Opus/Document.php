@@ -965,7 +965,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
     public function delete() {
         // De-fatalize Search Index errors.
         try {
-            // Remove from index            
+            // Remove from index
             $indexer = new Opus_SolrSearch_Index_Indexer();
             $indexer->removeDocumentFromEntryIndex($this);
         }
@@ -990,8 +990,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         // remove all files permanently
         $files = $this->getFile();
+
         foreach ($files as $file) {
-            $file->doDelete($file->delete());
+            try {
+                $file->doDelete($file->delete());
+            }
+            catch (Opus_Storage_FileNotFoundException $osfnfe) {
+                // if the file was not found (permant delete still succeeds)
+                $this->logger($osfnfe->getMessage());
+            }
         }
 
         parent::delete();
@@ -1016,7 +1023,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
         }
         $this->setServerDateModified($date);
-        
+
         return $result;
     }
 
@@ -1039,7 +1046,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
-        $logger->info( $this->getDisplayName() . ": $message");
+        $logger->info( $this->getDisplayName() . ": $message" );
     }
 
 }

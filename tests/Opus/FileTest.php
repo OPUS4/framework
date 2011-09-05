@@ -89,8 +89,8 @@ class Opus_FileTest extends TestCase {
      * @return void
      */
     public function tearDown() {
-        $this->_deleteDirectory($this->_src_path);
-        $this->_deleteDirectory($this->_dest_path);
+        Opus_Util_File::deleteDirectory($this->_src_path);
+        Opus_Util_File::deleteDirectory($this->_dest_path);
 
         Zend_Registry::set('Zend_Config', $this->_config_backup);
         parent::tearDown();
@@ -98,34 +98,9 @@ class Opus_FileTest extends TestCase {
     }
 
     /**
-     * Remove a directory and its entries recursivly.
-     *
-     * @param string $dir Directory to delete.
-     * @return bool Result of rmdir() call.
-     */
-    private function _deleteDirectory($dir) {
-        if (false === file_exists($dir)) {
-            return true;
-        }
-        if (false === is_dir($dir)) {
-            return unlink($dir);
-        }
-        foreach (scandir($dir) as $item) {
-            if ($item == '.' || $item == '..') {
-                continue;
-            }
-            if (false === $this->_deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
-                return false;
-            }
-        }
-        return rmdir($dir);
-
-    }
-
-    /**
      *
      * @param string $filename
-     * @return Opus_Document 
+     * @return Opus_Document
      */
     private function _createDocumentWithFile($filename) {
         $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;

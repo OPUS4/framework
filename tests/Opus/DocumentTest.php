@@ -292,7 +292,7 @@ class Opus_DocumentTest extends TestCase {
         $author->setDateOfBirth('1857-11-26');
         $author->setPlaceOfBirth('Genf');
         $document->addPersonAuthor($author);
-        
+
         $licence = new Opus_Licence;
         $licence->setActive(1);
         $licence->setLanguage('de');
@@ -407,7 +407,7 @@ class Opus_DocumentTest extends TestCase {
      */
     public function testDeleteDocumentWithAuthorPermanently() {
         $doc = new Opus_Document();
-        $doc->setType("doctoral_thesis");
+        $doc->setType('doctoral_thesis');
 
         $author = new Opus_Person();
         $author->setFirstName('M.');
@@ -420,6 +420,45 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->deletePermanent();
 
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $doc = new Opus_Document($modelId);
+    }
+
+    /**
+     * Test if document with missing file can be deleted permanently.
+     */
+    public function testDeleteDocumentWithMissingFile() {
+        $doc = new Opus_Document();
+        $doc->setType('doctoral_thesis');
+
+        $modelId = $doc->store();
+
+        $config = Zend_Registry::get('Zend_Config');
+        $tempFile = $config->workspacePath . '/' . uniqid();
+        touch($tempFile);
+
+        $file = $doc->addFile();
+        $file->setPathName('test.txt');
+        $file->setMimeType('text/plain');
+        $file->setTempFile($tempFile);
+
+        $doc->store();
+
+        $doc = new Opus_Document($modelId);
+
+        $file = $doc->getFile(0);
+
+        $this->assertTrue(!empty($file)); // document has a file
+
+        $filePath = $file->getPath();
+
+        $this->assertTrue(is_file($filePath)); // file exists
+
+        unlink($filePath);
+
+        $this->assertFalse(is_file($filePath)); // file is gone
+
+        $doc->deletePermanent(); // delete document with missing file
 
         $this->setExpectedException('Opus_Model_NotFoundException');
         $doc = new Opus_Document($modelId);
@@ -990,7 +1029,7 @@ class Opus_DocumentTest extends TestCase {
         $publishedDate = $doc->getPublishedDate();
         $personAuthor = $doc->getPersonAuthor(0);
         $patent = $doc->getPatent(0);
-        
+
         $formatDate = 'd.m.Y';
         $this->assertEquals('05.10.2008', $publishedDate->getDateTime()->format($formatDate), 'Setting a date through string does not work.');
         $this->assertEquals('23.06.1965', $personAuthor->getDateOfBirth()->getDateTime()->format($formatDate), 'Setting a date on a model doesn not work.');
@@ -1005,7 +1044,7 @@ class Opus_DocumentTest extends TestCase {
     public function testCheckIfDefaultServerStateValueIsSetCorrectAfterStoringModel() {
         $doc = new Opus_Document();
         $doc->store();
-        
+
         $this->assertEquals('unpublished', $doc->getServerState(), 'ServerState should be unpublished if not set and document is stored.');
     }
 
