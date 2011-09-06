@@ -244,6 +244,8 @@ class Opus_Storage_File {
      *
      * @param string $file Name of file, to guess mimetype for.
      * @return string
+     *
+     * TODO make mapping configurable in file?
      */
     public function getFileMimeTypeFromExtension($file) {
         $mimeEncoding = 'application/octet-stream';
