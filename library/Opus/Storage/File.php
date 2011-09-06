@@ -146,7 +146,7 @@ class Opus_Storage_File {
         }
 
         if (false === is_file($fullSourcePath)) {
-            throw new Opus_Storage_Storage('Tried to rename non-file "' . $fullSourcePath . '; abort"!');
+            throw new Opus_Storage_Exception('Tried to rename non-file "' . $fullSourcePath . '; abort"!');
         }
 
         if (true === @rename($fullSourcePath, $fullDestinationPath)) {
