@@ -142,6 +142,28 @@ class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Test attempting to rename file that does not exist.
+     */
+    public function testRenameNonExistingFile() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir');
+        $storage->createSubdirectory();
+        $this->setExpectedException('Opus_Storage_FileNotFoundException');
+        $storage->renameFile('test', 'test2');
+    }
+
+    /**
+     * Test attempting to rename directory.
+     */
+    public function testRenameFileAttemptOnDirectory() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir');
+        $storage->createSubdirectory();
+        $path = $storage->getWorkingDirectory() . '/testdir';
+        mkdir($path);
+        $this->setExpectedException('Opus_Storage_Exception');
+        $storage->renameFile('testdir', 'testdir2');
+    }
+
+    /**
      * Test deleting file.
      */
     public function testDeleteFile() {
@@ -194,6 +216,32 @@ class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
         $destination = 'test.txt';
         $storage->copyExternalFile($source, $destination);
         $this->assertEquals('text/plain', $storage->getFileMimeTypeFromExtension($destination));
+    }
+
+    /**
+     * Test getting mime type from file extension for PDF file.
+     */
+    public function testGetFileMimeTypeFromExtensionForPdf() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.pdf";
+        touch($source);
+        $destination = 'test.pdf';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals('application/pdf', $storage->getFileMimeTypeFromExtension($destination));
+    }
+
+    /**
+     * Test getting mime type from file extension for Postscript file.
+     */
+    public function testGetFileMimeTypeFromExtensionForPostscript() {
+        $storage = new Opus_Storage_File($this->__dest_path, 'subdir6');
+        $storage->createSubdirectory();
+        $source = $this->__src_path . '/' . "test.ps";
+        touch($source);
+        $destination = 'test.ps';
+        $storage->copyExternalFile($source, $destination);
+        $this->assertEquals('application/postscript', $storage->getFileMimeTypeFromExtension($destination));
     }
 
     /**
