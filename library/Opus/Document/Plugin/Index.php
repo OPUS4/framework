@@ -35,8 +35,8 @@
  * Plugin for updating the solr index triggered by document changes.
  *
  * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
+ * @package     Opus_Document_Plugin
+ * @uses        Opus_Model_Plugin_Abstract
  */
 class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
 
