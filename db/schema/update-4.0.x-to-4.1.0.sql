@@ -124,3 +124,14 @@ INSERT INTO access_modules (role_id, module_name) VALUES
 -- -----------------------------------------------------
 DROP TABLE `person_external_keys`;
 DROP TABLE `privileges`;
+
+-- -----------------------------------------------------
+-- Initialize newly created rows
+-- -----------------------------------------------------
+UPDATE documents SET server_date_created  = server_date_published WHERE server_date_created IS NULL AND server_date_published <= server_date_modified;
+UPDATE documents SET server_date_created  = server_date_modified  WHERE server_date_created IS NULL AND server_date_modified <= server_date_published;
+
+-- -----------------------------------------------------
+-- Flush XML cache
+-- -----------------------------------------------------
+DELETE FROM document_xml_cache WHERE 1;
