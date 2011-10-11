@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -37,9 +36,6 @@
 /**
  * Test cases for class Opus_File.
  *
- * @package Opus
- * @category Tests
- *
  * @group FileTest
  */
 class Opus_FileTest extends TestCase {
@@ -63,14 +59,14 @@ class Opus_FileTest extends TestCase {
 
         $config = Zend_Registry::get('Zend_Config');
         $this->_config_backup = $config;
-        $path = $config->workspacePath . '/' . uniqid();
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
-        $this->_src_path = $path . '/src';
+        $this->_src_path = $path . DIRECTORY_SEPARATOR . 'src';
         mkdir($this->_src_path, 0777, true);
 
-        $this->_dest_path = $path . '/dest/';
+        $this->_dest_path = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
         mkdir($this->_dest_path, 0777, true);
-        mkdir($this->_dest_path . '/files', 0777, true);
+        mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
         Zend_Registry::set('Zend_Config', new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
@@ -191,10 +187,10 @@ class Opus_FileTest extends TestCase {
     public function testFilesTemporaryAbsoluteSource() {
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
-        $file->setTempFile($this->_src_path . '/foobar.pdf');
+        $file->setTempFile($this->_src_path . DIRECTORY_SEPARATOR . 'foobar.pdf');
         $id = $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
                 'File has not been copied.');
 
     }
@@ -209,7 +205,7 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $expectedPath = $this->_dest_path . "/files/$id/copied-foobar.pdf";
+        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -226,7 +222,7 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $expectedPath = $this->_dest_path . "/files/$id/copied-foobar.pdf";
+        $expectedPath = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
         $this->assertTrue($file->exists(), "File->exists should return true on saved files.");
@@ -246,8 +242,8 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $id = $doc->store();
 
-        $workingDir = $this->_dest_path . "/files/$id";
-        $expectedPath = $workingDir . "/copied-foobar.pdf";
+        $workingDir = $this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id;
+        $expectedPath = $workingDir . DIRECTORY_SEPARATOR . 'copied-foobar.pdf';
 
         $this->assertFileExists($expectedPath, 'File has not been copied.');
         $this->assertEquals($expectedPath, $file->getPath(), "Pathnames do not match.");
@@ -277,7 +273,7 @@ class Opus_FileTest extends TestCase {
         $token = $file->delete();
 
         $this->assertNotNull($token, 'No deletion token returned.');
-        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
                 'File has been deleted.');
 
     }
@@ -297,11 +293,11 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
 
         $doc->setFile(null);
-        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
+        $this->assertFileExists($this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id .  DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
                 'File has been deleted before the model has been stored.');
 
         $doc->store();
-        $this->assertFileNotExists($this->_dest_path . "/files/$id/copied-foobar.pdf",
+        $this->assertFileNotExists($this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
                 'File has not been deleted after storing the model.');
 
     }
@@ -423,8 +419,8 @@ class Opus_FileTest extends TestCase {
         $doc->setFile($file2);
         $doc->store();
 
-        $this->assertFileExists($this->_dest_path . "/files/$id/copied-foobar.pdf", 'File should not be deleted.');
-
+        $this->assertFileExists($this->_dest_path . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $id . DIRECTORY_SEPARATOR . 'copied-foobar.pdf',
+                'File should not be deleted.');
     }
 
     /**
@@ -436,7 +432,7 @@ class Opus_FileTest extends TestCase {
     public function testFileSizeIsSetAfterStore() {
 
         // Create zero file.
-        $filename = $this->_src_path . '/foobar.txt';
+        $filename = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar.txt';
         touch($filename);
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
@@ -447,7 +443,7 @@ class Opus_FileTest extends TestCase {
                 'FileSize should be zero now.');
 
         // Create random-sized file.
-        $filename_nonzero = $this->_src_path . '/foobar-nonzero.txt';
+        $filename_nonzero = $this->_src_path . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
         $fh = fopen($filename_nonzero, 'w');
 
         if ($fh == false) {
