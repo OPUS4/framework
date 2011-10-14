@@ -530,7 +530,7 @@ class Opus_SolrSearch_Index_Indexer {
             $this->index_server->optimize();
         }
         catch (Apache_Solr_Exception $e) {
-            $msg = 'Error while optimizing changes';
+            $msg = 'Error while performing index optimization';
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
