@@ -44,7 +44,7 @@
 
     <!-- Suppress output for all elements that don't have an explicit template. -->
     <xsl:template match="*" />
-    
+
     <xsl:template match="/">
         <xsl:element name="add">
             <xsl:element name="doc">
@@ -156,6 +156,18 @@
                     </xsl:element>
                 </xsl:for-each>
 
+                <!-- other persons (non-authors) -->
+                <xsl:for-each select="/Opus/Opus_Document/*">
+                    <xsl:if test="local-name() != 'Person' and local-name() != 'PersonAuthor' and substring(local-name(), 1, 6) = 'Person'">
+                        <xsl:element name="field">
+                            <xsl:attribute name="name">persons</xsl:attribute>
+                            <xsl:value-of select="@FirstName" />
+                            <xsl:text> </xsl:text>
+                            <xsl:value-of select="@LastName" />
+                        </xsl:element>
+                    </xsl:if>
+                </xsl:for-each>
+
                 <!-- doctype -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">doctype</xsl:attribute>
@@ -234,22 +246,9 @@
                     </xsl:element>
                 </xsl:for-each>
 
-                <!-- persons: PersonSubmitter, PersonsReferee, PersonEditor, PersonTranslator, PersonContributor, PersonAdvisor, PersonOther -->
-                <!--xsl:for-each select="/Opus/Opus_Document/*">
-                    <xsl:if test="substring(name(), 1, 6)='Person'">
-                        <xsl:if test="name()!='PersonAuthor'">
-                            <xsl:element name="field">
-                                <xsl:attribute name="name">persons</xsl:attribute>
-                                <xsl:value-of select="@Name" />
-                            </xsl:element>
-                        </xsl:if>
-                    </xsl:if>
-                </xsl:for-each-->
-
                 <!-- TODO: CreatingCorporation, ContributingCorporation -->
 
                 <!-- TODO: PublisherName, PublisherPlace -->
-
 
             </xsl:element>
         </xsl:element>
