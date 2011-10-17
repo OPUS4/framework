@@ -48,3 +48,23 @@ link_sign = ''
 WHERE id = 7;
 
 INSERT INTO document_licences VALUES (8, 1, '', '<!--\r\n Creative Commons-Lizenzvertrag -->\r\n<a rel=\"license\" \r\nhref=\"http://creativecommons.org/licenses/by-nc/3.0/de/\"><img \r\nalt=\"Creative Commons-Lizenzvertrag\" border=\"0\" \r\nsrc=\"http://creativecommons.org/images/public/somerights20.gif\" \r\n/></a><br />\r\nDiese Inhalt ist unter einer <a rel=\"license\" \r\nhref=\"http://creativecommons.org/licenses/by-nc/3.0/de/\">Creative \r\nCommons-Lizenz</a> lizenziert.\r\n<!-- /Creative Commons-Lizenzvertrag -->\r\n\r\n\r\n<!--\r\n\r\n<rdf:RDF xmlns=\"http://web.resource.org/cc/\"\r\n    xmlns:dc=\"http://purl.org/dc/elements/1.1/\"\r\n    xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\">\r\n<Work rdf:about=\"\">\r\n   <dc:type rdf:resource=\"http://purl.org/dc/dcmitype/Text\" />\r\n   <license \r\nrdf:resource=\"http://creativecommons.org/licenses/by-nc/3.0/de/\" \r\n/>\r\n</Work>\r\n\r\n<License \r\nrdf:about=\"http://creativecommons.org/licenses/by-nc/3.0/de/\">\r\n   <permits rdf:resource=\"http://web.resource.org/cc/Reproduction\" \r\n/>\r\n   <permits rdf:resource=\"http://web.resource.org/cc/Distribution\" \r\n/>\r\n   <requires rdf:resource=\"http://web.resource.org/cc/Notice\" />\r\n   <requires rdf:resource=\"http://web.resource.org/cc/Attribution\" \r\n/>\r\n   <prohibits rdf:resource=\"http://web.resource.org/cc/CommercialUse\"\r\n />\r\n</License>\r\n\r\n</rdf:RDF>\r\n\r\n-->', 'Diese Lizenz erlaubt es anderen, Ihr Werk/Ihren Inhalt zu verbreiten, zu remixen, zu verbessern und darauf aufzubauen, allerdings nur nicht-kommerziell. Und obwohl auch bei den auf Ihrem Werk/Inhalt basierenden neuen Werken Ihr Name mit genannt werden muss und sie nur nicht-kommerziell verwendet werden dürfen, müssen diese neuen Werke nicht unter denselben Bedingungen lizenziert werden.', 'deu', 'http://creativecommons.org/licenses/by-nc/3.0/de/deed.de', 'http://i.creativecommons.org/l/by-nc/3.0/de/88x31.png', '', 'text/html', 'Creative Commons - Namensnennung-Nicht kommerziell', 1, 50);
+
+-- if standardized enrichment_key_names from opus3-migration are already used set them to a temporary name
+
+UPDATE `document_enrichments` SET `key_name` = 'TempClassRvk' WHERE `key_name` = 'ClassRvk';
+UPDATE `document_enrichments` SET `key_name` = 'TempContributorsName' WHERE `key_name` = 'ContributorsName';
+UPDATE `document_enrichments` SET `key_name` = 'TempSourceSwb' WHERE `key_name` = 'SourceSwb';
+UPDATE `document_enrichments` SET `key_name` = 'TempSourceTitle' WHERE `key_name` = 'SourceTitle';
+UPDATE `document_enrichments` SET `key_name` = 'TempSubjectUncontrolledGerman' WHERE `key_name` = 'SubjectUncontrolledGerman';
+UPDATE `document_enrichments` SET `key_name` = 'TempSubjectUncontrolledEnglish' WHERE `key_name` = 'SubjectUncontrolledEnglish';
+UPDATE `document_enrichments` SET `key_name` = 'TempSubjectSwd' WHERE `key_name` = 'SubjectSwd';
+
+-- change enrichment_key_names according to opus4-name konventionts
+
+UPDATE `document_enrichments` SET `key_name` = 'ClassRvk' WHERE `key_name` = 'rvk';
+UPDATE `document_enrichments` SET `key_name` = 'ContributorsName' WHERE `key_name` = 'contributor';
+UPDATE `document_enrichments` SET `key_name` = 'SourceSwb' WHERE `key_name` = 'source_swb';
+UPDATE `document_enrichments` SET `key_name` = 'SourceTitle' WHERE `key_name` = 'source';
+UPDATE `document_enrichments` SET `key_name` = 'SubjectUncontrolledGerman' WHERE `key_name` = 'subject_uncontrolled_german';
+UPDATE `document_enrichments` SET `key_name` = 'SubjectUncontrolledEnglish' WHERE `key_name` = 'subject_uncontrolled_english';
+UPDATE `document_enrichments` SET `key_name` = 'SubjectSwd' WHERE `key_name` = 'subject_swd';
