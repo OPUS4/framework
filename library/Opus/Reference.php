@@ -21,8 +21,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
@@ -67,12 +67,19 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        
+
         $label = new Opus_Model_Field('Label');
         $label->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $relation = new Opus_Model_Field('Relation');
+        $relation->setMandatory(false);
+        $relation->setSelection(true);
+        $relation->setDefault(array(
+            'updates' => 'updates',
+            'updated-by' => 'updated-by',
+            'other' => 'other'
+        ));
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false); // TODO change later
