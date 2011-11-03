@@ -144,7 +144,7 @@ class Opus_FileTest extends TestCase {
         $this->assertFalse($file->isValid(), 'File model should validate to false.');
 
         // TODO: Check, why this test fails.
-        $this->markTestIncomplete('TODO: Check, why this test fails.');
+        $this->markTestSkipped('TODO: Check, why this test fails.');
         $this->assertTrue(array_key_exists('HashValue', $file->getValidationErrors()),
                 'Missing validation errors for field HashValue.');
 
