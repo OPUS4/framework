@@ -1529,4 +1529,13 @@ class Opus_DocumentTest extends TestCase {
         $this->assertNull( $invalidDate, "Expected NULL on invalid date." );
     }
 
+    public function testGetDefaultsForPublicationState() {
+        $doc = new Opus_Document();
+
+        $values = $doc->getField('PublicationState')->getDefault();
+
+        $this->assertEquals(5, count($values));
+        $this->assertContains('draft', $values);
+    }
+
 }

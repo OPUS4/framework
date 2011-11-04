@@ -436,6 +436,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     'inprogress' => 'inprogress'))
                 ->setSelection(true);
 
+        // Add the allowed values for publication_state column
+        $this->getField('PublicationState')
+                ->setDefault(array(
+                    'draft' => 'draft',
+                    'accepted' => 'accepted',
+                    'submitted' => 'submitted',
+                    'published' => 'published',
+                    'updated'=> 'updated'))
+                ->setSelection(true);
+
         // Initialize available date fields and set up date validator
         // if the particular field is present
         $dateFields = array(
