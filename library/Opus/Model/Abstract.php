@@ -206,9 +206,7 @@ abstract class Opus_Model_Abstract {
         if (true === in_array($name, $this->_internalFields, true)) {
             throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
         }
-        $field = $this->_getField($name);
-        $field->setOwningModelClass(get_class($this));
-        return $field;
+        return $this->_getField($name);
     }
 
     /**

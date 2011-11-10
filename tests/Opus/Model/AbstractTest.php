@@ -344,4 +344,9 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertEquals('Opus_Model_Dependent_Link_DocumentPerson', $field->getOwningModelClass());
     }
 
+    public function testGetFieldForUnkownField() {
+        $doc = new Opus_Document();
+        $this->assertNull($doc->getField('FieldDoesNotExist'));
+    }
+
 }
