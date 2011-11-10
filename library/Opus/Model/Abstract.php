@@ -191,6 +191,7 @@ abstract class Opus_Model_Abstract {
      */
     public function addField(Opus_Model_Field $field) {
         $this->_fields[$field->getName()] = $field;
+        $field->setOwningModelClass(get_class($this));
         return $this;
     }
 
@@ -205,7 +206,9 @@ abstract class Opus_Model_Abstract {
         if (true === in_array($name, $this->_internalFields, true)) {
             throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
         }
-        return $this->_getField($name);
+        $field = $this->_getField($name);
+        $field->setOwningModelClass(get_class($this));
+        return $field;
     }
 
     /**
@@ -348,7 +351,7 @@ abstract class Opus_Model_Abstract {
         if (is_null($customDeserializer)) {
             $customDeserializer = new Opus_Model_Xml;
         }
- 
+
         if ($xml instanceof DomDocument) {
             $customDeserializer->setDomDocument($xml);
         } else if (is_string($xml)) {

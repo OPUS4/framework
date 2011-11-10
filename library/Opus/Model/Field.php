@@ -91,6 +91,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     protected $_linkModelClass = null;
 
     /**
+     * Holds the classname of the model that the field belongs to.
+     */
+    protected $_owningModelClass = null;
+
+    /**
      * Holds the name of the sort field...
      *
      * @var string
@@ -141,15 +146,15 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @var boolean Saves the state of the field.
      */
     protected $_modified = false;
-    
-    
+
+
     /**
      * Set of pending delete operations for dependent Models.
      *
      * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
      */
     protected $_pendingDeletes = array();
-    
+
 
     /**
      * Create an new field instance and set the given name.
@@ -313,7 +318,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             // determine Opus_Model_Dependent_Abstract instances that
             // are in the current value set but not in the given
             $this->_deleteUnreferencedDependentModels($values);
-            
+
             // remove wrapper array if multivalue condition is not given
             if (false === $multiValueCondition) {
                 $value = $values[0];
@@ -376,7 +381,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
 
-        // collect removal candidates    
+        // collect removal candidates
         $removees = array();
         foreach ($fvals as $victim) {
             if ($victim instanceof Opus_Model_Dependent_Abstract) {
@@ -421,7 +426,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 } else {
                     $vtype = get_class($v);
                 }
-                
+
                 // perform typecheck
                 if ($vtype !== $etype) {
                     if (false === is_subclass_of($vtype, $etype)) {
@@ -451,18 +456,18 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             }
         }
     }
-    
+
     /**
      * Perform all pending delete operations for dependent Models.
      *
      * @return void
-     */   
+     */
     public function doPendingDeleteOperations() {
         foreach (array_values($this->_pendingDeletes) as $info) {
             $info['model']->doDelete($info['token']);
         }
     }
-     
+
 
     /**
      * If a value model class is set for this field,
@@ -538,7 +543,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         if (is_array($value) or !$this->hasMultipleValues()) {
            return $value;
         }
-    
+
         if (is_null($value)) {
            return array();
         }
@@ -726,6 +731,24 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     }
 
     /**
+     * Return the name of the model class that owns the field.
+     * @return string Class name of the model that own the field or null.
+     */
+    public function getOwningModelClass() {
+        return $this->_owningModelClass;
+    }
+
+    /**
+     * Set the name of the model class that owns the field.
+     * @param string $classname The name of the class that owns the field.
+     * @return Opus_Model_Field Fluent interface.
+     */
+    public function setOwningModelClass($classname) {
+        $this->_owningModelClass = $classname;
+        return $this;
+    }
+
+    /**
      * Set the name of model field for sorting.
      *
      * @param  string $classname The field name used as model for sorting.
@@ -793,5 +816,5 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     public function isCheckbox() {
         return $this->_checkbox;
     }
-    
+
 }

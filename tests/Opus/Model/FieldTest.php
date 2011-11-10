@@ -564,7 +564,7 @@ class Opus_Model_FieldTest extends TestCase {
         // assert modified field
         $this->assertTrue($field->isModified(), 'Field is not marked as modified.');
     }
-    
+
     /**
      * Test if an excpetion occurs if value of unexpected type is set.
      *
@@ -608,11 +608,11 @@ class Opus_Model_FieldTest extends TestCase {
         } catch (Opus_Model_Exception $ome) {
             $this->fail('No type check excpetion expected: ' . $ome->getMessage());
         }
-        $result = $field->getValue();        
+        $result = $field->getValue();
 
         $this->assertTrue($result instanceof Zend_Date, 'Value has not been casted to valueModelClass object.');
     }
-    
+
     /**
      * Test if a pending delete operation is collected on every delete of a
      * dependent Model.
@@ -622,7 +622,7 @@ class Opus_Model_FieldTest extends TestCase {
     public function testDeleteCollectsPendingOperations() {
         // create field referencing the mockup model
         $depmo = new Opus_Model_ModelDependentMock;
-        
+
         $clazz ='
             class Opus_Model_FieldTest_Inspector extends Opus_Model_Field {
                 public function getPendingDeletes() {
@@ -631,7 +631,7 @@ class Opus_Model_FieldTest extends TestCase {
             }
         ';
         eval($clazz);
-        
+
         $field = new Opus_Model_FieldTest_Inspector('ExternalModel');
         $field->setValueModelClass(get_class($depmo));
         $field->setValue($depmo);
@@ -643,9 +643,9 @@ class Opus_Model_FieldTest extends TestCase {
         $deletes = $field->getPendingDeletes();
         $this->assertFalse(empty($deletes), 'No pending delete operations generated.');
     }
-    
+
     /**
-     * Test if pending deletes get executed. 
+     * Test if pending deletes get executed.
      *
      * @return void
      */
@@ -668,6 +668,12 @@ class Opus_Model_FieldTest extends TestCase {
         $this->assertTrue($depmo[0]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
         $this->assertTrue($depmo[1]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
         $this->assertTrue($depmo[2]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
-    }   
+    }
+
+    public function testSetAndGetOwningModelClass() {
+        $field = new Opus_Model_Field('Test');
+        $field->setOwningModelClass('Opus_Test');
+        $this->assertEquals('Opus_Test', $field->getOwningModelClass());
+    }
 
 }

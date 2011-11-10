@@ -307,4 +307,41 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertFalse($result, 'Validation should fail because submodel validation failes.');
     }
 
+    /**
+     * Test if property owningModelClass gets set for field of Opus_Document.
+     */
+    public function testGetOwningModelClassForFieldOfDocument() {
+        $doc = new Opus_Document();
+        $field = $doc->getField('Type');
+        $this->assertEquals('Opus_Document', $field->getOwningModelClass());
+    }
+
+    /**
+     * Test if property owningModelClass gets set for field of Opus_Person.
+     */
+    public function testGetOwningModelClassForFieldOfPerson() {
+        $person = new Opus_Person();
+        $field = $person->getField('FirstName');
+        $this->assertEquals('Opus_Person', $field->getOwningModelClass());
+    }
+
+    /**
+     * Test if property owningModelClass gets set for link class.
+     */
+    public function testGetOwningModelClassForFieldOfDocumentPerson() {
+        $doc = new Opus_Document();
+        $person = new Opus_Person();
+        $doc->addPerson($person);
+        $persons = $doc->getPerson();
+        $person = $persons[0];
+
+        // Test for field that belongs to Opus_Person
+        $field = $person->getField('FirstName');
+        $this->assertEquals('Opus_Person', $field->getOwningModelClass());
+
+        // Test for field that belongs to Opus_Model_Dependent_Link_DocumentPerson
+        $field = $person->getField('SortOrder');
+        $this->assertEquals('Opus_Model_Dependent_Link_DocumentPerson', $field->getOwningModelClass());
+    }
+
 }
