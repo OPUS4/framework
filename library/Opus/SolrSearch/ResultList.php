@@ -76,4 +76,4 @@ class Opus_SolrSearch_ResultList {
         return "Result list consisting of " . $this->numberOfHits . " results retrieved in " . $this->queryTime . " milliseconds.";
     }
 }
-?>
+

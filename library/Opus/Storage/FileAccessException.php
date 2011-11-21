@@ -39,4 +39,3 @@
 class Opus_Storage_FileAccessException extends Opus_Storage_Exception {
 }
 
-?>

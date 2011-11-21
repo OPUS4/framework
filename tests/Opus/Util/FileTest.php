@@ -144,4 +144,3 @@ class Opus_Util_FileTest extends PHPUnit_Framework_TestCase {
 
 }
 
-?>

@@ -73,4 +73,4 @@ class Opus_HashValuesTest extends TestCase {
         );
     }
 }
-?>
+

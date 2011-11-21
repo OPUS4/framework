@@ -170,4 +170,3 @@ class Opus_SolrSearch_Searcher {
     }
 }
 
-?>

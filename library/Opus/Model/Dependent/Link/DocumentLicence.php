@@ -99,4 +99,3 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
 
 }
 
-

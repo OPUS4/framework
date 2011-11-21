@@ -494,4 +494,4 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->setExpectedException('InvalidArgumentException');
     }
 }
-?>
+

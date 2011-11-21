@@ -34,4 +34,4 @@
 class Opus_SolrSearch_Index_Exception extends Exception {
     
 }
-?>
+

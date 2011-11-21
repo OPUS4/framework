@@ -61,4 +61,3 @@ abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
 
 }
 
-?>

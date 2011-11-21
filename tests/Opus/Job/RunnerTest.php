@@ -29,7 +29,7 @@
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: RunnerTest.php 4921 2009-12-21 14:03:11Z claussni $
+ * @version     $Id$
  */
 
 /**
@@ -52,3 +52,4 @@ class Opus_Job_RunnerTest extends TestCase {
         $this->assertNotNull($runner, 'Simple initializing of Opus_Job_Runner failed.');
     }
 }
+

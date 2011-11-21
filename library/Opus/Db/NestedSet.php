@@ -500,4 +500,4 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     }
 
 }
-?>
+

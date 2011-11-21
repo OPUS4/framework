@@ -99,4 +99,4 @@ class Opus_SolrSearch_Result {
 
 
 }
-?>
+

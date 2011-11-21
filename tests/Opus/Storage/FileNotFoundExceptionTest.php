@@ -85,4 +85,3 @@ class Opus_Storage_FileNotFoundExceptionTest extends PHPUnit_Framework_TestCase 
 
 }
 
-?>

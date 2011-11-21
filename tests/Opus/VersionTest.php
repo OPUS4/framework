@@ -73,4 +73,4 @@ class Opus_VersionTest extends TestCase {
         );
     }
 }
-?>
+

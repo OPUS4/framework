@@ -84,4 +84,4 @@ interface Opus_Security_IRealm {
      */
     public function check($privilege, $documentServerState = null, $fileId = null);
 }
-?>
+

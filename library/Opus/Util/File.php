@@ -84,4 +84,3 @@ class Opus_Util_File {
 
 }
 
-?>

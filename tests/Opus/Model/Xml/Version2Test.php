@@ -285,3 +285,4 @@ class Opus_Model_Xml_Version2Test extends TestCase {
     }
     
 }
+

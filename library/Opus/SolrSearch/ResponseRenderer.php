@@ -142,4 +142,4 @@ class Opus_SolrSearch_ResponseRenderer {
         return array();
     }
 }
-?>
+

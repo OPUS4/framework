@@ -470,4 +470,3 @@ class Opus_CollectionRoleTest extends TestCase {
 
 }
 
-?>

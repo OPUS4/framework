@@ -373,4 +373,4 @@ class Opus_SolrSearch_Query {
         return $this->returnIdsOnly;
     }
 }
-?>
+

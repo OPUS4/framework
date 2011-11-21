@@ -63,4 +63,3 @@ class Opus_SolrSearch_FacetItem {
     }
 }
 
-?>

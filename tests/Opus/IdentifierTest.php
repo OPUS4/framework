@@ -74,4 +74,4 @@ class Opus_IdentifierTest extends TestCase {
     }
     
 }
-?>
+
