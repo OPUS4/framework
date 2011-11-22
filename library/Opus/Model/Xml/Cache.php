@@ -12,7 +12,7 @@
  * GNU General Public License for more details.
  *
  * @category    Framework
- * @package     Qucosa_Search
+ * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
  * @copyright   Copyright (c) 2009-2010
@@ -24,8 +24,6 @@
 /**
  * Search Hit model class.
  *
- * @category    Framework
- * @package     Qucosa_Search
  * @uses        Opus_Model_Abstract
  */
 class Opus_Model_Xml_Cache {
