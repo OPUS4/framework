@@ -242,6 +242,11 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
             return true;
         }
 
+        // default module always required for login (OPUSVIER-1950)
+        if ($module_name === "default") {
+            return true;
+        }
+
         if (empty($module_name)) {
             return false;
         }
