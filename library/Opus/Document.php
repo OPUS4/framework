@@ -304,6 +304,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
+            'DocumentSets' => array(
+                            'model' => 'Opus_Sets',    
+                            'through' => 'Opus_Model_Dependent_Link_DocumentSets',
+                            'fetch' => 'lazy'
+            ),
             'Subject' => array(
                             'model' => 'Opus_Subject',
                             'fetch' => 'lazy'
