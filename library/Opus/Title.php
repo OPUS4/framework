@@ -72,7 +72,8 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
         $language->setMandatory(true);
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty())
+            ->setTextarea(true);
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false);
