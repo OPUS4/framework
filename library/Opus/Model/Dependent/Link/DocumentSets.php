@@ -76,7 +76,7 @@ class Opus_Model_Dependent_Link_DocumentSets extends Opus_Model_Dependent_Link_A
      * @return void
      */
     protected function _init() {
-        if (is_null($this->getSetId()) === false) {
+        if (is_null($this->getId()) === false) {
             $this->setModel(new Opus_DocumentSets($this->_primaryTableRow->set_id));
         } else {
             $this->setModel(new Opus_DocumentSets);
@@ -92,7 +92,7 @@ class Opus_Model_Dependent_Link_DocumentSets extends Opus_Model_Dependent_Link_A
         $this->_primaryTableRow->set_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getSetId() !== $this->_primaryTableRow->set_id) {            
+        if ($this->getId() !== $this->_primaryTableRow->set_id) {            
             parent::store();
         }
     }
