@@ -1517,7 +1517,7 @@ class Opus_DocumentTest extends TestCase {
 
         // Insert valid entry through framework.
         $document = new Opus_Document();
-        $document->setServerDatePublished('2011-06-01T00:00');
+        $document->setServerDatePublished('2011-06-01T00:00:00Z');
         $document->store();
         $validDate = Opus_Document::getEarliestPublicationDate();
         $this->assertEquals( '2011-06-01', $validDate );
