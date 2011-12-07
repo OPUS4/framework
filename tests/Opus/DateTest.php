@@ -167,6 +167,28 @@ class Opus_DateTest extends TestCase {
     }
 
     /**
+     * Test if setNow really sets now.
+     *
+     * @return void
+     */
+    function testSetNowToStringIsValid() {
+        $date = new Opus_Date();
+        $date->setNow();
+
+        $this->assertEquals(date('Y'), $date->getYear());
+        $this->assertEquals(date('m'), $date->getMonth());
+        $this->assertEquals(date('d'), $date->getDay());
+        
+        $dateString = $date->__toString();
+        echo "debug: $dateString\n";
+        $dateReload = new Opus_Date($dateString);
+        $this->assertEquals($date->getYear(), $dateReload->getYear());
+        $this->assertEquals($date->getMonth(), $dateReload->getMonth());
+        $this->assertEquals($date->getDay(), $dateReload->getDay());
+        
+    }
+
+    /**
      * Test if converting from-to string is invariant.
      *
      * @return void
@@ -183,7 +205,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(36, $date->getMinute());
         $this->assertEquals(53, $date->getSecond());
 
-        $this->assertEquals('2010-06-04T22:36:53+00:00', "$date");
+        $this->assertEquals('2010-06-04T22:36:53Z', "$date");
     }
 
     /**
@@ -239,37 +261,20 @@ class Opus_DateTest extends TestCase {
      * @return void
      */
     function testSetTimezone() {
-        $date = new Opus_Date();
-        $date->setNow();
-
-        $date->setTimezone('Europe/Berlin');
-        $this->assertEquals('Europe/Berlin', $date->getTimezone()->getName());
-    }
-
-    /**
-     * Test if setFromString() handles invalid time zone parameter.
-     *
-     * @return void
-     */
-    function testSetTimezoneErrorHandling() {
-
-        $invalidStrings = array(
-            null,
-            new stdClass(),
-            '',
-            'bla',
+        $timeZoneStrings = array(
+            '2011-12-12'                => null,
+            '2011-12-12T23:59:59Z'      => 'Z',
+            '2011-12-12T23:59:59UTC'    => 'Z',
+            '2011-12-12T23:59:59+0'     => 'Z',
+            '2011-12-12T23:59:59+00'    => 'Z',
+            '2011-12-12T23:59:59+0000'  => 'Z',
+            '2011-12-12T23:59:59+00:00' => 'Z',
+            '2011-12-12T23:59:59EST'    => '-05:00',
         );
-        foreach ($invalidStrings AS $invalidString) {
-            try {
-                $date = new Opus_Date();
-                $date->setTimezone($invalidString);
-                $this->fail("Missing expected InvalidArgumentException for invalid timezone '{$invalidString}'.");
-            }
-            catch (InvalidArgumentException $e) {
-                // OK.
-            }
+        foreach ($timeZoneStrings AS $timeString => $timeZone) {
+            $date = new Opus_Date($timeString);
+            $this->assertEquals($timeZone, $date->getTimezone());
         }
-
     }
 
 }

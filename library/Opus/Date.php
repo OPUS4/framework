@@ -40,6 +40,8 @@
  */
 class Opus_Date extends Opus_Model_Abstract {
 
+    CONST TIMEDATE_REGEXP = '/^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}([A-Za-z]+|[+-][0-9:]+)$/';
+    CONST DATEONLY_REGEXP = '/^\d{4}-\d{1,2}-\d{1,2}$/';
 
     /**
      * Set up model with given value or with the current timestamp.
@@ -66,10 +68,10 @@ class Opus_Date extends Opus_Model_Abstract {
             $this->setYear(0)
                 ->setMonth(0)
                 ->setDay(0)
-                ->setHour(0)
-                ->setMinute(0)
-                ->setSecond(0)
-                ->setTimezone('UTC')
+                ->setHour(NULL)
+                ->setMinute(NULL)
+                ->setSecond(NULL)
+                ->setTimezone(NULL)
                 ->setUnixTimestamp(0);
         }
     }
@@ -124,43 +126,23 @@ class Opus_Date extends Opus_Model_Abstract {
     }
 
     /**
-     * Sets timezone of Date object.  If input is not of type DateTimeZone, then
-     * it must be a valid timezone that works with
-     *     new DateTimeZone($timezone)
-     *
-     * @param string|DateTimeZone $timezone
-     * @return Opus_Date Provide fluent interface.
-     */
-    public function setTimezone($timezone = 'UTC') {
-        if (!$timezone instanceof DateTimeZone) {
-            $timezone = @timezone_open($timezone);
-        }
-
-        if (!$timezone instanceof DateTimeZone) {
-            throw new InvalidArgumentException('Could not get DateTimeZone object from timezone parameter.');
-        }
-
-        // TODO: We need array($timezone) to workaround model bug.
-        // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
-        parent::setTimezone(array($timezone));
-        return $this;
-    }
-
-    /**
      * Returns a DateTime instance properly set up with
      * date values as described in the Models fields.
      *
      * @return DateTime
      */
     public function getDateTime() {
-        $datetime = new DateTime(null, $this->getTimezone());
-        $datetime->setDate($this->getYear(), $this->getMonth(), $this->getDay());
-        $datetime->setTime($this->getHour(), $this->getMinute(), $this->getSecond());
-        return $datetime;
+        $date = $this->__toString();
+        if ($this->isDateOnly()) {
+            $date = substr($date, 0, 10) . 'T00:00:00';
+            return DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+        }
+
+        return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
     }
 
     /**
-     * Set date values from DateTime instance.
+     * Set date and time values from DateTime instance.
      *
      * @param DateTime $date DateTime instance to use.
      * @return Opus_Date provide fluent interface.
@@ -176,11 +158,40 @@ class Opus_Date extends Opus_Model_Abstract {
         $this->setHour($datetime->format("H"));
         $this->setMinute($datetime->format("i"));
         $this->setSecond($datetime->format("s"));
-
-        $this->setTimezone($datetime->getTimezone());
+        
+        $tz = $datetime->format("P");
+        $this->setTimezone($tz === '+00:00' ? 'Z' : $tz);
         $this->setUnixTimestamp($datetime->getTimestamp());
 
         return $this;
+    }
+
+    /**
+     * Set date values from DateTime instance; shortcut for date-setting only.
+     *
+     * @param DateTime $date DateTime instance to use.
+     * @return Opus_Date provide fluent interface.
+     */
+    public function setDateOnly($datetime) {
+        $this->setDateTime($datetime);
+        $this->setHour(null);
+        $this->setMinute(null);
+        $this->setSecond(null);
+        $this->setTimezone(null);
+
+        return $this;
+    }
+
+    /**
+     * Checks, if the current date object also defines time/time zone values.
+     *
+     * @return bool
+     */
+    public function isDateOnly() {
+        return is_null($this->getHour()) 
+                || is_null($this->getMinute()) 
+                || is_null($this->getSecond())
+                || is_null($this->getTimezone());
     }
 
     /**
@@ -213,15 +224,18 @@ class Opus_Date extends Opus_Model_Abstract {
             throw new InvalidArgumentException('Empty date string passed.');
         }
 
-        $datetime = null;
-        if (strlen($date) >= 18) {
-            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:sP', $date);
+        if (preg_match(self::TIMEDATE_REGEXP, $date)) {
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            $this->setDateTime($datetime);
         }
-        else if (strlen($date) >= 10) {
-            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s', substr($date, 0, 10) . 'T00:00:00');
+        else if (preg_match(self::DATEONLY_REGEXP, $date)) {
+            $date = substr($date, 0, 10) . 'T00:00:00';
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+            $this->setDateOnly($datetime);
         }
-
-        $this->setDateTime($datetime);
+        else {
+            throw new InvalidArgumentException('Invalid date-time string.');
+        }
     }
     
     /**
@@ -232,15 +246,24 @@ class Opus_Date extends Opus_Model_Abstract {
     public function setNow() {
         $this->setDateTime(new DateTime());
     }
-    
+
     /**
      * Return ISO 8601 string representation of the date.  For instance:
      *    2011-02-28T23:59:59[+-]01:30
+     *    2011-02-28T23:59:59(Z|UTC|...)
+     *    2011-02-28                    (if some time values/time zone are null)
      *
      * @return string ISO 8601 date string.
      */
     public function __toString() {
-        return $this->getDateTime()->format('Y-m-d\TH:i:sP');
+        $dateStr = implode("-", array($this->getYear(), $this->getMonth(), $this->getDay()));
+        if ($this->isDateOnly()) {
+            return $dateStr;
+        }
+
+        $timeStr = implode(":", array($this->getHour(), $this->getMinute(), $this->getSecond()));
+        $tzStr   = $this->getTimezone();
+        return $dateStr . "T" . $timeStr . $tzStr;
     }
 
 }
