@@ -36,7 +36,7 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `issue` VARCHAR(25) NULL COMMENT 'Issue.' ,
   `language` VARCHAR(255) NULL COMMENT 'Language(s) of the document.' ,
   `page_first` INT NULL COMMENT 'First page of a publication.' ,
-  `page_last` INT NULL COMMENT 'Last page of a pbulication.' ,
+  `page_last` INT NULL COMMENT 'Last page of a publication.' ,
   `page_number` INT NULL COMMENT 'Total page numbers.' ,
   `publication_state` ENUM('draft', 'accepted', 'submitted', 'published', 'updated') NOT NULL COMMENT 'Version of publication.' ,
   `published_date` VARCHAR(50) NULL COMMENT 'Exact date of publication. Could differ from \"server_date_published\".' ,
