@@ -21,8 +21,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
@@ -88,7 +88,9 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             'cris-link' => 'cris-link',
             'splash-url' => 'splash-url',
             'opus3-id' => 'opus3-id',
-            'opac-id' => 'opac-id'
+            'opac-id' => 'opac-id',
+            'pmid' => 'pmid',
+            'arxiv' => 'arxiv'
         ));
 
         $this->addField($value);
