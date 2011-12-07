@@ -305,7 +305,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'fetch' => 'lazy'
             ),
             'DocumentSets' => array(
-                            'model' => 'Opus_Sets',    
+                            'model' => 'Opus_Sets',
                             'through' => 'Opus_Model_Dependent_Link_DocumentSets',
                             'fetch' => 'lazy'
             ),
@@ -438,6 +438,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     'published' => 'published',
                     'deleted' => 'deleted',
                     'restricted' => 'restricted',
+                    'audited' => 'audited',
                     'inprogress' => 'inprogress'))
                 ->setSelection(true);
 
