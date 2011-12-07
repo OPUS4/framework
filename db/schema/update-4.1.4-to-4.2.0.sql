@@ -25,3 +25,9 @@ CREATE TABLE IF NOT EXISTS `link_documents_sets` (
   CONSTRAINT `link_documents_sets_ibfk_2` FOREIGN KEY (`set_id`) REFERENCES `document_sets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `link_documents_sets_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
+
+-- -----------------------------------------------------
+-- Table `documents` column `server_state` modified
+-- -----------------------------------------------------
+ALTER TABLE `documents`
+    MODIFY COLUMN `server_state` ENUM('audited', 'published', 'restricted', 'inprogress', 'unpublished', 'deleted', 'temporary') NOT NULL COMMENT 'Status of publication process in the repository.';
