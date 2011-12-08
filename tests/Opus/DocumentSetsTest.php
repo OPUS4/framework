@@ -85,21 +85,20 @@ class Opus_DocumentSetsTest extends TestCase {
     }
 
     public function testAssignSetToDocumentWithNumber() {
+        $this->markTestSkipped('feature is currently not supported');
+
         $d = new Opus_Document();
         $d->store();
         
         $s = new Opus_DocumentSets();
         $s->setTitle('foo');
         $l = $d->addDocumentSets($s);
-        //$l->setNumber(1);
+        $l->setNumber(1);
         $d->store();
 
         // cleanup
         $s->delete();
         $d->deletePermanent();
     }
-
-
-    
 
 }
