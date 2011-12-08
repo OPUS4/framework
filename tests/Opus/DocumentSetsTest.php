@@ -91,8 +91,6 @@ class Opus_DocumentSetsTest extends TestCase {
     }
 
     public function testAssignSetToDocumentWithNumber() {
-        $this->markTestSkipped('feature is currently not supported');
-
         $d = new Opus_Document();
         $d->store();
         
