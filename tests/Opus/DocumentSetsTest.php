@@ -29,7 +29,7 @@
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id:$
+ * @version     $Id$
  */
 
 
@@ -49,18 +49,57 @@ class Opus_DocumentSetsTest extends TestCase {
      * @return void
      */
     public function testRetrieveAllSets() {
-        $sets[] = new Opus_DocumentSets();
-        $sets[] = new Opus_DocumentSets();
-        $sets[] = new Opus_DocumentSets();
+
+        // TODO: make sure that no DocumentSets exists
         
-        foreach ($sets as $set) {
-            $set->setTitle('New document set');
-            $set->setPublisher('Anybody');
+        $numberOfSetsToCreate = 3;
+        $ids = array();
+        for ($i = 0; $i < $numberOfSetsToCreate; $i++) {
+            $set = new Opus_DocumentSets();
+            $set->setTitle('New document set ' . $i);
             $set->store();
+            array_push($ids, $set->getId());
         }
+
         $result = Opus_DocumentSets::getAll();
-        $this->assertEquals(count($sets), count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals($numberOfSetsToCreate, count($result), 'Wrong number of objects retrieved.');
+
+        // cleanup
+        foreach ($ids as $id) {
+            $s = new Opus_DocumentSets($id);
+            $s->delete();
+        }
     }
+
+    public function testAssignSetToDocumentWithoutNumber() {
+        $d = new Opus_Document();
+        $d->store();
+        $s = new Opus_DocumentSets();
+        $s->setTitle('foo');
+        $d->addDocumentSets($s);
+        $d->store();
+
+        // cleanup
+        $s->delete();
+        $d->deletePermanent();
+    }
+
+    public function testAssignSetToDocumentWithNumber() {
+        $d = new Opus_Document();
+        $d->store();
+        
+        $s = new Opus_DocumentSets();
+        $s->setTitle('foo');
+        $l = $d->addDocumentSets($s);
+        //$l->setNumber(1);
+        $d->store();
+
+        // cleanup
+        $s->delete();
+        $d->deletePermanent();
+    }
+
+
     
 
 }
