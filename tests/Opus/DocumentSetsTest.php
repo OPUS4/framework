@@ -43,14 +43,18 @@
  */
 class Opus_DocumentSetsTest extends TestCase {
 
+    public function testGetDocumentSetWithGivenId() {
+        $s = new Opus_DocumentSets(1);
+        $this->assertNotNull($s);
+    }
+
     /**
      * Test if a document set can be retrieved by getAll().
      *
-     * @return void
      */
     public function testRetrieveAllSets() {
-
-        // TODO: make sure that no DocumentSets exists
+        $result = Opus_DocumentSets::getAll();
+        $this->assertEquals(1, count($result), 'Wrong number of objects retrieved.');
         
         $numberOfSetsToCreate = 3;
         $ids = array();
@@ -60,15 +64,17 @@ class Opus_DocumentSetsTest extends TestCase {
             $set->store();
             array_push($ids, $set->getId());
         }
-
         $result = Opus_DocumentSets::getAll();
-        $this->assertEquals($numberOfSetsToCreate, count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals($numberOfSetsToCreate + 1, count($result), 'Wrong number of objects retrieved.');
 
         // cleanup
         foreach ($ids as $id) {
             $s = new Opus_DocumentSets($id);
             $s->delete();
         }
+
+        $result = Opus_DocumentSets::getAll();
+        $this->assertEquals(1, count($result), 'Wrong number of objects retrieved.');
     }
 
     public function testAssignSetToDocumentWithoutNumber() {
