@@ -45,48 +45,12 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @return void
      */
     private function _clearTables() {
-        $tables = array(
-            'access_modules',
-            'access_documents',
-            'access_files',
-            'dnb_institutes',
-            'document_enrichments',
-            'document_files',
-            'document_identifiers',
-            'document_licences',
-            'document_notes',
-            'document_patents',
-            'document_references',
-            'document_statistics',
-            'document_subjects',
-            'document_title_abstracts',
-            'document_xml_cache',
-            'documents',
-            'accounts',
-            'collections_enrichments',
-            'collections',
-            'collections_roles',
-            'file_hashvalues',
-            'ipranges',
-            'jobs',
-            'languages',
-            'link_accounts_roles',
-            'link_documents_collections',
-            'link_documents_dnb_institutes',
-            'link_documents_licences',
-            'link_ipranges_roles',
-            'link_persons_documents',
-            'persons',
-            'user_roles',
-            'schema_version',
-        );
-
         // This is needed to workaround the constraints on the parent_id column.
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
         $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
-        foreach ($tables as $tableName) {
+        foreach ($adapter->listTables() as $tableName) {
             self::clearTable($tableName);
         }
     }
