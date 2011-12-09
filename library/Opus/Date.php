@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -40,8 +41,8 @@
  */
 class Opus_Date extends Opus_Model_Abstract {
 
-    CONST TIMEDATE_REGEXP = '/^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}([A-Za-z]+|[+-][0-9:]+)$/';
-    CONST DATEONLY_REGEXP = '/^\d{4}-\d{1,2}-\d{1,2}$/';
+    CONST TIMEDATE_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})([A-Za-z]+|[+-][\d:]+)$/';
+    CONST DATEONLY_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})$/';
 
     /**
      * Set up model with given value or with the current timestamp.
@@ -51,14 +52,17 @@ class Opus_Date extends Opus_Model_Abstract {
      */
     public function __construct($value = null) {
         parent::__construct();
-        
+
         if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
         } else
         if ($value instanceof DateTime) {
             $this->setDateTime($value);
         } else
-        if (is_string($value)) {
+        if (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
+            $this->setFromString($value);
+        } else
+        if (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
             $this->setFromString($value);
         } else
         if ($value instanceof Opus_Date) {
@@ -86,13 +90,13 @@ class Opus_Date extends Opus_Model_Abstract {
         $fields = array(
             'Year', 'Month', 'Day',
             'Hour', 'Minute', 'Second');
-    
+
         foreach($fields as $fieldName) {
             $field = new Opus_Model_Field($fieldName);
             $field->setValidator(new Zend_Validate_Int);
             $this->addField($field);
         }
-        
+
         $field = new Opus_Model_Field('Timezone');
         $this->addField($field);
 
@@ -121,7 +125,7 @@ class Opus_Date extends Opus_Model_Abstract {
                 unset($datearray[$key]);
             }
         }
-        
+
         return new Zend_Date($datearray);
     }
 
@@ -158,7 +162,7 @@ class Opus_Date extends Opus_Model_Abstract {
         $this->setHour($datetime->format("H"));
         $this->setMinute($datetime->format("i"));
         $this->setSecond($datetime->format("s"));
-        
+
         $tz = $datetime->format("P");
         $this->setTimezone($tz === '+00:00' ? 'Z' : $tz);
         $this->setUnixTimestamp($datetime->getTimestamp());
@@ -188,8 +192,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @return bool
      */
     public function isDateOnly() {
-        return is_null($this->getHour()) 
-                || is_null($this->getMinute()) 
+        return is_null($this->getHour())
+                || is_null($this->getMinute())
                 || is_null($this->getSecond())
                 || is_null($this->getTimezone());
     }
@@ -199,7 +203,7 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @param Zend_Date $date Zend_Date instance to use.
      * @return void
-     */    
+     */
     public function setZendDate(Zend_Date $date) {
         $datearray = $date->toArray();
         $this->setYear($datearray['year']);
@@ -237,7 +241,7 @@ class Opus_Date extends Opus_Model_Abstract {
             throw new InvalidArgumentException('Invalid date-time string.');
         }
     }
-    
+
     /**
      * Set the current date, time and timezone.
      *
@@ -266,5 +270,14 @@ class Opus_Date extends Opus_Model_Abstract {
         return $dateStr . "T" . $timeStr . $tzStr;
     }
 
+    /**
+     * Overload isValid to for additional date checks.
+     *
+     * @return bool
+     */
+    public function isValid() {
+        return checkdate($this->getMonth(), $this->getDay(), $this->getYear()) 
+                and parent::isValid();
+    }
 }
 

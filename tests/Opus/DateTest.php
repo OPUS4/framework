@@ -66,8 +66,9 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreate() {
+    public function testCreateWithoutArgument() {
         $od = new Opus_Date;
+        $this->assertFalse($od->isValid(), 'Opus_Date object should not be valid!');
     }   
  
     /**
@@ -80,8 +81,9 @@ class Opus_DateTest extends TestCase {
         $od->setYear(2005)
             ->setMonth(10)
             ->setDay(24);
+        $this->assertTrue($od->isValid(), 'Date should be valid!');
+
         $zd = $od->getZendDate();
-        
         $this->assertNotNull($zd, 'Object expected.');
         $this->assertTrue($zd instanceof Zend_Date, 'Returned object is not Zend_Date.');
     }
@@ -96,6 +98,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');        
         $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');        
         $this->assertEquals(10, (int) $od->getDay(), 'Day values dont match.');        
+        $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
     }
 
     /**
@@ -109,6 +112,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');
         $this->assertEquals($od->getMonth(), $now->get(Zend_Date::MONTH), 'Month values dont match.');
         $this->assertEquals($od->getDay(), $now->get(Zend_Date::DAY), 'Day values dont match.');
+        $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
     }
 
     /**
@@ -123,6 +127,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getYear(), $now->getYear(), 'Year values dont match.');
         $this->assertEquals($od->getMonth(), $now->getMonth(), 'Month values dont match.');
         $this->assertEquals($od->getDay(), $now->getDay(), 'Day values dont match.');
+        $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
     }
 
     /**
@@ -136,6 +141,27 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getYear(), $now->format('Y'), 'Year values dont match.');
         $this->assertEquals($od->getMonth(), $now->format('m'), 'Month values dont match.');
         $this->assertEquals($od->getDay(), $now->format('d'), 'Day values dont match.');
+        $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
+    }
+
+    /**
+     * Test creation by passing an *invalid* string constructor argument.
+     *
+     * @return void
+     */
+    public function testCreateWithTooLongYearStringConstructionArgumentShouldBeInvalid() {
+        $od = new Opus_Date("1234567-12-12T11:11:11Z");
+        $this->assertFalse($od->isValid(), 'Opus_Date object should be INVALID!');
+    }
+
+    /**
+     * Test creation by passing an *invalid* string constructor argument.
+     *
+     * @return void
+     */
+    public function testCreateWithShortYearStringConstructionArgumentShouldBeValid() {
+        $od = new Opus_Date("10-12-12T11:11:11Z");
+        $this->assertTrue($od->isValid(), 'Opus_Date object should be valid!');
     }
 
     /**
@@ -164,6 +190,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(date('Y'), $date->getYear());
         $this->assertEquals(date('m'), $date->getMonth());
         $this->assertEquals(date('d'), $date->getDay());
+        $this->assertTrue($date->isValid(), 'Opus_Date should be valid after setNow!');
     }
 
     /**
@@ -180,7 +207,6 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(date('d'), $date->getDay());
         
         $dateString = $date->__toString();
-        echo "debug: $dateString\n";
         $dateReload = new Opus_Date($dateString);
         $this->assertEquals($date->getYear(), $dateReload->getYear());
         $this->assertEquals($date->getMonth(), $dateReload->getMonth());
@@ -213,6 +239,22 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
+    function testFromDateOnlyStringToStringIsInvariant() {
+        $date = new Opus_Date();
+        $date->setFromString('2010-06-04');
+
+        $this->assertEquals(2010, $date->getYear());
+        $this->assertEquals(06, $date->getMonth());
+        $this->assertEquals(04, $date->getDay());
+
+        $this->assertEquals('2010-06-04', "$date");
+    }
+
+    /**
+     * Test if converting from-to string is invariant.
+     *
+     * @return void
+     */
     function testFromStringToStringKeepsTimeZone() {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04T22:36:53+2:3');
@@ -225,7 +267,7 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(36, $date->getMinute());
         $this->assertEquals(53, $date->getSecond());
 
-        $this->assertEquals('2010-06-04T22:36:53+02:03', "$date");
+        $this->assertEquals('+02:03', $date->getTimezone());
     }
 
     /**
