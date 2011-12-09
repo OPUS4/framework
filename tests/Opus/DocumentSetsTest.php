@@ -73,8 +73,6 @@ class Opus_DocumentSetsTest extends TestCase {
     }
 
     public function testAssignSetToDocumentWithoutNumber() {
-        $this->markTestSkipped('not implemented');
-        
         $d = new Opus_Document();
         $d->store();
         $s = new Opus_DocumentSets();
@@ -88,8 +86,6 @@ class Opus_DocumentSetsTest extends TestCase {
     }
 
     public function testAssignSetToDocumentWithNumber() {
-        $this->markTestSkipped('not implemented');
-        
         $d = new Opus_Document();
         $d->store();
         
