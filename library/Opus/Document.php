@@ -1066,4 +1066,23 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $logger->info( $this->getDisplayName() . ": $message" );
     }
 
+    /**
+     * Erase all document fields, which are passed in $fieldnames array.
+     * 
+     * @param array $fieldnames
+     * @return Opus_Document Provide fluent interface.
+     *
+     * @throws Opus_Document_Exception If a given field does no exist.
+     */
+    public function deleteFields($fieldnames) {
+        foreach ($fieldnames AS $fieldname) {
+            $field = $this->_getField($fieldname);
+            if (is_null($field)) {
+                throw new Opus_Document_Exception("Cannot delete field $fieldname: Does not exist?");
+            }
+            $field->setValue(null);
+        }
+        return $this;
+    }
+
 }
