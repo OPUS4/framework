@@ -282,6 +282,14 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
     }
 
     /**
+     * Returns the names of the roles for current user.
+     * @return array of strings - Names of roles
+     */
+    public function getRoles() {
+        return $this->_roles;
+    }
+
+    /**
      * Checks if a privilege is granted for actual context (usersession, ip address).
      * If administrator is one of the current roles true will be returned ingoring everything else.
      *

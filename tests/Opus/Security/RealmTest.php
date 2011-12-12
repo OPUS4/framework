@@ -145,7 +145,7 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertNotNull($realm, 'Expected instance');
         $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
     }
-    
+
     public function testSetUserSuccess() {
         $this->setUpUserUser();
 
@@ -397,6 +397,59 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect successful file ckeck by user for valid file-id.');
         $this->assertTrue($realm->checkFile(100),
                 'Expect successful file ckeck by user for unknown file-id.');
+    }
+
+    public function testGetRolesForUnknown() {
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser(''); // TODO otherwise also gets role 'administrator'
+
+        $roles = $realm->getRoles();
+
+        var_dump($roles);
+
+        $this->assertEquals(1, count($roles));
+        $this->assertContains('guest', $roles);
+    }
+
+    public function testGetRolesForUser() {
+        $this->setUpUserUser();
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('user');
+        $realm->setIp('');
+
+        $roles = $realm->getRoles();
+
+        $this->assertEquals(2, count($roles));
+        $this->assertContains('userrole', $roles);
+        $this->assertContains('guest', $roles);
+    }
+
+    public function testGetRolesForAdmin() {
+        $this->setUpUserAdmin();
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('admin');
+        $realm->setIp('');
+
+        $roles = $realm->getRoles();
+
+        $this->assertEquals(2, count($roles));
+        $this->assertContains('administrator', $roles);
+        $this->assertContains('guest', $roles);
+    }
+
+    public function testGetRolesForUserAndIp() {
+        $this->setUpUserUser();
+        $this->setUpIp();
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('user');
+        $realm->setIp('127.0.0.22');
+
+        $roles = $realm->getRoles();
+
+        $this->assertEquals(3, count($roles));
+        $this->assertContains('userrole', $roles);
+        $this->assertContains('guest', $roles);
+        $this->assertContains('iprole', $roles);
     }
 
 }

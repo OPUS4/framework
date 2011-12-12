@@ -32,6 +32,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id:$
  */
+
+/**
+ * Interface for classes providing security implementation.
+ */
 interface Opus_Security_IRealm {
 
     /**
@@ -77,11 +81,22 @@ interface Opus_Security_IRealm {
     public function checkModule($module_name = null);
 
     /**
-     * Checks if a privilege is granted for actual context (usersession, ip address).
-     * If administrator is one of the current roles true will be returned ingoring everything else.
+     * Returns the roles of the current user.
+     *
+     * @return array of strings - Names of roles for current user
+     */
+    public function getRoles();
+
+    /**
+     * Checks if a privilege is granted for actual context (usersession,
+     * ip address).
+     *
+     * If administrator is one of the current roles true will be returned
+     * ingoring everything else.
      *
      * @deprecated
      */
-    public function check($privilege, $documentServerState = null, $fileId = null);
+    public function check($privilege, $documentServerState = null,
+            $fileId = null);
 }
 
