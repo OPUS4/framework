@@ -31,6 +31,7 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `contributing_corporation` TEXT NULL COMMENT 'Contribution corporate body.' ,
   `creating_corporation` TEXT NULL COMMENT 'Creating corporate body.' ,
   `thesis_date_accepted` VARCHAR(50) NULL COMMENT 'Date of final exam (date of the doctoral graduation).' ,
+  `thesis_year_accepted` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of final exam (if exacat date is unknown).' ,
   `type` VARCHAR(100) NOT NULL COMMENT 'Document type.' ,
   `edition` VARCHAR(25) NULL COMMENT 'Edition of a monograph.' ,
   `issue` VARCHAR(25) NULL COMMENT 'Issue.' ,

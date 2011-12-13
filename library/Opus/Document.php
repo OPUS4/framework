@@ -376,7 +376,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "CompletedDate", "CompletedYear",
             "ContributingCorporation",
             "CreatingCorporation",
-            "ThesisDateAccepted",
+            "ThesisDateAccepted", "ThesisYearAccepted",
             "Edition",
             "Issue",
             "Language",

@@ -42,6 +42,12 @@ ALTER TABLE `documents`
     MODIFY COLUMN `server_state` ENUM('audited', 'published', 'restricted', 'inprogress', 'unpublished', 'deleted', 'temporary') NOT NULL COMMENT 'Status of publication process in the repository.';
 
 -- -----------------------------------------------------
+-- Table `documents` column `thesis_year_accepted` added
+-- -----------------------------------------------------
+ALTER TABLE `documents`
+    ADD COLUMN `thesis_year_accepted` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of final exam (if exacat date is unknown).' AFTER `thesis_date_accepted`;
+
+-- -----------------------------------------------------
 -- Table `document_enrichments` column `server_state` modified
 -- -----------------------------------------------------
 ALTER TABLE `document_enrichments`
