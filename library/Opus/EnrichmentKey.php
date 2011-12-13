@@ -70,4 +70,13 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         $this->addField($name);
     }
 
+    /**
+     * Returns long name.
+     *
+     * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
+     */
+    public function getDisplayName() {
+       return $this->getName();
+    }
+
 }
