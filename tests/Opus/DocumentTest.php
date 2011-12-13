@@ -275,6 +275,10 @@ class Opus_DocumentTest extends TestCase {
         $patent->setYearApplied('2008');
         $patent->setApplication('Absolutely none.');
 
+        $enrichmentkey = new Opus_EnrichmentKey();
+        $enrichmentkey->setName('foo');
+        $enrichmentkey->store();
+
         $enrichment = $document->addEnrichment();
         $enrichment->setKeyName('foo');
         $enrichment->setValue('Poor enrichment.');
@@ -542,7 +546,13 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
+        $enrichmentkey = new Opus_EnrichmentKey();
+        $enrichmentkey->setName('foo');
+        $enrichmentkey->store();
+
         $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('foo');
+        $enrichment->setValue('Poor enrichment.');
 
         $doc->addEnrichment($enrichment);
         $doc->store();

@@ -25,47 +25,49 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
- * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @package     Opus
+ * @author      Gunar Maiwald <maiwald@zib.de>
+ * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: EnrichmentKey.php 8424 2011-12-08 16:47:13Z gmaiwald $
  */
 
 /**
- * Table gateway class to table 'document_enrichments'.
+ * Domain model for enrichments in the Opus framework
  *
  * @category    Framework
- * @package     Opus_Db
- *
+ * @package     Opus
+ * @uses        Opus_Model_Abstract
  */
-
-class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
+class Opus_EnrichmentKey extends Opus_Model_AbstractDb
+{
+    /**
+     * Specify the table gateway.
+     *
+     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     */
+    protected static $_tableGatewayClass = 'Opus_Db_EnrichmentKeys';
 
     /**
-     * Real database name of the documents table.
+     * Retrieve all Opus_EnrichmentKeys instances from the database.
      *
-     * @var string
+     * @return array Array of Opus_EnrichmentKeys objects.
      */
-    protected $_name = 'document_enrichments';
+    public static function getAll() {
+        return self::getAllFrom('Opus_EnrichmentKey', 'Opus_Db_EnrichmentKeys');
+    }
 
     /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from
+     * Initialize model with the following fields:
+     * - Name
      *
-     * @var array $_referenceMap
+     * @return void
      */
-    protected $_referenceMap = array(
-            'EnrichmentKeys' => array(
-                'columns' => 'key_name',
-                'refTableClass' => 'Opus_Db_EnrichmentKeys',
-                'refColumns' => 'name',
-                ),
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            );
+    protected function _init() {
+        $name = new Opus_Model_Field('Name');
+        $name->setMandatory(true);
+
+        $this->addField($name);
+    }
+
 }

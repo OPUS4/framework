@@ -27,7 +27,28 @@ CREATE TABLE IF NOT EXISTS `link_documents_sets` (
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------
+-- Table `enrichmentkeys`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
+  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the enrichment.' ,
+  PRIMARY KEY (`name`)
+)ENGINE = InnoDB
+COMMENT = 'Key table for database scheme enhancements.';
+
+-- -----------------------------------------------------
 -- Table `documents` column `server_state` modified
 -- -----------------------------------------------------
 ALTER TABLE `documents`
     MODIFY COLUMN `server_state` ENUM('audited', 'published', 'restricted', 'inprogress', 'unpublished', 'deleted', 'temporary') NOT NULL COMMENT 'Status of publication process in the repository.';
+
+-- -----------------------------------------------------
+-- Table `document_enrichments` column `server_state` modified
+-- -----------------------------------------------------
+ALTER TABLE `document_enrichments`
+    MODIFY COLUMN `key_name` VARCHAR(255) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
+    MODIFY COLUMN `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
+    ADD CONSTRAINT `fk_document_enrichment_enrichmentkeys`
+        FOREIGN KEY (`key_name` )
+        REFERENCES `enrichmentkeys` (`name` )
+        ON DELETE CASCADE
+        ON UPDATE CASCADE;

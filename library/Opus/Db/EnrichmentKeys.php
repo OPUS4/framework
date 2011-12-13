@@ -26,46 +26,33 @@
  *
  * @category    Framework
  * @package     Opus_Db
- * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Gunar Maiwald <maiwald@zib.de>
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @version     $Id: Enrichments.php 8424 2011-12-08 17:00:09Z gmaiwald $
  */
 
 /**
- * Table gateway class to table 'document_enrichments'.
+ * Table gateway class to table 'enrichments'.
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-
-class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
-
+class Opus_Db_EnrichmentKeys extends Opus_Db_TableGateway {
     /**
-     * Real database name of the documents table.
+     * Table schema name.
      *
      * @var string
      */
-    protected $_name = 'document_enrichments';
+    protected $_name = 'enrichmentkeys';
 
     /**
-     * Map foreign keys in this table to the column in the table they originate
-     * from
+     * All dependant Tables,
+     * i.e. those that contain a foreign key.
      *
-     * @var array $_referenceMap
+     * @var array $_dependantTables
      */
-    protected $_referenceMap = array(
-            'EnrichmentKeys' => array(
-                'columns' => 'key_name',
-                'refTableClass' => 'Opus_Db_EnrichmentKeys',
-                'refColumns' => 'name',
-                ),
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            );
+    protected $_dependentTables = array( 'Opus_Db_DocumentEnrichments' );
+
 }
