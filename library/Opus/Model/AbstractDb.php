@@ -149,6 +149,12 @@ abstract class Opus_Model_AbstractDb
             $this->_primaryTableRow = $rowset->getRow(0);
             $this->_isNewRecord = false;
         }
+
+        // Paranoid programming, sorry!  Check if proper row has been created.
+        if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
+           throw new Opus_Model_Exception( "Invalid row object for class " . get_class($this) );
+        }
+
         parent::__construct();
 
         // initialize plugins
@@ -421,7 +427,21 @@ abstract class Opus_Model_AbstractDb
      */
     function _postStoreExternalFields() {
         $this->_callPluginMethod('postStoreExternal');
-     }
+    }
+
+    /**
+     * Get current table row object.
+     *
+     * @return Zend_Db_Table_Row
+     *
+     * @throws Opus_Model_Exception on invalid row object.
+     */
+    protected function getTableRow() {
+        if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
+           throw new Opus_Model_Exception( "Invalid row object for class " . get_class($this) );
+        }
+        return $this->_primaryTableRow;
+    }
 
     /**
      * Persist all the models information to its database locations.
@@ -440,7 +460,7 @@ abstract class Opus_Model_AbstractDb
         }
 
         // Start transaction
-        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+        $dbadapter = $this->getTableRow()->getTable()->getAdapter();
         $dbadapter->beginTransaction();
 
         // store internal and external fields
@@ -699,7 +719,7 @@ abstract class Opus_Model_AbstractDb
         }
 
         // Start transaction
-        $dbadapter = $this->_primaryTableRow->getTable()->getAdapter();
+        $dbadapter = $this->getTableRow()->getTable()->getAdapter();
         $dbadapter->beginTransaction();
         try {
             $this->_primaryTableRow->delete();
