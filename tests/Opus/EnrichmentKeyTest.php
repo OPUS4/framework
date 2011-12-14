@@ -43,65 +43,107 @@ class Opus_EnrichmentKeyTest extends TestCase {
 
     /**
      * @var Opus_Document
-     */
+    */
     private $_doc;
+
+     /**
+     * @var Opus_EnrichmentKey
+     */
+    private $_ek1;
+
+
+    /**
+     * @var Opus_EnrichmentKey
+     */
+    private $_ek2;
 
     public function setUp() {
         parent::setUp();
 
+        /* Unreferenced */
+        $this->_ek1 = new Opus_EnrichmentKey();
+        $this->_ek1->setName('foo');
+        $this->_ek1->store();
+
+        /* Referenced */
+        $this->_ek2 = new Opus_EnrichmentKey();
+        $this->_ek2->setName('bar');
+        $this->_ek2->store();
+
         $this->_doc = new Opus_Document();
+        $this->_doc->addEnrichment()->setKeyName('bar')->setValue('value');
         $this->_doc->store();
+
     }
 
+    /* CREATE */
+    public function testStoreEnrichmentKey() {
+        $ek = new Opus_EnrichmentKey();
+        $ek->setName('baz');
+        $ek->store();
 
-    public function testStoreAndRemoveEnrichmentKey() {
-        $name = 'testkey';
+        $this->assertNotNull($ek);
+        $this->assertEquals('baz', $ek->getName());
+        $this->assertEquals(3, count(Opus_EnrichmentKey::getAll()));
+    }
 
-        $enrichment_key = new Opus_EnrichmentKey();
-        $enrichment_key->setName($name);
-        $enrichment_key->store();
+    public function testStoreEqualEnrichmentKey() {
+        $ek = new Opus_EnrichmentKey();
+        $ek->setName('foo');
 
+        $this->setExpectedException('Opus_Model_Exception');
+        $ek->store();
+        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
+    }
+
+    public function testStoreEmptyEnrichmentKey() {
+        $ek = new Opus_EnrichmentKey();
+        $ek->setName('');
+        $this->setExpectedException('Opus_Model_Exception');
+        $ek->store();
+
+        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
+    }
+    
+
+    /* DELETE */
+    public function testDeleteEnrichmentKey() {
+        $this->_ek1->delete();
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
-
-        $enrichment_key->delete();
-        $this->assertEquals(0, count(Opus_EnrichmentKey::getAll()));
     }
 
-
-    public function testStoreDuplicateEnrichmentKey() {
-        $name = 'testkey';
-
-        $enrichment_key = new Opus_EnrichmentKey();
-        $enrichment_key->setName($name);
-        $enrichment_key->store();
-
-        $enrichment_key = new Opus_EnrichmentKey();
-        $enrichment_key->setName($name);
-
-        try {
-            $enrichment_key->store();
-            $this->fail('Expecting Opus_Model_Exception, received none!');
-        }
-        catch (Exception $exc) {
-            $this->assertEquals('Opus_Model_Exception', get_class($exc));
-        }
-
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
+    public function testDeleteReferencedEnrichmentKey() {
+        $this->setExpectedException('Opus_Model_Exception');
+        $this->_ek2->delete();
+        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));;
+    }
+    
+    /* READ */
+    public function testReadEnrichmentKey() {
+        $name = $this->_ek1->getName();
+        $this->assertEquals('foo', $name);
     }
 
+    /* UPDATE */
+    public function testUpdateEnrichmentKey() {
+        $this->_ek1->setName('baz');
+        $this->_ek1->store();
 
-    public function testRemoveEnrichmentKeyReferencedByDocument() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $name = $this->_ek1->getName();
+        $this->assertEquals('baz', $name);
     }
 
-    public function testRenameEnrichmentKeyReferencedByDocument() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    public function testUpdateReferencedEnrichmentKey() {
+        $this->_ek2->setName('baz');
+        $this->setExpectedException('Opus_Model_Exception');
+        $this->_ek2->store();
+    }
+
+    /* METHODS */
+     public function testGetDisplayName() {
+        $name = $this->_ek1->getName();
+        $displayName = $this->_ek1->getDisplayName();
+        $this->assertEquals($name, $displayName);
     }
 
 

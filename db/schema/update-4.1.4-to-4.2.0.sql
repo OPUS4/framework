@@ -55,6 +55,4 @@ ALTER TABLE `document_enrichments`
     MODIFY COLUMN `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
     ADD CONSTRAINT `fk_document_enrichment_enrichmentkeys`
         FOREIGN KEY (`key_name` )
-        REFERENCES `enrichmentkeys` (`name` )
-        ON DELETE CASCADE
-        ON UPDATE CASCADE;
+        REFERENCES `enrichmentkeys` (`name` );

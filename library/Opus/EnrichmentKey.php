@@ -65,13 +65,14 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      */
     protected function _init() {
         $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true);
+        $name->setMandatory(true)
+                ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($name);
     }
 
     /**
-     * Returns long name.
+     * Returns name of an enrichmentkey.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */

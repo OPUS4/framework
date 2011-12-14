@@ -308,9 +308,7 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   CONSTRAINT `fk_document_enrichment_enrichmentkeys`
     FOREIGN KEY (`key_name` )
     REFERENCES `enrichmentkeys` (`name` )
-    ON DELETE CASCADE
-    ON UPDATE CASCADE)
-ENGINE = InnoDB
+)ENGINE = InnoDB
 COMMENT = 'Key-value table for database scheme enhancements.';
 
 
