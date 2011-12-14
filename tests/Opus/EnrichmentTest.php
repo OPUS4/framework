@@ -51,7 +51,6 @@ class Opus_EnrichmentTest extends TestCase {
      */
     private $_enrichmentkey;
 
-
     /**
      * @var Opus_EnrichmentKey
      */
@@ -75,241 +74,126 @@ class Opus_EnrichmentTest extends TestCase {
 
      /* CREATE */
     public function testStoreEnrichment() {
-        $key = 'anothervalid';
-        $value = 'anothervalue';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
+        $this->_doc->addEnrichment()->setKeyName('anothervalid')->setValue('anothervalue');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'anothervalue'));
     }
 
-    public function testStoreEqualKeyEnrichment() {
-        $key = 'valid';
-        $value = 'value2';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
+    public function testStoreEqualKeyEnrichment() {        
+        $this->_doc->addEnrichment()->setKeyName('valid')->setValue('value2');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'valid'), array('value', 'value2'));
     }
 
     public function testStoreEqualValueEnrichment() {
-        $key = 'anothervalid';
-        $value = 'value';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
+        $this->_doc->addEnrichment()->setKeyName('anothervalid')->setValue('value');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'value'));
     }
 
     public function testStoreEqualEnrichment() {
-        $key = 'valid';
-        $value = 'value';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
+        $this->_doc->addEnrichment()->setKeyName('valid')->setValue('value');
         $this->setExpectedException('Opus_Model_Exception');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
-
     public function testStoreEnrichmentWithInvalidKey() {
-        $key = 'invalid';
-        $value = 'foo';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
+        $this->_doc->addEnrichment()->setKeyName('invalid')->setValue('foo');
         $this->setExpectedException('Opus_Model_Exception');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
     public function testStoreEnrichmentWithoutValue() {
-        $key = 'valid';
-
-        $this->_doc->addEnrichment()->setKeyName($key);
+        $this->_doc->addEnrichment()->setKeyName('valid');
         $this->setExpectedException('Opus_Model_Exception');
         $this->_doc->store();
 
-        $doc = new Opus_Document( $this->_doc->getId() );
+        $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
+        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
 
     /* READ */
-    public function testLoadEnrichment() {
-        $doc = new Opus_Document( $this->_doc->getId() );
+    public function testLoadEnrichmentFromDocument() {
+        $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
         $enrichment = $enrichments[0];
         $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
         $this->assertEquals('value', $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
-     /**
-     * Stores and loads a document with an enrichment and asserts
-     * enrichment key and enrichment value stays same.
-     */
-    public function testStoreAndLoadSimpleEnrichment() {
-        $this->markTestSkipped(
-              "Replaced By 'testStoreEnrichment' and 'testLoadEnrichment'."
-        );
-
-        $key = 'valid';
-        $value = 'foo';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
-        $this->_doc->store();
-
-        // reload document
+    public function testLoadEnrichmentById() {
         $doc = new Opus_Document($this->_doc->getId());
-        // get array of enrichments
         $enrichments = $doc->getEnrichment();
-        $this->assertEquals(1, count($enrichments),
-                'Stored one enrichment, loaded more or less enrichments.');
-
-        // get the enrichment to assert key and value
         $enrichment = $enrichments[0];
-        $this->assertEquals($key, $enrichment->getKeyName(),
-                'Loaded other key, then stored.');
-        $this->assertEquals($value, $enrichment->getValue(),
-                'Loaded other value, then stored.');
+
+        $enrichment = new Opus_Enrichment($enrichment->getId());
+        $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
+        $this->assertEquals('value', $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
-    public function testStoreAndLoadEqualKeyEnrichments() {
-        $this->markTestSkipped(
-              "Replaced By 'testStoreEqualKeyEnrichment' and 'testLoadEnrichment'."
-        );
 
+    /* UPDATE */
+    public function testUpdateEnrichment() {
+        $newkey = 'anothervalid';
+        $newval = 'anothervalue';
 
-        $key = 'valid';
-        $values = array('foo', 'bar');
-
-        foreach ($values as $v) {
-            $this->_doc->addEnrichment()->setKeyName($key)->setValue($v);
-        }
-        $this->_doc->store();
-
-        //reload document
         $doc = new Opus_Document($this->_doc->getId());
-        //get array of enrichments
         $enrichments = $doc->getEnrichment();
-        $this->assertEquals(count($values), count($enrichments),
-                'Count of stored and loaded enrichments differ!');
+        $enrichment = $enrichments[0];
+        $enrichment->setKeyName($newkey);
+        $enrichment->setValue($newval);
+        $doc->store();
 
-        // compare enrichment values
-        $loadedValues = array();
-        foreach ($enrichments as $e) {
-            $this->assertEquals($key, $e->getKeyName(),
-                    'Loaded other key, then stored.');
-            $loadedValues[] = $e->getValue();
-        }
-        foreach ($values as $v) {
-            $this->assertTrue(in_array($v, $loadedValues),
-                    'Unabled to find a previously stored enrichment value!');
-        }
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $this->assertEquals($newkey, $enrichment->getKeyName(), 'Loaded other key, then stored.');
+        $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
-    public function testStoreAndLoadSimpleEnrichments() {
 
-        $this->markTestSkipped(
-              "Replaced By 'testStoreEqualValueEnrichment' and 'testLoadEnrichment'."
-        );
-
-        $keys = array('valid', 'anothervalid');
-        $value = 'foo';
-
-        foreach ($keys as $key) {
-            $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
-        }
-        $this->_doc->store();
-
-        // reload document
-        $doc = new Opus_Document($this->_doc->getId());        
+    /* DELETE */
+    public function testDeleteEnrichment() {
+        $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
-        $this->assertEquals(count($keys), count($enrichments),
-                'Stored one enrichment, loaded more or less enrichments.');
+        $enrichment = $enrichments[0];
+        $enrichment->delete();
+        $doc->store();
 
-        $enrichmentKeys = array();
+        $doc = new Opus_Document($this->_doc->getId());
+        $this->assertEquals(0, count($doc->getEnrichment()));
+    }
+
+    
+    private function testEnrichmentKeysAndValues($enrichments, $expectedKeys, $expectedValues) {
+        $keys = array();
+        $values = array();
         foreach ($enrichments as $enrichment) {
-            $this->assertEquals($value, $enrichment->getValue(), 'Loaded other value, then stored.');
-            array_push($enrichmentKeys, $enrichment->getKeyName());
+            array_push($keys, $enrichment->getKeyName());
+            array_push($values, $enrichment->getValue());
         }
-        
-        foreach ($keys as $key) {
-            $this->assertTrue(in_array($key, $enrichmentKeys), "enrichment key $key does not exists");
-        }
-    }
-
-    public function testStoreAndLoadEqualEnrichments() {
-
-        $this->markTestSkipped(
-              "Replaced By 'testStoreEqualEnrichment'."
-        );
-
-        $key = 'valid';
-        $value = 'foo';
-        $count = 5;
-
-        for ($i = 0; $i < $count; $i++) {
-            $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
-        }
-        $this->_doc->store();
-
-        //reload document
-        $doc = new Opus_Document($this->_doc->getId());
-        //get array of enrichments
-        $enrichments = $doc->getEnrichment();
-        $this->assertEquals($count, count($enrichments),
-                'Count of stored and loaded enrichments differ!');
-
-        // compare enrichment keys and values
-        foreach ($enrichments as $e) {
-            $this->assertEquals($key, $e->getKeyName(),
-                    'Loaded other key, then stored.');
-            $this->assertEquals($value, $e->getValue(),
-                    'Loaded other value, then stored.');
-        }
-    }
-
-    public function testStoreIdenticalEnrichments() {
-
-        $this->markTestSkipped(
-              "Replaced By 'testStoreEqualEnrichment' and 'testLoadEnrichment'."
-        );
-
-        
-        $key = 'valid';
-        $value = 'foo';
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
-        $this->_doc->store();
-
-        $this->_doc->addEnrichment()->setKeyName($key)->setValue($value);
-        $this->setExpectedException('Opus_Model_Exception');
-        $this->_doc->store();
-
-        //reload document
-        $doc = new Opus_Document($this->_doc->getId());
-        //get array of enrichments
-        $enrichments = $doc->getEnrichment();
-        $this->assertEquals(2, count($enrichments),
-                'Count of stored and loaded enrichments differ!');
-
-        // compare enrichment values
-        foreach ($enrichments as $e) {
-            $this->assertEquals($key, $e->getKeyName(),
-                    'Loaded other key, then stored.');
-            $this->assertEquals($value, $e->getValue(),
-                    'Loaded other value, then stored.');
-        }
+        // check if arrays contain the same elements
+        $this->assertTrue(count($expectedKeys) == count(array_intersect($keys, $expectedKeys)));
+        $this->assertTrue(count($expectedValues) == count(array_intersect($values, $expectedValues)));
     }
 
 }
