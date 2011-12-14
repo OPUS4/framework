@@ -49,31 +49,28 @@ class Opus_EnrichmentKeyTest extends TestCase {
      /**
      * @var Opus_EnrichmentKey
      */
-    private $_ek1;
+    private $unreferencedEnrichmentKey;
 
 
     /**
      * @var Opus_EnrichmentKey
      */
-    private $_ek2;
+    private $referencedEnrichmentKey;
 
     public function setUp() {
         parent::setUp();
 
-        /* Unreferenced */
-        $this->_ek1 = new Opus_EnrichmentKey();
-        $this->_ek1->setName('foo');
-        $this->_ek1->store();
+        $this->unreferencedEnrichmentKey = new Opus_EnrichmentKey();
+        $this->unreferencedEnrichmentKey->setName('foo');
+        $this->unreferencedEnrichmentKey->store();
 
-        /* Referenced */
-        $this->_ek2 = new Opus_EnrichmentKey();
-        $this->_ek2->setName('bar');
-        $this->_ek2->store();
+        $this->referencedEnrichmentKey = new Opus_EnrichmentKey();
+        $this->referencedEnrichmentKey->setName('bar');
+        $this->referencedEnrichmentKey->store();
 
         $this->_doc = new Opus_Document();
         $this->_doc->addEnrichment()->setKeyName('bar')->setValue('value');
         $this->_doc->store();
-
     }
 
     /* CREATE */
@@ -82,6 +79,7 @@ class Opus_EnrichmentKeyTest extends TestCase {
         $ek->setName('baz');
         $ek->store();
 
+        $ek = new Opus_EnrichmentKey('baz');
         $this->assertNotNull($ek);
         $this->assertEquals('baz', $ek->getName());
         $this->assertEquals(3, count(Opus_EnrichmentKey::getAll()));
@@ -90,7 +88,6 @@ class Opus_EnrichmentKeyTest extends TestCase {
     public function testStoreEqualEnrichmentKey() {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('foo');
-
         $this->setExpectedException('Opus_Model_Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
@@ -101,48 +98,54 @@ class Opus_EnrichmentKeyTest extends TestCase {
         $ek->setName('');
         $this->setExpectedException('Opus_Model_Exception');
         $ek->store();
-
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
     }
-    
 
+    public function testStoryUnsetEnrichmentKey() {
+        $ek = new Opus_EnrichmentKey();
+        $this->setExpectedException('Opus_Model_Exception');
+        $ek->store();
+        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
+    }
+
+    
     /* DELETE */
     public function testDeleteEnrichmentKey() {
-        $this->_ek1->delete();
+        $this->unreferencedEnrichmentKey->delete();
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
     }
 
     public function testDeleteReferencedEnrichmentKey() {
         $this->setExpectedException('Opus_Model_Exception');
-        $this->_ek2->delete();
+        $this->referencedEnrichmentKey->delete();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));;
     }
     
     /* READ */
     public function testReadEnrichmentKey() {
-        $name = $this->_ek1->getName();
-        $this->assertEquals('foo', $name);
+        foreach (array('foo', 'bar') as $name) {
+            $ek = new Opus_EnrichmentKey($name);
+            $this->assertEquals($name, $ek->getName());
+        }
     }
 
     /* UPDATE */
-    public function testUpdateEnrichmentKey() {
-        $this->_ek1->setName('baz');
-        $this->_ek1->store();
-
-        $name = $this->_ek1->getName();
-        $this->assertEquals('baz', $name);
+    public function testUpdateUnreferencedEnrichmentKey() {
+        $this->unreferencedEnrichmentKey->setName('baz');
+        $this->unreferencedEnrichmentKey->store();
+        $this->assertEquals('baz', $this->unreferencedEnrichmentKey->getName());
     }
 
     public function testUpdateReferencedEnrichmentKey() {
-        $this->_ek2->setName('baz');
+        $this->referencedEnrichmentKey->setName('baz');
         $this->setExpectedException('Opus_Model_Exception');
-        $this->_ek2->store();
+        $this->referencedEnrichmentKey->store();
     }
 
     /* METHODS */
      public function testGetDisplayName() {
-        $name = $this->_ek1->getName();
-        $displayName = $this->_ek1->getDisplayName();
+        $name = $this->unreferencedEnrichmentKey->getName();
+        $displayName = $this->unreferencedEnrichmentKey->getDisplayName();
         $this->assertEquals($name, $displayName);
     }
 
