@@ -258,11 +258,7 @@ class Opus_Model_Xml_Version1 implements Opus_Model_Xml_Strategy {
         }
 
         $childNode = $dom->createElement(get_class($model));
-
-        if ($model instanceof Opus_Model_AbstractDb) {
-            $childNode->setAttribute('Id', $model->getId());
-        }
-
+        $childNode->setAttribute('Id', $model->getId());
         $rootNode->appendChild($childNode);
 
         foreach ($fields_diff as $fieldname) {
