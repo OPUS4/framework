@@ -405,8 +405,6 @@ class Opus_Security_RealmTest extends TestCase {
 
         $roles = $realm->getRoles();
 
-        var_dump($roles);
-
         $this->assertEquals(1, count($roles));
         $this->assertContains('guest', $roles);
     }

@@ -168,7 +168,7 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($id);
         $file = $doc->getFile(0);
 
-        $this->assertType('Opus_File', $file, "getFile has wrong type.");
+        $this->assertType('Opus_File', $file, "getFile has wrong type."); // TODO should use assertInstanceOf
         $this->assertEquals($doc->getId(), $file->getParentId(),
                 "ParentId does not match parent model.");
 
@@ -533,7 +533,7 @@ class Opus_FileTest extends TestCase {
         $file = $doc->getFile(0);
         $doc->store();
 
-        $this->setExpectedException('Exception');
+        $this->setExpectedException('Exception'); // TODO broken for PHPunit 3.6
         $actual_hash = $file->getRealHash('md23');
 
     }
@@ -611,10 +611,10 @@ class Opus_FileTest extends TestCase {
         $this->setExpectedException("Opus_Model_Exception");
         $doc->store();
 
+        // This code is not reached if the expected exception is thrown
         foreach ($doc->getFile() AS $file) {
             echo "file: " . $file->getPath() . "\n";
         }
-
     }
 
     /**
