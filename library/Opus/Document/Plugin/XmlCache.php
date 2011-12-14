@@ -53,7 +53,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
 
         $model = new Opus_Document($model->getId());
 
-        $cache = new Opus_Model_Xml_Cache;
+        $cache = new Opus_Model_Xml_Cache; // TODO XmlCache still used
 
         // xml version 1
         $omx = new Opus_Model_Xml();
