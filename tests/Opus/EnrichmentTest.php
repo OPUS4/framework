@@ -170,17 +170,61 @@ class Opus_EnrichmentTest extends TestCase {
         $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
+    public function testUpdateEnrichmentKeyOnly() {
+        $newkey = 'anothervalid';
+        
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $enrichment->setKeyName($newkey);
+        $oldValue = $enrichment->getValue();
+        $doc->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $this->assertEquals($newkey, $enrichment->getKeyName(), 'Loaded other key, then stored.');
+        $this->assertEquals($oldValue, $enrichment->getValue(), 'Loaded other value, then stored.');
+    }
+
+    public function testUpdateEnrichmentValueOnly() {
+        $newval = 'newvalue';
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $enrichment->setValue($newval);
+        $doc->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $this->assertEquals('valid', $enrichment->getKeyName(), 'Loaded other key, then stored.');
+        $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
+    }
+
+    public function testUpdateEnrichmentInvalidKey() {
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $enrichment = $enrichments[0];
+        $enrichment->setKeyName('invalid');
+        
+        $this->setExpectedException('Opus_Model_Exception');
+        $doc->store();
+    }
+
 
     /* DELETE */
     public function testDeleteEnrichment() {
         $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
+        $numOfEnrichments = count($enrichments);
         $enrichment = $enrichments[0];
         $enrichment->delete();
         $doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
-        $this->assertEquals(0, count($doc->getEnrichment()));
+        $this->assertEquals($numOfEnrichments - 1, count($doc->getEnrichment()));
     }
 
     
