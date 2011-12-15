@@ -67,7 +67,9 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
     protected function _init() {
         $key = new Opus_Model_Field('KeyName');
         $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty());
+                ->setValidator(new Zend_Validate_NotEmpty())
+                ->setSelection(true)
+                ->setDefault(Opus_EnrichmentKey::getAll());
 
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
