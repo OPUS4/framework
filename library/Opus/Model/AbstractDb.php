@@ -438,7 +438,7 @@ abstract class Opus_Model_AbstractDb
      */
     protected function getTableRow() {
         if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
-           throw new Opus_Model_Exception( "Invalid row object for class " . get_class($this) );
+           throw new Opus_Model_Exception( "Invalid row object for class " . get_class($this) . " -- got class " . get_class($this->_primaryTableRow));
         }
         return $this->_primaryTableRow;
     }
@@ -603,7 +603,12 @@ abstract class Opus_Model_AbstractDb
                 }
             }
             $values->setParentId($this->getId());
-            $values->store();
+            try {
+                $values->store();
+            } 
+            catch (Opus_Model_Exception $e) {
+                throw new Opus_Model_Exception("FAILED to store object of type " . get_class($values) . " -- maybe object/row has been deleted?", $e->getCode(), $e);
+            }
         }
     }
 
