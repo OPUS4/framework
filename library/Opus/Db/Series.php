@@ -25,77 +25,34 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @package     Opus_Db
+ * @author      Susanne Gottwald <gottwald@zib.de>
+ * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Abstract class for link licence model in the Opus framework.
+ * Table gateway class to table 'sets'.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Db
+ *
  */
-class Opus_Model_Dependent_Link_DocumentSets extends Opus_Model_Dependent_Link_Abstract
-{
+class Opus_Db_Series extends Opus_Db_TableGateway {
 
     /**
-     * Specify then table gateway.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
-     */
-    protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentSets';
-
-    /**
-     * Primary key of the parent model.
-     *
-     * @var mixed $_parentId.
-     */
-    protected $_parentColumn = 'document_id';
-
-    /**
-     * The class of the model that is linked to.
+     * Real database name of the documents table.
      *
      * @var string
      */
-    protected $_modelClass = 'Opus_DocumentSets';
+    protected $_name = 'document_sets';
 
     /**
-     * The name of the field containing an identifying string.
+     * All dependant tables,
+     * i.e. those that contain a set_id as a foreign key
      *
-     * @var string
+     * @var array $_dependantTables
      */
-    protected $_displayAttributeName = 'id';
-
-    /**
-     * Initialize model with the following values:
-     * - Licence
-     *
-     * @return void
-     */
-    protected function _init() {
-        if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_DocumentSets($this->_primaryTableRow->set_id));
-        } else {
-            $this->setModel(new Opus_DocumentSets);
-        }
-    }
-
-    /**
-     * Persist foreign model & link.
-     *
-     * @return void
-     */
-    public function store() {
-        $this->_primaryTableRow->set_id = $this->_model->store();
-        // only store if something has changed
-        // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->set_id) {            
-            parent::store();
-        }
-    }
-
+    protected $_dependentTables = array('Opus_Db_LinkDocumentsSeries');
 }
-

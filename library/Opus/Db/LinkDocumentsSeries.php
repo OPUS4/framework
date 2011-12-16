@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -29,30 +30,48 @@
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id:$
+ * @version     $Id$
  */
 
+
 /**
- * Table gateway class to table 'sets'.
+ * Table gateway class for link table "link_documents_sets".
  *
  * @category    Framework
  * @package     Opus_Db
  *
  */
-class Opus_Db_DocumentSets extends Opus_Db_TableGateway {
-
-    /**
-     * Real database name of the documents table.
+class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
+/**
+     * DB table name.
      *
      * @var string
      */
-    protected $_name = 'document_sets';
+    protected $_name = 'link_documents_sets';
 
     /**
-     * All dependant tables,
-     * i.e. those that contain a set_id as a foreign key
+     * DB table primary key name.
      *
-     * @var array $_dependantTables
+     * @var string
      */
-    protected $_dependentTables = array('Opus_Db_LinkDocumentSets');
+    protected $_primary = array('document_id', 'set_id');    
+
+    /**
+     * Map foreign keys in this table to the column in the table they originate
+     * from (i.e. the referenced table)
+     *
+     * @var array $_referenceMap
+     */
+    protected $_referenceMap = array(
+            'Documents' => array(
+                'columns' => 'document_id',
+                'refTableClass' => 'Opus_Db_Documents',
+                'refColumns' => 'id',
+                ),
+            'Series' => array(
+                'columns' => 'set_id',
+                'refTableClass' => 'Opus_Db_Series',
+                'refColumns' => 'id'
+                ),
+            );
 }

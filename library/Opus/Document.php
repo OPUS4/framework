@@ -304,9 +304,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'sort_field' => 'SortOrder',
                             'fetch' => 'lazy'
             ),
-            'DocumentSets' => array(
-                            'model' => 'Opus_Sets',
-                            'through' => 'Opus_Model_Dependent_Link_DocumentSets',
+            'Series' => array(
+                            'model' => 'Opus_Series',
+                            'through' => 'Opus_Model_Dependent_Link_DocumentSeries',      
                             'fetch' => 'lazy'
             ),
             'Subject' => array(
@@ -979,7 +979,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    public function delete() {
+    public function delete() {       
         // De-fatalize Search Index errors.
         try {
             // Remove from index
@@ -989,9 +989,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         catch (Exception $e) {
             $this->logger("removeDocumentFromIndex failed: " . $e->getMessage());
         }
-
+       
         $this->setServerState('deleted');
-        $this->store();
+        $this->store();        
     }
 
     /**
@@ -1002,10 +1002,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * TODO: Only remove if document does not have an URN/DOI!
      */
-    public function deletePermanent() {
+    public function deletePermanent() {        
         $this->delete();
 
-        // remove all files permanently
+        // remove all files permanently       
         $files = $this->getFile();
 
         foreach ($files as $file) {
@@ -1017,7 +1017,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 $this->logger($osfnfe->getMessage());
             }
         }
-
+       
         parent::delete();
     }
 

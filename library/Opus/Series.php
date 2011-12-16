@@ -40,14 +40,14 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_DocumentSets extends Opus_Model_AbstractDb {
+class Opus_Series extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
      *
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentSets';
+    protected static $_tableGatewayClass = 'Opus_Db_Series';
 
     /**
      * Initialize model with fields.
@@ -70,7 +70,7 @@ class Opus_DocumentSets extends Opus_Model_AbstractDb {
                 ->addField($logo)
                 ->addField($publisher)
                 ->addField($issn)
-                ->addField($infobox);
+                ->addField($infobox);                
     }
 
     /**
@@ -79,7 +79,7 @@ class Opus_DocumentSets extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Sets objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_DocumentSets', 'Opus_Db_DocumentSets', null, 'title');
+        return self::getAllFrom('Opus_Series', 'Opus_Db_Series', null, 'title');
     }
 
 }
