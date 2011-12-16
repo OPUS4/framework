@@ -232,7 +232,7 @@ class Opus_EnrichmentTest extends TestCase {
     }
 
     
-    private function testEnrichmentKeysAndValues($enrichments, $expectedKeys, $expectedValues) {
+    public function testEnrichmentKeysAndValues($enrichments, $expectedKeys, $expectedValues) {
         $keys = array();
         $values = array();
         foreach ($enrichments as $enrichment) {
