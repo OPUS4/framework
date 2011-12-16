@@ -216,15 +216,19 @@ class Opus_EnrichmentTest extends TestCase {
 
     /* DELETE */
     public function testDeleteEnrichment() {
+        $this->_doc->addEnrichment()->setKeyName('valid')->setValue('anothervalue');
+        $this->_doc->store();
+        
         $doc = new Opus_Document($this->_doc->getId());
-        $enrichments = $doc->getEnrichment();
-        $numOfEnrichments = count($enrichments);
-        $enrichment = $enrichments[0];
-        $enrichment->delete();
+        $enrichments = $doc->getEnrichment();        
+        $this->assertEquals(2, count($doc->getEnrichment()));
+
+        unset($enrichments[0]);
+        $doc->setEnrichment($enrichments);
         $doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
-        $this->assertEquals($numOfEnrichments - 1, count($doc->getEnrichment()));
+        $this->assertEquals(1, count($doc->getEnrichment()));
     }
 
     
