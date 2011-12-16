@@ -39,6 +39,8 @@
  */
 class TestCase extends PHPUnit_Framework_TestCase {
 
+    private $config_backup;
+
     /**
      * Empty all listed tables.
      *
@@ -52,7 +54,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
 
         foreach ($adapter->listTables() as $tableName) {
             self::clearTable($tableName);
-        }
+        }        
     }
 
     /**
@@ -62,7 +64,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename) {
+    protected function clearTable($tablename) {        
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
 
@@ -81,6 +83,18 @@ class TestCase extends PHPUnit_Framework_TestCase {
     protected function setUp() {
         parent::setUp();
         self::_clearTables();
+        
+        $config = Zend_Registry::get('Zend_Config');
+        if (!is_null($config)) {
+            $this->config_backup = clone $config;
+        }
     }
 
+    protected function  tearDown() {
+        if (!is_null($this->config_backup)) {
+            Zend_Registry::set('Zend_Config', $this->config_backup);
+        }
+        
+        parent::tearDown();        
+    }
 }
