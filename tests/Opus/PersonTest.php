@@ -139,18 +139,18 @@ class Opus_PersonTest extends TestCase {
 
     public function testDeletePerson() {
         $d = new Opus_Document(1);
-        $authors = $d->getPersonAuthor();
-        $this->assertTrue(1 == count($authors));
-        $author = $authors[0];
-        $this->assertTrue($author->getFirstName() === 'Rainer');
-        $this->assertTrue($author->getLastName() === 'Zufall');
+        $persons = $d->getPerson();
+        $this->assertTrue(1 == count($persons));
         
-        $author->delete();
+        $person = $persons[0];
+        $this->assertTrue($person->getFirstName() === 'Rainer');
+        $this->assertTrue($person->getLastName() === 'Zufall');
+
+        $d->setPerson(array());
         $d->store();
 
         $d = new Opus_Document(1);
-        $authors = $d->getPersonAuthor();
-        $this->assertTrue(0 == count($authors));
+        $this->assertTrue(0 == count($d->getPerson()));
     }
 
 }
