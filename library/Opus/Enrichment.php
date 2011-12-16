@@ -83,14 +83,22 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
     public function store() {
 
         // only 'new' DocumentEnrichments without id will be checked !!
-        if (!is_null($this->getParentId()) && !is_null($this->getKeyName()) && !is_null($this->getValue()) && is_null($this->getId())) {
+        if (!is_null($this->getParentId()) && !is_null($this->getKeyName()) && !is_null($this->getValue())) {
 
             $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
 
-            $select = $table->select()
+            if (is_null($this->getId())) {
+                $select = $table->select()
+                                ->where('document_id = ?', $this->getParentId())
+                                ->where('key_name = ?', $this->getKeyName())
+                                ->where('value = ?', $this->getValue());
+            } else {
+                $select = $table->select()
+                            ->where('id != ?', $this->getId())
                             ->where('document_id = ?', $this->getParentId())
                             ->where('key_name = ?', $this->getKeyName())
                             ->where('value = ?', $this->getValue());
+            }
 
             $row = $table->fetchRow($select);
 
@@ -98,6 +106,8 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
                 throw new Opus_Model_Exception('DocumentEnrichment with same document_id, key_name and value already exists.');
             }
         }
+
+
 
         // Now really store.
         try {
