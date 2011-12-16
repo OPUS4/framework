@@ -79,7 +79,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'anothervalue'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'anothervalue'));
     }
 
     public function testStoreEqualKeyEnrichment() {        
@@ -88,7 +88,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'valid'), array('value', 'value2'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid', 'valid'), array('value', 'value2'));
     }
 
     public function testStoreEqualValueEnrichment() {
@@ -97,7 +97,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(2, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'value'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'value'));
     }
 
     public function testStoreEqualEnrichment() {
@@ -107,7 +107,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
     public function testStoreEnrichmentWithInvalidKey() {
@@ -117,7 +117,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
     public function testStoreEnrichmentWithoutValue() {
@@ -127,7 +127,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $doc = new Opus_Document($this->_doc->getId());
         $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->testEnrichmentKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
+        $this->assertKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
 
@@ -232,7 +232,7 @@ class Opus_EnrichmentTest extends TestCase {
     }
 
     
-    public function testEnrichmentKeysAndValues($enrichments, $expectedKeys, $expectedValues) {
+    private function assertKeysAndValues($enrichments, $expectedKeys, $expectedValues) {
         $keys = array();
         $values = array();
         foreach ($enrichments as $enrichment) {
