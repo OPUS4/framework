@@ -42,23 +42,17 @@ class Opus_FileTest extends TestCase {
 
     protected $_src_path = '';
     protected $_dest_path = '';
-    protected $_config_backup = null;
 
     /**
      * Clear test tables and establish directories
      * for filesystem tests in /tmp.
      *
-     * Backup a copy of current application configuration and
-     * set a new Zend_Config instance globally.
-     *
      * @return void
      */
     public function setUp() {
-        // Clearing database tables is not needed for this testcase.
-        // parent::setUp();
+        parent::setUp();
 
         $config = Zend_Registry::get('Zend_Config');
-        $this->_config_backup = $config;
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
         $this->_src_path = $path . DIRECTORY_SEPARATOR . 'src';
@@ -88,9 +82,7 @@ class Opus_FileTest extends TestCase {
         Opus_Util_File::deleteDirectory($this->_src_path);
         Opus_Util_File::deleteDirectory($this->_dest_path);
 
-        Zend_Registry::set('Zend_Config', $this->_config_backup);
         parent::tearDown();
-
     }
 
     /**
