@@ -34,69 +34,69 @@
 
 
 /**
- * Test cases for class Opus_DocumentSets.
+ * Test cases for class Opus_Series.
  *
  * @package Opus
  * @category Tests
  *
- * @group DocumentSetsTest
+ * @group SeriesTest
  */
-class Opus_DocumentSetsTest extends TestCase {
+class Opus_SeriesTest extends TestCase {
 
     /**
      * Test if a document set can be retrieved by getAll().
      *
      */
     public function testCreateRetrieveAndDeleteSets() {
-        $result = Opus_DocumentSets::getAll();
+        $result = Opus_Series::getAll();
         $this->assertEquals(0, count($result), 'Wrong number of objects retrieved.');
         
         $numberOfSetsToCreate = 3;
         $ids = array();
         for ($i = 0; $i < $numberOfSetsToCreate; $i++) {
-            $set = new Opus_DocumentSets();
+            $set = new Opus_Series();
             $set->setTitle('New document set ' . $i);
             $set->store();
             array_push($ids, $set->getId());
         }
-        $result = Opus_DocumentSets::getAll();
+        $result = Opus_Series::getAll();
         $this->assertEquals($numberOfSetsToCreate, count($result), 'Wrong number of objects retrieved.');
 
         // cleanup
         foreach ($ids as $id) {
-            $s = new Opus_DocumentSets($id);
+            $s = new Opus_Series($id);
             $s->delete();
         }
 
-        $result = Opus_DocumentSets::getAll();
+        $result = Opus_Series::getAll();
         $this->assertEquals(0, count($result), 'Wrong number of objects retrieved.');
     }
 
     public function testAssignSetToDocumentWithoutNumber() {
         $d = new Opus_Document();
         $d->store();
-        $s = new Opus_DocumentSets();
+        $s = new Opus_Series();
         $s->setTitle('foo');
-        $d->addDocumentSets($s);
+        $d->addSeries($s);
         $d->store();
 
         // cleanup
-        $s->delete();
+        //$s->delete();
         $d->deletePermanent();
     }
 
-    public function testAssignSetToDocumentWithNumber() {
+    public function testAssignSetToDocumentWithNumber() {        
         $d = new Opus_Document();
         $d->store();
         
-        $s = new Opus_DocumentSets();
+        $s = new Opus_Series();
         $s->setTitle('foo');
-        $l = $d->addDocumentSets($s);
+        $l = $d->addSeries($s);
         $l->setNumber(1);
         $d->store();
 
         // cleanup
-        $s->delete();
+       // $s->delete();
         $d->deletePermanent();
     }
 
