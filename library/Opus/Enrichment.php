@@ -79,4 +79,41 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         $this->addField($value);
     }
 
+
+    public function store() {
+
+        // only 'new' DocumentEnrichments without id will be checked !!
+        if (!is_null($this->getParentId()) && !is_null($this->getKeyName()) && !is_null($this->getValue()) && is_null($this->getId())) {
+
+            $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+            $select = $table->select()
+                            ->where('document_id = ?', $this->getParentId())
+                            ->where('key_name = ?', $this->getKeyName())
+                            ->where('value = ?', $this->getValue());
+
+            $row = $table->fetchRow($select);
+
+            if (!is_null($row)) {
+                throw new Opus_Model_Exception('DocumentEnrichment with same document_id, key_name and value already exists.');
+            }
+        }
+
+        // Now really store.
+        try {
+            return parent::store();
+        } catch (Exception $ex) {
+            $logger = Zend_Registry::get('Zend_Log');
+            if (null !== $logger) {
+                $message = "Unknown exception while storing account: ";
+                $message .= $ex->getMessage();
+                $logger->err(__METHOD__ . ': ' . $message);
+            }
+
+            $message = "Caught exception.  Please consult the server logfile.";
+            throw new Opus_Security_Exception($message);
+        }
+    }
+
+
 }
