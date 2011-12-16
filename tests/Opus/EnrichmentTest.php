@@ -213,6 +213,46 @@ class Opus_EnrichmentTest extends TestCase {
         $doc->store();
     }
 
+    public function testUpdateEnrichmentSetDuplicateValue() {
+        $doc = new Opus_Document($this->_doc->getId());
+
+        // add another enrichment to document
+        $doc->addEnrichment()->setKeyName('valid')->setValue('newvalue');
+        $doc->store();
+
+        // set duplicate value
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $this->assertTrue(count($enrichments) == 2);
+
+        $enrichment = $enrichments[1];
+        $this->assertTrue($enrichment->getValue() == 'newvalue');
+        $enrichment->setValue('value');
+
+        $this->setExpectedException('Opus_Model_Exception');
+        $doc->store();
+    }
+
+    public function testUpdateEnrichmentSetDuplicateKeyName() {
+        $doc = new Opus_Document($this->_doc->getId());
+
+        // add another enrichment to document
+        $doc->addEnrichment()->setKeyName('anothervalid')->setValue('value');
+        $doc->store();
+
+        // set duplicate key
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $this->assertTrue(count($enrichments) == 2);
+
+        $enrichment = $enrichments[1];
+        $this->assertTrue($enrichment->getKeyName() == 'anothervalid');
+        $enrichment->setKeyName('valid');
+
+        $this->setExpectedException('Opus_Model_Exception');
+        $doc->store();
+    }
+
 
     /* DELETE */
     public function testDeleteEnrichment() {
