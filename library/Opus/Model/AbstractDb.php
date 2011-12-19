@@ -615,12 +615,7 @@ abstract class Opus_Model_AbstractDb
                 }
             }
             $values->setParentId($this->getId());
-            try {
-                $values->store();
-            } 
-            catch (Opus_Model_Exception $e) {
-                throw new Opus_Model_Exception("FAILED to store object of type " . get_class($values) . " -- maybe object/row has been deleted?", $e->getCode(), $e);
-            }
+            $values->store();
         }
     }
 
