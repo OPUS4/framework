@@ -576,7 +576,11 @@ abstract class Opus_Model_AbstractDb
             }
         }
         catch (Zend_Db_Exception $zdbe) {
-            // workaround: throw database adapter exceptions                                                                                                                                                       
+            // workaround: throw database adapter exceptions
+            throw $zdbe;
+        }
+        catch (Opus_Model_DbException $omdbe) {
+            // workaround: throw database adapter exceptions
             throw $zdbe;
         }
         catch (Exception $e) {
