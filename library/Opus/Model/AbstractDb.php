@@ -28,6 +28,7 @@
  * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
@@ -520,7 +521,14 @@ abstract class Opus_Model_AbstractDb
             // Save the row.
             // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
-        } catch (Exception $e) {
+        }
+        catch (Zend_Db_Statement_Exception $ze) {
+            if ($ze->getChainedException() instanceof PDOException and $ze->getCode() === 23000) {
+                throw new Opus_Model_DbConstrainViolationException($ze->getMessage(), $ze->getCode(), $ze);
+            }
+            throw new Opus_Model_DbException($ze->getMessage(), $ze->getCode(), $ze);
+        }
+        catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this);
             // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
             // workaround:
