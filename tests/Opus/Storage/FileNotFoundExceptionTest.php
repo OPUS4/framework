@@ -20,8 +20,7 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should        }
- have received a copy of the GNU General Public License
+ * details. You should have received a copy of the GNU General Public License
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
@@ -37,23 +36,6 @@
  * Test Opus_Storage_FileNotFoundException class.
  */
 class Opus_Storage_FileNotFoundExceptionTest extends PHPUnit_Framework_TestCase {
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     */
-    protected function setUp() {
-        // Clearing database tables is not needed for this testcase
-        // parent::setUp();
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     */
-    protected function tearDown() {
-        parent::tearDown();
-    }
 
     /**
      * Test constructing exception with a file name.
@@ -84,4 +66,3 @@ class Opus_Storage_FileNotFoundExceptionTest extends PHPUnit_Framework_TestCase 
     }
 
 }
-
