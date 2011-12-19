@@ -581,7 +581,7 @@ abstract class Opus_Model_AbstractDb
         }
         catch (Opus_Model_DbException $omdbe) {
             // workaround: throw database adapter exceptions
-            throw $zdbe;
+            throw $omdbe;
         }
         catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
