@@ -47,9 +47,9 @@ ALTER TABLE `documents`
 ALTER TABLE `documents`
     ADD COLUMN `thesis_year_accepted` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of final exam (if exacat date is unknown).' AFTER `thesis_date_accepted`;
 
--- -----------------------------------------------------
--- Table `document_enrichments` column `server_state` modified
--- -----------------------------------------------------
+-- --------------------------------------------------------------------------------------------------
+-- Table `document_enrichments` columns `key_name`,  `value` modified, foreign-key constraint added
+-- --------------------------------------------------------------------------------------------------
 ALTER TABLE `document_enrichments`
     MODIFY COLUMN `key_name` VARCHAR(255) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
     MODIFY COLUMN `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
