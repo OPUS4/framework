@@ -35,6 +35,9 @@ CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
 )ENGINE = InnoDB
 COMMENT = 'Key table for database scheme enhancements.';
 
+-- Insert existing key_names from document_enrichments
+INSERT INTO enrichmentkeys (`name`) SELECT distinct key_name FROM `document_enrichments`;
+
 -- -----------------------------------------------------
 -- Table `documents` column `server_state` modified
 -- -----------------------------------------------------
