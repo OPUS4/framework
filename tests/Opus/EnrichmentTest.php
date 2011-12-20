@@ -72,8 +72,8 @@ class Opus_EnrichmentTest extends TestCase {
         $this->_doc->store();
     }
 
-     /* CREATE */
-    public function testStoreEnrichment() {
+   /* CREATE */
+   public function testStoreEnrichment() {
         $this->_doc->addEnrichment()->setKeyName('anothervalid')->setValue('anothervalue');
         $this->_doc->store();
 
@@ -102,7 +102,7 @@ class Opus_EnrichmentTest extends TestCase {
 
     public function testStoreEqualEnrichment() {
         $this->_doc->addEnrichment()->setKeyName('valid')->setValue('value');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
@@ -130,8 +130,7 @@ class Opus_EnrichmentTest extends TestCase {
         $this->assertKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
     }
 
-
-    /* READ */
+    /* READ */ 
     public function testLoadEnrichmentFromDocument() {
         $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
@@ -151,7 +150,7 @@ class Opus_EnrichmentTest extends TestCase {
     }
 
 
-    /* UPDATE */
+    /* UPDATE */ 
     public function testUpdateEnrichment() {
         $newkey = 'anothervalid';
         $newval = 'anothervalue';
@@ -229,7 +228,7 @@ class Opus_EnrichmentTest extends TestCase {
         $this->assertTrue($enrichment->getValue() == 'newvalue');
         $enrichment->setValue('value');
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $doc->store();
     }
 
@@ -249,7 +248,7 @@ class Opus_EnrichmentTest extends TestCase {
         $this->assertTrue($enrichment->getKeyName() == 'anothervalid');
         $enrichment->setKeyName('valid');
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $doc->store();
     }
 
