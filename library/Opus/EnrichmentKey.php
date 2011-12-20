@@ -72,12 +72,49 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     }
 
     /**
+     * ALTERNATE CONSTRUCTOR: Retrieve Opus_EnrichmentKey instance by name.  Returns
+     * null if name is null *or* nothing found.
+     *
+     * @param  string $name
+     * @return Opus_EnrichmentKey
+     */
+    public static function fetchByName($name = null) {
+        if (false === isset($name)) {
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->where('name = ?', $name);
+        $row = $table->fetchRow($select);
+
+        if (isset($row)) {
+            return new Opus_EnrichmentKey($row);
+        }
+
+        return;
+    }
+
+    /**
      * Returns name of an enrichmentkey.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
     public function getDisplayName() {
        return $this->getName();
+    }
+
+    /**
+     * Retrieve all Opus_EnrichmentKeys referenced by document from the database.
+     *
+     * @return array Array of Opus_EnrichmentKeys objects.
+     */
+    public static function getAllReferenced() {
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
+        $db = $table->getAdapter();
+        $select = $db->select()->from(array('document_enrichments'));
+        $select->reset('columns');
+        $select->columns("key_name")->distinct(true);
+        return $db->fetchCol($select);
     }
 
 }
