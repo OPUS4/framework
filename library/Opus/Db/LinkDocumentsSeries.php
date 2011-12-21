@@ -54,7 +54,7 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'set_id');    
+    protected $_primary = array('document_id', 'series_id');
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -69,7 +69,7 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
                 'refColumns' => 'id',
                 ),
             'Series' => array(
-                'columns' => 'set_id',
+                'columns' => 'series_id',
                 'refTableClass' => 'Opus_Db_Series',
                 'refColumns' => 'id'
                 ),

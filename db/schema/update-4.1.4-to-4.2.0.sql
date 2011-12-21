@@ -1,7 +1,7 @@
 -- -----------------------------------------------------
--- Table `document_sets`
+-- Table `document_series`
 -- ----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `document_sets` (
+CREATE TABLE IF NOT EXISTS `document_series` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` mediumtext NOT NULL COMMENT 'Title of document set (e.g. series)',
   `logo` text COMMENT 'Pfad zum Logo des Containers',
@@ -13,17 +13,17 @@ CREATE TABLE IF NOT EXISTS `document_sets` (
 
 
 -- -----------------------------------------------------
--- Table `link_document_sets`
+-- Table `link_document_series`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `link_documents_sets` (
   `document_id` int(10) unsigned NOT NULL,
-  `set_id` int(10) unsigned NOT NULL,
+  `series_id` int(10) unsigned NOT NULL,
   `number` varchar(20) NOT NULL COMMENT 'corresponding number (e.g. serial number)',
-  PRIMARY KEY (`document_id`,`set_id`),
+  PRIMARY KEY (`document_id`,`series_id`),
   UNIQUE KEY `document_id` (`document_id`,`number`),
-  KEY `set_id` (`set_id`),
-  CONSTRAINT `link_documents_sets_ibfk_2` FOREIGN KEY (`set_id`) REFERENCES `document_sets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `link_documents_sets_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+  KEY `series_id` (`series_id`),
+  CONSTRAINT `link_documents_series_ibfk_2` FOREIGN KEY (`series_id`) REFERENCES `document_series` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `link_documents_series_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
 -- -----------------------------------------------------

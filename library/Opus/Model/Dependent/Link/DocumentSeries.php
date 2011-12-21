@@ -80,7 +80,7 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      */
     protected function _init() {
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Series($this->_primaryTableRow->set_id));
+            $this->setModel(new Opus_Series($this->_primaryTableRow->series_id));
         }
 
         $number = new Opus_Model_Field('Number');        
@@ -94,7 +94,7 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      * @return void
      */
     public function store() {     
-        $this->_primaryTableRow->set_id = $this->_model->store();
+        $this->_primaryTableRow->series_id = $this->_model->store();
         parent::store();
     }
 

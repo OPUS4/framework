@@ -46,11 +46,11 @@ class Opus_Db_Series extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_name = 'document_sets';
+    protected $_name = 'document_series';
 
     /**
      * All dependant tables,
-     * i.e. those that contain a set_id as a foreign key
+     * i.e. those that contain a series_id as a foreign key
      *
      * @var array $_dependantTables
      */
