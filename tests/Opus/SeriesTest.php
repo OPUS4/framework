@@ -44,12 +44,11 @@
 class Opus_SeriesTest extends TestCase {
 
     /**
-     * Test if a document set can be retrieved by getAll().
+     * Test if a document series can be retrieved by getAll().
      *
      */
     public function testCreateRetrieveAndDeleteSets() {
-        $result = Opus_Series::getAll();
-        $this->assertEquals(0, count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
         
         $numberOfSetsToCreate = 3;
         $ids = array();
@@ -59,8 +58,8 @@ class Opus_SeriesTest extends TestCase {
             $set->store();
             array_push($ids, $set->getId());
         }
-        $result = Opus_Series::getAll();
-        $this->assertEquals($numberOfSetsToCreate, count($result), 'Wrong number of objects retrieved.');
+
+        $this->assertEquals($numberOfSetsToCreate, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
 
         // cleanup
         foreach ($ids as $id) {
@@ -68,21 +67,29 @@ class Opus_SeriesTest extends TestCase {
             $s->delete();
         }
 
-        $result = Opus_Series::getAll();
-        $this->assertEquals(0, count($result), 'Wrong number of objects retrieved.');
+        $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
     }
 
-    public function testAssignSetToDocumentWithoutNumber() {
+    public function testAssignSetToDocumentWithoutNumber() {        
         $d = new Opus_Document();
         $d->store();
+        
         $s = new Opus_Series();
         $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document($d->getId());
         $d->addSeries($s);
+
+        // TODO: uncomment the following line after resolving OPUSVIER-2033
+        // $this->setExpectedException('Opus_Model_Exception');
         $d->store();
+        
+        $this->assertEquals(1, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
 
         // cleanup
-        //$s->delete();
         $d->deletePermanent();
+        $s->delete();
     }
 
     public function testAssignSetToDocumentWithNumber() {        
@@ -91,13 +98,148 @@ class Opus_SeriesTest extends TestCase {
         
         $s = new Opus_Series();
         $s->setTitle('foo');
-        $l = $d->addSeries($s);
-        $l->setNumber(1);
+        $s->store();
+
+        $d = new Opus_Document($d->getId());
+        $d->addSeries($s)->setNumber('1');
         $d->store();
 
-        // cleanup
-       // $s->delete();
+        $this->assertEquals(1, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
+
+        // cleanup        
         $d->deletePermanent();
+        $s->delete();
+    }
+
+
+    /**
+     * 
+     * "CRUD-completness tests on Opus_Series"
+     *
+     */
+    
+    public function testCreateSeriesWithoutTitle() {
+        $s = new Opus_Series();
+        $this->setExpectedException('Opus_Model_Exception');
+        $s->store();
+    }
+
+    public function testCreateSeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getTitle() === 'foo');
+    }
+
+    public function testUpdateSeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $s->setTitle('bar');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getTitle() === 'bar');
+    }
+
+    public function testDeleteSeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $id = $s->getId();
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getTitle() === 'foo');
+
+        $s->delete();
+        
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $s = new Opus_Series($id);
+    }
+
+    
+    /**
+     *
+     * tests in conjunction with class Opus_Model_Dependent_Link_DocumentSeries
+     * 
+     */
+
+    public function testAssignDocumentToSeriesTwice() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->addSeries($s)->setNumber('2');
+
+        $this->setExpectedException('Opus_Model_Exception');
+        $d->store();       
+    }
+
+    public function testAssignDocumentToSeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $t = new Opus_Series();
+        $t->setTitle('bar');
+        $t->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->addSeries($t)->setNumber('2');
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $series = $d->getSeries();
+        $this->assertTrue(count($series) === 2);
+
+        $s = $series[0];
+        $this->assertTrue($s->getTitle() === 'foo');
+        
+        $s = $series[1];
+        $this->assertTrue($s->getTitle() === 'bar');        
+    }
+
+
+    public function testDeleteReferencedSeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->store();
+
+        $this->assertTrue(count($d->getSeries()) === 1);
+
+        $s->delete();
+
+        $d = new Opus_Document($d->getId());
+        $this->assertTrue(count($d->getSeries()) === 0);
+    }
+
+    public function testDeleteSeriesAssignment() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->store();
+
+        $this->assertTrue(count($d->getSeries()) === 1);
+
+        $d->setSeries(null);
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $this->assertTrue(count($d->getSeries()) === 0);
     }
 
 }
