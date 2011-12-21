@@ -35,7 +35,7 @@
 
 
 /**
- * Table gateway class for link table "link_documents_sets".
+ * Table gateway class for link table "link_documents_series".
  *
  * @category    Framework
  * @package     Opus_Db
@@ -47,7 +47,7 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_name = 'link_documents_sets';
+    protected $_name = 'link_documents_series';
 
     /**
      * DB table primary key name.

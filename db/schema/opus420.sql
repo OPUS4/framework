@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS `document_series` (
 -- -----------------------------------------------------
 -- Table `link_document_series`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `link_documents_sets` (
+CREATE TABLE IF NOT EXISTS `link_documents_series` (
   `document_id` int(10) unsigned NOT NULL,
   `series_id` int(10) unsigned NOT NULL,
   `number` varchar(20) NOT NULL COMMENT 'corresponding number (e.g. serial number)',
