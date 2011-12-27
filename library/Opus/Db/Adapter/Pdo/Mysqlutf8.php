@@ -92,7 +92,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
 
         // Enable "strict" mode on all transactional tables to avoid silent
         // truncation of inserted/updated data.  See ticket [OPUSVIER-2111].
-        $this->query("SET sql_mode = 'STRICT_TRANS_TABLES'");
+        // $this->query("SET sql_mode = 'STRICT_TRANS_TABLES'");
     }
 
 
