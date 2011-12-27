@@ -366,14 +366,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ********************************************************************** */
 
     /**
-     * Returns all valid oai set names (i.e. for those collections that contain
-     * at least one document) for this role.
+     * Fetches all valid/visible/non-empty oai subset names for this role,
+     * (i.e. for those collections that  contain at least one document, are 
+     * visible, have a proper oai name).
      *
      * FIXME: Unit-tests, if empty OaiSets are returned.
-     * FIXME: How to count documents?  Only this collections or recursive?
-     * FIXME: Check if $this->getDisplayOai() contains proper field names!
      *
-     * @return array An array of strings containing oai set names.
+     * @return array Array-hash with (id, name, oai_name, count)
      *
      * @see modules/oai/controllers/IndexController.php
      */
@@ -382,32 +381,42 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             return array();
         }
 
-        $oaiPrefix = $this->getOaiName();
-        $oaiPostfixColumn = $this->getDisplayOai();
-
-        if (empty($oaiPostfixColumn)) {
-            throw new Exception("getDisplayOai returned empty field.");
-        }
-
-        if (is_null($oaiPrefix) || $oaiPrefix == '') {
-            throw new Exception('Missing OAI set name.');
-        }
+        $select = "SELECT c.id, c.oai_subset, c.number, c.name,
+                          count(DISTINCT l.document_id) AS count
+            FROM link_documents_collections AS l,
+                 collections AS c, documents AS d
+            WHERE l.collection_id = c.id AND l.document_id = d.id
+            AND c.role_id = ? AND d.server_state = 'published'
+            AND c.visible = 1 AND c.oai_subset IS NOT NULL
+            GROUP BY c.oai_subset";
 
         $db = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+        return $db->fetchAll($select);
+    }
 
-        $quotePrefix = $db->quote("$oaiPrefix:");
-        $quotePostfix = $db->quoteIdentifier("c.$oaiPostfixColumn");
-        $quoteRoleId = $db->quote($this->getId());
+    /**
+     * Returns all valid oai role (i.e. for those collection roles that contain
+     * at least one visible collection with proper oai name and at least one 
+     * published document).
+     *
+     * @return array Array-hash with (id, name, oai_name, count)
+     *
+     * @see modules/oai/controllers/IndexController.php
+     */
+    public static function fetchAllOaiEnabledRoles() {
+        $select = "SELECT r.id, r.name, r.oai_name,
+                          count(DISTINCT l.document_id) AS count
+            FROM link_documents_collections AS l, collections_roles AS r,
+                 collections AS c, documents AS d
+            WHERE l.collection_id = c.id
+            AND l.document_id = d.id AND d.server_state = 'published'
+            AND c.role_id = r.id
+            AND c.visible = 1 AND c.oai_subset IS NOT NULL
+            GROUP BY r.oai_name";
 
-        $select = "SELECT DISTINCT CONCAT( $quotePrefix, $quotePostfix ) "
-                . " FROM collections AS c "
-                . " JOIN link_documents_collections AS l "
-                . " ON (c.id = l.collection_id AND c.role_id = l.role_id) "
-                . " WHERE c.role_id = $quoteRoleId AND l.role_id = $quoteRoleId";
-
-        $results = $db->fetchCol($select);
-        return $results;
-
+        $db = Zend_Db_Table::getDefaultAdapter();
+        return $db->fetchAll($select);
     }
 
     /**

@@ -103,6 +103,18 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Returns a list of distinct document types for the given constraint set.
+     *
+     * @return array
+     */
+    public function groupedTypesPlusCount() {
+        $this->select->reset('columns');
+        $this->select->columns(array("type" => "type", "count" => "count(DISTINCT id)"));
+        $this->select->group('type');
+        return $this->db->fetchAssoc($this->select);
+    }
+
+    /**
      * Returns a list of distinct years given by server_date_published
      *
      * @return array
