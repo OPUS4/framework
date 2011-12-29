@@ -237,10 +237,11 @@ class Opus_SolrSearch_Query {
 
     public function getQ() {
         if (is_null($this->q)) {
-            // earlier cached is invalid: setup cache
+            // earlier cached query was marked as invalid: perform new setup of query cache
             $this->q = $this->setupQCache();
         }
-        // return cached result (caching is done here since building q is an expensive operation
+        
+        // return cached result (caching is done here since building q is an expensive operation)
         return $this->q;
     }
 
@@ -335,11 +336,20 @@ class Opus_SolrSearch_Query {
                 $result .= '"' . $phrase . '"';
             }
             else {
-                $result .= preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $phrase);
+                $result .= preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $this->lowercaseWildcardQuery($phrase));
             }
             $insidePhrase = !$insidePhrase;
-        }
+        }        
         return $result;
+    }
+
+    private function lowercaseWildcardQuery($query) {
+        // check if $query is a wildcard query
+        if (strpos($query, '*') === FALSE && strpos($query, '?') === FALSE) {
+            return $query;
+        }
+        // lowercase query
+        return strtolower($query);
     }
 
     public function  __toString() {
