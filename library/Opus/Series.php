@@ -74,12 +74,20 @@ class Opus_Series extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve all Opus_Sets instances from the database.
+     * Retrieve all Opus_Series instances from the database.
      *
-     * @return array Array of Opus_Sets objects.
+     * @return array Array of Opus_Series objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Series', 'Opus_Db_Series', null, 'title');
+        return self::getAllFrom('Opus_Series', 'Opus_Db_Series');
     }
 
+    /**
+     * Retrieve all Opus_Series instances from the database sorted by title.
+     *
+     * @return array Array of Opus_Series objects.
+     */
+    public static function getAllSortedByTitle() {
+        return self::getAllFrom('Opus_Series', 'Opus_Db_Series', null, 'title');
+    }
 }
