@@ -255,9 +255,9 @@ class Opus_SolrSearch_Index_Indexer {
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
             $modelXml->formatOutput = true;
-            $this->log->debug("\n" . $modelXml->saveXML());
+            $this->log->debug("input xml\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;
-            $this->log->debug("\n" . $solrXmlDocument->saveXML());
+            $this->log->debug("transformed solr xml\n" . $solrXmlDocument->saveXML());
         }
         return $solrXmlDocument;
     }

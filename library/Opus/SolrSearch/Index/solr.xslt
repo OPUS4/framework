@@ -211,7 +211,7 @@
                     </xsl:choose>                    
                 </xsl:element>
 
-                <!-- collections: project, app_area, institute -->
+                <!-- collections: project, app_area, institute, ids -->
                 <xsl:for-each select="/Opus/Opus_Document/Collection">
                     <xsl:choose>
                         <xsl:when test="@RoleName = 'projects'">
@@ -243,6 +243,21 @@
                     <xsl:element name="field">
                         <xsl:attribute name="name">title_parent</xsl:attribute>
                         <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+                
+                <!-- series ids and series number per id (modeled as dynamic field) -->
+                <xsl:for-each select="/Opus/Opus_Document/Series">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">series_ids</xsl:attribute>
+                        <xsl:value-of select="@Id"/>
+                    </xsl:element>
+
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">
+                            <xsl:text>series_number_for_id_</xsl:text><xsl:value-of select="@Id"/>
+                        </xsl:attribute>
+                        <xsl:value-of select="@Number"/>
                     </xsl:element>
                 </xsl:for-each>
 
