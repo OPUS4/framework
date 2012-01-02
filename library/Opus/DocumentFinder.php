@@ -92,6 +92,16 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Debug method
+     *
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function debug() {
+        Zend_Registry::get('Zend_Log')->debug($this->select->__toString());
+        return $this;
+    }
+
+    /**
      * Returns a list of distinct document types for the given constraint set.
      *
      * @return array
