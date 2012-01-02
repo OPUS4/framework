@@ -340,6 +340,17 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Add constraints to be applied on the result set.
+     *
+     * @param  string $value
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setBelongsToBibliography($value) {
+        $this->select->where('d.belongs_to_bibliography = ?', $value);
+        return $this;
+    }
+
+    /**
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
