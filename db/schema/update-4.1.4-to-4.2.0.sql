@@ -66,3 +66,9 @@ ALTER TABLE `document_enrichments`
     ADD CONSTRAINT `fk_document_enrichment_enrichmentkeys`
         FOREIGN KEY (`key_name` )
         REFERENCES `enrichmentkeys` (`name` );
+
+-- --------------------------------------------------------------------
+-- Fill 'oai_subset' column with content of 'number' of all collections
+-- where 'oai_subset' IS NULL (see ticket OPUSVIER-2116).
+-- --------------------------------------------------------------------
+UPDATE `collections` SET oai_subset = number WHERE oai_subset IS NULL AND number IS NOT NULL AND number != "";
