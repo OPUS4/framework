@@ -387,7 +387,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                  collections AS c, documents AS d
             WHERE l.collection_id = c.id AND l.document_id = d.id
             AND c.role_id = ? AND d.server_state = 'published'
-            AND c.visible = 1 AND c.oai_subset IS NOT NULL
+            AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
             GROUP BY c.oai_subset";
 
         $db = Zend_Db_Table::getDefaultAdapter();
@@ -412,7 +412,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             WHERE l.collection_id = c.id
             AND l.document_id = d.id AND d.server_state = 'published'
             AND c.role_id = r.id
-            AND c.visible = 1 AND c.oai_subset IS NOT NULL
+            AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
+            AND r.visible = 1 AND r.visible_oai = 1
+            AND r.oai_name IS NOT NULL AND r.oai_name != ''
             GROUP BY r.oai_name";
 
         $db = Zend_Db_Table::getDefaultAdapter();
