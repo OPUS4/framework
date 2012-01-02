@@ -311,14 +311,13 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
 )ENGINE = InnoDB
 COMMENT = 'Key-value table for database scheme enhancements.';
 
-
 -- -----------------------------------------------------
 -- Table `enrichmentkeys`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
-  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the enrichment.' ,
+  `name` VARCHAR(255) NOT NULL COMMENT 'The enrichment key.' ,
   PRIMARY KEY (`name`)
-)ENGINE = InnoDB
+) ENGINE = InnoDB
 COMMENT = 'Key table for database scheme enhancements.';
 
 

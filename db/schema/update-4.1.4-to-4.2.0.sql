@@ -30,13 +30,20 @@ CREATE TABLE IF NOT EXISTS `link_documents_series` (
 -- Table `enrichmentkeys`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
-  `name` VARCHAR(255) NOT NULL COMMENT 'Name of the enrichment.' ,
+  `name` VARCHAR(255) NOT NULL COMMENT 'The enrichment key.' ,
   PRIMARY KEY (`name`)
-)ENGINE = InnoDB
+) ENGINE = InnoDB
 COMMENT = 'Key table for database scheme enhancements.';
 
+INSERT INTO `enrichmentkeys` (`name`) VALUES
+  ('submitter.user_id'),
+  ('reviewer.user_id'),
+  ('review.rejected_by'),
+  ('review.accepted_by'),
+  ('LegalNotices');
+
 -- Insert existing key_names from document_enrichments
-INSERT INTO enrichmentkeys (`name`) SELECT distinct key_name FROM `document_enrichments`;
+INSERT IGNORE INTO enrichmentkeys (`name`) SELECT distinct key_name FROM `document_enrichments`;
 
 -- -----------------------------------------------------
 -- Table `documents` column `server_state` modified
