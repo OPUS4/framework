@@ -133,12 +133,6 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection($collection_id);
         $this->assertEquals('subset', $this->object->getOaiSubset());
-
-        $oai_name = $collection->getOaiSetName();
-        $this->assertNotNull($oai_name,
-                'Field OaiName must not be null/empty.');
-        $this->assertTrue(preg_match("/:subset/", $oai_name) == 1,
-                'Field OaiSetName must contain OaiSubset.');
      }
 
      /**
@@ -150,7 +144,6 @@ class Opus_CollectionTest extends TestCase {
 
         $test_object = new Opus_Collection($collection_id);
         $this->assertEquals($this->object->getRoleId(), $test_object->getRoleId());
-        $this->assertEquals($this->object->getOaiSetName(), $test_object->getOaiSetName());
      }
 
     /**

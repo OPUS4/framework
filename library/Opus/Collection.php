@@ -396,15 +396,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Returns the OAI set name that corresponds with this collection.
-     *
-     * @return string The name of the OAI set.
-     */
-    public function getOaiSetName() {
-        return $this->getRole()->getOaiName() . ':' . $this->getOaiSubset();
-    }
-
-    /**
      * Returns the ID of the parent node.
      *
      * @return integer
@@ -582,7 +573,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-      /**
+    /**
      * Returns all collection for given (role_id, collection name) as array
      * with Opus_Collection objects.  Always returning an array, even if the
      * result set has zero or one element.
