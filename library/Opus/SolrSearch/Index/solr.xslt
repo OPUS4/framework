@@ -245,6 +245,22 @@
                         <xsl:value-of select="@Value" />
                     </xsl:element>
                 </xsl:for-each>
+
+                <!-- title sub -->
+                <xsl:for-each select="/Opus/Opus_Document/TitleSub">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">title_sub</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- title additional -->
+                <xsl:for-each select="/Opus/Opus_Document/TitleAdditional">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">title_additional</xsl:attribute>
+                        <xsl:value-of select="@Value" />
+                    </xsl:element>
+                </xsl:for-each>
                 
                 <!-- series ids and series number per id (modeled as dynamic field) -->
                 <xsl:for-each select="/Opus/Opus_Document/Series">
@@ -261,9 +277,37 @@
                     </xsl:element>
                 </xsl:for-each>
 
-                <!-- TODO: CreatingCorporation, ContributingCorporation -->
+                <!-- creating corporation (single valued) -->
+                <xsl:if test="/Opus/Opus_Document/@CreatingCorporation">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">creating_corporation</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/@CreatingCorporation"/>
+                    </xsl:element>
+                </xsl:if>
 
-                <!-- TODO: PublisherName, PublisherPlace -->
+                <!-- contributing corporation (single valued) -->
+                <xsl:if test="/Opus/Opus_Document/@ContributingCorporation">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">contributing_corporation</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/@ContributingCorporation"/>
+                    </xsl:element>
+                </xsl:if>
+
+                <!-- publisher name (single valued) -->
+                <xsl:if test="/Opus/Opus_Document/@PublisherName">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">publisher_name</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/@PublisherName"/>
+                    </xsl:element>
+                </xsl:if>
+
+                <!-- publisher place (single valued) -->
+                <xsl:if test="/Opus/Opus_Document/@PublisherPlace">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">publisher_place</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/@PublisherPlace"/>
+                    </xsl:element>
+                </xsl:if>
 
             </xsl:element>
         </xsl:element>
