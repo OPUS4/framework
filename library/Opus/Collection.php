@@ -525,7 +525,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             'RoleName' => $role->getDisplayName(),
             'DisplayBrowsing' => $this->getDisplayName('browsing'),
             'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
-            'DisplayOai' => $this->getDisplayName('oai'),
         );
     }
 

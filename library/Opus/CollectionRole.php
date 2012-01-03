@@ -112,6 +112,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
         $this->addField($displayFrontdoor);
 
+        // Field to be removed.  See ticket OPUSVIER-2155.
         $displayOai = new Opus_Model_Field('DisplayOai');
         $this->addField($displayOai);
 
@@ -120,6 +121,18 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
 
+    }
+
+    /**
+     * Stub methods to savely remove DisplayOai from database.  To be removed.
+     * See ticket OPUSVIER-2155.
+     */
+    protected function _fetchDisplayOai() {
+        return "";
+    }
+
+    protected function _storeDisplayOai($string) {
+        return;
     }
 
     /**

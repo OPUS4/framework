@@ -283,9 +283,6 @@ class Opus_CollectionRoleTest extends TestCase {
      * @todo Implement testGetOaiSetNames().
      */
     public function testGetOaiSetNames() {
-        // TODO: Check error handling for empty DisplayName!
-        $this->object->setDisplayOai('Number');
-
         // List of set names on unstored object
         $setnames = $this->object->getOaiSetNames();
         $this->assertTrue(is_array($setnames), "Expected OaiSetNames array.");
@@ -326,7 +323,6 @@ class Opus_CollectionRoleTest extends TestCase {
      * Tests getDocumentIdsInSet().  Currently only tests empty set.
      */
     public function testGetDocumentIdsInSet() {
-        $this->object->setDisplayOai('Number');
         $this->object->store();
 
         $oaiSetName = $this->object->getOaiName();
@@ -375,7 +371,6 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $role->setDisplayBrowsing('Number, Name');
         $role->setDisplayFrontdoor('Name');
-        $role->setDisplayOai('Number');
 
         $role->setVisible(1);
         $role->setVisibleBrowsingStart(1);
@@ -397,7 +392,6 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $this->assertTrue(($role->getDisplayBrowsing() === 'Number, Name'), 'CollectionRole display_browsing check failed.');
         $this->assertTrue(($role->getDisplayFrontdoor() === 'Name'), 'CollectionRole display_frontdoor check failed.');
-        $this->assertTrue(($role->getDisplayOai() === 'Number'), 'CollectionRole display_oai check failed.');
 
         $this->assertTrue(($role->getVisible() === '1'), 'CollectionRole visible check failed.');
         $this->assertTrue(($role->getVisibleBrowsingStart() === '1'), 'CollectionRole visible_browsing_start check failed.');
