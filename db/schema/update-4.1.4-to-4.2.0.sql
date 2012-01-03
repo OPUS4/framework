@@ -72,3 +72,9 @@ ALTER TABLE `document_enrichments`
 -- where 'oai_subset' IS NULL (see ticket OPUSVIER-2116).
 -- --------------------------------------------------------------------
 UPDATE `collections` SET oai_subset = number WHERE oai_subset IS NULL AND number IS NOT NULL AND number != "";
+
+-- -------------------------------------------------------------------
+-- Remove obsolete database column "display_oai".  (See OPUSVIER-2155)
+-- -------------------------------------------------------------------
+ALTER TABLE `collections_roles`
+    DROP COLUMN `display_oai`;
