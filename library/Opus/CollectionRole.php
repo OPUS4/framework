@@ -585,4 +585,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return $collection;
     }
 
+    // Field to be removed.  See ticket OPUSVIER-2155.
+    // TODO: Hack to remove field DisplayOai from admin forms.
+    public function describe() {
+        $fields = parent::describe();
+        return array_diff($fields, array('DisplayOai'));
+    }
+
 }
