@@ -1550,7 +1550,10 @@ class Opus_DocumentTest extends TestCase {
         $this->assertContains('draft', $values);
     }
 
-    public function testTruncateExceptionIsThrown() {        
+    /**
+     * Regression test for OPUSVIER-2111
+     */
+    public function testTruncateExceptionIsThrownFor26Chars() {
         $d = new Opus_Document();
         $stringWith26Chars = '';
         for ($i = 0; $i <= 25; $i++) {
@@ -1561,7 +1564,13 @@ class Opus_DocumentTest extends TestCase {
         $d->setVolume($stringWith26Chars);
         $this->setExpectedException('Opus_Model_DbTruncateException');
         $d->store();
+    }
 
+    /**
+     * Regression test for OPUSVIER-2111
+     */
+    public function testTruncateExceptionIsThrownFor256Chars() {
+        $d = new Opus_Document();
         $stringWith256Chars = '';
         for ($i = 0; $i <= 255; $i++) {
             $stringWith256Chars .= 'x';
@@ -1574,6 +1583,9 @@ class Opus_DocumentTest extends TestCase {
         $d->store();
     }
 
+    /**
+     * Regression test for OPUSVIER-2111
+     */
     public function testTruncateExceptionIsNotThrown() {
         $d = new Opus_Document();
         $stringWith25Chars = '';
