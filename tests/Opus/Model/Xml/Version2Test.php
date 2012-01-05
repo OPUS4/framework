@@ -180,11 +180,11 @@ class Opus_Model_Xml_Version2Test extends TestCase {
                       <Language>ger</Language>
                   </TitleMain>
 
-                  <SubjectUncontrolled>
+                  <Subject>
                     <Value>foo</Value>
                     <Language>ger</Language>
                     <Type>uncontrolled</Type>
-                  </SubjectUncontrolled>
+                  </Subject>
 
                   <Type>test</Type>
               </Opus_Document>
