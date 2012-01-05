@@ -518,15 +518,43 @@ abstract class Opus_Model_AbstractDb
                 $field->clearModified();
             }
 
+            // Backing up values to check for truncated fields after save().
+            $backupValues = $this->_primaryTableRow->toArray();
+
             // Save the row.
             // This returnes the id needed to store external fields.
             $id = $this->_primaryTableRow->save();
+
+            // Hack to check truncated fields.  (See ticket OPUSVIER-2111)
+            // TODO: Better use MySQL strict mode "STRICT_TRANS_TABLES".
+            foreach ($this->_primaryTableRow->toArray() AS $key => $new_value) {
+                // skip id-field
+                if ($key === 'id') {
+                    continue;
+                }
+
+                // if field was empty/too short before storing, skip it!
+                if (!isset($backupValues[$key]) || strlen($backupValues[$key]) <= 4) {
+                    continue;
+                }
+
+                if (strlen($backupValues[$key]) > strlen($new_value)) {
+                    $truncateLength = strlen($backupValues[$key]) - strlen($new_value);
+                    $msg = "Database column '$key' has been truncated by $truncateLength characters!";
+                    throw new Opus_Model_DbTruncateException(get_class($this) . ":  $msg");
+                }
+            }
         }
         catch (Zend_Db_Statement_Exception $ze) {
             if ($ze->getChainedException() instanceof PDOException and $ze->getCode() === 23000) {
                 throw new Opus_Model_DbConstrainViolationException($ze->getMessage(), $ze->getCode(), $ze);
             }
             throw new Opus_Model_DbException($ze->getMessage(), $ze->getCode(), $ze);
+        }
+        catch (Opus_Model_Exception $ome) {
+            // Needed to let instances of Opus_Model_Exception pass without
+            // modifying their type.
+            throw $ome;
         }
         catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this);
