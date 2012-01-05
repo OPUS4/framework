@@ -1065,6 +1065,7 @@ class Opus_DocumentTest extends TestCase {
     public function testExistenceOfServerDatePublished() {
         $doc = new Opus_Document();
         $doc->setServerState('published');
+        $doc->setServerDatePublished('2011-11-11T11:11+01:00');
         $doc->store();
 
         $filter = new Opus_Model_Filter;
@@ -1091,15 +1092,13 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testInitializationOfServerDateFields() {
-        $exampleCreateDate    = '2010-05-11T18:20:17+02:00';
-        $examplePublishedDate = '2010-05-09T18:20:17+02:00';
-
         $d = new Opus_Document();
         $id = $d->store();
 
         $d = new Opus_Document($id);
         $this->assertNotNull($d->getServerDateCreated());
-        $this->assertNotNull($d->getServerDatePublished());
+        $this->assertNotNull($d->getServerDateModified());
+        $this->assertNull($d->getServerDatePublished());
     }
 
     /**
