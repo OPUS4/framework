@@ -78,3 +78,30 @@ UPDATE `collections` SET oai_subset = number WHERE oai_subset IS NULL AND number
 -- -------------------------------------------------------------------
 ALTER TABLE `collections_roles`
     DROP COLUMN `display_oai`;
+
+-- ----------------------------------------------------------------------
+-- Change datatype of fields page_first, page_last, page_number to string
+-- type.  (See OPUSVIER-2202)
+-- The (strange) SQL script below should make sure, that all existing
+-- field values will be migrated/casted correctly.  Please make sure to
+-- have a working backup!
+-- ----------------------------------------------------------------------
+
+ALTER TABLE `documents`
+  ADD COLUMN `page_first_new` VARCHAR(255) NULL COMMENT 'First page of a publication.' AFTER `page_first`,
+  ADD COLUMN `page_last_new` VARCHAR(255) NULL COMMENT 'Last page of a publication.' AFTER `page_last`,
+  ADD COLUMN `page_number_new` VARCHAR(255) NULL COMMENT 'Total page numbers.' AFTER `page_number`;
+
+UPDATE `documents` SET page_first_new = CAST(page_first AS CHAR) WHERE page_first IS NOT NULL;
+UPDATE `documents` SET page_last_new = CAST(page_last AS CHAR) WHERE page_last IS NOT NULL;
+UPDATE `documents` SET page_number_new = CAST(page_number AS CHAR) WHERE page_number IS NOT NULL;
+
+ALTER TABLE `documents`
+  DROP COLUMN `page_first`,
+  DROP COLUMN `page_last`,
+  DROP COLUMN `page_number`;
+
+ALTER TABLE `documents`
+  CHANGE COLUMN `page_first_new`  `page_first` VARCHAR(255) NULL COMMENT 'First page of a publication.',
+  CHANGE COLUMN `page_last_new`   `page_last` VARCHAR(255) NULL COMMENT 'Last page of a publication.',
+  CHANGE COLUMN `page_number_new` `page_number` VARCHAR(255) NULL COMMENT 'Total page numbers.';
