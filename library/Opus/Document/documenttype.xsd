@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2010 rel. 3 sp1 (x64) (http://www.altova.com) by Susanne Gottwald (Konrad-Zuse-Zentrum Berlin) -->
 <!--
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
@@ -28,164 +29,208 @@
  * @category    Framework, Document
  * @author	Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de) 
  * @author     	Susanne Gottwald <gottwald@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
  -->
 <!--
+	This schema describes the how to structure document type definition files
+	and serves as a source for validation of those files.
 
-    This schema describes the how to structure document type definition files
-    and serves as a source for validation of those files.
+	A document type definition basicly consists of field declarations. Each of them
+	describes an Opus field that is used by the document type. A field declaration may
+	have options to trigger language selection or multivalue capabilities if supported
+	by Opus for the specified field.
 
-    A document type definition basicly consists of field declarations. Each of them
-    describes an Opus field that is used by the document type. A field declaration may
-    have options to trigger language selection or multivalue capabilities if supported
-    by Opus for the specified field.
-
-    An required option is set to "yes" if the field has to be filled during user input
-    activities.
-
+	An required option is set to "yes" if the field has to be filled during user input
+	activities.
 -->
-<schema 
-    xmlns="http://www.w3.org/2001/XMLSchema"
-    xmlns:opus="http://schemas.opus.org/documenttype"
-    targetNamespace="http://schemas.opus.org/documenttype"
-    elementFormDefault="qualified">
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:opus="http://schemas.opus.org/documenttype" targetNamespace="http://schemas.opus.org/documenttype" elementFormDefault="qualified">
+	<!-- Root element -->
+	<element name="documenttype" type="opus:OpusDocumentType"/>
+	<complexType name="OpusDocumentType">
+		<sequence maxOccurs="unbounded">
+			<choice maxOccurs="unbounded">
+				<element name="field" type="opus:FieldType"/>
+			</choice>
+		</sequence>
+		<attribute name="name" type="opus:validname" use="required"/>
+	</complexType>
 	
-    <element name="documenttype" type="opus:OpusDocumentType"/>
-    <complexType name="OpusDocumentType">
-        <sequence maxOccurs="unbounded">
-            <element name="field" type="opus:FieldType"/>
-        </sequence>
-        <attribute name="name" type="opus:validname" use="required"/>
-    </complexType>
+	<!-- a valid field can have the subelements required-if-fulltext, subfield, default
+	moreover it has to have all the attributes name, multiplicity, required, formelement, datatype -->
+	<complexType name="FieldType">
+		<sequence minOccurs="0">
+			<element name="required-if-fulltext" minOccurs="0"/>
+			<element name="subfield" type="opus:SubFieldType" minOccurs="0" maxOccurs="unbounded"/>
+			<element name="default" type="opus:defaultField" minOccurs="0"/>
+		</sequence>
+		<attribute name="name" type="opus:validfieldname" use="required"/>
+		<attribute name="multiplicity" type="opus:multiplicity" default="1"/>
+		<attribute name="required" type="opus:yesno" default="no"/>
+		<attribute name="formelement" type="opus:validFormElements"/>
+		<attribute name="datatype" type="opus:availableDatatypes"/>
+	</complexType>
 	
-    <complexType name="FieldType" mixed="true">
-        <sequence minOccurs="0">
-            <element name="required-if-fulltext" minOccurs="0"/>
-            <!--  permit any of these tags in any order in any number     -->
-            <choice minOccurs="0" maxOccurs="unbounded">                
-                <element name="default" type="opus:DefaultFieldType"/>
-                <element name="subfield" type="opus:SubFieldType"/>
-                <element name="option" type="opus:OptionFieldType"/>
-            </choice>
-        </sequence>
-        <attribute name="name" type="string" use="required"/>
-        <attribute name="multiplicity" type="opus:multiplicity" default="1"/>
-        <attribute name="required" type="opus:yesno" default="no"/>
-        <attribute name="formelement" type="opus:validFormElements"/>
-        <attribute name="datatype" type="opus:availableDatatypes"/>
-        <attribute name="root" type="string"/>
-    </complexType>
+	<!-- a valid subfield can have default subelement and the attributes
+	name, required, formelement, datatype. multiplicity is not allowed,
+	 this is regularized by the parent element -->
+	<complexType name="SubFieldType">
+		<sequence minOccurs="0">
+			<element name="default" type="opus:defaultField"/>
+		</sequence>
+		<attribute name="name" type="opus:validfieldname" use="required"/>
+		<attribute name="required" type="opus:yesno" default="no"/>
+		<attribute name="formelement" type="opus:validFormElements"/>
+		<attribute name="datatype" type="opus:availableDatatypes"/>
+	</complexType>
 	
-    <complexType name="SubFieldType">
-        <sequence minOccurs="0">
-            <element name="default" type="opus:DefaultFieldType"/>
-        </sequence>
-        <attribute name="name" type="string" use="required"/>
-        <attribute name="required" type="opus:yesno" default="no"/>
-        <attribute name="formelement" type="opus:validFormElements"/>
-        <attribute name="datatype" type="opus:availableDatatypes"/>
-    </complexType>
+	<!-- defaultField can be used for defining default values for form elements
+	value is the default value, edit describes if the element can be changed,
+	public states if the element can be seen with its value -->
+	<complexType name="defaultField">
+		<attribute name="value"/>
+		<attribute name="edit"/>
+		<attribute name="public"/>
+	</complexType>
 	
-    <!--
-        DefaultFieldType can be used for defining default values for form elements
-        for ...
-	value is the default value
-        edit describes if the element can be changed
-	public states if the element can be seen with its value
-    -->
-    <complexType name="DefaultFieldType">
-        <attribute name="for"/>
-        <attribute name="value"/>
-        <attribute name="edit"/>
-        <attribute name="public"/>
-    </complexType>
-
-    <complexType name="OptionFieldType">
-        <attribute name="value"/>
-    </complexType>
+	<!-- Multiplicity attributes accept only integers for quantities,
+		or the star "*" symbol to represent unlimited quantity.-->
+	<simpleType name="multiplicity">
+		<restriction base="string">
+			<pattern value="([1-9][0-9]*)|\*"/>
+		</restriction>
+	</simpleType>
 	
-    <!--
-        Multiplicity attributes accept only integers for quantities,
-        or the star "*" symbol to represent unlimited quantity.
-    -->
-    <simpleType name="multiplicity">
-        <restriction base="string">
-            <pattern value="([1-9][0-9]*)|\*"/>
-        </restriction>
-    </simpleType>
+		<!-- availableDatatypes is used as values for attribute DATATYPE 
+		they are represented in publish/models/validation.php -->
+	<simpleType name="availableDatatypes">
+		<restriction base="string">
+			<enumeration value="Date"/>
+			<enumeration value="ddc"/>
+			<enumeration value="Email"/>
+			<enumeration value="Institute"/>
+			<enumeration value="Integer"/>
+			<enumeration value="Language"/>
+			<enumeration value="Licence"/>
+			<enumeration value="msc"/>
+			<enumeration value="Person"/>
+			<enumeration value="Project"/>
+			<enumeration value="Text"/>
+			<enumeration value="text"/>
+			<enumeration value="Title"/>
+			<enumeration value="ThesisGrantor"/>
+			<enumeration value="ThesisPublisher"/>
+			<enumeration value="Year"/>
+		</restriction>
+	</simpleType>
 	
-    <!--
-        availableDatatypes is used as values for attribute DATATYPE
-        they are represented in publish/models/Validation.php
-    -->
-    <simpleType name="availableDatatypes">
-        <restriction base="string">
-            <enumeration value="Date"/>
-            <enumeration value="ddc"/>
-            <enumeration value="Email"/>
-            <enumeration value="Institute"/>
-            <enumeration value="Integer"/>
-            <enumeration value="Language"/>
-            <enumeration value="Licence"/>
-            <enumeration value="msc"/>
-            <enumeration value="Person"/>
-            <enumeration value="Project"/>
-            <enumeration value="Text"/>
-            <enumeration value="text"/>
-            <enumeration value="Title"/>
-            <enumeration value="ThesisGrantor"/>
-            <enumeration value="ThesisPublisher"/>
-            <enumeration value="Year"/>
-            <enumeration value="List"/>
-            <enumeration value="Enrichment"/>
-            <enumeration value="Collection"/>
-            <enumeration value="CollectionLeaf"/>
-            <enumeration value="Reference"/>
-            <enumeration value="Identifier"/>
-            <enumeration value="Note"/>
-            <enumeration value="Subject"/>
-            <enumeration value="Series"/>
-        </restriction>
-    </simpleType>
+	<!-- validFormElements is used as values for attribute FORMELEMENT -->
+	<simpleType name="validFormElements">
+		<restriction base="string">
+			<enumeration value="Text"/>
+			<enumeration value="Textarea"/>
+			<enumeration value="Select"/>
+			<enumeration value="text"/>
+			<enumeration value="textarea"/>
+			<enumeration value="select"/>
+			<enumeration value="Checkbox"/>
+			<enumeration value="checkbox"/>
+		</restriction>
+	</simpleType>
 	
-    <!--
-        validFormElements is used as values for attribute FORMELEMENT
-    -->
-    <simpleType name="validFormElements">
-        <restriction base="string">
-            <enumeration value="Text"/>
-            <enumeration value="Textarea"/>
-            <enumeration value="Select"/>
-            <enumeration value="text"/>
-            <enumeration value="textarea"/>
-            <enumeration value="select"/>
-            <enumeration value="Checkbox"/>
-            <enumeration value="checkbox"/>
-        </restriction>
-    </simpleType>
+	<!-- yesno ist used as values for attribute REQUIRED -->
+	<simpleType name="yesno">
+		<restriction base="string">
+			<enumeration value="yes"/>
+			<enumeration value="no"/>
+		</restriction>
+	</simpleType>
 	
-    <!--
-        yesno ist used as values for attribute REQUIRED
-    -->
-    <simpleType name="yesno">
-        <restriction base="string">
-            <enumeration value="yes"/>
-            <enumeration value="no"/>
-        </restriction>
-    </simpleType>
+	<!-- A valid document type name has only lowercase characters and digits.
+		It always starts with characters. Words can be separated by the
+		underscore character "_".
+	-->
+	<simpleType name="validname">
+		<restriction base="string">
+			<pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
+		</restriction>
+	</simpleType>
 	
-    <!--
-        A valid document type name has only lowercase characters and digits.
-        It always starts with characters. Words can be separated by the
-        underscore character "_".
-    -->
-    <simpleType name="validname">
-        <restriction base="string">
-            <pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
-        </restriction>
-    </simpleType>
-	
+<!-- DO NOT TOUCH!!! Changes will lead to errors! All validfieldnames depend on Opus_Document! -->
+	<simpleType name="validfieldname">
+		<restriction base="string">
+			<enumeration value="AcademicTitle"/>
+			<enumeration value="AllowEmailContact"/>
+			<enumeration value="Collection"/>
+			<enumeration value="CompletedDate"/>
+			<enumeration value="CompletedYear"/>
+			<enumeration value="ContributingCorporation"/>
+			<enumeration value="CreatingCorporation"/>
+			<enumeration value="DateOfBirth"/>
+			<enumeration value="DocumentType"/>
+			<enumeration value="Edition"/>
+			<enumeration value="Enrichment"/>
+			<enumeration value="Email"/>
+			<enumeration value="File"/>
+			<enumeration value="IdentifierIsbn"/>
+			<enumeration value="IdentifierUrn"/>
+			<enumeration value="IdentifierDoi"/>
+			<enumeration value="IdentifierHandle"/>
+			<enumeration value="IdentifierUrl"/>
+			<enumeration value="IdentifierIssn"/>
+			<enumeration value="IdentifierStdDoi"/>
+			<enumeration value="IdentifierCrisLink"/>
+			<enumeration value="IdentifierSplashUrl"/>
+			<enumeration value="IdentifierOpus3"/>
+			<enumeration value="IdentifierOpac"/>
+			<enumeration value="Institute"/>
+			<enumeration value="Issue"/>
+			<enumeration value="Language"/>
+			<enumeration value="Licence"/>
+			<enumeration value="Note"/>
+			<enumeration value="PageFirst"/>
+			<enumeration value="PageLast"/>
+			<enumeration value="PageNumber"/>
+			<enumeration value="Patent"/>
+			<enumeration value="PersonAdvisor"/>
+			<enumeration value="PersonAuthor"/>
+			<enumeration value="PersonReferee"/>
+			<enumeration value="PersonContributor"/>
+			<enumeration value="PersonEditor"/>
+			<enumeration value="PersonTranslator"/>
+			<enumeration value="PersonSubmitter"/>
+			<enumeration value="PlaceOfBirth"/>
+			<enumeration value="Project"/>
+			<enumeration value="PublicationState"/>
+			<enumeration value="PublishedDate"/>
+			<enumeration value="PublishedYear"/>
+			<enumeration value="PublisherName"/>
+			<enumeration value="PublisherPlace"/>
+			<enumeration value="ReferenceIsbn"/>
+			<enumeration value="ReferenceUrn"/>
+			<enumeration value="ReferenceDoi"/>
+			<enumeration value="ReferenceHandle"/>
+			<enumeration value="ReferenceUrl"/>
+			<enumeration value="ReferenceIssn"/>
+			<enumeration value="ReferenceStdDoi"/>
+			<enumeration value="ReferenceCrisLink"/>
+			<enumeration value="ReferenceSplashUrl"/>
+			<enumeration value="SubjectDdc"/>
+			<enumeration value="SubjectMSC"/>
+			<enumeration value="SubjectPsyndex"/>
+			<enumeration value="SubjectSwd"/>
+			<enumeration value="SubjectUncontrolled"/>
+			<enumeration value="ThesisDateAccepted"/>
+			<enumeration value="ThesisGrantor"/>
+			<enumeration value="ThesisPublisher"/>
+			<enumeration value="TitleAbstract"/>
+			<enumeration value="TitleMain"/>
+			<enumeration value="TitleParent"/>
+			<enumeration value="TitleSub"/>
+			<enumeration value="TitleAdditional"/>
+			<enumeration value="Volume"/>
+		</restriction>
+	</simpleType>
 </schema>
