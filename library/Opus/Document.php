@@ -313,31 +313,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                             'model' => 'Opus_Subject',
                             'fetch' => 'lazy'
             ),
-            'SubjectSwd' => array(
-                            'model' => 'Opus_SubjectSwd',
-                            'options' => array('type' => 'swd'),
-                            'fetch' => 'lazy'
-            ),
-            'SubjectPsyndex' => array(
-                            'model' => 'Opus_Subject',
-                            'options' => array('type' => 'psyndex'),
-                            'fetch' => 'lazy'
-            ),
-            'SubjectUncontrolled' => array(
-                            'model' => 'Opus_Subject',
-                            'options' => array('type' => 'uncontrolled'),
-                            'fetch' => 'lazy'
-            ),
-            'SubjectMSC' => array(
-                            'model' => 'Opus_Subject',
-                            'options' => array('type' => 'msc'),
-                            'fetch' => 'lazy'
-            ),
-            'SubjectDDC' => array(
-                            'model' => 'Opus_Subject',
-                            'options' => array('type' => 'ddc'),
-                            'fetch' => 'lazy'
-            ),
             'File' => array(
                             'model' => 'Opus_File',
                             'fetch' => 'lazy'
@@ -475,7 +450,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->setDefault($grantors)
                 ->setSelection(true);
 
+        $obsoleteSubjects = array(
+            'SubjectSwd',
+            'SubjectPsyndex',
+            'SubjectUncontrolled',
+            'SubjectMSC',
+            'SubjectDDC',
+            );
+
+        foreach ($obsoleteSubjects AS $dummySubjectField) {
+            $this->addField(new Opus_Model_Field($dummySubjectField));
+        }
     }
+
+    protected function _fetchSubjectSwd() { return; }
+    protected function _fetchSubjectPsyndex() { return; }
+    protected function _fetchSubjectUncontrolled() { return; }
+    protected function _fetchSubjectMSC() { return; }
+    protected function _fetchSubjectDDC() { return; }
 
     /**
      * Store multiple languages as a comma seperated string.
