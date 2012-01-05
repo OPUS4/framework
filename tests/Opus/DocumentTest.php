@@ -1550,4 +1550,48 @@ class Opus_DocumentTest extends TestCase {
         $this->assertContains('draft', $values);
     }
 
+    public function testTruncateExceptionIsThrown() {        
+        $d = new Opus_Document();
+        $stringWith26Chars = '';
+        for ($i = 0; $i <= 25; $i++) {
+            $stringWith26Chars .= 'x';
+        }
+        $d->setEdition($stringWith26Chars);
+        $d->setIssue($stringWith26Chars);
+        $d->setVolume($stringWith26Chars);
+        $this->setExpectedException('Opus_Model_DbTruncateException');
+        $d->store();
+
+        $stringWith256Chars = '';
+        for ($i = 0; $i <= 255; $i++) {
+            $stringWith256Chars .= 'x';
+        }
+        $d->setPublisherPlace($stringWith256Chars);
+        $d->setPublisherName($stringWith256Chars);
+        $d->setLanguage($stringWith256Chars);
+
+        $this->setExpectedException('Opus_Model_DbTruncateException');
+        $d->store();
+    }
+
+    public function testTruncateExceptionIsNotThrown() {
+        $d = new Opus_Document();
+        $stringWith25Chars = '';
+        for ($i = 0; $i < 25; $i++) {
+            $stringWith25Chars .= 'x';
+        }
+        $d->setEdition($stringWith25Chars);
+        $d->setIssue($stringWith25Chars);
+        $d->setVolume($stringWith25Chars);
+        $d->store();
+
+        $stringWith255Chars = '';
+        for ($i = 0; $i < 255; $i++) {
+            $stringWith255Chars .= 'x';
+        }
+        $d->setPublisherPlace($stringWith255Chars);
+        $d->setPublisherName($stringWith255Chars);
+        $d->setLanguage($stringWith255Chars);        
+        $d->store();
+    }
 }
