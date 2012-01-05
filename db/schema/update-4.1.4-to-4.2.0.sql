@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS `document_series` (
 
 
 -- -----------------------------------------------------
--- Table `link_document_series`
+-- Table `link_documents_series`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `link_documents_series` (
   `document_id` int(10) unsigned NOT NULL,
