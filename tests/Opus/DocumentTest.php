@@ -635,9 +635,9 @@ class Opus_DocumentTest extends TestCase {
         $subject = new Opus_SubjectSwd();
         $subject->setValue('Schlagwort');
 
-        $doc->addSubjectSwd($subject);
+        $doc->addSubject($subject);
         $doc->store();
-        $id = $doc->getSubjectSwd(0)->getId();
+        $id = $doc->getSubject(0)->getId();
         $doc->deletePermanent();
         $this->setExpectedException('Opus_Model_NotFoundException');
         $subject = new Opus_Subject($id);
