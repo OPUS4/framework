@@ -449,25 +449,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $this->getField('ThesisGrantor')
                 ->setDefault($grantors)
                 ->setSelection(true);
-
-        $obsoleteSubjects = array(
-            'SubjectSwd',
-            'SubjectPsyndex',
-            'SubjectUncontrolled',
-            'SubjectMSC',
-            'SubjectDDC',
-            );
-
-        foreach ($obsoleteSubjects AS $dummySubjectField) {
-            $this->addField(new Opus_Model_Field($dummySubjectField));
-        }
     }
-
-    protected function _fetchSubjectSwd() { return; }
-    protected function _fetchSubjectPsyndex() { return; }
-    protected function _fetchSubjectUncontrolled() { return; }
-    protected function _fetchSubjectMSC() { return; }
-    protected function _fetchSubjectDDC() { return; }
 
     /**
      * Store multiple languages as a comma seperated string.
