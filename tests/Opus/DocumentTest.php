@@ -1096,9 +1096,12 @@ class Opus_DocumentTest extends TestCase {
         $id = $d->store();
 
         $d = new Opus_Document($id);
-        $this->assertNotNull($d->getServerDateCreated());
-        $this->assertNotNull($d->getServerDateModified());
-        $this->assertNull($d->getServerDatePublished());
+        $this->assertNotNull($d->getServerDateCreated(),
+                'ServerDateCreated should *not* be NULL');
+        $this->assertNotNull($d->getServerDateModified(),
+                'ServerDateModified should *not* be NULL');
+        $this->assertNull($d->getServerDatePublished(),
+                'ServerDatePublished *should* be NULL');
     }
 
     /**
