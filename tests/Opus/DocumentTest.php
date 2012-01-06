@@ -1122,6 +1122,39 @@ class Opus_DocumentTest extends TestCase {
      *
      * @return void
      */
+    public function testDontChangeUserSpecifiedServerDatePublished() {
+        $examplePublishedDate = new Opus_Date('2010-05-09T18:20:17+02:00');
+
+        $d = new Opus_Document();
+        $d->setServerDatePublished($examplePublishedDate);
+        $d->setServerState('published');
+        $id = $d->store();
+
+        $this->assertEquals(
+                $examplePublishedDate->__toString(),
+                $d->getServerDatePublished()->__toString(),
+                "Don't change user-specified server_date_published");
+
+        $testStates = array('unpublished', 'published', 'published', 'unpublished');
+        foreach ($testStates AS $state) {
+            $d = new Opus_Document($id);
+            $d->setServerState($state);
+            $d->store();
+
+            $d = new Opus_Document($id);
+            $this->assertEquals(
+                    $examplePublishedDate->__toString(),
+                    $d->getServerDatePublished()->__toString(),
+                    "Don't change user-specified server_date_published (state $state)");
+        }
+
+    }
+
+    /**
+     * Tests initialization of ServerDatePublished field.
+     *
+     * @return void
+     */
     public function testSetServerDatePublishedOnlyAfterPublish() {
         $d = new Opus_Document();
         $d->setServerState('unpublished');
