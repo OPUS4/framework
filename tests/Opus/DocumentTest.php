@@ -1105,6 +1105,43 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
+     * Tests initialization of ServerDatePublished field.
+     *
+     * @return void
+     */
+    public function testSetServerDatePublished() {
+        $d = new Opus_Document();
+        $d->setServerState('published');
+        $id = $d->store();
+
+        $this->assertNotNull($d->getServerDatePublished());
+    }
+
+    /**
+     * Tests initialization of ServerDatePublished field.
+     *
+     * @return void
+     */
+    public function testSetServerDatePublishedOnlyAfterPublish() {
+        $d = new Opus_Document();
+        $d->setServerState('unpublished');
+        $id = $d->store();
+
+        $this->assertNull($d->getServerDatePublished(),
+                'published date should be NULL after store()');
+
+        $d = new Opus_Document($id);
+        $this->assertNull($d->getServerDatePublished(),
+                'published date should be NULL after store() and reload');
+
+        $d->setServerState('published');
+        $id = $d->store();
+
+        $this->assertNotNull($d->getServerDatePublished(),
+                'published date should NOT be NULL after publish');
+    }
+
+    /**
      * Tests overriding the initialization of ServerDate-Fields.
      *
      * @return void

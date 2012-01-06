@@ -1012,6 +1012,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
         $this->setServerDateModified($date);
 
+        if (true === $this->isNewRecord() || true === $this->isModified()) {
+            // Initially set ServerDatePublished if ServerState == 'published'
+            if ($this->getServerState() === 'published') {
+                if (is_null( $this->getServerDatePublished() )) {
+                    $this->setServerDatePublished($date);
+                }
+            }
+        }
+
         return $result;
     }
 
