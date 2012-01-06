@@ -1483,6 +1483,31 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($document->getThesisGrantor()));
      }
 
+     /**
+      * Regression test for OPUSVIER-2205.
+      */
+     public function testStoringPageFieldsAsAlnumStrings() {
+         $document = new Opus_Document();
+         $document->setPageFirst('III');
+         $document->setPageLast('IV');
+         $document->setPageNumber('II');
+
+         $document->store();
+
+         $docId = $document->getId();
+
+         $document = new Opus_Document($docId);
+
+         $this->assertNotEquals('0', $document->getPageFirst());
+         $this->assertEquals('III', $document->getPageFirst());
+
+         $this->assertNotEquals('0', $document->getPageLast());
+         $this->assertEquals('IV', $document->getPageLast());
+
+         $this->assertNotEquals('0', $document->getPageNumber());
+         $this->assertEquals('II', $document->getPageNumber());
+     }
+
      public function testSortOrderForAddPersonAuthors() {
         $document = $this->_createDocumentWithPersonAuthors(16);
         $docId = $document->store();
@@ -1673,7 +1698,7 @@ class Opus_DocumentTest extends TestCase {
         }
         $d->setPublisherPlace($stringWith255Chars);
         $d->setPublisherName($stringWith255Chars);
-        $d->setLanguage($stringWith255Chars);        
+        $d->setLanguage($stringWith255Chars);
         $d->store();
     }
 }
