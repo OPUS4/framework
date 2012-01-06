@@ -44,7 +44,7 @@
  */
 class Opus_DocumentFinderTest extends TestCase {
 
-    private static function prepareDocuments() {
+    private function prepareDocuments() {
         $publishedDoc1 = new Opus_Document();
         $publishedDoc1->setType("preprint")
                 ->setServerState('published')
