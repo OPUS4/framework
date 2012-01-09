@@ -29,7 +29,7 @@
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: EnrichmentKeyTest.php 8424 2011-12-12 12:50:32Z gmaiwald $
+ * @version     $Id$
  */
 
 /**

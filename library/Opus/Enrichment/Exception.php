@@ -29,7 +29,7 @@
  * @author      Gunar Maiwald <maiwald@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: Exception.php 9447 2011-12-19 16:43:03Z gmaiwald $
+ * @version     $Id$
  */
 
 /**
