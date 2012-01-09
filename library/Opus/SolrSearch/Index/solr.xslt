@@ -190,14 +190,6 @@
                     </xsl:element>
                 </xsl:for-each>
 
-                <!-- subject (msc) -->
-                <xsl:for-each select="/Opus/Opus_Document/Subject[@Type = 'msc']">
-                    <xsl:element name="field">
-                        <xsl:attribute name="name">subject_msc</xsl:attribute>
-                        <xsl:value-of select="@Value" />
-                    </xsl:element>
-                </xsl:for-each>
-
                 <!-- belongs_to_bibliography -->
                 <xsl:element name="field">
                     <xsl:attribute name="name">belongs_to_bibliography</xsl:attribute>
