@@ -170,4 +170,10 @@ class Opus_EnrichmentKeyTest extends TestCase {
         $this->assertEquals($name, $displayName);
     }
 
+    public function testGetAll() {
+        foreach (Opus_EnrichmentKey::getAll() as $name) {
+             $this->assertNotContains('Opus_EnrichmentKey', (string) $name);
+        }
+    }
+
 }
