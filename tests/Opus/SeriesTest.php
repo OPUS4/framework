@@ -100,12 +100,19 @@ class Opus_SeriesTest extends TestCase {
         $s->setTitle('foo');
         $s->store();
 
+        $this->assertEquals(1, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
+
         $d = new Opus_Document($d->getId());
         $d->addSeries($s)->setNumber('1');
         $d->store();
 
-        $this->assertEquals(1, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
-
+        $d = new Opus_Document($d->getId());
+        $this->assertEquals(1, count($d->getSeries()));
+        $series = $d->getSeries();
+        $s = $series[0];
+        $this->assertEquals('foo', $s->getTitle());
+        $this->assertEquals('1', $s->getNumber());
+       
         // cleanup        
         $d->deletePermanent();
         $s->delete();
@@ -181,7 +188,7 @@ class Opus_SeriesTest extends TestCase {
         $d->store();       
     }
 
-    public function testAssignDocumentToSeries() {
+    public function testAssignDocumentToMultipleSeries() {
         $s = new Opus_Series();
         $s->setTitle('foo');
         $s->store();
@@ -198,12 +205,12 @@ class Opus_SeriesTest extends TestCase {
         $d = new Opus_Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
+       
+        $this->assertTrue($series[0]->getTitle() === 'foo');
+        $this->assertTrue($series[0]->getNumber() === '1');
 
-        $s = $series[0];
-        $this->assertTrue($s->getTitle() === 'foo');
-        
-        $s = $series[1];
-        $this->assertTrue($s->getTitle() === 'bar');        
+        $this->assertTrue($series[1]->getTitle() === 'bar');
+        $this->assertTrue($series[1]->getNumber() === '2');
     }
 
 
@@ -240,6 +247,74 @@ class Opus_SeriesTest extends TestCase {
 
         $d = new Opus_Document($d->getId());
         $this->assertTrue(count($d->getSeries()) === 0);
+    }
+
+    public function testGetAll() {
+        $ids = array();
+
+        $s = new Opus_Series();
+        $s->setTitle('c');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(1, count(Opus_Series::getAll()));
+        $series = Opus_Series::getAll();
+        $this->assertEquals($series[0]->getId(), $ids[0]);
+
+        $s = new Opus_Series();
+        $s->setTitle('a');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(2, count(Opus_Series::getAll()));
+        $series = Opus_Series::getAll();
+        $this->assertEquals($series[0]->getId(), $ids[0]);
+        $this->assertEquals($series[1]->getId(), $ids[1]);
+
+        $s = new Opus_Series();
+        $s->setTitle('b');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(3, count(Opus_Series::getAll()));
+        $series = Opus_Series::getAll();
+        $this->assertEquals($series[0]->getId(), $ids[0]);
+        $this->assertEquals($series[1]->getId(), $ids[1]);
+        $this->assertEquals($series[2]->getId(), $ids[2]);
+    }
+
+    public function testGetAllSortedByTitle() {
+        $ids = array();
+
+        $s = new Opus_Series();
+        $s->setTitle('c');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(1, count(Opus_Series::getAllSortedByTitle()));
+        $series = Opus_Series::getAllSortedByTitle();
+        $this->assertEquals($series[0]->getId(), $ids[0]);
+
+        $s = new Opus_Series();
+        $s->setTitle('a');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(2, count(Opus_Series::getAllSortedByTitle()));
+        $series = Opus_Series::getAllSortedByTitle();
+        $this->assertEquals($series[0]->getId(), $ids[1]);
+        $this->assertEquals($series[1]->getId(), $ids[0]);
+
+        $s = new Opus_Series();
+        $s->setTitle('b');
+        $s->store();
+        array_push($ids, $s->getId());
+
+        $this->assertEquals(3, count(Opus_Series::getAllSortedByTitle()));
+        $series = Opus_Series::getAllSortedByTitle();
+        $this->assertEquals($series[0]->getId(), $ids[1]);
+        $this->assertEquals($series[1]->getId(), $ids[2]);
+        $this->assertEquals($series[2]->getId(), $ids[0]);
     }
 
 }
