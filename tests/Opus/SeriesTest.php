@@ -231,7 +231,7 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue(count($d->getSeries()) === 0);
     }
 
-    public function testDeleteSeriesAssignment() {
+    public function testDeleteAllSeriesAssignments() {
         $s = new Opus_Series();
         $s->setTitle('foo');
         $s->store();
@@ -247,6 +247,34 @@ class Opus_SeriesTest extends TestCase {
 
         $d = new Opus_Document($d->getId());
         $this->assertTrue(count($d->getSeries()) === 0);
+    }
+
+    public function testDeleteOneSeriesAssignment() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $t = new Opus_Series();
+        $t->setTitle('bar');
+        $t->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->addSeries($t)->setNumber('2');
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $series = $d->getSeries();
+        $this->assertTrue(count($series) === 2);
+        array_pop($series);
+        $d->setSeries($series);
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $series = $d->getSeries();
+        $this->assertTrue(count($series) === 1);
+        $this->assertEquals('foo', $series[0]->getTitle());
+        $this->assertEquals('1', $series[0]->getNumber());
     }
 
     public function testGetAll() {
