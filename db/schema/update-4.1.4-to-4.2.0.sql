@@ -41,8 +41,7 @@ INSERT INTO `enrichmentkeys` (`name`) VALUES
   ('submitter.user_id'),
   ('reviewer.user_id'),
   ('review.rejected_by'),
-  ('review.accepted_by'),
-  ('LegalNotices');
+  ('review.accepted_by');
 
 -- Insert existing key_names from document_enrichments
 INSERT IGNORE INTO enrichmentkeys (`name`) SELECT distinct key_name FROM `document_enrichments`;
@@ -58,6 +57,11 @@ ALTER TABLE `documents`
 -- -----------------------------------------------------
 ALTER TABLE `documents`
     ADD COLUMN `thesis_year_accepted` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of final exam (if exacat date is unknown).' AFTER `thesis_date_accepted`;
+
+-- --------------------------------------------------------------------------------------------------
+-- Delete all enrichments with key "LegalNotices" in document_enrichments
+-- --------------------------------------------------------------------------------------------------
+DELETE FROM `document_enrichments` WHERE key_name = 'LegalNotices';
 
 -- --------------------------------------------------------------------------------------------------
 -- Table `document_enrichments` columns `key_name`,  `value` modified, foreign-key constraint added
