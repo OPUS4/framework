@@ -58,7 +58,7 @@
         <sequence maxOccurs="unbounded">
             <element name="field" type="opus:FieldType"/>
         </sequence>
-        <attribute name="name" type="opus:validname" use="required"/>
+        <attribute name="name" type="opus:validdocumentname" use="required"/>
     </complexType>
 	
     <complexType name="FieldType" mixed="true">
@@ -71,7 +71,7 @@
                 <element name="option" type="opus:OptionFieldType"/>
             </choice>
         </sequence>
-        <attribute name="name" type="string" use="required"/>
+        <attribute name="name" type="opus:validfieldname" use="required"/>
         <attribute name="multiplicity" type="opus:multiplicity" default="1"/>
         <attribute name="required" type="opus:yesno" default="no"/>
         <attribute name="formelement" type="opus:validFormElements"/>
@@ -180,11 +180,20 @@
     <!--
         A valid document type name has only lowercase characters and digits.
         It always starts with characters. Words can be separated by the
-        underscore character "_".
+        underscore character "_". Two or more adjacent undescores are not allowed.
     -->
-    <simpleType name="validname">
+    <simpleType name="validdocumentname">
         <restriction base="string">
             <pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
+        </restriction>
+    </simpleType>
+
+    <!--
+        A valid field name must fulfill PHP's restrictions for variable names.
+    -->
+    <simpleType name="validfieldname">
+        <restriction base="string">
+            <pattern value="[a-zA-Z_&#x007F;-&#x00FF;][a-zA-Z0-9_&#x007F;-&#x00FF;]*"/>
         </restriction>
     </simpleType>
 	
