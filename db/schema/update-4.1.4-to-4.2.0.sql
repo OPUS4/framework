@@ -1,4 +1,4 @@
-SET sql_mode = 'STRICT_TRANS_TABLES'
+SET sql_mode = 'STRICT_TRANS_TABLES';
 
 -- -----------------------------------------------------
 -- Table `document_series`
