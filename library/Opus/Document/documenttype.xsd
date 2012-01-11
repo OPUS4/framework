@@ -174,8 +174,9 @@
 	
     <!--
         A valid document type name has only lowercase characters and digits.
-        It always starts with characters. Words can be separated by the
+        It always starts with a character. Words can be separated by the
         underscore character "_". Two or more adjacent undescores are not allowed.
+        The underscore is not allowed as the last character.
     -->
     <simpleType name="validdocumentname">
         <restriction base="string">
