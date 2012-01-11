@@ -145,7 +145,6 @@ COMMENT = 'Table for subject heading related data.';
 CREATE TABLE IF NOT EXISTS `document_series` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` mediumtext NOT NULL COMMENT 'Title of document set (e.g. series)',
-  `logo` text COMMENT 'Pfad zum Logo des Containers',
   `publisher` mediumtext COMMENT 'Name of Publisher',
   `issn` mediumtext COMMENT 'ISSN of that document set',
   `infobox` text COMMENT 'html-fähige Infobox',
