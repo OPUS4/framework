@@ -124,17 +124,12 @@
     <simpleType name="availableDatatypes">
         <restriction base="string">
             <enumeration value="Date"/>
-            <enumeration value="ddc"/>
-            <enumeration value="Email"/>
-            <enumeration value="Institute"/>
+            <enumeration value="Email"/>            
             <enumeration value="Integer"/>
             <enumeration value="Language"/>
             <enumeration value="Licence"/>
-            <enumeration value="msc"/>
-            <enumeration value="Person"/>
-            <enumeration value="Project"/>
-            <enumeration value="Text"/>
-            <enumeration value="text"/>
+            <enumeration value="Person"/>            
+            <enumeration value="Text"/>           
             <enumeration value="Title"/>
             <enumeration value="ThesisGrantor"/>
             <enumeration value="ThesisPublisher"/>
@@ -184,7 +179,7 @@
     -->
     <simpleType name="validdocumentname">
         <restriction base="string">
-            <pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
+            <pattern value="[a-z]+[a-z0-9]*(.[a-z0-9]+)*"/>
         </restriction>
     </simpleType>
 
