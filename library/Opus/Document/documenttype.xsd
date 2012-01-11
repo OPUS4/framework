@@ -179,7 +179,7 @@
     -->
     <simpleType name="validdocumentname">
         <restriction base="string">
-            <pattern value="[a-z]+[a-z0-9]*(.[a-z0-9]+)*"/>
+            <pattern value="[a-z]+[a-z0-9]*(_[a-z0-9]+)*"/>
         </restriction>
     </simpleType>
 
