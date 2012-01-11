@@ -59,15 +59,13 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $title->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $logo = new Opus_Model_Field('Logo');
         $publisher = new Opus_Model_Field('Publisher');
         $issn = new Opus_Model_Field('Issn');
 
         $infobox = new Opus_Model_Field('Infobox');
         $infobox->setTextarea(true);
 
-        $this->addField($title)
-                ->addField($logo)
+        $this->addField($title)                
                 ->addField($publisher)
                 ->addField($issn)
                 ->addField($infobox);                
