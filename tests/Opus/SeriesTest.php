@@ -376,4 +376,29 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue(Opus_Series::getMaxSortKey() == 0);
     }
 
+    /**
+     * Regression test for OPUSVIER-2258
+     */
+    public function testAssignDocumentsToMultipleSeriesWithSameNumber() {
+        $d = new Opus_Document();
+        $d->store();
+
+        $s = new Opus_Series();
+        $s->setTitle('a');
+        $s->store();
+
+        $d->addSeries($s)->setNumber(1);
+        $d->store();
+
+        $s = new Opus_Series();
+        $s->setTitle('b');
+        $s->store();
+
+        $d->addSeries($s)->setNumber(1);
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $this->assertTrue(count($d->getSeries()) == 2);
+    }
+
 }
