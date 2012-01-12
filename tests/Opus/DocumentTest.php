@@ -1701,4 +1701,41 @@ class Opus_DocumentTest extends TestCase {
         $d->setLanguage($stringWith255Chars);
         $d->store();
     }
+
+    /**
+     * TODO fix framework behaviour? document it?
+     */
+    public function testStoringTwiceWithSeriesModications() {
+        $this->testMarkSkipped('Documents bug (?) in framework.');
+
+        $doc = new Opus_Document();
+
+        $series = new Opus_Series();
+        $series->setTitle('testseries');
+        $series->store();
+
+        $slink = $doc->addSeries($series);
+        $slink->setNumber(50);
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $assignedSeries = $doc->getSeries();
+
+        $this->assertEquals(1, count($assignedSeries));
+        $this->assertEquals(50, $assignedSeries[0]->getNumber());
+
+        $doc->store(); // NOTE: without this store the test goes through
+
+        $assignedSeries[0]->setNumber(60);
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $assignedSeries = $doc->getSeries();
+
+        $this->assertEquals(60, $assignedSeries[0]->getNumber());
+    }
 }
