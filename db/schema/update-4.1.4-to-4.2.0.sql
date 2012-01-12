@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS `document_series` (
   `issn` mediumtext COMMENT 'ISSN of that document set',
   `infobox` text COMMENT 'html-fähige Infobox',
   `visible` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'visibility state (defaults to visible)',
-  `sort_order` INTEGER DEFAULT 0 COMMENT 'position in sorted order',
+  `sort_order` INTEGER NOT NULL DEFAULT 0 COMMENT 'position in sorted order',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB;
 
