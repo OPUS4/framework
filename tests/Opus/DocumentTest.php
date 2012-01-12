@@ -1706,7 +1706,7 @@ class Opus_DocumentTest extends TestCase {
      * TODO fix framework behaviour? document it?
      */
     public function testStoringTwiceWithSeriesModications() {
-        $this->testMarkSkipped('Documents bug (?) in framework.');
+        $this->markTestSkipped('Documents bug (?) in framework.');
 
         $doc = new Opus_Document();
 
@@ -1726,7 +1726,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($assignedSeries));
         $this->assertEquals(50, $assignedSeries[0]->getNumber());
 
-        $doc->store(); // NOTE: without this store the test goes through
+        $doc->store(); // NOTE: without this store the test is successfull
 
         $assignedSeries = $doc->getSeries();
 
@@ -1740,4 +1740,45 @@ class Opus_DocumentTest extends TestCase {
 
         $this->assertEquals(60, $assignedSeries[0]->getNumber());
     }
+
+    /**
+     * TODO fix framework behaviour? document it?
+     */
+    public function testStoringTwiceWithPersonModications() {
+        $this->markTestSkipped('Documents bug (?) in framework.');
+
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $person->store();
+
+        $plink = $doc->addPerson($person);
+        $plink->setRole('advisor');
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $persons = $doc->getPerson();
+
+        $this->assertEquals(1, count($persons));
+        $this->assertEquals('advisor', $persons[0]->getRole());
+
+        $doc->store(); // NOTE: without this store the test is successfull
+
+        $persons = $doc->getPerson();
+
+        $persons[0]->setRole('author');
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $persons = $doc->getPerson();
+
+        $this->assertEquals('author', $persons[0]->getRole());
+    }
+
 }
