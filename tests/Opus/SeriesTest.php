@@ -369,11 +369,11 @@ class Opus_SeriesTest extends TestCase {
             $s->store();
         }
 
-        $this->assertEquals(10, Opus_Series::getMaxSortKey());
+        $this->assertTrue(Opus_Series::getMaxSortKey() == 10);
     }
 
     public function testGetMaxSortKeyInEmptyTable() {
-        $this->assertEquals('', Opus_Series::getMaxSortKey());
+        $this->assertTrue(Opus_Series::getMaxSortKey() == 0);
     }
 
 }
