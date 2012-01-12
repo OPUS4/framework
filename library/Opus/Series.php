@@ -89,8 +89,24 @@ class Opus_Series extends Opus_Model_AbstractDb {
 
     /**
      * Retrieve all Opus_Series instances sorted by sort_order.
+     *
+     * @return array Array of Opus_Series objects sorted by sort_order in ascending order.
      */
     public static function getAllSortedBySortKey() {
         return self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'sort_order');
+    }
+
+    /**
+     * Retrieve maximum value in column sort_order.
+     * Return 0 if database does not contain any series.
+     * 
+     */
+    public static function getMaxSortKey() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $max = $db->fetchCol('SELECT MAX(sort_order) FROM document_series');
+        if (empty($max)) {
+            return 0;
+        }
+        return $max[0];
     }
 }

@@ -359,4 +359,21 @@ class Opus_SeriesTest extends TestCase {
         }
     }
 
+    public function testGetMaxSortKey() {
+        $testValues = array( 3, 1, 2, 5, 4, 0, 10 );
+
+        foreach ($testValues as $value) {
+            $s = new Opus_Series();
+            $s->setTitle($value);
+            $s->setSortOrder($value);
+            $s->store();
+        }
+
+        $this->assertEquals(10, Opus_Series::getMaxSortKey());
+    }
+
+    public function testGetMaxSortKeyInEmptyTable() {
+        $this->assertEquals('', Opus_Series::getMaxSortKey());
+    }
+
 }
