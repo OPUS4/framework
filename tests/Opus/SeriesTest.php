@@ -303,40 +303,6 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals($series[2]->getId(), $ids[2]);
     }
 
-    public function testGetAllSortedByTitle() {
-        $ids = array();
-
-        $s = new Opus_Series();
-        $s->setTitle('c');
-        $s->store();
-        array_push($ids, $s->getId());
-
-        $this->assertEquals(1, count(Opus_Series::getAllSortedByTitle()));
-        $series = Opus_Series::getAllSortedByTitle();
-        $this->assertEquals($series[0]->getId(), $ids[0]);
-
-        $s = new Opus_Series();
-        $s->setTitle('a');
-        $s->store();
-        array_push($ids, $s->getId());
-
-        $this->assertEquals(2, count(Opus_Series::getAllSortedByTitle()));
-        $series = Opus_Series::getAllSortedByTitle();
-        $this->assertEquals($series[0]->getId(), $ids[1]);
-        $this->assertEquals($series[1]->getId(), $ids[0]);
-
-        $s = new Opus_Series();
-        $s->setTitle('b');
-        $s->store();
-        array_push($ids, $s->getId());
-
-        $this->assertEquals(3, count(Opus_Series::getAllSortedByTitle()));
-        $series = Opus_Series::getAllSortedByTitle();
-        $this->assertEquals($series[0]->getId(), $ids[1]);
-        $this->assertEquals($series[1]->getId(), $ids[2]);
-        $this->assertEquals($series[2]->getId(), $ids[0]);
-    }
-
     public function testAssignVisibleStatus() {
         $s = new Opus_Series();
         $s->setTitle('foo');

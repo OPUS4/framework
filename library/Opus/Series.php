@@ -88,15 +88,6 @@ class Opus_Series extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Retrieve all Opus_Series instances sorted by title.
-     *
-     * @return array Array of Opus_Series objects.
-     */
-    public static function getAllSortedByTitle() {
-        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
-    }
-
-    /**
      * Retrieve all Opus_Series instances sorted by sort_order.
      */
     public static function getAllSortedBySortKey() {
