@@ -420,4 +420,90 @@ class Opus_SeriesTest extends TestCase {
         $d->store();
     }
 
+    public function testAssignSortOrderForDocuments() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $series = $d->getSeries();
+        $this->assertEquals(1, count($series));
+        $this->assertEquals('1', $series[0]->getNumber());
+        $this->assertEquals(0, $series[0]->getSortOrder());
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('2')->setSortOrder(1);
+        $d->store();
+
+        $d = new Opus_Document($d->getId());
+        $series = $d->getSeries();
+        $this->assertEquals(1, count($series));
+        $this->assertEquals('2', $series[0]->getNumber());
+        $this->assertEquals(1, $series[0]->getSortOrder());
+    }
+
+    public function testGetDocumentIds() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $d1 = new Opus_Document();
+        $d1->addSeries($s)->setNumber('I')->setSortOrder('1');
+        $d1->store();
+
+        $d2 = new Opus_Document();
+        $d2->addSeries($s)->setNumber('II')->setSortOrder('2');
+        $d2->store();
+
+        
+        $s = new Opus_Series($s->getId());
+        $ids = $s->getDocumentIds();                
+        $this->assertEquals(2, count($ids));
+        $this->assertEquals($d1->getId(), $ids[0]);
+        $this->assertEquals($d2->getId(), $ids[1]);        
+    }
+
+    public function testGetDocumentIdsForEmptySeries() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertEquals(0, count($s->getDocumentIds()));
+    }
+
+    public function testDocumentIdsSortedBySortKey() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $d1 = new Opus_Document();
+        $d1->addSeries($s)->setNumber('I')->setSortOrder(1);
+        $d1->store();
+
+        $d2 = new Opus_Document();
+        $d2->addSeries($s)->setNumber('II')->setSortOrder(2);
+        $d2->store();
+
+
+        $s = new Opus_Series($s->getId());
+        $ids = $s->getDocumentIdsSortedBySortKey();
+        $this->assertEquals(2, count($ids));
+        $this->assertEquals($d1->getId(), $ids[1]);
+        $this->assertEquals($d2->getId(), $ids[0]);
+    }
+
+    public function testDocumentIdsSortedBySortKeyForEmptySeries() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertEquals(0, count($s->getDocumentIdsSortedBySortKey()));
+    }
+
 }

@@ -104,10 +104,46 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public static function getMaxSortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchCol('SELECT MAX(sort_order) FROM document_series');
-
+        
         if (is_null($max[0])) {
             return 0;
         }
         return $max[0];
     }
+
+    /**
+     * Return document ids associated to this series.
+     */
+    public function getDocumentIds() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+
+        $rowSet = $db->fetchAll(
+                'SELECT document_id FROM link_documents_series WHERE series_id = ' .
+                $this->getId());
+                
+        $ids = array();        
+        foreach ($rowSet as $row) {
+            array_push($ids, $row['document_id']);
+            
+        }
+        return $ids;
+    }
+
+    /**
+     * Return document ids associated to this series ordered descending by number.
+     */
+    public function getDocumentIdsSortedBySortKey() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $rowSet = $db->fetchAll(
+                'SELECT document_id FROM link_documents_series WHERE series_id = ' .
+                $this->getId() . ' ORDER BY sort_order DESC');
+        
+        $ids = array();
+        foreach ($rowSet as $row) {
+            array_push($ids, $row['document_id']);
+        }
+        return $ids;
+    }
+    
 }
