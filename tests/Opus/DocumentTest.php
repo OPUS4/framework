@@ -1728,6 +1728,8 @@ class Opus_DocumentTest extends TestCase {
 
         $doc->store(); // NOTE: without this store the test goes through
 
+        $assignedSeries = $doc->getSeries();
+
         $assignedSeries[0]->setNumber(60);
 
         $doc->store();
