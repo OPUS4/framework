@@ -104,7 +104,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public static function getMaxSortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchCol('SELECT MAX(sort_order) FROM document_series');
-        if (empty($max)) {
+
+        if (is_null($max[0])) {
             return 0;
         }
         return $max[0];
