@@ -401,4 +401,23 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue(count($d->getSeries()) == 2);
     }
 
+    /**
+     * Regression test for OPUSVIER-2258
+     */
+    public function testAssignSeriesNumberTwice() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+        $d->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('1');
+
+        $this->setExpectedException('Opus_Model_DbConstrainViolationException');
+        $d->store();
+    }
+
 }
