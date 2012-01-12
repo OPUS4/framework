@@ -506,4 +506,25 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals(0, count($s->getDocumentIdsSortedBySortKey()));
     }
 
+    public function testIsNumberAvailableForEmptySeries() {
+        $s = new Opus_Series();
+        $s->setTitle('test');
+        $s->store();
+
+        $this->assertTrue($s->isNumberAvailable('foo'));
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('foo');
+        $d->store();
+
+        $this->assertFalse($s->isNumberAvailable('foo'));
+        $this->assertTrue($s->isNumberAvailable('bar'));
+
+        $d = new Opus_Document($d->getId());
+        $d->setSeries(array());
+        $d->store();
+
+        $this->assertTrue($s->isNumberAvailable('foo'));
+    }
+
 }

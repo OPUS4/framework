@@ -116,8 +116,6 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function getDocumentIds() {
         $db = Zend_Db_Table::getDefaultAdapter();
-
-
         $rowSet = $db->fetchAll(
                 'SELECT document_id FROM link_documents_series WHERE series_id = ' .
                 $this->getId());
@@ -145,5 +143,19 @@ class Opus_Series extends Opus_Model_AbstractDb {
         }
         return $ids;
     }
-    
+
+    /**
+     * Return true if given series number is available. Otherwise false.
+     *
+     * @param string $number
+     * @return boolean
+     * 
+     */
+    public function isNumberAvailable($number) {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $rowSet = $db->fetchAll(
+                'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' .
+                $this->getId() . ' AND number = ' . $db->quote($number));
+        return $rowSet[0]['rows_count'] === '0';
+    }
 }
