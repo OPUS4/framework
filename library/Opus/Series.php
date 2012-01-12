@@ -61,14 +61,16 @@ class Opus_Series extends Opus_Model_AbstractDb {
 
         $publisher = new Opus_Model_Field('Publisher');
         $issn = new Opus_Model_Field('Issn');
-
         $infobox = new Opus_Model_Field('Infobox');
         $infobox->setTextarea(true);
+        $visible = new Opus_Model_Field('Visible');
+        $visible->setCheckbox(true);
 
         $this->addField($title)                
                 ->addField($publisher)
                 ->addField($issn)
-                ->addField($infobox);                
+                ->addField($infobox)
+                ->addField($visible);
     }
 
     /**

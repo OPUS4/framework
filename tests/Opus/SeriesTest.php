@@ -26,21 +26,13 @@
  *
  * @category    Tests
  * @package     Opus
+ * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-
-/**
- * Test cases for class Opus_Series.
- *
- * @package Opus
- * @category Tests
- *
- * @group SeriesTest
- */
 class Opus_SeriesTest extends TestCase {
 
     /**
@@ -343,6 +335,27 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals($series[0]->getId(), $ids[1]);
         $this->assertEquals($series[1]->getId(), $ids[2]);
         $this->assertEquals($series[2]->getId(), $ids[0]);
+    }
+
+    public function testAssignVisibleStatus() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getVisible() == '1');
+
+        $s = new Opus_Series($s->getId());
+        $s->setVisible('0');
+        $s->store();
+        $this->assertTrue($s->getVisible() == '0');
+
+        $s = new Opus_Series($s->getId());
+        $s->setVisible('1');
+        $s->store();
+        $this->assertTrue($s->getVisible() == '1');
+
+        $s->delete();
     }
 
 }
