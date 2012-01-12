@@ -161,9 +161,9 @@ CREATE TABLE IF NOT EXISTS `link_documents_series` (
   `document_id` int(10) unsigned NOT NULL,
   `series_id` int(10) unsigned NOT NULL,
   `number` varchar(20) NOT NULL COMMENT 'corresponding number (e.g. serial number)',
-  PRIMARY KEY (`document_id`,`series_id`),
-  UNIQUE KEY `document_id` (`document_id`,`number`),
-  KEY `series_id` (`series_id`),
+  PRIMARY KEY (`document_id`, `series_id`),
+  UNIQUE KEY (`series_id`, `number`),
+  KEY (`series_id`),
   CONSTRAINT `link_documents_series_ibfk_2` FOREIGN KEY (`series_id`) REFERENCES `document_series` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `link_documents_series_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB;
