@@ -61,16 +61,21 @@ class Opus_Series extends Opus_Model_AbstractDb {
 
         $publisher = new Opus_Model_Field('Publisher');
         $issn = new Opus_Model_Field('Issn');
+
         $infobox = new Opus_Model_Field('Infobox');
         $infobox->setTextarea(true);
+
         $visible = new Opus_Model_Field('Visible');
         $visible->setCheckbox(true);
+
+        $sortOrder = new Opus_Model_Field('SortOrder');
 
         $this->addField($title)                
                 ->addField($publisher)
                 ->addField($issn)
                 ->addField($infobox)
-                ->addField($visible);
+                ->addField($visible)
+                ->addField($sortOrder);
     }
 
     /**
@@ -79,15 +84,22 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Series objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Series', 'Opus_Db_Series');
+        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
     }
 
     /**
-     * Retrieve all Opus_Series instances from the database sorted by title.
+     * Retrieve all Opus_Series instances sorted by title.
      *
      * @return array Array of Opus_Series objects.
      */
     public static function getAllSortedByTitle() {
-        return self::getAllFrom('Opus_Series', 'Opus_Db_Series', null, 'title');
+        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
+    }
+
+    /**
+     * Retrieve all Opus_Series instances sorted by sort_order.
+     */
+    public static function getAllSortedBySortKey() {
+        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'sort_order');
     }
 }

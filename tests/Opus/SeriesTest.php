@@ -358,4 +358,39 @@ class Opus_SeriesTest extends TestCase {
         $s->delete();
     }
 
+    public function testAssignSortOrder() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getSortOrder() == '0');
+        
+        $s->setSortOrder('10');
+        $s->store();
+
+        $s = new Opus_Series($s->getId());
+        $this->assertTrue($s->getSortOrder() == '10');
+
+        $s->delete();
+    }
+
+    public function testGetAllSeriesInSortedOrder() {
+        $testValues = array( 3, 1, 2, 5, 4, 0 );
+
+        foreach ($testValues as $value) {
+            $s = new Opus_Series();
+            $s->setTitle($value);
+            $s->setSortOrder($value);
+            $s->store();
+        }
+
+        $series = Opus_Series::getAllSortedBySortKey();
+        $this->assertEquals(6, count($series));
+
+        for ($i = 0; $i < count($series); $i++) {
+            $this->assertEquals($i, $series[$i]->getSortOrder());
+        }
+    }
+
 }
