@@ -86,9 +86,27 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      *
      * @return void
      */
-    public function store() {     
+    public function store() {
         $this->_primaryTableRow->series_id = $this->_model->store();
         parent::store();
+    }
+
+    protected function _storeDocSortOrder() {
+        $docSortOrderValue = $this->_fields['DocSortOrder']->getValue();
+        if (is_null($docSortOrderValue)) {
+            $db = Zend_Db_Table::getDefaultAdapter();
+            $max = $db->fetchCol('SELECT MAX(doc_sort_order)' . 
+                    ' FROM link_documents_series' .
+                    ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
+                    ' AND document_id != ' . $this->_primaryTableRow->document_id);
+            if (!is_null($max[0])) {
+                $docSortOrderValue = intval($max[0]) + 1;
+            }
+            else {
+                $docSortOrderValue = 0;
+            }
+        }
+        $this->_primaryTableRow->doc_sort_order = $docSortOrderValue;
     }
 
 }
