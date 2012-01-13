@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS `link_documents_series` (
   `document_id` int(10) unsigned NOT NULL,
   `series_id` int(10) unsigned NOT NULL,
   `number` varchar(20) NOT NULL COMMENT 'corresponding number (e.g. serial number)',
-  `sort_order` INTEGER NOT NULL DEFAULT 0 COMMENT 'sort key',
+  `doc_sort_order` INTEGER NOT NULL DEFAULT 0 COMMENT 'sort key (determines ordering of documents in a series)',
   PRIMARY KEY (`document_id`, `series_id`),
   UNIQUE KEY (`series_id`, `number`),
   KEY (`series_id`),

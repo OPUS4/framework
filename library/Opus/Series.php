@@ -129,13 +129,13 @@ class Opus_Series extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Return document ids associated to this series ordered descending by number.
+     * Return document ids associated to this series ordered descending by sorting key.
      */
     public function getDocumentIdsSortedBySortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $rowSet = $db->fetchAll(
                 'SELECT document_id FROM link_documents_series WHERE series_id = ' .
-                $this->getId() . ' ORDER BY sort_order DESC');
+                $this->getId() . ' ORDER BY doc_sort_order DESC');
         
         $ids = array();
         foreach ($rowSet as $row) {

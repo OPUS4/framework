@@ -26,20 +26,13 @@
  *
  * @category    Framework
  * @package     Opus_Model
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-/**
- * Abstract class for link licence model in the Opus framework.
- *
- * @category    Framework
- * @package     Opus_Model
- */
-class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link_Abstract
-{
+class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link_Abstract {
 
     /**
      * Primary key of the parent model.
@@ -67,14 +60,11 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      *
      * @var array
      */
-    protected $_internalFields = array(
-    //     'Number'
-        );
+    protected $_internalFields = array();
 
     
     /**
-     * Initialize model with the following values:
-     * - Licence
+     * Initialize model
      *
      * @return void
      */
@@ -85,7 +75,10 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
 
         $number = new Opus_Model_Field('Number');        
         $number->setMandatory(true);  
-        $this->addField($number);                
+        $this->addField($number);
+
+        $docSortOrder = new Opus_Model_Field('DocSortOrder');
+        $this->addField($docSortOrder);
     }
 
     /**

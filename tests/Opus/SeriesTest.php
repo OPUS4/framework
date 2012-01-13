@@ -420,7 +420,7 @@ class Opus_SeriesTest extends TestCase {
         $d->store();
     }
 
-    public function testAssignSortOrderForDocuments() {
+    public function testAssignDocSortOrderForDocuments() {
         $s = new Opus_Series();
         $s->setTitle('test');
         $s->store();
@@ -433,17 +433,17 @@ class Opus_SeriesTest extends TestCase {
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('1', $series[0]->getNumber());
-        $this->assertEquals(0, $series[0]->getSortOrder());
+        $this->assertEquals(0, $series[0]->getDocSortOrder());
 
         $d = new Opus_Document();
-        $d->addSeries($s)->setNumber('2')->setSortOrder(1);
+        $d->addSeries($s)->setNumber('2')->setDocSortOrder(1);
         $d->store();
 
         $d = new Opus_Document($d->getId());
         $series = $d->getSeries();
         $this->assertEquals(1, count($series));
         $this->assertEquals('2', $series[0]->getNumber());
-        $this->assertEquals(1, $series[0]->getSortOrder());
+        $this->assertEquals(1, $series[0]->getDocSortOrder());
     }
 
     public function testGetDocumentIds() {
@@ -452,11 +452,11 @@ class Opus_SeriesTest extends TestCase {
         $s->store();
 
         $d1 = new Opus_Document();
-        $d1->addSeries($s)->setNumber('I')->setSortOrder('1');
+        $d1->addSeries($s)->setNumber('I')->setDocSortOrder('1');
         $d1->store();
 
         $d2 = new Opus_Document();
-        $d2->addSeries($s)->setNumber('II')->setSortOrder('2');
+        $d2->addSeries($s)->setNumber('II')->setDocSortOrder('2');
         $d2->store();
 
         
@@ -482,13 +482,12 @@ class Opus_SeriesTest extends TestCase {
         $s->store();
 
         $d1 = new Opus_Document();
-        $d1->addSeries($s)->setNumber('I')->setSortOrder(1);
+        $d1->addSeries($s)->setNumber('I')->setDocSortOrder(1);
         $d1->store();
 
         $d2 = new Opus_Document();
-        $d2->addSeries($s)->setNumber('II')->setSortOrder(2);
+        $d2->addSeries($s)->setNumber('II')->setDocSortOrder(2);
         $d2->store();
-
 
         $s = new Opus_Series($s->getId());
         $ids = $s->getDocumentIdsSortedBySortKey();
