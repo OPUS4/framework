@@ -267,6 +267,13 @@
                         </xsl:attribute>
                         <xsl:value-of select="@Number"/>
                     </xsl:element>
+
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">
+                            <xsl:text>doc_sort_order_for_seriesid_</xsl:text><xsl:value-of select="@Id"/>
+                        </xsl:attribute>
+                        <xsl:value-of select="@DocSortOrder"/>
+                    </xsl:element>
                 </xsl:for-each>
 
                 <!-- creating corporation (single valued) -->
