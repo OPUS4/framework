@@ -27,8 +27,9 @@
  *
  * @category    Framework
  * @package     Opus
+ * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -152,5 +153,18 @@ class Opus_Series extends Opus_Model_AbstractDb {
                 'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' .
                 $this->getId() . ' AND number = ' . $db->quote($number));
         return $rowSet[0]['rows_count'] === '0';
+    }
+
+    /**
+     * Return number of documents that are associated to a given series.
+     *
+     * @return int
+     */
+    public function getNumOfAssociatedDocuments() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $rowSet = $db->fetchAll(
+                'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' . $this->getId());
+        return intval($rowSet[0]['rows_count']);
+
     }
 }

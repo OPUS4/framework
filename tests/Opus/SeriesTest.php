@@ -526,4 +526,29 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue($s->isNumberAvailable('foo'));
     }
 
+    public function testGetNumberOfAssociatedDocumentsForEmptySeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $this->assertTrue($s->getNumOfAssociatedDocuments() === 0);
+    }
+
+    public function testGetNumberOfAssociatedDocuments() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('123');
+        $d->store();
+
+        $d = new Opus_Document();
+        $d->addSeries($s)->setNumber('456');
+        $d->store();
+
+        $this->assertTrue($s->getNumOfAssociatedDocuments() === 2);
+
+    }
+
 }
