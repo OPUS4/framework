@@ -59,9 +59,6 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $title->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
-        $publisher = new Opus_Model_Field('Publisher');
-        $issn = new Opus_Model_Field('Issn');
-
         $infobox = new Opus_Model_Field('Infobox');
         $infobox->setTextarea(true);
 
@@ -71,8 +68,6 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $sortOrder = new Opus_Model_Field('SortOrder');
 
         $this->addField($title)                
-                ->addField($publisher)
-                ->addField($issn)
                 ->addField($infobox)
                 ->addField($visible)
                 ->addField($sortOrder);
