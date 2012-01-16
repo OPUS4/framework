@@ -37,6 +37,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
 
     public function testAutoGenerateUrn() {
         $model = new Opus_Document();
+        $model->setServerState('published');
         $model->store();
 
         $this->assertTrue($model->hasField('IdentifierUrn'), 'Model does not have field "IdentifierUrn"');
@@ -51,5 +52,21 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $urnString = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
 
         $this->assertEquals($urnString, $urn[0]->getValue());
+    }
+
+    /**
+     * Regression test for OPUSVIER-2252 - don't assign URN if not "published"
+     */
+    public function testAutoGenerateUrnSkippedIfNotPublished() {
+        $model = new Opus_Document();
+        $model->setServerState('unpublished');
+        $model->store();
+
+        $this->assertTrue($model->hasField('IdentifierUrn'),
+                'Model does not have field "IdentifierUrn"');
+        $urn = $model->getIdentifierUrn();
+        $this->assertNotNull($urn, 'IdentifierUrn is NULL');
+
+        $this->assertEquals(0, count($urn));
     }
 }

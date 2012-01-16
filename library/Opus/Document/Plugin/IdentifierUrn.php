@@ -28,6 +28,7 @@
  * @author      Julian Heise (heise@zib.de)
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -49,6 +50,10 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         if(!($model instanceof Opus_Document))
             return;
+
+        if ($model->getServerState() !== 'published') {
+            return;
+        }
 
         $config = Zend_Registry::get('Zend_Config');
         $log = Zend_Registry::get('Zend_Log');
