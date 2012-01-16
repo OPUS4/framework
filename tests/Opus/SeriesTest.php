@@ -548,7 +548,47 @@ class Opus_SeriesTest extends TestCase {
         $d->store();
 
         $this->assertTrue($s->getNumOfAssociatedDocuments() === 2);
+    }
 
+    public function testGetNumberOfAssociatedPublishedDocumentsForEmptySeries() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
+    }
+
+    public function testGetNumberOfAssociatedPublishedDocuments() {
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d1 = new Opus_Document();
+        $d1->addSeries($s)->setNumber('123');
+        $d1->store();
+
+        $d2 = new Opus_Document();
+        $d2->addSeries($s)->setNumber('456');
+        $d2->store();
+
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
+
+        $d1->setServerState('published');
+        $d1->store();
+
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 1);
+
+        $d2->setServerState('published');
+        $d2->store();
+
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 2);
+
+        $d2->delete();
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 1);
+
+        $d1->setServerState('inprogress');
+        $d1->store();
+        $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
     }
 
 }

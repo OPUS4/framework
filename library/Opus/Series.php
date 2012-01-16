@@ -165,6 +165,22 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $rowSet = $db->fetchAll(
                 'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' . $this->getId());
         return intval($rowSet[0]['rows_count']);
-
     }
+
+
+    /**
+     * Return number of documents in server state published that are
+     * associated to a given series.
+     *
+     * @return int
+     */
+    public function getNumOfAssociatedPublishedDocuments() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $rowSet = $db->fetchAll(
+                'SELECT COUNT(*) AS rows_count ' . 
+                'FROM link_documents_series l, documents d ' .
+                'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ' . $this->getId());
+        return intval($rowSet[0]['rows_count']);
+    }
+
 }
