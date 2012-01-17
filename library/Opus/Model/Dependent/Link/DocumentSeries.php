@@ -74,7 +74,8 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
         }
 
         $number = new Opus_Model_Field('Number');        
-        $number->setMandatory(true);  
+        $number->setMandatory(true)
+                ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($number);
 
         $docSortOrder = new Opus_Model_Field('DocSortOrder');

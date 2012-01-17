@@ -62,10 +62,10 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
     }
 
-    public function testAssignSetToDocumentWithoutNumber() {        
+    public function testAssignSetToDocumentWithoutNumber() {
         $d = new Opus_Document();
         $d->store();
-        
+
         $s = new Opus_Series();
         $s->setTitle('foo');
         $s->store();
@@ -73,15 +73,34 @@ class Opus_SeriesTest extends TestCase {
         $d = new Opus_Document($d->getId());
         $d->addSeries($s);
 
-        // TODO: uncomment the following line after resolving OPUSVIER-2033
-        // $this->setExpectedException('Opus_Model_Exception');
-        $d->store();
-        
+        // Regression test for OPUSVIER-2033
+        try {
+            $d->store();
+            $this->fail("Expecting exception.");
+        }
+        catch (Opus_Model_Exception $ome) {
+            // Nothing.
+        }
+
         $this->assertEquals(1, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
 
         // cleanup
-        $d->deletePermanent();
         $s->delete();
+    }
+
+    public function testLinkSeriesInvalidWithoutNumber() {
+        $d = new Opus_Document();
+        $d->store();
+
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $d = new Opus_Document($d->getId());
+        $ls = $d->addSeries($s);
+
+        $this->assertTrue($s->isValid(), 'series should be valid');
+        $this->assertFalse($ls->isValid());
     }
 
     public function testAssignSetToDocumentWithNumber() {        
