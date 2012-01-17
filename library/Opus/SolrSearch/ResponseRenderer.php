@@ -54,10 +54,10 @@ class Opus_SolrSearch_ResponseRenderer {
      *
      * @param Apache_Solr_Response $solrResponse
      */
-    public function  __construct($solrResponse) {
+    public function  __construct($solrResponse, $seriesId = null) {
         $this->log = Zend_Registry::get('Zend_Log');
         $this->setJsonResponseAsArray($solrResponse);
-        $this->buildResultList($solrResponse);        
+        $this->buildResultList($solrResponse, $seriesId);
     }
 
     /**
@@ -70,7 +70,7 @@ class Opus_SolrSearch_ResponseRenderer {
     /**
      * @param Apache_Solr_Response $solrResponse
      */
-    private function buildResultList($solrResponse) {
+    private function buildResultList($solrResponse, $seriesId = null) {
         if (is_null($solrResponse->response) || $solrResponse->response->numFound == 0) {
             $this->resultList = new Opus_SolrSearch_ResultList();
             return;
@@ -84,6 +84,10 @@ class Opus_SolrSearch_ResponseRenderer {
             if (isset($doc->year)) $result->setYear($doc->year);
             if (isset($doc->title_output)) $result->setTitle($doc->title_output);
             if (isset($doc->abstract_output)) $result->setAbstract($doc->abstract_output);
+            if (!is_null($seriesId)) {
+                $seriesNumberFieldname = 'series_number_for_id_' . $seriesId;
+                if (isset($doc->$seriesNumberFieldname)) $result->setSeriesNumber($doc->$seriesNumberFieldname);
+            }
             array_push($results, $result);
         }
         $numFound = $solrResponse->response->numFound;

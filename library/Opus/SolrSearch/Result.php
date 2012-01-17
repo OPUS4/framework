@@ -39,7 +39,8 @@ class Opus_SolrSearch_Result {
     private $authors;
     private $title;
     private $year;
-    private $abstract;    
+    private $abstract;
+    private $seriesNumber;
 
     public function  __construct() {
     }
@@ -97,6 +98,12 @@ class Opus_SolrSearch_Result {
         $this->abstract = $abstract;
     }
 
+    public function getSeriesNumber() {
+        return $this->seriesNumber;
+    }
 
+    public function setSeriesNumber($seriesNumber) {
+        $this->seriesNumber = $seriesNumber;
+    }
 }
 

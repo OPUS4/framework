@@ -67,6 +67,7 @@ class Opus_SolrSearch_Query {
     private $q;
     private $facetField;
     private $returnIdsOnly = false;
+    private $seriesId = null;
 
     /**
      *
@@ -142,11 +143,13 @@ class Opus_SolrSearch_Query {
             return;
         }
         $this->sortField = $sortField;
-        // add _sort to the end of $sortField if not already done
-        $suffix = '_sort';
-        if (substr($sortField, strlen($sortField) - strlen($suffix)) !== $suffix) {
-            $this->sortField .= $suffix;
-        }        
+        if (strpos($sortField, 'doc_sort_order_for_seriesid_') !== 0) {
+            // add _sort to the end of $sortField if not already done
+            $suffix = '_sort';
+            if (substr($sortField, strlen($sortField) - strlen($suffix)) !== $suffix) {
+                $this->sortField .= $suffix;
+            }
+        }
     }
 
     public function getSortOrder() {
@@ -155,6 +158,10 @@ class Opus_SolrSearch_Query {
 
     public function setSortOrder($sortOrder) {
         $this->sortOrder = $sortOrder;
+    }
+
+    public function getSeriesId() {
+        return $this->seriesId;
     }
 
     /**
@@ -178,6 +185,12 @@ class Opus_SolrSearch_Query {
             $filterQuery = '{!raw f=' . $filterField . '}' . $filterValue;
         }
         array_push($this->filterQueries, $filterQuery);
+        
+        // we need to store the ID of the requested series here, 
+        // since we need it later to build the index field name
+        if ($filterField === 'series_ids') {
+            $this->seriesId = $filterValue;
+        }
     }
 
     /**

@@ -111,7 +111,7 @@ class Opus_SolrSearch_Searcher {
             $this->log->err($msg);
             throw new Opus_SolrSearch_Exception($msg);
         }
-        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response);
+        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response, $query->getSeriesId());
         return $responseRenderer->getResultList();
     }
 
