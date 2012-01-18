@@ -143,7 +143,7 @@ class Opus_SolrSearch_Query {
             return;
         }
         $this->sortField = $sortField;
-        if (strpos($sortField, 'doc_sort_order_for_seriesid_') !== 0) {
+        if (strpos($sortField, 'doc_sort_order_for_seriesid_') !== 0 && strpos($sortField, 'server_date_published') !== 0) {
             // add _sort to the end of $sortField if not already done
             $suffix = '_sort';
             if (substr($sortField, strlen($sortField) - strlen($suffix)) !== $suffix) {
