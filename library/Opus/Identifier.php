@@ -93,4 +93,29 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
                 ));
         $this->addField($type);
     }
+
+    protected function _preStore() {
+        $type  = $this->getType();
+        $value = $this->getValue();
+        if (isset($type) and isset($value) and $type === 'urn') {
+            $finder = new Opus_DocumentFinder();
+            $docIds = $finder->setIdentifierTypeValue('urn', $value)->ids();
+
+            $errorMsg = "urn collision (documents " . implode(",", $docIds) . ")";
+            if ($this->isNewRecord() and count($docIds) > 0) {
+                throw new Opus_Identifier_UrnAlreadyExistsException($errorMsg);
+            }
+
+            if (count($docIds) > 1) {
+                throw new Opus_Identifier_UrnAlreadyExistsException($errorMsg);
+            }
+
+            if (count($docIds) == 1 and !in_array($this->getParentId(), $docIds)) {
+                throw new Opus_Identifier_UrnAlreadyExistsException($errorMsg);
+            }
+        }
+
+        return parent::_preStore();
+    }
+
 }
