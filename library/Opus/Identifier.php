@@ -67,33 +67,30 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-
         $this->addField($value);
 
-        $value = new Opus_Model_Field('Type');
-        $value->setMandatory(false); // TODO maybe should be mandatory
-        $value->setSelection(true);
-        //    ->setValidator(new Zend_Validate_NotEmpty());
-        $value->setDefault(array(
-            'old' => 'old',
-            'serial' => 'serial',
-            'uuid' => 'uuid',
-            'isbn' => 'isbn',
-            'urn' => 'urn',
-            'doi' => 'doi',
-            'handle' => 'handle',
-            'url' => 'url',
-            'issn' => 'issn',
-            'std-doi' => 'std-doi',
-            'cris-link' => 'cris-link',
-            'splash-url' => 'splash-url',
-            'opus3-id' => 'opus3-id',
-            'opac-id' => 'opac-id',
-            'pmid' => 'pmid',
-            'arxiv' => 'arxiv'
-        ));
-
-        $this->addField($value);
+        $type = new Opus_Model_Field('Type');
+        $type->setMandatory(true)
+                ->setSelection(true)
+                // ->setValidator(new Zend_Validate_NotEmpty())
+                ->setDefault(array(
+                    'old' => 'old',
+                    'serial' => 'serial',
+                    'uuid' => 'uuid',
+                    'isbn' => 'isbn',
+                    'urn' => 'urn',
+                    'doi' => 'doi',
+                    'handle' => 'handle',
+                    'url' => 'url',
+                    'issn' => 'issn',
+                    'std-doi' => 'std-doi',
+                    'cris-link' => 'cris-link',
+                    'splash-url' => 'splash-url',
+                    'opus3-id' => 'opus3-id',
+                    'opac-id' => 'opac-id',
+                    'pmid' => 'pmid',
+                    'arxiv' => 'arxiv'
+                ));
+        $this->addField($type);
     }
-
 }
