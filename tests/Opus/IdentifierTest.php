@@ -35,43 +35,92 @@
  */
 
 class Opus_IdentifierTest extends TestCase {
-    /**
-     * @var    Opus_Identifier
-     * @access protected
-     */
-    protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @access protected
-     */
-    protected function setUp()
-    {
-        $this->object = new Opus_Identifier;
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     *
-     * @access protected
-     */
-    protected function tearDown()
-    {
+    private function createDocumentWithIdentifierUrn($urn) {
+        $document = new Opus_Document();
+        $document->addIdentifier()
+                ->setType('urn')
+                ->setValue($urn);
+        return $document;
     }
     
-    /**
-     * @todo Implement testConstructor().
-     */
-    public function testConstructor()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    function testCreateDocumentWithUrn() {
+        $testUrn = 'nbn:de:kobv:test123';
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        $docId = $document->store();
+
+        // reload and test
+        $document = new Opus_Document($docId);
+        $identifiers = $document->getIdentifier();
+
+        $this->assertEquals(1, count($identifiers));
+        $this->assertEquals('urn', $identifiers[0]->getType());
+        $this->assertEquals($testUrn, $identifiers[0]->getValue());
     }
     
+    function testFailDoubleUrnForSameDocument() {
+        $testUrn = 'nbn:de:kobv:test123';
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        $document->addIdentifier()
+                ->setType('urn')
+                ->setValue('nbn:de:kobv:test123');
+
+        try {
+            $document->store();
+            $this->fail('expected exception');
+        }
+        catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        }
+    }
+
+    function testCreateUrnCollisionViaDocument() {
+        $testUrn = 'nbn:de:kobv:test123';
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        $docId = $document->store();
+
+        // check if exactly one document with testUrn exists
+        $finder = new Opus_DocumentFinder();
+        $finder->setIdentifierTypeValue('urn', $testUrn);
+        $this->assertEquals(1, $finder->count());
+        $this->assertContains($docId, $finder->ids());
+
+        // create second document with testUrn
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        try {
+            $document->store();
+            $this->fail('expected exception');
+        }
+        catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        }
+    }
+
+    function testCreateUrnCollision() {
+        $testUrn = 'nbn:de:kobv:test123';
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        $docId = $document->store();
+
+        // check if exactly one document with testUrn exists
+        $finder = new Opus_DocumentFinder();
+        $finder->setIdentifierTypeValue('urn', $testUrn);
+        $this->assertEquals(1, $finder->count());
+        $this->assertContains($docId, $finder->ids());
+
+        // create second document with testUrn
+        $document = new Opus_Document();
+        $document->store();
+
+        $document->addIdentifier()
+                ->setType('urn')
+                ->setValue($testUrn);
+
+        try {
+            $document->getIdentifier(0)->store();
+            $this->fail('expected exception');
+        }
+        catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        }
+    }
+
+
 }
 
