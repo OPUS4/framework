@@ -639,6 +639,15 @@ abstract class Opus_Model_AbstractDb
             if (is_null($conditions) === false) {
                 foreach ($conditions as $column => $value) {
                     $values->_primaryTableRow->$column = $value;
+
+                    // HACK!  See OPUSVIER-2289, OPUSVIER-2292
+                    // Make sure, that model field will be initialized, too!
+                    $fieldName = self::convertColumnToFieldname($column);
+                    if ($this->hasField($fieldName)) {
+                        $values->getField($fieldName)
+                            ->setValue($value)
+                            ->clearModified();
+                    }
                 }
             }
             $values->setParentId($this->getId());
