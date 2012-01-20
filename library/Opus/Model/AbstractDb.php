@@ -317,7 +317,7 @@ abstract class Opus_Model_AbstractDb
                 if (method_exists($this, $callname) === true) {
                     $field->setValue($this->$callname());
                 } else {
-                    $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/','_\0', $fieldname));
+                    $colname = self::convertFieldnameToColumn($fieldname);
                     $fieldval = $this->_primaryTableRow->$colname;
                     // explicitly set null if the field represents a model
                     if (null !== $field->getValueModelClass()) {
@@ -511,7 +511,7 @@ abstract class Opus_Model_AbstractDb
                     continue;
                 }
                 else {
-                    $colname = strtolower(preg_replace('/(?!^)[[:upper:]]/', '_\0', $fieldname));
+                    $colname = self::convertFieldnameToColumn($fieldname);
                     $this->_primaryTableRow->{$colname} = $fieldValue;
                 }
                 // Clear modification status of successfully stored field.
@@ -644,6 +644,24 @@ abstract class Opus_Model_AbstractDb
             $values->setParentId($this->getId());
             $values->store();
         }
+    }
+
+    /**
+     *
+     * @param string $column Column name as string
+     * @return string Field name in camel case
+     */
+    public static function convertColumnToFieldname($column) {
+        return preg_replace('/(?:^|_)([a-z])([a-z]+)/e', "strtoupper('\\1').'\\2'", $column);
+    }
+
+    /**
+     *
+     * @param string $fieldname Field name in camel case
+     * @return string Column name with case-change replaced by underscores "_"
+     */
+    public static function convertFieldnameToColumn($fieldname) {
+        return strtolower(preg_replace('/(?!^)[[:upper:]]/', '_\0', $fieldname));
     }
 
     /**

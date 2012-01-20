@@ -1076,4 +1076,22 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertEquals($model->getAfter(), "foo");
     }
 
+    public function testNameConversionMethods() {
+        $fieldnamesToColumns = array(
+            array('Type', 'type'),
+            array('Role', 'role'),
+            array('SortOrder', 'sort_order'),
+            array('LeftId', 'left_id'),
+        );
+
+        foreach ($fieldnamesToColumns AS $pair) {
+            $fieldname = $pair[0];
+            $colname   = $pair[1];
+
+            $this->assertEquals($colname,   Opus_Model_AbstractDb::convertFieldnameToColumn($fieldname));
+            $this->assertEquals($fieldname, Opus_Model_AbstractDb::convertColumnToFieldname($colname));
+        }
+
+    }
+
 }
