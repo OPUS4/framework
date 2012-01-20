@@ -87,7 +87,8 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $urn_value = $urn->getUrn($id);
         $urn_model = new Opus_Identifier();
         $urn_model->setValue($urn_value);
-        $model->addIdentifierUrn($urn_model);
+        $urn_model->setType('urn');
+        $model->addIdentifier($urn_model);
     }
 }
 
