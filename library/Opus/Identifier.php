@@ -72,7 +72,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(true)
                 ->setSelection(true)
-                // ->setValidator(new Zend_Validate_NotEmpty())
+                ->setValidator(new Zend_Validate_NotEmpty())
                 ->setDefault(array(
                     'old' => 'old',
                     'serial' => 'serial',

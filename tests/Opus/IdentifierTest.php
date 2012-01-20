@@ -72,6 +72,9 @@ class Opus_IdentifierTest extends TestCase {
         $this->assertEquals($testUrn, $identifiers[0]->getValue());
     }
     
+    /**
+     * Regression test for OPUSVIER-2289
+     */
     function testFailDoubleUrnForSameDocument() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -87,6 +90,9 @@ class Opus_IdentifierTest extends TestCase {
         }
     }
 
+    /**
+     * Regression test for OPUSVIER-2289
+     */
     function testCreateUrnCollisionViaDocument() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -104,6 +110,9 @@ class Opus_IdentifierTest extends TestCase {
         }
     }
 
+    /**
+     * Regression test for OPUSVIER-2289
+     */
     function testCreateUrnCollisionViaUsingIdentifier() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -127,6 +136,9 @@ class Opus_IdentifierTest extends TestCase {
         }
     }
 
+    /**
+     * Regression test for OPUSVIER-2292 / OPUSVIER-2289
+     */
     function testCreateUrnCollisionUsingAddIdentifierUrn() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
