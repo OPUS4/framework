@@ -44,6 +44,20 @@ class Opus_IdentifierTest extends TestCase {
         return $document;
     }
     
+    /**
+     * Check if exactly one document with testUrn exists
+     *
+     * @param int    $docId
+     * @param string $type
+     * @param string $value
+     */
+    private function checkUniqueIdentifierOnDocument($docId, $type, $value) {
+        $finder = new Opus_DocumentFinder();
+        $finder->setIdentifierTypeValue($type, $value);
+        $this->assertEquals(1, $finder->count());
+        $this->assertContains($docId, $finder->ids());
+    }
+
     function testCreateDocumentWithUrn() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -78,11 +92,7 @@ class Opus_IdentifierTest extends TestCase {
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
         $docId = $document->store();
 
-        // check if exactly one document with testUrn exists
-        $finder = new Opus_DocumentFinder();
-        $finder->setIdentifierTypeValue('urn', $testUrn);
-        $this->assertEquals(1, $finder->count());
-        $this->assertContains($docId, $finder->ids());
+        $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
 
         // create second document with testUrn
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -94,16 +104,12 @@ class Opus_IdentifierTest extends TestCase {
         }
     }
 
-    function testCreateUrnCollision() {
+    function testCreateUrnCollisionViaUsingIdentifier() {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
         $docId = $document->store();
 
-        // check if exactly one document with testUrn exists
-        $finder = new Opus_DocumentFinder();
-        $finder->setIdentifierTypeValue('urn', $testUrn);
-        $this->assertEquals(1, $finder->count());
-        $this->assertContains($docId, $finder->ids());
+        $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
 
         // create second document with testUrn
         $document = new Opus_Document();
@@ -120,7 +126,6 @@ class Opus_IdentifierTest extends TestCase {
         catch (Opus_Identifier_UrnAlreadyExistsException $e) {
         }
     }
-
 
 }
 
