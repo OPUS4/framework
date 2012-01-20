@@ -28,7 +28,8 @@
  * @category    Tests
  * @package     Opus_Document_Plugin
  * @author      Julian Heise (heise@zib.de)
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -40,22 +41,25 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $model->setServerState('published');
         $model->store();
 
-        $this->assertTrue($model->hasField('IdentifierUrn'), 'Model does not have field "IdentifierUrn"');
-        $urn = $model->getIdentifierUrn();
-        $this->assertNotNull($urn, 'IdentifierUrn is NULL');
+        $this->assertTrue($model->hasField('Identifier'),
+                'Model does not have field "Identifier"');
+        $urns = $model->getIdentifier();
 
-        $this->assertEquals(1, count($urn));
+        $this->assertNotNull($urns, 'IdentifierUrn is NULL');
+        $this->assertEquals(1, count($urns));
+        $this->assertEquals('urn', $urns[0]->getType());
 
         $config = Zend_Registry::get('Zend_Config');
         $urnItem = new Opus_Identifier_Urn($config->urn->nid, $config->urn->nss);
         $checkDigit = $urnItem->getCheckDigit($model->getId());
         $urnString = 'urn:' . $config->urn->nid . ':' . $config->urn->nss . '-' . $model->getId() . $checkDigit;
 
-        $this->assertEquals($urnString, $urn[0]->getValue());
+        $this->assertEquals($urnString, $urns[0]->getValue());
     }
 
     /**
      * Regression test for OPUSVIER-2252 - don't assign URN if not "published"
+     * Check both fields: Identifier and IdentifierUrn.
      */
     public function testAutoGenerateUrnSkippedIfNotPublished() {
         $model = new Opus_Document();
@@ -64,9 +68,16 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
 
         $this->assertTrue($model->hasField('IdentifierUrn'),
                 'Model does not have field "IdentifierUrn"');
-        $urn = $model->getIdentifierUrn();
-        $this->assertNotNull($urn, 'IdentifierUrn is NULL');
+        $urns = $model->getIdentifierUrn();
 
-        $this->assertEquals(0, count($urn));
+        $this->assertNotNull($urns, 'IdentifierUrn is NULL');
+        $this->assertEquals(0, count($urns));
+
+        $this->assertTrue($model->hasField('Identifier'),
+                'Model does not have field "Identifier"');
+        $identifiers = $model->getIdentifier();
+
+        $this->assertNotNull($identifiers, 'Identifier is NULL');
+        $this->assertEquals(0, count($identifiers));
     }
 }

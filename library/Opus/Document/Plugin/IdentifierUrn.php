@@ -26,6 +26,7 @@
  *
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Julian Heise (heise@zib.de)
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
@@ -72,8 +73,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $log->debug('config.ini is set to support urn auto generation');
 
-        $identifierUrns = $model->getIdentifierUrn();
-        if(count($identifierUrns) > 0) {
+        if($this->urnAlreadyPresent($model)) {
             $log->debug('Document #' . $id . ' already has a URN. Skipping automatic generation.');
             return;
         }
@@ -89,6 +89,23 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $urn_model->setValue($urn_value);
         $urn_model->setType('urn');
         $model->addIdentifier($urn_model);
+        $model->addIdentifierUrn($urn_model);
+    }
+
+    private function urnAlreadyPresent($document) {
+        $identifierUrns = $document->getIdentifierUrn();
+        if(count($identifierUrns) > 0) {
+            return true;
+        }
+
+        $identifiers = $document->getIdentifier();
+        foreach ($identifiers AS $identifier) {
+            if ($identifier->getType() === 'urn') {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
 
