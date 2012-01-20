@@ -127,5 +127,27 @@ class Opus_IdentifierTest extends TestCase {
         }
     }
 
+    function testCreateUrnCollisionUsingAddIdentifierUrn() {
+        $testUrn = 'nbn:de:kobv:test123';
+        $document = $this->createDocumentWithIdentifierUrn($testUrn);
+        $docId = $document->store();
+
+        $this->checkUniqueIdentifierOnDocument($docId, 'urn', $testUrn);
+
+        // create second document with testUrn
+        $document = new Opus_Document();
+        $document->store();
+
+        $document->addIdentifierUrn()
+                ->setValue($testUrn);
+
+        try {
+            $document->store();
+            $this->fail('expected exception');
+        }
+        catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        }
+    }
+
 }
 
