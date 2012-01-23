@@ -540,7 +540,9 @@ abstract class Opus_Model_AbstractDb
 
                 if (strlen($backupValues[$key]) > strlen($new_value)) {
                     $truncateLength = strlen($backupValues[$key]) - strlen($new_value);
-                    $msg = "Database column '$key' has been truncated by $truncateLength characters!";
+                    $msg = get_class($this);
+                    $msg .= ": Database column '$key' has been truncated";
+                    $msg .= " by $truncateLength characters!";
                     throw new Opus_Model_DbTruncateException(get_class($this) . ":  $msg");
                 }
             }
