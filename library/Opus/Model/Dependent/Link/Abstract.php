@@ -244,4 +244,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     public function isModified() {
         return ($this->_isModified) or (parent::isModified());
     }
+
+    /**
+     * This model is valid IFF both link model *and* linked model are valid.
+     *
+     * @return boolean
+     */
+    public function isValid() {
+        return ($this->_model->isValid()) && (parent::isValid());
+    }
 }
