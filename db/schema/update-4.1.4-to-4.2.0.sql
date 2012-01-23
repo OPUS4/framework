@@ -1,4 +1,6 @@
+SET AUTOCOMMIT = 0;
 SET sql_mode = 'STRICT_TRANS_TABLES';
+START TRANSACTION;
 
 -- -----------------------------------------------------
 -- Table `document_series`
@@ -111,3 +113,5 @@ ALTER TABLE `documents`
   CHANGE COLUMN `page_first_new`  `page_first` VARCHAR(255) NULL COMMENT 'First page of a publication.',
   CHANGE COLUMN `page_last_new`   `page_last` VARCHAR(255) NULL COMMENT 'Last page of a publication.',
   CHANGE COLUMN `page_number_new` `page_number` VARCHAR(255) NULL COMMENT 'Total page numbers.';
+
+COMMIT;

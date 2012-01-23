@@ -1,3 +1,7 @@
+SET AUTOCOMMIT = 0;
+SET sql_mode = 'STRICT_TRANS_TABLES';
+START TRANSACTION;
+
 -- add new language multilanguage
 
 UPDATE languages SET part2_b = 'mul', part2_t = 'mul', ref_name = 'Multiple languages', active = 1 WHERE id = '8';
@@ -68,3 +72,5 @@ UPDATE `document_enrichments` SET `key_name` = 'SourceTitle' WHERE `key_name` = 
 UPDATE `document_enrichments` SET `key_name` = 'SubjectUncontrolledGerman' WHERE `key_name` = 'subject_uncontrolled_german';
 UPDATE `document_enrichments` SET `key_name` = 'SubjectUncontrolledEnglish' WHERE `key_name` = 'subject_uncontrolled_english';
 UPDATE `document_enrichments` SET `key_name` = 'SubjectSwd' WHERE `key_name` = 'subject_swd';
+
+COMMIT;

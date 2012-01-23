@@ -1,3 +1,7 @@
+SET AUTOCOMMIT = 0;
+SET sql_mode = 'STRICT_TRANS_TABLES';
+START TRANSACTION;
+
 ALTER TABLE `document_xml_cache`
   ENGINE = InnoDB
   COMMENT = 'Caches XML for Opus_Document objects.';
@@ -19,3 +23,5 @@ ALTER TABLE  `document_patents` CHANGE  `year_applied`  `year_applied` SMALLINT(
 
 -- Change NULL constraints on date fields (see OPUSVIER-1334)
 ALTER TABLE  `documents` CHANGE  `server_date_published`  `server_date_published` VARCHAR( 50 ) NULL;
+
+COMMIT;
