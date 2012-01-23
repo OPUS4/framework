@@ -566,6 +566,32 @@ class Opus_Model_FieldTest extends TestCase {
     }
 
     /**
+     * Test if Field reports modification if contained models are arrays.
+     * Regression test for OPUSVIER-2261.
+     *
+     * @return void
+     */
+    public function testIsModifiedReturnsTrueIfArrayContainsModifiedModel() {
+        $model1 = new Opus_Model_ModelAbstractDbMock();
+        $model1->addField(new Opus_Model_Field('FooField'));
+        $this->assertFalse($model1->isModified(), 'Model1 should not be marked as modified.');
+
+        $model2 = new Opus_Model_ModelAbstractDbMock();
+        $model2->addField(new Opus_Model_Field('FooField'));
+        $this->assertFalse($model2->isModified(), 'Model2 should not be marked as modified.');
+
+        $field = new Opus_Model_Field('myfield');
+        $field->setMultiplicity('*')
+            ->setValueModelClass(get_class($model1))
+            ->setValue(array($model1, $model2))
+            ->clearModified();
+        $this->assertFalse($field->isModified(), 'Field should not be marked as modified.');
+
+        $model2->setFooField('bla');
+        $this->assertTrue($field->isModified(), 'Field is not marked as modified.');
+    }
+
+    /**
      * Test if an excpetion occurs if value of unexpected type is set.
      *
      * @return void

@@ -1703,11 +1703,9 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
-     * TODO fix framework behaviour? document it?
+     * High-level regression test for OPUSVIER-2261.
      */
     public function testStoringTwiceWithSeriesModications() {
-        $this->markTestSkipped('Documents bug (?) in framework.');
-
         $doc = new Opus_Document();
 
         $series = new Opus_Series();
@@ -1726,7 +1724,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($assignedSeries));
         $this->assertEquals(50, $assignedSeries[0]->getNumber());
 
-        $doc->store(); // NOTE: without this store the test is successfull
+        $doc->store(); // NOTE: without this store the test was successfull
 
         $assignedSeries = $doc->getSeries();
 
@@ -1742,11 +1740,9 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
-     * TODO fix framework behaviour? document it?
+     * High-level regression test for OPUSVIER-2261.
      */
     public function testStoringTwiceWithPersonModications() {
-        $this->markTestSkipped('Documents bug (?) in framework.');
-
         $doc = new Opus_Document();
 
         $person = new Opus_Person();
@@ -1766,7 +1762,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals(1, count($persons));
         $this->assertEquals('advisor', $persons[0]->getRole());
 
-        $doc->store(); // NOTE: without this store the test is successfull
+        $doc->store(); // NOTE: without this store the test was successfull
 
         $persons = $doc->getPerson();
 

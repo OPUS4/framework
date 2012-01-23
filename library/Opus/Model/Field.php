@@ -770,6 +770,16 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 $this->_modified = true;
             }
         }
+        else if (is_array($this->_value)) {
+            foreach ($this->_value AS $value) {
+                if ($value instanceof Opus_Model_ModificationTracking) {
+                    if (true === $value->isModified()) {
+                        $this->_modified = true;
+                    }
+                }
+            }
+        }
+
         return $this->_modified;
     }
 
