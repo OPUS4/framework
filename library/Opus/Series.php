@@ -67,8 +67,9 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $visible->setCheckbox(true);
 
         $sortOrder = new Opus_Model_Field('SortOrder');
+        $sortOrder->setValidator(new Zend_Validate_Int());
 
-        $this->addField($title)                
+        $this->addField($title)
                 ->addField($infobox)
                 ->addField($visible)
                 ->addField($sortOrder);
@@ -95,12 +96,12 @@ class Opus_Series extends Opus_Model_AbstractDb {
     /**
      * Retrieve maximum value in column sort_order.
      * Return 0 if database does not contain any series.
-     * 
+     *
      */
     public static function getMaxSortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchCol('SELECT MAX(sort_order) FROM document_series');
-        
+
         if (is_null($max[0])) {
             return 0;
         }
@@ -115,11 +116,11 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $rowSet = $db->fetchAll(
                 'SELECT document_id FROM link_documents_series WHERE series_id = ' .
                 $this->getId());
-                
-        $ids = array();        
+
+        $ids = array();
         foreach ($rowSet as $row) {
             array_push($ids, $row['document_id']);
-            
+
         }
         return $ids;
     }
@@ -132,7 +133,7 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $rowSet = $db->fetchAll(
                 'SELECT document_id FROM link_documents_series WHERE series_id = ' .
                 $this->getId() . ' ORDER BY doc_sort_order DESC');
-        
+
         $ids = array();
         foreach ($rowSet as $row) {
             array_push($ids, $row['document_id']);
@@ -145,7 +146,7 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @param string $number
      * @return boolean
-     * 
+     *
      */
     public function isNumberAvailable($number) {
         $db = Zend_Db_Table::getDefaultAdapter();
@@ -177,7 +178,7 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function getNumOfAssociatedPublishedDocuments() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $rowSet = $db->fetchAll(
-                'SELECT COUNT(*) AS rows_count ' . 
+                'SELECT COUNT(*) AS rows_count ' .
                 'FROM link_documents_series l, documents d ' .
                 'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ' . $this->getId());
         return intval($rowSet[0]['rows_count']);
