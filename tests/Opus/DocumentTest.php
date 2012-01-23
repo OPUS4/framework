@@ -1777,4 +1777,39 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals('author', $persons[0]->getRole());
     }
 
+    /**
+     * Regression test for OPUSVIER-2307: Test for modification tracking bug.
+     */
+    public function testDocumentIsNotModifiedAfterGetZeroPerson() {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertTrue(count($doc->getPerson()) == 1, 'testcase changed?');
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified (after getPerson!)');
+    }
+
+    /**
+     * Regression test for OPUSVIER-2307: Test for modification tracking bug.
+     */
+    public function testDocumentIsNotModifiedAfterGetOnePerson() {
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $person->store();
+
+        $plink = $doc->addPerson($person);
+        $plink->setRole('advisor');
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertTrue(count($doc->getPerson()) == 1, 'testcase changed?');
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified (after getPerson!)');
+    }
+
 }
