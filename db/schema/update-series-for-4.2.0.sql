@@ -9,7 +9,7 @@ START TRANSACTION;
 -- id, name, visible and sort_order
 -- ----------------------------------------------------------------------
 INSERT INTO document_series (id, title, visible, sort_order)
-  SELECT `id`, `name`, `sort_order`, `visible`
+  SELECT `id`, `name`, `visible`, `sort_order`
   FROM `collections`
   WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name = "series")
     AND `parent_id` = (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name = "series") AND `parent_id` IS NULL);
@@ -79,7 +79,7 @@ CALL iterateSeriesname();
 
 -- insert subcollections into the new series table
 INSERT INTO document_series (id, title, visible, sort_order)
-   SELECT `id`, `name`, `sort_order`, `visible`
+   SELECT `id`, `name`, `visible`, `sort_order`
    FROM `collections`
    WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name = "series")
      AND `parent_id` <> (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name = "series") AND `parent_id` IS NULL);
