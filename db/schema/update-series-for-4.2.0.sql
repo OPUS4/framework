@@ -1,5 +1,6 @@
--- Start transaction
-BEGIN;
+SET AUTOCOMMIT = 0;
+SET sql_mode = 'STRICT_TRANS_TABLES';
+START TRANSACTION;
 
 -- ----------------------------------------------------------------------
 -- UPDATE SERIES! (See OPUSVIER-2131)
@@ -56,12 +57,12 @@ BEGIN
   SET @c = 0;
   SELECT `id` INTO root FROM `collections` WHERE `role_id` =  (SELECT `id` FROM `collections_roles` WHERE name='series') AND `parent_id` IS NULL;  
   SELECT count(id) INTO count FROM temp;
-  REPEAT
+  WHILE @c < count DO
      SELECT `id` INTO currentId FROM `temp` ORDER BY `id` DESC LIMIT 1;         
      CALL seriesname(@a, currentId, currentId, root);
      DELETE FROM `temp` WHERE `id` = currentId;
      SET @c = @c + 1;
-  UNTIL @c > count END REPEAT;  
+  END WHILE;
 END;
 //
 
@@ -157,5 +158,5 @@ INSERT INTO temp
 DELETE FROM `document_identifiers` WHERE id IN (SELECT * FROM temp);
 DROP TABLE temp;
 
--- End of transaction
+
 COMMIT;
