@@ -9,7 +9,10 @@ START TRANSACTION;
 -- id, name, visible and sort_order
 -- ----------------------------------------------------------------------
 INSERT INTO document_series (id, title, visible, sort_order)
-  SELECT `id`, `name`, `sort_order`, `visible`  FROM `collections` WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` = (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` IS NULL);
+  SELECT `id`, `name`, `sort_order`, `visible`
+  FROM `collections`
+  WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name = "series")
+    AND `parent_id` = (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name = "series") AND `parent_id` IS NULL);
 
 -- ----------------------------------------------------------------------
 -- UPDATE SERIES! (See OPUSVIER-2131)
@@ -21,7 +24,10 @@ INSERT INTO document_series (id, title, visible, sort_order)
 -- Temporarily store Collection IDs in special table
 CREATE TABLE temp(id INT(10));
 INSERT INTO temp(id)
-  SELECT `id` FROM `collections` WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` <> (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` IS NULL);
+  SELECT `id`
+  FROM `collections`
+  WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name = "series")
+    AND `parent_id` <> (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name = "series") AND `parent_id` IS NULL);
 
 -- Procedure seriesname:
 -- Updates the name of subcollections of series by string concatenation with names of parent nodes.
@@ -73,7 +79,10 @@ CALL iterateSeriesname();
 
 -- insert subcollections into the new series table
 INSERT INTO document_series (id, title, visible, sort_order)
-   SELECT `id`, `name`, `sort_order`, `visible`  FROM `collections` WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` <> (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name="Series") AND `parent_id` IS NULL);
+   SELECT `id`, `name`, `sort_order`, `visible`
+   FROM `collections`
+   WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name = "series")
+     AND `parent_id` <> (SELECT id  FROM `collections` WHERE `role_id` =  (SELECT id FROM `collections_roles` WHERE name = "series") AND `parent_id` IS NULL);
 
 -- cleanup 
 DROP Table temp;
@@ -90,9 +99,14 @@ DROP PROCEDURE seriesname;
 -- create temp table and insert all series documents that have a number and those without a number
 CREATE TABLE temp (`series_id` INT, `document_id` INT, `number` VARCHAR(265));
 INSERT INTO temp (document_id, series_id, number)
-    SELECT document_id, collection_id AS series_id, value AS number  FROM `link_documents_collections` LEFT JOIN `document_identifiers` USING (document_id) WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series" and type="serial");
+    SELECT document_id, collection_id AS series_id, value AS number 
+    FROM `link_documents_collections` LEFT JOIN `document_identifiers` USING (document_id)
+    WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series" and type="serial");
 INSERT INTO temp (document_id, series_id)
-    SELECT document_id, collection_id AS series_id  FROM `link_documents_collections` WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series") AND document_id NOT IN (SELECT document_id FROM `link_documents_collections` LEFT JOIN `document_identifiers` USING (document_id) WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series" and type="serial"));
+    SELECT document_id, collection_id AS series_id
+    FROM `link_documents_collections`
+    WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series")
+      AND document_id NOT IN (SELECT document_id FROM `link_documents_collections` LEFT JOIN `document_identifiers` USING (document_id) WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series" and type="serial"));
 
 CREATE TABLE temp2(`series_id` INT);
 INSERT INTO temp2
@@ -151,10 +165,12 @@ DROP TABLE temp2;
 -- Delete old IdentifierSerial in document_identifiers
 -- ----------------------------------------------------------------------
 UPDATE `collections_roles` SET `visible` = '0', `visible_browsing_start` = '0', `visible_frontdoor` = '0', `visible_oai` = '0' WHERE `name`='series';
-UPDATE `collections` SET `visible` = '0' WHERE `role_id`=(SELECT id FROM `collections_roles` WHERE `name` = 'Series');
+UPDATE `collections` SET `visible` = '0' WHERE `role_id`=(SELECT id FROM `collections_roles` WHERE `name` = 'series');
 CREATE TABLE temp (id INT);
 INSERT INTO temp
-   SELECT id FROM `link_documents_collections` LEFT JOIN `document_identifiers` a USING (document_id) WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series") AND a.type="serial";
+   SELECT id 
+   FROM `link_documents_collections` LEFT JOIN `document_identifiers` a USING (document_id)
+   WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series") AND a.type="serial";
 DELETE FROM `document_identifiers` WHERE id IN (SELECT * FROM temp);
 DROP TABLE temp;
 
