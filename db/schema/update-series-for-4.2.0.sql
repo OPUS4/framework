@@ -1,3 +1,6 @@
+-- Start transaction
+BEGIN;
+
 -- ----------------------------------------------------------------------
 -- UPDATE SERIES! (See OPUSVIER-2131)
 -- 
@@ -153,3 +156,6 @@ INSERT INTO temp
    SELECT id FROM `link_documents_collections` LEFT JOIN `document_identifiers` a USING (document_id) WHERE `role_id` = (SELECT id FROM `collections_roles` WHERE name="series") AND a.type="serial";
 DELETE FROM `document_identifiers` WHERE id IN (SELECT * FROM temp);
 DROP TABLE temp;
+
+-- End of transaction
+COMMIT;
