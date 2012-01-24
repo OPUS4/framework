@@ -101,6 +101,9 @@ class Opus_SeriesTest extends TestCase {
 
         $this->assertTrue($s->isValid(), 'series should be valid');
         $this->assertFalse($ls->isValid());
+
+        $this->setExpectedException('Opus_Model_Exception');
+        $d->store();
     }
 
     public function testAssignSetToDocumentWithNumber() {        
