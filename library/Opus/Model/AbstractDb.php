@@ -767,6 +767,8 @@ abstract class Opus_Model_AbstractDb
             }
         }
 
+        // Clear the modified flag for the just loaded field
+        $field->clearModified();
     }
 
     /**

@@ -1780,20 +1780,38 @@ class Opus_DocumentTest extends TestCase {
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
      */
-    public function testDocumentIsNotModifiedAfterGetZeroPerson() {
+    public function testDocumentIsNotModifiedAfterGetPersonZero() {
         $doc = new Opus_Document();
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
         $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
-        $this->assertTrue(count($doc->getPerson()) == 1, 'testcase changed?');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified (after getPerson!)');
+
+        $this->assertTrue(count($doc->getPerson()) == 0, 'testcase changed?');
+        $this->assertEquals(false, $doc->isModified(),
+                'doc should not be modified after getField(Person)!');
     }
 
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
      */
-    public function testDocumentIsNotModifiedAfterGetOnePerson() {
+    public function testDocumentIsNotModifiedAfterGetFieldPersonZero() {
+        $doc = new Opus_Document();
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+
+        $this->assertEquals(false, $doc->getField('Person')->isModified(),
+                 'Field Person should not be modified');
+        $this->assertEquals(false, $doc->isModified(),
+                'doc should not be modified after getField(Person)!');
+    }
+
+    /**
+     * Regression test for OPUSVIER-2307: Test for modification tracking bug.
+     */
+    public function testDocumentIsNotModifiedAfterGetPersonOne() {
         $doc = new Opus_Document();
 
         $person = new Opus_Person();
@@ -1808,8 +1826,42 @@ class Opus_DocumentTest extends TestCase {
 
         $doc = new Opus_Document($doc->getId());
         $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
-        $this->assertTrue(count($doc->getPerson()) == 1, 'testcase changed?');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified (after getPerson!)');
+
+        $persons = $doc->getPerson();
+        $this->assertTrue(count($persons) == 1, 'testcase changed?');
+
+        $this->assertEquals(false, $persons[0]->getModel()->isModified(),
+                'linked model has just been loaded and is not modified!');
+        $this->assertEquals(false, $persons[0]->isModified(),
+                'link model has just been loaded and is not modified!');
+
+        $this->assertEquals(false, $doc->isModified(),
+                'doc should not be modified after getPerson!');
+    }
+
+    /**
+     * Regression test for OPUSVIER-2307: Test for modification tracking bug.
+     */
+    public function testDocumentIsNotModifiedAfterGetFieldPersonOne() {
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $person->store();
+
+        $plink = $doc->addPerson($person);
+        $plink->setRole('advisor');
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertEquals(false, $doc->getField('Person')->isModified(),
+                 'Field Person should not be modified');
+
+        $this->assertEquals(false, $doc->isModified(),
+                'doc should not be modified after getField(Person)!');
     }
 
 }
