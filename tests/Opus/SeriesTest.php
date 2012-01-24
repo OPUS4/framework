@@ -39,7 +39,7 @@ class Opus_SeriesTest extends TestCase {
      * Test if a document series can be retrieved by getAll().
      *
      */
-    public function testCreateRetrieveAndDeleteSets() {
+    public function testCreateRetrieveAndDeleteSeries() {
         $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
         
         $numberOfSetsToCreate = 3;
@@ -62,7 +62,7 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
     }
 
-    public function testAssignSetToDocumentWithoutNumber() {
+    public function testAssignSeriesToDocumentWithoutNumber() {
         $d = new Opus_Document();
         $d->store();
 
@@ -106,7 +106,7 @@ class Opus_SeriesTest extends TestCase {
         $d->store();
     }
 
-    public function testAssignSetToDocumentWithNumber() {        
+    public function testAssignSeriesToDocumentWithNumber() {
         $d = new Opus_Document();
         $d->store();
         
