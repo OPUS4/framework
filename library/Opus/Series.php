@@ -76,6 +76,23 @@ class Opus_Series extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Factory that tries to create a series with the given id.
+     * Note that the series is *not* persisted to the database.
+     * You need to explicitly call store() on the corresponding model instance
+     * of Opus_Series.
+     *
+     * @param integer $id
+     * @return Opus_Db_TableGateway
+     */
+
+    public static function createRowWithCustomId($id) {
+        $tableGatewayModel = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $row = $tableGatewayModel->createRow();
+        $row->id = $id;
+        return $row;
+    }
+
+    /**
      * Retrieve all Opus_Series instances from the database.
      *
      * @return array Array of Opus_Series objects.
