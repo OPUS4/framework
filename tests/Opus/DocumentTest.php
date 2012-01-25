@@ -1868,4 +1868,67 @@ class Opus_DocumentTest extends TestCase {
                 'doc should not be modified after getField(Person)!');
     }
 
+    public function testChangeTitleType() {
+        $this->markTestSkipped('Does not work (see OPUSVIER-2318).');
+        $doc = new Opus_Document();
+
+        $titleParent = new Opus_Title();
+        $titleParent->setLanguage('deu');
+        $titleParent->setValue('Title Parent');
+
+        $doc->addTitleParent($titleParent);
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(0, count($doc->getTitleMain()));
+        $this->assertEquals(1, count($doc->getTitleParent()));
+
+        $titleParent = $doc->getTitleParent();
+        $titleParent[0]->setType('main');
+
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(1, count($doc->getTitleMain()), 'Should have 1 TitleMain.');
+        $this->assertEquals(0, count($doc->getTitleParent()), 'Should have 0 TitleParent.');
+    }
+
+    public function testChangeTitleTypeAlternateWay() {
+        $doc = new Opus_Document();
+
+        $titleParent = new Opus_Title();
+        $titleParent->setLanguage('deu');
+        $titleParent->setValue('Title Parent');
+
+        $doc->addTitleParent($titleParent);
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(0, count($doc->getTitleMain()));
+        $this->assertEquals(1, count($doc->getTitleParent()));
+
+        // remove title
+        $titleParent = $doc->getTitleParent();
+        $title = $titleParent[0];
+        $movedTitle = new Opus_Title();
+        $movedTitle->setLanguage($title->getLanguage());
+        $movedTitle->setValue($title->getValue());
+        unset($titleParent[0]);
+        $doc->setTitleParent($titleParent);
+        $doc->store();
+
+        // add title
+        $doc = new Opus_Document($doc->getId());
+        $doc->addTitleMain($movedTitle);
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(1, count($doc->getTitleMain()), 'Should have 1 TitleMain.');
+        $this->assertEquals(0, count($doc->getTitleParent()), 'Should have 0 TitleParent.');
+    }
+
 }
