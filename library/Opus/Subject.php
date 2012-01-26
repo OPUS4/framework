@@ -78,9 +78,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
         $type->setDefault(array(
             'swd' => 'swd',
             'psyndex' => 'psyndex',
-            'uncontrolled' => 'uncontrolled',
-            'msc' => 'msc',
-            'ddc' => 'ddc'
+            'uncontrolled' => 'uncontrolled'
         ));
         
         $value = new Opus_Model_Field('Value');
