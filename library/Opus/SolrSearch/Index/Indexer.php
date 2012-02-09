@@ -284,10 +284,10 @@ class Opus_SolrSearch_Index_Indexer {
         $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'true'));
         foreach ($files as $file) {
             try {
-                $fulltext = $this->getFileContent($file);
+                $fulltext = iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file));
                 if (!empty($fulltext)) {
                     $element = $modelXml->createElement('Fulltext_Index');
-                    $element->appendChild($modelXml->createTextNode($fulltext));
+                    $element->appendChild($modelXml->createCDATASection($fulltext));
                     $docXml->appendChild($element);
                 }
             }
