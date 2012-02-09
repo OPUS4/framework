@@ -138,6 +138,13 @@ class Opus_SolrSearch_Searcher {
                 'facet.limit' => -1
             );
         }
+
+        if ($query->getSearchType() === Opus_SolrSearch_Query::DOC_ID) {
+            return array(
+                'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
+                'facet' => 'false'
+            );
+        }
         
         $params = array( 
             'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
