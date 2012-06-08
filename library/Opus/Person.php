@@ -90,7 +90,13 @@ class Opus_Person extends Opus_Model_AbstractDb
      * @return string
      */
     public function getName() {
-        return $this->getLastName() . ', ' . $this->getFirstName();
+        $firstName = $this->getFirstName();
+
+        if ($firstName !== null)
+            return $this->getLastName() . ', ' . $firstName;
+        else {
+            return $this->getLastName();
+        }
     }
 
     /**

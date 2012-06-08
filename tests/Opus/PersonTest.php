@@ -170,4 +170,21 @@ class Opus_PersonTest extends TestCase {
         }
     }
 
+    public function testGetNameForLastAndFirstName() {
+        $person = new Opus_Person();
+
+        $person->setFirstName('Jane');
+        $person->setLastName('Doe');
+
+        $this->assertEquals('Doe, Jane', $person->getName());
+    }
+
+    public function testGetNameForLastNameOnly() {
+        $person = new Opus_Person();
+
+        $person->setLastName('Doe');
+
+        $this->assertEquals('Doe', $person->getName());
+    }
+
 }
