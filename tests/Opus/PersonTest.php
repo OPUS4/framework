@@ -141,7 +141,7 @@ class Opus_PersonTest extends TestCase {
         $d = new Opus_Document(1);
         $persons = $d->getPerson();
         $this->assertTrue(1 == count($persons));
-        
+
         $person = $persons[0];
         $this->assertTrue($person->getFirstName() === 'Rainer');
         $this->assertTrue($person->getLastName() === 'Zufall');
@@ -151,6 +151,23 @@ class Opus_PersonTest extends TestCase {
 
         $d = new Opus_Document(1);
         $this->assertTrue(0 == count($d->getPerson()));
+    }
+
+    public function testOnlyLastNameMandatory() {
+        $person = new Opus_Person();
+
+        $fields = $person->describe();
+
+        foreach ($fields as $fieldName) {
+            $field = $person->getField($fieldName);
+
+            if ($fieldName === 'LastName') {
+                $this->assertTrue($field->isMandatory(), "'$fieldName' should be mandatory.");
+            }
+            else {
+                $this->assertFalse($field->isMandatory(), "'$fieldName' should not be mandatory.");
+            }
+        }
     }
 
 }
