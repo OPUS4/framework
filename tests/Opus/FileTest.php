@@ -167,7 +167,8 @@ class Opus_FileTest extends TestCase {
         $file->store();
 
         // File is empty.
-        $this->assertEquals($file->getMimeType(), 'application/x-empty');
+        // TODO OPUSVIER-2503 unterschiedliche MIME-Typen für leere Dateien
+        $this->assertTrue(in_array($file->getMimeType(), array('application/x-empty', 'inode/x-empty')));
 
     }
 
@@ -518,6 +519,7 @@ class Opus_FileTest extends TestCase {
      * Test if md5 hash value of empty file matches expected value.
      *
      * @return void
+     * TODO Ist der Test komplett?
      */
     public function testInvalidHashAlgorithmAfterStore() {
 
@@ -527,7 +529,6 @@ class Opus_FileTest extends TestCase {
 
         $this->setExpectedException('Exception'); // TODO broken for PHPunit 3.6
         $actual_hash = $file->getRealHash('md23');
-
     }
 
     /**
