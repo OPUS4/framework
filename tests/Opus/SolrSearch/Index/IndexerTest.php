@@ -493,5 +493,92 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->indexer->addDocumentToEntryIndex(null);
         $this->setExpectedException('InvalidArgumentException');
     }
+
+    /**
+     * Regression test for OPUSVIER-2240
+     */
+    public function testIndexDocumentWithMultipleTitleMainInSameLanguage() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $title = new Opus_Title();
+        $title->setValue('foo');
+        $title->setLanguage('eng');
+        $doc->addTitleMain($title);
+        $title = new Opus_Title();
+        $title->setValue('bar');
+        $title->setLanguage('eng');
+        $doc->addTitleMain($title);
+        $doc->store();
+        $exception = null;
+        try {
+            $this->indexer->addDocumentToEntryIndex($doc);
+        }
+        catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertNotNull($exception);
+        $this->assertType('Opus_SolrSearch_Index_Exception', $exception);
+        $doc->deletePermanent();
+    }
+
+    /**
+     * Regression test for OPUSVIER-2240
+     */
+    public function testIndexDocumentWithMultipleAbstractsInSameLanguage() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $title = new Opus_Title();
+        $title->setValue('foo');
+        $title->setLanguage('eng');
+        $doc->addTitleAbstract($title);
+        $title = new Opus_Title();
+        $title->setValue('bar');
+        $title->setLanguage('eng');
+        $doc->addTitleAbstract($title);
+        $doc->store();
+        $exception = null;
+        try {
+            $this->indexer->addDocumentToEntryIndex($doc);
+        }
+        catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertNotNull($exception);
+        $this->assertType('Opus_SolrSearch_Index_Exception', $exception);
+        $doc->deletePermanent();
+    }
+
+    /**
+     * Regression test for OPUSVIER-2240
+     */
+    public function testIndexDocumentWithUnknownIndexField() {
+        $xml = new DOMDocument();
+        $xml->loadXML(
+                '<add>
+                  <doc>
+                    <field name="id">987654321</field>
+                    <field name="year"/>
+                    <field name="language">de</field>
+                    <field name="author_sort"/>
+                    <field name="has_fulltext">false</field>
+                    <field name="doctype">article</field>
+                    <field name="belongs_to_bibliography">false</field>
+                    <field name="xyz_unknown_field">foo</field>
+                  </doc>
+                </add>');
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('sendSolrXmlToServer');
+        $method->setAccessible(true);
+        $exception = null;
+        try {
+            $method->invoke ($this->indexer, $xml);
+        }
+        catch (Exception $e) {
+            $exception = $e;
+        }
+        $this->assertNotNull($exception);                
+    }
 }
 
