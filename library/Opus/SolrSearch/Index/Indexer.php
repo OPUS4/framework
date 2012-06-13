@@ -277,6 +277,9 @@ class Opus_SolrSearch_Index_Indexer {
             $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);            
             return;
         }
+        // only consider files which are visible in frontdoor
+        $files = array_filter($files, function ($file) { return $file->getVisibleInFrontdoor() === '1'; });
+
         if (count($files) == 0) {
             $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'false'));
             return;
