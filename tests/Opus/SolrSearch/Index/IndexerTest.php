@@ -462,6 +462,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $file->setTempFile('fulltexts/' . $filename);
         $file->setPathName($filename);
         $file->setLabel($label);
+        $file->setVisibleInFrontdoor('1');
 
         $doc->store();
 
@@ -580,5 +581,66 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         }
         $this->assertNotNull($exception);                
     }
+
+    /**
+     * Regression test for OPUSVIER-2417
+     */
+    public function testFulltextVisibilityIsConsideredInFacetForFrontdoorVisibleFulltext() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $file = $doc->addFile();
+        $file->setPathName('nonexistent.pdf');
+        $file->setVisibleInFrontdoor('1');
+        $doc->store();
+
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getSolrXmlDocument');
+        $method->setAccessible(true);
+
+        $xml = $method->invoke ($this->indexer, $doc);
+        $this->assertContains('<field name="has_fulltext">true</field>', $xml->saveXML());
+        $this->assertNotContains('<field name="has_fulltext">false</field>', $xml->saveXML());
+    }
+
+    /**
+     * Regression test for OPUSVIER-2417
+     */
+    public function testFulltextVisibilityIsConsideredInFacetForFrontdoorInvisibleFulltext() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $file = $doc->addFile();
+        $file->setPathName('nonexistent.pdf');
+        $file->setVisibleInFrontdoor('0');
+        $doc->store();
+
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getSolrXmlDocument');
+        $method->setAccessible(true);
+
+        $xml = $method->invoke ($this->indexer, $doc);
+        $this->assertContains('<field name="has_fulltext">false</field>', $xml->saveXML());
+        $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());
+    }
+
+    /**
+     * Regression test for OPUSVIER-2417
+     */
+    public function testFulltextVisibilityIsNotConsideredInFacet() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $doc->store();
+
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getSolrXmlDocument');
+        $method->setAccessible(true);
+
+        $xml = $method->invoke ($this->indexer, $doc);
+        $this->assertContains('<field name="has_fulltext">false</field>', $xml->saveXML());
+        $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());        
+    }
+
 }
 
