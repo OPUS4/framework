@@ -41,6 +41,15 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $model->setServerState('published');
         $model->store();
 
+        $this->assertEquals(0, count($model->getIdentifier()));
+        $this->assertEquals(0, count($model->getIdentifierUrn()));
+
+        $model->addFile()->setVisibleInOai(0);
+        $model->addFile()->setVisibleInOai(1);
+
+        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin->postStoreInternal($model);
+
         $this->assertTrue($model->hasField('Identifier'),
                 'Model does not have field "Identifier"');
         $urns = $model->getIdentifier();
@@ -66,6 +75,9 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $model->setServerState('unpublished');
         $model->store();
 
+        $model->addFile()->setVisibleInOai(0);
+        $model->addFile()->setVisibleInOai(1);
+
         $this->assertTrue($model->hasField('IdentifierUrn'),
                 'Model does not have field "IdentifierUrn"');
         $urns = $model->getIdentifierUrn();
@@ -80,4 +92,41 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $this->assertNotNull($identifiers, 'Identifier is NULL');
         $this->assertEquals(0, count($identifiers));
     }
+
+    /**
+     * Regression test for OPUSVIER-2445 - don't assign URN if no visible file
+     */
+    public function testAutoGenerateUrnSkippedIfPublishedAndNoVisibleFiles() {
+        $model = new Opus_Document();
+        $model->setServerState('published');
+        $model->addFile()->setVisibleInOai(0);
+
+        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+        $plugin->postStoreInternal($model);
+
+        $this->assertEquals(0, count($model->getIdentifier()));
+        $this->assertEquals(0, count($model->getIdentifierUrn()));
+    }
+
+    /**
+     * Test allowUrnOnThisDocument in isolation
+     */
+    public function testAllowUrnOnThisDocument() {
+        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+
+        $model = new Opus_Document();
+        $model->setServerState('published');
+        $this->assertFalse($plugin->allowUrnOnThisDocument($model));
+
+        $model = new Opus_Document();
+        $model->setServerState('published');
+        $model->addFile()->setVisibleInOai(0);
+        $this->assertFalse($plugin->allowUrnOnThisDocument($model));
+
+        $model = new Opus_Document();
+        $model->setServerState('published');
+        $model->addFile()->setVisibleInOai(1);
+        $this->assertTrue($plugin->allowUrnOnThisDocument($model));
+    }
+
 }

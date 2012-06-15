@@ -78,6 +78,11 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
             return;
         }
 
+        if (!$this->allowUrnOnThisDocument($model)) {
+            $log->debug('Document #' . $id . ' has no oai-visible files. Skipping automatic URN generation.');
+            return;
+        }
+
         $log->debug('Generating URN for document ' . $id);
 
         $nid = $config->urn->nid;
@@ -106,6 +111,12 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         }
 
         return false;
+    }
+
+    public function allowUrnOnThisDocument($document) {
+        $files = array_filter($document->getFile(),
+            function ($f) { return $f->getVisibleInOai() == 1; });
+        return count($files) > 0;
     }
 }
 
