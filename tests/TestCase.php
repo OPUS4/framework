@@ -69,7 +69,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($adapter);
 
         $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('TRUNCATE ' . $tablename);
+        $adapter->query('DELETE FROM ' . $tablename);
 
         $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
         $this->assertEquals(0, $count, "Table $tablename is not empty!");
