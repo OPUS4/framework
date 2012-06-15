@@ -79,33 +79,4 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         $this->addField($value);
     }
 
-
-    public function isValid() {
-        if (!is_null($this->getParentId()) && !is_null($this->getKeyName()) && !is_null($this->getValue())) {
-
-            $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-
-            if (is_null($this->getId())) {
-                $select = $table->select()
-                                ->where('document_id = ?', $this->getParentId())
-                                ->where('key_name = ?', $this->getKeyName())
-                                ->where('value = ?', $this->getValue());
-            } else {
-                $select = $table->select()
-                            ->where('id != ?', $this->getId())
-                            ->where('document_id = ?', $this->getParentId())
-                            ->where('key_name = ?', $this->getKeyName())
-                            ->where('value = ?', $this->getValue());
-            }
-
-            $row = $table->fetchRow($select);
-
-            if (!is_null($row)) {
-                 throw new Opus_Enrichment_NotUniqueException('DocumentEnrichment with same document_id, key_name and value already exists.');
-            }
-        }
-
-        return parent::isValid();
-
-    }
 }

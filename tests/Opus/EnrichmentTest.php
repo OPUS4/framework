@@ -100,14 +100,15 @@ class Opus_EnrichmentTest extends TestCase {
         $this->assertKeysAndValues($doc->getEnrichment(), array('valid', 'anothervalid'), array('value', 'value'));
     }
 
-    public function testStoreEqualEnrichment() {
+    public function testStoreDuplicateEnrichment() {
         $this->_doc->addEnrichment()->setKeyName('valid')->setValue('value');
-        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
-        $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->assertKeysAndValues($doc->getEnrichment(), array('valid'), array('value'));
+        $this->assertEquals(2, count($doc->getEnrichment()));
+
+        $expectedEnrichment = array('KeyName' => 'valid', 'Value' => 'value');
+        $this->assertEquals($doc->getEnrichment(0)->toArray(), $expectedEnrichment);
     }
 
     public function testStoreEnrichmentWithInvalidKey() {
@@ -227,9 +228,10 @@ class Opus_EnrichmentTest extends TestCase {
         $enrichment = $enrichments[1];
         $this->assertTrue($enrichment->getValue() == 'newvalue');
         $enrichment->setValue('value');
-
-        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(2, count($doc->getEnrichment()));
     }
 
     public function testUpdateEnrichmentSetDuplicateKeyName() {
@@ -247,9 +249,10 @@ class Opus_EnrichmentTest extends TestCase {
         $enrichment = $enrichments[1];
         $this->assertTrue($enrichment->getKeyName() == 'anothervalid');
         $enrichment->setKeyName('valid');
-
-        $this->setExpectedException('Opus_Enrichment_NotUniqueException');
         $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $this->assertEquals(2, count($doc->getEnrichment()));
     }
 
 
