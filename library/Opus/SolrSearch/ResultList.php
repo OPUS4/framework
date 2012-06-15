@@ -47,6 +47,9 @@ class Opus_SolrSearch_ResultList {
 
     public function  __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $log = null) {
         $this->log = $log;
+        $this->numberOfHits = $numberOfHits;
+        $this->queryTime = $queryTime;
+        $this->facets = $facets;
         $this->results = array();
 
         // make sure that documents returned from index exist in database
@@ -64,15 +67,12 @@ class Opus_SolrSearch_ResultList {
                     array_push($this->results, $result);
                 }
             }
+            $resultsSize = count($this->results);
+            $resultsSizeDB = count($docIdsDB);
+            if ($resultsSize != $resultsSizeDB && !is_null($this->log)) {
+                $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only $resultsSizeDB found in database");
+            }
         }
-
-        $numOfResults = count($this->results);
-        if ($numberOfHits != $numOfResults && !is_null($this->log)) {
-            $this->log->err("found inconsistency between database and solr index: index returns $numberOfHits documents, but only $numOfResults found in database");
-        }        
-        $this->numberOfHits = $numOfResults;
-        $this->queryTime = $queryTime;
-        $this->facets = $facets;
     }
 
     /**
