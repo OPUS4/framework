@@ -62,15 +62,19 @@ class Opus_SolrSearch_ResultList {
             $finder->setServerState('published');
             $finder->setIdSubset($docIds);
             $docIdsDB = $finder->ids();
+            $notInDB = 0;
             foreach ($results as $result) {
                 if (in_array($result->getId(), $docIdsDB)) {
                     array_push($this->results, $result);
                 }
+                else {
+                    $notInDB++;
+                }
             }
             $resultsSize = count($this->results);
-            $resultsSizeDB = count($docIdsDB);
-            if ($resultsSize != $resultsSizeDB && !is_null($this->log)) {
-                $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only $resultsSizeDB found in database");
+            if ($notInDB > 0 && !is_null($this->log)) {
+                $inDB = $resultsSize - $notInDB;
+                $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only " . $inDB . " found in database");
             }
         }
     }
