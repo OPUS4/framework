@@ -138,7 +138,8 @@ class Opus_PersonTest extends TestCase {
     }
 
     public function testDeletePerson() {
-        $d = new Opus_Document(1);
+        $docId = $this->_documents[0]->getId();
+        $d = new Opus_Document($docId);
         $persons = $d->getPerson();
         $this->assertTrue(1 == count($persons));
 
@@ -149,7 +150,7 @@ class Opus_PersonTest extends TestCase {
         $d->setPerson(array());
         $d->store();
 
-        $d = new Opus_Document(1);
+        $d = new Opus_Document($docId);
         $this->assertTrue(0 == count($d->getPerson()));
     }
 
