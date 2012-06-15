@@ -81,7 +81,7 @@ class Opus_DocumentFinder {
     }
 
     /**
-     * Returns a list of (distinct) documents for the given constraint set.
+     * Returns a list of (distinct) document ids for the given constraint set.
      *
      * @return array
      */
