@@ -39,9 +39,38 @@ class Opus_SolrSearch_ResultList {
     private $queryTime;
     private $facets;
 
-    public function  __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array()) {
-        $this->results = $results;
-        $this->numberOfHits = $numberOfHits;
+    /**
+     *
+     * @var Zend_Log
+     */
+    private $log;
+
+    public function  __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $log = null) {
+        $this->log = $log;
+        $this->results = array();
+
+        // make sure that documents returned from index exist in database
+        if (!empty($results)) {
+            $docIds = array();
+            foreach ($results as $result) {
+                array_push($docIds, $result->getId());
+            }
+            $finder = new Opus_DocumentFinder();
+            $finder->setServerState('published');
+            $finder->setIdSubset($docIds);
+            $docIdsDB = $finder->ids();
+            foreach ($results as $result) {
+                if (in_array($result->getId(), $docIdsDB)) {
+                    array_push($this->results, $result);
+                }
+            }
+        }
+
+        $numOfResults = count($this->results);
+        if ($numberOfHits != $numOfResults && !is_null($this->log)) {
+            $this->log->err("found inconsistency between database and solr index: index returns $numberOfHits documents, but only $numOfResults found in database");
+        }        
+        $this->numberOfHits = $numOfResults;
         $this->queryTime = $queryTime;
         $this->facets = $facets;
     }

@@ -94,7 +94,7 @@ class Opus_SolrSearch_ResponseRenderer {
         $qtime = $this->jsonResponse['responseHeader']['QTime'];
         $this->log->debug("number of hits: $numFound");
         $this->log->debug("query time: $qtime");
-        $this->resultList = new Opus_SolrSearch_ResultList($results, $numFound, $qtime, $this->getFacets());
+        $this->resultList = new Opus_SolrSearch_ResultList($results, $numFound, $qtime, $this->getFacets(), $this->log);
     }
 
     /**
