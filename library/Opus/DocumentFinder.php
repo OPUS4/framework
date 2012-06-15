@@ -171,7 +171,7 @@ class Opus_DocumentFinder {
     /**
      * Add subset-constraints to be applied on the result set.
      *
-     * @param  string $type
+     * @param  array $subset
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setIdSubset($subset) {
