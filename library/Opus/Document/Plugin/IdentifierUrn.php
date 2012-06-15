@@ -58,9 +58,8 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $config = Zend_Registry::get('Zend_Config');
         $log = Zend_Registry::get('Zend_Log');
-        $id = $model->getId();
 
-        $log->debug('IdentifierUrn postStoreInternal for ' . $id);
+        $log->debug('IdentifierUrn postStoreInternal for ' . $model->getDisplayName());
 
         if(!isset($config->urn->autoCreate) or $config->urn->autoCreate != '1') {
             $log->debug('URN auto creation is not configured. skipping...');
@@ -74,22 +73,22 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $log->debug('config.ini is set to support urn auto generation');
 
         if($this->urnAlreadyPresent($model)) {
-            $log->debug('Document #' . $id . ' already has a URN. Skipping automatic generation.');
+            $log->debug('Model ' . $model->getDisplayName() . ' already has a URN. Skipping automatic generation.');
             return;
         }
 
         if (!$this->allowUrnOnThisDocument($model)) {
-            $log->debug('Document #' . $id . ' has no oai-visible files. Skipping automatic URN generation.');
+            $log->debug('Model ' . $model->getDisplayName() . ' has no oai-visible files. Skipping automatic URN generation.');
             return;
         }
 
-        $log->debug('Generating URN for document ' . $id);
+        $log->debug('Generating URN for document ' . $model->getDisplayName());
 
         $nid = $config->urn->nid;
         $nss = $config->urn->nss;
 
         $urn = new Opus_Identifier_Urn($nid, $nss);
-        $urn_value = $urn->getUrn($id);
+        $urn_value = $urn->getUrn($model->getId());
         $urn_model = new Opus_Identifier();
         $urn_model->setValue($urn_value);
         $urn_model->setType('urn');
