@@ -109,22 +109,41 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
     }
 
     /**
+     * Test urnAlreadyPresent in isolation
+     */
+    public function testUrnAlreadyPresent() {
+        $plugin = new Opus_Document_Plugin_IdentifierUrn();
+
+        $model = new Opus_Document();
+        $this->assertFalse($plugin->urnAlreadyPresent($model));
+
+        $model = new Opus_Document();
+        $model->addIdentifier()->setType('foo');
+        $this->assertFalse($plugin->urnAlreadyPresent($model));
+
+        $model = new Opus_Document();
+        $model->addIdentifier()->setType('urn');
+        $this->assertTrue($plugin->urnAlreadyPresent($model));
+
+        $model = new Opus_Document();
+        $model->addIdentifierUrn();
+        $this->assertTrue($plugin->urnAlreadyPresent($model));
+    }
+
+    /**
      * Test allowUrnOnThisDocument in isolation
      */
     public function testAllowUrnOnThisDocument() {
         $plugin = new Opus_Document_Plugin_IdentifierUrn();
 
         $model = new Opus_Document();
-        $model->setServerState('published');
         $this->assertFalse($plugin->allowUrnOnThisDocument($model));
 
         $model = new Opus_Document();
-        $model->setServerState('published');
         $model->addFile()->setVisibleInOai(0);
         $this->assertFalse($plugin->allowUrnOnThisDocument($model));
 
         $model = new Opus_Document();
-        $model->setServerState('published');
         $model->addFile()->setVisibleInOai(1);
         $this->assertTrue($plugin->allowUrnOnThisDocument($model));
     }

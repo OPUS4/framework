@@ -97,7 +97,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $model->addIdentifierUrn($urn_model);
     }
 
-    private function urnAlreadyPresent($document) {
+    public function urnAlreadyPresent($document) {
         $identifierUrns = $document->getIdentifierUrn();
         if(count($identifierUrns) > 0) {
             return true;
