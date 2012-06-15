@@ -50,11 +50,14 @@ class TestCase extends PHPUnit_Framework_TestCase {
         // This is needed to workaround the constraints on the parent_id column.
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
+
+        $adapter->query('SET FOREIGN_KEY_CHECKS = 0;');
         $adapter->query('UPDATE collections SET parent_id = null ORDER BY left_id DESC');
 
         foreach ($adapter->listTables() as $tableName) {
             self::clearTable($tableName);
-        }        
+        }
+        $adapter->query('SET FOREIGN_KEY_CHECKS = 1;');
     }
 
     /**
@@ -69,7 +72,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
         $this->assertNotNull($adapter);
 
         $tablename = $adapter->quoteIdentifier($tablename);
-        $adapter->query('DELETE FROM ' . $tablename);
+        $adapter->query('TRUNCATE ' . $tablename);
 
         $count = $adapter->fetchOne('SELECT COUNT(*) FROM ' . $tablename);
         $this->assertEquals(0, $count, "Table $tablename is not empty!");
