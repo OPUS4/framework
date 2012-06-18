@@ -33,6 +33,35 @@
  */
 
 class Opus_SolrSearch_Exception extends Exception {
-    
+
+    const SERVER_UNREACHABLE = '1';
+
+    const INVALID_QUERY = '2';
+
+    public function __construct($message, $code = null, $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function isServerUnreachable() {
+        return $this->code == self::SERVER_UNREACHABLE;
+    }
+
+    public function isInvalidQuery() {
+        return $this->code == self::INVALID_QUERY;
+    }
+
+    public function  __toString() {       
+        $previousMessage = '';
+        if (!is_null($this->getPrevious())) {
+            $previousMessage = $this->getPrevious()->getMessage();
+        }
+        if ($this->isServerUnreachable()) {
+            return "solr server is unreachable: $previousMessage";
+        }
+        if ($this->isInvalidQuery()) {
+            return "given search query is invalid: $previousMessage";
+        }
+        return "unknown error while trying to access Solr server: $previousMessage";
+    }
 }
 

@@ -64,7 +64,7 @@ class Opus_SolrSearch_Searcher {
         $this->solr_server = $this->getSolrServer();
         if (false === $this->solr_server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
-            throw new Opus_SolrSearch_Exception('Solr server ' . $this->solr_server_url . ' is not responding.');
+            throw new Opus_SolrSearch_Exception('Solr server ' . $this->solr_server_url . ' is not responding.', Opus_SolrSearch_Exception::SERVER_UNREACHABLE);
         }
         $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
     }
@@ -99,11 +99,21 @@ class Opus_SolrSearch_Searcher {
         $solr_response = null;
         try {
             $this->log->debug("query: " . $query->getQ());
-            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), $this->getParams($query));
+            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), $this->getParams($query));            
         }
         catch (Exception $e) {
             $msg = 'Solr server responds with an error ' . $e->getMessage();
             $this->log->err($msg);
+            if ($e instanceof Apache_Solr_HttpTransportException) {
+                if ($e->getResponse()->getHttpStatus() == '400') {
+                    // 400 seems to indicate org.apache.lucene.query.ParserParseException
+                    throw new Opus_SolrSearch_Exception($msg, Opus_SolrSearch_Exception::INVALID_QUERY, $e);
+                }
+                if ($e->getResponse()->getHttpStatus() == '404') {
+                    // 404 seems to indicate Solr server is unreachable
+                    throw new Opus_SolrSearch_Exception($msg, Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e);
+                }
+            }
             throw new Opus_SolrSearch_Exception($msg, null, $e);
         }
         if (is_null($solr_response)) {
