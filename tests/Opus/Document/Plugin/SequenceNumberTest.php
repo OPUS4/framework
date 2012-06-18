@@ -52,6 +52,14 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
         Zend_Registry::set('Zend_Config', $this->__config_backup);
     }
 
+    public function testDisabledCachePlugin() {
+        $doc = new Opus_Document();
+
+        $this->setExpectedException('Opus_Model_Exception');
+        $doc->unregisterPlugin('Opus_Document_Plugin_SequenceNumber');
+        $this->fail('Plugin should stay disabled.');
+    }
+
     public function testExceptionOnInvalidModel() {
         $config = new Zend_Config(array());
         Zend_Registry::set('Zend_Config', $config);
