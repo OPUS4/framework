@@ -309,12 +309,12 @@
                 </xsl:if>
 
                 <!-- identifier (multi valued) -->
-                <xsl:if test="/Opus/Opus_Document/Identifier">
+                <xsl:for-each select="/Opus/Opus_Document/Identifier">
                     <xsl:element name="field">
                         <xsl:attribute name="name">identifier</xsl:attribute>
                         <xsl:value-of select="@Value"/>
                     </xsl:element>
-                </xsl:if>
+                </xsl:for-each>
 
             </xsl:element>
         </xsl:element>
