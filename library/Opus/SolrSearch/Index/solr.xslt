@@ -158,7 +158,7 @@
 
                 <!-- other persons (non-authors) -->
                 <xsl:for-each select="/Opus/Opus_Document/*">
-                    <xsl:if test="local-name() != 'Person' and local-name() != 'PersonAuthor' and substring(local-name(), 1, 6) = 'Person'">
+                    <xsl:if test="local-name() != 'Person' and local-name() != 'PersonAuthor' and local-name() != 'PersonSubmitter' and substring(local-name(), 1, 6) = 'Person'">
                         <xsl:element name="field">
                             <xsl:attribute name="name">persons</xsl:attribute>
                             <xsl:value-of select="@FirstName" />
