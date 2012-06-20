@@ -109,6 +109,7 @@ class Opus_EnrichmentTest extends TestCase {
 
         $expectedEnrichment = array('KeyName' => 'valid', 'Value' => 'value');
         $this->assertEquals($doc->getEnrichment(0)->toArray(), $expectedEnrichment);
+        $this->assertEquals($doc->getEnrichment(1)->toArray(), $expectedEnrichment);
     }
 
     public function testStoreEnrichmentWithInvalidKey() {
