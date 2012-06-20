@@ -572,14 +572,14 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
         $method = $class->getMethod('sendSolrXmlToServer');
         $method->setAccessible(true);
-        $exception = null;
+        
         try {
             $method->invoke ($this->indexer, $xml);
+            $this->fail('expected exception of type Opus_SolrSearch_Index_Exception');
         }
         catch (Exception $e) {
-            $exception = $e;
+            $this->assertType('Opus_SolrSearch_Index_Exception', $e);
         }
-        $this->assertNotNull($exception);                
     }
 
     /**

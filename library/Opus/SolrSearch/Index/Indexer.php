@@ -504,7 +504,7 @@ class Opus_SolrSearch_Index_Indexer {
         $response = new Apache_Solr_Response(@file_get_contents($this->index_server_url . '/update', false, $stream));
         $this->log->debug('Solr Response Status: ' . $response->getHttpStatus());
         if (!$response->getRawResponse()) {
-            throw new Exception();
+            throw new Opus_SolrSearch_Index_Exception();
         }        
     }
 
