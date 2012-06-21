@@ -837,4 +837,53 @@ class Opus_Model_Xml_Version1Test extends TestCase {
 
     }
 
+    /**
+     * Check that a Opus_Model_Filter gets an Id attribute in the XML output
+     * if the filtered object is of Opus_Model_AbstractDb
+     *
+     * @return void
+     */
+    public function testFilteredAbstractDbModelsGetId() {
+        $model = new Opus_Model_ModelAbstractDbMock;
+
+        $filterModel = new Opus_Model_Filter();
+        $filterModel->setModel($model);
+
+        $xml = new Opus_Model_Xml;
+        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml->setModel($filterModel);
+        $dom = $xml->getDomDocument();
+
+        $filterDom = $dom->getElementsByTagName('Opus_Model_Filter')->item(0);
+        $this->assertTrue($filterDom->hasAttribute('Id'), 'missing attribute Id');
+        $this->assertEquals("4711", $filterDom->getAttribute('Id'), 'Id != 4711');
+    }
+
+    /**
+     * Check that a Opus_Model_Filter gets an Id attribute in the XML output
+     * if the filtered object is of Opus_Model_AbstractDb
+     *
+     * @return void
+     */
+    public function testFilteredAbstractModelsGetId() {
+        $model = new Opus_Model_ModelAbstractWithoutId();
+        $this->assertFalse($model->hasField('Id'),
+                'Test model must not have an "Id" field!');
+        $this->assertTrue($model->hasField('Value'),
+                'Test model must have a "Value"field!');
+
+        $filterModel = new Opus_Model_Filter();
+        $filterModel->setModel($model);
+
+        $xml = new Opus_Model_Xml;
+        $xml->setStrategy(new Opus_Model_Xml_Version1);
+        $xml->setModel($filterModel);
+        $dom = $xml->getDomDocument();
+
+        $filterDom = $dom->getElementsByTagName('Opus_Model_Filter')->item(0);
+        $this->assertFalse($filterDom->hasAttribute('Id'), 'unexpected attribute Id');
+        $this->assertTrue($filterDom->hasAttribute('Value'), 'missing attribute Value');
+        $this->assertEquals("test", $filterDom->getAttribute('Value'), 'Value != "test"');
+    }
+
 }
