@@ -102,9 +102,9 @@ class Opus_Job extends Opus_Model_AbstractDb {
      * @throws Exception Thrown if json decoding failed.
      * @return mixed Value of field.
      */
-    public function getData() {
+    public function getData($convertObjectsIntoAssociativeArrays = false) {
         $fieldData = $this->_getField('Data')->getValue();
-        $jsonDecode = json_decode($fieldData);
+        $jsonDecode = json_decode($fieldData, $convertObjectsIntoAssociativeArrays);
         if ((null != $fieldData) and (null === $jsonDecode)) {
             throw new Exception('Json decoding failed.');
         }
