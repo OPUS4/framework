@@ -102,8 +102,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
         try {
             $this->_logger->info(__CLASS__ . ': Sending notification email...');
-            $this->_logger->debug(__CLASS__ . ': sender: ' . $from);
-            $this->_logger->debug(__CLASS__ . ': receiver: ' . $recipient);
+            $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
             $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
         }
         catch (Exception $e) {
