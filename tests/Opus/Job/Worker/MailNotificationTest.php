@@ -32,7 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
+class Opus_Job_Worker_MailNotificationTest extends TestCase {
 
     protected function setUp() {
         parent::setUp();
@@ -50,26 +50,10 @@ class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
     }
 
     /**
-     * Tests getting global recipients.
-     */
-    public function testGetGlobalRecipients() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
-
-        // Only one user exists *and* has an email address
-        $recipients = $mail->getGlobalRecipients();
-        $this->assertNotNull($recipients);
-        $this->assertEquals(1, count($recipients));
-
-        // The uses is called "hasemail" and his mail is "has@mail.de"
-        $this->assertEquals('hasmail', $recipients[0]['login']);
-        $this->assertEquals('has@mail.de', $recipients[0]['address']);
-    }
-
-    /**
      * Tests getting recipients (from empty list)
      */
     public function testGetRecipientsForEmptyList() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $mail = new Opus_Job_Worker_MailNotification();
         $recipients = $mail->getRecipients();
         $this->assertNotNull($recipients);
         $this->assertEquals(0, count($recipients));
@@ -79,7 +63,7 @@ class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
      * Tests getting recipients (from invalid list)
      */
     public function testGetRecipientsForInvalidUser() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $mail = new Opus_Job_Worker_MailNotification();
         $users = array('doesnotexist');
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
@@ -90,7 +74,7 @@ class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
      * Tests getting recipients (from existing user, without mail)
      */
     public function testGetRecipientsForUserWithoutMail() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $mail = new Opus_Job_Worker_MailNotification();
         $users = array('admin');
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
@@ -101,7 +85,7 @@ class Opus_Job_Worker_MailPublishNotificationTest extends TestCase {
      * Tests getting recipients (from existing user, without mail)
      */
     public function testGetRecipientsForUserWithMail() {
-        $mail = new Opus_Job_Worker_MailPublishNotification();
+        $mail = new Opus_Job_Worker_MailNotification();
         $users = array('hasmail');
         $recipients = $mail->getRecipients($users);
         $this->assertNotNull($recipients);
