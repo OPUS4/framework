@@ -277,6 +277,58 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals( 'thirteen', $collection->getDisplayName('frontdoor') );
     }
 
+    public function testGetNumberAndNameIsIndependentOfDiplayBrowsingName() {
+        $this->role_fixture->setDisplayBrowsing('Name');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('name');
+        $this->object->setNumber('number');
+        $this->object->store();
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $this->assertEquals('number name', $collection->getNumberAndName());
+    }
+
+    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNumber() {
+        $this->role_fixture->setDisplayBrowsing('Number');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('name');
+        $this->object->setNumber('number');
+        $this->object->store();
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $this->assertEquals('number name', $collection->getNumberAndName());
+    }
+
+    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNameNumber() {
+        $this->role_fixture->setDisplayBrowsing('Name,Number');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('name');
+        $this->object->setNumber('number');
+        $this->object->store();
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $this->assertEquals('number name', $collection->getNumberAndName());
+    }
+
+    public function testGetNumberAndNameWithDelimiterArg() {
+        $this->role_fixture->setDisplayBrowsing('Number');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('name');
+        $this->object->setNumber('number');
+        $this->object->store();
+
+        $collection = new Opus_Collection( $this->object->getId() );
+        $this->assertEquals('number - name', $collection->getNumberAndName(' - '));
+    }
+
     public function testGetNumSubTreeEntries() {
         $this->object->setVisible(1);
         $this->object->store();

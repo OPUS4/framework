@@ -365,6 +365,27 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Returns the complete string representation for the current collection (consists of
+     * Number and Name).
+     *
+     * @param string $delimiter
+     *
+     * @return string
+     */
+    public function getNumberAndName($delimiter = ' ') {
+        $name = trim($this->getName());
+        $number = trim($this->getNumber());
+        if ($number == '') {
+            return $name;
+        }
+        if ($name == '') {
+            return $number;
+        }
+        return $number . $delimiter . $name;
+    }
+
+
+    /**
      * Returns debug name.
      *
      * @return string
