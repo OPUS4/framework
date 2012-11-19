@@ -56,11 +56,19 @@ class Opus_SolrSearch_Searcher {
     private $solr_server_url;
 
     /**
+     * Application Configuration
+     *
+     * @var Zend_Config
+     */
+    private $config;
+
+    /**
      *
      * @throws Opus_SolrSearch_Exception If connection to Solr server could not be established.
      */
     public function  __construct() {
         $this->log = Zend_Registry::get('Zend_Log');
+        $this->config = Zend_Registry::get('Zend_Config');
         $this->solr_server = $this->getSolrServer();
         if (false === $this->solr_server->ping()) {
             $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
@@ -77,11 +85,10 @@ class Opus_SolrSearch_Searcher {
      *
      * @return Apache_Solr_Server
      */
-    private function getSolrServer() {
-        $config = Zend_Registry::get('Zend_Config');
-        $solr_host = $config->searchengine->index->host;
-        $solr_port = $config->searchengine->index->port;
-        $solr_app = '/' . $config->searchengine->index->app;
+    private function getSolrServer() {        
+        $solr_host = $this->config->searchengine->index->host;
+        $solr_port = $this->config->searchengine->index->port;
+        $solr_app = '/' . $this->config->searchengine->index->app;
         $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
         return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
     }
@@ -162,24 +169,39 @@ class Opus_SolrSearch_Searcher {
             'facet.field' => $this->setFacetFieldsFromConfig(),
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
-            'facet.limit' => 10
+            'facet.limit' => isset($this->config->searchengine->solr->facetlimit) ? $this->config->searchengine->solr->facetlimit : 10
         );
         $fq = $query->getFilterQueries();
         if (!empty($fq)) {
             $params['fq'] = $fq;
         }
+        $params = array_merge($params, $this->getFacetLimitsFromConfig());
         return $params;
     }
 
+    private function getFacetLimitsFromConfig() {
+        if (!isset($this->config->searchengine->solr->facets) || !isset($this->config->searchengine->solr->facetlimit)) {
+            return array();
+        }
+        $result = array();
+        $limits = $this->config->searchengine->solr->facetlimit;
+        $facets = explode((","), $this->config->searchengine->solr->facets);
+        foreach ($facets as $facet) {
+            if (isset($limits->$facet) && is_numeric($limits->$facet)) {
+                $result["f.$facet.facet.limit"] = $limits->$facet;
+            }
+        }
+        return $result;
+    }
+
     private function setFacetFieldsFromConfig() {
-        $config = Zend_Registry::get('Zend_Config');
-        if (!isset($config->searchengine->solr->facets)) {
+        if (!isset($this->config->searchengine->solr->facets)) {
             // no facets are being configured
             $this->log->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
             return array();
         }
         $result = array();
-        $facets = explode((","), $config->searchengine->solr->facets);
+        $facets = explode((","), $this->config->searchengine->solr->facets);
         foreach ($facets as $facet) {
             array_push($result, trim($facet));
         }
