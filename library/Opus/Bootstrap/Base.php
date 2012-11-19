@@ -216,6 +216,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         // filter log output
         $priorityFilter = new Zend_Log_Filter_Priority($logLevel);
+        Zend_Registry::set('LOG_LEVEL', $logLevel);
         $logger->addFilter($priorityFilter);
 
         if ($logLevelNotConfigured) {
