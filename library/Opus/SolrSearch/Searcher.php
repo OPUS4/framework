@@ -169,7 +169,7 @@ class Opus_SolrSearch_Searcher {
             'facet.field' => $this->setFacetFieldsFromConfig(),
             'facet.mincount' => 1,
             'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
-            'facet.limit' => isset($this->config->searchengine->solr->facetlimit) ? $this->config->searchengine->solr->facetlimit : 10
+            'facet.limit' => isset($this->config->searchengine->solr->globalfacetlimit) ? $this->config->searchengine->solr->globalfacetlimit : 10
         );
         $fq = $query->getFilterQueries();
         if (!empty($fq)) {
