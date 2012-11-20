@@ -262,7 +262,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return boolean
      */
-    private function skipSecurityChecks() {
+    public function skipSecurityChecks() {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
         if (isset($conf) and $conf->security === '0') {
