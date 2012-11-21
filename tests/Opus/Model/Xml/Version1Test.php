@@ -831,7 +831,10 @@ class Opus_Model_Xml_Version1Test extends TestCase {
         $xml->setXml($xmlString);
 
         $model = $xml->getModel();
-        $this->assertInstanceOf('Opus_Model_ModelAbstract', $model);
+        // assertInstanceOf only available in phpunit 3.6
+        // $this->assertInstanceOf('Opus_Model_ModelAbstract', $model);
+        $this->assertTrue($model instanceof Opus_Model_ModelAbstract, 'Excepted instance of Opus_Model_ModelAbstract');
+        
         $this->assertContains('foo...', $model->getValue());
         $this->assertContains('...bar', $model->getValue());
 
