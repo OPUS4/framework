@@ -120,19 +120,22 @@ class Opus_Job_Runner {
      * @return void
      */
     public function run() {
-        $jobs = Opus_Job::getByLabels(array_keys($this->_workers));
+        $jobs = Opus_Job::getByLabels(array_keys($this->_workers), $this->_limit, Opus_Job::STATE_UNDEFINED);
+    
+        if (null !== $this->_logger)
+            $this->_logger->info('Found ' . count($jobs). ' job(s)');
 
         $runJobs = 0;
         foreach ($jobs as $job) {
-            if (null !== $this->_limit) {
-                if ($runJobs >= $this->_limit) {
-                    return;
-                }
-            }
             if (true === $this->consume($job)) {
                 $runJobs++;
+            } else {
+                if (null !== $this->_logger)
+                    $this->_logger->warn('Job with ID ' . $job->getId(). ' failed.');
             }
         }
+        if (null !== $this->_logger)
+            $this->_logger->info('Processed ' . $runJobs. ' job(s).');
     }
 
     /**
@@ -156,7 +159,7 @@ class Opus_Job_Runner {
                 $this->_logger->info('Processing ' . $label);
             }
 
-            $job->setState('processing');
+            $job->setState(Opus_Job::STATE_PROCESSING);
             $job->store();
 
             try {
@@ -173,7 +176,7 @@ class Opus_Job_Runner {
                    'message'  => $ex->getMessage(),
                    'trace' => $ex->getTraceAsString()
                 )));
-                $job->setState('failed');
+                $job->setState(Opus_Job::STATE_FAILED);
                 $job->store();
                 return false;
             }

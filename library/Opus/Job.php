@@ -40,6 +40,10 @@
  */
 class Opus_Job extends Opus_Model_AbstractDb {
     
+    const STATE_PROCESSING = 'processing';
+    const STATE_FAILED = 'failed';
+    const STATE_UNDEFINED = 'undefined';
+    
     /**
      * Specify then table gateway.
      *
@@ -112,6 +116,54 @@ class Opus_Job extends Opus_Model_AbstractDb {
     }
     
     /**
+     * Retrieve number of Opus_Job entries in the database.
+     *
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @return integer Number of entries in database.
+     */
+    public static function getCount($state = null) {
+        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->from($table, array('COUNT(id) AS count'));
+        if(!is_null($state)) {
+            if($state == Opus_Job::STATE_UNDEFINED) {
+                $select->where('state IS NULL');
+            } else {
+                $select->where('state = ?', $state);
+            }
+        }
+        $rowset = $table->fetchAll($select);
+        $result = $rowset[0]['count'];
+        return $result;
+    }
+
+    /**
+     * Retrieve number of Opus_Job instances from the database.
+     *
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @return array Key / Value pairs of label / count for database entries.
+     */
+    public static function getCountPerLabel($state = null) {
+        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()
+                ->from($table, array('label','COUNT(id) AS count'))
+                ->group('label');
+        if(!is_null($state)) {
+            if($state == Opus_Job::STATE_UNDEFINED) {
+                $select->where('state IS NULL');
+            } else {
+                $select->where('state = ?', $state);
+            }
+        }
+        $rowset = $table->fetchAll($select);
+        
+        $result = array();
+        foreach ($rowset as $row) {
+            $result[$row->label] = $row->count;
+        }                
+        return $result;
+    }
+
+    /**
      * Retrieve all Opus_Job instances from the database.
      *
      * @param array $ids (Optional) Set of IDs specifying the models to fetch.
@@ -126,9 +178,11 @@ class Opus_Job extends Opus_Model_AbstractDb {
      * Retrieve all Jobs that have a certain label.
      *
      * @param array $labels Set of labels to get Jobs for.
+     * @param string $limit (optional) Number of jobs to retrieve
+     * @param string $state (optional) only retrieve jobs in given state
      * @return array Set of Opus_Job objects.
      */
-    public static function getByLabels(array $labels) {
+    public static function getByLabels(array $labels, $limit=null, $state = null) {
         if (count($labels) < 1) {
             return null;
         }
@@ -138,7 +192,18 @@ class Opus_Job extends Opus_Model_AbstractDb {
         foreach ($labels as $label) {
             $select->orWhere('label = ?', $label);    
         }
+        if(!is_null($state)) {
+            if($state == Opus_Job::STATE_UNDEFINED) {
+                $select->where('state IS NULL');
+            } else {
+                $select->where('state = ?', $state);
+            }
+        }
+
         $select->order('id');
+        if(!is_null($limit)) {
+            $select->limit($limit);
+        }
         $rowset = $table->fetchAll($select);
 
         $result = array();

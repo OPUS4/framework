@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -39,8 +40,9 @@
  * Worker class for indexing Opus documents.
  *
  */
-class Opus_Job_Worker_IndexOpusDocument
-    implements Opus_Job_Worker_Interface {
+class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
+
+    const LABEL = 'opus-index-document';
 
     /**
      * Holds the index.
@@ -62,7 +64,7 @@ class Opus_Job_Worker_IndexOpusDocument
      * @var Zend_Log
      */
     private $_logger = null;
-    
+
     /**
      * @param mixed $logger (Optional)
      * @return void
@@ -77,7 +79,7 @@ class Opus_Job_Worker_IndexOpusDocument
      * @return string Message label.
      */
     public function getActivationLabel() {
-        return 'opus-index-document';
+        return self::LABEL;
     }
 
     /**
@@ -95,7 +97,7 @@ class Opus_Job_Worker_IndexOpusDocument
             throw new IllegalArgumentException('Zend_Log instance expected.');
         }
     }
-    
+
     /**
      * Set the search index to add documents to.
      *
@@ -105,27 +107,45 @@ class Opus_Job_Worker_IndexOpusDocument
     public function setIndex(Opus_SolrSearch_Index_Indexer $index) {
         $this->_index = $index;
     }
-    
+
     /**
-     * Load a document from database and optional file(s) and index them.
+     * Load a document from database and optional file(s) and index them,
+     * or remove document from index (depending on job)
      *
      * @param Opus_Job $job Job description and attached data.
      * @return void
      */
     public function work(Opus_Job $job) {
+
+        // make sure we have the right job
+        if ($job->getLabel() != $this->getActivationLabel()) {
+            throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
+        }
+
         $this->_job = $job;
         $data = $job->getData();
 
-        $documentId = (int) $data->documentId;
+        if (!(is_object($data)
+                && isset($data->documentId)
+                && isset($data->task)
+                ))
+            throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
 
         if (null !== $this->_logger) {
-            $this->_logger->info('Indexing document with ID: ' . $documentId . '.');
+            $this->_logger->info('Indexing document with ID: ' . $data->documentId . '.');
         }
 
-        // create index document
-        $document = new Opus_Document($documentId);
-        $this->_index->addDocumentToEntryIndex($document);
-        $this->_index->commit();
+        // create index document or remove index, depending on task
+        if ($data->task === 'index') {
+            $document = new Opus_Document($data->documentId);
+            $this->_index->addDocumentToEntryIndex($document);
+            $this->_index->commit();
+        } else if ($data->task === 'remove') {
+            $this->_index->removeDocumentFromEntryIndexById($data->documentId);
+            $this->_index->commit();
+        } else {
+            throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
+        }
     }
 
 }

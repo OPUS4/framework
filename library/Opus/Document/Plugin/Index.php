@@ -40,7 +40,13 @@
  */
 class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
 
-    private $synchronous = true;
+    private $logger;
+    private $config;
+
+    public function __construct($logger = null, $config = null) {
+        $this->logger = is_null($logger) ? Zend_Registry::get('Zend_Log') : $logger;
+        $this->config = is_null($config) ? Zend_Registry::get('Zend_Config') : $config;
+    }
 
     /**
      * Post-store hook will be called right after the document has been stored
@@ -94,45 +100,49 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param integer $documentId
      */
     private function removeDocumentFromIndex($documentId) {
-        $logger = Zend_Registry::get('Zend_Log');
 
-        if (null !== $logger) {
-            $message = 'Removing document ' . $documentId . ' from index.';
-            $logger->debug(__METHOD__ . ': ' . $message);
-        }
-
-        try {
-            $indexer = new Opus_SolrSearch_Index_Indexer;
-            $indexer->removeDocumentFromEntryIndexById($documentId);
-            $indexer->commit();
-
-            // Return immediately if successful - no more actions required.
-            return;
-        }
-        catch (Opus_SolrSearch_Index_Exception $e) {
-            if (null !== $logger) {
-                $message = 'Removing document-id ' . $documentId . ' from index failed: ';
-                $message .= $e->getMessage();
-                $logger->debug(__METHOD__ . ': ' . $message);
+        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+            
+            if (null !== $this->logger) {
+                $message = 'Adding remove-index job for document ' . $documentId . '.';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
             }
+
+            $job = new Opus_Job();
+            $job->setLabel('opus-index-document');
+            $job->setData(array(
+                'documentId' => $documentId,
+                'task' => 'remove'
+            ));
+
+            // skip creating job if equal job already exists
+            if (true === $job->isUniqueInQueue()) {
+                $job->store();
+            } else {
+                $message = 'remove-index job for document ' . $documentId . ' already exists!';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
+            }
+
+        } else {
+            if (null !== $this->logger) {
+                $message = 'Removing document ' . $documentId . ' from index.';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
+            }
+            try {
+                $indexer = new Opus_SolrSearch_Index_Indexer;
+                $indexer->removeDocumentFromEntryIndexById($documentId);
+                $indexer->commit();
+            }
+            catch (Opus_SolrSearch_Index_Exception $e) {
+                if (null !== $this->logger) {
+                    $message = 'Removing document-id ' . $documentId . ' from index failed: ';
+                    $message .= $e->getMessage();
+                    $this->logger->debug(__METHOD__ . ': ' . $message);
+                }
+            }
+            
         }
 
-        // enqueue job, if update failed
-        if (null !== $logger) {
-            $message = 'Adding remove-index job for document ' . $documentId . '.';
-            $logger->debug(__METHOD__ . ': ' . $message);
-        }
-
-        $job = new Opus_Job();
-        $job->setLabel('opus-remove-index-document');
-        $job->setData(array(
-            'documentId' => $documentId,
-        ));
-
-        // skip creating job if equal job already exists
-        if (true === $job->isUniqueInQueue()) {
-            $job->store();
-        }
     }
 
     /**
@@ -142,52 +152,51 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @return void
      */
     private function addDocumentToIndex(Opus_Document $document) {
-        $logger = Zend_Registry::get('Zend_Log');
 
-        // if synchronous is set, try to index document
-        if ($this->synchronous) {
-            if (null !== $logger) {
-                $message = 'Indexing document ' . $document->getId() . '.';
-                $logger->debug(__METHOD__ . ': ' . $message);
+        // create job if asynchronous is set
+        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+            if (null !== $this->logger) {
+                $message = 'Adding index job for document ' . $document->getId() . '.';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
+            }
+
+            $job = new Opus_Job();
+            $job->setLabel('opus-index-document');
+            $job->setData(array(
+                'documentId' => $document->getId(),
+                'task' => 'index'
+            ));
+
+            // skip creating job if equal job already exists
+            if (true === $job->isUniqueInQueue()) {
+                $job->store();
+            } else {
+                $message = 'Indexing job for document ' . $documentId . ' already exists!';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
+            }
+        } else {
+            if (null !== $this->logger) {
+                $message = 'Index document ' . $document->getId() . '.';
+                $this->logger->debug(__METHOD__ . ': ' . $message);
             }
 
             try {
                 $indexer = new Opus_SolrSearch_Index_Indexer;
                 $indexer->addDocumentToEntryIndex($document);
                 $indexer->commit();
-
-                // Return immediately if successful - no more actions required.
-                return;
             }
             catch (Opus_SolrSearch_Index_Exception $e) {
-                if (null !== $logger) {
+                if (null !== $this->logger) {
                     $message = 'Indexing document ' . $document->getId() . ' failed: ';
                     $message .= $e->getMessage();
-                    $logger->debug(__METHOD__ . ': ' . $message);
+                    $this->logger->debug(__METHOD__ . ': ' . $message);
                 }
             }
             catch (InvalidArgumentException $e) {
-                if (!is_null($logger)) {
-                    $logger->warn(__METHOD__ . ': ' . $e->getMessage());
+                if (!is_null($this->logger)) {
+                    $this->logger->warn(__METHOD__ . ': ' . $e->getMessage());
                 }
             }
-        }
-
-        // enqueue job, if synchronous update disabled *or* failed
-        if (null !== $logger) {
-            $message = 'Adding index job for document ' . $document->getId() . '.';
-            $logger->debug(__METHOD__ . ': ' . $message);
-        }
-
-        $job = new Opus_Job();
-        $job->setLabel('opus-index-document');
-        $job->setData(array(
-            'documentId' => $document->getId(),
-        ));
-
-        // skip creating job if equal job already exists
-        if (true === $job->isUniqueInQueue()) {
-            $job->store();
         }
     }
 }
