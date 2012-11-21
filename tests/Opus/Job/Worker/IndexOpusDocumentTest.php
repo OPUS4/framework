@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,89 +24,51 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus_Job
- * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @category    Framework Unit Test
+ * @author      Edouard Simon <edouard.simon@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-/**
- * Test cases for running Opus_Jobs.
- *
- * @category    Tests
- * @package     Opus_Job
- *
- * @group       RunnerTest
- */
-class Opus_Job_RunnerTest extends TestCase {
+class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
+
+//    protected function setUp() {
+//        parent::setUp();
+//
+//        $account = new Opus_Account();
+//        $account->setLogin('admin')
+//            ->setPassword('foobar-'.rand())
+//            ->store();
+//
+//        $account = new Opus_Account();
+//        $account->setLogin('hasmail')
+//            ->setPassword('foobar-'.rand())
+//            ->setEmail('has@mail.de')
+//            ->store();
+//    }
 
     /**
-     * Simple test for catching code coverage.
-     *
-     * @return void
+     * Tests working on job
      */
-    public function testRunnerInit() {
-        $runner = new Opus_Job_Runner();
-        $this->assertNotNull($runner, 'Simple initializing of Opus_Job_Runner failed.');
-    }
+    public function testWork() {
 
-    public function testRunIndexWorkerWithInvalidJob() {
-        
         $document = new Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
-
-
-        $job = new Opus_Job();
-        $job->setLabel('opus-index-document');
-        $job->setData(array(
-            'documentId' => $documentId,
-            'task' => 'get-me-a-coffee'));
-        $jobId = $job->store();
-
-        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
-
-        $runner = new Opus_Job_Runner();
-        $runner->registerWorker($indexWorker);
-        $runner->run();
-
-        $job = new Opus_Job($jobId);
-        $this->assertEquals(Opus_Job::STATE_FAILED, $job->getState());
-        $error = $job->getErrors();
-        $this->assertNotEquals('', $error, 'Expected error message from job.');
-//        $job->delete();
         
-    }
-
-    public function testRunIndexWorkerWithValidJob() {
         
-        $document = new Opus_Document();
-        $document->setServerState('published');
-        $documentId = $document->store();
-
-
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
         $job->setData(array(
             'documentId' => $documentId,
             'task' => 'index'));
-        $jobId = $job->store();
-
+        
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
         $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
+        
+        $indexWorker->work($job);
 
-        $runner = new Opus_Job_Runner();
-        $runner->registerWorker($indexWorker);
-        $runner->run();
-        $this->setExpectedException('Opus_Model_NotFoundException');
-        $job = new Opus_Job($jobId);
-        if($job instanceof Opus_Job)
-            $job->delete();
     }
-    
 
 }
-
