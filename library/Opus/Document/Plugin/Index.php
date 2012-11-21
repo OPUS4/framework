@@ -43,11 +43,14 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
     private $logger;
     private $config;
 
-    public function __construct($logger = null, $config = null) {
-        $this->logger = is_null($logger) ? Zend_Registry::get('Zend_Log') : $logger;
+    public function __construct($config = null) {
         $this->config = is_null($config) ? Zend_Registry::get('Zend_Config') : $config;
     }
 
+    public function setLogger(Zend_Log $logger) {
+        $this->logger = $logger;
+    }
+    
     /**
      * Post-store hook will be called right after the document has been stored
      * to the database.  If set to synchronous, update index.  Otherwise add
@@ -118,7 +121,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             // skip creating job if equal job already exists
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
-            } else {
+            } else if (null !== $this->logger) {
                 $message = 'remove-index job for document ' . $documentId . ' already exists!';
                 $this->logger->debug(__METHOD__ . ': ' . $message);
             }

@@ -152,7 +152,6 @@ class Opus_Job_Runner {
         }
 
         if (array_key_exists($label, $this->_workers)) {
-            $result = null;
             $worker = $this->_workers[$label];
 
             if (null !== $this->_logger) {
