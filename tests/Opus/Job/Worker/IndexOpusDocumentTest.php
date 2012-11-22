@@ -33,26 +33,11 @@
 
 class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
 
-//    protected function setUp() {
-//        parent::setUp();
-//
-//        $account = new Opus_Account();
-//        $account->setLogin('admin')
-//            ->setPassword('foobar-'.rand())
-//            ->store();
-//
-//        $account = new Opus_Account();
-//        $account->setLogin('hasmail')
-//            ->setPassword('foobar-'.rand())
-//            ->setEmail('has@mail.de')
-//            ->store();
-//    }
-
     /**
-     * Tests working on job
+     * Tests working on job.
      */
     public function testWork() {
-
+        
         $document = new Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();

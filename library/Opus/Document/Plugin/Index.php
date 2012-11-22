@@ -174,8 +174,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             if (true === $job->isUniqueInQueue()) {
                 $job->store();
             } else {
-                $message = 'Indexing job for document ' . $documentId . ' already exists!';
+            if (null !== $this->logger) {
+                $message = 'Indexing job for document ' . $document->getId() . ' already exists!';
                 $this->logger->debug(__METHOD__ . ': ' . $message);
+            }
             }
         } else {
             if (null !== $this->logger) {
