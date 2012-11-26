@@ -1027,4 +1027,19 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         return self::createObjects($rows);
     }
+
+    public function hasVisibleChildren() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $table = $this->_primaryTableRow->getTable();        
+        $select = $table->selectChildrenById($this->getId());
+        $select->where("visible = 1");        
+        $select->reset('columns');
+        $select->distinct(true)->columns("count(id)");
+        
+        return intval($table->getAdapter()->fetchOne($select)) > 0;
+    }
+    
 }

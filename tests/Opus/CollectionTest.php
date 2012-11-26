@@ -479,4 +479,29 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($coll1->getId(), $children[1]->getId());
     }
 
+    public function testHasVisibleChildren() {
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisibleChildren());
+        $this->assertFalse($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisible('0');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisibleChildren());
+        $this->assertTrue($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisible('1');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertTrue($this->object->hasVisibleChildren());
+        $this->assertTrue($this->object->hasChildren());
+    }
+
 }
