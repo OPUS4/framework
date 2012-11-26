@@ -456,7 +456,7 @@ class Opus_CollectionTest extends TestCase {
     public function testGetVisibleChildren() {
         $this->object->store();
 
-        // add two children: one of them is invisible
+        // add two children: one of them (the first child) is invisible
         $coll1 = new Opus_Collection();
         $coll1->setVisible('1');
         $this->object->addFirstChild($coll1);        
@@ -468,10 +468,15 @@ class Opus_CollectionTest extends TestCase {
         $coll2->store();
 
         $this->object->store();
+        
+        $children = $this->object->getVisibleChildren();
+        $this->assertEquals(1, count($children));
+        $this->assertEquals($coll1->getId(), $children[0]->getId());
 
-        $this->assertEquals(1, count($this->object->getVisibleChildren()));
-        $this->assertEquals(2, count($this->object->getChildren()));
+        $children = $this->object->getChildren();
+        $this->assertEquals(2, count($children));
+        $this->assertEquals($coll2->getId(), $children[0]->getId());
+        $this->assertEquals($coll1->getId(), $children[1]->getId());
     }
-
 
 }
