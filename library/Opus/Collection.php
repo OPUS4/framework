@@ -1013,4 +1013,18 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $this->_primaryTableRow->toArray()
         );
     }
+    
+    public function getVisibleChildren() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectChildrenById($this->getId());
+        $select->where("visible = 1");
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
+    }
 }

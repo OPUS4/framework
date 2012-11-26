@@ -452,4 +452,26 @@ class Opus_CollectionTest extends TestCase {
 
         $this->assertTrue($e instanceof InvalidArgumentException);
     }
+
+    public function testGetVisibleChildren() {
+        $this->object->store();
+
+        // add two children: one of them is invisible
+        $coll1 = new Opus_Collection();
+        $coll1->setVisible('1');
+        $this->object->addFirstChild($coll1);        
+        $coll1->store();
+
+        $coll2 = new Opus_Collection();
+        $coll2->setVisible('0');
+        $this->object->addFirstChild($coll2);
+        $coll2->store();
+
+        $this->object->store();
+
+        $this->assertEquals(1, count($this->object->getVisibleChildren()));
+        $this->assertEquals(2, count($this->object->getChildren()));
+    }
+
+
 }
