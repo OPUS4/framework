@@ -346,6 +346,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return string
      */
     public function getDisplayName($context = 'browsing', $role = null) {
+        if (!is_null($role) && (!$role instanceof Opus_CollectionRole || $role->getId() != $this->getRoleId())) {
+            throw new InvalidArgumentException('given Collection Role is not compatible');
+        }
+
         if (is_null($role)) {
             $role = $this->getRole();
         }

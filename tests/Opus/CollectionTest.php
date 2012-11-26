@@ -424,4 +424,32 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue(is_array($root->getChildren()));
         $this->assertEquals(0, count($root->getChildren()), 'Root collection should have no child.');
     }
+
+    public function testGetDisplayNameWithIncompatibleRole() {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setDisplayBrowsing('Number');
+        $collRole->setDisplayFrontdoor('Number');
+        $collRole->setName('name');
+        $collRole->setOaiName('oainame');
+        $collRole->store();
+
+        $this->role_fixture->setDisplayBrowsing('Name');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->store();
+
+        $coll = new Opus_Collection( $this->object->getId() );
+
+        $e = null;
+        try {
+            $coll->getDisplayName('browsing', $collRole);
+        }
+        catch (Exception $e) {
+            $collRole->delete();
+            $coll->delete();
+        }
+
+        $this->assertTrue($e instanceof InvalidArgumentException);
+    }
 }
