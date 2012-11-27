@@ -34,9 +34,22 @@
  */
 class Opus_Document_Plugin_IndexTest extends TestCase {
 
-    public function testCreateIndexJob() {
+    private $__configBackup;
+    
+    public function setUp() {
+        parent::setUp();
+        $config = Zend_Registry::get('Zend_Config');
+        $this->__configBackup = $config;
+        $config->merge(new Zend_Config(array('runjobs' => array('asynchronous' => true))));
+    }
+    
+    protected function tearDown() {
+        Zend_Registry::set('Zend_Config', $this->__configBackup);
+        parent::tearDown();
+    }
 
-        $asyncFlag = $this->setAsynchronousExecution();
+    
+    public function testCreateIndexJob() {
 
         $indexJobsBefore = Opus_Job::getByLabels(array('opus-index-document'));
         $jobCountBefore = count($indexJobsBefore);
@@ -60,12 +73,12 @@ class Opus_Document_Plugin_IndexTest extends TestCase {
         if (!is_null($newJob))
             $newJob->delete();
 
-        $this->resetAsynchronousExecution($asyncFlag);
     }
 
     public function testDoNotCreateIndexJobIfAsyncDisabled() {
-
-        $asyncFlag = $this->setAsynchronousExecution(false);
+        
+        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
+        
         $indexJobsBefore = Opus_Job::getByLabels(array('opus-index-document'));
         $jobCountBefore = count($indexJobsBefore);
 
@@ -80,16 +93,9 @@ class Opus_Document_Plugin_IndexTest extends TestCase {
         $newJob = $this->getCreatedJob($documentId, $indexJobs);
         $this->assertNull($newJob, 'Expected that no job was created');
 
-        $document->deletePermanent();
-        if (!is_null($newJob))
-            $newJob->delete();
-
-        $this->resetAsynchronousExecution($asyncFlag);
     }
 
     public function testCreateRemoveIndexJob() {
-
-        $asyncFlag = $this->setAsynchronousExecution();
 
         $removeIndexJobsBefore = Opus_Job::getByLabels(array('opus-remove-index-document'));
         $jobCountBefore = count($removeIndexJobsBefore);
@@ -115,15 +121,11 @@ class Opus_Document_Plugin_IndexTest extends TestCase {
 
         $document->deletePermanent();
 
-        if (!is_null($newJob))
-            $newJob->delete();
-
-        $this->resetAsynchronousExecution($asyncFlag);
     }
 
     public function testDoNotCreateRemoveIndexJobIfAsyncDisabled() {
 
-        $asyncFlag = $this->setAsynchronousExecution(false);
+        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
 
         $removeIndexJobsBefore = Opus_Job::getByLabels(array('opus-remove-index-document'));
         $jobCountBefore = count($removeIndexJobsBefore);
@@ -149,33 +151,6 @@ class Opus_Document_Plugin_IndexTest extends TestCase {
         $newJob = $this->getCreatedJob($documentId, $removeIndexJobs);
         $this->assertNull($newJob, 'Expected that no new opus-remove-index-document job was created');
 
-        $document->deletePermanent();
-
-        if (!is_null($newJob))
-            $newJob->delete();
-
-        $this->resetAsynchronousExecution($asyncFlag);
-    }
-
-    private function setAsynchronousExecution($enabled = true) {
-        $oldValue = null;
-        $config = Zend_Registry::get('Zend_Config');
-        if (isset($config->runjobs->asynchronous)) {
-            $oldValue = $config->runjobs->asynchronous;
-            $config->runjobs->asynchronous = $enabled;
-        } else {
-            $config->merge(new Zend_Config(array('runjobs' => array('asynchronous' => $enabled))));
-        }
-        return $oldValue;
-    }
-
-    private function resetAsynchronousExecution($oldValue) {
-        $config = Zend_Registry::get('Zend_Config');
-        if (is_null($oldValue)) {
-            unset($config->runjobs->asynchronous);
-        } else {
-            $config->runjobs->asynchronous = $oldValue;
-        }
     }
 
     private function getCreatedJob($documentId, $jobs) {
