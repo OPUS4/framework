@@ -62,12 +62,13 @@ class Opus_FileTest extends TestCase {
         mkdir($this->_dest_path, 0777, true);
         mkdir($this->_dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
-        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
+                new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
                             'checksum' => array(
                                 'maxVerificationSize' => 1,
                             ),
-                        )));
+                        ))));
 
     }
 
@@ -538,12 +539,13 @@ class Opus_FileTest extends TestCase {
      */
     public function testDisabledVerifyInConfig() {
 
-        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
+                        new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
                             'checksum' => array(
                                 'maxVerificationSize' => 0,
                             ),
-                        )));
+                        ))));
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
@@ -552,12 +554,13 @@ class Opus_FileTest extends TestCase {
         $this->assertFalse($file->canVerify());
 
 
-        Zend_Registry::set('Zend_Config', new Zend_Config(array(
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
+                        new Zend_Config(array(
                             'workspacePath' => $this->_dest_path,
                             'checksum' => array(
                                 'maxVerificationSize' => -1,
                             ),
-                        )));
+                        ))));
 
         $doc = $this->_createDocumentWithFile("foobar.pdf");
         $file = $doc->getFile(0);
