@@ -149,13 +149,9 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $config = new Zend_Config(array());
         Zend_Registry::set('Zend_Config', $config);
 
-        try {
-            new Opus_SolrSearch_Index_Indexer();
-            $this->fail('The expected Opus_SolrSearch_Index_Exception has not been raised.');
-        }
-        catch (Opus_SolrSearch_Index_Exception $e) {
-            return;
-        }
+        $this->setExpectedException('Opus_SolrSearch_Index_InvalidConfigurationException');
+        new Opus_SolrSearch_Index_Indexer();
+
     }
 
     public function testMissingConfigParamSearchEngine_Index_Port() {
@@ -166,13 +162,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'host' => 'examplehost'))), true);
         Zend_Registry::set('Zend_Config', $config);
 
-        try {
-            new Opus_SolrSearch_Index_Indexer();
-            $this->fail('The expected Opus_SolrSearch_Index_Exception has not been raised.');
-        }
-        catch (Opus_SolrSearch_Index_Exception $e) {
-            return;
-        }
+        $this->setExpectedException('Opus_SolrSearch_Index_InvalidConfigurationException');
+        new Opus_SolrSearch_Index_Indexer();
     }
 
     public function testMissingConfigParamSearchEngine_Index_App() {
@@ -184,13 +175,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'port' => 'exampleport'))), true);
         Zend_Registry::set('Zend_Config', $config);
 
-        try {
-            new Opus_SolrSearch_Index_Indexer();
-            $this->fail('The expected Opus_SolrSearch_Index_Exception has not been raised.');
-        }
-        catch (Opus_SolrSearch_Index_Exception $e) {
-            return;
-        }
+        $this->setExpectedException('Opus_SolrSearch_Index_InvalidConfigurationException');
+        new Opus_SolrSearch_Index_Indexer();
     }
 
     public function testMissingConfigParamLogPrepareXml() {
@@ -223,13 +209,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'app'  => ''))), true);
         Zend_Registry::set('Zend_Config', $config);
         
-        try {
-            new Opus_SolrSearch_Index_Indexer();
-            $this->fail('The expected Opus_SolrSearch_Index_Exception has not been raised.');
-        }
-        catch(Opus_SolrSearch_Index_Exception $e) {
-            return;
-        }
+        $this->setExpectedException('Opus_SolrSearch_Index_InvalidConfigurationException');
+        new Opus_SolrSearch_Index_Indexer();
     }
 
     public function testInvalidConfiguration() {
@@ -242,13 +223,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'app'  => 'this_solr_instance_name_does_not_exist'))), true);
         Zend_Registry::set('Zend_Config', $config);
                 
-        try {
-            new Opus_SolrSearch_Index_Indexer();
-            $this->fail('The expected Opus_SolrSearch_Index_Exception has not been raised.');
-        }
-        catch(Opus_SolrSearch_Index_Exception $e) {
-            return;
-        }
+        $this->setExpectedException('Opus_SolrSearch_Index_InvalidConfigurationException');
+        new Opus_SolrSearch_Index_Indexer();
     }
 
     public function testPrepareAndOutputXML() {
@@ -641,6 +617,6 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->assertContains('<field name="has_fulltext">false</field>', $xml->saveXML());
         $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());        
     }
-
+    
 }
 

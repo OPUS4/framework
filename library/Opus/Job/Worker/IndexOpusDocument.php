@@ -109,6 +109,19 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
     }
 
     /**
+     * Get the search index to add documents to.
+     * If no index instance is set via setIndex(),
+     * this method returns a new instance.
+     *
+     * @return Opus_SolrSearch_Index_Indexer $index
+     */
+    private function getIndex() {
+        if(is_null($this->_index))
+            $this->_index = new Opus_SolrSearch_Index_Indexer();
+        return $this->_index;
+    }
+
+    /**
      * Load a document from database and optional file(s) and index them,
      * or remove document from index (depending on job)
      *
@@ -138,11 +151,13 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
         // create index document or remove index, depending on task
         if ($data->task === 'index') {
             $document = new Opus_Document($data->documentId);
-            $this->_index->addDocumentToEntryIndex($document);
-            $this->_index->commit();
+            $this->getIndex()
+                    ->addDocumentToEntryIndex($document)
+                    ->commit();
         } else if ($data->task === 'remove') {
-            $this->_index->removeDocumentFromEntryIndexById($data->documentId);
-            $this->_index->commit();
+            $this->getIndex()
+                    ->removeDocumentFromEntryIndexById($data->documentId)
+                    ->commit();
         } else {
             throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
         }
