@@ -46,6 +46,8 @@ class Opus_SolrSearch_Query {
 
     const DEFAULT_START = 0;
     const DEFAULT_ROWS = 10;
+
+    // java.lang.Integer.MAX_VALUE
     const MAX_ROWS = 2147483647;
 
     const DEFAULT_SORTFIELD = 'score';
