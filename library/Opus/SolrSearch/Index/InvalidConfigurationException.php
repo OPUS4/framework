@@ -31,7 +31,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-class Opus_SolrSearch_Index_InvalidConfigurationException extends Exception {
+class Opus_SolrSearch_Index_InvalidConfigurationException extends Opus_SolrSearch_Index_Exception {
     
 }
 

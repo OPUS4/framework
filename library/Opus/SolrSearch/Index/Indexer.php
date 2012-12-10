@@ -217,7 +217,7 @@ class Opus_SolrSearch_Index_Indexer {
      * @param int $documentId Id document that should be removed to the index
      * @throws InvalidArgumentException If given document $documentId is null.
      * @throws Opus_SolrSearch_Index_Exception If deleting document failed.
-     * @return void
+     * @return $this (fluent interface)
      */
     public function removeDocumentFromEntryIndexById($documentId = null) {
         if (true !== isset($documentId)) {
@@ -231,6 +231,7 @@ class Opus_SolrSearch_Index_Indexer {
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
+        return $this;
     }
 
     /**

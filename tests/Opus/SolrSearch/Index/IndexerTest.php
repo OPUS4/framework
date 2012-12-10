@@ -618,5 +618,25 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());        
     }
     
+    /**
+     * test changed return value (fluent interface)
+     */
+    public function testFluentInterface() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $doc->store();
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $result = null;
+        $result = $indexer->addDocumentToEntryIndex($doc);
+        $this->assertTrue($result instanceof Opus_SolrSearch_Index_Indexer, 'Expected instance of Opus_SolrSearch_Index_Indexer');
+        $result = null;
+        $result = $indexer->removeDocumentFromEntryIndex($doc);
+        $this->assertTrue($result instanceof Opus_SolrSearch_Index_Indexer, 'Expected instance of Opus_SolrSearch_Index_Indexer');
+        $result = null;
+        $result = $indexer->removeDocumentFromEntryIndexById($doc->getId());
+        $this->assertTrue($result instanceof Opus_SolrSearch_Index_Indexer, 'Expected instance of Opus_SolrSearch_Index_Indexer');
+    }
+
 }
 
