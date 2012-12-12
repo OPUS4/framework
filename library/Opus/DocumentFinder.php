@@ -236,6 +236,30 @@ class Opus_DocumentFinder {
 
     /**
      * Add range-constraints to be applied on the result set.  Constrain
+     * result set to all documents with ServerDateCreated < $until.
+     *
+     * @param  string $until
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setServerDateCreatedBefore($until) {
+        $this->select->where('d.server_date_created < ?', $until);
+        return $this;
+    }
+
+    /**
+     * Add range-constraints to be applied on the result set.  Constrain
+     * result set to all documents with ServerDateCreated > $until.
+     *
+     * @param  string $until
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setServerDateCreatedAfter($until) {
+        $this->select->where('d.server_date_created > ?', $until);
+        return $this;
+    }
+
+    /**
+     * Add range-constraints to be applied on the result set.  Constrain
      * result set to all documents with ServerDatePublished < $until.
      *
      * @param  string $until
