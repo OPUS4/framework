@@ -249,4 +249,29 @@ class Opus_DocumentFinderTest extends TestCase {
         $finder->orderByType();
         $this->assertEquals(6, count($finder->ids()));
     }
+    
+    /**
+     * test for added functionality setServerDateCreated[Before|After]()
+     */
+    public function testFindByDateCreated() {
+        $this->prepareDocuments();
+        $date = new Opus_Date();
+        $date->setNow();
+        $date->setDay(date('d') - 1);
+        $date->setHour(date('H') - 1);
+        
+        $finder = new Opus_DocumentFinder();
+        $this->assertEquals(6, $finder->count());
+        $finder->setServerDateCreatedAfter(date("Y-m-d", time()+(60*60*24)));
+        $this->assertEquals(0, $finder->count());
+        $finder = new Opus_DocumentFinder();
+        $finder->setServerDateCreatedAfter(date("Y-m-d", time()-(60*60*24)));
+        $this->assertEquals(6, $finder->count());
+        $finder = new Opus_DocumentFinder();
+        $finder->setServerDateCreatedBefore(date("Y-m-d", time()-(60*60*24)));
+        $this->assertEquals(0, $finder->count());
+        $finder = new Opus_DocumentFinder();
+        $finder->setServerDateCreatedBefore(date("Y-m-d", time()+(60*60*24)));
+        $this->assertEquals(6, $finder->count());
+    }
 }
