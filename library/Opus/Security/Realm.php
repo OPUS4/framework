@@ -113,7 +113,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         $this->_roles = array_unique($this->_roles);
         return $this;
     }
-
+    
     /**
      * Get the roles that are assigned to the specified username.
      *
@@ -157,11 +157,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
             return array();
         }
 
-        $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
-                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
-        if (1 !== preg_match($regex, $ipaddress)) {
+        if (!self::validateIpAddress($ipaddress)) {
             throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
@@ -177,6 +173,73 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         );
 
         return $roles;
+    }
+
+    /**
+     * Returns all module resources to which the current user and ip address
+     * has access.
+     * 
+     * @param $username     name of the account to get resources for. 
+     *                      Defaults to currently logged in user
+     * @param $ipaddress    IP address to get resources for.
+     *                      Defaults to current remote address if available.
+     * @throws Opus_Security_Exception Thrown if the supplied ip is not valid or
+     *                      user can not be determined
+     * @return array        array of module resource names
+     */
+    
+    public static function getAllowedModuleResources($username = null, $ipaddress = null) {
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
+        $select = $db->select();
+        if (is_null($username)) {
+            try {
+                $auth = Zend_Auth::getInstance();
+                if ($auth->hasIdentity()) {
+                    $username = Zend_Auth::getInstance()->getIdentity();
+                }
+            } catch (Zend_Session_Exception $zse) {
+                $username = null;
+            }
+            if (is_null($username)) {
+                throw new Opus_Security_Exception('Authentication failed. No user name available.');
+            }
+        }
+        if (is_null($ipaddress) && isset($_SERVER['REMOTE_ADDR'])) {
+            $ipaddress = $_SERVER['REMOTE_ADDR'];
+        }
+        if (!is_null($ipaddress) && !self::validateIpAddress($ipaddress)) {
+            throw new Opus_Security_Exception('Your IP address could not be validated.');
+        }
+
+
+        $select->from(array('am' => 'access_modules'), array('am.module_name'))
+                ->joinLeft(array('r' => 'user_roles'), 'r.id = am.role_id')
+                ->joinLeft(array('la' => 'link_accounts_roles'), 'la.role_id = r.id', '')
+                ->joinLeft(array('a' => 'accounts'), 'la.account_id = a.id', '')
+                ->where('login = ?', $username)
+                ->distinct();
+        if (!is_null($ipaddress)) {
+            $select->joinLeft(array('li' => 'link_ipranges_roles'), 'li.role_id = r.id', '')
+                    ->joinLeft(array('i' => 'ipranges'), 'li.iprange_id = i.id', '')
+                    ->orWhere('i.startingip <= ? AND i.endingip >= ?', sprintf("%u", ip2long($ipaddress)), sprintf("%u", ip2long($ipaddress)));
+        }
+
+        $resources = $db->fetchCol($select);
+        return $resources;
+    }
+
+    /**
+     * checks if the string provided is a valid ip address
+     * 
+     * @param string ipaddress ip address to validate.
+     * @return boolean Returns true if validation succeeded
+     */
+    private static function validateIpAddress($ipaddress) {
+        $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
+                . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])$/';
+        return preg_match($regex, $ipaddress) === 1;
     }
 
     /**
@@ -277,7 +340,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
     }
 
     /**
-     * Returns the names of the roles for current user.
+     * Returns the names of the roles for current user and ip address range.
      * @return array of strings - Names of roles
      */
     public function getRoles() {

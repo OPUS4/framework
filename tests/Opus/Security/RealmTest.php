@@ -134,7 +134,7 @@ class Opus_Security_RealmTest extends TestCase {
 
         return $fileId;
     }
-
+    
     /**
      * Test getting singleton instance.
      *
@@ -448,6 +448,33 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertContains('userrole', $roles);
         $this->assertContains('guest', $roles);
         $this->assertContains('iprole', $roles);
+    }
+    
+    public function testGetAllowedModuleResources() {
+        $this->setUpUserUser();
+        $this->setUpIp();
+        
+        $bogusResources = Opus_Security_Realm::getAllowedModuleResources('fritz');
+        $this->assertEquals(array(), $bogusResources, 'Expected no resources allowed for invalid username');
+        
+        $userResources = Opus_Security_Realm::getAllowedModuleResources('user');
+        $this->assertEquals(1, count($userResources), 'Expected one resource for user');
+        $this->assertContains('admin', $userResources);
+        $this->assertNotContains('oai', $userResources);
+        
+        $resources = Opus_Security_Realm::getAllowedModuleResources('user', '127.0.0.1');
+        $this->assertEquals(2, count($resources), 'Expected two resources for user and ip');
+        $this->assertContains('admin', $resources);
+        $this->assertContains('oai', $resources);
+        $realm = Opus_Security_Realm::getInstance();
+        $realm->setUser('user');
+        $realm->setIp('127.0.0.1');
+        foreach($resources as $resource) {
+            $this->assertTrue($realm->checkModule($resource), "Expected access allowed to resource '$resource'");
+        }
+        $this->assertFalse($realm->checkModule('foobar'), "Expected access denied to resource 'foobar'");
+        $this->assertFalse($realm->checkModule(''), 'Expect failed access denied to empty resource.');
+        
     }
 
 }
