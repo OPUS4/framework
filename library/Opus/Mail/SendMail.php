@@ -110,6 +110,7 @@ class Opus_Mail_SendMail {
         $mail->setBodyText($bodyText);
 
         foreach ($recipients as $recip) {
+            self::validateAddress($recip['address']);
             $logger->debug('SendMail: adding recipient <' . $recip['address'] . '>');
             $mail->addTo($recip['address'], $recip['name']);
         }

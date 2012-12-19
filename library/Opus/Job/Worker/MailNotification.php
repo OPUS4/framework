@@ -92,23 +92,16 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
         else {
             $recipient = $users;
         }
-
-        if (empty($recipient)) {
-            $this->_logger->info(__CLASS__ . ': No recipients avaiable. Mail canceled.');
-            return true;
-        }
+//        if (empty($recipient)) {
+//            $this->_logger->info(__CLASS__ . ': No recipients avaiable. Mail canceled.');
+//            return true;
+//        }
 
         $mailSendMail = new Opus_Mail_SendMail();
 
-        try {
-            $this->_logger->info(__CLASS__ . ': Sending notification email...');
-            $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
-            $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
-        }
-        catch (Exception $e) {
-            $this->_logger->err($e);
-            return false;
-        }
+        $this->_logger->info(__CLASS__ . ': Sending notification email...');
+        $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
+        $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
 
         return true;
     }
