@@ -401,9 +401,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 ->setCheckbox(true);
 
         // Initialize available licences
-        $licences = Opus_Licence::getAll();
+        //$licences = Opus_Licence::getAll();
         $this->getField('Licence')
-                ->setDefault($licences)
+                //->setDefault($licences)
                 ->setSelection(true);
 
         // Add the server (publication) state as a field
@@ -439,15 +439,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         // Initialize available publishers
-        $publishers = Opus_DnbInstitute::getPublishers();
+        //$publishers = Opus_DnbInstitute::getPublishers();
         $this->getField('ThesisPublisher')
-                ->setDefault($publishers)
+                //->setDefault($publishers)
                 ->setSelection(true);
 
         // Initialize available grantors
-        $grantors = Opus_DnbInstitute::getGrantors();
+        //$grantors = Opus_DnbInstitute::getGrantors();
         $this->getField('ThesisGrantor')
-                ->setDefault($grantors)
+                //->setDefault($grantors)
                 ->setSelection(true);
     }
 
