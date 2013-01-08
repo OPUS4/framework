@@ -189,42 +189,29 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      */
     
     public static function getAllowedModuleResources($username = null, $ipaddress = null) {
-        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
-        $select = $db->select();
-        if (is_null($username)) {
-            try {
-                $auth = Zend_Auth::getInstance();
-                if ($auth->hasIdentity()) {
-                    $username = Zend_Auth::getInstance()->getIdentity();
-                }
-            } catch (Zend_Session_Exception $zse) {
-                $username = null;
-            }
-            if (is_null($username)) {
-                throw new Opus_Security_Exception('Authentication failed. No user name available.');
-            }
-        }
-        if (is_null($ipaddress) && isset($_SERVER['REMOTE_ADDR'])) {
-            $ipaddress = $_SERVER['REMOTE_ADDR'];
-        }
+        $resources = array();
         if (!is_null($ipaddress) && !self::validateIpAddress($ipaddress)) {
             throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
-
-        $select->from(array('am' => 'access_modules'), array('am.module_name'))
-                ->joinLeft(array('r' => 'user_roles'), 'r.id = am.role_id')
-                ->joinLeft(array('la' => 'link_accounts_roles'), 'la.role_id = r.id', '')
-                ->joinLeft(array('a' => 'accounts'), 'la.account_id = a.id', '')
-                ->where('login = ?', $username)
-                ->distinct();
-        if (!is_null($ipaddress)) {
-            $select->joinLeft(array('li' => 'link_ipranges_roles'), 'li.role_id = r.id', '')
-                    ->joinLeft(array('i' => 'ipranges'), 'li.iprange_id = i.id', '')
-                    ->orWhere('i.startingip <= ? AND i.endingip >= ?', sprintf("%u", ip2long($ipaddress)), sprintf("%u", ip2long($ipaddress)));
+        if (!is_null($ipaddress) || !is_null($username)) {
+            $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
+            $select = $db->select();
+            $select->from(array('am' => 'access_modules'), array('am.module_name'))
+                    ->joinLeft(array('r' => 'user_roles'), 'r.id = am.role_id')
+                    ->distinct();
+            if (!is_null($username)) {
+                $select->joinLeft(array('la' => 'link_accounts_roles'), 'la.role_id = r.id', '')
+                        ->joinLeft(array('a' => 'accounts'), 'la.account_id = a.id', '')
+                        ->where('login = ?', $username);
+            }
+            if (!is_null($ipaddress)) {
+                $select->joinLeft(array('li' => 'link_ipranges_roles'), 'li.role_id = r.id', '')
+                        ->joinLeft(array('i' => 'ipranges'), 'li.iprange_id = i.id', '');
+                $select->orWhere('i.startingip <= ? AND i.endingip >= ?', sprintf("%u", ip2long($ipaddress)), sprintf("%u", ip2long($ipaddress)));
+            }
+            $resources = $db->fetchCol($select);
         }
-
-        $resources = $db->fetchCol($select);
         return $resources;
     }
 
