@@ -454,6 +454,9 @@ class Opus_Security_RealmTest extends TestCase {
         $this->setUpUserUser();
         $this->setUpIp();
         
+        $emptyResources = Opus_Security_Realm::getAllowedModuleResources();
+        $this->assertEquals(array(), $emptyResources, 'Expected no resources allowed for empty ip and user name');
+
         $bogusResources = Opus_Security_Realm::getAllowedModuleResources('fritz');
         $this->assertEquals(array(), $bogusResources, 'Expected no resources allowed for invalid username');
         
@@ -461,6 +464,11 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertEquals(1, count($userResources), 'Expected one resource for user');
         $this->assertContains('admin', $userResources);
         $this->assertNotContains('oai', $userResources);
+        
+        $ipResources = Opus_Security_Realm::getAllowedModuleResources(null, '127.0.0.1');
+        $this->assertEquals(1, count($ipResources), 'Expected one resource for ip');
+        $this->assertNotContains('admin', $ipResources);
+        $this->assertContains('oai', $ipResources);
         
         $resources = Opus_Security_Realm::getAllowedModuleResources('user', '127.0.0.1');
         $this->assertEquals(2, count($resources), 'Expected two resources for user and ip');
