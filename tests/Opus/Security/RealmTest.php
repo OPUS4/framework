@@ -454,8 +454,8 @@ class Opus_Security_RealmTest extends TestCase {
         $this->setUpUserUser();
         $this->setUpIp();
         
-        $emptyResources = Opus_Security_Realm::getAllowedModuleResources();
-        $this->assertEquals(array(), $emptyResources, 'Expected no resources allowed for empty ip and user name');
+        $this->setExpectedException('Opus_Security_Exception');
+        Opus_Security_Realm::getAllowedModuleResources();
 
         $bogusResources = Opus_Security_Realm::getAllowedModuleResources('fritz');
         $this->assertEquals(array(), $bogusResources, 'Expected no resources allowed for invalid username');
