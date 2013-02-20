@@ -194,7 +194,9 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
             throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
-        if (!is_null($ipaddress) || !is_null($username)) {
+        if (empty($ipaddress) && empty($username)) {
+            throw new Opus_Security_Exception('username and / or IP address must be provided.');
+        } else {
             $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
             $select = $db->select();
             $select->from(array('am' => 'access_modules'), array('am.module_name'))
