@@ -126,11 +126,21 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     /**
      * Stub methods to savely remove DisplayOai from database.  To be removed.
      * See ticket OPUSVIER-2155.
+     *
+     * @return string
      */
     protected function _fetchDisplayOai() {
         return "";
     }
 
+    /**
+     * Stub methods to savely remove DisplayOai from database.  To be removed.
+     * See ticket OPUSVIER-2155.
+     *
+     * @param mixed $string unused
+     *
+     * @return void
+     */
     protected function _storeDisplayOai($string) {
         return;
     }
@@ -151,7 +161,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     /**
      * Fixes ordering of all CollectionRoles by re-numbering position columns.
      *
-     * @return <type>
+     * @return void
      */
     public static function fixPositions() {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
@@ -175,7 +185,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: This method belongs to Opus_Db_CollectionsRoles.
      * TODO: Make sure this method only gets called if the field changed.
      *
-     * @param integer $to Target position after saving..
+     * @param integer $to Target position after saving.
+     *
      * @return void
      */
     protected function _storePosition($to = PHP_INT_MAX) {
@@ -288,7 +299,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * ALTERNATE CONSTRUCTOR: Retrieve Opus_CollectionRole instance by name.
      * Returns null if name is null *or* nothing found.
      *
-     * @param  string $name
+     * @param string $name Name of collection role to look for.
+     *
      * @return Opus_CollectionRole
      */
     public static function fetchByName($name = null) {
@@ -314,7 +326,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Return Opus_Model_NotFoundException?
      *
-     * @param  string $oai_name
+     * @param string $oai_name OaiName of collection role to look for.
+     *
      * @return Opus_CollectionRole
      */
     public static function fetchByOaiName($oai_name = null) {
@@ -353,6 +366,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Mass-constructur.
      *
      * @param array $array Array of whatever new Opus_Collection(...) takes.
+     *
      * @return array|Opus_Collection Constructed Opus_Collection(s).
      *
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
@@ -438,6 +452,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Return the ids of documents in an oai set.
      *
      * @param  string $oaiSetName The name of the oai set.
+     *
      * @return array The ids of the documents in the set.
      *
      * FIXME: Need Collection constructor-by-oaiSetName.
@@ -488,6 +503,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Return the ids of documents in an oai set.
      *
      * @param  string $oaiSetName The name of the oai set.
+     *
      * @return array              The ids of the documents in the set.
      *
      * FIXME: Replace method by something more general.
@@ -534,6 +550,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Everything which depends on $this->getRootNode() goes here:
      * ********************************************************************** */
 
+    /**
+     * Fetch-method for field "RootCollection".
+     *
+     * @return Opus_Collection
+     */
     protected function _fetchRootCollection() {
         if ($this->isNewRecord()) {
             return;
@@ -553,6 +574,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Store root collection: Initialize Node.
      *
      * @param Opus_Collection $collection Collection to store as Root.
+     *
      * @see Opus_Model_AbstractDb
      */
     public function _storeRootCollection($collection) {
@@ -569,6 +591,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
 
+    /**
+     * Extend magic add-method.  Add $collection if given; otherwise
+     * create.
+     *
+     * @param Opus_Collection $collection (optional) collection object to add
+     *
+     * @return Opus_Collection
+     */
     public function addRootCollection($collection = null) {
         if (isset($collection)) {
             $collection = parent::addRootCollection($collection);
@@ -585,8 +615,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         return $collection;
     }
 
-    // Field to be removed.  See ticket OPUSVIER-2155.
-    // TODO: Hack to remove field DisplayOai from admin forms.
+    /**
+     * Field to be removed.  See ticket OPUSVIER-2155.
+     * TODO: Hack to remove field DisplayOai from admin forms.
+     */
     public function describe() {
         $fields = parent::describe();
         return array_diff($fields, array('DisplayOai'));

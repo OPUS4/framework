@@ -25,20 +25,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Collections
- * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
- * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
+ * @category  Framework
+ * @package   Opus_Collections
+ * @author    Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright Copyright (c) 2010, OPUS 4 development team
+ * @license   http://www.gnu.org/licenses/gpl.html General Public License
+ * @version   $Id$
  */
 
 /**
  * Table gateway class to nested sets.
  *
- * @category    Framework
- * @package     Opus_Db
- * @uses        Zend_Db_Table_Abstract
+ * @category Framework
+ * @package  Opus_Db
+ * @uses     Zend_Db_Table_Abstract
  *
  * WARNING: This class does not use transactions.  If you want to be transaction
  * WARNING: safe, beginTransaction() before using methods from here and commit()
@@ -119,8 +119,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     /**
      * Retrieve node.
      *
-     * @param  int  $treeId  ID of tree you want to use.
-     * @param  int  $id       Primary key of the node.
+     * @param  int $id Primary key of the node.
+     *
      * @throws Opus_Model_Exception
      * @return Zend_Db_Row
      */
@@ -139,7 +139,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * Retrieve root node, i.e. node with $leftId=1.  Returns NULL if row was
      * not found.
      *
-     * @param  int  $treeId  ID of tree you want to use.
+     * @param  int $treeId ID of tree you want to use.
+     *
      * @throws Opus_Model_Exception
      * @return Zend_Db_Row
      */
@@ -153,7 +154,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     /**
      * Build SQL statement for retrieving nodes by ID.
      *
-     * @param  int  $id       Primary key of the node.
+     * @param  int $id Primary key of the node.
+     *
      * @return Zend_Db_Table_Select
      */
     private function selectNodeById($id) {
@@ -165,8 +167,9 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     /**
      * Build SQL statement for retrieving nodes by (tree id, left id).
      *
-     * @param  int  $treeId  ID of tree you want to use.
-     * @param  int  $leftId  Left-ID of the node.
+     * @param  int $treeId ID of tree you want to use.
+     * @param  int $leftId Left-ID of the node.
+     *
      * @return Zend_Db_Table_Select
      */
     public function selectNodeByLeftId($treeId, $leftId) {
@@ -179,7 +182,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     /**
      * Delete the whole tree.  Returns affected rows.
      *
-     * @param  int     $treeId The id of the tree you want to delete.
+     * @param  int $treeId The id of the tree you want to delete.
+     *
      * @return int
      */
     public function deleteTree($treeId) {
@@ -189,8 +193,9 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     /**
      * Delete node including *all* it's child(s) and return affected rows.
      *
-     * @param  int   $id
-     * @return int   The number of affected rows.
+     * @param  int $id The root-node-id of the subtree you want to delete.
+     *
+     * @return int The number of affected rows.
      */
     public function deleteSubTree($id) {
         $row = $this->getNodeById($id);
@@ -280,8 +285,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @see Zend_Db_Table_Select
      *
-     * @param int   $id    The ID is the parent node.
-     * @param mixed $cols  The columns to show, defaults to '*'.
+     * @param int   $id   The ID is the parent node.
+     * @param mixed $cols The columns to show, defaults to '*'.
      *
      * @return Zend_Db_Table_Select
      */
@@ -308,8 +313,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * @see Zend_Db_Table_Select
      *
-     * @param int   $id    The ID is the parent node.
-     * @param mixed $cols  The columns to show, defaults to '*'.
+     * @param int   $id   The ID is the parent node.
+     * @param mixed $cols The columns to show, defaults to '*'.
      *
      * @return Zend_Db_Table_Select
      */
@@ -334,6 +339,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * returns them as array.  The treeId must be added lated.
      *
      * @param  integer $id The ID of the tree.
+     *
      * @return array
      */
     public function createRoot() {
@@ -353,6 +359,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
      * @param  integer $id The ID of the parent row (must be unique in schema!).
+     *
      * @return array
      */
     public function insertFirstChild($id) {
@@ -383,6 +390,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
      * @param  integer $id The ID of the parent row (must be unique in schema!).
+     *
      * @return array
      */
     public function insertLastChild($id) {
@@ -412,7 +420,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id  The sibling row ID (must be unique in schema!).
+     * @param  integer $id The sibling row ID (must be unique in schema!).
+     *
      * @throws Opus_Model_Exception
      * @return array
      */
@@ -448,7 +457,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      *
      * TODO: Decide, if we want to add treeId "outside" or here.
      *
-     * @param  integer $id  The sibling row ID (must be unique in schema!).
+     * @param  integer $id The sibling row ID (must be unique in schema!).
+     *
      * @throws Opus_Model_Exception
      * @return array
      */
