@@ -384,6 +384,21 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->addField($field);
         }
 
+        // Initialize available date fields and set up date validator
+        // if the particular field is present
+        $dateFields = array(
+            'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
+            'ServerDateCreated',
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
+        foreach ($dateFields as $fieldName) {
+            $this->getField($fieldName)
+                    ->setValueModelClass('Opus_Date');
+        }
+
+        $this->initFieldOptionsForDisplayAndValidation();
+    }
+
+    public function initFieldOptionsForDisplayAndValidation() {
         // Initialize available languages
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
             $this->getField('Language')
@@ -426,17 +441,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     'published' => 'published',
                     'updated'=> 'updated'))
                 ->setSelection(true);
-
-        // Initialize available date fields and set up date validator
-        // if the particular field is present
-        $dateFields = array(
-            'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
-            'ServerDateCreated',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
-        foreach ($dateFields as $fieldName) {
-            $this->getField($fieldName)
-                    ->setValueModelClass('Opus_Date');
-        }
 
         // Initialize available publishers
         $publishers = Opus_DnbInstitute::getPublishers();
