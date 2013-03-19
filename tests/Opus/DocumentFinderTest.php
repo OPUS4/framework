@@ -274,4 +274,85 @@ class Opus_DocumentFinderTest extends TestCase {
         $finder->setServerDateCreatedBefore(date("Y-m-d", time()+(60*60*24)));
         $this->assertEquals(6, $finder->count());
     }
+    
+    public function testSetDependentModel() {
+        $docIds = array();
+        $doc1 = new Opus_Document();
+        $docIds[] = $doc1->setType("article")
+                ->setServerState('published')
+                ->store();
+
+        $doc2 = new Opus_Document();
+        $docIds[] = $doc2->setType("article")
+                ->setServerState('unpublished')
+                ->store();
+
+        $doc3 = new Opus_Document();
+        $docIds[] = $doc3->setType("preprint")
+                ->setServerState('unpublished')
+                ->store();
+        
+
+        // test dependent model
+        $title = $doc3->addTitleMain();
+        $title->setValue('Ein deutscher Titel');
+        $titleId = $title->store();
+
+        $title = new Opus_Title($titleId);
+        $docfinder = new Opus_DocumentFinder();
+        $resultDocIds = $docfinder->setDependentModel($title)->ids();
+        $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
+        $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertFalse(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+        $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+
+        
+        // test linked model
+        //person
+        $author = new Opus_Person();
+        $author->setFirstName('Karl');
+        $author->setLastName('Tester');
+        $author->setDateOfBirth('1857-11-26');
+        $author->setPlaceOfBirth('Genf');
+
+        $doc2->addPersonAuthor($author);
+        $doc2->store();
+
+        $docfinder = new Opus_DocumentFinder();
+        $resultDocIds = $docfinder->setDependentModel($author)->ids();
+        $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
+        $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertFalse(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+        $this->assertFalse(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+
+        // licence
+        $licence = new Opus_Licence();
+        $licence->setNameLong('LongNameLicence');
+        $licence->setLinkLicence('http://licence.link');
+        $licenceId = $licence->store();
+        $doc1->addLicence($licence);
+        $doc1->store();
+
+        $licence = new Opus_Licence($licenceId);
+        $docfinder = new Opus_DocumentFinder();
+        $resultDocIds = $docfinder->setDependentModel($licence)->ids();
+        
+        $this->assertEquals(1, count($resultDocIds), 'Excpected 1 ID in result');
+        $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+        $this->assertFalse(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+
+        $doc2->addLicence($licence);
+        $doc2->store();
+
+        $resultDocIds = $docfinder->ids();
+
+        $this->assertEquals(2, count($resultDocIds), 'Excpected 2 IDs in result');
+        $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertFalse(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+        
+        
+        
+    }
 }
