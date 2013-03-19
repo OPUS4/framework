@@ -426,11 +426,19 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setDependentModel($model, $id=null) {
+
         if($model instanceOf Opus_Model_AbstractDb) {
             $id = $model->getId();
         } else {
             $model = new $model;
         }
+        
+        // workaround for Opus_Collection[|Role] which are implemented differently
+        if($model instanceOf Opus_Collection)
+            return $this->setCollectionId ($id );
+        if($model instanceOf Opus_CollectionRole)
+            return $this->setCollectionRoleId ($id );
+        
         if (!($model instanceOf Opus_Model_Dependent_Abstract ||
                 $model instanceOf Opus_Model_Dependent_Link_Abstract)) {
             $linkModelClass = $this->_getLinkModelClass($model);
