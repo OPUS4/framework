@@ -612,5 +612,26 @@ class Opus_SeriesTest extends TestCase {
         $d1->store();
         $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
     }
+    
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $s = new Opus_Series();
+        $s->setTitle('foo');
+        $s->store();
+
+        $doc = new Opus_Document();
+        $doc->addSeries($s)->setNumber('123');
+        $docId = $doc->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $s->setTitle('bar');
+        $s->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
 
 }

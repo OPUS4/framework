@@ -72,5 +72,28 @@ class Opus_LicenceTest extends TestCase {
         $lic->setNameLong('MyLongName');
         $this->assertEquals($lic->getNameLong(), $lic->getDisplayName(), 'Displayname does not match long name.');
     }
+    
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $lic = new Opus_Licence();
+        $lic->setNameLong('MyLongName');
+        $lic->setLinkLicence('http://licence.link');
+
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->setLicence($lic);
+        $docId = $doc->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $lic->setNameLong('EvenLongerName');
+        $lic->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
 
 }

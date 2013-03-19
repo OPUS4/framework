@@ -127,4 +127,28 @@ class Opus_DnbInstituteTest extends TestCase {
         $this->assertEquals($dnbInstitute->getName(), $dnbInstitute->getDisplayName(), 'Displayname does not match name.');
     }
 
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $dnb_institute = new Opus_DnbInstitute();
+        $dnbId = $dnb_institute->setName('Test')
+                ->setCity('Berlin')
+                ->setIsGrantor(1)
+                ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->setThesisGrantor($dnb_institute);
+        $docId = $doc->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $dnb_institute->setName('Test Institute');
+        $dnb_institute->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
 }

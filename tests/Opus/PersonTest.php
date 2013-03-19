@@ -187,5 +187,28 @@ class Opus_PersonTest extends TestCase {
 
         $this->assertEquals('Doe', $person->getName());
     }
+    
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $person = new Opus_Person();
+        $person->setFirstName('Jane');
+        $person->setLastName('Doe');
+        $person->store();
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->setPersonAuthor($person);
+        $docId = $doc->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $person->setFirstName('John');
+        $person->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
 
 }

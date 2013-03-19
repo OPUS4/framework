@@ -65,6 +65,7 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
     }
 
     public function testDisabledCachePlugin() {
+        $this->markTestSkipped('Cache is re-enabled');
         $doc = new Opus_Document();
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -89,11 +90,10 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
 
         $result = $this->_cacheTable->fetchAll();
         $afterStore = $result->count();
+//        $this->assertEquals(0, $afterStore - $beforeStore, 'Expecting same cache entry count.');
+        $this->assertEquals(1, $afterStore - $beforeStore, 'Expecting 1 cache entries more.');
 
-        $this->assertEquals(0, $afterStore - $beforeStore, 'Expecting same cache entry count.');
-//        $this->assertEquals(1, $afterStore - $beforeStore, 'Expecting 1 cache entries more.');
-
-//        $this->assertEquals($docId, $result[0]['document_id'], 'Expecting right document data for first entry.');
+        $this->assertEquals($docId, $result[0]['document_id'], 'Expecting right document data for first entry.');
 //        $this->assertEquals($docId, $result[1]['document_id'], 'Expecting right document data for second entry.');
     }
 
@@ -117,8 +117,8 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
         $result = $this->_cacheTable->fetchAll();
         $afterDelete = $result->count();
 
-        $this->assertEquals(0, $afterDelete - $beforeDelete, 'Expecting same cache entry count.');
-//        $this->assertEquals(1, $beforeDelete - $afterDelete, 'Expecting 1 cache entries less.');
+//        $this->assertEquals(0, $afterDelete - $beforeDelete, 'Expecting same cache entry count.');
+        $this->assertEquals(1, $beforeDelete - $afterDelete, 'Expecting 1 cache entries less.');
 
     }
 

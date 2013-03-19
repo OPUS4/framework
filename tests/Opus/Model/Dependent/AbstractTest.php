@@ -205,5 +205,25 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         $token = $this->_cut->delete();
         $this->_cut->doDelete($token);
     }
+    
+    /**
+     * Regression Test for OPUSVIER-1687
+     * make sure cache invalidation is enabled when document caching enabled
+     */
+    public function testInvalidateDocumentCacheEnabled() {
+        
+        $reflectedClass = new ReflectionClass('Opus_Document');
+        $property = $reflectedClass->getProperty('_plugins');
+        $props = $reflectedClass->getDefaultProperties();
+        $docPlugins = @$props['_plugins'] ?: array() ;
+        if(array_key_exists('Opus_Document_Plugin_XmlCache', $docPlugins)) {
+            $reflectedClass = new ReflectionClass('Opus_Model_Dependent_Abstract');
+            $props = $reflectedClass->getDefaultProperties();
+            $modelPlugins = @$props['_plugins'] ?: array() ;
+            $this->assertTrue(array_key_exists('Opus_Model_Plugin_InvalidateDocumentCache', $modelPlugins), 'Expected plugin Opus_Model_Plugin_InvalidateDocumentCache');
+        }
+
+    }
+
       
 }
