@@ -352,6 +352,31 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertTrue(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID in result set');
         $this->assertFalse(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID not in result set');
         
+        // collections (are implemented differently)
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName("role-name-" . rand());
+        $collectionRole->setOaiName("role-oainame-" . rand());
+        $collectionRole->setVisible(1);
+        $collectionRole->setVisibleBrowsingStart(1);
+        $collectionRoleId = $collectionRole->store();
+
+        $collection = $collectionRole->addRootCollection();
+        $collection->setTheme('dummy');
+        $collectionId = $collection->store();
+
+        $doc1->addCollection($collection);
+        $doc1->store();
+        $doc3->addCollection($collection);
+        $doc3->store();
+
+        $collection = new Opus_Collection($collectionId);
+        $docfinder = new Opus_DocumentFinder();
+        $resultDocIds = $docfinder->setDependentModel($collection)->ids();
+        
+        $this->assertEquals(2, count($resultDocIds), 'Excpected 2 IDs in result');
+        $this->assertTrue(in_array($doc1->getId(), $resultDocIds), 'Expected Document-ID in result set');
+        $this->assertFalse(in_array($doc2->getId(), $resultDocIds), 'Expected Document-ID not in result set');
+        $this->assertTrue(in_array($doc3->getId(), $resultDocIds), 'Expected Document-ID in result set');
         
         
     }
