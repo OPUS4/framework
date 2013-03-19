@@ -120,7 +120,11 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         foreach ($data AS $key => $value) {
             $q_key = $adapter->quoteIdentifier($key);
             $q_value = $adapter->quote($value);
-            $q_clauses[] = $q_key . " = " . $q_value;
+            if(is_array($value)) {
+                $q_clauses[] = $q_key . ' IN (' . $q_value .')';
+            } else {
+                $q_clauses[] = $q_key . " = " . $q_value;
+            }
         }
 
         $where = implode(" AND ", $q_clauses);
