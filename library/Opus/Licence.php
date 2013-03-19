@@ -59,6 +59,16 @@ class Opus_Licence extends Opus_Model_AbstractDb
     }
 
     /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
+
+    
+    /**
      * Initialize model with the following fields:
      * - Active
      * - CommentInternal

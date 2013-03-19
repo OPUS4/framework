@@ -51,6 +51,15 @@ class Opus_Person extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Persons';
 
     /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
+
+    /**
      * Initialize model with the following fields:
      * - AcademicTitle
      * - Email

@@ -70,6 +70,14 @@ abstract class Opus_Model_Dependent_Abstract
      */
     private $_deletionToken = null;
 
+     /** Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
+
     /**
      * Construct a new model instance and connect it a database table's row.
      * Pass an id to immediately fetch model data from the database. If not id is given

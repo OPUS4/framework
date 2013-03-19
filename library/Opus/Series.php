@@ -51,6 +51,16 @@ class Opus_Series extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_Series';
 
     /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
+
+    
+    /**
      * Initialize model with fields.
      *
      * @return void
