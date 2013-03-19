@@ -420,6 +420,89 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * @param Opus_Model_AbstractDb|string $model Object or class name of dependent model.
+     * @param int $id (optional) Id of object if class name is provided.
+     * 
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setDependentModel($model, $id=null) {
+        if($model instanceOf Opus_Model_AbstractDb) {
+            $id = $model->getId();
+        } else {
+            $model = new $model;
+        }
+        if (!($model instanceOf Opus_Model_Dependent_Abstract ||
+                $model instanceOf Opus_Model_Dependent_Link_Abstract)) {
+            $linkModelClass = $this->_getLinkModelClass($model);
+            if(is_null($linkModelClass)) {
+                throw new Opus_DocumentFinder_Exception('link model class unknown for model '.get_class($model));
+            }
+            $model = new $linkModelClass();
+        }
+
+        $quotedId = $this->db->quote($id);
+        $idCol = $model->getParentIdColumn();
+        $table = Opus_Db_TableGateway::getInstance($model->getTableGatewayClass())->info('name');
+        if (empty($idCol)
+                || empty($table)) {
+            throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
+        } else {
+            $idCol = $this->db->quoteIdentifier($idCol);
+            $table = $this->db->quoteIdentifier($table);
+        }
+
+        if ($model instanceOf Opus_Model_Dependent_Link_Abstract) {
+            $linkedModelKey = $model->getModelKey();
+            if (empty($linkedModelKey)) {
+                throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
+            } else {
+                $linkedModelKey = $this->db->quoteIdentifier($linkedModelKey);
+            }
+
+            $subselect = "SELECT $idCol
+                FROM $table AS l
+                WHERE l.$idCol = d.id
+                  AND l.$linkedModelKey = $quotedId";
+
+        } else if ($model instanceOf Opus_Model_Dependent_Abstract) {
+
+            $subselect = "SELECT $idCol
+                FROM $table AS l
+                WHERE l.$idCol = d.id
+                AND l.id = $quotedId";
+        
+        } else {
+            throw new Opus_DocumentFinder_Exception('Cannot create constraint for Model ' . get_class($model));
+        }
+        $this->select->where("EXISTS ($subselect)");
+        return $this;
+    }
+
+    // helper method for mapping Opus_Model_AbstractDb instances to their 
+    // corresponding link model class (extending Opus_Model_Dependent_Link_Abstract)
+    private function _getLinkModelClass(Opus_Model_AbstractDb $model) {
+        $linkModelClass = null;
+        $modelClass = get_class($model);
+        switch($modelClass) {
+            case 'Opus_Series':
+                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentSeries';
+                break;
+            case 'Opus_Person':
+                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentPerson';
+                break;
+            case 'Opus_Licence':
+                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentLicence';
+                break;
+            case 'Opus_DnbInstitute':
+                $linkModelClass = 'Opus_Model_Dependent_Link_DocumentDnbInstitute';
+                break;
+        }
+        return $linkModelClass;
+    }
+    
+
+    
+    /**
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.

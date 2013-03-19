@@ -48,6 +48,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     protected $_model;
 
     /**
+     * The linked models foreign key.
+     *
+     * @var mixed
+     */
+    protected $_modelKey;
+
+    /**
      * The class of the model that is linked to.
      *
      * @var string
@@ -96,6 +103,15 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function getModelClass() {
         return $this->_modelClass;
+    }
+    
+    /**
+     * Get the linked model's foreign key.
+     *
+     * @return string Name of foreign key for linked model in link model.
+     */
+    public function getModelKey() {
+        return $this->_modelKey;
     }
 
     /**

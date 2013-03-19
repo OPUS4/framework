@@ -122,6 +122,16 @@ abstract class Opus_Model_Dependent_Abstract
     }
 
     /**
+     * Get the name of the column holding the parent id
+     * of the linked model.
+     *
+     * @return string $column Name of the parent id column.
+     */
+    public function getParentIdColumn() {
+        return $this->_parentColumn;
+    }
+
+    /**
      * Set up the foreign key of the parent before storing.
      *
      * @throws Opus_Model_Exception Thrown if trying to store without parent.

@@ -48,6 +48,13 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
     protected $_parentColumn = 'document_id';
 
     /**
+     * The linked model's foreign key.
+     *
+     * @var mixed
+     */
+    protected $_modelKey = 'person_id';
+
+    /**
      * The class of the model that is linked to.
      *
      * @var string
@@ -81,9 +88,10 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
      * @return void
      */
     protected function _init() {
+        $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Person($this->_primaryTableRow->person_id));
-        }
+            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
+        } 
 
         $role = new Opus_Model_Field('Role');
         $role->setSelection(true);

@@ -57,6 +57,13 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
     protected $_parentColumn = 'document_id';
 
     /**
+     * The linked model's foreign key.
+     *
+     * @var mixed
+     */
+    protected $_modelKey = 'dnb_institute_id';
+
+    /**
      * The class of the model that is linked to.
      *
      * @var string
@@ -80,10 +87,11 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
      * @return void
      */
     protected function _init() {
+        $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_DnbInstitute($this->_primaryTableRow->dnb_institute_id));
+            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
         } else {
-            $this->setModel(new Opus_DnbInstitute());
+            $this->setModel(new $modelClass());
         }
         
         $role = new Opus_Model_Field('Role');
@@ -99,7 +107,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
         $this->_primaryTableRow->dnb_institute_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->dnb_institute_id) {
+        if ($this->getId() !== $this->_primaryTableRow->{$this->_modelKey}) {
             parent::store();
         }
     }

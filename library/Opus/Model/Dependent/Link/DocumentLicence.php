@@ -56,6 +56,14 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
     protected $_parentColumn = 'document_id';
 
     /**
+     * The linked model's foreign key.
+     *
+     * @var mixed
+     */
+    protected $_modelKey = 'licence_id';
+
+    
+    /**
      * The class of the model that is linked to.
      *
      * @var string
@@ -76,10 +84,11 @@ class Opus_Model_Dependent_Link_DocumentLicence extends Opus_Model_Dependent_Lin
      * @return void
      */
     protected function _init() {
+        $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
-            $this->setModel(new Opus_Licence($this->_primaryTableRow->licence_id));
+            $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
         } else {
-            $this->setModel(new Opus_Licence);
+            $this->setModel(new $modelClass());
         }
     }
 
