@@ -90,6 +90,26 @@ class Opus_DocumentFinder {
         $this->select->distinct(true)->columns("id");
         return $this->db->fetchCol($this->select);
     }
+    
+    /**
+     * Returns the Zend_Db_Select object used to build query
+     *
+     * @return Zend_Db_Select
+     */
+    public function getSelect() {
+        return $this->select;
+    }
+
+    /**
+     * Returns the Zend_Db_Select object used to build query
+     *
+     * @return Zend_Db_Select
+     */
+    public function getSelectIds() {
+        $this->select->reset('columns');
+        $this->select->distinct(true)->columns("id");
+        return $this->select;
+    }
 
     /**
      * Debug method
@@ -426,8 +446,10 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setDependentModel($model, $id=null) {
-
-        if($model instanceOf Opus_Model_AbstractDb) {
+        $id = null;
+        if($model instanceOf Opus_Model_Dependent_Link_Abstract) {
+            $id = $model->getModel()->getId();
+        } else if($model instanceOf Opus_Model_AbstractDb) {
             $id = $model->getId();
         } else {
             $model = new $model;
@@ -447,8 +469,9 @@ class Opus_DocumentFinder {
             }
             $model = new $linkModelClass();
         }
-
-        $quotedId = $this->db->quote($id);
+        if(!is_null($id)) {
+            $id = $this->db->quote($id);
+        }
         $idCol = $model->getParentIdColumn();
         $table = Opus_Db_TableGateway::getInstance($model->getTableGatewayClass())->info('name');
         if (empty($idCol)
@@ -470,14 +493,15 @@ class Opus_DocumentFinder {
             $subselect = "SELECT $idCol
                 FROM $table AS l
                 WHERE l.$idCol = d.id
-                  AND l.$linkedModelKey = $quotedId";
+                  AND l.$linkedModelKey = $id";
 
         } else if ($model instanceOf Opus_Model_Dependent_Abstract) {
-
+            
             $subselect = "SELECT $idCol
                 FROM $table AS l
-                WHERE l.$idCol = d.id
-                AND l.id = $quotedId";
+                WHERE l.$idCol = d.id";
+                if(!is_null($id))
+                    $subselect .= " AND l.id = $id";
         
         } else {
             throw new Opus_DocumentFinder_Exception('Cannot create constraint for Model ' . get_class($model));

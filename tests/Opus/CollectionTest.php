@@ -504,4 +504,21 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($this->object->hasChildren());
     }
 
+        /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $d = new Opus_Document();
+        $d->addCollection( $this->object );
+        $docId = $d->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $this->object->setTheme('test');
+        $this->object->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
+    
 }

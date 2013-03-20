@@ -58,6 +58,14 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected static $_themes = array();
 
+    /**
+     * Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
 
     /**
      * The collections external fields, i.e. those not mapped directly to the

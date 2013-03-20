@@ -70,6 +70,13 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
      */
     protected $_displayAttributeName = 'Name';
 
+     /** Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array();
+
+    
     /**
      * Initialize model with the following values:
      * - Role

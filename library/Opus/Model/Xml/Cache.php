@@ -202,5 +202,17 @@ class Opus_Model_Xml_Cache {
         $this->_table->deleteWhereArray($where);
     }
 
+    /**
+     * Removes a all cache entries matching given constraint.
+     *
+     * @param Zend_Db_Select $select Select statement to use as subselect
+     *  The statement MUST return a list of document ids
+     * @return void
+     */
+    public function removeAllEntriesWhereSubSelect($select) {
+        $where = 'document_id IN ('.$select->assemble().')';
+        $this->_table->delete($where);
+    }
+
 }
 

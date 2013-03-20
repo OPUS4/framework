@@ -59,11 +59,10 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         $documentFinder = new Opus_DocumentFinder();
         
         $documentFinder->setDependentModel($model);
-        $ids = $documentFinder->ids();
-        if(!empty($ids)) {
-            $xmlCache = new Opus_Model_Xml_Cache();
-            $xmlCache->removeAllEntriesWhereDocumentId($ids);
-        }
+        $select = $documentFinder->getSelectIds();
+        
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache->removeAllEntriesWhereSubSelect($select);
         
     }
 }

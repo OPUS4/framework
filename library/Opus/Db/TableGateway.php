@@ -131,7 +131,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         $this->delete($where);
         return;
     }
-
+    
     /**
      * FIXME: Constructor should be private due to singleton pattern. This
      * conflicts with the signature of the Zend_Db_Table_Abstract contructor.
