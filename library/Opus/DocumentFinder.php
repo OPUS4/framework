@@ -440,19 +440,21 @@ class Opus_DocumentFinder {
     }
 
     /**
-     * @param Opus_Model_AbstractDb|string $model Object or class name of dependent model.
-     * @param int $id (optional) Id of object if class name is provided.
+     * 
+     * Add instance of dependent model as constraint.
+     * 
+     * @param Opus_Model_AbstractDb $model Instance of dependent model.
      * 
      * @return Opus_DocumentFinder Fluent interface.
      */
-    public function setDependentModel($model, $id=null) {
+    public function setDependentModel($model) {
+        if(!($model instanceOf Opus_Model_AbstractDb))
+            throw new Opus_DocumentFinder_Exception('Expected instance of Opus_Model_AbstractDb.');
         $id = null;
         if($model instanceOf Opus_Model_Dependent_Link_Abstract) {
             $id = $model->getModel()->getId();
         } else if($model instanceOf Opus_Model_AbstractDb) {
             $id = $model->getId();
-        } else {
-            $model = new $model;
         }
         
         // workaround for Opus_Collection[|Role] which are implemented differently
@@ -473,7 +475,9 @@ class Opus_DocumentFinder {
             $id = $this->db->quote($id);
         }
         $idCol = $model->getParentIdColumn();
-        $table = Opus_Db_TableGateway::getInstance($model->getTableGatewayClass())->info('name');
+        $tableGatewayClass = $model->getTableGatewayClass();
+        if(empty($tableGatewayClass)) throw new Opus_DocumentFinder_Exception('No table gateway class provided for '.get_class($model));
+        $table = Opus_Db_TableGateway::getInstance($tableGatewayClass)->info('name');
         if (empty($idCol)
                 || empty($table)) {
             throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
@@ -500,7 +504,7 @@ class Opus_DocumentFinder {
             $subselect = "SELECT $idCol
                 FROM $table AS l
                 WHERE l.$idCol = d.id";
-                if(!is_null($id))
+                if(!is_null($id)) // primary key is not necessarily 'id', but may be compound (seen in Opus_File)
                     $subselect .= " AND l.id = $id";
         
         } else {
