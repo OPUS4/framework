@@ -98,7 +98,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
      * @param integer $documentId
      */
     private function removeDocumentFromIndex($documentId) {
-        
+
         $log = Zend_Registry::get('Zend_Log');
 
         if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
@@ -106,7 +106,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
             $job = new Opus_Job();
-            $job->setLabel('opus-index-document');
+            $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
             $job->setData(array(
                 'documentId' => $documentId,
                 'task' => 'remove'
@@ -149,7 +149,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $document->getId() . '.');
 
             $job = new Opus_Job();
-            $job->setLabel('opus-index-document');
+            $job->setLabel(Opus_Job_Worker_IndexOpusDocument::LABEL);
             $job->setData(array(
                 'documentId' => $document->getId(),
                 'task' => 'index'
