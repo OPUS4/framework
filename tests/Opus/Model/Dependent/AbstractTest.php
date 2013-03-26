@@ -132,6 +132,11 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         $this->_cut = $this->getMock('Opus_Model_Dependent_Abstract', 
             array('_init', 'getId'), array(null, $this->_mockTableGateway));
         $this->_cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
+        // unregister plugin to avoid side effects using mock object
+        // plugin relies on table gateway class which is not available
+        try {
+            $this->_cut->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
+        } catch (Opus_Model_Exception $ome) {}
     }
 
     /**
@@ -191,7 +196,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
             $token = $this->_cut->delete();
             $this->_cut->doDelete($token);
         } catch (Opus_Model_Exception $ex) {
-            $this->fail('Valid deletion token rejected.');
+            $this->fail('Valid deletion token rejected with Exception: '.$ex->getMessage());
         }
     }   
     
