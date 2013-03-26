@@ -155,6 +155,12 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
 //        // test linked model
         //person
         $author = new Opus_Person($authorId);
+        // unregister plugin if registered
+        try {
+            $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
+        } catch (Opus_Model_Exception $ome) {
+            
+        }
         $author->setFirstName('Fritz');
         $author->store();
 
