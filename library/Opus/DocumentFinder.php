@@ -536,7 +536,35 @@ class Opus_DocumentFinder {
         return $linkModelClass;
     }
     
+    /**
+     * Add a subselect as constraint
+     * 
+     * @param Zend_Db_Select $select A select object used as subselect in query.
+     * The subquery must return a list of document ids.
+     * 
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setSubSelectExists($select) {
+        
+        $this->select->where('d.id IN ('.$select->assemble().')');
+        return $this;
+        
+    }
 
+    /**
+     * Add a subselect as constraint
+     * 
+     * @param Zend_Db_Select $select A select object used as subselect in query.
+     * The subquery must return a list of document ids.
+     * 
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setSubSelectNotExists($select) {
+        
+        $this->select->where(' NOT d.id IN ('.$select->assemble().')');
+        return $this;
+        
+    }
     
     /**
      * Ordering to be applied on the result set.
