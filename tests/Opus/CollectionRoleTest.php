@@ -462,5 +462,27 @@ class Opus_CollectionRoleTest extends TestCase {
                 'Root->getId must be equal Root->Reload->getId');
     }
 
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $root = $this->object->addRootCollection();
+        $collection = $root->addLastChild();
+        $this->object->store();
+
+        $d = new Opus_Document();
+        $d->setServerState('published');
+        $d->addCollection($collection);
+        $docId = $d->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $this->object->setDisplayFrontdoor(true);
+        $this->object->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
+    
 }
 
