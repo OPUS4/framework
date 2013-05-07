@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -86,11 +87,9 @@ class Opus_DocumentFinder {
      * @return array
      */
     public function ids() {
-        $this->select->reset('columns');
-        $this->select->distinct(true)->columns("id");
-        return $this->db->fetchCol($this->select);
+        return $this->db->fetchCol($this->getSelectIds());
     }
-    
+
     /**
      * Returns the Zend_Db_Select object used to build query
      *
@@ -453,16 +452,19 @@ class Opus_DocumentFinder {
         $id = null;
         if($model instanceOf Opus_Model_Dependent_Link_Abstract) {
             $id = $model->getModel()->getId();
-        } else if($model instanceOf Opus_Model_AbstractDb) {
+        } else {
             $id = $model->getId();
         }
-        
+
+        if (empty($id))
+            throw new Opus_DocumentFinder_Exception('Id not set for model ' . get_class($model));
+
         // workaround for Opus_Collection[|Role] which are implemented differently
         if($model instanceOf Opus_Collection)
             return $this->setCollectionId ($id );
         if($model instanceOf Opus_CollectionRole)
             return $this->setCollectionRoleId ($id );
-        
+
         if (!($model instanceOf Opus_Model_Dependent_Abstract ||
                 $model instanceOf Opus_Model_Dependent_Link_Abstract)) {
             $linkModelClass = $this->_getLinkModelClass($model);
@@ -481,32 +483,28 @@ class Opus_DocumentFinder {
         if (empty($idCol)
                 || empty($table)) {
             throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
-        } else {
-            $idCol = $this->db->quoteIdentifier($idCol);
-            $table = $this->db->quoteIdentifier($table);
         }
+        $idCol = $this->db->quoteIdentifier($idCol);
+        $table = $this->db->quoteIdentifier($table);
 
         if ($model instanceOf Opus_Model_Dependent_Link_Abstract) {
             $linkedModelKey = $model->getModelKey();
             if (empty($linkedModelKey)) {
                 throw new Opus_DocumentFinder_Exception('Cannot create subquery from dependent model ' . get_class($model));
-            } else {
-                $linkedModelKey = $this->db->quoteIdentifier($linkedModelKey);
             }
+            $linkedModelKey = $this->db->quoteIdentifier($linkedModelKey);
 
             $subselect = "SELECT $idCol
                 FROM $table AS l
                 WHERE l.$idCol = d.id
-                  AND l.$linkedModelKey = $id";
-
-        } else if ($model instanceOf Opus_Model_Dependent_Abstract) {
+                AND l.$linkedModelKey = $id";
             
+        } else if ($model instanceOf Opus_Model_Dependent_Abstract) {
+
             $subselect = "SELECT $idCol
                 FROM $table AS l
-                WHERE l.$idCol = d.id";
-                if(!is_null($id)) // primary key is not necessarily 'id', but may be compound (seen in Opus_File)
-                    $subselect .= " AND l.id = $id";
-        
+                WHERE l.$idCol = d.id
+                AND l.id = $id";
         } else {
             throw new Opus_DocumentFinder_Exception('Cannot create constraint for Model ' . get_class($model));
         }
@@ -535,7 +533,7 @@ class Opus_DocumentFinder {
         }
         return $linkModelClass;
     }
-    
+
     /**
      * Add a subselect as constraint
      * 
@@ -545,7 +543,7 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setSubSelectExists($select) {
-        
+
         $this->select->where('d.id IN ('.$select->assemble().')');
         return $this;
         
@@ -560,12 +558,12 @@ class Opus_DocumentFinder {
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setSubSelectNotExists($select) {
-        
+
         $this->select->where(' NOT d.id IN ('.$select->assemble().')');
         return $this;
         
     }
-    
+
     /**
      * Ordering to be applied on the result set.
      *

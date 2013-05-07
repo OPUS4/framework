@@ -63,7 +63,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         
         $xmlCache = new Opus_Model_Xml_Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
-        
+            
     }
 }
 

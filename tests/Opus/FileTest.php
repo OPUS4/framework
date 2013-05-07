@@ -634,6 +634,38 @@ class Opus_FileTest extends TestCase {
 
         $file->store();
     }
+    
+    /**
+     * Regression Test for OPUSVIER-1687
+     */
+    public function testInvalidateDocumentCache() {
+
+        $filename = "foobar.pdf";
+        $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
+
+        touch($filepath);
+        
+        $doc = new Opus_Document();
+        $doc->setType("article");
+        $file = $doc->addFile();
+        $file->setTempFile($filepath);
+        $file->setPathName('copied-' . $filename);
+        $file->setLabel('Volltextdokument (PDF)');
+
+        $docId = $doc->store();
+        $files = $doc->getFile();
+        $fileId = $files[0]->getId();
+        $file = new Opus_File($fileId);
+        echo $file->getLabel();
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        $file->setLabel('Volltextdokument (geändert)');
+        $file->store();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+        unlink($filepath);
+        
+    }
+
 
 }
 

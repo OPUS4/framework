@@ -65,7 +65,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         } catch (Opus_Model_Exception $ome) {
             
         }
-        $collection->setTheme('dummy');
+        $collection->setName('dummy');
         $collectionId = $collection->store();
 
         $docIds = array();

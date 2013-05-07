@@ -50,7 +50,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @var array
      */
     protected $_plugins = array(
-        'Opus_File_Plugin_DefaultAccess' => null
+        'Opus_File_Plugin_DefaultAccess' => null,
+        'Opus_Model_Plugin_InvalidateDocumentCache' => null
     );
 
     /**
