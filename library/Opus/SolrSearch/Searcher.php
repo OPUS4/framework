@@ -175,8 +175,17 @@ class Opus_SolrSearch_Searcher {
         if (!empty($fq)) {
             $params['fq'] = $fq;
         }
-        $params = array_merge($params, $this->getFacetLimitsFromConfig());
+        $params = array_merge($params, 
+                $this->getFacetLimitsFromConfig(),
+                $this->getFacetSortsFromConfig());
         return $params;
+    }
+
+    private function getAvailableFacetsFromConfig() {
+        if (isset($this->config->searchengine->solr->facets)) {
+            return explode((","), $this->config->searchengine->solr->facets);
+        }
+        return array();
     }
 
     private function getFacetLimitsFromConfig() {
@@ -185,10 +194,25 @@ class Opus_SolrSearch_Searcher {
         }
         $result = array();
         $limits = $this->config->searchengine->solr->facetlimit;
-        $facets = explode((","), $this->config->searchengine->solr->facets);
+        $facets = $this->getAvailableFacetsFromConfig();
         foreach ($facets as $facet) {
             if (isset($limits->$facet) && is_numeric($limits->$facet)) {
                 $result["f.$facet.facet.limit"] = $limits->$facet;
+            }
+        }
+        return $result;
+    }
+
+    private function getFacetSortsFromConfig() {
+        if (!isset($this->config->searchengine->solr->facets) || !isset($this->config->searchengine->solr->sortcrit)) {
+            return array();
+        }
+        $result = array();
+        $sortcrit = $this->config->searchengine->solr->sortcrit;
+        $facets = $this->getAvailableFacetsFromConfig();
+        foreach ($facets as $facet) {
+            if (isset($sortcrit->$facet) && $sortcrit->$facet == 'lexi') {
+                $result["f.$facet.facet.sort"] = 'index';
             }
         }
         return $result;
@@ -201,7 +225,7 @@ class Opus_SolrSearch_Searcher {
             return array();
         }
         $result = array();
-        $facets = explode((","), $this->config->searchengine->solr->facets);
+        $facets = $this->getAvailableFacetsFromConfig();
         foreach ($facets as $facet) {
             array_push($result, trim($facet));
         }
