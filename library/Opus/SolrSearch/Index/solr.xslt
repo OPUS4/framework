@@ -56,8 +56,7 @@
                 </xsl:element>
 
                 <!-- year -->
-                <xsl:element name="field">
-                    <xsl:attribute name="name">year</xsl:attribute>
+                <xsl:variable name="year">
                     <xsl:choose>
                         <xsl:when test="/Opus/Opus_Document/PublishedDate/@Year != ''">
                             <xsl:value-of select="/Opus/Opus_Document/PublishedDate/@Year" />
@@ -66,7 +65,21 @@
                             <xsl:value-of select="/Opus/Opus_Document/@PublishedYear" />
                         </xsl:otherwise>
                     </xsl:choose>
+                </xsl:variable>
+                
+                <xsl:element name="field">
+                    <xsl:attribute name="name">year</xsl:attribute>
+                    <xsl:value-of select="$year"/>
                 </xsl:element>
+
+                <!-- year inverted -->
+                <xsl:if test="$year">
+                    <xsl:variable name="yearInverted" select="65535 - $year"/>
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">year_inverted</xsl:attribute>
+                        <xsl:value-of select="$yearInverted"/>                        
+                    </xsl:element>
+                </xsl:if>
 
                 <!-- server_date_published -->
                 <xsl:if test="/Opus/Opus_Document/ServerDatePublished/@UnixTimestamp != ''">
