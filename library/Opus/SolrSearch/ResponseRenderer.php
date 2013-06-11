@@ -132,7 +132,14 @@ class Opus_SolrSearch_ResponseRenderer {
             $facet = trim($facet);
             $facetItems = array();
             foreach ($this->getFacet($facetsResult, $facet) as $text => $count) {
+                if ($facet == 'year_inverted') {
+                    $valueParts = explode(':', $text, 2);
+                    $text = $valueParts[1];
+                }
                 array_push($facetItems, new Opus_SolrSearch_FacetItem($text, $count));
+            }
+            if ($facet == 'year_inverted') {
+                $facet = 'year';
             }
             $result[$facet] = $facetItems;
         }
