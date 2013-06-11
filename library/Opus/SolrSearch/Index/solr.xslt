@@ -77,7 +77,7 @@
                     <xsl:variable name="yearInverted" select="65535 - $year"/>
                     <xsl:element name="field">
                         <xsl:attribute name="name">year_inverted</xsl:attribute>
-                        <xsl:value-of select="$yearInverted"/>                        
+                        <xsl:value-of select="$yearInverted"/>:<xsl:value-of select="$year"/>
                     </xsl:element>
                 </xsl:if>
 
