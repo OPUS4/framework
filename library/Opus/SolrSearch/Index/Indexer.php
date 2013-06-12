@@ -247,7 +247,7 @@ class Opus_SolrSearch_Index_Indexer {
         $caching_xml_model->setModel($doc);
         $caching_xml_model->excludeEmptyFields();
         $caching_xml_model->setStrategy(new Opus_Model_Xml_Version1);
-        // $caching_xml_model->setXmlCache(new Opus_Model_Xml_Cache);
+        $caching_xml_model->setXmlCache(new Opus_Model_Xml_Cache);
 
         $modelXml = $caching_xml_model->getDomDocument();
 
