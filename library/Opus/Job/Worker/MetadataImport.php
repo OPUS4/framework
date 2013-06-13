@@ -39,7 +39,7 @@
 class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
 
     const LABEL = 'opus-metadata-import-notification';
-    private static $script;
+    private $script;
 
 
     /**
