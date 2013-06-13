@@ -172,6 +172,7 @@ class Opus_Job_Runner {
                     $this->_logger->err($msg);
                 }
                 $job->setErrors(json_encode(array(
+                   'exception'  => get_class($ex),
                    'message'  => $ex->getMessage(),
                    'trace' => $ex->getTraceAsString()
                 )));
