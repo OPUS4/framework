@@ -79,13 +79,24 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Removes all documents from Solr index.
+     */
+    protected function clearSolrIndex() {
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $indexer->deleteAllDocs();
+        $indexer->commit();
+    }
+
+    /**
      * Standard setUp method for clearing database.
      *
      * @return void
      */
     protected function setUp() {
         parent::setUp();
-        self::_clearTables();
+        
+        $this->_clearTables();
+        $this->clearSolrIndex();
         
         $config = Zend_Registry::get('Zend_Config');
         if (!is_null($config)) {
