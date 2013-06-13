@@ -89,6 +89,14 @@
                     </xsl:element>
                 </xsl:if>
 
+                <!-- server_date_modified -->
+                <xsl:if test="/Opus/Opus_Document/ServerDateModified/@UnixTimestamp != ''">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">server_date_modified</xsl:attribute>
+                        <xsl:value-of select="/Opus/Opus_Document/ServerDateModified/@UnixTimestamp" />
+                    </xsl:element>
+                </xsl:if>
+
                 <!-- language -->
                 <xsl:variable name="language" select="/Opus/Opus_Document/@Language" />
                 <xsl:element name="field">
