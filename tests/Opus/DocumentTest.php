@@ -1868,6 +1868,39 @@ class Opus_DocumentTest extends TestCase {
                 'doc should not be modified after getField(Person)!');
     }
 
+    /**
+     * Regression test for OPUSVIER-2307: Test for modification tracking bug.
+     */
+    public function testPlinkIsNotModified() {
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $person->store();
+
+        $plink = $doc->addPerson($person);
+        $plink->setRole('advisor');
+
+        $doc->store();
+
+        $plink->getField('SortOrder')
+                ->setValue(123)
+                ->clearModified();
+
+        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(),
+                'plink->SortOrder should not be modified before');
+
+        $newField = new Opus_Model_Field('test');
+        $newField->setSortFieldName('SortOrder');
+        $newField->setValue(array($plink));
+
+        $this->markTestIncomplete('Modification tracking bug with SortOrder field not fully fixed yet.');
+
+        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(),
+                'plink->SortOrder should not be modified after');
+    }
+
     public function testChangeTitleType() {
         $this->markTestSkipped('Does not work (see OPUSVIER-2318).');
         $doc = new Opus_Document();
