@@ -40,7 +40,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         for ($i = 0; $i < $rows; $i++) {
             $document = new Opus_Document();
             $document->setServerState('published');
-            $document->store();            
+            $document->store();
+            sleep(1);
             array_push($ids, $document->getId());
         }
         
@@ -54,6 +55,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
             $this->assertEquals($ids[$i], $result->getId());
             $i--;
         }
+        $this->assertEquals(-1, $i);
     }
 }
 
