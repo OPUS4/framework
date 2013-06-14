@@ -79,6 +79,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
     public function testIndexFieldServerDateModifiedIsCorrectAfterModification() {
         $doc = new Opus_Document();
+        $doc->setLanguage('deu');
         $doc->setServerState('published');
         $doc->store();
         $id = $doc->getId();
@@ -87,6 +88,10 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $query->setRows(1);
         $searcher = new Opus_SolrSearch_Searcher();
         $results = $searcher->search($query);
+        $this->assertEquals(1, count($results));
+        $result = $results->getResults();
+
+        sleep(1);
 
         $doc = new Opus_Document($id);
         $doc->setLanguage('eng');
@@ -95,8 +100,6 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
         
-        $this->assertEquals(1, count($results));
-        $result = $results->getResults();
         $this->assertLessThan($serverDateModified, $result[0]->getServerDateModified());
     }
 
