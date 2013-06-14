@@ -258,7 +258,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @return boolean
      */
     public function isModified() {
-        return ($this->_isModified) or (parent::isModified());
+        return ($this->_isModified) or (parent::isModified())
+                or ($this->_model->isModified());
     }
 
     /**
