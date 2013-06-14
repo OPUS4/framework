@@ -415,10 +415,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $this->getField('BelongsToBibliography')
                 ->setCheckbox(true);
 
-        // Initialize available licences
-        $licences = Opus_Licence::getAll();
-        $this->getField('Licence')
-                ->setDefault($licences)
+        // Initialize available licences        
+        $this->getField('Licence')                
                 ->setSelection(true);
 
         // Add the server (publication) state as a field
