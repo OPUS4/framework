@@ -440,16 +440,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     'updated'=> 'updated'))
                 ->setSelection(true);
 
-        // Initialize available publishers
-        $publishers = Opus_DnbInstitute::getPublishers();
+        // Initialize available publishers        
         $this->getField('ThesisPublisher')
-                ->setDefault($publishers)
                 ->setSelection(true);
 
         // Initialize available grantors
-        $grantors = Opus_DnbInstitute::getGrantors();
         $this->getField('ThesisGrantor')
-                ->setDefault($grantors)
                 ->setSelection(true);
     }
 
