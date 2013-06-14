@@ -99,10 +99,80 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $doc = new Opus_Document($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
-        
-        $this->assertLessThan($serverDateModified, $result[0]->getServerDateModified());
+
+        $this->assertTrue($serverDateModified > $result[0]->getServerDateModified());
     }
 
+    public function testIndexFieldServerDateModifiedForDependentModelChanges() {
+        $role = new Opus_CollectionRole();
+        $role->setName('foobar-name');
+        $role->setOaiName('foobar-oainame');
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $role->store();
+
+        $root = new Opus_Collection($root->getId());
+        $root->setVisible(0);
+        $root->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(0, count($result));
+
+        sleep(1);
+
+        $doc = new Opus_Document();
+        $doc->addCollection($root);
+        $doc->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(1, count($result));
+
+        sleep(1);
+
+        $root = new Opus_Collection($root->getId());
+        $root->setVisible(1);
+        $root->store();
+
+        $doc = new Opus_Document($doc->getId());
+        $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(1, count($result));
+
+        sleep(1);
+
+        $root->delete();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(0, count($result), 'Deletion of Collection was not propagated to Solr index');
+
+        $doc = new Opus_Document($doc->getId());
+        $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
+
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
+        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
+        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
+    }
+
+    private function searchDocumentsAssignedToCollection($collId) {
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query->setCatchAll('*:*');
+        $query->addFilterQuery('collection_ids', $collId);
+        $searcher = new Opus_SolrSearch_Searcher();
+        $results = $searcher->search($query);
+        return $results->getResults();
+    }
 
 }
 
