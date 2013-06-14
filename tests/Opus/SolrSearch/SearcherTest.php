@@ -35,7 +35,7 @@
 class Opus_SolrSearch_SearcherTest extends TestCase {
 
     public function testLatestDocumentsQuery() {
-        $rows = 10;        
+        $rows = 5;
         $ids = array();
         for ($i = 0; $i < $rows; $i++) {
             $document = new Opus_Document();
@@ -57,5 +57,49 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         }
         $this->assertEquals(-1, $i);
     }
+
+    public function testIndexFieldServerDateModifiedIsPresent() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+
+        $id = $doc->getId();
+        $doc = new Opus_Document($id);
+        $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
+        $query->setRows(1);
+        $searcher = new Opus_SolrSearch_Searcher();
+        $results = $searcher->search($query);
+        
+        $this->assertEquals(1, count($results));
+        $result = $results->getResults();        
+        $this->assertEquals($serverDateModified, $result[0]->getServerDateModified());
+    }
+
+    public function testIndexFieldServerDateModifiedIsCorrectAfterModification() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+        $id = $doc->getId();
+
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
+        $query->setRows(1);
+        $searcher = new Opus_SolrSearch_Searcher();
+        $results = $searcher->search($query);
+
+        $doc = new Opus_Document($id);
+        $doc->setLanguage('eng');
+        $doc->store();
+
+        $doc = new Opus_Document($id);
+        $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
+        
+        $this->assertEquals(1, count($results));
+        $result = $results->getResults();
+        $this->assertLessThan($serverDateModified, $result[0]->getServerDateModified());
+    }
+
+
 }
 

@@ -41,6 +41,7 @@ class Opus_SolrSearch_Result {
     private $year;
     private $abstract;
     private $seriesNumber;
+    private $serverDateModified;
 
     public function  __construct() {
     }
@@ -105,5 +106,14 @@ class Opus_SolrSearch_Result {
     public function setSeriesNumber($seriesNumber) {
         $this->seriesNumber = $seriesNumber;
     }
+
+    public function getServerDateModified() {
+        return $this->serverDateModified;
+    }
+
+    public function setServerDateModified($serverDateModified) {
+        $this->serverDateModified = $serverDateModified;
+    }
+
 }
 

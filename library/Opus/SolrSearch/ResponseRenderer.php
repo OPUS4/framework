@@ -88,6 +88,7 @@ class Opus_SolrSearch_ResponseRenderer {
                 $seriesNumberFieldname = 'series_number_for_id_' . $seriesId;
                 if (isset($doc->$seriesNumberFieldname)) $result->setSeriesNumber($doc->$seriesNumberFieldname);
             }
+            if (isset($doc->server_date_modified)) $result->setServerDateModified ($doc->server_date_modified);
             array_push($results, $result);
         }
         $numFound = $solrResponse->response->numFound;
