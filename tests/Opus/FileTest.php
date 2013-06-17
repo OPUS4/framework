@@ -656,7 +656,6 @@ class Opus_FileTest extends TestCase {
         $files = $doc->getFile();
         $fileId = $files[0]->getId();
         $file = new Opus_File($fileId);
-        echo $file->getLabel();
         $xmlCache = new Opus_Model_Xml_Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
         $file->setLabel('Volltextdokument (geändert)');
