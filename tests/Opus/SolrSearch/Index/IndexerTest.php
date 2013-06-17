@@ -575,9 +575,12 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $method->setAccessible(true);
 
         $xml = $method->invoke ($this->indexer, $doc);
-        $this->assertContains('<field name="has_fulltext">true</field>', $xml->saveXML());
-        $this->assertNotContains('<field name="has_fulltext">false</field>', $xml->saveXML());
-
+	$xmlString = $xml->saveXML();
+        $this->assertContains('<field name="has_fulltext">true</field>', $xmlString);
+        $this->assertNotContains('<field name="has_fulltext">false</field>', $xmlString);
+	$this->assertContains('<field name="fulltext_id_success">' . $file->getId() . ':' . $file->getRealHash('md5') . '</field>', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
+	
         $config = Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $doc->getId();
 	unlink($path . DIRECTORY_SEPARATOR . 'test.pdf');
@@ -601,8 +604,11 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $method->setAccessible(true);
 
         $xml = $method->invoke ($this->indexer, $doc);
-        $this->assertContains('<field name="has_fulltext">false</field>', $xml->saveXML());
-        $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());
+	$xmlString = $xml->saveXML();
+        $this->assertContains('<field name="has_fulltext">false</field>', $xmlString);
+        $this->assertNotContains('<field name="has_fulltext">true</field>', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_success">', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
 
         $config = Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $doc->getId();
@@ -624,8 +630,11 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $method->setAccessible(true);
 
         $xml = $method->invoke ($this->indexer, $doc);
-        $this->assertContains('<field name="has_fulltext">false</field>', $xml->saveXML());
-        $this->assertNotContains('<field name="has_fulltext">true</field>', $xml->saveXML());        
+	$xmlString = $xml->saveXML();
+        $this->assertContains('<field name="has_fulltext">false</field>', $xmlString);
+        $this->assertNotContains('<field name="has_fulltext">true</field>', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_success">', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
     }
     
     /**
