@@ -197,5 +197,136 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         return $results->getResults();
     }
 
+    public function testFulltextFieldsForValidPDFFulltext() {
+        $fileName = 'test.pdf';
+        $id = $this->createDocWithFulltext($fileName);
+
+        $result = $this->getSearchResultForFulltextTests();
+
+        $success = $result->getFulltextIDsSuccess();
+        $this->assertEquals(1, count($success));
+
+        $doc = new Opus_Document($id);
+        $file = $doc->getFile();
+        $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
+        $this->removeFiles($id, $fileName);
+
+        $this->assertEquals($value, $success[0]);
+
+        $failure = $result->getFulltextIDsFailure();
+        $this->assertEquals(0, count($failure));
+    }
+
+    public function testFulltextFieldsForInvalidPDFFulltext() {
+        $fileName = 'test-invalid.pdf';
+        $id = $this->createDocWithFulltext($fileName);
+
+        $result = $this->getSearchResultForFulltextTests();
+
+        $failure = $result->getFulltextIDsFailure();
+        $this->assertEquals(1, count($failure));
+
+        $doc = new Opus_Document($id);
+        $file = $doc->getFile();
+        $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
+        $this->removeFiles($id, $fileName);
+
+        $this->assertEquals($value, $failure[0]);
+
+        $success = $result->getFulltextIDsSuccess();
+        $this->assertEquals(0, count($success));
+    }
+
+    public function testFulltextFieldsForValidAndInvalidPDFFulltexts() {
+        $fileName1 = 'test.pdf';
+        $fileName2 = 'test-invalid.pdf';
+        $id = $this->createDocWithFulltext($fileName1, $fileName2);
+
+        $result = $this->getSearchResultForFulltextTests();
+
+        $success = $result->getFulltextIDsSuccess();
+        $this->assertEquals(1, count($success));
+
+        $failure = $result->getFulltextIDsFailure();
+        $this->assertEquals(1, count($failure));
+
+        $doc = new Opus_Document($id);
+        $file = $doc->getFile();
+        $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
+        $this->assertEquals($value, $success[0]);
+
+        $value = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
+        $this->assertEquals($value, $failure[0]);
+
+        $this->removeFiles($id, $fileName1, $fileName2);
+    }
+
+    public function testFulltextFieldsForTwoValidDFFulltexts() {
+        $fileName1 = 'test.pdf';
+        $fileName2 = 'test.txt';
+        $id = $this->createDocWithFulltext($fileName1, $fileName2);
+
+        $result = $this->getSearchResultForFulltextTests();
+
+        $success = $result->getFulltextIDsSuccess();
+        $this->assertEquals(2, count($success));
+
+        $failure = $result->getFulltextIDsFailure();
+        $this->assertEquals(0, count($failure));
+
+        $doc = new Opus_Document($id);
+        $file = $doc->getFile();
+        $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
+        $this->assertEquals($value, $success[0]);
+
+        $value = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
+        $this->assertEquals($value, $success[1]);
+
+        $this->removeFiles($id, $fileName1, $fileName2);
+    }
+
+    private function createDocWithFulltext($fulltext1, $fulltext2 = null) {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+
+        $file = $doc->addFile();
+        $file->setTempFile('fulltexts/' . $fulltext1);
+        $file->setPathName($fulltext1);
+        $file->setLabel($fulltext1);
+        $file->setVisibleInFrontdoor('1');
+        $doc->store();
+
+        if (!is_null($fulltext2)) {
+            $doc = new Opus_Document($doc->getId());
+            $file = $doc->addFile();
+            $file->setTempFile('fulltexts/' . $fulltext2);
+            $file->setPathName($fulltext2);
+            $file->setLabel($fulltext2);
+            $file->setVisibleInFrontdoor('1');
+            $doc->store();
+        }
+
+        return $doc->getId();
+    }
+
+    private function removeFiles($docId, $fulltext1, $fulltext2 = null) {
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
+        unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
+        if (!is_null($fulltext2)) {
+            unlink($path . DIRECTORY_SEPARATOR . $fulltext2);
+        }
+        rmdir($path);
+    }
+
+    private function getSearchResultForFulltextTests() {
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query->setCatchAll('*:*');
+        $searcher = new Opus_SolrSearch_Searcher();
+        $results = $searcher->search($query)->getResults();
+        $this->assertEquals(1, count($results));
+        return $results[0];
+    }
+
 }
 
