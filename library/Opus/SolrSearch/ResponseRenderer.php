@@ -89,6 +89,8 @@ class Opus_SolrSearch_ResponseRenderer {
                 if (isset($doc->$seriesNumberFieldname)) $result->setSeriesNumber($doc->$seriesNumberFieldname);
             }
             if (isset($doc->server_date_modified)) $result->setServerDateModified ($doc->server_date_modified);
+            if (isset($doc->fulltext_id_success)) $result->setFulltextIDsSuccess($doc->fulltext_id_success);
+            if (isset($doc->fulltext_id_failure)) $result->setFulltextIDsFailure($doc->fulltext_id_failure);
             array_push($results, $result);
         }
         $numFound = $solrResponse->response->numFound;

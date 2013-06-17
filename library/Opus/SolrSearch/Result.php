@@ -42,6 +42,8 @@ class Opus_SolrSearch_Result {
     private $abstract;
     private $seriesNumber;
     private $serverDateModified;
+    private $fulltextIDsSuccess;
+    private $fulltextIDsFailure;
 
     public function  __construct() {
     }
@@ -67,12 +69,7 @@ class Opus_SolrSearch_Result {
     }
 
     public function setAuthors($authors) {
-        if (!is_array($authors)) {
-            $this->authors = array($authors);
-        }
-        else {
-            $this->authors = $authors;
-        }
+        $this->authors = is_array($authors) ? $authors : array($authors);
     }
 
     public function getTitle() {
@@ -113,6 +110,22 @@ class Opus_SolrSearch_Result {
 
     public function setServerDateModified($serverDateModified) {
         $this->serverDateModified = $serverDateModified;
+    }
+
+    public function getFulltextIDsSuccess() {
+        return $this->fulltextIDsSuccess;
+    }
+
+    public function setFulltextIDsSuccess($fulltextIDsSuccess) {
+        $this->fulltextIDsSuccess = is_array($fulltextIDsSuccess) ? $fulltextIDsSuccess : array($fulltextIDsSuccess);
+    }
+
+    public function getFulltextIDsFailure() {
+        return $this->fulltextIDsFailure;
+    }
+
+    public function setFulltextIDsFailure($fulltextIDsFailure) {
+        $this->fulltextIDsFailure = is_array($fulltextIDsFailure) ? $fulltextIDsFailure : array($fulltextIDsFailure);
     }
 
 }
