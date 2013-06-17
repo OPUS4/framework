@@ -154,15 +154,38 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root->delete();
 
+        // document in search index was not updated: connection between document $doc
+        // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(0, count($result), 'Deletion of Collection was not propagated to Solr index');
+        $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
 
         $doc = new Opus_Document($doc->getId());
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
 
+        sleep(1);
+
+        // force rebuild of cache entry for current Opus_Document: cache removal
+        // was issued by deletion of collection $root
+        $xmlModel = new Opus_Model_Xml();
+        $doc = new Opus_Document($doc->getId());
+        $xmlModel->setModel($doc);
+        $xmlModel->excludeEmptyFields();
+        $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
+        $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
+        $xmlModel->getDomDocument();
+
+        // connection between document $doc and collection $root does not longer
+        // exist in search index
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(0, count($result));
+
+        $doc = new Opus_Document($doc->getId());
+        $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
+
         $this->assertTrue($serverDateModified1 < $serverDateModified2);
         $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
         $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
+        $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
     private function searchDocumentsAssignedToCollection($collId) {
