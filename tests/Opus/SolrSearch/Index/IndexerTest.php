@@ -106,6 +106,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->config = Zend_Registry::get('Zend_Config');
         $this->files_dir = $this->config->workspacePath . DIRECTORY_SEPARATOR . "files";
 
+	$this->indexer = new Opus_SolrSearch_Index_Indexer();
+
         $document = new Opus_Document();
         foreach (self::$_validDocumentData as $fieldname => $value) {
             $callname = 'set' . $fieldname;
