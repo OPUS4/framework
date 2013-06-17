@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -30,16 +29,13 @@
  * @package     Opus_SolrSearch
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Test search indexing.
- *
- * @category   Test
- * @package    Opus_SolrSearch
+ * Test indexing.
  *
  * @group SearchIndexIndexerTests
  */
@@ -78,7 +74,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
      */
     protected static $_validDocumentData = array(
         'Type' => 'article',
-        'Language' => 'de',
+        'Language' => 'deu',
         'ContributingCorporation' => 'Contributing, Inc.',
         'CreatingCorporation' => 'Creating, Inc.',
         'ThesisDateAccepted' => '1901-01-01',
@@ -558,7 +554,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
      * Regression test for OPUSVIER-2417
      */
     public function testFulltextVisibilityIsConsideredInFacetForFrontdoorVisibleFulltext() {
-        $doc = new Opus_Document();
+        $doc = new Opus_Document($this->document_id);
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
@@ -577,8 +573,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
 	$this->assertContains('<field name="fulltext_id_success">' . $file->getId() . ':' . $file->getRealHash('md5') . '</field>', $xmlString);
 	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
 	
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $doc->getId();
+        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
 	unlink($path . DIRECTORY_SEPARATOR . 'test.pdf');
 	rmdir($path);
     }
@@ -587,7 +582,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
      * Regression test for OPUSVIER-2417
      */
     public function testFulltextVisibilityIsConsideredInFacetForFrontdoorInvisibleFulltext() {
-        $doc = new Opus_Document();
+        $doc = new Opus_Document($this->document_id);
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
@@ -606,8 +601,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
 	$this->assertNotContains('<field name="fulltext_id_success">', $xmlString);
 	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
 
-        $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $doc->getId();
+        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
         unlink($path . DIRECTORY_SEPARATOR . 'test.pdf');
         rmdir($path);
     }
@@ -616,7 +610,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
      * Regression test for OPUSVIER-2417
      */
     public function testFulltextVisibilityIsNotConsideredInFacet() {
-        $doc = new Opus_Document();
+        $doc = new Opus_Document($this->document_id);
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $doc->store();
