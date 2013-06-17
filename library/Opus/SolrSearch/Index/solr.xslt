@@ -167,6 +167,22 @@
                     <xsl:value-of select="/Opus/Opus_Document/Has_Fulltext" />
                 </xsl:element>
 
+                <!-- IDs der Dateien, die mit nicht leerem Resultat extrahiert werden konnten -->
+                <xsl:for-each select="/Opus/Opus_Document/Fulltext_ID_Success">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">fulltext_id_success</xsl:attribute>
+                        <xsl:value-of select="."/>
+                    </xsl:element>
+                </xsl:for-each>
+
+                <!-- IDs der Dateien, die nicht erfolgreich extrahiert werden konnten -->
+                <xsl:for-each select="/Opus/Opus_Document/Fulltext_ID_Failure">
+                    <xsl:element name="field">
+                        <xsl:attribute name="name">fulltext_id_failure</xsl:attribute>
+                        <xsl:value-of select="."/>
+                    </xsl:element>
+                </xsl:for-each>
+
                 <!-- referee -->
                 <xsl:for-each select="/Opus/Opus_Document/PersonReferee">
                     <xsl:element name="field">

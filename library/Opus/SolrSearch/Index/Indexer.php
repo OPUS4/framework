@@ -300,16 +300,27 @@ class Opus_SolrSearch_Index_Indexer {
         }
         $docXml->appendChild($modelXml->createElement('Has_Fulltext', 'true'));
         foreach ($files as $file) {
+            $fulltext = '';
             try {
-                $fulltext = iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file));
-                if (!empty($fulltext)) {
-                    $element = $modelXml->createElement('Fulltext_Index');
-                    $element->appendChild($modelXml->createCDATASection($fulltext));
-                    $docXml->appendChild($element);
-                }
+                $fulltext = trim(iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file)));
             }
             catch (Opus_SolrSearch_Index_Exception $e) {
                 $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
+            }
+            
+            if ($fulltext != '') {
+                $element = $modelXml->createElement('Fulltext_Index');
+                $element->appendChild($modelXml->createCDATASection($fulltext));
+                $docXml->appendChild($element);
+
+                $element = $modelXml->createElement('Fulltext_ID_Success');
+                $element->appendChild($modelXml->createTextNode($file->getId() . ":" . $file->getRealHash('md5')));
+                $docXml->appendChild($element);
+            }
+            else {
+                $element = $modelXml->createElement('Fulltext_ID_Failure');
+                $element->appendChild($modelXml->createTextNode($file->getId() . ":" . $file->getRealHash('md5')));
+                $docXml->appendChild($element);
             }
         }
     }
