@@ -143,7 +143,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(1, count($result));
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1 < $serverDateModified2);
+        $this->assertTrue($serverDateModified1 == $serverDateModified2);
 
         sleep(1);
 
