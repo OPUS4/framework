@@ -103,6 +103,72 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified > $result[0]->getServerDateModified());
     }
 
+    public function testReindexingIsTriggeredInCaseOfDependentModelChanges() {
+        $role = new Opus_CollectionRole();
+        $role->setName('foobar-name');
+        $role->setOaiName('foobar-oainame');
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $role->store();
+
+        $root = new Opus_Collection($root->getId());
+        $root->setVisible(0);
+        $root->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(0, count($result));
+
+        sleep(1);
+
+        $doc = new Opus_Document();
+        $doc->addCollection($root);
+        $doc->store();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(1, count($result));
+
+        sleep(1);
+
+        $root = new Opus_Collection($root->getId());
+        $root->setVisible(1);
+        $root->store();
+
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(1, count($result));
+
+        sleep(1);
+
+        $root->delete();
+
+        // document in search index was not updated: connection between document $doc
+        // and collection $root is still present in search index
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
+
+        sleep(1);
+
+        // force rebuild of cache entry for current Opus_Document: cache removal
+        // was issued by deletion of collection $root
+        // side effect of cache rebuild: document will be updated in search index
+        $xmlModel = new Opus_Model_Xml();
+        $doc = new Opus_Document($doc->getId());
+        $xmlModel->setModel($doc);
+        $xmlModel->excludeEmptyFields();
+        $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
+        $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
+        $xmlModel->getDomDocument();
+
+        // connection between document $doc and collection $root does not longer
+        // exist in search index
+        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $this->assertEquals(0, count($result));
+    }
+
     public function testIndexFieldServerDateModifiedForDependentModelChanges() {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
@@ -123,9 +189,6 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($doc->getId());
         $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(0, count($result));
-
         sleep(1);
 
         $doc = new Opus_Document();
@@ -134,9 +197,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $doc = new Opus_Document($doc->getId());
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
-
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(1, count($result));
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
 
         sleep(1);
 
@@ -146,21 +207,15 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $doc = new Opus_Document($doc->getId());
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
-
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(1, count($result));
+        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
 
         sleep(1);
 
         $root->delete();
 
-        // document in search index was not updated: connection between document $doc
-        // and collection $root is still present in search index
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
-
         $doc = new Opus_Document($doc->getId());
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
+        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
 
         sleep(1);
 
@@ -174,17 +229,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
         $xmlModel->getDomDocument();
 
-        // connection between document $doc and collection $root does not longer
-        // exist in search index
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
-        $this->assertEquals(0, count($result));
-
         $doc = new Opus_Document($doc->getId());
         $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
-
-        $this->assertTrue($serverDateModified1 < $serverDateModified2);
-        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
-        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
         $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
