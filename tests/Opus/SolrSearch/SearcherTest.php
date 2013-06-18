@@ -131,6 +131,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $result = $this->searchDocumentsAssignedToCollection($root->getId());
         $this->assertEquals(1, count($result));
+        $serverDateModified1 = $result[0]->getServerDateModified();
 
         sleep(1);
 
@@ -141,6 +142,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->searchDocumentsAssignedToCollection($root->getId());
         $this->assertEquals(1, count($result));
 
+        $serverDateModified2 = $result[0]->getServerDateModified();
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
+
         sleep(1);
 
         $root->delete();
@@ -149,6 +153,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($root->getId());
         $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
+
+        $serverDateModified3 = $result[0]->getServerDateModified();
+        $this->assertTrue($serverDateModified2 == $serverDateModified3);
 
         sleep(1);
 
@@ -167,6 +174,12 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // exist in search index
         $result = $this->searchDocumentsAssignedToCollection($root->getId());
         $this->assertEquals(0, count($result));
+
+        $result = $this->searchDocumentsAssignedToCollection();
+        $this->assertEquals(1, count($result));
+        
+        $serverDateModified4 = $result[0]->getServerDateModified();
+        $this->assertTrue($serverDateModified3 < $serverDateModified4);
     }
 
     public function testServerDateModifiedIsUpdatedForDependentModelChanges() {
@@ -234,10 +247,12 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
-    private function searchDocumentsAssignedToCollection($collId) {
+    private function searchDocumentsAssignedToCollection($collId = null) {
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
         $query->setCatchAll('*:*');
-        $query->addFilterQuery('collection_ids', $collId);
+        if (!is_null($collId)) {
+            $query->addFilterQuery('collection_ids', $collId);
+        }
         $searcher = new Opus_SolrSearch_Searcher();
         $results = $searcher->search($query);
         return $results->getResults();
