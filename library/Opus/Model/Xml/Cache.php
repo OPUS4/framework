@@ -168,6 +168,8 @@ class Opus_Model_Xml_Cache {
         );
 
         $this->_table->insert($newValue);
+        
+        $this->_postPut($documentId);
     }
 
     /**
@@ -212,6 +214,18 @@ class Opus_Model_Xml_Cache {
     public function removeAllEntriesWhereSubSelect($select) {
         $where = 'document_id IN ('.$select->assemble().')';
         $this->_table->delete($where);
+    }
+    
+    /**
+     * Post cache put hook. Functionality needed to keep 
+     * document in a consistent state after cache update.
+     * 
+     * @param int $documentId Id of document to process
+     */
+    protected function _postPut($documentId) {
+        $indexPlugin = new Opus_Document_Plugin_Index();
+        $indexPlugin->postStore(new Opus_Document($documentId));
+        
     }
 
 }
