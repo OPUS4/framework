@@ -560,7 +560,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
-        $file->setPathName('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setPathName('test.pdf');
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
@@ -588,7 +589,8 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
-        $file->setPathName('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setPathName('test.pdf');
         $file->setVisibleInFrontdoor('0');
         $doc->store();
 
