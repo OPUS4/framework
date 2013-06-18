@@ -54,16 +54,21 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     public function preDelete(Opus_Model_AbstractDb $model) {
         $this->invalidateDocumentCacheFor($model);
     }
-    
+
     protected function invalidateDocumentCacheFor(Opus_Model_AbstractDb $model) {
         $documentFinder = new Opus_DocumentFinder();
-        
+
         $documentFinder->setDependentModel($model);
         $select = $documentFinder->getSelectIds();
-        
+        $ids = $documentFinder->Ids();
+
         $xmlCache = new Opus_Model_Xml_Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
-            
+
+        $date = new Opus_Date();
+        $date->setNow();
+        Opus_Document::setServerDateModifiedByIds($date, $ids);
     }
+
 }
 
