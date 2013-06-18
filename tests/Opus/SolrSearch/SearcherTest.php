@@ -169,7 +169,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(0, count($result));
     }
 
-    public function testIndexFieldServerDateModifiedForDependentModelChanges() {
+    public function testServerDateModifiedIsUpdatedForDependentModelChanges() {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
