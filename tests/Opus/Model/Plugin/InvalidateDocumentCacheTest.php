@@ -41,32 +41,39 @@
  */
 class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
 
+    protected $collection;
+    protected $collectionRole;
+
+    public function setUp() {
+        parent::setUp();
+        $this->collectionRole = new Opus_CollectionRole();
+        $this->collectionRole->setName("role-name-" . rand());
+        $this->collectionRole->setOaiName("role-oainame-" . rand());
+        $this->collectionRole->setVisible(1);
+        $this->collectionRole->setVisibleBrowsingStart(1);
+        $this->collectionRole->store();
+        try {
+            $this->collectionRole->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
+        } catch (Opus_Model_Exception $ome) {
+            
+        }
+
+        $this->collection = $this->collectionRole->addRootCollection();
+        try {
+            $this->collection->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
+        } catch (Opus_Model_Exception $ome) {
+            
+        }
+        $this->collection->setName('dummy');
+        $this->collection->store();
+    }
+
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function testPostStore() {
         $xmlCache = new Opus_Model_Xml_Cache();
 
-        $collectionRole = new Opus_CollectionRole();
-        $collectionRole->setName("role-name-" . rand());
-        $collectionRole->setOaiName("role-oainame-" . rand());
-        $collectionRole->setVisible(1);
-        $collectionRole->setVisibleBrowsingStart(1);
-        $collectionRole->store();
-        try {
-            $collectionRole->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
-        }
-
-        $collection = $collectionRole->addRootCollection();
-        try {
-            $collection->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
-        }
-        $collection->setName('dummy');
-        $collectionId = $collection->store();
 
         $docIds = array();
         $doc1 = new Opus_Document();
@@ -75,11 +82,11 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
                 ->setServerState('published');
 
 //        $doc1->addLicence($licence);
-        $doc1->addCollection($collection);
+        $doc1->addCollection($this->collection);
         $doc1->store();
 
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry for doc1 after creation id: '.$doc1->getId());
+        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry for doc1 after creation id: ' . $doc1->getId());
 
 
         $doc2 = new Opus_Document();
@@ -104,15 +111,15 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $doc2->addPersonAuthor($author);
         $doc2->store();
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), "Expected valid cache entry for doc2 after creation. id: ".$doc2->getId());
+        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId());
 
         $doc3 = new Opus_Document();
         $doc3->registerPlugin(new Opus_Document_Plugin_XmlCache);
 
-        $docIds[] = $doc3->setType("preprint")
+        $doc3Id = $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
-        $this->assertTrue($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected valid cache entry for doc3 after creation. id: '.$doc3->getId());
+        $this->assertTrue($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected valid cache entry for doc3 after creation. id: ' . $doc3->getId());
 
         $doc4 = new Opus_Document();
         $doc4->registerPlugin(new Opus_Document_Plugin_XmlCache);
@@ -120,9 +127,9 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
                 ->setServerState('unpublished');
 
 //        $doc4->addLicence($licence);
-        $doc4->addCollection($collection);
+        $doc4->addCollection($this->collection);
         $doc4->store();
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry for doc4 after creation id: '.$doc4->getId());
+        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry for doc4 after creation id: ' . $doc4->getId());
 
         $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
 
@@ -176,14 +183,36 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after person');
         $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after person');
 //        
-        $plugin->postStore($collection);
+        $plugin->postStore($this->collection);
 //
         $this->assertFalse($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected cache entry to be deleted after collection');
         $this->assertFalse($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected cache entry to be deleted after collection');
         $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after collection');
         $this->assertFalse($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected cache entry to be deleted after collection');
     }
-    
+
+    /**
+     * Make sure the ServerDateModified is updated
+     */
+    public function testSetServerDateModified() {
+
+        $doc = new Opus_Document();
+        $doc->registerPlugin(new Opus_Document_Plugin_XmlCache);
+        $doc->setType("article")
+                ->setServerState('published');
+
+        $doc->addCollection($this->collection);
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+
+        $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
+        sleep(1);
+        $plugin->postStore($this->collection);
+        $docReloaded = new Opus_Document($docId);
+        $this->assertTrue($docReloaded->getServerDateModified()->getZendDate()->isLater($doc->getServerDateModified()->getZendDate()),
+                'Expected serverDateModified to be updated.');
+    }
+
     public function testPreDelete() {
         $this->markTestIncomplete('preDelete currently equal to postStore, so no specific testing required');
     }
