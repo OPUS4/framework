@@ -125,7 +125,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         sleep(1);
 
-        $doc = new Opus_Document();
+        $doc = new Opus_Document($doc->getId());
         $doc->addCollection($root);
         $doc->store();
 
@@ -204,7 +204,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         sleep(1);
 
-        $doc = new Opus_Document();
+        $doc = new Opus_Document($doc->getId());
         $doc->addCollection($root);
         $doc->store();
 
