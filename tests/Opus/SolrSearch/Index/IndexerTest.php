@@ -630,6 +630,32 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
 	$this->assertNotContains('<field name="fulltext_id_success">', $xmlString);
 	$this->assertNotContains('<field name="fulltext_id_failure">', $xmlString);
     }
+
+    public function testHandlingOfNonExtractableFulltext() {
+        $doc = new Opus_Document($this->document_id);
+        $doc->setServerState('published');
+        $doc->setLanguage('eng');
+        $file = $doc->addFile();
+        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test-invalid.pdf');
+        $file->setPathName('test-invalid.pdf');
+        $file->setVisibleInFrontdoor('1');
+        $doc->store();
+
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getSolrXmlDocument');
+        $method->setAccessible(true);
+
+        $xml = $method->invoke ($this->indexer, $doc);
+	$xmlString = $xml->saveXML();
+        $this->assertContains('<field name="has_fulltext">true</field>', $xmlString);
+        $this->assertNotContains('<field name="has_fulltext">false</field>', $xmlString);
+	$this->assertContains('<field name="fulltext_id_failure">' . $file->getId() . ':' . $file->getRealHash('md5') . '</field>', $xmlString);
+	$this->assertNotContains('<field name="fulltext_id_success">', $xmlString);
+
+        $path = $this->files_dir . DIRECTORY_SEPARATOR . $doc->getId();
+	unlink($path . DIRECTORY_SEPARATOR . 'test-invalid.pdf');
+	rmdir($path);
+    }
     
     /**
      * test changed return value (fluent interface)
