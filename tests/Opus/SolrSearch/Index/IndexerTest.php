@@ -677,5 +677,93 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->assertTrue($result instanceof Opus_SolrSearch_Index_Indexer, 'Expected instance of Opus_SolrSearch_Index_Indexer');
     }
 
+    public function testIndexIsUpdatedSynchronouslyInSyncMode() {
+        // manipulate configuration: enable sync mode (which is the default)
+        $config = new Zend_Config(array(
+            'runjobs' => array(
+                'asynchronous' => 0)), true);
+        $config->merge(Zend_Registry::get('Zend_Config'));
+        Zend_Registry::set('Zend_Config', $config);
+
+        $this->performDocumentExistsInIndexChecks();
+    }
+
+    public function testIndexIsUpdatedSynchronouslyInAsyncMode() {
+        // manipulate configuration: enable async mode
+        $config = new Zend_Config(array(
+            'runjobs' => array(
+                'asynchronous' => 1)), true);
+        $config->merge(Zend_Registry::get('Zend_Config'));
+        Zend_Registry::set('Zend_Config', $config);
+
+        $this->performDocumentExistsInIndexChecks();
+    }
+
+    private function performDocumentExistsInIndexChecks() {
+        // check that document with id $this->document_is is NOT in Solr index
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #1 failed');
+
+        $doc = new Opus_Document($this->document_id);
+        $doc->setServerState('published');
+        $doc->store();
+
+        // check that document with id $this->document_is is in Solr index
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #2 failed');
+
+        $doc = new Opus_Document($this->document_id);
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // check that document with id $this->document_is is NOT in Solr index
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #3 failed');
+
+        $doc = new Opus_Document($this->document_id);
+        $doc->setServerState('published');
+        $doc->store();
+
+        // check that document with id $this->document_is is in Solr index
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #4 failed');
+
+        $resultList = $this->catchAll();
+        $doc = new Opus_Document($this->document_id);
+        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
+        $this->assertEquals($serverDateModified1, $resultList[0]->getServerDateModified());
+
+        sleep(1);
+
+        $doc = new Opus_Document($this->document_id);
+        $doc->setLanguage('eng');
+        $doc->store();
+
+        // check that document with id $this->document_is is in Solr index
+        $this->assertTrue($this->isTestDocumentInSearchIndex(), 'check #5 failed');
+
+        $resultList = $this->catchAll();
+        $doc = new Opus_Document($this->document_id);
+        $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
+        $this->assertEquals($serverDateModified2, $resultList[0]->getServerDateModified());
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
+
+        $doc = new Opus_Document($this->document_id);
+        $doc->deletePermanent();
+
+        // check that document with id $this->document_is is NOT in Solr index
+        $this->assertFalse($this->isTestDocumentInSearchIndex(), 'check #6 failed');
+    }
+
+    private function isTestDocumentInSearchIndex() {
+        $resultList = $this->catchAll();
+        return (count($resultList) == 1) && ($this->document_id == $resultList[0]->getId());
+    }
+
+    private function catchAll() {
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query->setCatchAll('*:*');
+        $searcher = new Opus_SolrSearch_Searcher();
+        $results = $searcher->search($query);
+        $resultList = $results->getResults();
+        return $resultList;
+    }
+
 }
 
