@@ -219,8 +219,14 @@ class Opus_Model_Xml_Cache {
      */
     protected function _postPut($documentId) {
         $indexPlugin = new Opus_Document_Plugin_Index();
-        $indexPlugin->postStore(new Opus_Document($documentId));
-        
+        try {
+            $doc = new Opus_Document($documentId);
+        }
+        catch (Opus_Model_NotFoundException $e) {
+            // document requested for indexing does not longer exist: we could simply ignore this
+            return;
+        }
+        $indexPlugin->postStore($doc);        
     }
 
 }
