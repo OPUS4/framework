@@ -147,11 +147,12 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         sleep(1);
 
+        $rootId = $root->getId();
         $root->delete();
 
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $result = $this->searchDocumentsAssignedToCollection($rootId);
         $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
 
         $serverDateModified3 = $result[0]->getServerDateModified();
@@ -172,7 +173,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         // connection between document $doc and collection $root does not longer
         // exist in search index
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $result = $this->searchDocumentsAssignedToCollection($rootId);
         $this->assertEquals(0, count($result));
 
         $result = $this->searchDocumentsAssignedToCollection();
@@ -223,7 +224,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
 
         sleep(1);
-
+        
         $root->delete();
 
         $doc = new Opus_Document($doc->getId());
