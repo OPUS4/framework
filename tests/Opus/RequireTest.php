@@ -101,7 +101,8 @@ class Opus_RequireTest extends TestCase {
            "Opus_Storage_File",
            "Opus_Reviewer",
            "Opus_Privilege",
-           "Opus_SolrSearch_Exception"
+           "Opus_SolrSearch_Exception",
+           "Opus_Util_MetadataImport"
         );
 
         foreach ($classes AS $class) {
