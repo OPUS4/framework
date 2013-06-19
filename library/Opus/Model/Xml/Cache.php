@@ -21,11 +21,6 @@
  * @version     $Id$
  */
 
-/**
- * Search Hit model class.
- *
- * @uses        Opus_Model_Abstract
- */
 class Opus_Model_Xml_Cache {
 
     /**
