@@ -36,9 +36,6 @@
 
 class Opus_Util_MetadataImport {
 
-    /*
-     * @var Opus_Document
-     */
     private $logfile;
 
     private $logger;
@@ -48,12 +45,24 @@ class Opus_Util_MetadataImport {
 
     public function __construct($xml, $logger = null, $logfile = null) {
 	$this->xml = $xml;
-        if (!is_null($logger)) { $this->logger = $logger; }
-        if (!is_null($logfile)) { $this->logfile = $logfile; }
+        $this->logger = $logger;
+        $this->logfile = $logfile;
     }
     
     
     public function run() {
+        $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
+
+        try {
+            $this->log("Validate XML   ...");
+            $validation->checkValidXml();
+        } catch (Opus_Util_MetadataImportInvalidXmlException $e) {
+            $this->log("... ERROR: XML document is not valid: " . $e->getMessage());
+            throw $e;
+        }
+
+        $this->log('... OK');
+      
         $numOfDocsImported = 0;
         $numOfSkippedDocs = 0;
 
@@ -101,7 +110,6 @@ class Opus_Util_MetadataImport {
                 continue;
             }
             
-
             try {
                 $doc->store();
             }
@@ -121,6 +129,7 @@ class Opus_Util_MetadataImport {
         }
         else {
             $this->log("Import finished. $numOfDocsImported documents were imported. $numOfSkippedDocs documents were skipped.");
+            throw new Opus_Util_MetadataImportSkippedDocumentsException();
         }
     }
 
@@ -131,7 +140,7 @@ class Opus_Util_MetadataImport {
     }
 
 
-    private function appendDocIdToRejectList($docId) {
+   private function appendDocIdToRejectList($docId) {
         $this->log('... SKIPPED');
         if(is_null($this->logfile)){ return; }
         $this->logfile->log($docId);
