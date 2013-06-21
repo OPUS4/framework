@@ -38,7 +38,7 @@
  * @category Framework
  * @package  Opus_Model
  */
-class Opus_Model_NotFoundException extends Exception
+class Opus_Model_NotFoundException extends Opus_Model_Exception
 {
 
 }
