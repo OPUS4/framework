@@ -37,31 +37,45 @@
 class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
 
 
+    private $documentImported;
+
+    private $filename;
+
     private $xml;
-
-
-    private static $xmlDir;
-
-
-    public static function setUpBeforeClass() {
-        parent::setUpBeforeClass();
-        self::$xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
+    
+    private $xmlDir;
+    
+    
+    public function setUp() {
+        parent::setUp();
+	$this->documentImported = false;	
+	$this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
+   }
+    
+    public function tearDown() {
+	if ($this->documentImported) {
+		$ids = Opus_Document::getAllIds();
+		$last_id = array_pop($ids);
+		$doc = new Opus_Document($last_id);
+		$doc->deletePermanent();
+        }
+        parent::tearDown();
     }
 
 
     public function testInvalidXmlException() {
-        $filename = 'test_import_schemainvalid.xml';
-        $this->loadInputFile($filename);
+        $this->filename = 'test_import_schemainvalid.xml';
+        $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
 
         $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
         $importer->run();
     }
-    
+
 
     public function testNoMetadataImportException() {
-        $filename = 'test_import_minimal.xml';
-        $this->loadInputFile($filename);
+        $this->filename = 'test_import_minimal.xml';
+        $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
 
         $e = null;
@@ -75,13 +89,14 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
            $e = $ex;
         }
         $this->assertNull($e, 'unexpected exception was thrown: ' . get_class($e));
-
+	
+	$this->documentImported = true;
     }
 
 
     public function testSkippedDocumentsException() {
-        $filename = 'test_import_invalid_collectionid.xml';
-        $this->loadInputFile($filename);
+        $this->filename = 'test_import_invalid_collectionid.xml';
+        $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
 
         $this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
@@ -89,9 +104,9 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
     }
 
 
-    private function loadInputFile($filename) {
+    private function loadInputFile() {
         $this->xml = new DOMDocument();
-        $this->xml->load(self::$xmlDir . $filename);
+        $this->xml->load($this->xmlDir . $this->filename);
 
     }
 
