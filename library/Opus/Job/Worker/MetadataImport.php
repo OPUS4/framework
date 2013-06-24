@@ -39,8 +39,6 @@
 class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
 
     const LABEL = 'opus-metadata-import-notification';
-    private $script;
-
 
     /**
      * Constructs worker.
@@ -48,7 +46,6 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
      */
     public function __construct($logger = null) {
         $this->setLogger($logger);
-        $this->script = dirname(dirname(dirname(dirname(dirname(dirname(__FILE__)))))) . '/server/scripts/import/MetadataImporter.php';
     }
 
     /**
@@ -76,67 +73,19 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
 
         $data = $job->getData();
 
-        if (!(is_object($data) && isset($data->filename) && isset($data->md5_hash))) {
+        if (!(is_object($data) && isset($data->xml) && !is_null($data->xml))) {
              throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
         }
 
-        if (!is_readable($data->filename)) {
-            throw new Opus_Job_Worker_InvalidJobException("File not readable.");
-        }
-
-        $md5_hash = @hash_file('md5', $data->filename);
-
-        if ($md5_hash !== $data->md5_hash) {
-            throw new Opus_Job_Worker_InvalidJobException("MD5-Hash of File not valid.");
-        }
-
         if (null !== $this->_logger) {
-            $this->_logger->info('Importing Metadata File : ' . $data->filename );
+            $this->_logger->info('Importing Metadata : ' . $data->xml );
         }
-
-        // Importiere Daten
-        shell_exec("php " . $this->script . " " .$data->filename);
-
-        
-        // Prüfe, ob importierte Daten == Anzahl zu erwartender Daten
-
-        // Falls ja,
-        //
-        // (1) erzeuge Succes-Mail-Job an Admin  -- Inhalt:: URLs der importierten Documente.
-        //
-
-        // Falls nein
-        //
-        // (1) erzeuge Success-Mail-Job an Admin  -- Inhalt:: Liste der erfolgreich importierten Documente
-        // (2) erzeuge Failure-Mail-Job an Admin  -- Inhalt:: Liste der nicht importierten Documente (als BibTex-Records)
-
-
-/*
-        $this->__sendMail(Opus_Job_Worker_MailNotification::LABEL, array(
-            'subject' => '',
-            'message' => '',
-            'users' => array(array('address' => '', 'name' => ''))
-        ));
-
-*/
+	
+	$doc = new DOMDocument();
+	$doc->loadXML($data->xml);
+	
+	$importer = new Opus_Util_MetadataImport($doc);
+	$importer->run();
     }
 
-
-
-    private function __sendMail($label, $data) {
-
-        $job = new Opus_Job();
-        $job->setLabel($label);
-        $job->setData($data);
-        
-        // Execute job immediately (synchronously)
-        try {
-            $mail = new Opus_Job_Worker_MailNotification($this->_logger);
-            $mail->work($job);
-        } catch(Exception $exc) {
-            $this->_logger->err($exc);
-        }
-
-        return true;
-    }
 }
