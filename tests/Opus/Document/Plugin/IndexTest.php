@@ -30,7 +30,7 @@
  * @author      Edouard Simon edouard.simon@zib.de
  * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id:$
+ * @version     $Id$
  */
 class Opus_Document_Plugin_IndexTest extends TestCase {
 
