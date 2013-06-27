@@ -72,14 +72,14 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
     
     
      public function testMissingDataException() {
-        $this->job->setLabel('opus-metadata-import-notification');
+        $this->job->setLabel('opus-metadata-import');
 	$this->setExpectedException('Opus_Job_Worker_InvalidJobException');
         $this->worker->work($this->job);
     }   
 
 
      public function testIncompleteDataException() {
-        $this->job->setLabel('opus-metadata-import-notification');
+        $this->job->setLabel('opus-metadata-import');
         $this->job->setData(array('xml' => $this->xml));
 	$this->setExpectedException('Opus_Job_Worker_InvalidJobException');
         $this->worker->work($this->job);
@@ -89,8 +89,8 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
      public function testInvalidXmlException() {
         $this->filename = 'test_import_schemainvalid.xml';
         $this->loadInputFile();
-        $this->job->setLabel('opus-metadata-import-notification');
-        $this->job->setData(array('xml' => $this->xml->saveXML()));
+        $this->job->setLabel('opus-metadata-import');
+        $this->job->setData(array('xml' => $this->xml));
 	$this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
         $this->worker->work($this->job);
     }   
@@ -99,8 +99,8 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
      public function testSkippedDocumentException() {
         $this->filename = 'test_import_invalid_collectionid.xml';
         $this->loadInputFile();    
-        $this->job->setLabel('opus-metadata-import-notification');
-        $this->job->setData(array('xml' => $this->xml->saveXML()));
+        $this->job->setLabel('opus-metadata-import');
+        $this->job->setData(array('xml' => $this->xml));
 	$this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
         $this->worker->work($this->job);
     }   
@@ -109,8 +109,8 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
      public function testImportValidXml() {
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();     
-        $this->job->setLabel('opus-metadata-import-notification');
-        $this->job->setData(array('xml' => $this->xml->saveXML()));
+        $this->job->setLabel('opus-metadata-import');
+        $this->job->setData(array('xml' => $this->xml));
         
 	$e = null;
 	try {
@@ -125,7 +125,8 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
     
     
     private function loadInputFile() {
-        $this->xml = new DOMDocument();
-        $this->xml->load($this->xmlDir .  $this->filename);
-    }   
+        $xml = new DOMDocument();
+        $xml->load($this->xmlDir .  $this->filename);
+        $this->xml = $xml->saveXML();
+    }
 }
