@@ -60,16 +60,16 @@ class Opus_Util_MetadataImport {
 	if (!is_null($this->xmlFile)) {
             if (!$this->xml->load($this->xmlFile)) {
                 $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed.");
-                throw new Opus_Util_MetadataImportInvalidXmlException();
+                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
 	} else {
             try {
                 if (!$this->xml->loadXML($this->xmlString)) {
                     $this->log("... ERROR: Cannot load XML document: make sure it is well-formed.");
-                    throw new Opus_Util_MetadataImportInvalidXmlException();
+                    throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
                 }
             } catch (Exception $e) {
-                 throw new Opus_Util_MetadataImportInvalidXmlException();
+                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         }
         $this->log('... OK');
@@ -151,7 +151,7 @@ class Opus_Util_MetadataImport {
         }
         else {
             $this->log("Import finished. $numOfDocsImported documents were imported. $numOfSkippedDocs documents were skipped.");
-            throw new Opus_Util_MetadataImportSkippedDocumentsException();
+            throw new Opus_Util_MetadataImportSkippedDocumentsException(" $numOfSkippedDocs  documents were skipped during import.");
         }
     }
 
