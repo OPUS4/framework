@@ -53,27 +53,10 @@ class Opus_Util_MetadataImport {
 	if ($isFile) { $this->xmlFile = $xml; }
 	else { $this->xmlString = $xml; }
     }
-    
-    
+
+
     public function run() {
-	$this->xml = new DOMDocument();
-	if (!is_null($this->xmlFile)) {
-            if (!$this->xml->load($this->xmlFile)) {
-                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed.");
-                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
-            }
-	} else {
-            try {
-                if (!$this->xml->loadXML($this->xmlString)) {
-                    $this->log("... ERROR: Cannot load XML document: make sure it is well-formed.");
-                    throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
-                }
-            } catch (Exception $e) {
-                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
-            }
-        }
-        $this->log('... OK');
-    
+	$this->xml = $this->__getXML();
         $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
         try {
             $this->log("Validate XML   ...");
@@ -159,6 +142,29 @@ class Opus_Util_MetadataImport {
     private function log($string) {
 	if(is_null($this->logger)){ return; }
 	$this->logger->log($string);
+    }
+
+   private function __getXML() {
+        // Enable user error handling while validating input
+        libxml_clear_errors();
+        libxml_use_internal_errors(true);
+
+        $xml = new DOMDocument();
+
+    	if (!is_null($this->xmlFile)) {
+            if (!$xml->load($this->xmlFile)) {
+                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed.");
+                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
+            }
+	} else {
+            if (!$xml->loadXML($this->xmlString)) {
+                $this->log("... ERROR: Cannot load XML document: make sure it is well-formed.");
+                throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
+            }
+        }
+
+        $this->log('... OK');
+        return $xml;
     }
 
 
