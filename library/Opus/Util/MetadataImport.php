@@ -151,7 +151,7 @@ class Opus_Util_MetadataImport {
         }
         else {
             $this->log("Import finished. $numOfDocsImported documents were imported. $numOfSkippedDocs documents were skipped.");
-            throw new Opus_Util_MetadataImportSkippedDocumentsException(" $numOfSkippedDocs  documents were skipped during import.");
+            throw new Opus_Util_MetadataImportSkippedDocumentsException("$numOfSkippedDocs documents were skipped during import.");
         }
     }
 
