@@ -57,17 +57,7 @@ class Opus_Job_Worker_MetadataImportTest extends TestCase {
 
     }
     
-    public function tearDown() {
-	if ($this->documentImported) {
-		$ids = Opus_Document::getAllIds();
-		$last_id = array_pop($ids);
-		$doc = new Opus_Document($last_id);
-		$doc->deletePermanent();
-        }
-        parent::tearDown();
-    }
-
-    
+  
     public function testActivationLabel() {
          $this->assertEquals(Opus_Job_Worker_MetadataImport::LABEL, $this->worker->getActivationLabel());
     }

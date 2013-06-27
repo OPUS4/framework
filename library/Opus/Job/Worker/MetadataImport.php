@@ -34,11 +34,11 @@
  */
 
 /**
- * Worker for sending out email notifications for newly published documents.
+ * Worker for importing metadata
  */
 class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
 
-    const LABEL = 'opus-metadata-import-notification';
+    const LABEL = 'opus-metadata-import';
 
     /**
      * Constructs worker.
