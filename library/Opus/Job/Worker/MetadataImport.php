@@ -66,7 +66,6 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
      */
     public function work(Opus_Job $job) {
 
-
         if ($job->getLabel() != $this->getActivationLabel()) {
             throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
@@ -81,10 +80,7 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
             $this->_logger->info('Importing Metadata : ' . $data->xml );
         }
 	
-	$doc = new DOMDocument();
-	$doc->loadXML($data->xml);
-	
-	$importer = new Opus_Util_MetadataImport($doc);
+	$importer = new Opus_Util_MetadataImport($data->xml);
 	$importer->run();
     }
 

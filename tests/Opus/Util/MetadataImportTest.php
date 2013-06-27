@@ -44,8 +44,8 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
     private $xml;
     
     private $xmlDir;
-    
-    
+
+  
     public function setUp() {
         parent::setUp();
 	$this->documentImported = false;	
@@ -60,6 +60,12 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
 		$doc->deletePermanent();
         }
         parent::tearDown();
+    }
+
+    public function testInvalidXmlExceptionWhenNotWellFormed() {
+        $importer = new Opus_Util_MetadataImport('This ist no XML');
+        $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
+        $importer->run();
     }
 
 
@@ -105,9 +111,9 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
 
 
     private function loadInputFile() {
-        $this->xml = new DOMDocument();
-        $this->xml->load($this->xmlDir . $this->filename);
-
+        $doc = new DOMDocument();
+        $doc->load($this->xmlDir . $this->filename);
+        $this->xml = $doc->saveXML();
     }
 
 }

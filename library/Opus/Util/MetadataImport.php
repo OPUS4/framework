@@ -41,18 +41,40 @@ class Opus_Util_MetadataImport {
     private $logger;
 
     private $xml;
+    
+    private $xmlFile;
+    
+    private $xmlString;
 
 
-    public function __construct($xml, $logger = null, $logfile = null) {
-	$this->xml = $xml;
+    public function __construct($xml, $isFile = false, $logger = null, $logfile = null) {
         $this->logger = $logger;
         $this->logfile = $logfile;
+	if ($isFile) { $this->xmlFile = $xml; }
+	else { $this->xmlString = $xml; }
     }
     
     
     public function run() {
+	$this->xml = new DOMDocument();
+	if (!is_null($this->xmlFile)) {
+            if (!$this->xml->load($this->xmlFile)) {
+                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed.");
+                throw new Opus_Util_MetadataImportInvalidXmlException();
+            }
+	} else {
+            try {
+                if (!$this->xml->loadXML($this->xmlString)) {
+                    $this->log("... ERROR: Cannot load XML document: make sure it is well-formed.");
+                    throw new Opus_Util_MetadataImportInvalidXmlException();
+                }
+            } catch (Exception $e) {
+                 throw new Opus_Util_MetadataImportInvalidXmlException();
+            }
+        }
+        $this->log('... OK');
+    
         $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
-
         try {
             $this->log("Validate XML   ...");
             $validation->checkValidXml();
