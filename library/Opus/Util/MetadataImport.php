@@ -50,23 +50,18 @@ class Opus_Util_MetadataImport {
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null) {
         $this->logger = $logger;
         $this->logfile = $logfile;
-	if ($isFile) { $this->xmlFile = $xml; }
-	else { $this->xmlString = $xml; }
+	if ($isFile) {
+            $this->xmlFile = $xml;
+        }
+	else {
+            $this->xmlString = $xml;
+        }
     }
-
 
     public function run() {
 	$this->xml = $this->__getXML();
-        $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
-        try {
-            $this->log("Validate XML   ...");
-            $validation->checkValidXml();
-        } catch (Opus_Util_MetadataImportInvalidXmlException $e) {
-            $this->log("... ERROR: XML document is not valid: " . $e->getMessage());
-            throw $e;
-        }
-
-        $this->log('... OK');
+        
+        $this->__validateXML();
       
         $numOfDocsImported = 0;
         $numOfSkippedDocs = 0;
@@ -138,7 +133,6 @@ class Opus_Util_MetadataImport {
         }
     }
 
-
     private function log($string) {
 	if(is_null($this->logger)){ return; }
 	$this->logger->log($string);
@@ -149,16 +143,19 @@ class Opus_Util_MetadataImport {
         libxml_clear_errors();
         libxml_use_internal_errors(true);
 
+        $this->log("Load XML ...");
         $xml = new DOMDocument();
 
     	if (!is_null($this->xmlFile)) {
             if (!$xml->load($this->xmlFile)) {
-                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed.");
+                $errMsg = $this->getErrorMessage();
+                $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed." . $errMsg);
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
 	} else {
             if (!$xml->loadXML($this->xmlString)) {
-                $this->log("... ERROR: Cannot load XML document: make sure it is well-formed.");
+                $errMsg = $this->getErrorMessage();
+                $this->log("... ERROR: Cannot load XML document: make sure it is well-formed." . $errMsg);
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
         }
@@ -167,6 +164,19 @@ class Opus_Util_MetadataImport {
         return $xml;
     }
 
+    private function __validateXML() {
+        $this->log("Validate XML ...");
+
+        $validation = new Opus_Util_MetadataImportXmlValidation($this->xml);
+        try {
+            $validation->checkValidXml();
+        } catch (Opus_Util_MetadataImportInvalidXmlException $e) {
+            $this->log("... ERROR: XML document is not valid: " . $e->getMessage());
+            throw $e;
+        }
+
+        $this->log('... OK');
+    }
 
    private function appendDocIdToRejectList($docId) {
         $this->log('... SKIPPED');
@@ -228,6 +238,9 @@ class Opus_Util_MetadataImport {
                 $doc->store();
     }
 
+    /**
+     * TODO remove code duplication (see Opus_Util_MetadataImportXmlValidation)
+     */
     private function getErrorMessage() {
         $errorMsg = '';
         foreach (libxml_get_errors() as $error) {
@@ -248,8 +261,6 @@ class Opus_Util_MetadataImport {
         libxml_clear_errors();
         return $errorMsg;
     }
-
-
 
     /**
      *
