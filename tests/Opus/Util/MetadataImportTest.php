@@ -36,7 +36,6 @@
 
 class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
 
-
     private $documentImported;
 
     private $filename;
@@ -68,6 +67,11 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
         $importer->run();
     }
 
+    public function testInvalidXmlExceptionWhenNotWellFormedWithFile() {
+        $importer = new Opus_Util_MetadataImport($this->xmlDir . 'test_import_badformed.xml', true);
+        $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
+        $importer->run();
+    }
 
     public function testInvalidXmlException() {
         $this->filename = 'test_import_schemainvalid.xml';
@@ -77,7 +81,6 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
         $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
         $importer->run();
     }
-
 
     public function testNoMetadataImportException() {
         $this->filename = 'test_import_minimal.xml';
@@ -99,7 +102,6 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
 	$this->documentImported = true;
     }
 
-
     public function testSkippedDocumentsException() {
         $this->filename = 'test_import_invalid_collectionid.xml';
         $this->loadInputFile();
@@ -109,7 +111,6 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
         $importer->run();
     }
 
-
     private function loadInputFile() {
         $doc = new DOMDocument();
         $doc->load($this->xmlDir . $this->filename);
@@ -117,4 +118,3 @@ class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
     }
 
 }
-
