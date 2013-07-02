@@ -31,12 +31,20 @@ class Opus_Model_Xml_Cache {
     private $_table = null;
 
     /**
+     * Perform document reindexing after a new cache entry is created
+     *
+     * @var bool
+     */
+    private $reindexDocumentAfterAddingCacheEntry = true;
+
+    /**
      *
      *
      * @return void
      */
-    public function __construct() {
+    public function __construct($reindexDocumentAfterAddingCacheEntry = true) {
         $this->_table = new Opus_Db_DocumentXmlCache;
+        $this->reindexDocumentAfterAddingCacheEntry = $reindexDocumentAfterAddingCacheEntry;
     }
 
     /**
@@ -218,6 +226,11 @@ class Opus_Model_Xml_Cache {
      * @param int $documentId Id of document to process
      */
     protected function _postPut($documentId) {
+        
+        if (!$this->reindexDocumentAfterAddingCacheEntry) {
+            return;
+        }
+        
         try {
             $doc = new Opus_Document($documentId);
         }
@@ -225,11 +238,9 @@ class Opus_Model_Xml_Cache {
             // document requested for indexing does not longer exist: we could simply ignore this
             return;
         }
-        
-        if ($doc->hasPlugin('Opus_Document_Plugin_Index')) {
-            $indexPlugin = new Opus_Document_Plugin_Index();
-            $indexPlugin->postStore($doc);
-        }
+
+        $indexPlugin = new Opus_Document_Plugin_Index();
+        $indexPlugin->postStore($doc);
     }
 
 }
