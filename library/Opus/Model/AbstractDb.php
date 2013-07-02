@@ -280,6 +280,14 @@ abstract class Opus_Model_AbstractDb
     }
 
     /**
+     * Return true if the given plugin was already registered; otherwise false.
+     * @param string $plugin class name of the plugin
+     */
+    public function hasPlugin($plugin) {
+        return array_key_exists($plugin, $this->_plugins);
+    }
+
+    /**
      * Fetch attribute values from the table row and set up all fields. If fields containing
      * dependent models or link models those got fetched too.
      *
