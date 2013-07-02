@@ -218,7 +218,6 @@ class Opus_Model_Xml_Cache {
      * @param int $documentId Id of document to process
      */
     protected function _postPut($documentId) {
-        $indexPlugin = new Opus_Document_Plugin_Index();
         try {
             $doc = new Opus_Document($documentId);
         }
@@ -226,7 +225,11 @@ class Opus_Model_Xml_Cache {
             // document requested for indexing does not longer exist: we could simply ignore this
             return;
         }
-        $indexPlugin->postStore($doc);        
+        
+        if ($doc->hasPlugin('Opus_Document_Plugin_Index')) {
+            $indexPlugin = new Opus_Document_Plugin_Index();
+            $indexPlugin->postStore($doc);
+        }
     }
 
 }
