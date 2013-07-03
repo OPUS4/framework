@@ -689,6 +689,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
     }
 
     public function testIndexIsUpdatedSynchronouslyInAsyncMode() {
+        $this->markTestSkipped('Asynchronous index update is the expected behaviour in asynchronous mode so far.');
         // manipulate configuration: enable async mode
         $config = new Zend_Config(array(
             'runjobs' => array(
