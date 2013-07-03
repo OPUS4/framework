@@ -57,6 +57,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Plugins to load
+     * 
+     * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come before XmlCache plugin
      *
      * @var array
      */
