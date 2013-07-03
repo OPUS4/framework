@@ -58,7 +58,19 @@ class Opus_Document extends Opus_Model_AbstractDb {
     /**
      * Plugins to load
      * 
-     * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come before XmlCache plugin
+     * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come
+     * before XmlCache plugin
+     *
+     * (The Index plugin forces, as a side effect, a cache rebuild in case of a
+     * cache miss since the index procedure consumes the XML representation of
+     * the document. The subsequent call of the XmlCache plugin will operate on
+     * the refreshed cache. Since we expect a cache hit, no further operations
+     * are performed in this case.
+     *
+     * If we execute the XmlCache plugin first, a double reindexing will occur
+     * in case of a cache miss. The cache rebuilding will issue a reindex
+     * operation as a side effect. A subsequent call of the Index plugin issues
+     * a second call of the reindex operation which is obsolete.)
      *
      * @var array
      */
