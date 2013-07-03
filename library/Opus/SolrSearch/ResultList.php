@@ -45,7 +45,7 @@ class Opus_SolrSearch_ResultList {
      */
     private $log;
 
-    public function  __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $log = null) {
+    public function __construct($results = array(), $numberOfHits = 0, $queryTime = 0, $facets = array(), $validateDocIds = true, $log = null) {
         $this->log = $log;
         $this->numberOfHits = $numberOfHits;
         $this->queryTime = $queryTime;
@@ -54,27 +54,32 @@ class Opus_SolrSearch_ResultList {
 
         // make sure that documents returned from index exist in database
         if (!empty($results)) {
-            $docIds = array();
-            foreach ($results as $result) {
-                array_push($docIds, $result->getId());
-            }
-            $finder = new Opus_DocumentFinder();
-            $finder->setServerState('published');
-            $finder->setIdSubset($docIds);
-            $docIdsDB = $finder->ids();
-            $notInDB = 0;
-            foreach ($results as $result) {
-                if (in_array($result->getId(), $docIdsDB)) {
-                    array_push($this->results, $result);
+            if ($validateDocIds) {
+                $docIds = array();
+                foreach ($results as $result) {
+                    array_push($docIds, $result->getId());
                 }
-                else {
-                    $notInDB++;
+                $finder = new Opus_DocumentFinder();
+                $finder->setServerState('published');
+                $finder->setIdSubset($docIds);
+                $docIdsDB = $finder->ids();
+                $notInDB = 0;
+                foreach ($results as $result) {
+                    if (in_array($result->getId(), $docIdsDB)) {
+                        array_push($this->results, $result);
+                    }
+                    else {
+                        $notInDB++;
+                    }
+                }
+                $resultsSize = count($this->results);
+                if ($notInDB > 0 && !is_null($this->log)) {
+                    $inDB = $resultsSize - $notInDB;
+                    $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only " . $inDB . " found in database");
                 }
             }
-            $resultsSize = count($this->results);
-            if ($notInDB > 0 && !is_null($this->log)) {
-                $inDB = $resultsSize - $notInDB;
-                $this->log->err("found inconsistency between database and solr index: index returns $resultsSize documents, but only " . $inDB . " found in database");
+            else {
+                $this->results = $results;
             }
         }
     }

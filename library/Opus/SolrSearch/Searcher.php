@@ -96,10 +96,11 @@ class Opus_SolrSearch_Searcher {
     /**
      *
      * @param Opus_SolrSearch_Query $query
+     * @param bool $validateDocIds check document IDs coming from Solr index against database
      * @return Opus_SolrSearch_ResultList
      * @throws Opus_SolrSearch Exception If Solr server responds with an error or the response is empty.
      */
-    public function search($query) {
+    public function search($query, $validateDocIds = true) {
         /**
          * @var Apache_Solr_Response $solr_response
          */
@@ -128,7 +129,7 @@ class Opus_SolrSearch_Searcher {
             $this->log->err($msg);
             throw new Opus_SolrSearch_Exception($msg);
         }
-        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response, $query->getSeriesId());
+        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response, $validateDocIds, $query->getSeriesId());
         return $responseRenderer->getResultList();
     }
 

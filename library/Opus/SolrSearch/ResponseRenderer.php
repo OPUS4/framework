@@ -54,10 +54,10 @@ class Opus_SolrSearch_ResponseRenderer {
      *
      * @param Apache_Solr_Response $solrResponse
      */
-    public function  __construct($solrResponse, $seriesId = null) {
+    public function __construct($solrResponse, $validateDocIds = true, $seriesId = null) {
         $this->log = Zend_Registry::get('Zend_Log');
         $this->setJsonResponseAsArray($solrResponse);
-        $this->buildResultList($solrResponse, $seriesId);
+        $this->buildResultList($solrResponse, $validateDocIds, $seriesId);
     }
 
     /**
@@ -70,7 +70,7 @@ class Opus_SolrSearch_ResponseRenderer {
     /**
      * @param Apache_Solr_Response $solrResponse
      */
-    private function buildResultList($solrResponse, $seriesId = null) {
+    private function buildResultList($solrResponse, $validateDocIds = true, $seriesId = null) {
         if (is_null($solrResponse->response) || $solrResponse->response->numFound == 0) {
             $this->resultList = new Opus_SolrSearch_ResultList();
             return;
@@ -97,7 +97,7 @@ class Opus_SolrSearch_ResponseRenderer {
         $qtime = $this->jsonResponse['responseHeader']['QTime'];
         $this->log->debug("number of hits: $numFound");
         $this->log->debug("query time: $qtime");
-        $this->resultList = new Opus_SolrSearch_ResultList($results, $numFound, $qtime, $this->getFacets(), $this->log);
+        $this->resultList = new Opus_SolrSearch_ResultList($results, $numFound, $qtime, $this->getFacets(), $validateDocIds, $this->log);
     }
 
     /**
