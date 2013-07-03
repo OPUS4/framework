@@ -41,7 +41,7 @@
  *
  * @group FileTest
  */
-class Opus_Storage_FileTest extends PHPUnit_Framework_TestCase {
+class Opus_Storage_FileTest extends TestCase {
 
     private $__src_path = '';
 

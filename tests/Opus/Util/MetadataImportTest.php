@@ -32,7 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_Util_MetadataImportTest extends PHPUnit_Framework_TestCase {
+class Opus_Util_MetadataImportTest extends TestCase {
 
     private $documentImported;
 

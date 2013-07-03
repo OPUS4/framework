@@ -35,7 +35,7 @@
 /**
  * Test Opus_Storage_FileNotFoundException class.
  */
-class Opus_Storage_FileNotFoundExceptionTest extends PHPUnit_Framework_TestCase {
+class Opus_Storage_FileNotFoundExceptionTest extends TestCase {
 
     /**
      * Test constructing exception with a file name.

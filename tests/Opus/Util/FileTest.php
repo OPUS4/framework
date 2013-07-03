@@ -32,7 +32,7 @@
  * @version     $Id$
  */
 
-class Opus_Util_FileTest extends PHPUnit_Framework_TestCase {
+class Opus_Util_FileTest extends TestCase {
 
     private $__src_path = '';
 
