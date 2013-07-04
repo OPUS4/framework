@@ -137,6 +137,29 @@ class Opus_Job extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Retrieve number of Opus_Job entries for a given label in the database.
+     *
+     * @param string $label only consider jobs with the given label
+     * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
+     * @return integer Number of entries in database.
+     */
+    public static function getCountForLabel($label, $state = null) {
+        $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->from($table, array('COUNT(id) AS count'));
+        if(!is_null($state)) {
+            if($state == Opus_Job::STATE_UNDEFINED) {
+                $select->where('state IS NULL');
+            } else {
+                $select->where('state = ?', $state);
+            }
+        }
+        $select->where('label = ?', $label);
+        $rowset = $table->fetchAll($select);
+        $result = $rowset[0]['count'];
+        return $result;
+    }
+
+    /**
      * Retrieve number of Opus_Job instances from the database.
      *
      * @param string $state (optional) only retrieve jobs in given state (@see Opus_Job for state definitions)
