@@ -851,7 +851,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
         try {
             $table->update(array('server_date_modified' => "$date"), $where);
         } catch (Exception $e) {
-            echo "$e";
+            $logger = Zend_Registry::get('Zend_Log');
+            if (!is_null($logger)) {
+                $logger->err(__METHOD__ . ' ' . $e);
+            }
         }
     }
 
