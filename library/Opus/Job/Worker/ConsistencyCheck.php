@@ -40,9 +40,15 @@
 class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
 
     const LABEL = 'opus-consistency-check';
+    
+    private $logfilePath = null;
 
     public function __construct() {
         $this->setLogger();
+        $config = Zend_Registry::get('Zend_Config');
+        if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
+            $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
+        }
     }
 
     /**
@@ -74,21 +80,30 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
             throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
         }
 
+        $lockFile = $this->logfilePath . '.lock';
+        if (file_exists($lockFile)) {
+            unlink($lockFile);
+        }
+        
+        touch($lockFile);
         $consistencyChecker = new Opus_Util_ConsistencyCheck($this->_logger);
         $consistencyChecker->run();
+        unlink($lockFile);
     }
 
     public function setLogger($logger = null) {
-        $config = Zend_Registry::get('Zend_Config');
-        $logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
-        $logfile = @fopen($logfilePath, 'w', false);
-        $writer = new Zend_Log_Writer_Stream($logfile);
-        
-        $format = '[%timestamp%] %priorityName%: %message%' . PHP_EOL;
-        $formatter = new Zend_Log_Formatter_Simple($format);
-        $writer->setFormatter($formatter);
+        if (!is_null($this->logfilePath)) {
+            $logfile = @fopen($this->logfilePath, 'w', false);
+            $writer = new Zend_Log_Writer_Stream($logfile);
 
-        parent::setLogger(new Zend_Log($writer));
+            $format = '[%timestamp%] %priorityName%: %message%' . PHP_EOL;
+            $formatter = new Zend_Log_Formatter_Simple($format);
+            $writer->setFormatter($formatter);
+
+            parent::setLogger(new Zend_Log($writer));            
+        }
+        else {
+            parent::setLogger(null);
+        }
     }
-
 }
