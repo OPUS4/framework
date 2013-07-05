@@ -140,6 +140,7 @@ class Opus_Util_ConsistencyCheck {
     private function checkSearchIndex() {
         $query = new Opus_SolrSearch_Query();
         $query->setCatchAll("*:*");
+        $query->setRows(Opus_SolrSearch_Query::MAX_ROWS);
         $resultList = $this->searcher->search($query, $this->validateDocIds);
         $results = $resultList->getResults();
         foreach ($results as $result) {
