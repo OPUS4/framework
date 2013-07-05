@@ -111,49 +111,55 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
+        
+        $collId = $root->getId();
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Opus_Collection($collId);
         $root->setVisible(0);
         $root->store();
 
         $doc = new Opus_Document();
         $doc->setServerState('published');
-        $doc->store();
+        $docId = $doc->store();
 
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(0, count($result));
+        $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to a collection");
 
         sleep(1);
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
         $doc->addCollection($root);
         $doc->store();
 
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(1, count($result));
-        $serverDateModified1 = $result[0]->getServerDateModified();
+        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
+        $serverDateModified1 = $result[0]->getServerDateModified();        
 
         sleep(1);
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Opus_Collection($collId);
         $root->setVisible(1);
         $root->store();
 
-        $result = $this->searchDocumentsAssignedToCollection($root->getId());
+        $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(1, count($result));
+        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1 == $serverDateModified2);
+        $this->assertTrue($serverDateModified1 == $serverDateModified2);        
 
         sleep(1);
 
-        $rootId = $root->getId();
         $root->delete();
+        $doc = new Opus_Document($docId);
 
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
-        $result = $this->searchDocumentsAssignedToCollection($rootId);
-        $this->assertEquals(1, count($result), 'Deletion of Collection was not propagated to Solr index');
+        $result = $this->searchDocumentsAssignedToCollection($collId);
+        $this->assertEquals(1, count($result), "Deletion of Collection $collId was not propagated to Solr index");        
+        $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
         $this->assertTrue($serverDateModified2 == $serverDateModified3);
@@ -164,7 +170,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // was issued by deletion of collection $root
         // side effect of cache rebuild: document will be updated in search index
         $xmlModel = new Opus_Model_Xml();
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
         $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
@@ -173,7 +179,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         // connection between document $doc and collection $root does not longer
         // exist in search index
-        $result = $this->searchDocumentsAssignedToCollection($rootId);
+        $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(0, count($result));
 
         $result = $this->searchDocumentsAssignedToCollection();
@@ -191,59 +197,65 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
+        
+        $collId = $root->getId();
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Opus_Collection($collId);
         $root->setVisible(0);
         $root->store();
 
         $doc = new Opus_Document();
         $doc->setServerState('published');
-        $doc->store();
+        $docId = $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
-        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
+        $doc = new Opus_Document($docId);
+        $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to collection $collId");
+        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();        
 
         sleep(1);
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
         $doc->addCollection($root);
         $doc->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
+        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified1 < $serverDateModified2);
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);        
 
         sleep(1);
 
-        $root = new Opus_Collection($root->getId());
+        $root = new Opus_Collection($collId);
         $root->setVisible(1);
         $root->store();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
+        $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
+        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');        
 
         sleep(1);
         
         $root->delete();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
+        $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
+        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');        
 
         sleep(1);
 
         // force rebuild of cache entry for current Opus_Document: cache removal
         // was issued by deletion of collection $root
         $xmlModel = new Opus_Model_Xml();
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
         $xmlModel->setModel($doc);
         $xmlModel->excludeEmptyFields();
         $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
         $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
         $xmlModel->getDomDocument();
 
-        $doc = new Opus_Document($doc->getId());
+        $doc = new Opus_Document($docId);
         $serverDateModified5 = $doc->getServerDateModified()->getUnixTimestamp();
         $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
