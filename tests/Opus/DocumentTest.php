@@ -1,6 +1,5 @@
 <?php
-
-/**
+/*
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -31,11 +30,10 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 
 /**
  * Test cases for class Opus_Document.
@@ -1962,6 +1960,26 @@ class Opus_DocumentTest extends TestCase {
 
         $this->assertEquals(1, count($doc->getTitleMain()), 'Should have 1 TitleMain.');
         $this->assertEquals(0, count($doc->getTitleParent()), 'Should have 0 TitleParent.');
+    }
+    
+    public function testRegression2916StoreModifiesServerDataModifiedForOtherDocs() {
+        $doc1 = new Opus_Document();
+        $doc1Id = $doc1->store();
+        $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
+        
+        sleep(2);
+        
+        $doc2 = new Opus_Document();
+        $title = new Opus_Title();
+        $title->setLanguage('eng');
+        $title->setValue('Test Titel');
+        $doc2->addTitleMain($title);
+        $doc2->store();
+
+        $doc1 = new Opus_Document($doc1Id);
+        
+        $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(), 
+                'ServerDateModified was modified by store on a differnet document.');
     }
 
     public function testHasPlugins() {
