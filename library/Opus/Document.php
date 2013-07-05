@@ -838,11 +838,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @param array $ids array of document ids
      */
     public static function setServerDateModifiedByIds($date, $ids) {
+        // Update wird nur ausgeführt, wenn IDs übergeben werden
+        if (is_null($ids) || count($ids) == 0) {
+            return;
+        }
+        
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-
-        $where = 'documents.id IN ' . $table->getAdapter()->quote($ids);
+        
+        
+        $where = $table->getAdapter()->quoteInto('id IN (?)', $ids);
+        
         try {
-            $table->update(array('server_date_modified' => "$date"), array('id' => $ids));
+            $table->update(array('server_date_modified' => "$date"), $where);
         } catch (Exception $e) {
             echo "$e";
         }
