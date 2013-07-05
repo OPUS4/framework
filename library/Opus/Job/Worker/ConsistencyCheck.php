@@ -43,12 +43,12 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
     
     private $logfilePath = null;
 
-    public function __construct() {
-        $this->setLogger();
+    public function __construct() {        
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
             $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
         }
+        $this->setLogger();
     }
 
     /**
