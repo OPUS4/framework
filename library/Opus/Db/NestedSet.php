@@ -160,8 +160,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      */
     private function selectNodeById($id) {
         return $this->select()
-                ->from("{$this->_name} AS node")
-                ->where("node.{$this->_primary[1]} = ?", $id);
+                        ->from("{$this->_name} AS node")
+                        ->where("node.{$this->_primary[1]} = ?", $id);
     }
 
     /**
@@ -174,9 +174,9 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      */
     public function selectNodeByLeftId($treeId, $leftId) {
         return $this->select()
-                ->from("{$this->_name} AS node")
-                ->where("{$this->_tree} = ?", $treeId)
-                ->where("{$this->_left} = ?", $leftId);
+                        ->from("{$this->_name} AS node")
+                        ->where("{$this->_tree} = ?", $treeId)
+                        ->where("{$this->_left} = ?", $leftId);
     }
 
     /**
@@ -187,7 +187,15 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @return int
      */
     public function deleteTree($treeId) {
-        return $this->_db->query("DELETE FROM {$this->_name} WHERE {$this->_tree} = {$treeId}  ORDER BY {$this->_left}  DESC");
+        $where = "WHERE {$this->_tree} = {$treeId}  ORDER BY {$this->_left}  DESC";
+        $select = "SELECT id FROM `{$this->_name}` $where";
+        $statement = $this->_db->query($select);
+        // THIS IS A HACK for updating the cache and server_date_modified of related documents.
+        // it duplicates (code and) the behavior of Opus_Model_Plugin_InvalidateDocumentCache
+        $this->updateDocumentCacheAndModificationDate($statement->fetchAll());
+
+        $delete = "DELETE FROM `{$this->_name}` $where";
+        return $this->_db->query($delete);
     }
 
     /**
@@ -204,15 +212,46 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $left = (int) $row->{$this->_left};
         $width = $right - $left + 1;
 
+        $where = "WHERE {$this->_left} BETWEEN {$left} AND {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  DESC";
+        $select = "SELECT id FROM `{$this->_name}` $where";
+        $statement = $this->_db->query($select);
+        
+        // THIS IS A HACK for updating the cache and server_date_modified of related documents.
+        // it duplicates (code and) the behavior of Opus_Model_Plugin_InvalidateDocumentCache
+        $this->updateDocumentCacheAndModificationDate($statement->fetchAll());
+
+        $delete = "DELETE FROM `{$this->_name}` $where";
+
         // NOTE: ORDER-BY is needed, because MySQL does not support deferred
         // NOTE: constraint checks.
-        $stmt = "DELETE FROM {$this->_name}  WHERE {$this->_left} BETWEEN {$left} AND {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  DESC";
-        // echo "statement: $stmt\n";
-        $res = $this->_db->query($stmt);
+        $res = $this->_db->query($delete);
+
         $this->_db->query("UPDATE {$this->_name} SET {$this->_left}  = {$this->_left} - {$width}   WHERE {$this->_left} > {$right}  AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  ASC");
         $this->_db->query("UPDATE {$this->_name} SET {$this->_right} = {$this->_right} - {$width}  WHERE {$this->_right} > {$right} AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} ASC");
 
         return $res->rowCount();
+    }
+
+    /**
+     * BEWARE: This is an ugly hack to provide a workaround for caching
+     * and indexing when @see deleteTree or @see deleteSubTree is called
+     */
+    protected function updateDocumentCacheAndModificationDate($ids) {
+        $idArray = array();
+        if (!empty($ids)) {
+            $documentFinder = new Opus_DocumentFinder();
+            foreach ($ids as $row) {
+                $idArray[] = $row['id'];
+            }
+            $documentFinder->setCollectionId($idArray);
+            // TODO: this is code duplication from Opus_Model_Plugin_InvalidateDocumentCache
+            $xmlCache = new Opus_Model_Xml_Cache();
+            $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
+
+            $date = new Opus_Date();
+            $date->setNow();
+            Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
+        }
     }
 
     /**
@@ -233,13 +272,13 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $showFields[] = "ROUND((node.{$this->_right} - node.{$this->_left} - 1)/2) AS children";
 
         $select = $this->select()
-                        ->from("{$this->_name} AS parent", "COUNT(parent.{$this->_primary[1]}) - 1 AS depth")
-                        ->from("{$this->_name} AS node", $showFields)
-                        ->where("node.{$this->_left} BETWEEN parent.{$this->_left} AND parent.{$this->_right}")
-                        ->where("node.{$this->_tree} = ?", $treeId)
-                        ->where("parent.{$this->_tree} = ?", $treeId)
-                        ->group("node.{$this->_primary[1]}")
-                        ->order("node.{$this->_left}");
+                ->from("{$this->_name} AS parent", "COUNT(parent.{$this->_primary[1]}) - 1 AS depth")
+                ->from("{$this->_name} AS node", $showFields)
+                ->where("node.{$this->_left} BETWEEN parent.{$this->_left} AND parent.{$this->_right}")
+                ->where("node.{$this->_tree} = ?", $treeId)
+                ->where("parent.{$this->_tree} = ?", $treeId)
+                ->group("node.{$this->_primary[1]}")
+                ->order("node.{$this->_left}");
 
         // echo "selectTreeDepthById($treeId) new: ", $select->__toString(), "\n";
         return $select;
@@ -266,12 +305,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     public function selectSubtreeById($id, $cols = '*') {
 
         $select = $this->select()
-                        ->from("{$this->_name} AS node", $cols)
+                ->from("{$this->_name} AS node", $cols)
 //                ->order("node.{$this->_left}")
-                        ->from("{$this->_name} AS start", "")
-                        ->where("start.{$this->_primary[1]} = ?", $id)
-                        ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
-                        ->where("node.{$this->_tree} = start.{$this->_tree}");
+                ->from("{$this->_name} AS start", "")
+                ->where("start.{$this->_primary[1]} = ?", $id)
+                ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
+                ->where("node.{$this->_tree} = start.{$this->_tree}");
 
         // echo "selectSubtreeById($id) new: ", $select->__toString(), "\n";
         return $select;
@@ -293,12 +332,12 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     public function selectParentsById($id, $cols = '*') {
 
         $select = $this->select()
-                        ->from("{$this->_name} AS node", $cols)
-                        ->from("{$this->_name} AS target", '')
-                        ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
-                        ->where("target.{$this->_primary[1]} = ?", $id)
-                        ->where("node.{$this->_tree} = target.{$this->_tree}")
-                        ->order("node.{$this->_left} DESC");
+                ->from("{$this->_name} AS node", $cols)
+                ->from("{$this->_name} AS target", '')
+                ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
+                ->where("target.{$this->_primary[1]} = ?", $id)
+                ->where("node.{$this->_tree} = target.{$this->_tree}")
+                ->order("node.{$this->_left} DESC");
         return $select;
     }
 
@@ -320,10 +359,10 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      */
     public function selectChildrenById($id, $cols = '*') {
         $select = $this->select()
-                        ->from("{$this->_name} AS node", $cols)
-                        ->where("node.{$this->_parent} = ?", $id)
-                        ->order("node.{$this->_sort} ASC")
-                        ->order("node.{$this->_left} ASC");
+                ->from("{$this->_name} AS node", $cols)
+                ->where("node.{$this->_parent} = ?", $id)
+                ->order("node.{$this->_sort} ASC")
+                ->order("node.{$this->_left} ASC");
         return $select;
     }
 
@@ -497,7 +536,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * Check if node is leaf node.
      */
     public function isLeaf($data) {
-        return array_key_exists($this->_left, $data) 
+        return array_key_exists($this->_left, $data)
                 and array_key_exists($this->_right, $data)
                 and ($data[$this->_left] + 1 == $data[$this->_right]);
     }

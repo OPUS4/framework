@@ -424,7 +424,7 @@ class Opus_DocumentFinder {
     /**
      * Add constraints to be applied on the result set.
      *
-     * @param  string $value
+     * @param  int|array $value id or array of ids of collections to set.
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setCollectionId($collectionId) {
@@ -432,7 +432,7 @@ class Opus_DocumentFinder {
         $subselect = "SELECT document_id
             FROM link_documents_collections AS l
             WHERE l.document_id = d.id
-              AND l.collection_id = $quoted_collectionId";
+              AND l.collection_id IN ($quoted_collectionId)";
 
         $this->select->where("EXISTS ($subselect)");
         return $this;
