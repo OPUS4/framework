@@ -75,6 +75,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      */
     protected $_plugins = array(
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+        'Opus_CollectionRole_Plugin_DeleteTree' => null,
     );
     
     /**
@@ -279,29 +280,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
         return $result;
 
-    }
-
-    /**
-     * Extend standard deletion to delete collection roles tables.
-     *
-     * FIXME: Do we *really* want to DROP or set to invisible?
-     * FIXME: Put both deletes in one transaction.
-     * FIXME: Uses too much information from other models.
-     *
-     * @return void
-     */
-    public function delete() {
-        if ($this->isNewRecord()) {
-            return;
-        }
-
-        $row = $this->_primaryTableRow;
-        $db = $row->getTable()->getAdapter();
-
-        $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
-        $collections->deleteTree($this->getId());
-
-        parent::delete();
     }
 
     /**

@@ -781,6 +781,7 @@ abstract class Opus_Model_AbstractDb
 
     /**
      * Remove the model instance from the database.
+     * NOTE: This method should not be overriden, use plugins instead where needed.
      *
      * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
      * @return void
