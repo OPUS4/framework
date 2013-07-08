@@ -507,7 +507,7 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
-        $this->assertTrue($serverDateModifiedAfter->getZendDate()->isLater($serverDateModifiedBeforeDelete->getZendDate(), 'Expected document server_date_modfied to be changed after deletion of collection'));
+        $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
 
 }

@@ -527,21 +527,19 @@ class Opus_CollectionTest extends TestCase {
     public function testInvalidateDocumentCacheOnDelete() {
 
         $d = new Opus_Document();
-        $d->addCollection( $this->object );
+        $d->addCollection( $this->object);
         $docId = $d->store();
         $serverDateModifiedBeforeDelete = $d->getServerDateModified();
 
         $xmlCache = new Opus_Model_Xml_Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
-//        exit;
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
-        $this->assertTrue($serverDateModifiedAfter->getZendDate()->isLater($serverDateModifiedBeforeDelete->getZendDate(), 'Expected document server_date_modfied to be changed after deletion of collection'));
+        $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
         
     }
-
     
 }
