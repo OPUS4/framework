@@ -68,7 +68,8 @@ class Opus_CollectionTest extends TestCase {
     }
 
     protected function tearDown() {
-        $this->role_fixture->delete();
+        if (is_object($this->role_fixture))
+            $this->role_fixture->delete();
         parent::tearDown();
     }
 
@@ -518,6 +519,28 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setName('test');
         $this->object->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+    }
+
+    /**
+     * Regression Test for OPUSVIER-2935
+     */
+    public function testInvalidateDocumentCacheOnDelete() {
+
+        $d = new Opus_Document();
+        $d->addCollection( $this->object );
+        $docId = $d->store();
+        $serverDateModifiedBeforeDelete = $d->getServerDateModified();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+//        exit;
+        $this->object->delete();
+        $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
+
+        $d = new Opus_Document($docId);
+        $serverDateModifiedAfter = $d->getServerDateModified();
+        $this->assertTrue($serverDateModifiedAfter->getZendDate()->isLater($serverDateModifiedBeforeDelete->getZendDate(), 'Expected document server_date_modfied to be changed after deletion of collection'));
+        
     }
 
     
