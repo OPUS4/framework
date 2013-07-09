@@ -36,13 +36,15 @@
 /**
  * 
  */
-class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_Abstract {
+class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCollection {
 
     public function preDelete(Opus_Model_AbstractDb $model) {
         if ($model->isNewRecord()) {
             return;
         }
 
+        $this->updateDocuments($model);
+        
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $collections->deleteTree($model->getId());
     }

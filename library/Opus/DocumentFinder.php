@@ -424,11 +424,17 @@ class Opus_DocumentFinder {
     /**
      * Add constraints to be applied on the result set.
      *
-     * @param  int|array $value id or array of ids of collections to set.
+     * @param  int|array|Zend_Select $value id, array of ids of collections 
+     * or Zend_Select instance to set. If a Zend_Select-object is provided,
+     * the resulting statement must return a list of collection ids.
      * @return Opus_DocumentFinder Fluent interface.
      */
     public function setCollectionId($collectionId) {
-        $quoted_collectionId  = $this->db->quote($collectionId);
+        if($collectionId instanceOf Zend_Select) {
+            $quoted_collectionId = $collectionId->assemble();
+        } else {
+            $quoted_collectionId  = $this->db->quote($collectionId);
+        }
         $subselect = "SELECT document_id
             FROM link_documents_collections AS l
             WHERE l.document_id = d.id

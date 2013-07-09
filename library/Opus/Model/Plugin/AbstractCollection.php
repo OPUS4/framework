@@ -25,8 +25,8 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
- * @package     TODO
+ * @category    Framework
+ * @package     Opus_Model
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,19 +34,31 @@
  */
 
 /**
+ * Base class for Collection(Role) plugins
  * 
  */
-class Opus_Collection_Plugin_DeleteSubTree extends Opus_Model_Plugin_AbstractCollection {
+abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Abstract {
 
-    public function preDelete(Opus_Model_AbstractDb $model) {
-        if ($model->isNewRecord()) {
-            return;
-        }
-        
-        $this->updateDocuments($model);
-        
+    /**
+     * make sure documents related to Collection[Role|]s in subtree are updated 
+     * (XML-Cache and server_date_published)
+     */
+    protected function updateDocuments($model) {
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
-        $collections->deleteSubTree($model->getId());
+
+        // 
+        // 
+        $collectionIdSelect = $collections->selectSubtreeById($model->getId(), 'id');
+
+        $documentFinder = new Opus_DocumentFinder();
+        $documentFinder->setCollectionId($collectionIdSelect);
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+        $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
+
+        $date = new Opus_Date();
+        $date->setNow();
+        Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
     }
 
 }

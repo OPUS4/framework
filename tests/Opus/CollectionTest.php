@@ -542,4 +542,75 @@ class Opus_CollectionTest extends TestCase {
         
     }
     
+    /**
+     * Regression-Test for OPUSVIER-2937
+     */
+    
+    public function testDeleteUpdatesRelatedDocumentsInSubTree() {
+        $root = $this->object;
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
+
+        $child_1 = $root->addLastChild();
+        $root->store();
+
+        $doc1 = new Opus_Document();
+        $doc1->addCollection($child_1);
+        $docId1 = $doc1->store();
+        $doc1ServerDateModified = $doc1->getServerDateModified();
+
+
+        // FIXME: We have to reload model to get correct results!
+        $root = new Opus_Collection($root->getId());
+
+        $this->assertTrue(is_array($root->getChildren()));
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
+
+        $child_2 = $root->addLastChild();
+        $root->store();
+        $child_2Id = $child_2->getId();
+
+        $doc2 = new Opus_Document();
+        $doc2->addCollection($child_2);
+        $docId2 = $doc2->store();
+        $doc2ServerDateModified = $doc2->getServerDateModified();
+
+
+        $child_1_1 = $child_1->addFirstChild();
+        $child_1->store();
+        $child_1_1Id = $child_1_1->getId();
+        $doc1_1 = new Opus_Document();
+        $doc1_1->addCollection($child_1_1);
+        $docId1_1 = $doc1_1->store();
+        $doc1_1ServerDateModified = $doc1_1->getServerDateModified();
+
+        $root = new Opus_Collection($root->getId());
+
+        $root->delete();
+
+        $doc1Reloaded = new Opus_Document($docId1);
+        $this->assertTrue($doc1Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc1ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+
+        try {
+            $child2Reloaded = new Opus_Collection($child_2Id);
+            $this->fail('Expected child collection to be deleted');
+        } catch (Opus_Model_NotFoundException $e) {
+            
+        }
+
+        $doc2Reloaded = new Opus_Document($docId2);
+        $this->assertTrue($doc2Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc2ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+
+        try {
+            $child1_1Reloaded = new Opus_Collection($child_1_1Id);
+            $this->fail('Expected child collection to be deleted');
+        } catch (Opus_Model_NotFoundException $e) {
+            
+        }
+
+        $doc1_1Reloaded = new Opus_Document($docId1_1);
+        $this->assertTrue($doc1_1Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc1_1ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+    }
+
 }
