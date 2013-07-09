@@ -241,7 +241,7 @@ CREATE  TABLE IF NOT EXISTS `document_patents` (
   `countries` TEXT NOT NULL COMMENT 'Countries in which the patent was granted.' ,
   `date_granted` VARCHAR(50) NULL COMMENT 'Date when the patent was granted.' ,
   `number` VARCHAR(255) NOT NULL COMMENT 'Patent number / Publication number.' ,
-  `year_applied` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of the application.' ,
+  `year_applied` SMALLINT( 4 ) UNSIGNED ZEROFILL NOT NULL COMMENT 'Year of the application.' ,
   `application` TEXT NOT NULL COMMENT 'Description of the patent.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_patent_information_document` (`document_id` ASC) ,
