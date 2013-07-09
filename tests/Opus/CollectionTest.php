@@ -533,6 +533,9 @@ class Opus_CollectionTest extends TestCase {
 
         $xmlCache = new Opus_Model_Xml_Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+
+        sleep(1);
+        
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
@@ -560,8 +563,6 @@ class Opus_CollectionTest extends TestCase {
         $docId1 = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified();
 
-
-        // FIXME: We have to reload model to get correct results!
         $root = new Opus_Collection($root->getId());
 
         $this->assertTrue(is_array($root->getChildren()));
@@ -587,6 +588,8 @@ class Opus_CollectionTest extends TestCase {
 
         $root = new Opus_Collection($root->getId());
 
+        sleep(1);
+        
         $root->delete();
 
         $doc1Reloaded = new Opus_Document($docId1);

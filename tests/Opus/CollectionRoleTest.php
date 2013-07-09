@@ -502,6 +502,9 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $xmlCache = new Opus_Model_Xml_Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
+        
+        sleep(1);
+        
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
