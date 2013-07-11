@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,14 +32,13 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 class Opus_CollectionTest extends TestCase {
 
     /**
      * @var Opus_CollectionRole
      */
     protected $role_fixture;
-    protected $_role_name     = "";
+    protected $_role_name = "";
     protected $_role_oai_name = "";
 
     /**
@@ -52,7 +52,7 @@ class Opus_CollectionTest extends TestCase {
     public function setUp() {
         parent::setUp();
 
-        $this->_role_name     = "role-name-" . rand();
+        $this->_role_name = "role-name-" . rand();
         $this->_role_oai_name = "role-oainame-" . rand();
 
         $this->role_fixture = new Opus_CollectionRole();
@@ -78,24 +78,19 @@ class Opus_CollectionTest extends TestCase {
      */
     public function testConstructorForExistingCollection() {
 
-        $this->assertNotNull($this->object->getId(),
-                'Collection storing failed: should have an Id.');
-        $this->assertNotNull($this->object->getRoleId(),
-                'Collection storing failed: should have an RoleId.');
+        $this->assertNotNull($this->object->getId(), 'Collection storing failed: should have an Id.');
+        $this->assertNotNull($this->object->getRoleId(), 'Collection storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
         $collection_id = $this->object->getId();
-        $collection = new Opus_Collection( $collection_id );
+        $collection = new Opus_Collection($collection_id);
 
-        $this->assertNotNull($collection,
-                'Collection construction failed: collection is null.');
-        $this->assertNotNull($collection->getId(),
-                'Collection storing failed: should have an Id.');
-        $this->assertNotNull($collection->getRoleId(),
-                'Collection storing failed: should have an RoleId.');
+        $this->assertNotNull($collection, 'Collection construction failed: collection is null.');
+        $this->assertNotNull($collection->getId(), 'Collection storing failed: should have an Id.');
+        $this->assertNotNull($collection->getRoleId(), 'Collection storing failed: should have an RoleId.');
     }
 
-    /** 
+    /**
      * Test if delete really deletes.
      */
     public function testDeleteNoChildren() {
@@ -110,22 +105,20 @@ class Opus_CollectionTest extends TestCase {
      * Test if we can retrieve stored themes from the database.
      */
     public function testGetTheme() {
-        $this->object->setTheme( 'test-theme' );
+        $this->object->setTheme('test-theme');
         $this->object->store();
 
         $collection = $this->object;
-        $this->assertEquals('test-theme', $collection->getTheme(),
-                'After store: Stored theme does not match expectation.');
+        $this->assertEquals('test-theme', $collection->getTheme(), 'After store: Stored theme does not match expectation.');
 
         $collection = new Opus_Collection($this->object->getId());
-        $this->assertEquals('test-theme', $collection->getTheme(),
-                'After reload: Stored theme does not match expectation.');
-     }
+        $this->assertEquals('test-theme', $collection->getTheme(), 'After reload: Stored theme does not match expectation.');
+    }
 
-     /**
-      * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
-      */
-     public function testGetOaiName() {
+    /**
+     * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
+     */
+    public function testGetOaiName() {
         $this->object->setOaiSubset("subset");
         $this->assertEquals('subset', $this->object->getOaiSubset());
 
@@ -134,18 +127,18 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection($collection_id);
         $this->assertEquals('subset', $this->object->getOaiSubset());
-     }
+    }
 
-     /**
-      * Test if "store()" returns primary key of current object.
-      */
-     public function testStoreReturnsId() {
+    /**
+     * Test if "store()" returns primary key of current object.
+     */
+    public function testStoreReturnsId() {
         $collection_id = $this->object->store();
         $this->assertNotNull($collection_id);
 
         $test_object = new Opus_Collection($collection_id);
         $this->assertEquals($this->object->getRoleId(), $test_object->getRoleId());
-     }
+    }
 
     /**
      * Tests toArray().
@@ -154,18 +147,16 @@ class Opus_CollectionTest extends TestCase {
         $root = $this->object;
 
         $this->assertTrue(is_array($root->getChildren()));
-        $this->assertEquals(0, count($root->getChildren()),
-                'Root collection without children should return empty array.');
+        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
 
         $child_1 = $root->addLastChild();
         $root->store();
 
         // FIXME: We have to reload model to get correct results!
-        $root = new Opus_Collection( $root->getId() );
+        $root = new Opus_Collection($root->getId());
 
         $this->assertTrue(is_array($root->getChildren()));
-        $this->assertEquals(1, count($root->getChildren()),
-                'Root collection should have one child.');
+        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
 
         $child_2 = $root->addLastChild();
         $root->store();
@@ -174,37 +165,32 @@ class Opus_CollectionTest extends TestCase {
         $child_1->store();
 
         // FIXME: We have to reload model to get correct results!
-        $root = new Opus_Collection( $root->getId() );
+        $root = new Opus_Collection($root->getId());
 
         $this->assertTrue(is_array($root->getChildren()));
-        $this->assertEquals(2, count($root->getChildren()),
-                'Root collection should have two children.');
-
+        $this->assertEquals(2, count($root->getChildren()), 'Root collection should have two children.');
     }
 
     public function testGetDefaultThemeIfSetDefaultTheme() {
         $default_theme = Zend_Registry::get('Zend_Config')->theme;
-        $this->assertFalse(empty($default_theme),
-                'Could not get theme from config');
+        $this->assertFalse(empty($default_theme), 'Could not get theme from config');
 
         $this->object->setTheme($default_theme);
         $this->object->store();
 
         $collection = new Opus_Collection($this->object->getId());
-        $this->assertEquals($default_theme, $collection->getTheme(),
-                'Expect default theme if non set');
+        $this->assertEquals($default_theme, $collection->getTheme(), 'Expect default theme if non set');
     }
+
     public function testGetDefaultThemeIfSetNullTheme() {
         $this->object->setTheme(null);
         $this->object->store();
 
         $default_theme = Zend_Registry::get('Zend_Config')->theme;
-        $this->assertFalse(empty($default_theme),
-                'Could not get theme from config');
+        $this->assertFalse(empty($default_theme), 'Could not get theme from config');
 
         $collection = new Opus_Collection($this->object->getId());
-        $this->assertEquals($default_theme, $collection->getTheme(),
-                'Expect default theme if non set');
+        $this->assertEquals($default_theme, $collection->getTheme(), 'Expect default theme if non set');
     }
 
     public function testGetDocumentIds() {
@@ -212,7 +198,7 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
 
         $d = new Opus_Document();
-        $d->addCollection( $this->object );
+        $d->addCollection($this->object);
         $d->store();
 
         $docIds = $this->object->getDocumentIds();
@@ -227,7 +213,7 @@ class Opus_CollectionTest extends TestCase {
         $storedIds = array();
         for ($i = 0; $i < $max; $i++) {
             $d = new Opus_Document();
-            $d->addCollection( $this->object );
+            $d->addCollection($this->object);
             $d->store();
 
             $storedIds[] = $d->getId();
@@ -238,7 +224,7 @@ class Opus_CollectionTest extends TestCase {
         $storedPublishedIds = array();
         for ($i = 0; $i < $max; $i++) {
             $d = new Opus_Document();
-            $d->addCollection( $this->object );
+            $d->addCollection($this->object);
             $d->setServerState('published');
             $d->store();
 
@@ -247,9 +233,9 @@ class Opus_CollectionTest extends TestCase {
         }
 
         // Check if getDocumentIds returns *all* documents.
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $docIds = $collection->getDocumentIds();
-        $this->assertEquals(2*$max, count($docIds), 'Expected '.(2*$max).' element in array');
+        $this->assertEquals(2 * $max, count($docIds), 'Expected ' . (2 * $max) . ' element in array');
 
         sort($storedIds);
         sort($docIds);
@@ -257,7 +243,7 @@ class Opus_CollectionTest extends TestCase {
 
         // Check if getDocumentIds returns only published documents.
         $publishedIds = $collection->getPublishedDocumentIds();
-        $this->assertEquals($max, count($publishedIds), 'Expected '.$max.' element in array');
+        $this->assertEquals($max, count($publishedIds), 'Expected ' . $max . ' element in array');
 
         sort($storedPublishedIds);
         sort($publishedIds);
@@ -273,9 +259,9 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
-        $this->assertEquals( 'fooblablub', $collection->getDisplayName('browsing') );
-        $this->assertEquals( 'thirteen', $collection->getDisplayName('frontdoor') );
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals('fooblablub', $collection->getDisplayName('browsing'));
+        $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
 
     public function testGetDisplayNameForBrowsingContextWithoutArg() {
@@ -286,7 +272,7 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('thirteen');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext());
     }
 
@@ -297,8 +283,8 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setName('fooblablub');
         $this->object->setNumber('thirteen');
         $this->object->store();
-        
-        $collection = new Opus_Collection( $this->object->getId() );
+
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext($this->role_fixture));
     }
 
@@ -311,7 +297,7 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -324,7 +310,7 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -337,7 +323,7 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
@@ -350,7 +336,7 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setNumber('number');
         $this->object->store();
 
-        $collection = new Opus_Collection( $this->object->getId() );
+        $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('number - name', $collection->getNumberAndName(' - '));
     }
 
@@ -358,22 +344,19 @@ class Opus_CollectionTest extends TestCase {
         $this->object->setVisible(1);
         $this->object->store();
 
-        $this->assertEquals(0, $this->object->getNumSubtreeEntries(),
-                'Initially, collection should have zero entries.');
+        $this->assertEquals(0, $this->object->getNumSubtreeEntries(), 'Initially, collection should have zero entries.');
 
         $d1 = new Opus_Document();
         $d1->setServerState('unpublished');
         $d1->addCollection($this->object);
         $d1->store();
 
-        $this->assertEquals(0, $this->object->getNumSubtreeEntries(),
-                'Collection has one entry, but no published.');
+        $this->assertEquals(0, $this->object->getNumSubtreeEntries(), 'Collection has one entry, but no published.');
 
         $d1->setServerState('published');
         $d1->store();
 
-        $this->assertEquals(1, $this->object->getNumSubtreeEntries(),
-                'Collection has one published entry.');
+        $this->assertEquals(1, $this->object->getNumSubtreeEntries(), 'Collection has one published entry.');
     }
 
     public function testDeleteCollectionFromDocumentDoesNotDeleteCollection() {
@@ -381,10 +364,10 @@ class Opus_CollectionTest extends TestCase {
         $collectionId = $this->object->store();
 
         $d = new Opus_Document();
-        $d->addCollection( $this->object );
+        $d->addCollection($this->object);
         $docId = $d->store();
 
-        $d = new Opus_Document( $docId );
+        $d = new Opus_Document($docId);
         $c = $d->getCollection();
         $this->assertEquals(1, count($c));
 
@@ -440,13 +423,12 @@ class Opus_CollectionTest extends TestCase {
 
         $this->object->store();
 
-        $coll = new Opus_Collection( $this->object->getId() );
+        $coll = new Opus_Collection($this->object->getId());
 
         $e = null;
         try {
             $coll->getDisplayName('browsing', $collRole);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             $collRole->delete();
             $coll->delete();
         }
@@ -460,7 +442,7 @@ class Opus_CollectionTest extends TestCase {
         // add two children: one of them (the first child) is invisible
         $coll1 = new Opus_Collection();
         $coll1->setVisible('1');
-        $this->object->addFirstChild($coll1);        
+        $this->object->addFirstChild($coll1);
         $coll1->store();
 
         $coll2 = new Opus_Collection();
@@ -469,7 +451,7 @@ class Opus_CollectionTest extends TestCase {
         $coll2->store();
 
         $this->object->store();
-        
+
         $children = $this->object->getVisibleChildren();
         $this->assertEquals(1, count($children));
         $this->assertEquals($coll1->getId(), $children[0]->getId());
@@ -505,13 +487,13 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($this->object->hasChildren());
     }
 
-        /**
+    /**
      * Regression Test for OPUSVIER-1687
      */
     public function testInvalidateDocumentCache() {
 
         $d = new Opus_Document();
-        $d->addCollection( $this->object );
+        $d->addCollection($this->object);
         $docId = $d->store();
 
         $xmlCache = new Opus_Model_Xml_Cache();
@@ -527,7 +509,7 @@ class Opus_CollectionTest extends TestCase {
     public function testInvalidateDocumentCacheOnDelete() {
 
         $d = new Opus_Document();
-        $d->addCollection( $this->object);
+        $d->addCollection($this->object);
         $docId = $d->store();
         $serverDateModifiedBeforeDelete = $d->getServerDateModified();
 
@@ -535,85 +517,29 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
 
         sleep(1);
-        
+
         $this->object->delete();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
-        
     }
-    
+
     /**
      * Regression-Test for OPUSVIER-2937
      */
-    
-    public function testDeleteUpdatesRelatedDocumentsInSubTree() {
-        $root = $this->object;
+    public function testPreDeletePluginHookGetsCalled() {
 
-        $this->assertTrue(is_array($root->getChildren()));
-        $this->assertEquals(0, count($root->getChildren()), 'Root collection without children should return empty array.');
+        $pluginMock = new Opus_Model_Plugin_Mock();
 
-        $child_1 = $root->addLastChild();
-        $root->store();
+        $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
 
-        $doc1 = new Opus_Document();
-        $doc1->addCollection($child_1);
-        $docId1 = $doc1->store();
-        $doc1ServerDateModified = $doc1->getServerDateModified();
+        $collection = new Opus_Collection();
+        $collection->registerPlugin($pluginMock);
+        $collection->delete();
 
-        $root = new Opus_Collection($root->getId());
-
-        $this->assertTrue(is_array($root->getChildren()));
-        $this->assertEquals(1, count($root->getChildren()), 'Root collection should have one child.');
-
-        $child_2 = $root->addLastChild();
-        $root->store();
-        $child_2Id = $child_2->getId();
-
-        $doc2 = new Opus_Document();
-        $doc2->addCollection($child_2);
-        $docId2 = $doc2->store();
-        $doc2ServerDateModified = $doc2->getServerDateModified();
-
-
-        $child_1_1 = $child_1->addFirstChild();
-        $child_1->store();
-        $child_1_1Id = $child_1_1->getId();
-        $doc1_1 = new Opus_Document();
-        $doc1_1->addCollection($child_1_1);
-        $docId1_1 = $doc1_1->store();
-        $doc1_1ServerDateModified = $doc1_1->getServerDateModified();
-
-        $root = new Opus_Collection($root->getId());
-
-        sleep(1);
-        
-        $root->delete();
-
-        $doc1Reloaded = new Opus_Document($docId1);
-        $this->assertTrue($doc1Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc1ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
-
-        try {
-            $child2Reloaded = new Opus_Collection($child_2Id);
-            $this->fail('Expected child collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
-            
-        }
-
-        $doc2Reloaded = new Opus_Document($docId2);
-        $this->assertTrue($doc2Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc2ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
-
-        try {
-            $child1_1Reloaded = new Opus_Collection($child_1_1Id);
-            $this->fail('Expected child collection to be deleted');
-        } catch (Opus_Model_NotFoundException $e) {
-            
-        }
-
-        $doc1_1Reloaded = new Opus_Document($docId1_1);
-        $this->assertTrue($doc1_1Reloaded->getServerDateModified()->getZendDate()->getTimestamp() > $doc1_1ServerDateModified->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+        $this->assertTrue(in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook');
     }
 
 }

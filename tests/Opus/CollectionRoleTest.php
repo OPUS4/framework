@@ -512,6 +512,23 @@ class Opus_CollectionRoleTest extends TestCase {
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
+    
+    /**
+     * Regression-Test for OPUSVIER-2937
+     */
+    public function testPreDeletePluginHookGetsCalled() {
+
+        $pluginMock = new Opus_Model_Plugin_Mock();
+
+        $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
+
+        $collectionRole = new Opus_Collection();
+        $collectionRole->registerPlugin($pluginMock);
+        $collectionRole->delete();
+
+        $this->assertTrue(in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook');
+    }
+
 
 }
 
