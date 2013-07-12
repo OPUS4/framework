@@ -1774,6 +1774,35 @@ class Opus_DocumentTest extends TestCase {
 
         $this->assertEquals('author', $persons[0]->getRole());
     }
+    
+    public function testChangingRoleOfPerson() {
+        $this->markTestIncomplete('Knallt. Soll das so sein? Was ist falsch?');
+        $doc = new Opus_Document();
+        
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $person->store(); // notwendig?
+        
+        $doc->setPersonAuthor(array($person));
+        
+        $doc = new Opus_Document($doc->store());
+        
+        $this->assertEquals(1, count($doc->getPerson()));
+        $this->assertEquals(1, count($doc->getPersonAuthor()));
+        
+        $persons = $doc->getPersonAuthor();
+        $person = $persons[0];
+        
+        $person->setRole('submitter');
+        
+        $doc->setPersonAuthor(array());
+        $doc->setPersonSubmitter(array($person));
+        
+        $doc = new Opus_Document($doc->store());
+        
+        $this->assertEquals(1, count($doc->getPerson()));
+        $this->assertEquals(1, count($doc->getPersonSubmitter()));
+    }    
 
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
