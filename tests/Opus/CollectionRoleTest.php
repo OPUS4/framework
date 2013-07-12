@@ -497,7 +497,7 @@ class Opus_CollectionRoleTest extends TestCase {
         $d->setServerState('published');
         $d->addCollection($collection);
         $docId = $d->store();
-
+        
         $serverDateModifiedBeforeDelete = $d->getServerDateModified();
 
         $xmlCache = new Opus_Model_Xml_Cache();
@@ -510,7 +510,7 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
-        $this->assertTrue($serverDateModifiedAfter->getZendDate()->getTimestamp() > $serverDateModifiedBeforeDelete->getZendDate()->getTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
+        $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
     
     /**
@@ -522,7 +522,7 @@ class Opus_CollectionRoleTest extends TestCase {
 
         $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
 
-        $collectionRole = new Opus_Collection();
+        $collectionRole = new Opus_CollectionRole();
         $collectionRole->registerPlugin($pluginMock);
         $collectionRole->delete();
 
