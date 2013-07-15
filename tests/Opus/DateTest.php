@@ -298,6 +298,26 @@ class Opus_DateTest extends TestCase {
     }
 
     /**
+     * Test padding of integers in string output.
+     *
+     * @return void
+     */
+    public function testStringOutputPadding() {
+        $date = new Opus_Date();
+
+        $date->setYear(2013);
+        $date->setMonth(7);
+        $date->setDay(9);
+
+        $date->setHour(1);
+        $date->setMinute(2);
+        $date->setSecond(3);
+        $date->setTimezone('Z');
+
+        $this->assertEquals('2013-07-09T01:02:03Z', "$date");
+    }
+
+    /**
      * Test if setFromString() handles broken dates correctly.
      *
      * @return void

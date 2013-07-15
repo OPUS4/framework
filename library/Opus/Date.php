@@ -260,12 +260,12 @@ class Opus_Date extends Opus_Model_Abstract {
      * @return string ISO 8601 date string.
      */
     public function __toString() {
-        $dateStr = implode("-", array($this->getYear(), $this->getMonth(), $this->getDay()));
+        $dateStr = sprintf("%04d-%02d-%02d", $this->getYear(), $this->getMonth(), $this->getDay());
         if ($this->isDateOnly()) {
             return $dateStr;
         }
 
-        $timeStr = implode(":", array($this->getHour(), $this->getMinute(), $this->getSecond()));
+        $timeStr = sprintf("%02d:%02d:%02d", $this->getHour(), $this->getMinute(), $this->getSecond());
         $tzStr   = $this->getTimezone();
         return $dateStr . "T" . $timeStr . $tzStr;
     }
