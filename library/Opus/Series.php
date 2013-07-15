@@ -29,7 +29,8 @@
  * @package     Opus
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
- * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -127,12 +128,12 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public static function getMaxSortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $max = $db->fetchCol('SELECT MAX(sort_order) FROM document_series');
+        $max = $db->fetchOne('SELECT MAX(sort_order) FROM document_series');
 
-        if (is_null($max[0])) {
+        if (is_null($max)) {
             return 0;
         }
-        return $max[0];
+        return $max;
     }
 
     /**
@@ -140,15 +141,10 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function getDocumentIds() {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $rowSet = $db->fetchAll(
-                'SELECT document_id FROM link_documents_series WHERE series_id = ' .
+        $ids = $db->fetchCol(
+                'SELECT document_id FROM link_documents_series ' .
+                'WHERE series_id = ?',
                 $this->getId());
-
-        $ids = array();
-        foreach ($rowSet as $row) {
-            array_push($ids, $row['document_id']);
-
-        }
         return $ids;
     }
 
@@ -157,14 +153,10 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function getDocumentIdsSortedBySortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $rowSet = $db->fetchAll(
-                'SELECT document_id FROM link_documents_series WHERE series_id = ' .
-                $this->getId() . ' ORDER BY doc_sort_order DESC');
-
-        $ids = array();
-        foreach ($rowSet as $row) {
-            array_push($ids, $row['document_id']);
-        }
+        $ids = $db->fetchCol(
+                'SELECT document_id FROM link_documents_series ' .
+                'WHERE series_id = ? ORDER BY doc_sort_order DESC',
+                $this->getId());
         return $ids;
     }
 
@@ -177,10 +169,11 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function isNumberAvailable($number) {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $rowSet = $db->fetchAll(
-                'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' .
-                $this->getId() . ' AND number = ' . $db->quote($number));
-        return $rowSet[0]['rows_count'] === '0';
+        $count = $db->fetchOne(
+                'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
+                'WHERE series_id = ? AND number = ?',
+                array($this->getId(), $number));
+        return $count === '0';
     }
 
     /**
@@ -190,9 +183,11 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function getNumOfAssociatedDocuments() {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $rowSet = $db->fetchAll(
-                'SELECT COUNT(*) AS rows_count FROM link_documents_series WHERE series_id = ' . $this->getId());
-        return intval($rowSet[0]['rows_count']);
+        $count = $db->fetchOne(
+                'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
+                'WHERE series_id = ?',
+                $this->getId());
+        return intval($count);
     }
 
 
@@ -204,11 +199,12 @@ class Opus_Series extends Opus_Model_AbstractDb {
      */
     public function getNumOfAssociatedPublishedDocuments() {
         $db = Zend_Db_Table::getDefaultAdapter();
-        $rowSet = $db->fetchAll(
+        $count = $db->fetchOne(
                 'SELECT COUNT(*) AS rows_count ' .
                 'FROM link_documents_series l, documents d ' .
-                'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ' . $this->getId());
-        return intval($rowSet[0]['rows_count']);
+                'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
+                $this->getId());
+        return intval($count);
     }
 
 }
