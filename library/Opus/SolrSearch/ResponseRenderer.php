@@ -53,6 +53,8 @@ class Opus_SolrSearch_ResponseRenderer {
     /**
      *
      * @param Apache_Solr_Response $solrResponse
+     * @param bool $validateDocIds if set to true, check all document IDs coming from search index for existence in database
+     * @param string $seriesId allows to specify a series number as a search filter criterion in series search context
      */
     public function __construct($solrResponse, $validateDocIds = true, $seriesId = null) {
         $this->log = Zend_Registry::get('Zend_Log');
@@ -69,6 +71,8 @@ class Opus_SolrSearch_ResponseRenderer {
 
     /**
      * @param Apache_Solr_Response $solrResponse
+     * @param bool $validateDocIds
+     * @param string $seriesId
      */
     private function buildResultList($solrResponse, $validateDocIds = true, $seriesId = null) {
         if (is_null($solrResponse->response) || $solrResponse->response->numFound == 0) {
@@ -149,6 +153,12 @@ class Opus_SolrSearch_ResponseRenderer {
         return $result;
     }
 
+    /**
+     * 
+     * @param array $facets
+     * @param string $facetName
+     * @return array
+     */
     private function getFacet($facets, $facetName) {
         if (array_key_exists($facetName, $facets)) {
             return $facets[$facetName];
