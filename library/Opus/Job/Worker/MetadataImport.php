@@ -75,9 +75,9 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
         if (!(is_object($data) && isset($data->xml) && !is_null($data->xml))) {
              throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
         }
-
+	
         if (null !== $this->_logger) {
-            $this->_logger->info('Importing Metadata : ' . $data->xml );
+            $this->_logger->debug("Importing Metadata:\n" . $data->xml);
         }
 	
 	$importer = new Opus_Util_MetadataImport($data->xml);
