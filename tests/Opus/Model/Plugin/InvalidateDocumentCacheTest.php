@@ -111,6 +111,25 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $doc2->addPersonAuthor($author);
         $doc2->store();
 
+        $domDocument = $xmlCache->get($doc2->getId(), 1);
+        $this->assertTrue($domDocument->hasChildNodes(), 'cache entry consists of empty DOM document');        
+        $this->assertEquals(1, count($domDocument->childNodes), 'unexpected number of child nodes');
+        
+        $xpath = new DOMXpath($domDocument);
+        $elements = $xpath->query("/Opus/Opus_Document/ServerDateModified");
+        $this->assertEquals(1, count($elements), 'unexpected number of matching elements');
+        
+        $attributes = $elements->item(0)->attributes;
+        $this->assertNotNull($attributes, 'element ServerDateModified does not have any attributes');       
+        
+        $this->assertEquals($doc2->getServerDateModified()->getUnixTimestamp(), $attributes->getNamedItem('UnixTimestamp')->nodeValue, 'unexpected value for attribute UnixTimestamp');
+        $this->assertEquals($doc2->getServerDateModified()->getYear(), $attributes->getNamedItem('Year')->nodeValue, 'unexpected value for attribute Year');
+        $this->assertEquals($doc2->getServerDateModified()->getMonth(), $attributes->getNamedItem('Month')->nodeValue, 'unexpected value for attribute Month');
+        $this->assertEquals($doc2->getServerDateModified()->getDay(), $attributes->getNamedItem('Day')->nodeValue, 'unexpected value for attribute Day');
+        $this->assertEquals($doc2->getServerDateModified()->getMinute(), $attributes->getNamedItem('Minute')->nodeValue, 'unexpected value for attribute Minute');
+        $this->assertEquals($doc2->getServerDateModified()->getSecond(), $attributes->getNamedItem('Second')->nodeValue, 'unexpected value for attribute Second');
+        $this->assertEquals($doc2->getServerDateModified()->getTimezone(), $attributes->getNamedItem('Timezone')->nodeValue, 'unexpected value for attribute Timezone');        
+        
         $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId());
 
         $doc3 = new Opus_Document();
