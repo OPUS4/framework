@@ -158,7 +158,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result), "Deletion of Collection $collId was not propagated to Solr index");        
+        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");        
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
