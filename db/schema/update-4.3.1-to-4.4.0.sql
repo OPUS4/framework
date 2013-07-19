@@ -6,7 +6,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 START TRANSACTION;
 
 -- erlaube NULL fuer YearApplied Feld in Opus_Patent
-ALTER TABLE `documents` MODIFY COLUMN `year_applied` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of the application.';
+ALTER TABLE `document_patents` MODIFY COLUMN `year_applied` SMALLINT( 4 ) UNSIGNED ZEROFILL NULL DEFAULT NULL COMMENT 'Year of the application.';
 
 -- if standardized enrichment_key_names from bibtex-upload are already used set them to a temporary name
 UPDATE `document_enrichments` SET `key_name` = 'TempBibtexRecord' WHERE `key_name` = 'BibtexRecord';
