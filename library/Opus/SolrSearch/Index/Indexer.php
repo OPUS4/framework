@@ -315,15 +315,31 @@ class Opus_SolrSearch_Index_Indexer {
                 $docXml->appendChild($element);
 
                 $element = $modelXml->createElement('Fulltext_ID_Success');
-                $element->appendChild($modelXml->createTextNode($file->getId() . ":" . $file->getRealHash('md5')));
+                $element->appendChild($modelXml->createTextNode($this->getFulltextHash($file)));
                 $docXml->appendChild($element);
             }
             else {
                 $element = $modelXml->createElement('Fulltext_ID_Failure');
-                $element->appendChild($modelXml->createTextNode($file->getId() . ":" . $file->getRealHash('md5')));
+                $element->appendChild($modelXml->createTextNode($this->getFulltextHash($file)));
                 $docXml->appendChild($element);
             }
         }
+    }
+    
+    /**
+     * 
+     * @param Opus_File $file
+     * @return string
+     */
+    private function getFulltextHash($file) {
+        $hash = '';
+        try {
+            $hash = $file->getRealHash('md5');
+        }
+        catch (Exception $e) {
+            $this->log->err('could not compute MD5 hash for ' . $file->getPath() . ' : ' . $e);
+        }
+        return $file->getId() . ":" . $hash;
     }
 
     /**
@@ -377,11 +393,17 @@ class Opus_SolrSearch_Index_Indexer {
      * Construct name of fulltext cache file for given Opus_File object.
      *
      * @param Opus_File $file
-     * @return string Name of full absolute name of fulltext cache file.
+     * @return string Name of full absolute name of fulltext cache file or null if file name could not be computed.
      */
     private function getCachedFileName(Opus_File $file) {
         $config = Zend_Registry::get('Zend_Config');
-        $hash = $file->getRealHash('md5') . "-" . $file->getRealHash('sha256');
+        try {
+            $hash = $file->getRealHash('md5') . "-" . $file->getRealHash('sha256');
+        }
+        catch (Exception $e) {
+            $this->log->err(__CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e");
+            return null;
+        }        
         $cache_path = realpath($config->workspacePath . "/cache/");
         $cache_filename = "solr_cache---$hash.txt";
         return $cache_path . DIRECTORY_SEPARATOR . $cache_filename;
@@ -401,6 +423,10 @@ class Opus_SolrSearch_Index_Indexer {
 
         $config = Zend_Registry::get('Zend_Config');
         $cache_file = $this->getCachedFileName($file);
+        
+        if (is_null($cache_file)) {
+            return;
+        }
 
         // Create tempfile with unique name.  This has to be done, to prevent
         // that two processes are writing their output to the same file.
@@ -433,7 +459,7 @@ class Opus_SolrSearch_Index_Indexer {
     private function getCachedFileContent(Opus_File $file) {
         $cache_file = $this->getCachedFileName($file);
 
-        if (is_readable($cache_file)) {
+        if (!is_null($cache_file) && is_readable($cache_file)) {
             $max_cache_file_size = 1024*1024*16;
             if (filesize($cache_file) > $max_cache_file_size) {
                 $this->log->info('Skipped reading fulltext HUGE cache file ' . $cache_file);

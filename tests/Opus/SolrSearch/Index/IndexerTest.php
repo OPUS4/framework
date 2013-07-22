@@ -765,6 +765,93 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $resultList = $results->getResults();
         return $resultList;
     }
+    
+    public function testGetCachedFileNamePositiveCase() {
+        $file = $this->createTestFile();
+        
+        // apply a hack to be able to test a private method directly
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getCachedFileName');
+        $method->setAccessible(true);
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $result = $method->invokeArgs($indexer, array($file));
+        $this->assertNotNull($result);
+                
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR;                
+        $this->assertEquals($path . 'cache/solr_cache---901736df3fbc807121c46f9eaed8ff28-ff4ef4245da5b09786e3d3de8b430292fa081984db272d2b13ed404b45353d28.txt', $result);
+        
+        $this->removeTestFile($file);
+    }
+    
+    public function testGetCachedFileNameNegativeCase() {
+        $file = $this->createTestFile();
+        
+        $this->removeTestFile($file);
+        
+        // apply a hack to be able to test a private method directly
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getCachedFileName');
+        $method->setAccessible(true);
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $result = $method->invokeArgs($indexer, array($file));
+        $this->assertNull($result);        
+    }
+    
+    public function testGetFulltextHashPositiveCase() {
+        $file = $this->createTestFile();
+        
+        // apply a hack to be able to test a private method directly
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getFulltextHash');
+        $method->setAccessible(true);
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $result = $method->invokeArgs($indexer, array($file));
+
+        $this->assertEquals('1:901736df3fbc807121c46f9eaed8ff28', $result);
+        
+        $this->removeTestFile($file);        
+    }
+    
+    public function testGetFulltextHashNegativeCase() {
+        $file = $this->createTestFile();
+        
+        $this->removeTestFile($file);
+        
+        // apply a hack to be able to test a private method directly
+        $class = new ReflectionClass('Opus_SolrSearch_Index_Indexer');
+        $method = $class->getMethod('getFulltextHash');
+        $method->setAccessible(true);
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $result = $method->invokeArgs($indexer, array($file));
+
+        $this->assertEquals('1:', $result);
+    }
+    
+    private function createTestFile() {
+        $doc = new Opus_Document;
+        $doc->store();
+        
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR;        
+        
+        $testfile = $path . 'files/' . $doc->getId() . '/test.txt';
+        if (file_exists($testfile)) {
+            unlink($testfile);
+        }        
+        
+        $file = $doc->addFile();        
+        $file->setTempFile($path . '../fulltexts/test.txt');
+        $file->setPathName('test.txt');
+        $file->setLabel('foobarbaz');
+        
+        $doc->store();
+        return $file;
+    }
+    
+    private function removeTestFile($file) {
+        unlink($file->getPath());
+    }    
 
 }
 
