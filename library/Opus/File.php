@@ -326,6 +326,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
      * Perform a verification on a checksum
+     * 
+     * TODO throws Exception in case hash computation is not possible
+     *      (e.g., if referenced file is missing in file system)
      *
      * @return boolean true if the checksum is valid, false if not
      */
@@ -376,6 +379,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
      * Create hash value model objects from original file.
+     * 
+     * TODO throws Exception in case hash computation is not possible
+     *      (e.g., if referenced file is missing in file system)
      *
      * @return void
      */
