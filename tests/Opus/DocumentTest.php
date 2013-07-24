@@ -1995,9 +1995,9 @@ class Opus_DocumentTest extends TestCase {
         $doc1 = new Opus_Document();
         $doc1Id = $doc1->store();
         $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
-        
+
         sleep(2);
-        
+
         $doc2 = new Opus_Document();
         $title = new Opus_Title();
         $title->setLanguage('eng');
@@ -2006,9 +2006,36 @@ class Opus_DocumentTest extends TestCase {
         $doc2->store();
 
         $doc1 = new Opus_Document($doc1Id);
-        
-        $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(), 
-                'ServerDateModified was modified by store on a differnet document.');
+
+        $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified was modified by store on a differnet document.');
+    }
+
+    public function testRegression2982StoreWithInstituteModifiesServerDateModifiedForOtherDocs() {
+        $institute = new Opus_DnbInstitute();
+        $institute->setName('Test Institut');
+        $institute->setCity('Berlin');
+        $institute->setIsGrantor(true);
+        $institute->setIsPublisher(true);
+        $instituteId = $institute->store();
+
+        $doc1 = new Opus_Document();
+        $institute = new Opus_DnbInstitute($instituteId);
+        $doc1->setThesisGrantor(array($institute));
+        $doc1id = $doc1->store();
+        $doc1ServerDateModified = $doc1->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $doc2 = new Opus_Document();
+        $institute = new Opus_DnbInstitute($instituteId);
+        $doc2->setThesisGrantor(array($institute));
+        $doc2->store();
+
+        $doc1 = new Opus_Document($doc1id);
+
+        $this->assertEquals($doc1ServerDateModified, $doc1->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified was modified by store on a differnet document.');
     }
 
     public function testHasPlugins() {
