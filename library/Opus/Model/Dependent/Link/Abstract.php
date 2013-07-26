@@ -71,6 +71,17 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     private $_isModified = false;
 
+     /** Plugins to load
+     *
+     * @var array
+     */
+    protected $_plugins = array(
+// Plugin Opus_Model_Plugin_InvalidateDocumentCache
+// must NOT be used in dependent link models!
+//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
+    );
+
+    
     /**
      * Set the model that is linked to.
      *
