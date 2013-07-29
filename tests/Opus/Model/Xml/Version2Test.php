@@ -156,7 +156,7 @@ class Opus_Model_Xml_Version2Test extends TestCase {
         // build a model from xml
         $model = $omx->getModel();
 
-        $this->assertType('Opus_Document', $model, 'Builded model is not of the expected type.');
+        $this->assertInstanceOf('Opus_Document', $model, 'Builded model is not of the expected type.');
 
         $omx = new Opus_Model_Xml;
         $omx->setModel($model);

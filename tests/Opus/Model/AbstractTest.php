@@ -125,7 +125,7 @@ class Opus_Model_AbstractTest extends TestCase {
         $model = new Opus_Model_ModelAbstract;
 
         $result = $model->setValue('Value');
-        $this->assertType('Opus_Model_ModelAbstract', $result, 'No fluent interface after set...() call.');
+        $this->assertInstanceOf('Opus_Model_ModelAbstract', $result, 'No fluent interface after set...() call.');
     }
 
 

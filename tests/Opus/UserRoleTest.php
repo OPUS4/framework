@@ -66,7 +66,7 @@ class Opus_UserRoleTest extends TestCase {
 
     public function testFetchByNameSuccessIfExists() {
         $ur = Opus_UserRole::fetchByName('unit-test');
-        $this->assertType('Opus_UserRole', $ur);
+        $this->assertInstanceOf('Opus_UserRole', $ur);
         $this->assertEquals('unit-test', $ur->getName());
     }
 

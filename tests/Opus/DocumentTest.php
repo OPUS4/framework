@@ -157,7 +157,7 @@ class Opus_DocumentTest extends TestCase {
         $value = $doc->getLicence();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertType('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
+        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentLicence', $value[0], 'Returned object is of wrong type.');
     }
 
 
@@ -178,7 +178,7 @@ class Opus_DocumentTest extends TestCase {
         $value = $doc->getNote();
         $this->assertTrue(is_array($value), 'Expected array type.');
         $this->assertEquals(1, count($value), 'Expected only one object to be returned after adding.');
-        $this->assertType('Opus_Note', $value[0], 'Returned object is of wrong type.');
+        $this->assertInstanceOf('Opus_Note', $value[0], 'Returned object is of wrong type.');
     }
 
 
@@ -1428,7 +1428,7 @@ class Opus_DocumentTest extends TestCase {
         $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
 
         $xml_file = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
-        $this->assertType('DOMNode', $xml_file);
+        $this->assertInstanceOf('DOMNode', $xml_file);
 
         $expected_visible_field = $f->getVisibleInFrontdoor();
         $actual_visible_field = $xml_file->getAttribute('VisibleInFrontdoor');

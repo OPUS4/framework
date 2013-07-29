@@ -489,7 +489,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
             $exception = $e;
         }
         $this->assertNotNull($exception);
-        $this->assertType('Opus_SolrSearch_Index_Exception', $exception);
+        $this->assertInstanceOf('Opus_SolrSearch_Index_Exception', $exception);
         $doc->deletePermanent();
     }
 
@@ -517,7 +517,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
             $exception = $e;
         }
         $this->assertNotNull($exception);
-        $this->assertType('Opus_SolrSearch_Index_Exception', $exception);
+        $this->assertInstanceOf('Opus_SolrSearch_Index_Exception', $exception);
         $doc->deletePermanent();
     }
 
@@ -548,7 +548,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
             $this->fail('expected exception of type Opus_SolrSearch_Index_Exception');
         }
         catch (Exception $e) {
-            $this->assertType('Opus_SolrSearch_Index_Exception', $e);
+            $this->assertInstanceOf('Opus_SolrSearch_Index_Exception', $e);
         }
     }
 

@@ -83,7 +83,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
         $model = new Opus_Model_ModelAbstract();
         $xml->setModel($model);
         $dom = $xml->getDomDocument();
-        $this->assertType('DomDocument', $dom, 'Returned object is of wrong type.');
+        $this->assertInstanceOf('DomDocument', $dom, 'Returned object is of wrong type.');
     }
 
     /**
@@ -706,7 +706,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
         $model = $omx->getModel();
 
         $this->assertNotNull($model->getLink(), 'No linked model assigned.');
-        $this->assertType('Opus_Model_ModelAbstract', $model->getLink(), 'Wrong model type.');
+        $this->assertInstanceOf('Opus_Model_ModelAbstract', $model->getLink(), 'Wrong model type.');
         $this->assertEquals(4711, $model->getLink()->getValue(), 'Sub model initialised incorrectly.');
     }
 

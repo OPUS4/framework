@@ -92,7 +92,7 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
     public function testGetInstance() {
         $lc = Opus_Statistic_LocalCounter::getInstance();
         $this->assertNotNull($lc, 'Expected instance');
-        $this->assertType('Opus_Statistic_LocalCounter', $lc, 'Expected object of type Opus_Statistic_LocalCounter.');
+        $this->assertInstanceOf('Opus_Statistic_LocalCounter', $lc, 'Expected object of type Opus_Statistic_LocalCounter.');
     }
 
     /**

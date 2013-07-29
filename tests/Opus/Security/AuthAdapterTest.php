@@ -98,7 +98,7 @@ class Opus_Security_AuthAdapterTest extends TestCase {
         $this->_auth_adapter->setCredentials('bob', 'secret');
         $result = $this->_auth_adapter->authenticate();
         $this->assertNotNull($result, 'Authentication result should not be null.');
-        $this->assertType('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
+        $this->assertInstanceOf('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
         $this->assertEquals($result->getCode(), Zend_Auth_Result::SUCCESS, 'Authentication should be successful.');
     }
     
@@ -116,7 +116,7 @@ class Opus_Security_AuthAdapterTest extends TestCase {
         $this->_auth_adapter->setCredentials($login, $password);
         $result = $this->_auth_adapter->authenticate();
         $this->assertNotNull($result, 'Authentication result should not be null.');
-        $this->assertType('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
+        $this->assertInstanceOf('Zend_Auth_Result', $result, 'Authentication result should be of type Zend_Auth_Result.');
         $this->assertEquals($result->getCode(), $code, 'Authentication should not be successful.');
     }
     

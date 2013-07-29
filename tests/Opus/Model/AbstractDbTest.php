@@ -213,7 +213,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $linkedModel = new Opus_Model_ModelAbstractDbMock();
         $mock->setLinkField($linkedModel);
 
-        $this->assertType('testGetLinkedModelWhenQueryModel_Link', $mock->getLinkField(), 'Returned linked model has wrong type.');
+        $this->assertInstanceOf('testGetLinkedModelWhenQueryModel_Link', $mock->getLinkField(), 'Returned linked model has wrong type.');
     }
 
     /**
@@ -257,7 +257,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $mock->addLinkField($linkedModel);
 
         $this->assertTrue(is_array($mock->getLinkField()), 'Returned value is not an array.');
-        $this->assertType('testGetMultipleLinkedModelWhenQueryModel_Link', $mock->getLinkField(0), 'Returned linked model has wrong type.');
+        $this->assertInstanceOf('testGetMultipleLinkedModelWhenQueryModel_Link', $mock->getLinkField(0), 'Returned linked model has wrong type.');
     }
 
 

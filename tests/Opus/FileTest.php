@@ -161,7 +161,7 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($id);
         $file = $doc->getFile(0);
 
-        $this->assertType('Opus_File', $file, "getFile has wrong type."); // TODO should use assertInstanceOf
+        $this->assertInstanceOf('Opus_File', $file, "getFile has wrong type."); // TODO should use assertInstanceOf
         $this->assertEquals($doc->getId(), $file->getParentId(),
                 "ParentId does not match parent model.");
 

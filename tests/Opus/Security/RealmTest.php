@@ -143,7 +143,7 @@ class Opus_Security_RealmTest extends TestCase {
     public function testGetInstance() {
         $realm = Opus_Security_Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
-        $this->assertType('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
+        $this->assertInstanceOf('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
     }
 
     public function testSetUserSuccess() {
