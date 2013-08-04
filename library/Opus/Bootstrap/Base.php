@@ -96,7 +96,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * @return void
      *
-     * TODO put into configuration file
+     * TODO put into configuration file (custom DB adapter)
      */
     protected function _initDatabase() {
         $this->bootstrap(array('ZendCache', 'Logging','Configuration'));
@@ -146,7 +146,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * </code>
      *
      * @throws Exception          Exception is thrown if configuration level is invalid.
-     * @return void
+     * @return Zend_Config
      *
      */
     protected function _initConfiguration() {
