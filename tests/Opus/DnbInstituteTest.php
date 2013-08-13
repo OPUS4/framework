@@ -150,5 +150,24 @@ class Opus_DnbInstituteTest extends TestCase {
         $dnb_institute->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
+    
+    /**
+     * Regression Test for OPUSVIER-3041
+     * added field 'department' to model
+     */
+    
+    public function testDepartmentIsStored() {
+        
+        $dnbInstitute = new Opus_DnbInstitute();
+        $dnbId = $dnbInstitute->setName('Foo University')
+                ->setDepartment('Paranormal Research Institute')
+                ->setCity('Berlin')
+                ->setIsGrantor(1)
+                ->store();
+        
+        $dnbReloaded = new Opus_DnbInstitute($dnbId);
+        
+        $this->assertEquals('Paranormal Research Institute', $dnbReloaded->getDepartment());
+    }
 
 }
