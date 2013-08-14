@@ -118,6 +118,8 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
         $name->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
 
+        $department = new Opus_Model_Field('Department');
+
         $address = new Opus_Model_Field('Address');
 
         $city = new Opus_Model_Field('City');
@@ -135,6 +137,7 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
         $is_publisher->setCheckbox(true);
 
         $this->addField($name)
+                ->addField($department)
                 ->addField($address)
                 ->addField($city)
                 ->addField($phone)
