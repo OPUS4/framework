@@ -7,7 +7,7 @@ START TRANSACTION;
 
 -- Add field department to dnb_institutes to distinguish institutes from departments
 ALTER TABLE `dnb_institutes` ADD `department` VARCHAR( 255 ) NULL DEFAULT NULL AFTER `name`;
-
+ALTER TABLE `dnb_institutes` DROP INDEX `name` , ADD UNIQUE `name` ( `name` , `department` );
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;

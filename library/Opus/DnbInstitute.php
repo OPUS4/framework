@@ -152,7 +152,8 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
     public function getDisplayName() {
-       return $this->getName();
+       $departmentName = $this->getDepartment();
+       return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
     }
 
 

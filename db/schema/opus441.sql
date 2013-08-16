@@ -557,7 +557,7 @@ ENGINE=InnoDB;
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dnb_institutes` (
     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-    `name` VARCHAR(255) NOT NULL UNIQUE ,
+    `name` VARCHAR(255) NOT NULL,
     `department` varchar(255) DEFAULT NULL,
     `address` MEDIUMTEXT ,
     `city` VARCHAR(255) NOT NULL ,
@@ -565,7 +565,8 @@ CREATE TABLE IF NOT EXISTS `dnb_institutes` (
     `dnb_contact_id` VARCHAR(255) COMMENT 'Contact id of the german national library.' ,
     `is_grantor` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution grantor of academic degrees?' ,
     `is_publisher` TINYINT (1) NOT NULL DEFAULT 0 COMMENT 'Flag: is the institution of academic theses?' ,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    UNIQUE KEY (`name`, `department`)
     )
 ENGINE = InnoDB
 COMMENT = 'Table for thesisPublishers or thesisGrantors.';

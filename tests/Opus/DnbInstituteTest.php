@@ -117,14 +117,18 @@ class Opus_DnbInstituteTest extends TestCase {
     }
 
     /**
-     * Test if the DnbInstitute display name matches its name.
+     * Test if the DnbInstitute display name matches its name, 
+     * optionally followed by its department name if set.
+     * 
      *
      * @return void
      */
-    public function testDisplayNameMatchesName() {
+    public function testDisplayNameMatchesNameAndDepartmentIfSet() {
         $dnbInstitute = new Opus_DnbInstitute();
         $dnbInstitute->setName('MyTestName');
         $this->assertEquals($dnbInstitute->getName(), $dnbInstitute->getDisplayName(), 'Displayname does not match name.');
+        $dnbInstitute->setDepartment('MyTestDepartment');
+        $this->assertEquals($dnbInstitute->getName().', '.$dnbInstitute->getDepartment(), $dnbInstitute->getDisplayName(), 'Displayname does not match name and department.');
     }
 
     /**
