@@ -16,7 +16,7 @@
     </testsuite>
 
     <logging>
-        <log type="junit" target="build/logs/phpunit.xml" logIncompleteSkipped="false" />
+        <log type="junit" target="build/logs/phpunit.xml" logIncompleteSkipped="true" />
     </logging>
 
     <!-- Define directories/files filter for code coverage. -->
