@@ -120,6 +120,7 @@
             <arg line="--coverage-clover ${basedir}/build/logs/phpunit.coverage.xml" />
             <arg line="--coverage-html ${basedir}/build/coverage" />
             <arg line="--configuration phpunit.xml" />
+            <arg value="${testpath}" />
         </exec>
     </target>
 
@@ -127,6 +128,7 @@
         <exec executable="phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--configuration phpunit.xml" />
+            <arg value="${testpath}" />
         </exec>
     </target>
 
