@@ -15,6 +15,10 @@
         <directory>./</directory>
     </testsuite>
 
+    <logging>
+        <log type="junit" target="build/logs/phpunit.xml" logIncompleteSkipped="false" />
+    </logging>
+
     <!-- Define directories/files filter for code coverage. -->
     <filter>
         <!-- Per default, skip all files. -->
