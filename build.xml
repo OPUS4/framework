@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="opus4framework" default="build">
+
+    <property environment="env" />
+    <property name="workspace" value="${env.WORKSPACE}" /> <!-- Wird von Jenkins gesetzt. -->
+    <property name="serverdir" location="${basedir}/../server" />
+    <property name="configfile" location="${workspace}/../opus-config.properties" />
+    <property name="libsdir" value="/home/opus4ci/libs" />
+    <property name="testpath" value="" />
+
+    <target name="build" depends="prepare,lint,php-documentor,php-codesniffer,phpmd,phpcpd,pdepend,phpunit"/>
+
+    <target name="build-fast" depends="prepare,lint,phpunit-fast"/>
+
+    <target name="clean">
+        <delete dir="${basedir}/build/logs" />
+        <delete dir="${basedir}/build/api" />
+        <delete dir="${basedir}/build/coverage" />
+        <delete includeEmptyDirs="true">
+            <fileset dir="${basedir}/tests/workspace/cache" includes="**/*" />
+        </delete>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${basedir}/tests/workspace/tmp" includes="**/*" />
+        </delete>
+        <delete includeEmptyDirs="true">
+            <fileset dir="${basedir}/tests/workspace" />
+        </delete>
+    </target>
+
+    <target name="setup" depends="prepare-dependencies,prepare-createdb" description="Prepares the configuration." />
+
+    <target name="prepare-createdb">
+        <copy file="${serverdir}/db/createdb.sh.template"
+              toFile="${serverdir}/db/createdb.sh" filtering="true">
+            <filterset filtersFile="${configfile}" />
+        </copy>
+        <chmod file="${serverdir}/db/createdb.sh" perm="+x" />
+
+        <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
+                overwrite="false">
+            <filterset filtersFile="${configfile}" />
+        </copy>
+    </target>
+
+    <target name="prepare-dependencies">
+        <symlink link="${serverdir}/db/schema" resource="${basedir}/db/schema" failonerror="false" />
+        <symlink link="${basedir}/library/Zend" resource="${libsdir}/ZendFramework/library/Zend" failonerror="false" />
+        <symlink link="${basedir}/library/Apache" resource="${libsdir}/SolrPhpClient/Apache" failonerror="false" />
+    </target>
+
+    <target name="prepare" depends="clean">
+        <mkdir dir="${basedir}/build/logs" />
+        <mkdir dir="${basedir}/build/api" />
+        <mkdir dir="${basedir}/build/coverage" />
+    </target>
+
+    <target name="lint">
+        <apply executable="php" dir="${basedir}/source" failonerror="on" logerror="on">
+            <arg line="-l"/>
+            <fileset dir="${basedir}/source" followsymlinks="false">
+                <include name="**/*.php"/>
+                <exclude name="tests/**/*"/>
+            </fileset>
+        </apply>
+    </target>
+
+    <target name="php-documentor" depends="lint">
+        <exec executable="phpdoc" dir="${basedir}/source" logerror="on">
+            <arg value="--title '${ant.project.name}'" />
+            <arg value="-ue on" />
+            <arg value="-t ${basedir}/build/api" />
+            <arg value="-d library/Opus" />
+            <arg value="-tb '/home/opus4ci/pear/data/phpUnderControl/data/phpdoc'" />
+            <arg value="-o HTML:Phpuc:phpuc" />
+        </exec>
+    </target>
+
+    <target name="php-codesniffer" depends="lint">
+        <exec executable="/home/opus4ci/pear/phpcs" dir="${basedir}/source" output="${basedir}/build/logs/checkstyle.xml" error="/tmp/checkstyle.error.log">
+            <arg value="--report=checkstyle" />
+            <arg value="--standard=PEAR library"/>
+        </exec>
+    </target>
+
+    <target name="phpmd" depends="lint">
+        <exec executable="phpmd" dir="${basedir}/source" logerror="on" output="${basedir}/build/logs/phpunit-pmd.xml" >
+            <arg line="--exclude tests . xml codesize,unusedcode,naming,design "/>
+        </exec>
+    </target>
+
+    <target name="phpcpd" depends="lint">
+        <exec executable="phpcpd" dir="${basedir}/source" logerror="on" >
+            <arg line="--min-lines 3 --min-tokens 30 --log-pmd ${basedir}/build/logs/phpunit-cpd-details.xml ./library "/>
+        </exec>
+    </target>
+
+    <target name="pdepend" depends="lint,phpunit" description="Generates software metrics charts.">
+        <exec executable="mkdir" dir="${basedir}/build/" logerror="on">
+            <arg line=" -p pdepend/" />
+        </exec>
+        <exec executable="pdepend" dir="${basedir}" logerror="on">
+            <arg value="--coverage-report=${basedir}/build/logs/phpunit.coverage.xml" />
+            <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
+            <arg value="--jdepend-chart=${basedir}/build/pdepend/20-dependencies.svg" />
+            <arg value="--overview-pyramid=${basedir}/build/pdepend/21-overview-pyramid.svg" />
+            <arg value="--suffix=php,phtml" />
+            <arg value="--coderank-mode=inheritance,property,method" />
+            <arg value="--ignore=tests" />
+            <arg value="${basedir}/source/library" />
+        </exec>
+    </target>
+
+    <target name="create-database">
+        <exec executable="./createdb.sh" dir="${serverdir}/db" failonerror="on" />
+    </target>
+
+    <target name="phpunit" depends="create-database">
+        <exec executable="phpunit" dir="${basedir}/tests" failonerror="on">
+            <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
+            <arg line="--coverage-clover ${basedir}/build/logs/phpunit.coverage.xml" />
+            <arg line="--coverage-html ${basedir}/build/coverage" />
+            <arg line="--configuration phpunit.xml" />
+        </exec>
+    </target>
+
+    <target name="phpunit-fast" depends="create-database">
+        <exec executable="phpunit" dir="${basedir}/tests" failonerror="on">
+            <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
+            <arg line="--configuration phpunit.xml" />
+        </exec>
+    </target>
+
+</project>
+
