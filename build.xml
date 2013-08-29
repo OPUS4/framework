@@ -55,11 +55,10 @@
     </target>
 
     <target name="lint">
-        <apply executable="php" dir="${basedir}/source" failonerror="on" logerror="on">
+        <apply executable="php" dir="${basedir}" failonerror="on" logerror="on">
             <arg line="-l"/>
-            <fileset dir="${basedir}/source" followsymlinks="false">
+            <fileset dir="${basedir}" followsymlinks="false">
                 <include name="**/*.php"/>
-                <exclude name="tests/**/*"/>
             </fileset>
         </apply>
     </target>
