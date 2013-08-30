@@ -52,6 +52,7 @@
         <mkdir dir="${basedir}/build/logs" />
         <mkdir dir="${basedir}/build/api" />
         <mkdir dir="${basedir}/build/coverage" />
+        <mkdir dir="${basedir}/build/pdepend" />
     </target>
 
     <target name="lint">
@@ -63,8 +64,8 @@
         </apply>
     </target>
 
-    <target name="php-documentor" depends="lint">
-        <exec executable="phpdoc" dir="${basedir}/source" logerror="on">
+    <target name="phpdoc" depends="lint">
+        <exec executable="phpdoc" dir="${basedir}" logerror="on">
             <arg value="--title '${ant.project.name}'" />
             <arg value="-ue on" />
             <arg value="-t ${basedir}/build/api" />
@@ -74,26 +75,30 @@
         </exec>
     </target>
 
-    <target name="php-codesniffer" depends="lint">
-        <exec executable="/home/opus4ci/pear/phpcs" dir="${basedir}/source" output="${basedir}/build/logs/checkstyle.xml" error="/tmp/checkstyle.error.log">
+    <target name="phpcs">
+        <exec executable="phpcs" dir="${basedir}/source" output="${basedir}/build/logs/checkstyle.xml"
+              error="/tmp/checkstyle.error.log">
             <arg value="--report=checkstyle" />
             <arg value="--standard=PEAR library"/>
         </exec>
     </target>
 
-    <target name="phpmd" depends="lint">
-        <exec executable="phpmd" dir="${basedir}/source" logerror="on" output="${basedir}/build/logs/phpunit-pmd.xml" >
+    <target name="phpmd">
+        <exec executable="phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/phpunit-pmd.xml" >
             <arg line="--exclude tests . xml codesize,unusedcode,naming,design "/>
         </exec>
     </target>
 
-    <target name="phpcpd" depends="lint">
-        <exec executable="phpcpd" dir="${basedir}/source" logerror="on" >
-            <arg line="--min-lines 3 --min-tokens 30 --log-pmd ${basedir}/build/logs/phpunit-cpd-details.xml ./library "/>
+    <target name="phpcpd">
+        <exec executable="phpcpd" dir="${basedir}" logerror="on" >
+            <arg line="--min-lines 3" />
+            <arg line="--min-tokens 30" />
+            <arg line="--log-pmd ${basedir}/build/logs/phpunit-cpd-details.xml" />
+            <arg line="./library" />
         </exec>
     </target>
 
-    <target name="pdepend" depends="lint,phpunit" description="Generates software metrics charts.">
+    <target name="pdepend" depends="phpunit" description="Generates software metrics charts.">
         <exec executable="mkdir" dir="${basedir}/build/" logerror="on">
             <arg line=" -p pdepend/" />
         </exec>
@@ -105,7 +110,7 @@
             <arg value="--suffix=php,phtml" />
             <arg value="--coderank-mode=inheritance,property,method" />
             <arg value="--ignore=tests" />
-            <arg value="${basedir}/source/library" />
+            <arg value="${basedir}/library" />
         </exec>
     </target>
 
