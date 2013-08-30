@@ -8,7 +8,7 @@
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
 
-    <target name="build" depends="prepare,lint,php-documentor,php-codesniffer,phpmd,phpcpd,pdepend,phpunit"/>
+    <target name="build" depends="prepare,lint,phpdoc,phpcs,phpmd,phpcpd,pdepend,phpunit"/>
 
     <target name="build-fast" depends="prepare,lint,phpunit-fast"/>
 
