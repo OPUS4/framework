@@ -31,13 +31,13 @@
 
     <target name="prepare-createdb">
         <copy file="${serverdir}/db/createdb.sh.template"
-              toFile="${serverdir}/db/createdb.sh" filtering="true">
+              toFile="${serverdir}/db/createdb.sh" filtering="true" overwrite="true">
             <filterset filtersFile="${configfile}" />
         </copy>
         <chmod file="${serverdir}/db/createdb.sh" perm="+x" />
 
         <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
-                overwrite="false">
+                overwrite="true">
             <filterset filtersFile="${configfile}" />
         </copy>
     </target>
