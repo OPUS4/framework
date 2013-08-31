@@ -86,9 +86,10 @@
 
     <target name="phpcs">
         <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
-              error="/tmp/checkstyle.error.log">
+              error="${basedir}/build/logs/checkstyle.error.log">
             <arg value="--report=checkstyle" />
-            <arg value="--standard=PEAR library"/>
+            <arg value="--standard=PEAR library" />
+            <arg path="${basedir}/library" />
         </exec>
     </target>
 
