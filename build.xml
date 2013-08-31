@@ -60,11 +60,20 @@
             <arg line="-l"/>
             <fileset dir="${basedir}" followsymlinks="false">
                 <include name="**/*.php"/>
+                <modified />
             </fileset>
         </apply>
     </target>
+    
+    <target name="phploc" description="Measure project size using 'phploc'.">
+        <exec executable="phploc" dir="${basedir}">
+            <arg value="--log-csv" />
+            <arg value="${basedir}/build/logs/phploc.csv" />
+            <arg value="./library" />
+        </exec>
+    </target>
 
-    <target name="phpdoc" depends="lint">
+    <target name="phpdoc">
         <exec executable="phpdoc" dir="${basedir}" logerror="on">
             <arg value="--title '${ant.project.name}'" />
             <arg value="-ue on" />
@@ -76,7 +85,7 @@
     </target>
 
     <target name="phpcs">
-        <exec executable="phpcs" dir="${basedir}/source" output="${basedir}/build/logs/checkstyle.xml"
+        <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
               error="/tmp/checkstyle.error.log">
             <arg value="--report=checkstyle" />
             <arg value="--standard=PEAR library"/>
