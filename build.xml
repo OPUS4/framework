@@ -75,12 +75,10 @@
 
     <target name="phpdoc">
         <exec executable="phpdoc" dir="${basedir}" logerror="on">
-            <arg value="--title '${ant.project.name}'" />
-            <arg value="-ue on" />
-            <arg value="-t ${basedir}/build/api" />
-            <arg value="-d library/Opus" />
-            <arg value="-tb '/home/opus4ci/pear/data/phpUnderControl/data/phpdoc'" />
-            <arg value="-o HTML:Phpuc:phpuc" />
+            <arg value="--directory" />
+            <arg path="${basedir}/library" />
+            <arg value="--target" />
+            <arg path="${basedir}/build/api" />
         </exec>
     </target>
 
