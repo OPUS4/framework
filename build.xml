@@ -8,7 +8,9 @@
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
 
-    <target name="build" depends="prepare,lint,phpdoc,phpcs,phpmd,phpcpd,pdepend,phpunit"/>
+    <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
+    
+    <target name="build" depends="prepare,lint,analyse-code,pdepend,phpdoc,phpcb" />
 
     <target name="build-fast" depends="prepare,lint,phpunit-fast"/>
 
@@ -16,6 +18,8 @@
         <delete dir="${basedir}/build/logs" />
         <delete dir="${basedir}/build/api" />
         <delete dir="${basedir}/build/coverage" />
+        <delete dir="${basedir}/build/pdepend" />
+        <delete dir="${basedir}/build/code-browser" />
         <delete includeEmptyDirs="true">
             <fileset dir="${basedir}/tests/workspace/cache" includes="**/*" />
         </delete>
@@ -53,6 +57,7 @@
         <mkdir dir="${basedir}/build/api" />
         <mkdir dir="${basedir}/build/coverage" />
         <mkdir dir="${basedir}/build/pdepend" />
+        <mkdir dir="${basedir}/build/code-browser" />
     </target>
 
     <target name="lint">
@@ -92,7 +97,7 @@
     </target>
 
     <target name="phpmd">
-        <exec executable="phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/phpunit-pmd.xml" >
+        <exec executable="phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/pmd.xml" >
             <arg line="--exclude tests . xml codesize,unusedcode,naming,design "/>
         </exec>
     </target>
@@ -101,7 +106,7 @@
         <exec executable="phpcpd" dir="${basedir}" logerror="on" >
             <arg line="--min-lines 3" />
             <arg line="--min-tokens 30" />
-            <arg line="--log-pmd ${basedir}/build/logs/phpunit-cpd-details.xml" />
+            <arg line="--log-pmd ${basedir}/build/logs/pmd-cpd.xml" />
             <arg line="./library" />
         </exec>
     </target>
@@ -116,6 +121,17 @@
             <arg value="--coderank-mode=inheritance,property,method" />
             <arg value="--ignore=tests" />
             <arg value="${basedir}/library" />
+        </exec>
+    </target>
+    
+    <target name="phpcb" description="Aggregates tool output with PHP_CodeBrowser.">
+        <exec executable="phpcb">
+            <arg value="--log" />
+            <arg path="${basedir}/build/logs" />
+            <arg value="--source" />
+            <arg path="${basedir}/library" />
+            <arg value="--output" />
+            <arg path="${basedir}/build/code-browser" />
         </exec>
     </target>
 
