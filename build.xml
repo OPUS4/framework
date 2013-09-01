@@ -7,6 +7,7 @@
     <property name="configfile" location="${workspace}/../opus-config.properties" />
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
+    <property name="codingstandard" value="${basedir}/../codingstandard/rules.xml"
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
     
@@ -91,7 +92,7 @@
         <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
               error="${basedir}/build/logs/checkstyle.error.log">
             <arg value="--report=checkstyle" />
-            <arg value="--standard=PEAR" />
+            <arg value="--standard=${codingstandard}" />
             <arg path="${basedir}/library" />
         </exec>
     </target>
