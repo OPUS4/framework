@@ -7,7 +7,7 @@
     <property name="configfile" location="${workspace}/../opus-config.properties" />
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
-    <property name="codingstandard" value="${libsdir}/opus4cs/ruleset.xml" />
+    <property name="codingstandard" location="${libsdir}/opus4cs/ruleset.xml" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
     
@@ -89,6 +89,7 @@
     </target>
 
     <target name="phpcs">
+        <echo message="Coding Standard = '${codingstandard}'">
         <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
               error="${basedir}/build/logs/checkstyle.error.log">
             <arg value="--report=checkstyle" />
