@@ -89,7 +89,7 @@
     </target>
 
     <target name="phpcs">
-        <echo message="Coding Standard = '${codingstandard}'">
+        <echo message="Coding Standard = '${codingstandard}'" />
         <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
               error="${basedir}/build/logs/checkstyle.error.log">
             <arg value="--report=checkstyle" />
