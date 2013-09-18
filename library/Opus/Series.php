@@ -154,10 +154,25 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function getDocumentIdsSortedBySortKey() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $ids = $db->fetchCol(
-                'SELECT document_id FROM link_documents_series ' .
-                'WHERE series_id = ? ORDER BY doc_sort_order DESC',
-                $this->getId());
+            'SELECT document_id FROM link_documents_series WHERE series_id = ? ORDER BY doc_sort_order DESC',
+            $this->getId());
         return $ids;
+    }
+
+    /**
+     * @return int|null Document id associated with series number or null.
+     */
+    public function getDocumentIdForNumber($number) {
+        if (strlen(trim($number)) == 0) {
+            return null;
+        }
+        $adapter = Zend_Db_Table::getDefaultAdapter();
+        $documentId = $adapter->fetchCol(
+            'SELECT document_ID FROM link_documents_series WHERE series_id = ? AND number = ?',
+            array($this->getId(), $number)
+        );
+
+        return (count($documentId) == 1) ? $documentId[0] : null;
     }
 
     /**
@@ -189,7 +204,6 @@ class Opus_Series extends Opus_Model_AbstractDb {
                 $this->getId());
         return intval($count);
     }
-
 
     /**
      * Return number of documents in server state published that are

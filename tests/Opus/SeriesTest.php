@@ -633,5 +633,21 @@ class Opus_SeriesTest extends TestCase {
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
 
+    public function testGetDocumentForNumber() {
+        $series = new Opus_Series();
+        $series->setTitle('foo');
+        $series->store();
+
+        $doc = new Opus_Document();
+        $doc->addSeries($series)->setNumber('III');
+        $docId = $doc->store();
+
+        $this->assertEquals($docId, $series->getDocumentIdForNumber('III'));
+
+        $doc->deletePermanent();
+
+        $this->assertNull($series->getDocumentIdForNumber('III'));
+    }
+
 
 }
