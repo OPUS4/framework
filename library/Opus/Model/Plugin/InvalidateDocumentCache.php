@@ -25,27 +25,58 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2010
- *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
+ * @category    Framework
+ * @package     Opus_Model_Plugin
+ * @author      Edouard Simon <edouard.simon@zib.de>
+ * @copyright   Copyright (c) 2013
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Plugin creating and deleting xml cache entries.
+ * Plugin deleting xml cache entries and updating the modification date of documents related to the model.
  *
- * @category    Framework
- * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
  */
 class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
+
+    /**
+     * Run method invalidateDocumentCacheFor() in postStore if true.
+     */
+    protected $postStoreUpdateDocuments = true;
+
+    /**
+     * @see {Opus_Model_Plugin_Interface::preStore}
+     * Check wether to update documents on postStore.
+     * If there is no information about a Model
+     * the postStore hook is not triggered.
+     * 
+     */
+    public function preStore(Opus_Model_AbstractDb $model) {
+
+        $modelClass = get_class($model);
+        $config = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
+        if (isset($config->{$modelClass})) {
+            $this->postStoreUpdateDocuments = false;
+            $filter = new Opus_Model_Filter();
+            $filter->setModel($model);
+            $filter->setBlacklist($config->{$modelClass}->toArray());
+            $whitelist = $filter->describe();
+            foreach ($whitelist as $fieldName) {
+                if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified()) {
+                    $this->postStoreUpdateDocuments = true;
+                    break;
+                }
+            }
+        }
+    }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
-        $this->invalidateDocumentCacheFor($model);
+        if ($this->postStoreUpdateDocuments) {
+            $this->invalidateDocumentCacheFor($model);
+        }
     }
 
     /**
