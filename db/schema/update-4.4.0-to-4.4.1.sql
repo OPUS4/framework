@@ -8,9 +8,14 @@ START TRANSACTION;
 -- Add field department to dnb_institutes to distinguish institutes from departments
 ALTER TABLE `dnb_institutes` ADD `department` VARCHAR( 255 ) NULL DEFAULT NULL AFTER `name`;
 ALTER TABLE `dnb_institutes` DROP INDEX `name` , ADD UNIQUE `name` ( `name` , `department` );
+
+-- Fix: Schreibfehler in DDC-Klassifikation 620
+UPDATE `collections` SET `name` = 'Ingenieurwissenschaften und zugeordnete Tätigkeiten' WHERE `id` = 661;
+
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 SET AUTOCOMMIT=@OLD_AUTOCOMMIT;
+
