@@ -70,6 +70,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
+     *
+     * TODO split up into smaller tests
      */
     public function testPostStore() {
         $xmlCache = new Opus_Model_Xml_Cache();

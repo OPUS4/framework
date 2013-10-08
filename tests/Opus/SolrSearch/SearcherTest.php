@@ -103,6 +103,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified > $result[0]->getServerDateModified());
     }
 
+    /**
+     * Das Reindexing wird erst durch die Aktualisierung des Caches getriggert.
+     */
     public function testReindexingIsTriggeredInCaseOfDependentModelChanges() {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
