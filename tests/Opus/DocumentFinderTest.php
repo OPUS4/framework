@@ -380,4 +380,53 @@ class Opus_DocumentFinderTest extends TestCase {
         
         
     }
+    
+    public function testSetFilesVisibleInOai() {
+        
+        $visibleFileDoc = new Opus_Document();
+        $visibleFile = new Opus_File();
+        
+        $visibleFile->setPathName('visible_file.txt');
+        $visibleFile->setVisibleInOai(true);
+        
+        $visibleFileDoc->addFile($visibleFile);
+
+        $invisibleFileDoc = new Opus_Document();
+        $invisibleFile = new Opus_File();
+        
+        $invisibleFile->setPathName('invisible_file.txt');
+        $invisibleFile->setVisibleInOai(false);
+        
+        $invisibleFileDoc->addFile($invisibleFile);
+
+        
+        $visibleFileDocId = $visibleFileDoc->store();
+        $invisibleFileDocId = $invisibleFileDoc->store();
+        
+        $mixedFileDoc = new Opus_Document();
+        $visibleFile = new Opus_File();
+        
+        $visibleFile->setPathName('another_visible_file.txt');
+        $visibleFile->setVisibleInOai(true);
+
+        $invisibleFile = new Opus_File();
+        
+        $invisibleFile->setPathName('another_invisible_file.txt');
+        $invisibleFile->setVisibleInOai(false);
+
+        $mixedFileDoc->addFile($visibleFile);
+        $mixedFileDoc->addFile($invisibleFile);
+        
+        $mixedFileDocId= $mixedFileDoc->store();
+        
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setFilesVisibleInOai();
+        $foundIds = $docfinder->ids();
+
+        $this->assertTrue(in_array($visibleFileDocId, $foundIds), 'Expected id of Document with visible file in OAI');
+        $this->assertTrue(in_array($mixedFileDocId, $foundIds), 'Expected id of Document with visible and invisible file in OAI');
+        $this->assertFalse(in_array($invisibleFileDocId, $foundIds), 'Expected no id of Document with invisible file in OAI');
+        
+        
+    }
 }

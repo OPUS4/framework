@@ -571,6 +571,22 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Only return documents with at leat one file marked as visible in oai.
+     * 
+     * @return Opus_DocumentFinder Fluent interface.
+     */
+    public function setFilesVisibleInOai() {
+
+            $subselect = "SELECT DISTINCT document_id
+            FROM document_files AS f
+            WHERE f.document_id = d.id
+            AND f.visible_in_oai=1";
+
+            $this->select->where('d.id IN ('.$subselect.')');
+            return $this;
+    }
+
+    /**
      * Ordering to be applied on the result set.
      *
      * @param  boolean $order Sort ascending if true, descending otherwise.
