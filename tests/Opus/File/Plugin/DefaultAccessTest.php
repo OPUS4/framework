@@ -51,13 +51,19 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase {
         $guestRole->store();
     }
 
-    public function testPostStoreIgnoreNewModel() {
+    public function testPostStoreIgnoreBadModel() {
+        $plugin = new Opus_File_Plugin_DefaultAccess();
+
+        $plugin->postStore(new Opus_Document());
+    }
+
+    public function testPostStoreIgnoreOldModel() {
         $guestRole = Opus_UserRole::fetchByName('guest');
         $list_before = $guestRole->listAccessFiles();
 
-        $newFile = new Opus_File();
-        $object = new Opus_File_Plugin_DefaultAccess;
-        $object->postStore($newFile);
+        $oldFile = new Opus_File_Plugin_DefaultAccessTest_FileMock(false); // alte Datei
+        $object = new Opus_File_Plugin_DefaultAccess();
+        $object->postStore($oldFile);
 
         $list_after = $guestRole->listAccessFiles();
         $this->assertEquals(count($list_before), count($list_after),
@@ -67,28 +73,105 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase {
     }
 
     public function testPostStoreSkipIfGuestRoleNotExists() {
-        $file = new Opus_File_Plugin_DefaultAccessTest_FileMockNew();
-        $object = new Opus_File_Plugin_DefaultAccess;
+        $guestRole = Opus_UserRole::fetchByName('guest');
+        $guestRole->delete();
+
+        $object = new Opus_File_Plugin_DefaultAccess();
+        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+        $object->setLogger($logger);
+
+        $file = new Opus_File_Plugin_DefaultAccessTest_FileMock(true); // neue Datei
         $object->postStore($file);
+
+        $messages = $logger->getMessages();
+
+        $this->assertEquals(1, count($messages));
+        $this->assertContains('"guest" role does not exist!', $messages[0]);
     }
 
-    public function testPostStoreSkipIfGuestRoleExists() {
-        $this->markTestIncomplete('Cannot test method without file in database');
-
-        $file = new Opus_File_Plugin_DefaultAccessTest_FileMockNotNew(1234);
-
-        $object = new Opus_File_Plugin_DefaultAccess;
-        $object->postStore($file);
+    public function testPostStoreAddsGuestToNewModel() {
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . '/' . uniqid();
 
         $guestRole = Opus_UserRole::fetchByName('guest');
         $list = $guestRole->listAccessFiles();
-        $this->assertContains(1234, $list);
+        $this->assertEquals(0, count($list));
+
+        $doc = new Opus_Document();
+        $file = $doc->addFile();
+        $file->setPathName($path);
+        $doc->store(); // beim Speichern wird *guest* hinzugefügt
+        $modelId = $doc->getId();
+
+        $doc = new Opus_Document($modelId);
+        $file = $doc->getFile(0);
+        $this->assertTrue(!empty($file));
+
+        $fileId = $file->getId();
+
+        $guestRole = Opus_UserRole::fetchByName('guest');
+        $list = $guestRole->listAccessFiles();
+        $this->assertContains($fileId, $list);
+    }
+
+    public function testGetLogger() {
+        $plugin = new Opus_File_Plugin_DefaultAccess();
+
+        $logger = $plugin->getLogger();
+
+        $this->assertInstanceOf('Zend_Log', $logger);
+    }
+
+    public function testSetLogger() {
+        $plugin = new Opus_File_Plugin_DefaultAccess();
+
+        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+
+        $plugin->setLogger($logger);
+
+        $this->assertEquals($logger, $plugin->getLogger());
     }
 
 }
 
-class Opus_File_Plugin_DefaultAccessTest_FileMockNew extends Opus_File {
-    function isNewRecord() {
-        return true;
+class Opus_File_Plugin_DefaultAccessTest_LoggerMock {
+
+    private $messages = array();
+
+    public function err($message) {
+        $this->_messages[] = $message;
     }
+
+    public function clear() {
+        $this->_messages = array();
+    }
+
+    public function getMessages() {
+        return $this->_messages;
+    }
+
+}
+
+class Opus_File_Plugin_DefaultAccessTest_FileMock extends Opus_File {
+
+    private $_newRecord;
+
+    private $_fileId;
+
+    public function __construct($newRecord = false) {
+        $this->_newRecord = $newRecord;
+    }
+
+    public function isNewRecord() {
+        return $this->_newRecord;
+    }
+
+    public function getId() {
+        $this->_fileId;
+    }
+
+    public function setId($fileId) {
+        $this->_fileId = $fileId;
+    }
+
 }
