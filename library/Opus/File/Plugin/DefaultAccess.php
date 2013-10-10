@@ -40,6 +40,8 @@
  */
 class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
 
+    private $_logger;
+
     /**
      * Post-store hook will be called right after the document has been stored
      * to the database.
@@ -59,14 +61,25 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
 
         $guestRole = Opus_UserRole::fetchByName('guest');
         if (is_null($guestRole)) {
-            $logger = Zend_Registry::get('Zend_Log');
-            $logger->err(__METHOD__ . ': Failed to add guest-role to file ' .
+            $this->getLogger()->err(__METHOD__ . ': Failed to add guest-role to file ' .
                     $model->getId() . '; "guest" role does not exist!');
             return;
         }
 
         $guestRole->appendAccessFile($model->getId());
         $guestRole->store();
+    }
+
+    public function setLogger($logger) {
+        $this->_logger = $logger;
+    }
+
+    public function getLogger() {
+        if (is_null($this->_logger)) {
+            $this->_logger = Zend_Registry::get('Zend_Log');
+        }
+
+        return $this->_logger;
     }
 
 }
