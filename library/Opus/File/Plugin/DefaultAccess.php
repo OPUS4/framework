@@ -55,7 +55,7 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
         }
 
         // only new Opus_File instances
-        if (true == $model->isNewRecord()) {
+        if (true !== $model->isNewRecord()) {
             return;
         }
 
