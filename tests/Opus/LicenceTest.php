@@ -129,7 +129,7 @@ class Opus_LicenceTest extends TestCase {
         $licence->store();
         $docReloaded = new Opus_Document($docId);
         
-        $this->assertEquals($serverDateModified, $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+        $this->assertEquals((string)$serverDateModified, (string)$docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
 
 
