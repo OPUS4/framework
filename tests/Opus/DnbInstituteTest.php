@@ -179,9 +179,8 @@ class Opus_DnbInstituteTest extends TestCase {
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
 
-        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH.'/library/Opus/Model/Plugin/updatedocument_filter.ini');
-        $fields = $fieldConfig->Opus_DnbInstitute->toArray();
-
+        $fields = array('Address','City','Phone','DnbContactId');
+        
         $dnb_institute = new Opus_DnbInstitute();
         $dnbId = $dnb_institute->setName('Test')
                 ->setCity('Berlin')

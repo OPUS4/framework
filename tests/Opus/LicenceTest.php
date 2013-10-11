@@ -101,9 +101,8 @@ class Opus_LicenceTest extends TestCase {
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
 
-        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH.'/library/Opus/Model/Plugin/updatedocument_filter.ini');
-        $fields = $fieldConfig->Opus_Licence->toArray();
-
+        $fields = array('SortOrder', 'Active', 'CommentInternal', 'PodAllowed');
+        
         $licence = new Opus_Licence();
         $licenceId = $licence
                 ->setNameLong('Test')

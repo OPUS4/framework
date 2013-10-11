@@ -561,8 +561,7 @@ class Opus_CollectionTest extends TestCase {
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
 
-        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH . '/library/Opus/Model/Plugin/updatedocument_filter.ini');
-        $fields = $fieldConfig->Opus_Collection->toArray();
+        $fields = array('SortOrder','Visible','Theme','OaiSubset','PositionKey','PositionId');
 
         $doc = new Opus_Document();
         $doc->setType("article")
