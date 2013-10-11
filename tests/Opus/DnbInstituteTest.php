@@ -174,4 +174,39 @@ class Opus_DnbInstituteTest extends TestCase {
         $this->assertEquals('Paranormal Research Institute', $dnbReloaded->getDepartment());
     }
 
+    /**
+     * Regression Test for OPUSVIER-3114
+     */
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+
+        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH.'/library/Opus/Model/Plugin/updatedocument_filter.ini');
+        $fields = $fieldConfig->Opus_DnbInstitute->toArray();
+
+        $dnb_institute = new Opus_DnbInstitute();
+        $dnbId = $dnb_institute->setName('Test')
+                ->setCity('Berlin')
+                ->setIsGrantor(1)
+                ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->setThesisGrantor($dnb_institute);
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+        
+        sleep(1);
+
+        foreach($fields as $fieldName) {
+            $oldValue = $dnb_institute->{'get' . $fieldName}();
+            $dnb_institute->{'set' . $fieldName}(1);
+            $this->assertNotEquals($dnb_institute->{'get' . $fieldName}(), $oldValue, 'Expected different values before and after setting value');
+        }
+        $dnb_institute->store();
+        $docReloaded = new Opus_Document($docId);
+        
+        $this->assertEquals($serverDateModified, $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+    }
+
+    
 }

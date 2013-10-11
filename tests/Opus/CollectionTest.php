@@ -555,5 +555,37 @@ class Opus_CollectionTest extends TestCase {
         $collection->setVisible(true);
         $collection->store();
     }
+    
+    /**
+     * Regression Test for OPUSVIER-3114
+     */
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+
+        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH . '/library/Opus/Model/Plugin/updatedocument_filter.ini');
+        $fields = $fieldConfig->Opus_Collection->toArray();
+
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->addCollection($this->object);
+        $docId = $doc->store();
+
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+
+        $collection = $this->role_fixture->getRootCollection();
+
+
+        foreach ($fields as $fieldName) {
+            $oldValue = $collection->{'get' . $fieldName}();
+            $collection->{'set' . $fieldName}(1);
+            $this->assertNotEquals($collection->{'get' . $fieldName}(), $oldValue, 'Expected different values before and after setting value');
+        }
+
+        $collection->store();
+        $docReloaded = new Opus_Document($docId);
+        $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+    }
 
 }

@@ -95,5 +95,43 @@ class Opus_LicenceTest extends TestCase {
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
 
+    
+    /**
+     * Regression Test for OPUSVIER-3114
+     */
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+
+        $fieldConfig = new Zend_Config_Ini(APPLICATION_PATH.'/library/Opus/Model/Plugin/updatedocument_filter.ini');
+        $fields = $fieldConfig->Opus_Licence->toArray();
+
+        $licence = new Opus_Licence();
+        $licenceId = $licence
+                ->setNameLong('Test')
+                ->setLinkLicence('http://test')
+                        ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published')
+                ->setLicence($licence);
+        $docId = $doc->store();
+
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+        
+        $licence = new Opus_Licence($licenceId);
+        foreach($fields as $fieldName) {
+            $oldValue = $licence->{'get' . $fieldName}();
+            $licence->{'set' . $fieldName}(1);
+            $this->assertNotEquals($licence->{'get' . $fieldName}(), $oldValue, 'Expected different values before and after setting value');
+        }
+
+        $licence->store();
+        $docReloaded = new Opus_Document($docId);
+        
+        $this->assertEquals($serverDateModified, $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+    }
+
 
 }
