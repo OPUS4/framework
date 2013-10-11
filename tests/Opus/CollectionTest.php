@@ -542,4 +542,18 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue(in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook');
     }
 
+    /**
+     * Regression Test for OPUSVIER-3145
+     */
+    public function testStoreCollection() {
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('Test');
+        $collectionRole->setOaiName('Test');
+        $collection = $collectionRole->addRootCollection();
+        $collectionRole->store();
+        // changing certain fields currently results in Exception
+        $collection->setVisible(true);
+        $collection->store();
+    }
+
 }
