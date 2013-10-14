@@ -311,6 +311,24 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     }
 
     /**
+     * empty method to prevent storing of read-only field RoleDisplayFrontdoor
+     */
+    protected function _storeRoleDisplayFrontdoor($flag) {
+    }
+
+    /**
+     * empty method to prevent storing of read-only field RoleVisibleFrontdoor
+     */
+    protected function _storeRoleVisibleFrontdoor($flag) {
+    }
+
+    /**
+     * empty method to prevent storing of read-only field RoleName
+     */
+    protected function _storeRoleName($roleName) {
+    }
+
+    /**
      * Fetches contents of role-field "DisplayFrontdoor".
      *
      * @return string
