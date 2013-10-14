@@ -648,6 +648,28 @@ class Opus_SeriesTest extends TestCase {
 
         $this->assertNull($series->getDocumentIdForNumber('III'));
     }
+    
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+        
+        $series = new Opus_Series();
+        $series->setTitle('foo');
+        $series->store();
+
+        $document = new Opus_Document();
+        $document->addSeries($series)->setNumber(5);
+        $docId = $document->store();
+
+        $serverDateModified = $document->getServerDateModified();
+        sleep(1);
+        $series->setSortOrder($series->getSortOrder()+1);
+        $series->store();
+        
+        $docReloaded = new Opus_Document($docId);
+        
+        $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+
+        
+    }
 
 
 }
