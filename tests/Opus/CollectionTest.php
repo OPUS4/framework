@@ -561,7 +561,7 @@ class Opus_CollectionTest extends TestCase {
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
 
-        $fields = array('SortOrder','Visible','Theme','OaiSubset','PositionKey','PositionId');
+        $fields = array('SortOrder','Theme','OaiSubset','PositionKey','PositionId');
 
         $doc = new Opus_Document();
         $doc->setType("article")
