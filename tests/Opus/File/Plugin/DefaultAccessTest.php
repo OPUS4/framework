@@ -54,7 +54,15 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase {
     public function testPostStoreIgnoreBadModel() {
         $plugin = new Opus_File_Plugin_DefaultAccess();
 
+        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+
+        $plugin->setLogger($logger);
         $plugin->postStore(new Opus_Document());
+
+        $messages = $logger->getMessages();
+
+        $this->assertEquals(1, count($messages));
+        $this->assertContains('#1 argument must be instance of Opus_File', $messages[0]);
     }
 
     public function testPostStoreIgnoreOldModel() {

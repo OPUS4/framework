@@ -51,6 +51,7 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
     public function postStore(Opus_Model_AbstractDb $model) {
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
+            $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');
             return;
         }
 
