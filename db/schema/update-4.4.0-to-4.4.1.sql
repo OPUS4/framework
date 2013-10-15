@@ -9,8 +9,12 @@ START TRANSACTION;
 ALTER TABLE `dnb_institutes` ADD `department` VARCHAR( 255 ) NULL DEFAULT NULL AFTER `name`;
 ALTER TABLE `dnb_institutes` DROP INDEX `name` , ADD UNIQUE `name` ( `name` , `department` );
 
+COMMIT;
+
+START TRANSACTION;
+
 -- Fix: Schreibfehler in DDC-Klassifikation 620
-UPDATE `collections` SET `name` = 'Ingenieurwissenschaften und zugeordnete Tätigkeiten' WHERE `id` = 661;
+UPDATE `collections` SET `name` = 'Ingenieurwissenschaften und zugeordnete Tätigkeiten' WHERE `id` = 661 AND `name` = 'Ingenieurwissenschaften und zugeordnete Tätigkeitenn';
 
 COMMIT;
 
