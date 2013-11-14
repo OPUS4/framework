@@ -1649,7 +1649,7 @@ class Opus_DocumentTest extends TestCase {
     public function testTruncateExceptionIsThrownFor26Chars() {
         $d = new Opus_Document();
         $stringWith26Chars = '';
-        for ($i = 0; $i <= 25; $i++) {
+        for ($i = 0; $i <= 255; $i++) {
             $stringWith26Chars .= 'x';
         }
         $d->setEdition($stringWith26Chars);
