@@ -119,6 +119,13 @@ class Opus_Language extends Opus_Model_AbstractDb {
         return $rows;
     }
 
+    public static function getByPart2T($code) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $rows = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
+        return isset($rows[0]) ? $rows[0] : null;
+        
+    }
+    
     /**
      * Returns reference language name.
      *
