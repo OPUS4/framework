@@ -119,7 +119,13 @@ class Opus_Language extends Opus_Model_AbstractDb {
         return $rows;
     }
 
-    public static function getByPart2T($code) {
+    /**
+     * 
+     * Get properties of language object as array for a specific terminology code
+     * @param string $code ISO639-2 terminology code to retrieve properties for
+     * @return array|null Array of properties or null if object not found in database
+     */
+    public static function getPropertiesByPart2T($code) {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
         return isset($rows[0]) ? $rows[0] : null;
