@@ -2027,4 +2027,22 @@ class Opus_DocumentTest extends TestCase {
         }
     }
 
+    public function testUpdateServerDateModifiedAfterDeleteFields() {
+        $doc = new Opus_Document();
+        $doc->setEdition('Test Edition');
+        $docId = $doc->store();
+        $docServerDateModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $doc = new Opus_Document($docId);
+        $doc->deleteFields(array('Edition'));
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNotEquals($docServerDateModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified was not modified by deleteFields.');
+    }
+
 }
