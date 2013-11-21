@@ -101,7 +101,7 @@ class Opus_LicenceTest extends TestCase {
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
 
-        $fields = array('SortOrder', 'Active', 'CommentInternal', 'PodAllowed');
+        $fields = array('SortOrder', 'CommentInternal', 'PodAllowed');
         
         $licence = new Opus_Licence();
         $licenceId = $licence
