@@ -234,8 +234,27 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
                 'Expected serverDateModified to be updated.');
     }
 
-    public function testPreDelete() {
-        $this->markTestIncomplete('preDelete currently equal to postStore, so no specific testing required');
+    public function testPreDeleteHasNoEffectIfModelNotStored() {
+        
+        $doc = new Opus_Document();
+        $doc->setType("article")
+                ->setServerState('published');
+        $docId = $doc->store();
+        
+        $licence = new Opus_Licence();
+        $licence->setLinkLicence('http://licence');
+        $licence->setNameLong('Non-Creative Uncommon');
+        
+        $doc->addLicence($licence);
+        
+        $serverDateModified = $doc->getServerDateModified();
+
+        $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
+        sleep(1);
+        $plugin->preDelete($licence);
+        $docReloaded = new Opus_Document($docId);
+        $this->assertTrue(0 == ($docReloaded->getServerDateModified()->getZendDate()->compare($doc->getServerDateModified()->getZendDate())),
+                'Expected serverDateModified to be updated.');
     }
 
 }

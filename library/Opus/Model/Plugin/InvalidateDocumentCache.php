@@ -81,6 +81,10 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
     /**
      * @see {Opus_Model_Plugin_Interface::preDelete}
+     * 
+     * Run plugin for documents depending on to-be-deleted model.
+     * If model is not persistent (i. e. modelId is not set and /or model states to be a new record)
+     * preDelete operation is skipped. 
      */
     public function preDelete(Opus_Model_AbstractDb $model) {
         $modelId = $model->getId();
