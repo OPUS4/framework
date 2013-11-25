@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,30 +32,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-
 class Opus_Util_MetadataImportTest extends TestCase {
 
     private $documentImported;
-
     private $filename;
-
     private $xml;
-    
     private $xmlDir;
 
-  
     public function setUp() {
         parent::setUp();
-	$this->documentImported = false;	
-	$this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
-   }
-    
+        $this->documentImported = false;
+        $this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
+    }
+
     public function tearDown() {
-	if ($this->documentImported) {
-		$ids = Opus_Document::getAllIds();
-		$last_id = array_pop($ids);
-		$doc = new Opus_Document($last_id);
-		$doc->deletePermanent();
+        if ($this->documentImported) {
+            $ids = Opus_Document::getAllIds();
+            $last_id = array_pop($ids);
+            $doc = new Opus_Document($last_id);
+            $doc->deletePermanent();
         }
         parent::tearDown();
     }
@@ -87,17 +83,15 @@ class Opus_Util_MetadataImportTest extends TestCase {
 
         $e = null;
         try {
-          $importer->run();
-        }
-        catch (Opus_Util_MetadataImportInvalidXmlException $ex) {
-          $e = $ex;
-        }
-        catch (Opus_Util_MetadataImportSkippedDocumentsException $ex) {
-           $e = $ex;
+            $importer->run();
+        } catch (Opus_Util_MetadataImportInvalidXmlException $ex) {
+            $e = $ex;
+        } catch (Opus_Util_MetadataImportSkippedDocumentsException $ex) {
+            $e = $ex;
         }
         $this->assertNull($e, 'unexpected exception was thrown: ' . get_class($e));
-	
-	$this->documentImported = true;
+
+        $this->documentImported = true;
     }
 
     public function testSkippedDocumentsException() {
@@ -107,6 +101,42 @@ class Opus_Util_MetadataImportTest extends TestCase {
 
         $this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
         $importer->run();
+    }
+
+    
+    /**
+     * Regression Test for OPUSVIER-3204
+     */
+    public function testSkippedDocumentsExceptionOnUpdateDoesNotDestroyExistingDocument() {
+        $this->filename = 'test_import_minimal.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+        try {
+            $importedDoc = new Opus_Document(1);
+            $titleMain = $importedDoc->getTitleMain();
+            $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue());
+        } catch (Opus_Model_NotFoundException $e) {
+            $this->fail("Import failed");
+        }
+        $this->filename = 'test_import_minimal_corrupted_update.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+        try {
+            $importer->run();
+        } catch (Opus_Model_NotFoundException $e) {
+            $this->fail("Document was deleted during update.");
+        } catch (Opus_Util_MetadataImportSkippedDocumentsException $e) {
+            // expected exception
+        } catch (Exception $e) {
+            $this->fail('unexpected exception was thrown: ' . get_class($e));
+        }
+        
+        $updatedDoc = new Opus_Document(1);
+        $titleMain = $updatedDoc->getTitleMain();
+        $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
+        $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue(), "Update failed");
     }
 
     private function loadInputFile() {
