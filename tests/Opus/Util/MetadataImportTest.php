@@ -203,7 +203,6 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $updatedDoc = new Opus_Document(1);
         $titleMain = $updatedDoc->getTitleMain();
         $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
-        $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue(), "Update failed");
     }
 
     private function loadInputFile() {
