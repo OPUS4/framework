@@ -45,7 +45,7 @@ class Opus_Util_MetadataImport {
     private $xmlFile;
     
     private $xmlString;
-
+    
 
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null) {
         $this->logger = $logger;
@@ -233,9 +233,8 @@ class Opus_Util_MetadataImport {
                     'ServerDatePublished',
                     'ServerDateDeleted'
                     );
-
+                
                 $doc->deleteFields($fieldsToDelete);
-                $doc->store();
     }
 
     /**
