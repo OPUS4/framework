@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<import 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="opus_import.xsd">
+
+    <opusDocument docId="1" oldId="13" language="fra" type="preprint" 
+                serverState="inprogress">
+
+        <titlesMain>
+            <titleMain language="fra">La Vie en Rose</titleMain>
+        </titlesMain>    
+
+        <abstracts>
+            <abstract language="deu">Ein Chanson von Édith Piaf, Musik von Louiguy, der die Melodie verfasst hat.</abstract>
+        </abstracts>
+
+        <dates>
+            <date type="completed" monthDay="--12-01" year="2011"/>
+        </dates>
+    
+
+    </opusDocument>
+</import>

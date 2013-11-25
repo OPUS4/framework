@@ -103,7 +103,74 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importer->run();
     }
 
-    
+    /**
+     * Test for document update
+     */
+    public function testUpdateDocument() {
+        $this->filename = 'test_import_minimal.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+        try {
+            $importedDoc = new Opus_Document(1);
+            $titleMain = $importedDoc->getTitleMain();
+            $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue());
+        } catch (Opus_Model_NotFoundException $e) {
+            $this->fail("Import failed");
+        }
+
+        $this->filename = 'test_import_minimal_update1.xml';
+        $this->loadInputFile();
+
+        $importer = new Opus_Util_MetadataImport($this->xml);
+        $importer->run();
+
+        $updatedDoc = new Opus_Document(1);
+        $titleMain = $updatedDoc->getTitleMain();
+        $abstracts = $updatedDoc->getTitleAbstract();
+
+        $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue(), "Update failed");
+        $this->assertEquals(1, count($abstracts), 'Expected 1 abstract after update');
+    }
+
+    /**
+     * Regression Test for OPUSVIER-3211
+     */
+    public function testUpdateKeepField() {
+        $this->filename = 'test_import_minimal.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+
+
+        $this->filename = 'test_import_minimal_update1.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+        try {
+            $importedDoc = new Opus_Document(1);
+            $titleMain = $importedDoc->getTitleMain();
+            $this->assertEquals('La Vie en Rose', $titleMain[0]->getValue());
+        } catch (Opus_Model_NotFoundException $e) {
+            $this->fail("Import failed");
+        }
+
+        $this->filename = 'test_import_minimal_update2.xml';
+        $this->loadInputFile();
+
+        $importer = new Opus_Util_MetadataImport($this->xml);
+        $importer->keepFieldsOnUpdate(array('TitleAbstract'));
+        $importer->run();
+
+        $updatedDoc = new Opus_Document(1);
+        $abstracts = $updatedDoc->getTitleAbstract();
+
+        $this->assertEquals(2, count($abstracts), 'Expected 2 abstracts after update');
+    }
+
     /**
      * Regression Test for OPUSVIER-3204
      */
@@ -132,7 +199,7 @@ class Opus_Util_MetadataImportTest extends TestCase {
         } catch (Exception $e) {
             $this->fail('unexpected exception was thrown: ' . get_class($e));
         }
-        
+
         $updatedDoc = new Opus_Document(1);
         $titleMain = $updatedDoc->getTitleMain();
         $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
