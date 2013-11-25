@@ -46,6 +46,7 @@ class Opus_Util_MetadataImport {
     
     private $xmlString;
     
+    private $fieldsToKeepOnUpdate = array();
 
     public function __construct($xml, $isFile = false, $logger = null, $logfile = null) {
         $this->logger = $logger;
@@ -185,11 +186,19 @@ class Opus_Util_MetadataImport {
     }
 
     /**
+     * Allows certain fields to be kept on update.
+     * @param array $fields DescriptionArray of fields to keep on update
+     */
+    public function keepFieldsOnUpdate($fields) {
+        $this->fieldsToKeepOnUpdate = $fields;
+    }
+    
+    /**
      *
      * @param Opus_Document $doc
      */
     private function resetDocument($doc) {
-                $fieldsToDelete = array(
+                $fieldsToDelete = array_diff(array(
                     'TitleMain',
                     'TitleAbstract',
                     'TitleParent',
@@ -232,7 +241,7 @@ class Opus_Util_MetadataImport {
                     'ServerDateModified',
                     'ServerDatePublished',
                     'ServerDateDeleted'
-                    );
+                    ),$this->fieldsToKeepOnUpdate);
                 
                 $doc->deleteFields($fieldsToDelete);
     }
