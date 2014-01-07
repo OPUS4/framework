@@ -35,86 +35,157 @@
  */
 
 class Opus_LanguageTest extends TestCase {
-    /**
-     * @var    Opus_Language
-     * @access protected
-     */
-    protected $object;
 
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @access protected
-     */
-    protected function setUp()
-    {
-        $this->object = new Opus_Language;
+    public function testStoreLanguage() {
+        $lang = new Opus_Language();
+        $lang->setPart2B('ger');
+        $lang->setPart2T('deu');
+        $lang->setPart1('de');
+        $lang->setRefName('German');
+        $lang->setComment('test comment');
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertNotNull($lang);
+        $this->assertEquals('ger', $lang->getPart2B());
+        $this->assertEquals('deu', $lang->getPart2T());
+        $this->assertEquals('de', $lang->getPart1());
+        $this->assertEquals('German', $lang->getRefName());
+        $this->assertEquals('test comment', $lang->getComment());
+        $this->assertNull($lang->getScope());
+        $this->assertNull($lang->getType());
+        $this->assertEquals('0', $lang->getActive());
+    }
+
+    public function testGetAll() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setActive(1);
+        $lang->store();
+
+        $lang = new Opus_Language();
+        $lang->setPart2T('deu');
+        $lang->setRefName('German');
+        $lang->setActive(0);
+        $lang->store();
+
+        $languages = Opus_Language::getAll();
+
+        $this->assertEquals(2, count($languages));
+
+        $this->assertEquals('English', $languages[0]->getRefName());
+        $this->assertEquals('German', $languages[1]->getRefName());
+    }
+
+    public function testGetAllActive() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setActive(1);
+        $lang->store();
+
+        $lang = new Opus_Language();
+        $lang->setPart2T('deu');
+        $lang->setRefName('German');
+        $lang->setActive(0);
+        $lang->store();
+
+        $languages = Opus_Language::getAllActive();
+
+        $this->assertEquals(1, count($languages));
+
+        $this->assertEquals('English', $languages[0]->getRefName());
+    }
+
+    public function testGetDisplayName() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('RefNameEnglish');
+        $lang->setActive(1);
+        $lang->store();
+
+        $this->assertEquals('RefNameEnglish', $lang->getDisplayName());
+    }
+
+    public function testSetScope() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setScope('I');
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertEquals('I', $lang->getScope());
+    }
+
+    public function testSetScopeNull() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setScope(null);
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertNull($lang->getScope());
     }
 
     /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     *
-     * @access protected
+     * TODO Aktuelles Verhalten von MySQL. Müsste mit STRICT arbeiten, um es zu ändern. Exception wäre besser.
      */
-    protected function tearDown()
-    {
+    public function testSetScopeInvalid() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setScope('X');
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertEquals('', $lang->getScope());
+    }
+
+    public function testSetType() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setType('H');
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertEquals('H', $lang->getType());
+    }
+
+    public function testSetTypeNull() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setType(null);
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertNull($lang->getType());
     }
 
     /**
-     * @todo Implement testGetAll().
+     * TODO Aktuelles Verhalten von MySQL. Müsste mit STRICT arbeiten, um es zu ändern. Exception wäre besser.
      */
-    public function testGetAll()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+    public function testSetTypeInvalid() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setType('X');
+        $lang->store();
+
+        $lang = new Opus_Language($lang->getId());
+
+        $this->assertEquals('', $lang->getType());
     }
 
-    /**
-     * @todo Implement testGetAllActive().
-     */
-    public function testGetAllActive()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @todo Implement testGetAllByName().
-     */
-    public function testGetAllByName()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @todo Implement testGetByPart1().
-     */
-    public function testGetByPart1()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
-
-    /**
-     * @todo Implement testGetDisplayName().
-     */
-    public function testGetDisplayName()
-    {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
-    }
 }
 
