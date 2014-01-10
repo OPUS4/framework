@@ -56,7 +56,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected static $_themes = array();
+    protected static $_themes = null;
 
     /**
      * Plugins to load
@@ -137,7 +137,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');
-        $theme->setDefault(self::$_themes);
+        $theme->setDefault($this->_getThemes());
         $theme->setSelection(true);
         $this->addField($theme);
 
@@ -174,7 +174,14 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $pending_nodes = new Opus_Model_Field('PendingNodes');
         $pending_nodes->setMultiplicity('*');
         $this->addField($pending_nodes);
+    }
 
+    protected function _getThemes() {
+        if (is_null(self::$_themes)) {
+            self::setThemesPath(APPLICATION_PATH . '/public/layouts'); // TODO configurable?
+        }
+
+        return self::$_themes;
     }
 
     /**
