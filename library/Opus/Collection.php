@@ -45,20 +45,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Db_Collections';
 
     /**
-     * Path to location of available themes.
-     *
-     * @var string
-     */
-    protected static $_themesPath = '';
-
-    /**
-     * Available themes from directory self::$_themesPath.
-     *
-     * @var array
-     */
-    protected static $_themes = null;
-
-    /**
      * Plugins to load
      *
      * @var array
@@ -137,7 +123,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         // Add a field to hold collection specific theme.
         $theme = new Opus_Model_Field('Theme');
-        $theme->setDefault($this->_getThemes());
         $theme->setSelection(true);
         $this->addField($theme);
 
@@ -176,14 +161,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $this->addField($pending_nodes);
     }
 
-    protected function _getThemes() {
-        if (is_null(self::$_themes)) {
-            self::setThemesPath(APPLICATION_PATH . '/public/layouts'); // TODO configurable?
-        }
-
-        return self::$_themes;
-    }
-
     /**
      * Fetch the name of the theme that is associated with this collection.
      *
@@ -199,7 +176,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_CollectionsEnrichments');
-        $theme = Zend_Registry::get('Zend_Config')->theme;
+        $theme = Zend_Registry::get('Zend_Config')->theme; // TODO Weitere Abhängigkeit auf Applikation, oder?
 
         // Search for theme in database and, if exists, overwrite default theme.
         $select = $table->select()
@@ -436,28 +413,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function getDebugName() {
         return get_class($this) . '#' . $this->getId() . '#' . $this->getRoleId();
-    }
-
-    /**
-     * Set location of available themes.
-     *
-     * @param  string $path
-     */
-    public static function setThemesPath($path) {
-        if (is_dir($path) === false) {
-            throw new InvalidArgumentException("Argument should be a valid path.");
-        }
-
-        $themes = array();
-        foreach (glob($path . '/*') as $entry) {
-            if (true === is_dir($entry)) {
-                $theme = basename($entry);
-                $themes[$theme] = $theme;
-            }
-        }
-
-        self::$_themesPath = $path;
-        self::$_themes = $themes;
     }
 
     /**
