@@ -221,4 +221,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
         return intval($count);
     }
 
+    public function getDisplayName() {
+        return parent::getTitle();
+    }
+
 }

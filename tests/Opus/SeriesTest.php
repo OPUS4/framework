@@ -671,5 +671,14 @@ class Opus_SeriesTest extends TestCase {
         
     }
 
+    public function testGetDisplayName() {
+        $series = new Opus_Series();
+        $series->setTitle('TestTitle');
+        $seriesId = $series->store();
+
+        $series = new Opus_Series($seriesId);
+
+        $this->assertEquals('TestTitle', $series->getDisplayName());
+    }
 
 }
