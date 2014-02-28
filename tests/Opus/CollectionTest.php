@@ -263,6 +263,26 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('fooblablub', $collection->getDisplayName('browsing'));
         $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
+    
+    public function testGetDisplayFrontdoor() {
+        $this->role_fixture->setDisplayBrowsing('Name');
+        $this->role_fixture->setDisplayFrontdoor('Number');
+        $this->role_fixture->store();
+
+        $this->object->setName('fooblablub');
+        $this->object->setNumber('thirteen');
+        $this->object->store();
+
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals('thirteen', $collection->getDisplayFrontdoor());
+        
+        $this->role_fixture->setDisplayFrontdoor('Number, Name');
+        $this->role_fixture->store();
+        
+        $collection = new Opus_Collection($this->object->getId());
+        $this->assertEquals('thirteen fooblablub', $collection->getDisplayFrontdoor());
+
+    }
 
     public function testGetDisplayNameForBrowsingContextWithoutArg() {
         $this->role_fixture->setDisplayBrowsing('Name');
