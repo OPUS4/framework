@@ -111,7 +111,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         $fields = array('Number', 'Name', 'OaiSubset', 'SortOrder',
             'RoleId', 'Role', 'RoleName',
-            'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor');
+            'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor',
+            'DisplayFrontdoor');
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -286,6 +287,25 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _fetchRole() {
         $role = new Opus_CollectionRole($this->getRoleId());
         return $role;
+    }
+
+    protected function _fetchDisplayFrontdoor() {
+        $displayName = $this->getDisplayName('frontdoor');
+        $parentId = $this->getParentNodeId();
+        if (!empty($parentId)) {
+            $parent = new Opus_Collection($parentId);
+            $parentDisplayName = $parent->getDisplayFrontdoor(); // implicitly calls $parent->_fetchDisplayFrontdoor()
+            if (!empty($parentDisplayName))
+                $displayName = $parentDisplayName . ' / ' . $displayName;
+        }
+        return $displayName;
+    }
+
+    /**
+     * empty method to prevent storing of read-only field DisplayFrontdoor
+     */
+    protected function _storeDisplayFrontdoor() {
+        
     }
 
     /**
