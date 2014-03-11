@@ -186,6 +186,9 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'host' => $this->config->searchengine->extract->host,
                     'port' => $this->config->searchengine->extract->port,
                     'app'  => $this->config->searchengine->extract->app
+                ),
+                'solr' => array(
+                    'xsltfile' => $this->config->searchengine->solr->xsltfile
                 )
             ),
         ), true);
@@ -233,6 +236,9 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
                     'host' => $this->config->searchengine->extract->host,
                     'port' => $this->config->searchengine->extract->port,
                     'app'  => $this->config->searchengine->extract->app
+                ),
+                'solr' => array(
+                    'xsltfile' => $this->config->searchengine->solr->xsltfile
                 )
             ),
             'log' => array(
@@ -429,7 +435,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
     private function _addFileToDocument($filename, $label) {
         $doc = new Opus_Document($this->document_id);
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts/' . $filename);
+        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts/' . $filename);
         $file->setPathName($filename);
         $file->setLabel($label);
         $file->setVisibleInFrontdoor('1');
@@ -560,7 +566,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
         $file->setPathName('test.pdf');
         $file->setVisibleInFrontdoor('1');
         $doc->store();
@@ -589,7 +595,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
+        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test.pdf');
         $file->setPathName('test.pdf');
         $file->setVisibleInFrontdoor('0');
         $doc->store();
@@ -636,7 +642,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $doc->setServerState('published');
         $doc->setLanguage('eng');
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts' . DIRECTORY_SEPARATOR . 'test-invalid.pdf');
+        $file->setTempFile(APPLICATION_PATH . '/tests/fulltexts' . DIRECTORY_SEPARATOR . 'test-invalid.pdf');
         $file->setPathName('test-invalid.pdf');
         $file->setVisibleInFrontdoor('1');
         $doc->store();

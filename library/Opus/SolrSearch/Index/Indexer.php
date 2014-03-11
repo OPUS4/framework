@@ -250,6 +250,8 @@ class Opus_SolrSearch_Index_Indexer {
         $cache = new Opus_Model_Xml_Cache($doc->hasPlugin('Opus_Document_Plugin_Index'));
         $caching_xml_model->setXmlCache($cache);
 
+        $config = Zend_Registry::get('Zend_Config');
+
         $modelXml = $caching_xml_model->getDomDocument();
 
         // extract fulltext from file and append it to the generated xml.
@@ -257,7 +259,13 @@ class Opus_SolrSearch_Index_Indexer {
 
         // Set up XSLT stylesheet
         $xslt = new DomDocument;
-        $xslt->load(dirname(__FILE__) . '/solr.xslt');
+        if (isset($config->searchengine->solr->xsltfile)) {
+            $xsltFilePath = $config->searchengine->solr->xsltfile;
+            if (!file_exists($xsltFilePath)) {
+                throw new Application_Exception('Solr XSLT file not found.');
+            }
+            $xslt->load($xsltFilePath);
+        }
 
         // Set up XSLT processor
         $proc = new XSLTProcessor;
@@ -267,7 +275,6 @@ class Opus_SolrSearch_Index_Indexer {
         $solrXmlDocument->preserveWhiteSpace = false;        
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        $config = Zend_Registry::get('Zend_Config');
         if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
             $modelXml->formatOutput = true;
             $this->log->debug("input xml\n" . $modelXml->saveXML());
