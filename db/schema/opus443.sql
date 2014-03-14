@@ -200,6 +200,9 @@ CREATE  TABLE IF NOT EXISTS `persons` (
   `first_name` VARCHAR(255) NULL COMMENT 'First name.' ,
   `last_name` VARCHAR(255) NOT NULL COMMENT 'Last name.' ,
   `place_of_birth` VARCHAR(255) NULL COMMENT 'Place of birth.' ,
+  `identifier_orcid` VARCHAR(50) NULL COMMENT 'orc-id' ,
+  `identifier_gnd` VARCHAR(50) NULL COMMENT 'gnd id' ,
+  `identifier_misc` VARCHAR(50) NULL COMMENT 'misc id' ,
   PRIMARY KEY (`id`) ,
   INDEX `last_name` (`last_name` ASC) )
 ENGINE = InnoDB

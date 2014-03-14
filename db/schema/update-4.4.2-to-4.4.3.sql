@@ -9,6 +9,10 @@ START TRANSACTION;
 ALTER TABLE `languages` MODIFY COLUMN `scope` ENUM('I', 'M', 'S') COMMENT 'I(ndividual), M(acrolanguage), S(pecial)';
 ALTER TABLE `languages` MODIFY COLUMN `type` ENUM('A', 'C', 'E', 'H', 'L', 'S') COMMENT 'A(ncient), C(onstructed), E(xtinct), H(istorical), L(iving), S(pecial)';
 
+ALTER TABLE `persons` ADD COLUMN `identifier_orcid` VARCHAR(50);
+ALTER TABLE `persons` ADD COLUMN `identifier_gndid` VARCHAR(50);
+ALTER TABLE `persons` ADD COLUMN `identifier_misc` VARCHAR(50);
+
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;

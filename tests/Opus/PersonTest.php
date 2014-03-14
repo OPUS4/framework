@@ -188,6 +188,22 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Doe', $person->getName());
     }
     
+    public function testSetGetIdentifiers() {
+        $person = new Opus_Person();
+        $person->setLastName('Tester');
+        $person->setIdentifierOrcid('http://orcid.org/0000-0002-1694-233X');
+        $person->setIdentifierGnd('test_gnd_identifier');
+        $person->setIdentifierMisc('myid');
+        
+        $personId = $person->store();
+        
+        $person = new Opus_Person($personId);
+
+        $this->assertEquals('http://orcid.org/0000-0002-1694-233X', $person->getIdentifierOrcid());
+        $this->assertEquals('test_gnd_identifier', $person->getIdentifierGnd());
+        $this->assertEquals('myid', $person->getIdentifierMisc());
+    }
+    
     /**
      * Regression Test for OPUSVIER-1687
      */

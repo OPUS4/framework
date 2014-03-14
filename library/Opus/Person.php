@@ -85,11 +85,18 @@ class Opus_Person extends Opus_Model_AbstractDb
         $email = new Opus_Model_Field('Email');
         $email->setValidator(new Zend_Validate_EmailAddress());
 
+        $identifier_orcid = new Opus_Model_Field('IdentifierOrcid');
+        $identifier_gnd = new Opus_Model_Field('IdentifierGnd');
+        $identifier_misc = new Opus_Model_Field('IdentifierMisc');
+
         $this->addField($title)
             ->addField($first_name)
             ->addField($last_name)
             ->addField($date_of_birth)
             ->addField($place_of_birth)
+            ->addField($identifier_orcid)
+            ->addField($identifier_gnd)
+            ->addField($identifier_misc)
             ->addField($email);
     }
 
