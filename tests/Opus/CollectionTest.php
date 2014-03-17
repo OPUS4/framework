@@ -606,5 +606,18 @@ class Opus_CollectionTest extends TestCase {
         $docReloaded = new Opus_Document($docId);
         $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
+    
+    public function testGetSetVisiblePublish() {
+        $collection = $this->role_fixture->getRootCollection();
+        $collection->setVisiblePublish(1);
+        $cId = $collection->store();
+        $collection = new Opus_Collection($cId);
+        $this->assertEquals(1, $collection->getVisiblePublish());
+        $collection->setVisiblePublish(0);
+        $cId = $collection->store();
+        $collection = new Opus_Collection($cId);
+        $this->assertEquals(0, $collection->getVisiblePublish());
+        
+    }
 
 }
