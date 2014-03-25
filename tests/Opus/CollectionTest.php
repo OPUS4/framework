@@ -619,5 +619,139 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(0, $collection->getVisiblePublish());
         
     }
+    
+    /**
+     * Regression Test for OPUSVIER-2726
+     */
+    public function testMoveBeforePrevSibling() {
+        
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals($children[2]->getNumber(), 'test3', 'Test fixture was modified.');
+        $this->assertEquals($children[3]->getNumber(), 'test4', 'Test fixture was modified.');
+
+        
+        $collection = new Opus_Collection(8);
+        $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
+        
+        $collection->moveBeforePrevSibling();
+        
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals($children[2]->getNumber(), 'test4');
+
+        $childrenOfTest4 = $children[2]->getChildren();
+        
+        $this->assertEquals($childrenOfTest4[0]->getNumber(), 'test4.1');
+        $this->assertEquals($childrenOfTest4[1]->getNumber(), 'test4.2');
+        
+        $this->assertEquals($children[3]->getNumber(), 'test3');
+
+        $childrenOfTest3 = $children[3]->getChildren();
+        $this->assertEquals($childrenOfTest3[0]->getNumber(), 'test3.1');
+        $this->assertEquals($childrenOfTest3[1]->getNumber(), 'test3.2');
+        
+        $childrenOfTest3_2 = $childrenOfTest3[1]->getChildren();
+        $this->assertEquals($childrenOfTest3_2[0]->getNumber(), 'test3.2.1');
+
+ 
+    }
+
+    /**
+    * Regression Test for OPUSVIER-2726
+    */
+    public function testMoveAfterNextSibling() {
+        
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals($children[3]->getNumber(), 'test4');
+        $this->assertEquals($children[4]->getNumber(), 'test5');
+
+        
+        $collection = new Opus_Collection(8);
+        $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
+        
+        $collection->moveAfterNextSibling();
+        
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+        
+        $this->assertEquals($children[3]->getNumber(), 'test5');
+        $this->assertEquals(count($children[3]->getChildren()), 1);
+        $this->assertEquals($children[4]->getNumber(), 'test4');
+        $this->assertEquals(count($children[4]->getChildren()), 2);
+ 
+    }
+    
+    protected function setUpFixtureForMoveTests() {
+        
+        $root = $this->object;
+
+        $children = array();
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag');
+        $children[count($children) -1]->setNumber('test');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 2');
+        $children[count($children) -1]->setNumber('test2');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 3');
+        $children[count($children) -1]->setNumber('test3');
+
+        $children[] = $children[count($children) -1]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 3.1');
+        $children[count($children) -1]->setNumber('test3.1');
+
+        $children[] = $children[count($children) -2]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 3.2');
+        $children[count($children) -1]->setNumber('test3.2');
+
+        $children[] = $children[count($children) -1]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 3.2.1');
+        $children[count($children) -1]->setNumber('test3.2.1');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 4');
+        $children[count($children) -1]->setNumber('test4');
+
+        $children[] = $children[count($children) -1]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 4.1');
+        $children[count($children) -1]->setNumber('test4.1');
+
+        $children[] = $children[count($children) -2]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 4.2');
+        $children[count($children) -1]->setNumber('test4.2');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 5');
+        $children[count($children) -1]->setNumber('test5');
+
+        $children[] = $children[count($children) -1]->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 5.1');
+        $children[count($children) -1]->setNumber('test5.1');
+        
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 6');
+        $children[count($children) -1]->setNumber('test6');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) -1]->setName('Testeintrag 7');
+        $children[count($children) -1]->setNumber('test7');
+        
+        $root->store();
+
+    }
 
 }
