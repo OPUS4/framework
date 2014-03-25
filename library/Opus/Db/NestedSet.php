@@ -84,14 +84,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
     protected $_parent;
 
     /**
-     * Table column holding the sort-key for the structure.  This is needed
-     * to allow swapping elements easily without changing the whole tree.
-     *
-     * @var string
-     */
-    protected $_sort;
-
-    /**
      * Table column holding the tree-id for the structure.  We're holding more
      * than one nested-set structure in the table and we're distinguishing the
      * different trees by this ID.
@@ -214,6 +206,101 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
 
         return $res->rowCount();
     }
+    
+    /**
+     * @param int $id ID of the subtree's root node to move
+     */
+
+    public function moveSubTreeBeforePreviousSibling($id) {
+
+        $row = $this->getNodeById($id);
+        $tree = $row->{$this->_tree};
+        $left = (int) $row->{$this->_left};
+        $parent = $row->{$this->_parent};
+
+        
+        $prevLeftIdQuery = "SELECT max(left_id) from collections where {$this->_tree}=$tree and {$this->_parent}=$parent and {$this->_left}<$left";
+        
+        $select = $this->select()
+                ->from("{$this->_name} AS node")
+                ->where("{$this->_tree} = ?", $tree)
+                ->where("{$this->_left} = ($prevLeftIdQuery)");
+
+                
+        $prevRow = $this->fetchRow($select);
+        if(is_null($prevRow)) {
+            throw new Opus_Model_DbException('No previous sibling found for collection id '.$id);
+        }
+        $this->moveSubTreeAfterNextSibling($prevRow);
+        
+    }
+    
+    
+    /**
+     * @param int|Zend_Db_Table_Row $id The node to move
+     */
+    public function moveSubTreeAfterNextSibling($id) {
+
+        if (is_object($id) and $id instanceOf Zend_Db_Table_Row) {
+            $row = $id;
+        } else {
+            $row = $this->getNodeById($id);
+        }
+        $tree = $row->{$this->_tree};
+        $right = (int) $row->{$this->_right};
+        $left = (int) $row->{$this->_left};
+        $parent = $row->{$this->_parent};
+
+        $root = $this->getRootNode($tree);
+        $maxRightId = $root->right_id;
+        
+//        $prevLeftIdQuery = "SELECT max(left_id) from collections where {$this->_tree}=$tree and {$this->_parent}=$parent and {$this->_left}<$left";
+        $nextLeftIdQuery = "SELECT min(left_id) from collections where {$this->_tree}=$tree and {$this->_parent}=$parent and {$this->_left}>$left";
+
+        
+        $select = $this->select()
+                ->from("{$this->_name} AS node")
+                ->where("{$this->_tree} = ?", $tree)
+                ->where("{$this->_left} = ($nextLeftIdQuery)");
+
+                
+        $nextRow = $this->fetchRow($select);
+        if(is_null($nextRow)) {
+            throw new Opus_Model_DbException('No next sibling found for collection id '.$id);
+        }
+        $nextRight = (int) $nextRow->{$this->_right};
+
+        $width = $right - $left + 1;
+
+        
+        $newOffset = ($nextRight - $left) + 1;
+
+        $queries = array();
+        
+        // make space for moving subtree
+        $queries[] = "UPDATE {$this->_name} SET {$this->_right} = {$this->_right} + $width WHERE {$this->_right} > {$nextRight} AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} DESC";
+        $queries[] = "UPDATE {$this->_name} SET {$this->_left}  = {$this->_left} + $width  WHERE {$this->_left} > {$nextRight}  AND {$this->_tree} = {$tree}  ORDER BY {$this->_left}  DESC";
+        
+        // move subtree
+        $queries[] = "UPDATE {$this->_name} SET {$this->_left}  = ($newOffset + {$this->_left}) ,  {$this->_right} = ($newOffset + {$this->_right})  WHERE {$this->_left} BETWEEN $left AND $right AND {$this->_tree} = {$tree}  ORDER BY {$this->_left} DESC";
+        
+        // close gap in previous position
+         $queries[] = "UPDATE collections SET {$this->_left}  = ({$this->_left} - $width)  WHERE {$this->_left} > $left AND {$this->_tree} = {$tree}  ORDER BY {$this->_left} ASC";
+         $queries[] = "UPDATE collections SET {$this->_right} = ({$this->_right} - $width)  WHERE {$this->_right} > $right AND {$this->_tree} = {$tree}  ORDER BY {$this->_right} ASC";
+        
+        $this->_db->beginTransaction();
+        try {
+            foreach($queries as $query) {
+                $this->_db->query($query);
+            }
+        } catch(Exception $e) {
+            $this->_db->rollBack();
+            throw $e;
+        }
+        
+        $this->_db->commit();
+        
+    }
 
     /**
      * Retrieve whole tree (as statement!) with additional depth field.
@@ -322,7 +409,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         $select = $this->select()
                         ->from("{$this->_name} AS node", $cols)
                         ->where("node.{$this->_parent} = ?", $id)
-                        ->order("node.{$this->_sort} ASC")
                         ->order("node.{$this->_left} ASC");
         return $select;
     }

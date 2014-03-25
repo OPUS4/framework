@@ -109,7 +109,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        $fields = array('Number', 'Name', 'OaiSubset', 'SortOrder',
+        $fields = array('Number', 'Name', 'OaiSubset', 
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor',
             'DisplayFrontdoor',
@@ -747,6 +747,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return $this->addPendingNodes('PrevSibling', $node);
     }
 
+    public function moveAfterNextSibling() {
+        $nestedsets = $this->_primaryTableRow->getTable();
+        $nestedsets->moveSubTreeAfterNextSibling($this->getId());
+    }
+
+    public function moveBeforePrevSibling() {
+        $nestedsets = $this->_primaryTableRow->getTable();
+        $nestedsets->moveSubTreeBeforePreviousSibling($this->getId());
+    }
+    
     /**
      * _storeInternalFields(): Manipulate _primaryTableRow to preserve the
      * nested set property.

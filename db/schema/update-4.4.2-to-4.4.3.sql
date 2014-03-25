@@ -13,6 +13,8 @@ ALTER TABLE `persons` ADD COLUMN `identifier_orcid` VARCHAR(50);
 ALTER TABLE `persons` ADD COLUMN `identifier_gndid` VARCHAR(50);
 ALTER TABLE `persons` ADD COLUMN `identifier_misc` VARCHAR(50);
 
+ALTER TABLE `collections` DROP `sort_order`;
+
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;
