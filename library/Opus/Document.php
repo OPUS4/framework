@@ -114,6 +114,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'options' => array('type' => 'additional'),
             'fetch' => 'lazy'
         ),
+        'TitleSource' => array(
+            'model' => 'Opus_Title',
+            'options' => array('type' => 'source'),
+            'fetch' => 'lazy'
+        ),
         'Identifier' => array(
             'model' => 'Opus_Identifier',
             'fetch' => 'lazy'
