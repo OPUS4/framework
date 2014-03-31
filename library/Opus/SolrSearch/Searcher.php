@@ -62,6 +62,11 @@ class Opus_SolrSearch_Searcher {
      */
     private $config;
 
+    /*
+     * Holds numbers of facets
+     */
+    private $facetArray;
+
     /**
      *
      * @throws Opus_SolrSearch_Exception If connection to Solr server could not be established.
@@ -163,7 +168,7 @@ class Opus_SolrSearch_Searcher {
                 'facet' => 'false'
             );
         }
-        
+
         $params = array( 
             'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
             'facet' => $query->isReturnIdsOnly() ? 'false' : 'true',
@@ -176,9 +181,16 @@ class Opus_SolrSearch_Searcher {
         if (!empty($fq)) {
             $params['fq'] = $fq;
         }
-        $params = array_merge($params, 
-                $this->getFacetLimitsFromConfig(),
-                $this->getFacetSortsFromConfig());
+        if (isset($this->facetArray)) {
+            $params = array_merge($params,
+                    $this->getFacetArray(),
+                    $this->getFacetSortsFromConfig());
+        }
+        else {
+            $params = array_merge($params,
+                    $this->getFacetLimitsFromConfig(),
+                    $this->getFacetSortsFromConfig());
+        }
         return $params;
     }
 
@@ -199,7 +211,21 @@ class Opus_SolrSearch_Searcher {
         foreach ($facets as $facet) {
             if (isset($limits->$facet) && is_numeric($limits->$facet)) {
                 $result["f.$facet.facet.limit"] = $limits->$facet;
+
             }
+        }
+        return $result;
+    }
+
+    public function setFacetArray($array) {
+        $this->facetArray = $array;
+    }
+
+    public function getFacetArray() {
+        $result = array();
+        foreach ($this->facetArray as $facet => $value) {
+            $result["f.$facet.facet.limit"] = $value;
+
         }
         return $result;
     }
