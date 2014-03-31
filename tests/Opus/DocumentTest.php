@@ -2045,4 +2045,28 @@ class Opus_DocumentTest extends TestCase {
             'ServerDateModified was not modified by deleteFields.');
     }
 
+    public function testSourceAndMainTitle() {
+        $title = new Opus_Title();
+        $title->setValue('Source Title');
+        $titleMain = new Opus_Title();
+        $titleMain->setValue('Main Title');
+
+        $doc = new Opus_Document();
+        $doc->setTitleMain($titleMain);
+        $doc->setTitleSource($title);
+        $docid = $doc->store();
+
+        $doc = null;
+        $title = null;
+        $titleMain = null;
+
+        $doc = new Opus_Document($docid);
+        $title = $doc->getTitleSource();
+        $titleMain = $doc->getTitleMain();
+        $doc->deletePermanent();
+
+        $this->assertEquals('Source Title', $title[0]->getValue(), 'Source title is not asserted');
+        $this->assertEquals('Main Title', $titleMain[0]->getValue(), 'Main title is not asserted');
+    }
+
 }
