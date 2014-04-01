@@ -362,6 +362,18 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->removeFiles($id, $fileName1, $fileName2);
     }
 
+    public function testQueryDefaultRows() {
+        $rows = Opus_SolrSearch_Query::getDefaultRows();
+        $config = Zend_Registry::get('Zend_Config');
+        if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
+            $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
+        }
+        else {
+            $this->assertTrue($rows == Opus_SolrSearch_Query::DEFAULT_ROWS);
+        }
+
+    }
+
     private function createDocWithFulltext($fulltext1, $fulltext2 = null) {
         $doc = new Opus_Document();
         $doc->setServerState('published');
