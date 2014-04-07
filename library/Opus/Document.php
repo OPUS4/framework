@@ -357,7 +357,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'options' => array('role' => 'grantor'),
             'addprimarykey' => array('grantor'),
             'fetch' => 'lazy'
-        ),
+        )
     );
 
     /**
@@ -387,6 +387,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "Type",
             "Volume",
             "BelongsToBibliography",
+            "EmbargoDate"
         );
 
         foreach ($fields as $fieldname) {
@@ -409,7 +410,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $dateFields = array(
             'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
             'ServerDateCreated',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted');
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate');
         foreach ($dateFields as $fieldName) {
             $this->getField($fieldName)
                     ->setValueModelClass('Opus_Date');
