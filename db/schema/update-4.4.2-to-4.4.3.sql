@@ -18,6 +18,12 @@ ALTER TABLE `collections` DROP `sort_order`;
 -- Add title-source field to document
 ALTER TABLE `document_title_abstracts` MODIFY COLUMN `type` ENUM('main','parent','abstract','sub','additional', 'source');
 
+-- Add fields for OpenAire Compliance
+ALTER TABLE documents
+ADD COLUMN `dc_relation` VARCHAR(255) NULL COMMENT 'Project name and number',
+ADD COLUMN `dc_rights` ENUM ('info:eu-repo/semantics/closedAccess', 'info:eu-repo/semantics/embargoedAccess', 'info:eu-repo/semantics/openAccess') NOT NULL COMMENT 'Access type of document',
+ADD COLUMN `dc_date` DATE NULL COMMENT 'Embargoed date of document';
+
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;
