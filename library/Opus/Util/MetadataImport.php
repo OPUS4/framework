@@ -204,7 +204,6 @@ class Opus_Util_MetadataImport {
                     'TitleParent',
                     'TitleSub',
                     'TitleAdditional',
-                    'TitleSource',
                     'Identifier',
                     'Note',
                     'Enrichment',

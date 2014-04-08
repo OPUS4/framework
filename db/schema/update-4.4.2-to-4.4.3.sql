@@ -20,9 +20,7 @@ ALTER TABLE `document_title_abstracts` MODIFY COLUMN `type` ENUM('main','parent'
 
 -- Add fields for OpenAire Compliance
 ALTER TABLE documents
-ADD COLUMN `dc_relation` VARCHAR(255) NULL COMMENT 'Project name and number',
-ADD COLUMN `dc_rights` ENUM ('info:eu-repo/semantics/closedAccess', 'info:eu-repo/semantics/embargoedAccess', 'info:eu-repo/semantics/openAccess') NOT NULL COMMENT 'Access type of document',
-ADD COLUMN `dc_date` DATE NULL COMMENT 'Embargoed date of document';
+ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
 
 COMMIT;
 

@@ -52,8 +52,6 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `server_state` ENUM('audited', 'published', 'restricted', 'inprogress', 'unpublished', 'deleted', 'temporary') NOT NULL COMMENT 'Status of publication process in the repository.' ,
   `volume` VARCHAR(255) NULL COMMENT 'Volume.',
   `belongs_to_bibliography` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'States, if document will be part of the bibliography? (1=yes, 0=no).' ,
-  `dc_relation` VARCHAR(255) NULL COMMENT 'Project name and number',
-  `dc_rights` ENUM ('info:eu-repo/semantics/closedAccess', 'info:eu-repo/semantics/embargoedAccess', 'info:eu-repo/semantics/openAccess') NOT NULL COMMENT 'Access type of document',
   `embargo_date` VARCHAR(50) NULL COMMENT 'Embargo date for document files',
   PRIMARY KEY (`id`) )
 ENGINE = InnoDB
@@ -66,7 +64,7 @@ COMMENT = 'Document related data (monolingual, unreproducible colums).';
 CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id', 'uuid', 'serial', 'old', 'pmid', 'arxiv') NOT NULL COMMENT 'Type of the identifier.' ,
+  `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id', 'uuid', 'serial', 'old', 'pmid', 'arxiv', 'eu') NOT NULL COMMENT 'Type of the identifier.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the identifier.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_identifiers_documents` (`document_id` ASC) ,

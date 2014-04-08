@@ -260,6 +260,9 @@ class Opus_DocumentTest extends TestCase {
         $isbn = $document->addIdentifierIsbn();
         $isbn->setValue('123-123-123');
 
+        $eu = $document->addIdentifierEu();
+        $eu->setValue('123-123');
+
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
         $note->setVisibility('public');
@@ -339,6 +342,7 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($document->getTitleParent(0)->getValue(), 'Parent');
         $this->assertEquals($document->getTitleParent(0)->getLanguage(), 'en');
         $this->assertEquals($document->getIdentifierIsbn(0)->getValue(), '123-123-123');
+        $this->assertEquals($document->getIdentifierEu(0)->getValue(), '123-123');
         $this->assertEquals($document->getNote(0)->getMessage(), 'Ich bin eine öffentliche Notiz.');
         $this->assertEquals($document->getNote(0)->getVisibility(), 'public');
         $this->assertEquals($document->getPatent(0)->getCountries(), 'Lummerland');
@@ -2044,30 +2048,6 @@ class Opus_DocumentTest extends TestCase {
 
         $this->assertNotEquals($docServerDateModified, $doc->getServerDateModified()->getUnixTimestamp(),
             'ServerDateModified was not modified by deleteFields.');
-    }
-
-    public function testSourceAndMainTitle() {
-        $title = new Opus_Title();
-        $title->setValue('Source Title');
-        $titleMain = new Opus_Title();
-        $titleMain->setValue('Main Title');
-
-        $doc = new Opus_Document();
-        $doc->setTitleMain($titleMain);
-        $doc->setTitleSource($title);
-        $docid = $doc->store();
-
-        $doc = null;
-        $title = null;
-        $titleMain = null;
-
-        $doc = new Opus_Document($docid);
-        $title = $doc->getTitleSource();
-        $titleMain = $doc->getTitleMain();
-        $doc->deletePermanent();
-
-        $this->assertEquals('Source Title', $title[0]->getValue(), 'Source title is not asserted');
-        $this->assertEquals('Main Title', $titleMain[0]->getValue(), 'Main title is not asserted');
     }
 
 }
