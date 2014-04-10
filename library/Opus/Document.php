@@ -114,11 +114,6 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'options' => array('type' => 'additional'),
             'fetch' => 'lazy'
         ),
-        'TitleSource' => array(
-            'model' => 'Opus_Title',
-            'options' => array('type' => 'source'),
-            'fetch' => 'lazy'
-        ),
         'Identifier' => array(
             'model' => 'Opus_Identifier',
             'fetch' => 'lazy'
@@ -182,6 +177,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
         'IdentifierOpac' => array(
             'model' => 'Opus_Identifier',
             'options' => array('type' => 'opac-id')
+        ),
+        'IdentifierEu' => array(
+            'model' => 'Opus_Identifier',
+            'options' => array('type' => 'eu')
         ),
         'Reference' => array(
             'model' => 'Opus_Reference',

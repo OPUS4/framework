@@ -89,6 +89,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
                     'opus3-id' => 'opus3-id',
                     'opac-id' => 'opac-id',
                     'pmid' => 'pmid',
+                    'eu' => 'eu',
                     'arxiv' => 'arxiv'
                 ));
         $this->addField($type);
