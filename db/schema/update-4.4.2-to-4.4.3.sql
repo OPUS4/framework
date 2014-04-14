@@ -15,9 +15,6 @@ ALTER TABLE `persons` ADD COLUMN `identifier_misc` VARCHAR(50);
 
 ALTER TABLE `collections` DROP `sort_order`;
 
--- Add title-source field to document
-ALTER TABLE `document_title_abstracts` MODIFY COLUMN `type` ENUM('main','parent','abstract','sub','additional', 'source');
-
 -- Add fields for OpenAire Compliance
 ALTER TABLE documents
 ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';

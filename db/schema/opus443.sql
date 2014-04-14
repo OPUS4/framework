@@ -176,7 +176,7 @@ CREATE TABLE IF NOT EXISTS `link_documents_series` (
 CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `type` ENUM('main', 'parent', 'abstract', 'sub', 'additional', 'source') NOT NULL COMMENT 'Type of title or abstract.' ,
+  `type` ENUM('main', 'parent', 'abstract', 'sub', 'additional') NOT NULL COMMENT 'Type of title or abstract.' ,
   `value` TEXT NOT NULL COMMENT 'Value of title or abstract.' ,
   `language` VARCHAR(3) NOT NULL COMMENT 'Language of the title or abstract.' ,
   PRIMARY KEY (`id`) ,
