@@ -16,8 +16,8 @@ ALTER TABLE `persons` ADD COLUMN `identifier_misc` VARCHAR(50);
 ALTER TABLE `collections` DROP `sort_order`;
 
 -- Add fields for OpenAire Compliance
-ALTER TABLE documents
-ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
+ALTER TABLE documents ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
+ALTER TABLE document_files DROP COLUMN embargo_date;
 
 COMMIT;
 
