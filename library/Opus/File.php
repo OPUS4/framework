@@ -126,9 +126,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         $hashvalue->setMandatory(true)
                 ->setMultiplicity('*');
 
-        $embargodate = new Opus_Model_Field('EmbargoDate');
-        $embargodate->setValueModelClass('Opus_Date');
-
         $this->addField($filepathname)
                 ->addField($filelabel)
                 ->addField($filecomment)
@@ -138,8 +135,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
-                ->addField($hashvalue)
-                ->addField($embargodate);
+                ->addField($hashvalue);
     }
 
     public static function fetchByDocIdPathName($docId, $pathName) {
@@ -200,6 +196,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function getPath() {
         return $this->getStorage()->getWorkingDirectory() . $this->getPathName();
 
+    }
+
+    public function getEmbargoDate() {
+        $doc = new Opus_Document('yoyo');
     }
 
     /**
