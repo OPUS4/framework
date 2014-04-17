@@ -19,6 +19,10 @@ ALTER TABLE `collections` DROP `sort_order`;
 ALTER TABLE documents ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
 ALTER TABLE document_files DROP COLUMN embargo_date;
 
+-- Add columns for frontdoor sort order and upload tracing
+ALTER TABLE document_files ADD COLUMN server_date_submitted VARCHAR(50) COMMENT 'Date of file upload';
+ALTER TABLE document_files ADD COLUMN sort_order VARCHAR(50) COMMENT 'Sort order in frontdoor for multiple files';
+
 COMMIT;
 
 SET SQL_MODE=@OLD_SQL_MODE;

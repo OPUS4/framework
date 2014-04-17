@@ -116,6 +116,11 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $tempfile = new Opus_Model_Field('TempFile');
 
+        $server_date_submitted = new Opus_Model_Field('ServerDateSubmitted');
+        $server_date_submitted->setValueModelClass('Opus_Date');
+
+        $sortOrder = new Opus_Model_Field('SortOrder');
+
         $filesize = new Opus_Model_Field('FileSize');
         $filesize->setMandatory(true);
 
@@ -135,7 +140,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filesize)
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
-                ->addField($hashvalue);
+                ->addField($hashvalue)
+                ->addField($server_date_submitted);
     }
 
     public static function fetchByDocIdPathName($docId, $pathName) {
@@ -198,10 +204,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     }
 
-    public function getEmbargoDate() {
-        $doc = new Opus_Document('yoyo');
-    }
-
     /**
      * Copy the uploaded file to it's final destination.
      *
@@ -250,6 +252,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 $result = $this->getStorage()->renameFile($storedFileName, $target);
             }
         }
+
+        $dateNow = new Opus_Date();
+        $dateNow->setNow();
+        $this->setServerDateSubmitted($dateNow);
 
         return;
 

@@ -665,6 +665,42 @@ class Opus_FileTest extends TestCase {
         
     }
 
+    public function testFileUploadDate() {
+        $filepath = $this->createTestFile('foo.pdf');
+        $file = new Opus_File();
+        $file->setPathName(basename($filepath));
+        $file->setTempFile($filepath);
+        $file->setVisibleInOai(false);
 
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addFile($file);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+
+        $dateNow = new Opus_Date();
+        $dateNow->setNow();
+
+        foreach($files as $f) {
+            $this->assertEquals(substr($f->getServerDateSubmitted(), 0, 16), substr($dateNow, 0, 16));
+        }
+    }
+
+    private function createTestFile($filename) {
+        $config = Zend_Registry::get('Zend_Config');
+        if (!isset($config->workspacePath)) {
+            throw new Exception("config key 'workspacePath' not defined in config file");
+        }
+
+        $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
+        mkdir($path, 0777, true);
+        $filepath = $path . DIRECTORY_SEPARATOR . $filename;
+        touch($filepath);
+        $this->assertTrue(is_readable($filepath));
+        return $filepath;
+    }
 }
 
