@@ -685,8 +685,31 @@ class Opus_FileTest extends TestCase {
         $dateNow->setNow();
 
         foreach($files as $f) {
-            $this->assertEquals(substr($f->getServerDateSubmitted(), 0, 16), substr($dateNow, 0, 16));
+            $this->assertEquals(substr($f->getServerDateSubmitted(), 0, 16), substr($dateNow, 0, 16),
+                'Failed asserting submitting date of documents file');
         }
+    }
+
+    public function testSortOrderField() {
+        $filepath = $this->createTestFile('foo.pdf');
+        $file = new Opus_File();
+        $file->setPathName(basename($filepath));
+        $file->setTempFile($filepath);
+        $file->setSortOrder(1);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addFile($file);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+
+        foreach($files as $f) {
+            $this->assertEquals($f->getSortOrder(), 1);
+        }
+
     }
 
     private function createTestFile($filename) {

@@ -141,7 +141,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($visible_in_frontdoor)
                 ->addField($visible_in_oai)
                 ->addField($hashvalue)
-                ->addField($server_date_submitted);
+                ->addField($server_date_submitted)
+                ->addField($sortOrder);
     }
 
     public static function fetchByDocIdPathName($docId, $pathName) {
