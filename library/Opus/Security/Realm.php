@@ -370,10 +370,6 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         return self::$instance;
     }
 
-    public static function clearInstance() {
-        self::$instance = null;
-    }
-
     /**
      * Disallow construction.
      *
