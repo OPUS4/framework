@@ -212,32 +212,14 @@ class Opus_Util_MetadataImportTest extends TestCase {
     }
 
     /*
-     * Testet, ob das Feld BelongsToBibliography true in Anführungszeichen akzeptiert
+     * testet ob true/false als Wert für BelongsToBibliography und allowEmailContact akzeptiert wird
      */
-    public function testLiteralSetOfField() {
-        $doc = new Opus_Document();
-        try {
-            $doc->getField('BelongsToBibliography')->setValue(true);
-            $doc->getField('BelongsToBibliography')->setValue('true');
-            $doc->getField('BelongsToBibliography')->setValue(0);
-        } catch (Exception $e) {
-            $this->fail('Wrong literal set to "BelongsToBibliography"-field');
-        }
-    }
+    public function testRegression2570() {
+        $this->filename = 'test_import_regression2570.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
 
-    public function testAllowEmailContact() {
-        try {
-            $doc = new Opus_Document();
-            $p = new Opus_Person();
-            $childNode = new DOMElement('dom');
-
-            $method = 'addPerson' . ucfirst($childNode->getAttribute('role'));
-            $link = $doc->$method($p);
-            $link->setAllowEmailContact('true');
-            $link->setAllowEmailContact(true);
-            $link->setAllowEmailContact(1);
-        } catch (Exception $e) {
-            $this->fail('Wrong literal set to "AllowEmailContact"-field');
-        }
+        $this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
+        $importer->run();
     }
 }
