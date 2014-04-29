@@ -219,7 +219,10 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
 
-        $this->setExpectedException('Opus_Util_MetadataImportSkippedDocumentsException');
         $importer->run();
+        $importedDoc = new Opus_Document(1);
+        $authors = $importedDoc->getPersonAuthor();
+        $this->assertEquals($importedDoc->getField('BelongsToBibliography')->getValue(), 1);
+        $this->assertEquals($authors[0]->getAllowEmailContact(), 1);
     }
 }
