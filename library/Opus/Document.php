@@ -30,10 +30,11 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
+ * @author      Michael Lang <lang@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -1038,6 +1039,26 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         parent::delete();
+    }
+
+    public function getFile($param = null) {
+        if (is_null($param)) {
+            $files = parent::getFile();
+        }
+        else {
+            $files = parent::getFile($param);
+        }
+        if (sizeof($files) > 1) {
+            uasort($files, array($this, 'compareFiles'));
+        }
+        return $files;
+    }
+
+    public function compareFiles($a, $b) {
+        if ($a->getSortOrder() == $b->getSortOrder()) {
+            return 0;
+        }
+        return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
     }
 
     /**
