@@ -2055,10 +2055,10 @@ class Opus_DocumentTest extends TestCase {
     public function testFileSortOrder() {
         $config = Zend_Registry::get('Zend_Config');
         $filename = $config->workspacePath;
-        touch($filename);
+        touch($filename . '/test1.txt');
+        touch($filename . '/test2.txt');
 
         $doc = new Opus_Document();
-        $doc->setType('test');
         $doc->setServerState('published');
         $file1 = $doc->addFile();
         $file1->setPathName($filename . '/test1.txt');
@@ -2071,6 +2071,10 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document($docId);
         $files = $doc->getFile();
         $position = 2;
+
+        unlink($filename . '/test1.txt');
+        unlink($filename . '/test2.txt');
+
         foreach ($files as $key => $value) {
             $this->assertEquals($value->getPathName(), $filename . '/test' . $position-- . '.txt');
         }
