@@ -30,8 +30,9 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -2054,30 +2055,32 @@ class Opus_DocumentTest extends TestCase {
 
     public function testFileSortOrder() {
         $config = Zend_Registry::get('Zend_Config');
-        $filename = $config->workspacePath;
-        touch($filename . '/test1.txt');
-        touch($filename . '/test2.txt');
+        $path = $config->workspacePath . '/' . uniqid();
+        touch($path);
 
         $doc = new Opus_Document();
         $doc->setServerState('published');
         $file1 = $doc->addFile();
-        $file1->setPathName($filename . '/test1.txt');
+        $file1->setPathName('test1.txt');
         $file1->setSortOrder(20);
+        $file1->setTempFile($path);
         $file2 = $doc->addFile();
-        $file2->setPathName($filename . '/test2.txt');
+        $file2->setPathName('test2.txt');
         $file2->setSortOrder(10);
+        $file2->setTempFile($path);
         $docId = $doc->store();
 
         $doc = new Opus_Document($docId);
         $files = $doc->getFile();
-        $position = 2;
 
-        unlink($filename . '/test1.txt');
-        unlink($filename . '/test2.txt');
+        unlink($file1->getPath());
+        unlink($file2->getPath());
 
+        $position = 3;
         foreach ($files as $key => $value) {
-            $this->assertEquals($value->getPathName(), $filename . '/test' . $position-- . '.txt');
+            $this->assertEquals($value->getPathName(), 'test' . --$position . '.txt');
         }
     }
+
 
 }

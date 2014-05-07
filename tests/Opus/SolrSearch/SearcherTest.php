@@ -27,7 +27,8 @@
  * @category    Tests
  * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Michael Lang <lang@zib.de>
+ * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -346,20 +347,19 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(2, count($success));
-
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(0, count($failure));
 
         $doc = new Opus_Document($id);
         $file = $doc->getFile();
-        $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
-        $this->assertEquals($value, $success[0]);
-
-        $value = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
-        $this->assertEquals($value, $success[1]);
-
+        $valueFile1 = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
+        $valueFile2 = $file[1]->getId() . ':' . $file[1]->getRealHash('md5');
         $this->removeFiles($id, $fileName1, $fileName2);
+
+        $this->assertEquals(2, count($success));
+        $this->assertEquals(0, count($failure));
+        $this->assertEquals($valueFile1, $success[0]);
+        $this->assertEquals($valueFile2, $success[1]);
+
     }
 
     public function testQueryDefaultRows() {

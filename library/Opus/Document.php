@@ -1041,6 +1041,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
         parent::delete();
     }
 
+    /*
+     * Overwrites getFile()-method
+     * if the sortorder-value of any attached file is set, this function returns the files in the correct sortorder
+     * otherwise files are returned in attached order
+     */
     public function getFile($param = null) {
         if (is_null($param)) {
             $files = parent::getFile();
@@ -1048,8 +1053,14 @@ class Opus_Document extends Opus_Model_AbstractDb {
         else {
             $files = parent::getFile($param);
         }
+
         if (sizeof($files) > 1) {
-            uasort($files, array($this, 'compareFiles'));
+            foreach ($files as $file) {
+                if (!is_null($file->getSortOrder())) {
+                    uasort($files, array($this, 'compareFiles'));
+                    break;
+                }
+            }
         }
         return $files;
     }
