@@ -263,9 +263,6 @@ class Opus_DocumentTest extends TestCase {
         $isbn = $document->addIdentifierIsbn();
         $isbn->setValue('123-123-123');
 
-        $eu = $document->addIdentifierEu();
-        $eu->setValue('123-123');
-
         $note = $document->addNote();
         $note->setMessage('Ich bin eine öffentliche Notiz.');
         $note->setVisibility('public');
@@ -345,7 +342,6 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals($document->getTitleParent(0)->getValue(), 'Parent');
         $this->assertEquals($document->getTitleParent(0)->getLanguage(), 'en');
         $this->assertEquals($document->getIdentifierIsbn(0)->getValue(), '123-123-123');
-        $this->assertEquals($document->getIdentifierEu(0)->getValue(), '123-123');
         $this->assertEquals($document->getNote(0)->getMessage(), 'Ich bin eine öffentliche Notiz.');
         $this->assertEquals($document->getNote(0)->getVisibility(), 'public');
         $this->assertEquals($document->getPatent(0)->getCountries(), 'Lummerland');

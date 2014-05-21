@@ -249,7 +249,6 @@
             <xs:enumeration value="serial"/>
             <xs:enumeration value="uuid"/>
             <xs:enumeration value="isbn"/>
-            <xs:enumeration value="eu" />
             <xs:enumeration value="urn"/>
             <xs:enumeration value="doi"/>
             <xs:enumeration value="handle"/>
