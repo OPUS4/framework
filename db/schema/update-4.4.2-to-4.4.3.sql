@@ -10,18 +10,21 @@ ALTER TABLE `languages` MODIFY COLUMN `scope` ENUM('I', 'M', 'S') COMMENT 'I(ndi
 ALTER TABLE `languages` MODIFY COLUMN `type` ENUM('A', 'C', 'E', 'H', 'L', 'S') COMMENT 'A(ncient), C(onstructed), E(xtinct), H(istorical), L(iving), S(pecial)';
 
 ALTER TABLE `persons` ADD COLUMN `identifier_orcid` VARCHAR(50);
-ALTER TABLE `persons` ADD COLUMN `identifier_gndid` VARCHAR(50);
+ALTER TABLE `persons` ADD COLUMN `identifier_gnd` VARCHAR(50);
 ALTER TABLE `persons` ADD COLUMN `identifier_misc` VARCHAR(50);
 
 ALTER TABLE `collections` DROP `sort_order`;
 
 -- Add fields for OpenAire Compliance
-ALTER TABLE documents ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
-ALTER TABLE document_files DROP COLUMN embargo_date;
+ALTER TABLE `documents` ADD COLUMN `embargo_date` DATE NULL COMMENT 'Embargoed date of document';
+ALTER TABLE `document_files` DROP COLUMN `embargo_date`;
 
 -- Add columns for frontdoor sort order and upload tracing
-ALTER TABLE document_files ADD COLUMN server_date_submitted VARCHAR(50) COMMENT 'Date of file upload';
-ALTER TABLE document_files ADD COLUMN sort_order VARCHAR(50) COMMENT 'Sort order in frontdoor for multiple files';
+ALTER TABLE document_files ADD COLUMN `server_date_submitted` VARCHAR(50) COMMENT 'Date of file upload';
+ALTER TABLE document_files ADD COLUMN `sort_order` VARCHAR(50) COMMENT 'Sort order in frontdoor for multiple files';
+
+-- Add column 'visible_publish' for collections
+ALTER TABLE `collections` ADD COLUMN `visible_publish` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Show collection in publish form';
 
 COMMIT;
 
