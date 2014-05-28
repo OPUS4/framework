@@ -254,12 +254,13 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             }
         }
 
-        $dateNow = new Opus_Date();
-        $dateNow->setNow();
-        $this->setServerDateSubmitted($dateNow);
+        if ($this->isNewRecord()) {
+            $dateNow = new Opus_Date();
+            $dateNow->setNow();
+            $this->setServerDateSubmitted($dateNow);
+        }
 
         return;
-
     }
 
     /**
@@ -269,7 +270,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _storeTempFile() {
         return;
-
     }
 
     /**
@@ -279,7 +279,6 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     protected function _fetchTempFile() {
         return;
-
     }
 
     /**
