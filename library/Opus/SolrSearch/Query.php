@@ -132,7 +132,7 @@ class Opus_SolrSearch_Query {
             return $config->searchengine->solr->numberOfDefaultSearchResults;
         }
         else {
-            return Opus_SolrSearch_Query::DEFAULT_ROWS;
+            return self::DEFAULT_ROWS;
         }
     }
 

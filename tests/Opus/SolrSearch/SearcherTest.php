@@ -362,7 +362,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
     }
 
-    public function testQueryDefaultRows() {
+    public function testGetDefaultRows() {
         $rows = Opus_SolrSearch_Query::getDefaultRows();
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
