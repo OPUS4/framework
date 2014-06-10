@@ -30,7 +30,8 @@
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Michael Lang <lang@zib.de>
+ * @copyright   Copyright (c) 2010-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id: CollectionOld.php -1$
  */
@@ -1043,6 +1044,34 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $select->reset('columns');
         $select->distinct(true)->columns("count(id)");
         
+        return intval($table->getAdapter()->fetchOne($select)) > 0;
+    }
+
+    public function getVisiblePublishChildren() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectChildrenById($this->getId());
+        $select->where("visible_publish = 1");
+        $rows = $table->fetchAll($select);
+
+        return self::createObjects($rows);
+    }
+
+    public function hasVisiblePublishChildren() {
+        if (is_null($this->getId())) {
+            return;
+        }
+
+        $table = $this->_primaryTableRow->getTable();
+        $select = $table->selectChildrenById($this->getId());
+        $select->where("visible_publish = 1");
+        $select->reset('columns');
+        $select->distinct(true)->columns("count(id)");
+
         return intval($table->getAdapter()->fetchOne($select)) > 0;
     }
     
