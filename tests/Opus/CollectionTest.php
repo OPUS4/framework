@@ -754,4 +754,61 @@ class Opus_CollectionTest extends TestCase {
 
     }
 
+    /**
+     * Test für OPUSVIER-3308.
+     */
+    public function testHasVisiblePublishChildren() {
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisiblePublishChildren());
+        $this->assertFalse($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisiblePublish('0');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisiblePublishChildren());
+        $this->assertTrue($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisiblePublish('1');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertTrue($this->object->hasVisiblePublishChildren());
+        $this->assertTrue($this->object->hasChildren());
+    }
+
+    /**
+     * Test für OPUSVIER-3308.
+     */
+    public function testGetVisiblePublishChildren() {
+        $this->object->store();
+
+        // add two children: one of them (the first child) is invisible
+        $coll1 = new Opus_Collection();
+        $coll1->setVisiblePublish('1');
+        $this->object->addFirstChild($coll1);
+        $coll1->store();
+
+        $coll2 = new Opus_Collection();
+        $coll2->setVisiblePublish('0');
+        $this->object->addFirstChild($coll2);
+        $coll2->store();
+
+        $this->object->store();
+
+        $children = $this->object->getVisiblePublishChildren();
+        $this->assertEquals(1, count($children));
+        $this->assertEquals($coll1->getId(), $children[0]->getId());
+
+        $children = $this->object->getChildren();
+        $this->assertEquals(2, count($children));
+        $this->assertEquals($coll2->getId(), $children[0]->getId());
+        $this->assertEquals($coll1->getId(), $children[1]->getId());
+    }
+
 }
