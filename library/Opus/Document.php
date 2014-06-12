@@ -1092,6 +1092,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     $this->setServerDatePublished($date);
                 }
             }
+            else {
+                $this->setServerDatePublished(null);
+            }
         }
 
         return $result;

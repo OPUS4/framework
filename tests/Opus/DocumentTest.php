@@ -2078,5 +2078,35 @@ class Opus_DocumentTest extends TestCase {
         }
     }
 
+    /**
+     * Test für OPUSVIER-1769.
+     * Der Test prüft, ob das Feld ServerDatePublished gelöscht wird, falls ein Dokument aus dem publish-status zurück-
+     * gezogen wird.
+     */
+    public function testSetServerState() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $docId = $doc->store();
+        $doc = new Opus_Document($docId);
+
+        $date = new Opus_Date();
+        $date->setNow();
+
+        $this->assertEquals(substr($date->__toString(), 0, 10), substr($doc->getServerDatePublished()->__toString(), 0, 10),
+                'ServerDatePublished should contain today`s date');
+
+        $doc->setServerState('deleted');
+        $doc->store();
+        $doc = new Opus_Document($docId);
+
+        $this->assertNull($doc->getServerDatePublished(), 'ServerDatePublished should be deleted');
+
+        $doc->setServerState('published');
+        $doc->store();
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals(substr($date->__toString(), 0, 10), substr($doc->getServerDatePublished()->__toString(), 0, 10),
+                'ServerDatePublished should contain today`s date');
+    }
 
 }
