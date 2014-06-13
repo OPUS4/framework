@@ -1122,8 +1122,9 @@ class Opus_DocumentTest extends TestCase {
             $d->store();
 
             $d = new Opus_Document($id);
-            $this->assertEquals(
-                    $examplePublishedDate->__toString(), $d->getServerDatePublished()->__toString(), "Don't change user-specified server_date_published (state $state)");
+            $this->assertNotNull($d->getServerDatePublished());
+            $this->assertEquals($examplePublishedDate->__toString(), $d->getServerDatePublished()->__toString(),
+                "Don't change user-specified server_date_published (state $state)");
         }
     }
 
