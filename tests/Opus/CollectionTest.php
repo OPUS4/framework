@@ -31,6 +31,8 @@
  * @copyright   Copyright (c) 2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
+ *
+ * TODO Test für das rekursive Speichern von Children
  */
 class Opus_CollectionTest extends TestCase {
 
