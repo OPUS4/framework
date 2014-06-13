@@ -636,10 +636,9 @@ class Opus_FileTest extends TestCase {
     }
     
     /**
-     * Regression Test for OPUSVIER-1687
+     * Regression Test for OPUSVIER-1687.
      */
     public function testInvalidateDocumentCache() {
-
         $filename = "foobar.pdf";
         $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
 
@@ -662,15 +661,17 @@ class Opus_FileTest extends TestCase {
         $file->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
         unlink($filepath);
-        
     }
 
-    public function testFileUploadDate() {
+    /**
+     * Tests file upload date.
+     * OPUSVIER-3190.
+     */
+    public function testServerDateSubmitted() {
         $filepath = $this->createTestFile('foo.pdf');
         $file = new Opus_File();
         $file->setPathName(basename($filepath));
         $file->setTempFile($filepath);
-        $file->setVisibleInOai(false);
 
         $doc = new Opus_Document();
         $doc->setServerState('published');
@@ -684,10 +685,36 @@ class Opus_FileTest extends TestCase {
         $dateNow = new Opus_Date();
         $dateNow->setNow();
 
-        foreach($files as $f) {
-            $this->assertEquals(substr($f->getServerDateSubmitted(), 0, 16), substr($dateNow, 0, 16),
+        $this->assertEquals(substr($files[0]->getServerDateSubmitted()->__toString(), 0, 16), substr($dateNow->__toString(), 0, 16),
                 'Failed asserting submitting date of documents file');
-        }
+    }
+
+    /**
+     * ServerDateSubmitted should not alter with changes in file properties.
+     * OPUSVIER-3190.
+     */
+    public function testServerDateSubmittedStaysUnchanged() {
+        $filepath = $this->createTestFile('test.file');
+        $file = new Opus_File();
+        $file->setPathName(basename($filepath));
+        $file->setTempFile($filepath);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addFile($file);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+        $earlierDate = $files[0]->getServerDateSubmitted()->__toString();
+
+        sleep(2);
+        $files[0]->setComment(rand());
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+        $this->assertEquals($files[0]->getServerDateSubmitted()->__toString(), $earlierDate);
     }
 
     public function testSortOrderField() {
@@ -709,7 +736,6 @@ class Opus_FileTest extends TestCase {
         foreach($files as $f) {
             $this->assertEquals($f->getSortOrder(), 1);
         }
-
     }
 
     private function createTestFile($filename) {
