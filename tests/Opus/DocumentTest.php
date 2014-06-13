@@ -1165,6 +1165,7 @@ class Opus_DocumentTest extends TestCase {
 
         $d = new Opus_Document($id);
         $this->assertEquals($exampleCreateDate, $d->getServerDateCreated()->__toString());
+        $this->assertNotNull($d->getServerDatePublished());
         $this->assertEquals($examplePublishedDate, $d->getServerDatePublished()->__toString());
     }
 
