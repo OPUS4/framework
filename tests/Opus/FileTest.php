@@ -667,7 +667,7 @@ class Opus_FileTest extends TestCase {
      * Tests file upload date.
      * OPUSVIER-3190.
      */
-    public function testServerDateSubmitted() {
+    public function testServerDateSubmittedSetForNewFiles() {
         $filepath = $this->createTestFile('foo.pdf');
         $file = new Opus_File();
         $file->setPathName(basename($filepath));
@@ -685,15 +685,15 @@ class Opus_FileTest extends TestCase {
         $dateNow = new Opus_Date();
         $dateNow->setNow();
 
-        $this->assertEquals(substr($files[0]->getServerDateSubmitted()->__toString(), 0, 16), substr($dateNow->__toString(), 0, 16),
-                'Failed asserting submitting date of documents file');
+        $this->assertEquals(substr($files[0]->getServerDateSubmitted()->__toString(), 0, 16),
+            substr($dateNow->__toString(), 0, 16), 'Failed asserting submitting date of documents file');
     }
 
     /**
      * ServerDateSubmitted should not alter with changes in file properties.
      * OPUSVIER-3190.
      */
-    public function testServerDateSubmittedStaysUnchanged() {
+    public function testServerDateSubmittedNotChangedOnStore() {
         $filepath = $this->createTestFile('test.file');
         $file = new Opus_File();
         $file->setPathName(basename($filepath));
@@ -715,6 +715,30 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($docId);
         $files = $doc->getFile();
         $this->assertEquals($files[0]->getServerDateSubmitted()->__toString(), $earlierDate);
+    }
+
+    public function testServerDateSubmittedNotSetForOldFiles() {
+        $filepath = $this->createTestFile('test.file');
+        $file = new Opus_File();
+        $file->setPathName(basename($filepath));
+        $file->setTempFile($filepath);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addFile($file);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+
+        $this->assertNotNull($files[0]->getServerDateSubmitted());
+
+        $files[0]->setServerDateSubmitted(null);
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+        $this->assertNull($files[0]->getServerDateSubmitted(), 'ServerDateSubmitted should not be set for old files.');
     }
 
     public function testSortOrderField() {
