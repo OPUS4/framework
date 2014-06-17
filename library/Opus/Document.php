@@ -1140,16 +1140,15 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     public function hasEmbargoPassed() {
         $date = $this->getEmbargoDate();
-        // no embargo set
         if (is_null($date)) {
             return true;
         }
-        $embargoDate = new Zend_Date();
-        $embargoDate->setDay($date->getDay());
-        $embargoDate->setMonth($date->getMonth());
-        $embargoDate->setYear($date->getYear());
+        $embargoDate = new Opus_Date($date);
 
-        if (mktime(time()) > mktime($embargoDate->get())) {
+        $now = new Opus_Date();
+        $now->setNow();
+
+        if ($embargoDate < $now) {
             return true;
         }
         else {

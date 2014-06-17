@@ -2080,4 +2080,16 @@ class Opus_DocumentTest extends TestCase {
         }
     }
 
+    /**
+     * Test für OPUSVIER-3276.
+     */
+    public function testHasEmbargoDatePassed() {
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2000-10-12');
+        $this->assertTrue($doc->hasEmbargoPassed());
+
+        $doc->setEmbargoDate('2100-10-13');
+        $this->assertFalse($doc->hasEmbargoPassed());
+    }
+
 }
