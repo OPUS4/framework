@@ -2074,10 +2074,8 @@ class Opus_DocumentTest extends TestCase {
         unlink($file1->getPath());
         unlink($file2->getPath());
 
-        $position = 3;
-        foreach ($files as $key => $value) {
-            $this->assertEquals($value->getPathName(), 'test' . --$position . '.txt');
-        }
+        $this->assertEquals($files[0]->getPathName(), 'test2.txt');
+        $this->assertEquals($files[1]->getPathName(), 'test1.txt');
     }
 
     /**

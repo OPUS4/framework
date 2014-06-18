@@ -757,9 +757,7 @@ class Opus_FileTest extends TestCase {
         $doc = new Opus_Document($docId);
         $files = $doc->getFile();
 
-        foreach($files as $f) {
-            $this->assertEquals($f->getSortOrder(), 1);
-        }
+        $this->assertEquals($files[0]->getSortOrder(), 1);
     }
 
     private function createTestFile($filename) {
