@@ -222,7 +222,26 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importer->run();
         $importedDoc = new Opus_Document(1);
         $authors = $importedDoc->getPersonAuthor();
-        $this->assertEquals($importedDoc->getField('BelongsToBibliography')->getValue(), 1);
-        $this->assertEquals($authors[0]->getAllowEmailContact(), 1);
+
+        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
+        $this->assertEquals(1, count($authors));
+        $this->assertEquals(1, $authors[0]->getAllowEmailContact());
+
+        $contributors = $importedDoc->getPersonContributor();
+        $this->assertEquals(1, count($contributors));
+        $this->assertEquals(0, $contributors[0]->getAllowEmailContact());
+
+        $editor = $importedDoc->getPersonEditor();
+        $this->assertEquals(1, count($editor));
+        $this->assertEquals(0, $editor[0]->getAllowEmailContact());
+
+        $referee = $importedDoc->getPersonReferee();
+        $this->assertEquals(1, count($referee));
+        $this->assertEquals(0, $referee[0]->getAllowEmailContact());
+
+        $advisor = $importedDoc->getPersonAdvisor();
+        $this->assertEquals(1, count($advisor));
+        $this->assertEquals(1, $advisor[0]->getAllowEmailContact());
     }
+
 }

@@ -14,7 +14,10 @@
 
         <persons>
             <person role="author" firstName="Beate" lastName="Rusch" email="doe@example.org" allowEmailContact="true"/>
-            <person role="contributor" firstName="Stefan" lastName="Lohrum" allowEmailContact="false"/>
+            <person role="contributor" firstName="Stefan" lastName="Lohrum" email="doe@example.org" allowEmailContact="false"/>
+            <person role="editor" firstName="John" lastName="Doe" />
+            <person role="referee" firstName="Jane" lastName="Doe"  email="doe@example.org" allowEmailContact="0" />
+            <person role="advisor" firstName="Janet" lastName="Doe"  email="doe@example.org" allowEmailContact="1" />
         </persons>
 
         <dates>
