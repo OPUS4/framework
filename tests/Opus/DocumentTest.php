@@ -2081,13 +2081,36 @@ class Opus_DocumentTest extends TestCase {
     /**
      * Test für OPUSVIER-3276.
      */
-    public function testHasEmbargoDatePassed() {
+    public function testHasEmbargoDatePassedFalse() {
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2100-10-13');
+
+        $now = new Opus_Date('2014-06-18');
+        $this->assertFalse($doc->hasEmbargoPassed($now));
+
+        $this->assertFalse($doc->hasEmbargoPassed(), 'OPUS has been developed for way too long. :-)');
+    }
+
+    public function testHasEmbargoDatePassedTrue() {
         $doc = new Opus_Document();
         $doc->setEmbargoDate('2000-10-12');
         $this->assertTrue($doc->hasEmbargoPassed());
 
-        $doc->setEmbargoDate('2100-10-13');
-        $this->assertFalse($doc->hasEmbargoPassed());
+        $now = new Opus_Date('2000-11-10');
+        $this->assertTrue($doc->hasEmbargoPassed($now));
+    }
+
+    public function testHasEmbargoDatePassedSameDay() {
+        $this->markTestSkipped('OPUSVIER-3276 - Anforderung muss noch geklärt werden.');
+
+        $now = new Opus_Date('2014-06-18');
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2014-06-18');
+        $this->assertFalse($doc->hasEmbargoPassed($now));
+
+        $now = new Opus_Date("2014-06-18T12:00:00+02:00");
+        $this->assertFalse($doc->hasEmbargoPassed($now));
     }
 
 }

@@ -1148,22 +1148,24 @@ class Opus_Document extends Opus_Model_AbstractDb {
         return $this;
     }
 
-    public function hasEmbargoPassed() {
-        $date = $this->getEmbargoDate();
-        if (is_null($date)) {
+    /**
+     * Compares EmbargoDate with parameter or system time.
+     *
+     * @param Opus_Date $now
+     * @return bool true - if embargo date has passed; false - if not
+     */
+    public function hasEmbargoPassed($now = null) {
+        $embargoDate = $this->getEmbargoDate();
+
+        if (is_null($embargoDate)) {
             return true;
         }
-        $embargoDate = new Opus_Date($date);
-
-        $now = new Opus_Date();
-        $now->setNow();
-
-        if ($embargoDate < $now) {
-            return true;
+        if (is_null($now)) {
+            $now = new Opus_Date();
+            $now->setNow();
         }
-        else {
-            return false;
-        }
+
+        return ($embargoDate < $now);
     }
 
 }
