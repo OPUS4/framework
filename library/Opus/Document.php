@@ -1164,7 +1164,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $now = new Opus_Date();
             $now->setNow();
         }
-
+        $embargoDate->setHour(23);
+        $embargoDate->setMinute(59);
+        $embargoDate->setSecond(59);
         return ($embargoDate < $now);
     }
 

@@ -2101,8 +2101,6 @@ class Opus_DocumentTest extends TestCase {
     }
 
     public function testHasEmbargoDatePassedSameDay() {
-        $this->markTestSkipped('OPUSVIER-3276 - Anforderung muss noch geklärt werden.');
-
         $now = new Opus_Date('2014-06-18');
 
         $doc = new Opus_Document();
