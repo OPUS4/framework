@@ -24,4 +24,43 @@
             <date type="completed" monthDay="--12-01" year="2011"/>
         </dates>
     </opusDocument>
+
+    <opusDocument oldId="14" language="eng" type="preprint"
+                  serverState="inprogress"
+                  belongsToBibliography="1">
+
+        <titlesMain>
+            <titleMain language="eng">La Vie un Rose</titleMain>
+        </titlesMain>
+
+        <dates>
+            <date type="completed" monthDay="--12-01" year="2011"/>
+        </dates>
+    </opusDocument>
+
+    <opusDocument oldId="15" language="eng" type="preprint"
+                  serverState="inprogress"
+                  belongsToBibliography="false">
+
+        <titlesMain>
+            <titleMain language="eng">La Vie un Rose</titleMain>
+        </titlesMain>
+
+        <dates>
+            <date type="completed" monthDay="--12-01" year="2011"/>
+        </dates>
+    </opusDocument>
+
+    <opusDocument oldId="16" language="eng" type="preprint"
+                  serverState="inprogress"
+                  belongsToBibliography="0">
+
+        <titlesMain>
+            <titleMain language="eng">La Vie un Rose</titleMain>
+        </titlesMain>
+
+        <dates>
+            <date type="completed" monthDay="--12-01" year="2011"/>
+        </dates>
+    </opusDocument>
 </import>

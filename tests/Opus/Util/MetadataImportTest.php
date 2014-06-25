@@ -212,9 +212,10 @@ class Opus_Util_MetadataImportTest extends TestCase {
     }
 
     /*
-     * testet ob true/false als Wert für BelongsToBibliography und allowEmailContact akzeptiert wird
+     * Testet ob true/false und 0/1 als Wert für allowEmailContact akzeptiert wird.
+     * Regressiontest für OPUSVIER-2570.
      */
-    public function testRegression2570() {
+    public function testGetAllowEmailContact() {
         $this->filename = 'test_import_regression2570.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -223,7 +224,6 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importedDoc = new Opus_Document(1);
         $authors = $importedDoc->getPersonAuthor();
 
-        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
         $this->assertEquals(1, count($authors));
         $this->assertEquals(1, $authors[0]->getAllowEmailContact());
 
@@ -243,5 +243,31 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->assertEquals(1, count($advisor));
         $this->assertEquals(1, $advisor[0]->getAllowEmailContact());
     }
+
+    /*
+     * Testet ob true/false und 0/1 als Wert für BelongsToBibliography akzeptiert wird.
+     * Regressiontest für OPUSVIER-2570.
+     */
+    public function testBelongsToBibliography() {
+        $this->filename = 'test_import_regression2570.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+
+        $importedDoc = new Opus_Document(1);
+        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
+
+        $importedDoc = new Opus_Document(2);
+        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
+
+        $importedDoc = new Opus_Document(3);
+        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue());
+
+        $importedDoc = new Opus_Document(4);
+        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue());
+    }
+
+
 
 }
