@@ -256,16 +256,16 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importer->run();
 
         $importedDoc = new Opus_Document(1);
-        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
+        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue()); // "true" in XML
 
         $importedDoc = new Opus_Document(2);
-        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue());
+        $this->assertEquals(1, $importedDoc->getField('BelongsToBibliography')->getValue()); // "1"
 
         $importedDoc = new Opus_Document(3);
-        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue());
+        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue()); // "false"
 
         $importedDoc = new Opus_Document(4);
-        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue());
+        $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue()); // "0"
     }
 
 
