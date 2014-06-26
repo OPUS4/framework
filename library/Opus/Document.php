@@ -1164,6 +1164,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $now = new Opus_Date();
             $now->setNow();
         }
+        // Embargo has passed on the day after the specified date
         $embargoDate->setHour(23);
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
