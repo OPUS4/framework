@@ -2107,8 +2107,14 @@ class Opus_DocumentTest extends TestCase {
         $doc->setEmbargoDate('2014-06-18');
         $this->assertFalse($doc->hasEmbargoPassed($now));
 
-        $now = new Opus_Date("2014-06-18T12:00:00+02:00");
+        $now = new Opus_Date("2014-06-18T12:00:00");
         $this->assertFalse($doc->hasEmbargoPassed($now));
+
+        $now = new Opus_Date("2014-06-18T23:59:59");
+        $this->assertFalse($doc->hasEmbargoPassed($now));
+
+        $now = new Opus_Date("2014-06-19");
+        $this->assertTrue($doc->hasEmbargoPassed($now));
     }
 
 }
