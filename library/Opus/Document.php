@@ -1038,20 +1038,23 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /*
-     * If the sortorder-value of any attached file is set, this function returns the files in the correct sortorder
-     * otherwise files are returned in attached order.
+     * If param is set, the Opus_File-object on position 'param' is returned. It is equal to the file-id.
+     * If no parameter is provided, an array with all files of the document is sorted and returned.
+     * The array is sorted ascending according to the sortOrder and the fileId, see compareFiles().
      *
      * Overwrites getFile()-method
      */
     public function getFile($param = null) {
         if (is_null($param)) {
             $files = parent::getFile();
+            usort($files, array($this, 'compareFiles'));
+            return $files;
         }
         else {
-            $files = parent::getFile($param);
+            // return Opus_File-Object
+            return parent::getFile($param);
         }
-        usort($files, array($this, 'compareFiles'));
-        return $files;
+
     }
 
     public function compareFiles($a, $b) {
