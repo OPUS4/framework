@@ -2051,7 +2051,10 @@ class Opus_DocumentTest extends TestCase {
             'ServerDateModified was not modified by deleteFields.');
     }
 
-    public function testFileSortOrder() {
+    /**
+     * The results should be sorted ascending according to their sort order.
+     */
+    public function testGetFileSortOrder() {
         $config = Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . '/' . uniqid();
         touch($path);
@@ -2059,13 +2062,17 @@ class Opus_DocumentTest extends TestCase {
         $doc = new Opus_Document();
         $doc->setServerState('published');
         $file1 = $doc->addFile();
-        $file1->setPathName('test1.txt');
+        $file1->setPathName('testC.txt');
         $file1->setSortOrder(20);
         $file1->setTempFile($path);
         $file2 = $doc->addFile();
-        $file2->setPathName('test2.txt');
+        $file2->setPathName('testB.txt');
         $file2->setSortOrder(10);
         $file2->setTempFile($path);
+        $file3 = $doc->addFile();
+        $file3->setPathName('testA.txt');
+        $file3->setSortOrder(30);
+        $file3->setTempFile($path);
         $docId = $doc->store();
 
         $doc = new Opus_Document($docId);
@@ -2073,9 +2080,47 @@ class Opus_DocumentTest extends TestCase {
 
         unlink($file1->getPath());
         unlink($file2->getPath());
+        unlink($file3->getPath());
 
-        $this->assertEquals($files[0]->getPathName(), 'test2.txt');
-        $this->assertEquals($files[1]->getPathName(), 'test1.txt');
+        $this->assertEquals($files[0]->getPathName(), 'testB.txt');
+        $this->assertEquals($files[1]->getPathName(), 'testC.txt');
+        $this->assertEquals($files[2]->getPathName(), 'testA.txt');
+    }
+
+    /**
+     * If the sort order is equal for every file, the results should be sorted ascending according to their id.
+     */
+    public function testGetFileSortingWithEqualSortOrder() {
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . '/' . uniqid();
+        touch($path);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $file1 = $doc->addFile();
+        $file1->setPathName('testC.txt');
+        $file1->setSortOrder(0);
+        $file1->setTempFile($path);
+        $file2 = $doc->addFile();
+        $file2->setPathName('testB.txt');
+        $file2->setSortOrder(0);
+        $file2->setTempFile($path);
+        $file3 = $doc->addFile();
+        $file3->setPathName('testA.txt');
+        $file3->setSortOrder(0);
+        $file3->setTempFile($path);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+
+        unlink($file1->getPath());
+        unlink($file2->getPath());
+        unlink($file3->getPath());
+
+        $this->assertEquals($files[0]->getPathName(), 'testC.txt');
+        $this->assertEquals($files[1]->getPathName(), 'testB.txt');
+        $this->assertEquals($files[2]->getPathName(), 'testA.txt');
     }
 
     /**

@@ -1050,30 +1050,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
         else {
             $files = parent::getFile($param);
         }
-        if ($this->useSortOrder()) {
-            usort($files, array($this, 'compareFiles'));
-        }
+        usort($files, array($this, 'compareFiles'));
         return $files;
-    }
-
-    /**
-     * If the sortorder-value of any attached file is set, this function returns true.
-     */
-    public function useSortOrder() {
-        $files = parent::getFile();
-        if (sizeof($files > 1)) {
-            foreach ($files as $file) {
-                if (!is_null($file->getSortOrder())) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     public function compareFiles($a, $b) {
         if ($a->getSortOrder() == $b->getSortOrder()) {
-            return 0;
+            return ($a->getId() < $b->getId()) ? -1 : 1;
         }
         return ($a->getSortOrder() < $b->getSortOrder()) ? -1 : 1;
     }
