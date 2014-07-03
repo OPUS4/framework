@@ -5,7 +5,8 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 
 START TRANSACTION;
 
--- TODO if nothing is changed in database the file should be empty
+-- sort_order type should be int not string
+ALTER TABLE document_files MODIFY sort_order INTEGER NOT NULL DEFAULT 0;
 
 COMMIT;
 
