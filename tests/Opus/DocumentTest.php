@@ -2162,4 +2162,14 @@ class Opus_DocumentTest extends TestCase {
         $this->assertTrue($doc->hasEmbargoPassed($now));
     }
 
+    public function testIsNewRecord() {
+        $doc = new Opus_Document();
+
+        $this->assertTrue($doc->isNewRecord());
+
+        $doc->store();
+
+        $this->assertFalse($doc->isNewRecord());
+    }
+
 }
