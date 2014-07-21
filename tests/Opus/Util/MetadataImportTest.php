@@ -190,19 +190,25 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->filename = 'test_import_minimal_corrupted_update.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
+        $expectedException = false;
         try {
             $importer->run();
         } catch (Opus_Model_NotFoundException $e) {
             $this->fail("Document was deleted during update.");
         } catch (Opus_Util_MetadataImportSkippedDocumentsException $e) {
             // expected exception
+            $expectedException = true;
         } catch (Exception $e) {
             $this->fail('unexpected exception was thrown: ' . get_class($e));
         }
 
+        $this->assertTrue($expectedException, "The expected exception did not occur.");
+
         $updatedDoc = new Opus_Document(1);
         $titleMain = $updatedDoc->getTitleMain();
         $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
+        $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue(),
+            "Failed update recovery failed. TitleMain was modified.");
     }
 
     private function loadInputFile() {
