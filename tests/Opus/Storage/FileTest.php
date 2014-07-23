@@ -47,19 +47,14 @@ class Opus_Storage_FileTest extends TestCase {
 
     private $__dest_path = '';
 
-    private $__config_backup = null;
-
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
      */
     protected function setUp() {
-        // Clearing database tables is not needed for this testcase
-        // parent::setUp();
+        parent::setUp();
 
         $config = Zend_Registry::get('Zend_Config');
-        $this->__config_backup = $config;
-
         $path = $config->workspacePath . '/' . uniqid();
 
         $this->__src_path = $path . '/src';
@@ -76,8 +71,6 @@ class Opus_Storage_FileTest extends TestCase {
     protected function tearDown() {
         Opus_Util_File::deleteDirectory($this->__src_path);
         Opus_Util_File::deleteDirectory($this->__dest_path);
-
-        Zend_Registry::set('Zend_Config', $this->__config_backup);
 
         parent::tearDown();
     }

@@ -43,7 +43,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
     public function setUp() {
         parent::setUp();
         
-	$this->doc = new Opus_Document();
+	    $this->doc = new Opus_Document();
         $this->doc->setServerState('published');
         $this->docId = $this->doc->store();
    }

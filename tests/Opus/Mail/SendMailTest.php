@@ -42,7 +42,6 @@
  */
 class Opus_Mail_SendMailTest extends TestCase {
 
-    protected $_config_backup = null;
     protected $_config_dummy = null;
 
     /**
@@ -51,20 +50,13 @@ class Opus_Mail_SendMailTest extends TestCase {
      * @return void
      */
     public function setUp() {
-        $this->_config_backup = Zend_Registry::get('Zend_Config');
+        parent::setUp();
         $this->_config_dummy = new Zend_Config(array(
             'mail' => array( 'opus' => array(
                 'smtp' => 'host.does.not.exists.hopefully',
                 'port' => 22,
             )),
         ));
-    }
-
-    /**
-     * Overwrite parent methods.
-     */
-    public function tearDown() {
-        Zend_Registry::set('Zend_Config', $this->_config_backup);
     }
 
     /**

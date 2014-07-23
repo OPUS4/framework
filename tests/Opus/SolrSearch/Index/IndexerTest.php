@@ -106,7 +106,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
         $this->config = Zend_Registry::get('Zend_Config');
         $this->files_dir = $this->config->workspacePath . DIRECTORY_SEPARATOR . "files";
 
-	$this->indexer = new Opus_SolrSearch_Index_Indexer();
+    	$this->indexer = new Opus_SolrSearch_Index_Indexer();
 
         $document = new Opus_Document();
         foreach (self::$_validDocumentData as $fieldname => $value) {
@@ -121,7 +121,6 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
      * This method is called after a test is executed.
      */
     protected function tearDown() {
-        parent::tearDown();
         $this->rollbackConfigChanges();
         $this->indexer = new Opus_SolrSearch_Index_Indexer();
         $this->indexer->deleteAllDocs();
@@ -136,6 +135,7 @@ class Opus_SolrSearch_Index_IndexerTest extends TestCase {
             }
             rmdir($dirname);
         }
+        parent::tearDown();
     }
 
     public function testMissingConfigParamSearchEngine_Index_Host() {

@@ -34,20 +34,11 @@
  */
 class Opus_Document_Plugin_IndexTest extends TestCase {
 
-    private $__configBackup;
-    
     public function setUp() {
         parent::setUp();
         $config = Zend_Registry::get('Zend_Config');
-        $this->__configBackup = $config;
         $config->merge(new Zend_Config(array('runjobs' => array('asynchronous' => true))));
     }
-    
-    protected function tearDown() {
-        Zend_Registry::set('Zend_Config', $this->__configBackup);
-        parent::tearDown();
-    }
-
     
     public function testCreateIndexJob() {
 

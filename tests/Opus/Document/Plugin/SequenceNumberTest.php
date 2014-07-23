@@ -35,21 +35,16 @@
 
 class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
 
-    protected $__config_backup = array();
-
     protected function setUp() {
-        $this->__config_backup = Zend_Registry::get('Zend_Config');
-        $config = new Zend_Config($this->__config_backup->toArray(), 1);
+        parent::setUp();
+        $config = Zend_Registry::get('Zend_Config');
+        $config = new Zend_Config($config->toArray(), 1);
         $config = $config->merge(new Zend_Config(array(
             'sequence' => array(
                 'identifier_type' => 'serial',
             ),
         )));
         Zend_Registry::set('Zend_Config', $config);
-    }
-
-    protected function tearDown() {
-        Zend_Registry::set('Zend_Config', $this->__config_backup);
     }
 
     public function testDisabledCachePlugin() {

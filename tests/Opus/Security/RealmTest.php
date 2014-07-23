@@ -43,16 +43,12 @@
  */
 class Opus_Security_RealmTest extends TestCase {
 
-    protected $_config_backup = null;
-
     protected function setUp() {
-        $this->_config_backup = Zend_Registry::get('Zend_Config');
         parent::setUp();
     }
 
     protected function tearDown() {
         parent::tearDown();
-        Zend_Registry::set('Zend_Config', $this->_config_backup);
     }
 
     private function setUpUserAdmin() {
