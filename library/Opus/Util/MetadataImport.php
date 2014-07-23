@@ -149,13 +149,13 @@ class Opus_Util_MetadataImport {
 
     	if (!is_null($this->xmlFile)) {
             if (!$xml->load($this->xmlFile)) {
-                $errMsg = $this->getErrorMessage();
+                $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
                 $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed." . $errMsg);
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
 	} else {
             if (!$xml->loadXML($this->xmlString)) {
-                $errMsg = $this->getErrorMessage();
+                $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
                 $this->log("... ERROR: Cannot load XML document: make sure it is well-formed." . $errMsg);
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
@@ -244,30 +244,6 @@ class Opus_Util_MetadataImport {
                     ),$this->fieldsToKeepOnUpdate);
                 
                 $doc->deleteFields($fieldsToDelete);
-    }
-
-    /**
-     * TODO remove code duplication (see Opus_Util_MetadataImportXmlValidation)
-     */
-    private function getErrorMessage() {
-        $errorMsg = '';
-        foreach (libxml_get_errors() as $error) {
-            $errorMsg .= "\non line $error->line ";
-            switch ($error->level) {
-                case LIBXML_ERR_WARNING:
-                    $errorMsg .= "(Warning $error->code): ";
-                    break;
-                case LIBXML_ERR_ERROR:
-                    $errorMsg .= "(Error $error->code): ";
-                    break;
-                case LIBXML_ERR_FATAL:
-                    $errorMsg .= "(Fatal Error $error->code): ";
-                    break;
-            }
-            $errorMsg .= trim($error->message);
-        }
-        libxml_clear_errors();
-        return $errorMsg;
     }
 
     /**
