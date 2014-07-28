@@ -776,6 +776,7 @@ class Opus_CollectionTest extends TestCase {
 
         $coll = new Opus_Collection();
         $coll->setVisiblePublish('1');
+        $coll->setVisible('1');
         $this->object->addFirstChild($coll);
         $coll->store();
         $this->object->store();
@@ -793,6 +794,7 @@ class Opus_CollectionTest extends TestCase {
         // add two children: one of them (the first child) is invisible
         $coll1 = new Opus_Collection();
         $coll1->setVisiblePublish('1');
+        $coll1->setVisible('1');
         $this->object->addFirstChild($coll1);
         $coll1->store();
 
