@@ -60,15 +60,25 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        $guestRole = Opus_UserRole::fetchByName('guest');
-        if (is_null($guestRole)) {
-            $this->getLogger()->err(__METHOD__ . ': Failed to add guest-role to file ' .
-                    $model->getId() . '; "guest" role does not exist!');
-            return;
-        }
+        $config = Zend_Registry::get('Zend_Config');
 
-        $guestRole->appendAccessFile($model->getId());
-        $guestRole->store();
+        if (!is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
+            $roleName = $config->securityPolicy->files->defaultAccessRole;
+
+            // Empty name -> don't set any role for access
+            if (strlen(trim($roleName)) > 0) {
+                $accessRole = Opus_UserRole::fetchByName($roleName);
+
+                if (is_null($accessRole)) {
+                    $this->getLogger()->err(__METHOD__ . ": Failed to add role '$roleName' to file " .
+                        $model->getId() . "; '$roleName' role does not exist!");
+                    return;
+                }
+
+                $accessRole->appendAccessFile($model->getId());
+                $accessRole->store();
+            }
+        }
     }
 
     public function setLogger($logger) {
