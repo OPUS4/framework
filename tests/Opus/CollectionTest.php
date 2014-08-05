@@ -767,6 +767,17 @@ class Opus_CollectionTest extends TestCase {
 
         $coll = new Opus_Collection();
         $coll->setVisiblePublish('0');
+        $coll->setVisible('0');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisiblePublishChildren());
+        $this->assertTrue($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisiblePublish('0');
+        $coll->setVisible('1');
         $this->object->addFirstChild($coll);
         $coll->store();
         $this->object->store();
@@ -785,6 +796,23 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($this->object->hasChildren());
     }
 
+    public function testHasVisiblePublishChildrenFalseIfNotVisible() {
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisiblePublishChildren());
+        $this->assertFalse($this->object->hasChildren());
+
+        $coll = new Opus_Collection();
+        $coll->setVisiblePublish('1');
+        $coll->setVisible('0');
+        $this->object->addFirstChild($coll);
+        $coll->store();
+        $this->object->store();
+
+        $this->assertFalse($this->object->hasVisiblePublishChildren());
+        $this->assertTrue($this->object->hasChildren());
+    }
+
     /**
      * Test für OPUSVIER-3308.
      */
@@ -800,8 +828,21 @@ class Opus_CollectionTest extends TestCase {
 
         $coll2 = new Opus_Collection();
         $coll2->setVisiblePublish('0');
+        $coll2->setVisible('0');
         $this->object->addFirstChild($coll2);
         $coll2->store();
+
+        $coll3 = new Opus_Collection();
+        $coll3->setVisiblePublish('1');
+        $coll3->setVisible('0');
+        $this->object->addFirstChild($coll3);
+        $coll3->store();
+
+        $coll4 = new Opus_Collection();
+        $coll4->setVisiblePublish('0');
+        $coll4->setVisible('1');
+        $this->object->addFirstChild($coll4);
+        $coll4->store();
 
         $this->object->store();
 
@@ -810,9 +851,11 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($coll1->getId(), $children[0]->getId());
 
         $children = $this->object->getChildren();
-        $this->assertEquals(2, count($children));
-        $this->assertEquals($coll2->getId(), $children[0]->getId());
-        $this->assertEquals($coll1->getId(), $children[1]->getId());
+        $this->assertEquals(4, count($children));
+        $this->assertEquals($coll4->getId(), $children[0]->getId());
+        $this->assertEquals($coll3->getId(), $children[1]->getId());
+        $this->assertEquals($coll2->getId(), $children[2]->getId());
+        $this->assertEquals($coll1->getId(), $children[3]->getId());
     }
 
 }
