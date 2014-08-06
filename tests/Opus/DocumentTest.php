@@ -2088,6 +2088,43 @@ class Opus_DocumentTest extends TestCase {
     }
 
     /**
+     * Sortierung muss auch beim Zugriff über Modelklasse funktionieren.
+     */
+    public function testFileSortOrderThroughFieldModel() {
+        $config = Zend_Registry::get('Zend_Config');
+        $path = $config->workspacePath . '/' . uniqid();
+        touch($path);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $file1 = $doc->addFile();
+        $file1->setPathName('testC.txt');
+        $file1->setSortOrder(20);
+        $file1->setTempFile($path);
+        $file2 = $doc->addFile();
+        $file2->setPathName('testB.txt');
+        $file2->setSortOrder(10);
+        $file2->setTempFile($path);
+        $file3 = $doc->addFile();
+        $file3->setPathName('testA.txt');
+        $file3->setSortOrder(30);
+        $file3->setTempFile($path);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $field = $doc->getField('File');
+        $files = $field->getValue();
+
+        unlink($file1->getPath());
+        unlink($file2->getPath());
+        unlink($file3->getPath());
+
+        $this->assertEquals($files[0]->getPathName(), 'testB.txt');
+        $this->assertEquals($files[1]->getPathName(), 'testC.txt');
+        $this->assertEquals($files[2]->getPathName(), 'testA.txt');
+    }
+
+    /**
      * If the sort order is equal for every file, the results should be sorted ascending according to their id.
      */
     public function testGetFileSortingWithEqualSortOrder() {
