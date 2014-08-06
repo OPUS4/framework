@@ -679,14 +679,23 @@ class Opus_FileTest extends TestCase {
 
         $docId = $doc->store();
 
-        $doc = new Opus_Document($docId);
-        $files = $doc->getFile();
-
         $dateNow = new Opus_Date();
         $dateNow->setNow();
 
-        $this->assertEquals(substr($files[0]->getServerDateSubmitted()->__toString(), 0, 16),
-            substr($dateNow->__toString(), 0, 16), 'Failed asserting submitting date of documents file');
+        $doc = new Opus_Document($docId);
+        $files = $doc->getFile();
+
+        $file = $files[0];
+
+        $this->assertNotNull($file->getServerDateSubmitted());
+
+        // Prüfen, ob aktuelle Zeit gesetzt wurde
+        $now = $dateNow->getUnixTimestamp();
+
+        $timeDiff = $now - $file->getServerDateSubmitted()->getUnixTimestamp();
+
+        // The choice of a 5 second limit is arbitrary, 1 second difference was observed on CI-System
+        $this->assertTrue($timeDiff < 5, "ServerDateSubmitted differs from NOW by $timeDiff seconds");
     }
 
     /**
