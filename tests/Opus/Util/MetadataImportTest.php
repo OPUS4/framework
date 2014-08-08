@@ -252,7 +252,7 @@ class Opus_Util_MetadataImportTest extends TestCase {
 
     /*
      * Testet ob true/false und 0/1 als Wert für BelongsToBibliography akzeptiert wird.
-     * Regressiontest für OPUSVIER-2570.
+     * Regressiontest für OPUSVIER-2570 und OPUSVIER-3323.
      */
     public function testBelongsToBibliography() {
         $this->filename = 'test_import_regression2570.xml';

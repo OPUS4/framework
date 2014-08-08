@@ -18,6 +18,7 @@
             <person role="editor" firstName="John" lastName="Doe" />
             <person role="referee" firstName="Jane" lastName="Doe"  email="doe@example.org" allowEmailContact="0" />
             <person role="advisor" firstName="Janet" lastName="Doe"  email="doe@example.org" allowEmailContact="1" />
+            <person role="other" firstName="Janet" lastName="Doe"  email="doe@example.org" allowEmailContact="1" />
         </persons>
 
         <dates>
