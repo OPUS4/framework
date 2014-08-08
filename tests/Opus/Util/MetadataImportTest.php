@@ -250,6 +250,23 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->assertEquals(1, $advisor[0]->getAllowEmailContact());
     }
 
+    /**
+     * Regressiontest OPUSVIER-3323
+     */
+    public function testSupportPersonOther() {
+        $this->filename = 'test_import_regression2570.xml';
+        $this->loadInputFile();
+        $importer = new Opus_Util_MetadataImport($this->xml);
+
+        $importer->run();
+        $importedDoc = new Opus_Document(1);
+
+        $other = $importedDoc->getPersonOther();
+        $this->assertEquals(1, count($other));
+        $this->assertEquals('Janet', $other[0]->getFirstName());
+        $this->assertEquals('Doe', $other[0]->getLastName());
+    }
+
     /*
      * Testet ob true/false und 0/1 als Wert für BelongsToBibliography akzeptiert wird.
      * Regressiontest für OPUSVIER-2570 und OPUSVIER-3323.
