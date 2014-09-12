@@ -816,7 +816,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
 
         // need to clone object because it gets altered by store/delete calls
-        $getsCalled->with(clone $model);
+        $getsCalled->with($model);
 
         // trigger plugin behavior
         $model->$call();
