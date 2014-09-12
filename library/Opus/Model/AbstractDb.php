@@ -671,7 +671,11 @@ abstract class Opus_Model_AbstractDb
      * @return string Field name in camel case
      */
     public static function convertColumnToFieldname($column) {
-        return preg_replace('/(?:^|_)([a-z])([a-z]+)/e', "strtoupper('\\1').'\\2'", $column);
+        return preg_replace_callback('/(?:^|_)([a-z])([a-z]+)/',
+            function ($matches) {
+                return strtoupper($matches[1]) . $matches[2];
+            },
+            $column);
     }
 
     /**
