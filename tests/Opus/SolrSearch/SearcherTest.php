@@ -374,6 +374,22 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
     }
 
+    public function testMockIdSearch() {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
+        $query->setField('id', $docId);
+
+        $searcher = new Opus_SolrSearch_Searcher();
+        $resultList = $searcher->search($query);
+
+        $result = $resultList->getResults();
+
+        $this->assertEquals($docId, $result[0]->getId());
+    }
+
     private function createDocWithFulltext($fulltext1, $fulltext2 = null) {
         $doc = new Opus_Document();
         $doc->setServerState('published');

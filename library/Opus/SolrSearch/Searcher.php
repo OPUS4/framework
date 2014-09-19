@@ -106,6 +106,9 @@ class Opus_SolrSearch_Searcher {
      * @throws Opus_SolrSearch Exception If Solr server responds with an error or the response is empty.
      */
     public function search($query, $validateDocIds = true) {
+        if ($query->getSearchType() == Opus_SolrSearch_Query::DOC_ID) {
+            return $this->mockIdSearch($query->getField('id'));
+        }
         /**
          * @var Apache_Solr_Response $solr_response
          */
@@ -257,6 +260,16 @@ class Opus_SolrSearch_Searcher {
             array_push($result, trim($facet));
         }
         return $result;
+    }
+
+    /**
+     * If searchtype == 'id', skip search and return result list with document.
+     * @param $id
+     * @return Opus_SolrSearch_ResultList
+     */
+    private function mockIdSearch($id) {
+        $doc = new Opus_Document($id);
+        return new Opus_SolrSearch_ResultList(array($doc));
     }
 }
 
