@@ -27,7 +27,8 @@
  * @category    Framework
  * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @author      Michael Lang <lang@zib.de>
+ * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -64,6 +65,10 @@ class Opus_SolrSearch_Index_Indexer {
      */
     private $log;
 
+    private $totalFileCount;
+
+    private $errorFileCount;
+
     /**
      * Establishes a connection to a Solr server. Additionally, deletes all documents from index,
      * if $deleteAllDocs is set to true.
@@ -97,6 +102,8 @@ class Opus_SolrSearch_Index_Indexer {
             $this->deleteAllDocs();
             $this->commit();
         }
+        $this->errorFileCount = 0;
+        $this->totalFileCount = 0;
     }
 
     /**
@@ -118,7 +125,7 @@ class Opus_SolrSearch_Index_Indexer {
      * Returns a Apache_Solr_Service object which encapsulates the communication
      * with the Solr server.
      *
-     * @return Apache_Solr_Server
+     * @return Apache_Solr_Service
      * @throws Opus_SolrSearch_Index_Exception If no connection could be 
      * established or Solr server does not react.
      */
@@ -310,10 +317,12 @@ class Opus_SolrSearch_Index_Indexer {
         foreach ($files as $file) {
             $fulltext = '';
             try {
+                $this->totalFileCount++;
                 $fulltext = trim(iconv("UTF-8","UTF-8//IGNORE", $this->getFileContent($file)));
             }
             catch (Opus_SolrSearch_Index_Exception $e) {
-                $this->log->debug('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
+                $this->errorFileCount++;
+                $this->log->err('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
             
             if ($fulltext != '') {
@@ -360,12 +369,15 @@ class Opus_SolrSearch_Index_Indexer {
     private function getFileContent(Opus_File $file) {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
+            $this->log->err($file->getPath() . ' does not exist.');
             throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' does not exist.');
         }
         if (!$file->isReadable()) {
+            $this->log->err($file->getPath() . ' is not readable.');
             throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' is not readable.');
         }
         if (!$this->hasSupportedMimeType($file)) {
+            $this->log->err($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
             throw new Opus_SolrSearch_Index_Exception($file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported');
         }
 
@@ -381,7 +393,7 @@ class Opus_SolrSearch_Index_Indexer {
             $response = $this->getSolrServer('extract')->extract($file->getPath(), $params);
             // TODO add mime type information
             $jsonResponse = Zend_Json_Decoder::decode($response->getRawResponse());
-            if (array_key_exists('', $jsonResponse)) {                
+            if (array_key_exists('', $jsonResponse)) {
                 $fulltext = trim($jsonResponse['']);
 
                 $this->setCachedFileContent($file, $fulltext);
@@ -390,8 +402,9 @@ class Opus_SolrSearch_Index_Indexer {
             }
         }
         catch (Exception $e) {
+            $this->log->err('error while extracting fulltext from file ' . $file->getPath());
             throw new Opus_SolrSearch_Index_Exception('error while extracting fulltext from file ' . $file->getPath(), null, $e);
-        }        
+        }
         return '';
     }
 
@@ -599,5 +612,37 @@ class Opus_SolrSearch_Index_Indexer {
             $this->log->err("$msg : " . $e->getMessage());
             throw new Opus_SolrSearch_Index_Exception($msg, 0, $e);
         }
+    }
+
+    /**
+     * @return int
+     */
+    public function getErrorFileCount()
+    {
+        return $this->errorFileCount;
+    }
+
+    /**
+     * @param int $errorFileCount
+     */
+    public function setErrorFileCount($errorFileCount)
+    {
+        $this->errorFileCount = $errorFileCount;
+    }
+
+    /**
+     * @return int
+     */
+    public function getTotalFileCount()
+    {
+        return $this->totalFileCount;
+    }
+
+    /**
+     * @param int $totalFileCount
+     */
+    public function setTotalFileCount($totalFileCount)
+    {
+        $this->totalFileCount = $totalFileCount;
     }
 }
