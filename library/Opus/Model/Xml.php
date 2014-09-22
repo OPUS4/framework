@@ -133,6 +133,8 @@ class Opus_Model_Xml {
      *
      * @param Opus_Uri_Resolver $resolver Resolver implementation that gets called for xlink:ref content.
      * @return Opus_Model_Xml Fluent interface
+     *
+     * TODO seems unused in OPUS
      */
     public function setXlinkResolver(Opus_Uri_Resolver $resolver) {
         $this->_config->_xlinkResolver = $resolver;

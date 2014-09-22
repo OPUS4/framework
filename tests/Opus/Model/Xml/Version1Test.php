@@ -702,9 +702,9 @@ class Opus_Model_Xml_Version1Test extends TestCase {
             '</testCreateModelFromXmlAssignsCorrectSubmodels></Opus>';
 
         $omx = new Opus_Model_Xml;
+
         $omx->setXml($xmlData);
         $model = $omx->getModel();
-
         $this->assertNotNull($model->getLink(), 'No linked model assigned.');
         $this->assertInstanceOf('Opus_Model_ModelAbstract', $model->getLink(), 'Wrong model type.');
         $this->assertEquals(4711, $model->getLink()->getValue(), 'Sub model initialised incorrectly.');
@@ -717,7 +717,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
      */
     public function testCallToResolverWhenXlinkIsEncounteredForDeserializingModels() {
         $mockResolver = $this->getMock('Opus_Uri_Resolver', array('get'));
-        $xmlData = '<Opus><Opus_Model_ModelAbstract xlink:href="www.example.org/item/12" /></Opus>';
+        $xmlData = '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><Opus_Model_ModelAbstract xlink:href="www.example.org/item/12" /></Opus>';
 
         $mockResolver->expects($this->once())
             ->method('get')
@@ -752,7 +752,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
 
         // XML for update
         $xmlData =
-            '<Opus><testCallToResolverWhenXlinkIsEncounteredForUpdatingModels>' .
+            '<Opus xmlns:xlink="http://www.w3.org/1999/xlink"><testCallToResolverWhenXlinkIsEncounteredForUpdatingModels>' .
             '<Link xlink:href="www.example.org/mockitem" />' .
             '</testCallToResolverWhenXlinkIsEncounteredForUpdatingModels></Opus>';
 
