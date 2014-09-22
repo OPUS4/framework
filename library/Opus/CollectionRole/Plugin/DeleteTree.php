@@ -25,26 +25,38 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    TODO
- * @package     TODO
+ * @category    Framework
+ * @package     Opus
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * 
+ * Plugin for deleting collections of CollectionRole und updating documents.
  */
 class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCollection {
 
+    /**
+     * Updates documents and deletes collections of CollectionRole.
+     * @param Opus_Model_AbstractDb $model
+     */
     public function preDelete(Opus_Model_AbstractDb $model) {
         if ($model->isNewRecord()) {
             return;
         }
 
-        $this->updateDocuments($model);
-        
+        // Update documents, incl. ServerDateModified
+        if ($model instanceof Opus_CollectionRole) {
+            $rootCollection = $model->getRootCollection();
+            if (!is_null($rootCollection)) {
+                $this->updateDocuments($rootCollection);
+            }
+        }
+
+        // Delete collections belonging to CollectionRole
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $collections->deleteTree($model->getId());
     }

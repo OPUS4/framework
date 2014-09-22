@@ -71,8 +71,9 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase {
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
-        $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
-
+        $this->assertTrue(
+            $serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(),
+            'Expected document server_date_modfied to be changed after deletion of collection');
     }
 
     /**

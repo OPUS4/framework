@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,13 +27,14 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Edouard Simon (edouard.simon@zib.de)
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Base class for Collection(Role) plugins
+ * Base class for plugins that need to update documents associated with collection tree.
  * 
  */
 abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Abstract {
@@ -42,20 +42,22 @@ abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Ab
     /**
      * make sure documents related to Collection[Role|]s in subtree are updated 
      * (XML-Cache and server_date_published)
+     *
+     * @param Opus_Collection Starting point for recursive update to documents
      */
     protected function updateDocuments($model) {
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
 
-        // 
-        // 
         $collectionIdSelect = $collections->selectSubtreeById($model->getId(), 'id');
 
         $documentFinder = new Opus_DocumentFinder();
         $documentFinder->setCollectionId($collectionIdSelect);
 
+        // clear affected documents from cache
         $xmlCache = new Opus_Model_Xml_Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($documentFinder->getSelectIds());
 
+        // update ServerDateModified for affected documents
         $date = new Opus_Date();
         $date->setNow();
         Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
