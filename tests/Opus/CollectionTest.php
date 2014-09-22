@@ -70,8 +70,9 @@ class Opus_CollectionTest extends TestCase {
     }
 
     protected function tearDown() {
-        if (is_object($this->role_fixture))
+        if (is_object($this->role_fixture)) {
             $this->role_fixture->delete();
+        }
         parent::tearDown();
     }
 

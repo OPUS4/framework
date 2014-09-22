@@ -46,6 +46,11 @@ abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Ab
      * @param Opus_Collection Starting point for recursive update to documents
      */
     protected function updateDocuments($model) {
+        if (is_null($model) || is_null($model->getId())) {
+            // TODO explain why this is right
+            return;
+        }
+
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
 
         $collectionIdSelect = $collections->selectSubtreeById($model->getId(), 'id');
