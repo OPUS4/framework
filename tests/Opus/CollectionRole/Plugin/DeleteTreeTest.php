@@ -74,5 +74,53 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase {
         $this->assertTrue($serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
 
     }
-    
+
+    /**
+     * Testet, daß die richtigen Collections gelöscht werden und auch nur verknüpfte Dokumente modifiziert werden.
+     */
+    public function testDeletingOfCollectionRoleUsesCorrectIdForRootCollection() {
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('ColRole1Name');
+        $collectionRole->setOaiName('ColRole1OaiName');
+        $colRole1Id = $collectionRole->store(); // ID = 1
+
+        $this->assertEquals('1', $colRole1Id, "Unexpected ID");
+
+        $root = $collectionRole->addRootCollection();
+        $collection = $root->addLastChild();
+        $collectionRole->store();
+
+        $collectionId = $collection->getId();
+
+        $doc = new Opus_Document();
+
+        $doc->addCollection($collection); // associate document with Collection 2 of CollectionRole 1
+
+        $docId = $doc->store();
+
+        $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $this->assertEquals('2', $collectionId);
+
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('ColRole2Name');
+        $collectionRole->setOaiName('ColRole2OaiName');
+        $colRole2Id = $collectionRole->store();
+
+        $this->assertEquals('2', $colRole2Id);
+
+        $collectionRole->delete(); // deleting CollectionRole 2 should not affect document
+
+        // make sure collection 2 still exists
+        $collection = new Opus_Collection($collectionId);
+
+        // make sure document ServerDateModified wasn't changed
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            "ServerDateModified of unassigned document was changed.");
+    }
+
 }
