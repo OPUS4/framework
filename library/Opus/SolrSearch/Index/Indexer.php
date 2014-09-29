@@ -614,35 +614,12 @@ class Opus_SolrSearch_Index_Indexer {
         }
     }
 
-    /**
-     * @return int
-     */
-    public function getErrorFileCount()
-    {
+    public function getErrorFileCount() {
         return $this->errorFileCount;
     }
 
-    /**
-     * @param int $errorFileCount
-     */
-    public function setErrorFileCount($errorFileCount)
-    {
-        $this->errorFileCount = $errorFileCount;
-    }
-
-    /**
-     * @return int
-     */
-    public function getTotalFileCount()
-    {
+    public function getTotalFileCount() {
         return $this->totalFileCount;
     }
 
-    /**
-     * @param int $totalFileCount
-     */
-    public function setTotalFileCount($totalFileCount)
-    {
-        $this->totalFileCount = $totalFileCount;
-    }
 }
