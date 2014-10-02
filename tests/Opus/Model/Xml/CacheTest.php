@@ -460,6 +460,46 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), '');
     }
 
+    /**
+     * This test checks if the cache is updated, if after creating a document, it is instantiated again to add an
+     * author. The cache is updated if there is a sleep (see below) between storing and instantiation, but it does
+     * not work without the sleep line. See OPUSVIER-3392.
+     */
+    public function testCacheUpdatedForAddingPersonRightAfterStore() {
+        $doc = new Opus_Document();
+        $doc->setType('doctoral_thesis');
+        $doc->setLanguage('deu');
+        $doc->setServerState('published');
+        $doc->setPublishedYear(2014);
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Test Dokument');
+        $title->setLanguage('deu');
+
+        $docId = $doc->store();
+
+        // sleep(1) works with sleep
+
+        $doc = new Opus_Document($docId);
+
+        $person = new Opus_Person();
+        $person->setFirstName('John');
+        $person->setLastName('Doe');
+        $doc->addPersonAuthor($person);
+
+        $doc->store();
+
+        $table = new Opus_Db_DocumentXmlCache();
+        $rows = $table->fetchAll();
+
+        $this->assertEquals(1, count($rows));
+
+        $row = $rows->current();
+
+        $xmlData = $row->xml_data;
+
+        $this->assertContains('John', $xmlData, 'Cache should contain author.');
+    }
 
 }
 
