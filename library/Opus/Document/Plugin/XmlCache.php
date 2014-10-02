@@ -41,6 +41,8 @@
 class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
 
     /**
+     * Function is only called if document was modified.
+     *
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
@@ -49,12 +51,14 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
             $logger->debug('Opus_Document_Plugin_XmlCache::postStore() with id ' . $model->getId());
         }
 
-        $model = new Opus_Document($model->getId());
-        
         $cache = new Opus_Model_Xml_Cache();
-
-        // xml version 1
         $omx = new Opus_Model_Xml();
+
+        // remove document from cache (function only called if modified)
+        $omx->setStrategy(new Opus_Model_Xml_Version1);
+        $cache->remove($model->getId(), floor($omx->getStrategyVersion()));
+
+        // refresh cache (TODO does it make sense?)
         $omx->setStrategy(new Opus_Model_Xml_Version1)
             ->excludeEmptyFields()
             ->setModel($model)
@@ -62,6 +66,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
         $dom = $omx->getDomDocument();
 
         // Skip caching of XML-Version2.
+        // TODO why?
         $index_version_two = false;
         if ($index_version_two) {
             // xml version 2
@@ -71,14 +76,12 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
                 ->setXmlCache($cache);
             $dom = $omx->getDomDocument();
         }
-
     }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
     public function postDelete($modelId) {
-
         $cache = new Opus_Model_Xml_Cache();
         $omx = new Opus_Model_Xml;
 
@@ -89,7 +92,6 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
         // xml version 2
         $omx->setStrategy(new Opus_Model_Xml_Version2);
         $cache->remove($modelId, floor($omx->getStrategyVersion()));
-
     }
 
 }

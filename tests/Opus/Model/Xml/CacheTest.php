@@ -478,7 +478,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
 
         $docId = $doc->store();
 
-        // sleep(1) works with sleep
+        // sleep(1); // works with sleep
 
         $doc = new Opus_Document($docId);
 

@@ -38,6 +38,12 @@ class Opus_Model_Xml_Cache {
     private $reindexDocumentAfterAddingCacheEntry = true;
 
     /**
+     * Logger object.
+     * @var null
+     */
+    private $logger = null;
+
+    /**
      *
      *
      * @return void
@@ -183,7 +189,6 @@ class Opus_Model_Xml_Cache {
      * @return boolean
      */
     public function remove($documentId, $xmlVersion) {
-
         $rowSet = $this->_table->find($documentId, $xmlVersion);
 
         if (1 === $rowSet->count()) {
@@ -241,6 +246,17 @@ class Opus_Model_Xml_Cache {
 
         $indexPlugin = new Opus_Document_Plugin_Index();
         $indexPlugin->postStore($doc);
+    }
+
+    /**
+     * Returns logger.
+     * @return Zend_Log
+     */
+    public function getLogger() {
+        if (is_null($this->logger)) {
+            $this->logger = Zend_Registry::get('Zend_Log');
+        }
+        return $this->logger;
     }
 
 }
