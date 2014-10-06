@@ -1383,29 +1383,35 @@ class Opus_DocumentTest extends TestCase {
         $filename = $config->workspacePath;
         touch($filename);
 
-        $d = new Opus_Document();
-        $d->setType('test');
-        $d->setServerState('published');
-        $f = $d->addFile();
-        $f->setPathName($filename);
-        $d->store();
+        $doc = new Opus_Document();
+        $doc->setType('test');
+        $doc->setServerState('published');
+        $file = $doc->addFile();
+        $file->setPathName($filename);
+        $doc->store();
 
-        $d = new Opus_Document($d->getId());
-        $f = $d->getFile(0);
+        $doc = new Opus_Document($doc->getId());
+        $file = $doc->getFile(0);
+
+        $this->assertEquals('1', $file->getVisibleInFrontdoor());
+        $this->assertEquals('1', $file->getVisibleInOai());
+
+        $cache = new Opus_Model_Xml_Cache();
+        $xmlVersion1 = new Opus_Model_Xml_Version1();
 
         $xmlModel = new Opus_Model_Xml;
-        $xmlModel->setModel($d);
-        $xmlModel->setStrategy(new Opus_Model_Xml_Version1);
-        $xmlModel->setXmlCache(new Opus_Model_Xml_Cache);
+        $xmlModel->setModel($doc);
+        $xmlModel->setStrategy($xmlVersion1);
+        $xmlModel->setXmlCache($cache);
 
         $xml_file = $xmlModel->getDomDocument()->getElementsByTagName('File')->item(0);
         $this->assertInstanceOf('DOMNode', $xml_file);
 
-        $expected_visible_field = $f->getVisibleInFrontdoor();
+        $expected_visible_field = $file->getVisibleInFrontdoor();
         $actual_visible_field = $xml_file->getAttribute('VisibleInFrontdoor');
         $this->assertEquals($expected_visible_field, $actual_visible_field);
 
-        $expected_visible_field = $f->getVisibleInOai();
+        $expected_visible_field = $file->getVisibleInOai();
         $actual_visible_field = $xml_file->getAttribute('VisibleInOai');
         $this->assertEquals($expected_visible_field, $actual_visible_field);
     }

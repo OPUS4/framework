@@ -51,12 +51,14 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
             $logger->debug('Opus_Document_Plugin_XmlCache::postStore() with id ' . $model->getId());
         }
 
+        // TODO can that be eleminated? why is it necessary?
+        $model = new Opus_Document($model->getId());
+
         $cache = new Opus_Model_Xml_Cache();
         $omx = new Opus_Model_Xml();
 
-        // remove document from cache (function only called if modified)
-        $omx->setStrategy(new Opus_Model_Xml_Version1);
-        $cache->remove($model->getId(), floor($omx->getStrategyVersion()));
+        // remove document from cache. This can always be done, because postStore is only called if model was modified.
+        $cache->removeAllEntriesWhereDocumentId($model->getId());
 
         // refresh cache (TODO does it make sense?)
         $omx->setStrategy(new Opus_Model_Xml_Version1)

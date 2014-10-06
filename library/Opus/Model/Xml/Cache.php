@@ -54,7 +54,7 @@ class Opus_Model_Xml_Cache {
     }
 
     /**
-     *
+     * Gets DOMDocument object for document from cache.
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
@@ -64,28 +64,46 @@ class Opus_Model_Xml_Cache {
     public function get($documentId, $xmlVersion) {
         $dom = new DOMDocument('1.0', 'utf-8');
 
-        $rowSet = $this->_table->find($documentId, $xmlVersion);
-        if (1 === $rowSet->count()) {
-            $xmlData = $rowSet->current()->xml_data;
+        $xmlData = $this->getData($documentId, $xmlVersion);
 
+        if (!is_null($xmlData)) {
             libxml_clear_errors();
             $result = $dom->loadXML($xmlData);
             $errors = libxml_get_errors();
             if ($result === FALSE) {
-                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" . 
+                $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
                     'number of errors: ' . count($errors) . "\n";
                 foreach ($errors as $errnum => $error) {
                     $errMsg .= "\n" . 'error #' . $errnum . "\n\t" .
-                    'error level: ' . $error->level . "\n\t" .
-                    'error code: ' . $error->code . "\n\t" .
-                    'error message: ' . $error->message . "\n\t" .
-                    'line:column: ' . $error->line . ':' . $error->column;
+                        'error level: ' . $error->level . "\n\t" .
+                        'error code: ' . $error->code . "\n\t" .
+                        'error message: ' . $error->message . "\n\t" .
+                        'line:column: ' . $error->line . ':' . $error->column;
                 }
                 Zend_Registry::get('Zend_Log')->err($errMsg);
                 throw new Opus_Model_Exception($errMsg);
             }
         }
+
         return $dom;
+    }
+
+    /**
+     * Returns document XML from cache.
+     * @param $documentId Database ID of document
+     * @param $xmlVersion Version of XML
+     * @return null|string Document XML from cache
+     */
+    public function getData($documentId, $xmlVersion) {
+        $rowSet = $this->_table->find($documentId, $xmlVersion);
+
+        $xmlData = null;
+
+        if (1 === $rowSet->count()) {
+            $xmlData = $rowSet->current()->xml_data;
+        }
+
+        return $xmlData;
     }
 
     /**
