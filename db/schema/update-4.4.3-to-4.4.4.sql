@@ -6,6 +6,7 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 START TRANSACTION;
 
 -- sort_order type should be int not string
+UPDATE document_files SET sort_order = '0' WHERE sort_order IS NULL;
 ALTER TABLE document_files MODIFY sort_order INTEGER NOT NULL DEFAULT 0;
 
 -- Date of document creation on server must always be set.
