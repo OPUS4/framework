@@ -1166,17 +1166,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     public function applySortOrderOfChildren($sortedIds) {
         $table = $this->_primaryTableRow->getTable();
-
-        $childrenIds = $table->getChildrenIdsById($this->getId());
-
-        foreach ($sortedIds as $index => $childId) {
-            if (in_array($childId, $childrenIds)) {
-                $table->moveSubTreeToPosition($childId, $index);
-            }
-            else {
-                throw new InvalidArgumentException("ID $childId is no child of ID {$this->getId()}");
-            }
-        }
+        $table->applySortOrderOfChildren($this->getId(), $sortedIds);
     }
     
 }

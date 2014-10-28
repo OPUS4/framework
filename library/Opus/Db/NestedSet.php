@@ -773,5 +773,24 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
         return $childrenIds;
     }
 
+    /**
+     * Sorts children in the specified order.
+     *
+     * @param $sortedIds Array with node IDs in desired order
+     * @throws InvalidArgumentException if one of the IDs ist not a child node
+     */
+    public function applySortOrderOfChildren($id, $sortedIds) {
+        $childrenIds = $this->getChildrenIdsById($id);
+
+        foreach ($sortedIds as $index => $childId) {
+            if (in_array($childId, $childrenIds)) {
+                $this->moveSubTreeToPosition($childId, $index);
+            }
+            else {
+                throw new InvalidArgumentException("ID $childId is no child of ID {$id}");
+            }
+        }
+    }
+
 }
 
