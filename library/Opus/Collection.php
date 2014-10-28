@@ -757,6 +757,23 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $nestedsets = $this->_primaryTableRow->getTable();
         $nestedsets->moveSubTreeBeforePreviousSibling($this->getId());
     }
+
+    public function moveToPosition($position) {
+        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets->moveSubTreeToPosition($this->getId(), $position);
+    }
+
+    public function moveToStart() {
+        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets->moveSubTreeToPosition($this->getId(), 0);
+    }
+
+    /**
+     */
+    public function moveToEnd() {
+        $nestedSets = $this->_primaryTableRow->getTable();
+        $nestedSets->moveSubTreeToPosition($this->getId());
+    }
     
     /**
      * _storeInternalFields(): Manipulate _primaryTableRow to preserve the
@@ -1075,6 +1092,91 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $select->distinct(true)->columns("count(id)");
 
         return intval($table->getAdapter()->fetchOne($select)) > 0;
+    }
+
+    /**
+     * Sorts the child nodes by value of model field name.
+     */
+    public function sortChildrenByName($reverse = false) {
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectChildrenById($this->getId());
+
+        $children = $table->getAdapter()->fetchAll($select);
+
+        if ($reverse === false) {
+            usort($children, function ($node1, $node2) {
+                if ($node1['name'] == $node2['name']) {
+                    return 0;
+                }
+                return ($node1['name'] < $node2['name']) ? -1 : 1;
+            });
+        }
+        else {
+            usort($children, function ($node1, $node2) {
+                if ($node1['name'] == $node2['name']) {
+                    return 0;
+                }
+                return ($node1['name'] > $node2['name']) ? -1 : 1;
+            });
+        }
+
+        foreach ($children as $index => $child) {
+            $table->moveSubTreeToPosition($child['id'], $index);
+        }
+    }
+
+    /**
+     * Sorts children by value of model field number.
+     */
+    public function sortChildrenByNumber($reverse = false) {
+        $table = $this->_primaryTableRow->getTable();
+
+        $select = $table->selectChildrenById($this->getId());
+
+        $children = $table->getAdapter()->fetchAll($select);
+
+        if ($reverse === false) {
+            usort($children, function ($node1, $node2) {
+                if ($node1['number'] == $node2['number']) {
+                    return 0;
+                }
+                return ($node1['number'] < $node2['number']) ? -1 : 1;
+            });
+        }
+        else {
+            usort($children, function ($node1, $node2) {
+                if ($node1['number'] == $node2['number']) {
+                    return 0;
+                }
+                return ($node1['number'] > $node2['number']) ? -1 : 1;
+            });
+        }
+
+        foreach ($children as $index => $child) {
+            $table->moveSubTreeToPosition($child['id'], $index);
+        }
+    }
+
+    /**
+     * Sorts children in the specified order.
+     *
+     * @param $sortedIds Array with node IDs in desired order
+     * @throws InvalidArgumentException if one of the IDs ist not a child node
+     */
+    public function applySortOrderOfChildren($sortedIds) {
+        $table = $this->_primaryTableRow->getTable();
+
+        $childrenIds = $table->getChildrenIdsById($this->getId());
+
+        foreach ($sortedIds as $index => $childId) {
+            if (in_array($childId, $childrenIds)) {
+                $table->moveSubTreeToPosition($childId, $index);
+            }
+            else {
+                throw new InvalidArgumentException("ID $childId is no child of ID {$this->getId()}");
+            }
+        }
     }
     
 }

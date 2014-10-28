@@ -627,7 +627,6 @@ class Opus_CollectionTest extends TestCase {
      * Regression Test for OPUSVIER-2726
      */
     public function testMoveBeforePrevSibling() {
-        
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -636,7 +635,6 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($children[2]->getNumber(), 'test3', 'Test fixture was modified.');
         $this->assertEquals($children[3]->getNumber(), 'test4', 'Test fixture was modified.');
 
-        
         $collection = new Opus_Collection(8);
         $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
         
@@ -662,14 +660,13 @@ class Opus_CollectionTest extends TestCase {
         $childrenOfTest3_2 = $childrenOfTest3[1]->getChildren();
         $this->assertEquals($childrenOfTest3_2[0]->getNumber(), 'test3.2.1');
 
- 
+        $this->validateNestedSet();
     }
 
     /**
     * Regression Test for OPUSVIER-2726
     */
     public function testMoveAfterNextSibling() {
-        
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -678,7 +675,6 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($children[3]->getNumber(), 'test4');
         $this->assertEquals($children[4]->getNumber(), 'test5');
 
-        
         $collection = new Opus_Collection(8);
         $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
         
@@ -693,11 +689,34 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(count($children[3]->getChildren()), 1);
         $this->assertEquals($children[4]->getNumber(), 'test4');
         $this->assertEquals(count($children[4]->getChildren()), 2);
- 
+
+        $this->validateNestedSet();
     }
+
+    public function testNestedSet() {
+        $this->setUpFixtureForMoveTests();
+
+        $this->validateNestedSet();
+    }
+
+    /**
+     *   1,1,NULL     ,NULL,      NULL,1,28,NULL,0,1
+     *   2,1,test     , Testeintrag   ,NULL,2,3,1,0,1
+     *   3,1,test2    ,"Testeintrag 2",NULL,4,5,1,0,1
+     *   4,1,test3    ,"Testeintrag 3",NULL,6,13,1,0,1
+     *   5,1,test3.1  ,"Testeintrag 3.1",NULL,7,8,4,0,1
+     *   6,1,test3.2  ,"Testeintrag 3.2",NULL,9,12,4,0,1
+     *   7,1,test3.2.1,"Testeintrag 3.2.1",NULL,10,11,6,0,1
+     *   8,1,test4    ,"Testeintrag 4",NULL,14,19,1,0,1
+     *   9,1,test4.1  ,"Testeintrag 4.1",NULL,15,16,8,0,1
+     *  10,1,test4.2  ,"Testeintrag 4.2",NULL,17,18,8,0,1
+     *  11,1,test5    ,"Testeintrag 5",NULL,20,23,1,0,1
+     *  12,1,test5.1  ,"Testeintrag 5.1",NULL,21,22,11,0,1
+     *  13,1,test6    ,"Testeintrag 6",NULL,24,25,1,0,1
+     *  14,1,test7    ,"Testeintrag 7",NULL,26,27,1,0,1
+     */
     
     protected function setUpFixtureForMoveTests() {
-        
         $root = $this->object;
 
         $children = array();
@@ -754,7 +773,6 @@ class Opus_CollectionTest extends TestCase {
         $children[count($children) -1]->setNumber('test7');
         
         $root->store();
-
     }
 
     /**
@@ -857,6 +875,233 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($coll3->getId(), $children[1]->getId());
         $this->assertEquals($coll2->getId(), $children[2]->getId());
         $this->assertEquals($coll1->getId(), $children[3]->getId());
+    }
+
+    public function testMoveToPositionUp() {
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test3', $children[2]->getNumber(), 'Test fixture was modified.');
+        $this->assertEquals('test4', $children[3]->getNumber(), 'Test fixture was modified.');
+
+        $collection = new Opus_Collection(8);
+        $this->assertEquals('test4', $collection->getNumber(), 'Test fixture was modified.');
+
+        $collection->moveToPosition(1);
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test4', $children[1]->getNumber());
+        $this->assertEquals('test2', $children[2]->getNumber());
+        $this->assertEquals('test3', $children[3]->getNumber());
+
+        $childrenOfTest4 = $children[1]->getChildren();
+
+        $this->assertEquals('test4.1', $childrenOfTest4[0]->getNumber());
+        $this->assertEquals('test4.2', $childrenOfTest4[1]->getNumber());
+
+        $childrenOfTest3 = $children[3]->getChildren();
+        $this->assertEquals('test3.1', $childrenOfTest3[0]->getNumber());
+        $this->assertEquals('test3.2', $childrenOfTest3[1]->getNumber());
+
+        $childrenOfTest3_2 = $childrenOfTest3[1]->getChildren();
+        $this->assertEquals('test3.2.1', $childrenOfTest3_2[0]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testMoveToPositionDown() {
+        $this->setUpFixtureForMoveTests();
+
+        $collection = new Opus_Collection(4);
+
+        $this->assertEquals('test3', $collection->getNumber());
+
+        $collection->moveToPosition(5);
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test3', $children[4]->getNumber());
+        $this->assertEquals('test4', $children[2]->getNumber());
+        $this->assertEquals('test6', $children[5]->getNumber());
+        $this->assertEquals('test7', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testMoveToStart() {
+        $this->setUpFixtureForMoveTests();
+
+        $collection = new Opus_Collection(11);
+
+        $this->assertEquals('test5', $collection->getNumber());
+
+        $collection->moveToStart();
+
+        $root = new Opus_Collection(1);
+
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test5', $children[0]->getNumber());
+        $this->assertEquals('test', $children[1]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testMoveToEnd() {
+        $this->setUpFixtureForMoveTests();
+
+        $collection = new Opus_Collection(8);
+
+        $this->assertEquals('test4', $collection->getNumber());
+
+        $collection->moveToEnd();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test5', $children[3]->getNumber());
+        $this->assertEquals('test7', $children[5]->getNumber());
+        $this->assertEquals('test4', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testSortChildrenByName() {
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+
+        $root->sortChildrenByName(true);
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test7', $children[0]->getNumber());
+        $this->assertEquals('test4', $children[3]->getNumber());
+        $this->assertEquals('test', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+
+        $root->sortChildrenByName();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test', $children[0]->getNumber());
+        $this->assertEquals('test5', $children[4]->getNumber());
+        $this->assertEquals('test7', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testSortChildrenByNumber() {
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+
+        $root->sortChildrenByName(true);
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test7', $children[0]->getNumber());
+        $this->assertEquals('test4', $children[3]->getNumber());
+        $this->assertEquals('test', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+
+        $root->sortChildrenByName();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertEquals(7, count($children));
+
+        $this->assertEquals('test', $children[0]->getNumber());
+        $this->assertEquals('test5', $children[4]->getNumber());
+        $this->assertEquals('test7', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    public function testSortChildrenBySpecifiedOrder() {
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertCount(7, $children);
+
+        $root->applySortOrderOfChildren(array(4, 11, 3, 14, 2, 8, 13));
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertCount(7, $children);
+
+        $this->assertEquals('test3', $children[0]->getNumber());
+        $this->assertEquals('test5', $children[1]->getNumber());
+        $this->assertEquals('test2', $children[2]->getNumber());
+        $this->assertEquals('test7', $children[3]->getNumber());
+        $this->assertEquals('test', $children[4]->getNumber());
+        $this->assertEquals('test4', $children[5]->getNumber());
+        $this->assertEquals('test6', $children[6]->getNumber());
+
+        $this->validateNestedSet();
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage is no child of
+     */
+    public function testSortChildrenBySpecifiedOrderBadId() {
+        $this->setUpFixtureForMoveTests();
+
+        $root = new Opus_Collection(1);
+        $children = $root->getChildren();
+
+        $this->assertCount(7, $children);
+
+        $root->applySortOrderOfChildren(array(4, 11, 3, 16, 2, 8, 13));
+    }
+
+    /**
+     * Verifies that the NestedSet structure is still valid.
+     */
+    protected function validateNestedSet() {
+        $table = new Opus_Db_Collections();
+
+        $select = $table->select()->where('role_id = ?', 1)->order('left_id ASC');
+
+        $rows = $table->fetchAll($select);
+
+        $this->assertEquals(14, count($rows));
+
+        $this->assertEquals(1, $rows[0]->left_id);
+        $this->assertEquals(28, $rows[0]->right_id);
+
+        $validator = new NestedSetValidator($table);
+
+        $this->assertTrue($validator->validate(1));
     }
 
 }

@@ -45,10 +45,13 @@ defined('APPLICATION_PATH')
 define('APPLICATION_ENV', 'testing');
 
 // Configure include path.
-set_include_path('.' . PATH_SEPARATOR
-        . PATH_SEPARATOR . dirname(__FILE__)
-        . PATH_SEPARATOR . dirname(dirname(__FILE__)) . '/library'
-        . PATH_SEPARATOR . get_include_path());
+$scriptDir = dirname(__FILE__);
+
+set_include_path('.'
+        . PATH_SEPARATOR . $scriptDir // Skriptverzeichnis
+        . PATH_SEPARATOR . $scriptDir . DIRECTORY_SEPARATOR . 'support' // Support Klassen für Tests
+        . PATH_SEPARATOR . dirname($scriptDir) . DIRECTORY_SEPARATOR . 'library' // OPUS Klassen
+        . PATH_SEPARATOR . get_include_path()); // Standard Include-Pfad
 
 // enable fallback autoloader for testing
 require_once 'Zend/Loader/Autoloader.php';
