@@ -289,5 +289,22 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
         $this->assertArrayHasKey('Value', $result, 'Linked Model field is missing.');
         $this->assertArrayHasKey('LinkModelField', $result, 'LinkModel field is missing.');
     }
+
+    /**
+     * Regression test for OPUSVIER-2304.
+     */
+    public function testIsValidChecksLinkedModel() {
+        $model = new Opus_Model_Dependent_Link_AbstractTestModel();
+        $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
+        $link->setModelClass(get_class($model));
+        $link->setModel($model);
+
+        $this->assertTrue($link->isValid()); // model is valid
+
+        $model->setValid(false);
+
+        $this->assertFalse($link->isValid()); // model is not valid
+    }
+
     
 }

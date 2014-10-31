@@ -40,6 +40,8 @@
  */
 class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
 
+    private $mockValid = true;
+
     /**
      * No fields to add for this mock model so the method has an empty body.
      *
@@ -66,6 +68,14 @@ class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
      */
     public function getDisplayName() {
         return $this->_mockDisplayName;
+    }
+
+    public function isValid() {
+        return $this->mockValid;
+    }
+
+    public function setValid($valid) {
+        $this->mockValid = $valid;
     }
 
 }
