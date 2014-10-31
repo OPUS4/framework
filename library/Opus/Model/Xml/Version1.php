@@ -44,83 +44,30 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         parent::__construct();
     }
 
-    /**
-     * Map field information to a DOMDocument.
-     *
-     * @param Opus_Model_Field $field    Contains informations about mapping field.
-     * @param DOMDocument      $dom      General DOM document.
-     * @param DOMNode          $rootNode Node where to add created structure.
-     * @return void
-     *
-     * FIXME: remove code duplication (duplicates Opus_Model_Xml_Version*)
-     */
-    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
         $fieldName = $field->getName();
-        $modelClass = $field->getValueModelClass();
-        $fieldValues = $field->getValue();
+        $fieldValues = $this->getFieldValues($field);
 
-        if (true === $this->getConfig()->_excludeEmpty) {
-            if (true === is_null($fieldValues)
-                    or (is_string($fieldValues) && trim($fieldValues) == '')
-                    or (is_array($fieldValues) && empty($fieldValues)) ) {
-                return;
+        // Replace invalid XML-1.0-Characters by UTF-8 replacement character.
+        $fieldValues = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', "\xEF\xBF\xBD ", $fieldValues);
+        $rootNode->setAttribute($fieldName, $fieldValues);
+    }
+
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value) {
+        $childNode = $dom->createElement($fieldName);
+        if ($value instanceof Opus_Model_AbstractDb) {
+            if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
+                $modelId = $value->getLinkedModelId();
+            }
+            else {
+                $modelId = $value->getId();
+            }
+            // Ignore compound keys.
+            if (false === is_array($modelId)) {
+                $childNode->setAttribute('Id', $modelId);
             }
         }
-
-        if (null === $modelClass) {
-            // workaround for simple fields with multiple values
-            if (true === $field->hasMultipleValues()) {
-                $fieldValues = implode(',', $fieldValues);
-            }
-            if ($fieldValues instanceOf DateTimeZone) {
-                $fieldValues = $fieldValues->getName();
-            }
-
-            // Replace invalid XML-1.0-Characters by UTF-8 replacement character.
-            $fieldValues = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', "\xEF\xBF\xBD ", $fieldValues);
-            $rootNode->setAttribute($fieldName, $fieldValues);
-        }
-        else {
-            if (!is_array($fieldValues)) {
-                $fieldValues = array($fieldValues);
-            }
-
-            foreach ($fieldValues as $value) {
-                $childNode = $dom->createElement($fieldName);
-                if ($value instanceof Opus_Model_AbstractDb) {
-                    if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
-                        $modelId = $value->getLinkedModelId();
-                    }
-                    else {
-                        $modelId = $value->getId();
-                    }
-                    // Ignore compound keys.
-                    if (false === is_array($modelId)) {
-                        $childNode->setAttribute('Id', $modelId);
-                    }
-                }
-                $rootNode->appendChild($childNode);
-
-                // if a field has no value then is nothing more to do
-                // TODO maybe must be there an other solution
-                // FIXME remove code duplication (duplicates Opus_Model_Xml_Version*)
-                if (is_null($value)) {
-                    continue;
-                }
-
-                // delivers a URI if a mapping for the given model exists
-                $uri = $this->_createXlinkRef($value);
-                if (null !== $uri) {
-                    $childNode->setAttribute('xlink:type', 'simple');
-                    $childNode->setAttribute('xlink:href', $uri);
-                    $this->_mapAttributes($value, $dom, $childNode, true);
-                }
-                else {
-                    $this->_mapAttributes($value, $dom, $childNode);
-                }
-            }
-        }
-
+        return $childNode;
     }
 
     protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model) {
@@ -259,9 +206,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         }
 
         return $model;
-
     }
-
 
     /**
      * (non-PHPdoc)
@@ -274,7 +219,6 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         if (null !== $model_element) {
             $this->_updateModelFromXml($config->_model, $model_element);
         }
-
     }
 
 }

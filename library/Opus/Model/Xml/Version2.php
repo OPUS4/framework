@@ -43,73 +43,17 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
         parent::__construct();
     }
 
-    /**
-     * Map field information to a DOMDocument.
-     *
-     * @param Opus_Model_Field $field    Contains informations about mapping field.
-     * @param DOMDocument      $dom      General DOM document.
-     * @param DOMNode          $rootNode Node where to add created structure.
-     * @return void
-     *
-     * FIXME: remove code duplication (duplicates Opus_Model_Xml_Version*)
-     */
-    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
         $fieldName = $field->getName();
-        $modelClass = $field->getValueModelClass();
-        $fieldValues = $field->getValue();
+        $fieldValues = $this->getFieldValues($field);
 
-        if (true === $this->getConfig()->_excludeEmpty) {
-            if (true === is_null($fieldValues)
-                    or (is_string($fieldValues) && trim($fieldValues) == '')
-                    or (is_array($fieldValues) && empty($fieldValues)) ) {
-                return;
-            }
-        }
+        // create a new element
+        $element = $dom->createElement($fieldName);
 
-        if (null === $modelClass) {
-            // create a new element
-            $element = $dom->createElement($fieldName);
-            // workaround for simple fields with multiple values
-            if (true === $field->hasMultipleValues()) {
-                $fieldValues = implode(',', $fieldValues);
-            }
-            if ($fieldValues instanceOf DateTimeZone) {
-                $fieldValues = $fieldValues->getName();
-            }
-            // set value
-            //if (empty($fieldValues) === false)
-            $element->nodeValue = htmlspecialchars($fieldValues);
-            $rootNode->appendChild($element);
-        }
-        else {
-            if (!is_array($fieldValues)) {
-                $fieldValues = array($fieldValues);
-            }
-
-            foreach ($fieldValues as $value) {
-                $childNode = $dom->createElement($fieldName);
-                $rootNode->appendChild($childNode);
-
-                // if a field has no value then is nothing more to do
-                // TODO maybe must be there an other solution
-                // FIXME remove code duplication (duplicates Opus_Model_Xml_Version*)
-                if (is_null($value)) {
-                    continue;
-                }
-
-                // delivers a URI if a mapping for the given model exists
-                $uri = $this->_createXlinkRef($value);
-                if (null !== $uri) {
-                    $childNode->setAttribute('xlink:type', 'simple');
-                    $childNode->setAttribute('xlink:href', $uri);
-                    $this->_mapAttributes($value, $dom, $childNode, true);
-                }
-                else {
-                    $this->_mapAttributes($value, $dom, $childNode);
-                }
-            }
-        }
-
+        // set value
+        //if (empty($fieldValues) === false)
+        $element->nodeValue = htmlspecialchars($fieldValues);
+        $rootNode->appendChild($element);
     }
 
     /**
@@ -174,7 +118,6 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
             }
         }
         return $model;
-
     }
 
     /**

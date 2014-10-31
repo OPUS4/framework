@@ -253,6 +253,79 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
     }
 
     /**
+     * Map field information to a DOMDocument.
+     *
+     * @param Opus_Model_Field $field    Contains informations about mapping field.
+     * @param DOMDocument      $dom      General DOM document.
+     * @param DOMNode          $rootNode Node where to add created structure.
+     * @return void
+     *
+     * FIXME: remove code duplication (duplicates Opus_Model_Xml_Version*)
+     */
+    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
+        $modelClass = $field->getValueModelClass();
+        $fieldValues = $field->getValue();
+
+        if (true === $this->getConfig()->_excludeEmpty) {
+            if (true === is_null($fieldValues)
+                or (is_string($fieldValues) && trim($fieldValues) == '')
+                or (is_array($fieldValues) && empty($fieldValues)) ) {
+                return;
+            }
+        }
+
+        if (null === $modelClass) {
+            $this->mapSimpleField($dom, $rootNode, $field);
+        }
+        else {
+            $fieldName = $field->getName();
+
+            if (!is_array($fieldValues)) {
+                $fieldValues = array($fieldValues);
+            }
+
+            foreach ($fieldValues as $value) {
+                $childNode = $this->createFieldElement($dom, $fieldName, $value);
+                $rootNode->appendChild($childNode);
+
+                // if a field has no value then is nothing more to do
+                // TODO maybe must be there an other solution
+                // FIXME remove code duplication (duplicates Opus_Model_Xml_Version*)
+                if (is_null($value)) {
+                    continue;
+                }
+
+                // delivers a URI if a mapping for the given model exists
+                $uri = $this->_createXlinkRef($value);
+                if (null !== $uri) {
+                    $childNode->setAttribute('xlink:type', 'simple');
+                    $childNode->setAttribute('xlink:href', $uri);
+                    $this->_mapAttributes($value, $dom, $childNode, true);
+                }
+                else {
+                    $this->_mapAttributes($value, $dom, $childNode);
+                }
+            }
+        }
+    }
+
+    abstract function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field);
+
+    public function getFieldValues($field) {
+        $fieldValues = $field->getValue();
+
+        // workaround for simple fields with multiple values
+        if (true === $field->hasMultipleValues()) {
+            $fieldValues = implode(',', $fieldValues);
+        }
+        if ($fieldValues instanceOf DateTimeZone) {
+            $fieldValues = $fieldValues->getName();
+        }
+
+        return $fieldValues;
+    }
+
+    /**
      * Maps model information to a DOMDocument.
      *
      * @param Opus_Model_Abstract $model    Contains model information of mapping.
@@ -277,7 +350,10 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $childNode);
         }
+    }
 
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value) {
+        return $dom->createElement($fieldName);
     }
 
     protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model) {
