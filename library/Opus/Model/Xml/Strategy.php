@@ -94,4 +94,5 @@ interface Opus_Model_Xml_Strategy {
      * @return void
      */
     public function updateFromXml($xml);
+
 }

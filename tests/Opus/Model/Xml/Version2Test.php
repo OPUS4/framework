@@ -49,6 +49,11 @@ class Opus_Model_Xml_Version2Test extends TestCase {
     public function setUp() {}
     public function tearDown() {}
 
+    public function testGetVersion() {
+        $strategy = new Opus_Model_Xml_Version2();
+        $this->assertEquals('2.0', $strategy->getVersion());
+    }
+
     /**
      * First test of xml version 2.
      *

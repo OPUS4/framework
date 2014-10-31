@@ -49,6 +49,11 @@ class Opus_Model_Xml_Version1Test extends TestCase {
     public function setUp() {}
     public function tearDown() {}
 
+    public function testGetVersion() {
+        $strategy = new Opus_Model_Xml_Version1();
+        $this->assertEquals('1.0', $strategy->getVersion());
+    }
+
     /**
      * Test if getModel() returns model previously defined with setModel().
      *
