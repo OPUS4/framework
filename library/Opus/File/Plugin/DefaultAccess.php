@@ -70,8 +70,10 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
                 $accessRole = Opus_UserRole::fetchByName($roleName);
 
                 if (is_null($accessRole)) {
-                    $this->getLogger()->err(__METHOD__ . ": Failed to add role '$roleName' to file " .
-                        $model->getId() . "; '$roleName' role does not exist!");
+                    $this->getLogger()->err(
+                        __METHOD__ . ": Failed to add role '$roleName' to file " .
+                        $model->getId() . "; '$roleName' role does not exist!"
+                    );
                     return;
                 }
 

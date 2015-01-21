@@ -38,7 +38,5 @@
  * @category Framework
  * @package  Opus_Model
  */
-class Opus_DocumentFinder_Exception extends Exception
-{
-
+class Opus_DocumentFinder_Exception extends Exception {
 }
