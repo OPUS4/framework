@@ -46,29 +46,30 @@
 class Opus_Identifier_UUID {
 
     public static function generate() {
-        $urand = @fopen ( '/dev/urandom', 'rb' );
-        $pr_bits = false;
-        if (is_resource ( $urand )) {
-            $pr_bits .= @fread ( $urand, 16 );
+        $urand = @fopen('/dev/urandom', 'rb');
+        $prBits = false;
+        if (is_resource($urand)) {
+            $prBits .= @fread($urand, 16);
         }
-        if (! $pr_bits) {
-            $fp = @fopen ( '/dev/urandom', 'rb' );
+        if (! $prBits) {
+            $fp = @fopen('/dev/urandom', 'rb');
             if ($fp !== false) {
-                $pr_bits .= @fread ( $fp, 16 );
-                @fclose ( $fp );
-            } else {
+                $prBits .= @fread($fp, 16);
+                @fclose($fp);
+            }
+            else {
                 // If /dev/urandom isn't available (eg: in non-unix systems), use mt_rand().
-                $pr_bits = "";
-                for($cnt = 0; $cnt < 16; $cnt ++) {
-                    $pr_bits .= chr ( mt_rand ( 0, 255 ) );
+                $prBits = "";
+                for ($cnt = 0; $cnt < 16; $cnt ++) {
+                    $prBits .= chr(mt_rand(0, 255));
                 }
             }
         }
-        $time_low = bin2hex ( substr ( $pr_bits, 0, 4 ) );
-        $time_mid = bin2hex ( substr ( $pr_bits, 4, 2 ) );
-        $time_hi_and_version = bin2hex ( substr ( $pr_bits, 6, 2 ) );
-        $clock_seq_hi_and_reserved = bin2hex ( substr ( $pr_bits, 8, 2 ) );
-        $node = bin2hex ( substr ( $pr_bits, 10, 6 ) );
+        $timeLow = bin2hex(substr($prBits, 0, 4));
+        $timeMid = bin2hex(substr($prBits, 4, 2));
+        $timeHiAndVersion = bin2hex(substr($prBits, 6, 2));
+        $clockSeqHiAndReserved = bin2hex(substr($prBits, 8, 2));
+        $node = bin2hex(substr($prBits, 10, 6));
 
         /**
          * Set the four most significant bits (bits 12 through 15) of the
@@ -76,19 +77,21 @@ class Opus_Identifier_UUID {
          * Section 4.1.3.
          * @see http://tools.ietf.org/html/rfc4122#section-4.1.3
          */
-        $time_hi_and_version = hexdec ( $time_hi_and_version );
-        $time_hi_and_version = $time_hi_and_version >> 4;
-        $time_hi_and_version = $time_hi_and_version | 0x4000;
+        $timeHiAndVersion = hexdec($timeHiAndVersion);
+        $timeHiAndVersion = $timeHiAndVersion >> 4;
+        $timeHiAndVersion = $timeHiAndVersion | 0x4000;
 
         /**
          * Set the two most significant bits (bits 6 and 7) of the
          * clock_seq_hi_and_reserved to zero and one, respectively.
          */
-        $clock_seq_hi_and_reserved = hexdec ( $clock_seq_hi_and_reserved );
-        $clock_seq_hi_and_reserved = $clock_seq_hi_and_reserved >> 2;
-        $clock_seq_hi_and_reserved = $clock_seq_hi_and_reserved | 0x8000;
+        $clockSeqHiAndReserved = hexdec($clockSeqHiAndReserved);
+        $clockSeqHiAndReserved = $clockSeqHiAndReserved >> 2;
+        $clockSeqHiAndReserved = $clockSeqHiAndReserved | 0x8000;
 
-        return sprintf ( '%08s-%04s-%04x-%04x-%012s', $time_low, $time_mid, $time_hi_and_version, $clock_seq_hi_and_reserved, $node );
+        return sprintf(
+            '%08s-%04s-%04x-%04x-%012s', $timeLow, $timeMid, $timeHiAndVersion, $clockSeqHiAndReserved, $node
+        );
     }
 
 }
