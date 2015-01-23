@@ -41,8 +41,7 @@
  */
 
 abstract class Opus_Model_Dependent_Abstract
-    extends Opus_Model_AbstractDb
-{
+    extends Opus_Model_AbstractDb {
 
     /**
      * Primary key of the parent model.
@@ -147,12 +146,16 @@ abstract class Opus_Model_Dependent_Abstract
      */
     public function store() {
         if (null === $this->_parentId) {
-            throw new Opus_Model_Exception('Dependent Model ' . get_class($this)
-                    . ' without parent cannot be persisted.');
+            throw new Opus_Model_Exception(
+                'Dependent Model ' . get_class($this)
+                . ' without parent cannot be persisted.'
+            );
         } 
         if (null === $this->_parentColumn) {
-            throw new Opus_Model_Exception('Dependent Model ' . get_class($this)
-                    . ' needs to know name of the parent-id column.');
+            throw new Opus_Model_Exception(
+                'Dependent Model ' . get_class($this)
+                . ' needs to know name of the parent-id column.'
+            );
         } 
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
         return parent::store();

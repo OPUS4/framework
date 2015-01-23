@@ -173,7 +173,9 @@ abstract class Opus_Model_Abstract {
         if (is_null($value)) {
             $modelclass = $field->getValueModelClass();
             if (is_null($modelclass)) {
-                throw new Opus_Model_Exception('Add accessor without parameter currently only available for fields holding models.');
+                throw new Opus_Model_Exception(
+                    'Add accessor without parameter currently only available for fields holding models.'
+                );
             }
             $value = new $modelclass;
         }
@@ -218,7 +220,8 @@ abstract class Opus_Model_Abstract {
     protected function _getField($name) {
         if (isset($this->_fields[$name])) {
             return $this->_fields[$name];
-        } else {
+        }
+        else {
             return null;
         }
     }
@@ -300,9 +303,11 @@ abstract class Opus_Model_Abstract {
             foreach ($fieldvalue as $value) {
                 if ($value instanceof Opus_Model_Abstract) {
                     $fieldvalues[] = $value->toArray();
-                } else if ($value instanceOf Zend_Date) {
+                }
+                else if ($value instanceOf Zend_Date) {
                     $fieldvalues[] = $value->toArray();
-                } else {
+                }
+                else {
                     $fieldvalues[] = $value;
                 }
             }
@@ -352,9 +357,11 @@ abstract class Opus_Model_Abstract {
 
         if ($xml instanceof DomDocument) {
             $customDeserializer->setDomDocument($xml);
-        } else if (is_string($xml)) {
+        }
+        else if (is_string($xml)) {
             $customDeserializer->setXml($xml);
-        } else {
+        }
+        else {
             throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
         }
         return $customDeserializer->getModel();

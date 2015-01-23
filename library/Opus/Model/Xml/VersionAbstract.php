@@ -144,7 +144,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @param boolean             $unTunneled Should only current (true) or all (false, default) fields shown.
      * @return void
      */
-    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode, $unTunneled = false) {
+    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode,
+                                      $unTunneled = false) {
 
         if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Link_Abstract)) {
             $fields = $model->describeUntunneled();
@@ -158,13 +159,13 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
 
         $excludeFields = $this->_config->_excludeFields;
         if (count($excludeFields) > 0) {
-            $fields_diff = array_diff($fields, $excludeFields);
+            $fieldsDiff = array_diff($fields, $excludeFields);
         }
         else {
-            $fields_diff = $fields;
+            $fieldsDiff = $fields;
         }
 
-        foreach ($fields_diff as $fieldname) {
+        foreach ($fieldsDiff as $fieldname) {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $rootNode);
         }
@@ -337,16 +338,16 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         $fields = $model->describe();
         $excludeFields = $this->getConfig()->_excludeFields;
         if (count($excludeFields) > 0) {
-            $fields_diff = array_diff($fields, $excludeFields);
+            $fieldsDiff = array_diff($fields, $excludeFields);
         }
         else {
-            $fields_diff = $fields;
+            $fieldsDiff = $fields;
         }
 
         $childNode = $this->createModelNode($dom, $model);
         $rootNode->appendChild($childNode);
 
-        foreach ($fields_diff as $fieldname) {
+        foreach ($fieldsDiff as $fieldname) {
             $field = $model->getField($fieldname);
             $this->_mapField($field, $dom, $childNode);
         }

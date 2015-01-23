@@ -38,7 +38,6 @@
  * @category Framework
  * @package  Opus_Model
  */
-class Opus_Model_Exception extends Exception
-{
+class Opus_Model_Exception extends Exception {
 
 }

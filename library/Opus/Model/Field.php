@@ -265,7 +265,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * It also calls delete() on models that appear to be in the value list, but not in the given argument. (see #434)
      *
      * @param mixed $value The field value to be set.
-     * @throws InvalidArgumentException If Multivalue option and input argument do not match (an array is required but not given).
+     * @throws InvalidArgumentException If Multivalue option and input argument do not match
+     *         (an array is required but not given).
      * @return Opus_Model_Field Provide fluent interface.
      */
     public function setValue($value) {
@@ -276,7 +277,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             if ($value == $this->_value) {
                 return $this;
             }
-        } else {
+        }
+        else {
             // strong comparison for other values
             if ($value === $this->_value) {
                 return $this;
@@ -285,21 +287,25 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
         if (true === is_array($value) and 1 === count($value)) {
             $value = array_pop($value);
-        } else if (true === is_array($value) and 0 === count($value)) {
+        }
+        else if (true === is_array($value) and 0 === count($value)) {
             $value = null;
         }
 
         // if null is given, delete dependent objects
         if (null === $value) {
             $this->_deleteDependentModels();
-        } else {
+        }
+        else {
             // otherwise process the given value(s)
             $multiValueCondition = $this->hasMultipleValues();
             $arrayCondition = is_array($value);
 
             // Reject input if an array is required but not is given
             if (($multiValueCondition === false) and ($arrayCondition === true)) {
-                throw new InvalidArgumentException('Multivalue option and input argument do not match. (Field ' . $this->_name . ')');
+                throw new InvalidArgumentException(
+                    'Multivalue option and input argument do not match. (Field ' . $this->_name . ')'
+                );
             }
 
             // arrayfy value
@@ -339,20 +345,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param array $values
      * @return void
      */
-    private function _fixSortOrder($values, $sort_value = 1) {
+    private function _fixSortOrder($values, $sortValue = 1) {
         if (is_null($values)) {
             return;
         }
 
-        $sort_field = $this->_sortFieldName;
-        if (!is_string($sort_field)) {
+        $sortField = $this->_sortFieldName;
+        if (!is_string($sortField)) {
             return;
         }
 
         $values = is_array($values) ? $values : array($values);
-        foreach ($values AS $value_new) {
-            $value_new->getField($sort_field)->setValue($sort_value);
-            $sort_value++;
+        foreach ($values AS $valueNew) {
+            $valueNew->getField($sortField)->setValue($sortValue);
+            $sortValue++;
         }
     }
 
@@ -417,20 +423,25 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
                 // values must be objects - should be checked before get_class.
                 if (false === is_object($v)) {
-                    throw new Opus_Model_Exception("Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})");
+                    throw new Opus_Model_Exception(
+                        "Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})"
+                    );
                 }
 
                 // determine actual type
                 if ($v instanceof Opus_Model_Dependent_Link_Abstract) {
                     $vtype = $v->getModelClass();
-                } else {
+                }
+                else {
                     $vtype = get_class($v);
                 }
 
                 // perform typecheck
                 if ($vtype !== $etype) {
                     if (false === is_subclass_of($vtype, $etype)) {
-                        throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
+                        throw new Opus_Model_Exception(
+                            "Value of type $vtype given but expected $etype. (Field {$this->_name})"
+                        );
                     }
                 }
         }
@@ -492,7 +503,10 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 $valueObj = new $this->_valueModelClass($value);
                 $values[$i] = $valueObj;
             } catch (Exception $ex) {
-                throw new Opus_Model_Exception("Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})", null, $ex);
+                throw new Opus_Model_Exception(
+                    "Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})",
+                    null, $ex
+                );
             }
         }
         return $values;
@@ -556,7 +570,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * to the already existing field values.
      *
      * @param mixed $value The value to add.
-     * @throws InvalidArgumentException If no more values can be added to this value (f.e. multiplicity allows 2 values an both are set already).
+     * @throws InvalidArgumentException If no more values can be added to this value
+     *         (f.e. multiplicity allows 2 values an both are set already).
      * @return Opus_Model_Field Fluent interface.
      */
     public function addValue($value) {
@@ -565,7 +580,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             // One cannot add an array of values to an single-multiplicity field
             if (is_array($value) or is_null($this->_value) === false) {
                 throw new InvalidArgumentException('Cannot add multiple values to ' . $this->_name);
-            } else {
+            }
+            else {
                 $this->setValue($value);
                 return $this;
             }
@@ -580,7 +596,9 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 $vtype = get_class($v);
                 $etype = $this->_valueModelClass;
                 if (get_class($v) !== $etype) {
-                    throw new Opus_Model_Exception("Value of type $vtype given but expected $etype. (Field {$this->_name})");
+                    throw new Opus_Model_Exception(
+                        "Value of type $vtype given but expected $etype. (Field {$this->_name})"
+                    );
                 }
             }
         }
@@ -589,28 +607,31 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         if (is_int($this->_multiplicity) === true) {
             if ((count($value) > $this->_multiplicity)
                 or ((count($value) + count($this->_value)) > $this->_multiplicity)) {
-                throw new InvalidArgumentException('Field ' . $this->_name . ' cannot hold more then ' . $this->_multiplicity . ' values.');
+                throw new InvalidArgumentException(
+                    'Field ' . $this->_name . ' cannot hold more then ' . $this->_multiplicity . ' values.'
+                );
             }
         }
 
         if (is_string($this->_sortFieldName)) {
-            $sort_field = $this->_sortFieldName;
+            $sortField = $this->_sortFieldName;
 
-            $sort_value_max = 0;
-            foreach ($this->_value AS $value_old) {
-                $sort_value = $value_old->getField($sort_field)->getValue();
-                if ($sort_value > $sort_value_max) {
-                    $sort_value_max = $sort_value;
+            $sortValueMax = 0;
+            foreach ($this->_value AS $valueOld) {
+                $sortValue = $valueOld->getField($sortField)->getValue();
+                if ($sortValue > $sortValueMax) {
+                    $sortValueMax = $sortValue;
                 }
             }
 
-            $this->_fixSortOrder($value, $sort_value_max+1);
+            $this->_fixSortOrder($value, $sortValueMax+1);
         }
 
         // Add the value to the array
         if (is_array($value) === true) {
             $this->_value = array_merge($this->_value, $value);
-        } else {
+        }
+        else {
             $this->_value[] = $value;
         }
 

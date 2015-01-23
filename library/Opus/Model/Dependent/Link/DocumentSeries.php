@@ -104,10 +104,12 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
         $docSortOrderValue = $this->_fields['DocSortOrder']->getValue();
         if (is_null($docSortOrderValue)) {
             $db = Zend_Db_Table::getDefaultAdapter();
-            $max = $db->fetchCol('SELECT MAX(doc_sort_order)' . 
-                    ' FROM link_documents_series' .
-                    ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
-                    ' AND document_id != ' . $this->_primaryTableRow->document_id);
+            $max = $db->fetchCol(
+                'SELECT MAX(doc_sort_order)' . 
+                ' FROM link_documents_series' .
+                ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
+                ' AND document_id != ' . $this->_primaryTableRow->document_id
+            );
             if (!is_null($max[0])) {
                 $docSortOrderValue = intval($max[0]) + 1;
             }

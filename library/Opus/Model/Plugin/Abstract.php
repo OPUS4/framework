@@ -36,36 +36,50 @@ abstract class Opus_Model_Plugin_Abstract
     /**
      * @see {Opus_Model_Plugin_Interface::preStore}
      */
-    public function preStore(Opus_Model_AbstractDb $model) {}
+    public function preStore(Opus_Model_AbstractDb $model) {
+
+    }
     
     /**
      * @see {Opus_Model_Plugin_Interface::preFetch}
      */
-    public function preFetch(Opus_Model_AbstractDb $model) {}
+    public function preFetch(Opus_Model_AbstractDb $model) {
+
+    }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {}
+    public function postStore(Opus_Model_AbstractDb $model) {
+
+    }
     
     /**
      * @see {Opus_Model_Plugin_Interface::postStoreInternal}
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {}
+    public function postStoreInternal(Opus_Model_AbstractDb $model) {
+
+    }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStoreExternal}
      */
-    public function postStoreExternal(Opus_Model_AbstractDb $model) {}
+    public function postStoreExternal(Opus_Model_AbstractDb $model) {
+
+    }
 
     /**
      * @see {Opus_Model_Plugin_Interface::preDelete}
      */
-    public function preDelete(Opus_Model_AbstractDb $model) {}
+    public function preDelete(Opus_Model_AbstractDb $model) {
+
+    }
 
     /**
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
-    public function postDelete($modelId) {}
+    public function postDelete($modelId) {
+
+    }
 
 }

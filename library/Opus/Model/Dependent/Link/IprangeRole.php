@@ -39,8 +39,7 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Abstract
-{
+class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Abstract {
 
     /**
      * Specify then table gateway.

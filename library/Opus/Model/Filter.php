@@ -48,21 +48,21 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      *
      * @var Opus_Model_Abstract
      */
-    private $model = null;
+    private $_model = null;
 
     /**
      * List of fields to be filtered.
      *
      * @var array Array of fieldnames.
      */
-    private $blacklist = array();
+    private $_blacklist = array();
 
     /**
      * List of fields to define sort order.
      *
      * @var array Array of fieldnames defining sort order.
      */
-    private $sortorder = array();
+    private $_sortorder = array();
 
     /**
      * Just here to implement abstract interface.
@@ -79,7 +79,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Filter Fluent interface.
      */
     public function setModel(Opus_Model_Abstract $model) {
-        $this->model = $model;
+        $this->_model = $model;
         return $this;
     }
 
@@ -90,7 +90,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Filter Fluent interface.
      */
     public function setBlacklist(array $list) {
-        $this->blacklist = $list;
+        $this->_blacklist = $list;
         return $this;
     }
 
@@ -101,7 +101,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Filter Fluent interface.
      */
     public function setWhitelist(array $list) {
-        $this->blacklist = array_diff($this->model->describe(), $list);
+        $this->_blacklist = array_diff($this->_model->describe(), $list);
         return $this;
     }
 
@@ -112,7 +112,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Filter Fluent interface.
      */
     public function setSortOrder(array $sort) {
-        $this->sortorder = $sort;
+        $this->_sortorder = $sort;
         return $this;
     }
 
@@ -124,15 +124,15 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return array    List of fields
      */
     public function describe() {
-        $result = $this->model->describe();
+        $result = $this->_model->describe();
 
         // ensure sort order by removing all sorted fields from output
         // and put sort order list on top of the result
-        $sortorder = array_intersect($this->sortorder, $result);
+        $sortorder = array_intersect($this->_sortorder, $result);
         $result = array_diff($result, $sortorder);
         $result = array_merge($sortorder, $result);
 
-        $result = array_diff($result, $this->blacklist);
+        $result = array_diff($result, $this->_blacklist);
         return $result;
     }
 
@@ -144,10 +144,10 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
-        if (in_array($name, $this->blacklist)) {
+        if (in_array($name, $this->_blacklist)) {
             throw new Opus_Model_Exception('Requested field is hidden by the blacklist.');
         }
-        return $this->model->getField($name);
+        return $this->_model->getField($name);
     }
 
     /**
@@ -163,17 +163,19 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      */
     public function __call($name, array $arguments) {
         $fieldname = substr($name, 3);
-        if (in_array($fieldname, $this->blacklist)) {
+        if (in_array($fieldname, $this->_blacklist)) {
             throw new Opus_Model_Exception('Requested field is hidden by the blacklist.');
         }
         $argstring = '';
         foreach ($arguments as $i => $argument) {
             if (true === is_string($argument)) {
                 $argstring .= '\'' . $argument . '\',';
-            } else {
+            }
+            else {
                 $argstring .= '$arguments[' . $i . '],';
             }
         }
+        $result = null;
         eval('$result = $this->model->$name('. rtrim($argstring, ',') . ');');
         return $result;
     }
@@ -184,7 +186,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return array A (nested) array representation of the model.
      */
     public function toArray() {
-        $modelArray = $this->model->toArray();
+        $modelArray = $this->_model->toArray();
 
         $filteredFields = $this->describe();
         $result = array();
@@ -226,7 +228,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @return Opus_Model_Abstract The filtered model.
      */
     public function getModel() {
-        return $this->model;
+        return $this->_model;
     }
 
 }

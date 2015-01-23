@@ -78,8 +78,10 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
             $fieldValue = $fieldNode->nodeValue;
 
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined. Model class: '
-                        . get_class($model));
+                throw new Opus_Model_Exception(
+                    'Field ' . $fieldName . ' not defined. Model class: '
+                    . get_class($model)
+                );
             }
             else {
                 $fieldObj = $model->getField($fieldName);
