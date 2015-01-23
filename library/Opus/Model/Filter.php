@@ -176,7 +176,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
             }
         }
         $result = null;
-        eval('$result = $this->model->$name('. rtrim($argstring, ',') . ');');
+        eval('$result = $this->_model->$name('. rtrim($argstring, ',') . ');');
         return $result;
     }
 
