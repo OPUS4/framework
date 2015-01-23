@@ -40,8 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Person extends Opus_Model_AbstractDb
-{
+class Opus_Person extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -71,32 +70,32 @@ class Opus_Person extends Opus_Model_AbstractDb
     protected function _init() {
         $title = new Opus_Model_Field('AcademicTitle');
 
-        $first_name = new Opus_Model_Field('FirstName');
+        $firstName = new Opus_Model_Field('FirstName');
 
-        $last_name = new Opus_Model_Field('LastName');
-        $last_name->setMandatory(true)
+        $lastName = new Opus_Model_Field('LastName');
+        $lastName->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
-        $date_of_birth = new Opus_Model_Field('DateOfBirth');
-        $date_of_birth->setValueModelClass('Opus_Date');
+        $dateOfBirth = new Opus_Model_Field('DateOfBirth');
+        $dateOfBirth->setValueModelClass('Opus_Date');
 
-        $place_of_birth = new Opus_Model_Field('PlaceOfBirth');
+        $placeOfBirth = new Opus_Model_Field('PlaceOfBirth');
 
         $email = new Opus_Model_Field('Email');
         $email->setValidator(new Zend_Validate_EmailAddress());
 
-        $identifier_orcid = new Opus_Model_Field('IdentifierOrcid');
-        $identifier_gnd = new Opus_Model_Field('IdentifierGnd');
-        $identifier_misc = new Opus_Model_Field('IdentifierMisc');
+        $identifierOrcid = new Opus_Model_Field('IdentifierOrcid');
+        $identifierGnd = new Opus_Model_Field('IdentifierGnd');
+        $identifierMisc = new Opus_Model_Field('IdentifierMisc');
 
         $this->addField($title)
-            ->addField($first_name)
-            ->addField($last_name)
-            ->addField($date_of_birth)
-            ->addField($place_of_birth)
-            ->addField($identifier_orcid)
-            ->addField($identifier_gnd)
-            ->addField($identifier_misc)
+            ->addField($firstName)
+            ->addField($lastName)
+            ->addField($dateOfBirth)
+            ->addField($placeOfBirth)
+            ->addField($identifierOrcid)
+            ->addField($identifierGnd)
+            ->addField($identifierMisc)
             ->addField($email);
     }
 
@@ -108,8 +107,9 @@ class Opus_Person extends Opus_Model_AbstractDb
     public function getName() {
         $firstName = $this->getFirstName();
 
-        if ($firstName !== null)
-            return $this->getLastName() . ', ' . $firstName;
+        if ($firstName !== null) {
+            return $this->getLastName() . ', ' . $firstName; 
+        }
         else {
             return $this->getLastName();
         }
@@ -137,8 +137,10 @@ class Opus_Person extends Opus_Model_AbstractDb
         $documents = array();
         $select = $documentsLinkTable->select();
         $select->where('role=?', $role);
-        foreach ($this->_primaryTableRow->findManyToManyRowset($documentsTable,
-                $documentsLinkTable, null, null, $select) as $document) {
+        foreach ($this->_primaryTableRow->findManyToManyRowset(
+            $documentsTable,
+            $documentsLinkTable, null, null, $select
+        ) as $document) {
             $documents[] = new Opus_Document($document->id);
         }
         return $documents;

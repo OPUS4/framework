@@ -40,8 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract
-{
+class Opus_SubjectSwd extends Opus_Model_Dependent_Abstract {
     /**
      * Primary key of the parent model.
      *

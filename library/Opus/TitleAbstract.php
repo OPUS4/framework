@@ -38,8 +38,7 @@
  * @category    Framework
  * @package     Opus
  */
-class Opus_TitleAbstract extends Opus_Title
-{
+class Opus_TitleAbstract extends Opus_Title {
     
     /**
      * Set textarea flag for Value field.

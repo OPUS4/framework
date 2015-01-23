@@ -66,8 +66,8 @@ class Opus_Language extends Opus_Model_AbstractDb {
         $scope = new Opus_Model_Field('Scope');
         $type = new Opus_Model_Field('Type');
 
-        $ref_name = new Opus_Model_Field('RefName');
-        $ref_name->setMandatory(true)
+        $refName = new Opus_Model_Field('RefName');
+        $refName->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $comment = new Opus_Model_Field('Comment');
@@ -79,7 +79,7 @@ class Opus_Language extends Opus_Model_AbstractDb {
             ->addField($part1)
             ->addField($scope)
             ->addField($type)
-            ->addField($ref_name)
+            ->addField($refName)
             ->addField($comment)
             ->addField($active);
     }

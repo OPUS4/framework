@@ -40,8 +40,7 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Dependent_Abstract
  */
-class Opus_Reference extends Opus_Model_Dependent_Abstract
-{
+class Opus_Reference extends Opus_Model_Dependent_Abstract {
     /**
      * Primary key of the parent model.
      *
@@ -75,16 +74,19 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
         $relation = new Opus_Model_Field('Relation');
         $relation->setMandatory(false);
         $relation->setSelection(true);
-        $relation->setDefault(array(
+        $relation->setDefault(
+            array(
             'updates' => 'updates',
             'updated-by' => 'updated-by',
             'other' => 'other'
-        ));
+            )
+        );
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false); // TODO change later
         $type->setSelection(true);
-        $type->setDefault(array(
+        $type->setDefault(
+            array(
             'isbn' => 'isbn',
             'urn' => 'urn',
             'doi' => 'doi',
@@ -95,7 +97,8 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract
             'cris-link' => 'cris-link',
             'splash-url' => 'splash-url',
             'opus4-id' => 'opus4-id'
-                ));
+                )
+        );
 
         $this->addField($value);
         $this->addField($label);

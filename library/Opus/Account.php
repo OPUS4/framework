@@ -42,8 +42,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Account extends Opus_Model_AbstractDb
-{
+class Opus_Account extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -121,8 +120,8 @@ class Opus_Account extends Opus_Model_AbstractDb
         $emailValidator->addValidator(new Zend_Validate_EmailAddress());
         $email->setMandatory(true);
 
-        $first_name = new Opus_Model_Field('FirstName');
-        $last_name = new Opus_Model_Field('LastName');
+        $firstName = new Opus_Model_Field('FirstName');
+        $lastName = new Opus_Model_Field('LastName');
 
         $role = new Opus_Model_Field('Role');
         $role->setMultiplicity('*');
@@ -131,8 +130,8 @@ class Opus_Account extends Opus_Model_AbstractDb
         $this->addField($login)
                 ->addField($password)
                 ->addField($email)
-                ->addField($first_name)
-                ->addField($last_name)
+                ->addField($firstName)
+                ->addField($lastName)
                 ->addField($role);
     }
 
@@ -228,7 +227,7 @@ class Opus_Account extends Opus_Model_AbstractDb
         $password = $this->_convertToScalar($password);
         $this->getField('Password')->setValue(sha1($password));
         return $this;
-    }
+     }
 
     /**
      * The field "Password" only contains hashed passwords.  This method sets

@@ -39,8 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Subject extends Opus_Model_Dependent_Abstract
-{
+class Opus_Subject extends Opus_Model_Dependent_Abstract {
     /**
      * Primary key of the parent model.
      *
@@ -75,11 +74,13 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(true);
         $type->setSelection(true);
-        $type->setDefault(array(
+        $type->setDefault(
+            array(
             'swd' => 'swd',
             'psyndex' => 'psyndex',
             'uncontrolled' => 'uncontrolled'
-        ));
+            )
+        );
         
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)

@@ -169,12 +169,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Append (document_id) to list of allowed ressources.
      *
-     * @param string $document_id
+     * @param string $documentId
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function appendAccessDocument($document_id) {
+    public function appendAccessDocument($documentId) {
         $this->_pendingAccessResources[] = array(
-            'append', 'document_id', $document_id,
+            'append', 'document_id', $documentId,
         );
         return $this;
 
@@ -183,12 +183,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Remove (document_id) from list of allowed ressources.
      *
-     * @param string $document_id
+     * @param string $documentId
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function removeAccessDocument($document_id) {
+    public function removeAccessDocument($documentId) {
         $this->_pendingAccessResources[] = array(
-            'remove', 'document_id', $document_id,
+            'remove', 'document_id', $documentId,
         );
         return $this;
 
@@ -212,12 +212,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Append (file_id) to list of allowed ressources.
      *
-     * @param string $file_id
+     * @param string $fileId
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function appendAccessFile($file_id) {
+    public function appendAccessFile($fileId) {
         $this->_pendingAccessResources[] = array(
-            'append', 'file_id', $file_id,
+            'append', 'file_id', $fileId,
         );
         return $this;
 
@@ -226,12 +226,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Remove (file_id) from list of allowed ressources.
      *
-     * @param string $file_id
+     * @param string $fileId
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function removeAccessFile($file_id) {
+    public function removeAccessFile($fileId) {
         $this->_pendingAccessResources[] = array(
-            'remove', 'file_id', $file_id,
+            'remove', 'file_id', $fileId,
         );
         return $this;
 
@@ -252,12 +252,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Append (module) to list of allowed ressources.
      *
-     * @param string $module_name
+     * @param string $moduleName
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function appendAccessModule($module_name) {
+    public function appendAccessModule($moduleName) {
         $this->_pendingAccessResources[] = array(
-            'append', 'module_name', $module_name,
+            'append', 'module_name', $moduleName,
         );
         return $this;
 
@@ -266,12 +266,12 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
     /**
      * Remove (module) from list of allowed ressources.
      *
-     * @param string $module_name
+     * @param string $moduleName
      * @return Opus_UserRole Provide fluent interface.
      */
-    public function removeAccessModule($module_name) {
+    public function removeAccessModule($moduleName) {
         $this->_pendingAccessResources[] = array(
-            'remove', 'module_name', $module_name,
+            'remove', 'module_name', $moduleName,
         );
         return $this;
 
@@ -281,22 +281,22 @@ class Opus_UserRole extends Opus_Model_AbstractDb {
      * Flush all pending AccessModule actions.
      */
     private function _flushAccessResourceQueue() {
-        $resource_tables = array(
+        $resourceTables = array(
             'document_id' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessDocuments"),
             'file_id'     => Opus_Db_TableGateway::getInstance("Opus_Db_AccessFiles"),
             'module_name' => Opus_Db_TableGateway::getInstance("Opus_Db_AccessModules"),
         );
-        $role_id = $this->getId();
+        $roleId = $this->getId();
 
         foreach ($this->_pendingAccessResources AS $entry) {
             $action        = $entry[0];
-            $resource_name = $entry[1];
-            $resource_id   = $entry[2];
+            $resourceName = $entry[1];
+            $resourceId   = $entry[2];
 
-            $table = $resource_tables[$resource_name];
+            $table = $resourceTables[$resourceName];
             $data = array(
-                'role_id' => $role_id,
-                $resource_name => $resource_id,
+                'role_id' => $roleId,
+                $resourceName => $resourceId,
             );
 
             if ($action == 'append') {

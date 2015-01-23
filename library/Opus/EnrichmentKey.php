@@ -39,8 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_EnrichmentKey extends Opus_Model_AbstractDb
-{
+class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
     /**
      * Specify the table gateway.
      *

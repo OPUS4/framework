@@ -38,8 +38,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_DnbInstitute extends Opus_Model_AbstractDb
-{
+class Opus_DnbInstitute extends Opus_Model_AbstractDb {
     /**
      * Specify then table gateway.
      *
@@ -128,22 +127,22 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
 
         $phone = new Opus_Model_Field('Phone');
 
-        $dnb_contact_id = new Opus_Model_Field('DnbContactId');
+        $dnbContactId = new Opus_Model_Field('DnbContactId');
 
-        $is_grantor = new Opus_Model_Field('IsGrantor');
-        $is_grantor->setCheckbox(true);
+        $isGrantor = new Opus_Model_Field('IsGrantor');
+        $isGrantor->setCheckbox(true);
 
-        $is_publisher = new Opus_Model_Field('IsPublisher');
-        $is_publisher->setCheckbox(true);
+        $isPublisher = new Opus_Model_Field('IsPublisher');
+        $isPublisher->setCheckbox(true);
 
         $this->addField($name)
                 ->addField($department)
                 ->addField($address)
                 ->addField($city)
                 ->addField($phone)
-                ->addField($dnb_contact_id)
-                ->addField($is_grantor)
-                ->addField($is_publisher);
+                ->addField($dnbContactId)
+                ->addField($isGrantor)
+                ->addField($isPublisher);
     }
 
     /**

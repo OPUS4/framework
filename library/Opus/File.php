@@ -116,16 +116,16 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
         $tempfile = new Opus_Model_Field('TempFile');
 
-        $server_date_submitted = new Opus_Model_Field('ServerDateSubmitted');
-        $server_date_submitted->setValueModelClass('Opus_Date');
+        $serverDateSubmitted = new Opus_Model_Field('ServerDateSubmitted');
+        $serverDateSubmitted->setValueModelClass('Opus_Date');
 
         $sortOrder = new Opus_Model_Field('SortOrder');
 
         $filesize = new Opus_Model_Field('FileSize');
         $filesize->setMandatory(true);
 
-        $visible_in_frontdoor = new Opus_Model_Field('VisibleInFrontdoor');
-        $visible_in_oai = new Opus_Model_Field('VisibleInOai');
+        $visibleInFrontdoor = new Opus_Model_Field('VisibleInFrontdoor');
+        $visibleInOai = new Opus_Model_Field('VisibleInOai');
 
         $hashvalue = new Opus_Model_Field('HashValue');
         $hashvalue->setMandatory(true)
@@ -138,10 +138,10 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
                 ->addField($filelanguage)
                 ->addField($tempfile)
                 ->addField($filesize)
-                ->addField($visible_in_frontdoor)
-                ->addField($visible_in_oai)
+                ->addField($visibleInFrontdoor)
+                ->addField($visibleInOai)
                 ->addField($hashvalue)
-                ->addField($server_date_submitted)
+                ->addField($serverDateSubmitted)
                 ->addField($sortOrder);
     }
 
@@ -231,8 +231,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             $this->getStorage()->copyExternalFile($tempFile, $target);
 
             // set file size
-            $file_size = $this->getStorage()->getFileSize($target);
-            $this->setFileSize($file_size);
+            $fileSize = $this->getStorage()->getFileSize($target);
+            $this->setFileSize($fileSize);
 
             // set mime type
             $mimetype = $this->getStorage()->getFileMimeEncoding($target);
@@ -292,7 +292,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function doDelete($token) {
         parent::doDelete($token);
-        $this->getStorage()->deleteFile( $this->getPathName() );
+        $this->getStorage()->deleteFile($this->getPathName());
 
         // TODO: Check return value of removeEmptyDirectory()?
         $this->getStorage()->removeEmptyDirectory();
@@ -339,8 +339,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      * @return boolean true if the checksum is valid, false if not
      */
     public function verify($type, $value = null) {
-        if (!empty($value) and $this->getRealHash($type) === $value)
-            return true;
+        if (!empty($value) and $this->getRealHash($type) === $value) {
+            return true; 
+        }
 
         return false;
 
@@ -398,9 +399,9 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         foreach ($hashtypes as $type) {
             $hash = new Opus_HashValues();
             $hash->setType($type);
-            $hash_string = $this->getRealHash($type);
+            $hashString = $this->getRealHash($type);
 
-            $hash->setValue($hash_string);
+            $hash->setValue($hashString);
             $hashs[] = $hash;
         }
         $this->setHashValue($hashs);

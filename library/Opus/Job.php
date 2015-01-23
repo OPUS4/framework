@@ -124,10 +124,11 @@ class Opus_Job extends Opus_Model_AbstractDb {
     public static function getCount($state = null) {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, array('COUNT(id) AS count'));
-        if(!is_null($state)) {
-            if($state == Opus_Job::STATE_UNDEFINED) {
+        if (!is_null($state)) {
+            if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
-            } else {
+            }
+            else {
                 $select->where('state = ?', $state);
             }
         }
@@ -146,10 +147,11 @@ class Opus_Job extends Opus_Model_AbstractDb {
     public static function getCountForLabel($label, $state = null) {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, array('COUNT(id) AS count'));
-        if(!is_null($state)) {
-            if($state == Opus_Job::STATE_UNDEFINED) {
+        if (!is_null($state)) {
+            if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
-            } else {
+            }
+            else {
                 $select->where('state = ?', $state);
             }
         }
@@ -170,10 +172,11 @@ class Opus_Job extends Opus_Model_AbstractDb {
         $select = $table->select()
                 ->from($table, array('label','COUNT(id) AS count'))
                 ->group('label');
-        if(!is_null($state)) {
-            if($state == Opus_Job::STATE_UNDEFINED) {
+        if (!is_null($state)) {
+            if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
-            } else {
+            }
+            else {
                 $select->where('state = ?', $state);
             }
         }
@@ -215,16 +218,17 @@ class Opus_Job extends Opus_Model_AbstractDb {
         foreach ($labels as $label) {
             $select->orWhere('label = ?', $label);    
         }
-        if(!is_null($state)) {
-            if($state == Opus_Job::STATE_UNDEFINED) {
+        if (!is_null($state)) {
+            if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
-            } else {
+            }
+            else {
                 $select->where('state = ?', $state);
             }
         }
 
         $select->order('id');
-        if(!is_null($limit)) {
+        if (!is_null($limit)) {
             $select->limit($limit);
         }
         $rowset = $table->fetchAll($select);

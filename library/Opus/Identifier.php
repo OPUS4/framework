@@ -40,8 +40,7 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Dependent_Abstract
  */
-class Opus_Identifier extends Opus_Model_Dependent_Abstract
-{
+class Opus_Identifier extends Opus_Model_Dependent_Abstract {
     /**
      * Primary key of the parent model.
      *
@@ -73,7 +72,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $type->setMandatory(true)
                 ->setSelection(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
-                ->setDefault(array(
+                ->setDefault(
+                    array(
                     'old' => 'old',
                     'serial' => 'serial',
                     'uuid' => 'uuid',
@@ -90,7 +90,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
                     'opac-id' => 'opac-id',
                     'pmid' => 'pmid',
                     'arxiv' => 'arxiv'
-                ));
+                    )
+                );
         $this->addField($type);
     }
 

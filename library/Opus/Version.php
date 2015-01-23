@@ -55,9 +55,9 @@ class Opus_Version {
      *                           and +1 if $version is newer.
      *
      */
-    public static function compareVersion($version)
-    {
+    public static function compareVersion($version) {
         return version_compare($version, self::VERSION);
     }
+
 }
 

@@ -40,8 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Title extends Opus_Model_Dependent_Abstract
-{
+class Opus_Title extends Opus_Model_Dependent_Abstract {
     /**
      * Primary key of the parent model.
      *
@@ -78,12 +77,14 @@ class Opus_Title extends Opus_Model_Dependent_Abstract
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false);
         $type->setSelection(true);
-        $type->setDefault(array(
+        $type->setDefault(
+            array(
             'main' => 'main',
             'parent' => 'parent',
             'sub' => 'sub',
             'additional' => 'additional'
-        ));
+            )
+        );
 
         $this->addField($language)
             ->addField($value)

@@ -40,8 +40,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Iprange extends Opus_Model_AbstractDb
-{
+class Opus_Iprange extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -136,7 +135,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     protected function _fetchStartingip() {
         if (empty($this->_primaryTableRow->startingip) === false) {
             $result = long2ip($this->_primaryTableRow->startingip);
-        } else {
+        }
+        else {
             // FIXME: may conflict with Zend_Validate_NotEmpty?
             $result = null;
         }
@@ -151,7 +151,8 @@ class Opus_Iprange extends Opus_Model_AbstractDb
     protected function _fetchEndingip() {
         if (empty($this->_primaryTableRow->endingip) === false) {
             $result = long2ip($this->_primaryTableRow->endingip);
-        } else {
+        }
+        else {
             // FIXME: may conflict with Zend_Validate_NotEmpty?
             $result = null;
         }

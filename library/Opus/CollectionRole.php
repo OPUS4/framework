@@ -178,12 +178,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $db = $table->getAdapter();
 
         // FIXME: Hardcoded table and column names.
-        $reorder_query = 'SET @pos = 0; '
+        $reorderQuery = 'SET @pos = 0; '
                 . ' UPDATE collections_roles '
                 . ' SET position = ( SELECT @pos := @pos + 1 ) '
                 . ' ORDER BY position, id ASC;';
         // echo "reorder: $reorder_query\n";
-        $db->query($reorder_query);
+        $db->query($reorderQuery);
 
         return;
     }
@@ -223,30 +223,30 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // Case 1: If row is new, shift all nodes plus one.
         // Case 2: If row is old, shift nodes in between plus/minus one.
         $range = $db->quoteInto("position >= ?", $to);
-        $pos_shift = ' + 1 ';
+        $posShift = ' + 1 ';
 
         if (!$this->isNewRecord()) {
-            $pos_query = 'SELECT position FROM collections_roles WHERE id = ?';
-            $pos = $db->fetchOne($pos_query, $this->getId());
+            $posQuery = 'SELECT position FROM collections_roles WHERE id = ?';
+            $pos = $db->fetchOne($posQuery, $this->getId());
 
             $range = "position BETWEEN ? AND ?";
             if ($to < $pos) {
                 $range = $db->quoteInto($range, $to, null, 1);
                 $range = $db->quoteInto($range, $pos, null, 1);
-                $pos_shift = ' + 1 ';
+                $posShift = ' + 1 ';
             }
             else {
                 $range = $db->quoteInto($range, $pos, null, 1);
                 $range = $db->quoteInto($range, $to, null, 1);
-                $pos_shift = ' - 1 ';
+                $posShift = ' - 1 ';
             }
         }
 
         // Move.
-        $move_query = 'UPDATE collections_roles '
-                . ' SET position = position ' . $pos_shift
+        $moveQuery = 'UPDATE collections_roles '
+                . ' SET position = position ' . $posShift
                 . ' WHERE ' . $range;
-        $db->query($move_query);
+        $db->query($moveQuery);
 
         // Update this row.
         $row->{'position'} = (int) $to;
@@ -313,17 +313,17 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Return Opus_Model_NotFoundException?
      *
-     * @param string $oai_name OaiName of collection role to look for.
+     * @param string $oaiName OaiName of collection role to look for.
      *
      * @return Opus_CollectionRole
      */
-    public static function fetchByOaiName($oai_name = null) {
-        if (false === isset($oai_name)) {
+    public static function fetchByOaiName($oaiName = null) {
+        if (false === isset($oaiName)) {
             return;
         }
 
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->where('oai_name = ?', $oai_name);
+        $select = $table->select()->where('oai_name = ?', $oaiName);
         $row = $table->fetchRow($select);
 
         if (isset($row)) {

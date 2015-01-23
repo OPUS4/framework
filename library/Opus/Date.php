@@ -41,8 +41,8 @@
  */
 class Opus_Date extends Opus_Model_Abstract {
 
-    CONST TIMEDATE_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})([A-Za-z]+|[+-][\d:]+)$/';
-    CONST DATEONLY_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})$/';
+    const TIMEDATE_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})([A-Za-z]+|[+-][\d:]+)$/';
+    const DATEONLY_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})$/';
 
     /**
      * Set up model with given value or with the current timestamp.
@@ -55,19 +55,20 @@ class Opus_Date extends Opus_Model_Abstract {
 
         if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
-        } else
-        if ($value instanceof DateTime) {
+        }
+        else if ($value instanceof DateTime) {
             $this->setDateTime($value);
-        } else
-        if (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
+        }
+        else if (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
             $this->setFromString($value);
-        } else
-        if (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
+        }
+        else if (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
             $this->setFromString($value);
-        } else
-        if ($value instanceof Opus_Date) {
+        }
+        else if ($value instanceof Opus_Date) {
             $this->updateFrom($value);
-        } else {
+        }
+        else {
             // set all fields to 0
             $this->setYear(0)
                 ->setMonth(0)
@@ -91,7 +92,7 @@ class Opus_Date extends Opus_Model_Abstract {
             'Year', 'Month', 'Day',
             'Hour', 'Minute', 'Second');
 
-        foreach($fields as $fieldName) {
+        foreach ($fields as $fieldName) {
             $field = new Opus_Model_Field($fieldName);
             $field->setValidator(new Zend_Validate_Int);
             $this->addField($field);

@@ -39,8 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_Licence extends Opus_Model_AbstractDb
-{
+class Opus_Licence extends Opus_Model_AbstractDb {
 
     /**
      * Specify then table gateway.
@@ -89,50 +88,50 @@ class Opus_Licence extends Opus_Model_AbstractDb
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
         
-        $comment_internal = new Opus_Model_Field('CommentInternal');
-        $comment_internal->setTextarea(true);
+        $commentInternal = new Opus_Model_Field('CommentInternal');
+        $commentInternal->setTextarea(true);
         
-        $desc_markup = new Opus_Model_Field('DescMarkup');
-        $desc_markup->setTextarea(true);
-        $desc_text = new Opus_Model_Field('DescText');
-        $desc_text->setTextarea(true);
+        $descMarkup = new Opus_Model_Field('DescMarkup');
+        $descMarkup->setTextarea(true);
+        $descText = new Opus_Model_Field('DescText');
+        $descText->setTextarea(true);
         
-        $licence_language = new Opus_Model_Field('Language');
+        $licenceLanguage = new Opus_Model_Field('Language');
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
-            $licence_language->setDefault(Zend_Registry::get('Available_Languages'));
+            $licenceLanguage->setDefault(Zend_Registry::get('Available_Languages'));
         }
-        $licence_language->setSelection(true);
-        $licence_language->setMandatory(true);
+        $licenceLanguage->setSelection(true);
+        $licenceLanguage->setMandatory(true);
 
-        $link_licence = new Opus_Model_Field('LinkLicence');
-        $link_licence->setMandatory(true)
+        $linkLicence = new Opus_Model_Field('LinkLicence');
+        $linkLicence->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
         
-        $link_logo = new Opus_Model_Field('LinkLogo');
-        $link_sign = new Opus_Model_Field('LinkSign');
-        $mime_type = new Opus_Model_Field('MimeType');
+        $linkLogo = new Opus_Model_Field('LinkLogo');
+        $linkSign = new Opus_Model_Field('LinkSign');
+        $mimeType = new Opus_Model_Field('MimeType');
         
-        $name_long = new Opus_Model_Field('NameLong');
-        $name_long->setMandatory(true)
+        $nameLong = new Opus_Model_Field('NameLong');
+        $nameLong->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
         
-        $sort_order = new Opus_Model_Field('SortOrder');
+        $sortOrder = new Opus_Model_Field('SortOrder');
         
-        $pod_allowed = new Opus_Model_Field('PodAllowed');
-        $pod_allowed->setCheckbox(true);
+        $podAllowed = new Opus_Model_Field('PodAllowed');
+        $podAllowed->setCheckbox(true);
 
         $this->addField($active)
-            ->addField($comment_internal)
-            ->addField($desc_markup)
-            ->addField($desc_text)
-            ->addField($licence_language)
-            ->addField($link_licence)
-            ->addField($link_logo)
-            ->addField($link_sign)
-            ->addField($mime_type)
-            ->addField($name_long)
-            ->addField($sort_order)
-            ->addField($pod_allowed);
+            ->addField($commentInternal)
+            ->addField($descMarkup)
+            ->addField($descText)
+            ->addField($licenceLanguage)
+            ->addField($linkLicence)
+            ->addField($linkLogo)
+            ->addField($linkSign)
+            ->addField($mimeType)
+            ->addField($nameLong)
+            ->addField($sortOrder)
+            ->addField($podAllowed);
     }
 
     /**

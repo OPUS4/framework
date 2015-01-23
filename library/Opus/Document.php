@@ -388,7 +388,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         foreach ($fields as $fieldname) {
             if (isset($this->_externalFields[$fieldname])) {
-                throw new Exception( "Field $fieldname exists in _externalFields" );
+                throw new Exception("Field $fieldname exists in _externalFields");
             }
 
             $field = new Opus_Model_Field($fieldname);
@@ -438,23 +438,27 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
         // Add the server (publication) state as a field
         $this->getField('ServerState')
-                ->setDefault(array(
+                ->setDefault(
+                    array(
                     'unpublished' => 'unpublished',
                     'published' => 'published',
                     'deleted' => 'deleted',
                     'restricted' => 'restricted',
                     'audited' => 'audited',
-                    'inprogress' => 'inprogress'))
+                    'inprogress' => 'inprogress')
+                )
                 ->setSelection(true);
 
         // Add the allowed values for publication_state column
         $this->getField('PublicationState')
-                ->setDefault(array(
+                ->setDefault(
+                    array(
                     'draft' => 'draft',
                     'accepted' => 'accepted',
                     'submitted' => 'submitted',
                     'published' => 'published',
-                    'updated'=> 'updated'))
+                    'updated'=> 'updated')
+                )
                 ->setSelection(true);
 
         // Initialize available publishers        
@@ -476,7 +480,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if ($this->_fields['Language']->getValue() !== null) {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = implode(',', $this->_fields['Language']->getValue());
-            } else {
+            }
+            else {
                 $result = $this->_fields['Language']->getValue();
             }
         }
@@ -493,13 +498,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (empty($this->_primaryTableRow->language) === false) {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = explode(',', $this->_primaryTableRow->language);
-            } else {
+            }
+            else {
                 $result = $this->_primaryTableRow->language;
             }
-        } else {
+        }
+        else {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = array();
-            } else {
+            }
+            else {
                 $result = null;
             }
         }
@@ -529,38 +537,38 @@ class Opus_Document extends Opus_Model_AbstractDb {
     public static function getAllByState($state) {
         $finder = new Opus_DocumentFinder();
         $finder->setServerState($state);
-        return self::getAll( $finder->ids() );
+        return self::getAll($finder->ids());
     }
 
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order. Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByDoctype($sort_reverse = '0') {
-        return self::getAllDocumentsByDoctypeByState(null, $sort_reverse);
+    public static function getAllDocumentsByDoctype($sortReverse = '0') {
+        return self::getAllDocumentsByDoctypeByState(null, $sortReverse);
     }
 
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string $state    Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByDoctypeByState($state, $sort_reverse = '0') {
+    public static function getAllDocumentsByDoctypeByState($state, $sortReverse = '0') {
         $finder = new Opus_DocumentFinder();
         if (isset($state)) {
             $finder->setServerState($state);
         }
-        $finder->orderByType($sort_reverse != 1);
+        $finder->orderByType($sortReverse != 1);
         return $finder->ids();
     }
 
@@ -568,31 +576,31 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByPubDate($sort_reverse = '0') {
-        return self::getAllDocumentsByPubDateByState(null, $sort_reverse);
+    public static function getAllDocumentsByPubDate($sortReverse = '0') {
+        return self::getAllDocumentsByPubDateByState(null, $sortReverse);
     }
 
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByPubDateByState($state, $sort_reverse = '0') {
+    public static function getAllDocumentsByPubDateByState($state, $sortReverse = '0') {
         $finder = new Opus_DocumentFinder();
         if (isset($state)) {
             $finder->setServerState($state);
         }
-        $finder->orderByServerDatePublished($sort_reverse != 1);
+        $finder->orderByServerDatePublished($sortReverse != 1);
         return $finder->ids();
     }
 
@@ -600,13 +608,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
      *
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByAuthors($sort_reverse = '0') {
-        return self::getAllDocumentsByAuthorsByState(null, $sort_reverse);
+    public static function getAllDocumentsByAuthors($sortReverse = '0') {
+        return self::getAllDocumentsByAuthorsByState(null, $sortReverse);
     }
 
     /**
@@ -614,18 +622,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * (publication) state associated with the corresponding document id.
      * This array is sorted by authors (first one only)
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string  $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByAuthorsByState($state, $sort_reverse = '0') {
+    public static function getAllDocumentsByAuthorsByState($state, $sortReverse = '0') {
         $finder = new Opus_DocumentFinder();
         if (isset($state)) {
             $finder->setServerState($state);
         }
-        $finder->orderByAuthorLastname($sort_reverse != 1);
+        $finder->orderByAuthorLastname($sortReverse != 1);
         return $finder->ids();
     }
 
@@ -633,61 +641,61 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Retrieve an array of all document titles associated with the corresponding
      * document id.
      *
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByTitles($sort_reverse = '0') {
-        return self::getAllDocumentsByTitlesByState(null, $sort_reverse);
+    public static function getAllDocumentsByTitles($sortReverse = '0') {
+        return self::getAllDocumentsByTitlesByState(null, $sortReverse);
     }
 
     /**
      * Retrieve an array of all document titles of a document in a certain server
      * (publication) state associated with the corresponding document id.
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param  string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array array with all ids of the entries in the desired order.
      *
      * @deprecated
      */
-    public static function getAllDocumentsByTitlesByState($state, $sort_reverse = '0') {
+    public static function getAllDocumentsByTitlesByState($state, $sortReverse = '0') {
         $finder = new Opus_DocumentFinder();
         if (isset($state)) {
             $finder->setServerState($state);
         }
-        $finder->orderByTitleMain($sort_reverse != 1);
+        $finder->orderByTitleMain($sortReverse != 1);
         return $finder->ids();
     }
 
     /**
      * Returns an array of all document ids.
      *
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param  string  $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array Array of document ids.
      *
      * @deprecated
      */
-    public static function getAllIds($sort_reverse = '0') {
-        return self::getAllIdsByState(null, $sort_reverse);
+    public static function getAllIds($sortReverse = '0') {
+        return self::getAllIdsByState(null, $sortReverse);
     }
 
     /**
      * Returns all document that are in a specific server (publication) state.
      *
-     * @param  string  $state        Document state to select, defaults to "published", returning all states if set to NULL.
-     * @param  string  $sort_reverse Optional indicator for list order: 1 = descending; else ascending order.  Defaults to 0.
+     * @param string $state Document state to select, defaults to "published", returning all states if set to NULL.
+     * @param string $sortReverse Optional indicator for order: 1 = descending; else ascending order.  Defaults to 0.
      * @return array The list of documents in the specified state.
      *
      * @deprecated
      */
-    public static function getAllIdsByState($state = 'published', $sort_reverse = '0') {
+    public static function getAllIdsByState($state = 'published', $sortReverse = '0') {
         $finder = new Opus_DocumentFinder();
         if (isset($state)) {
             $finder->setServerState($state);
         }
-        $finder->orderById($sort_reverse != 1);
+        $finder->orderById($sortReverse != 1);
         return $finder->ids();
     }
 
@@ -784,7 +792,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         try {
             if (true === is_null($from)) {
                 $from = new Zend_Date(self::getEarliestPublicationDate());
-            } else {
+            }
+            else {
                 $from = new Zend_Date($from);
             }
         } catch (Exception $e) {
@@ -793,7 +802,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         try {
             if (true === is_null($until)) {
                 $until = new Zend_Date;
-            } else {
+            }
+            else {
                 $until = new Zend_Date($until);
             }
         } catch (Exception $e) {
@@ -803,7 +813,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $searchRange = null;
         if (true === $from->equals($until)) {
             $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
-        } else {
+        }
+        else {
             // TODO FIXME
             //
             // For some strange reason a between does not include the
@@ -814,7 +825,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
             //
             // Between range looks like $from < $until and not $from <= $until
             $until->addDay(1);
-            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd') . '%"';
+            $searchRange = 'BETWEEN "' . $from->toString('yyyy-MM-dd') . '%" AND "' . $until->toString('yyyy-MM-dd')
+                . '%"';
         }
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
@@ -926,10 +938,10 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
                 if (!empty($nid) && !empty($nss)) {
                     $urn = new Opus_Identifier_Urn($nid, $nss);
-                    $urn_value = $urn->getUrn($this->getId());
-                    $urn_model = new Opus_Identifier();
-                    $urn_model->setValue($urn_value);
-                    $this->setIdentifierUrn($urn_model);
+                    $urnValue = $urn->getUrn($this->getId());
+                    $urnModel = new Opus_Identifier();
+                    $urnModel->setValue($urnValue);
+                    $this->setIdentifierUrn($urnModel);
                 }
             }
         }
@@ -948,7 +960,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 if (!empty($tmp)) {
                     return false;
                 }
-            } else if (!empty($identifier)) {
+            }
+            else if (!empty($identifier)) {
                 return false;
             }
         }
@@ -962,9 +975,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
      */
     protected function _storeIdentifierUuid($value) {
         if (true === is_null($value)) {
-            $uuid_model = new Opus_Identifier;
-            $uuid_model->setValue(Opus_Identifier_UUID::generate());
-            $this->setIdentifierUuid($uuid_model);
+            $uuidModel = new Opus_Identifier;
+            $uuidModel->setValue(Opus_Identifier_UUID::generate());
+            $this->setIdentifierUuid($uuidModel);
         }
 
         $options = null;
@@ -1075,7 +1088,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $date = new Opus_Date();
         $date->setNow();
         if (true === $this->isNewRecord()) {
-            if (is_null( $this->getServerDateCreated() )) {
+            if (is_null($this->getServerDateCreated())) {
                 $this->setServerDateCreated($date);
             }
         }
@@ -1084,7 +1097,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (true === $this->isNewRecord() || true === $this->isModified()) {
             // Initially set ServerDatePublished if ServerState == 'published'
             if ($this->getServerState() === 'published') {
-                if (is_null( $this->getServerDatePublished() )) {
+                if (is_null($this->getServerDatePublished())) {
                     $this->setServerDatePublished($date);
                 }
             }
@@ -1112,7 +1125,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
-        $logger->info( $this->getDisplayName() . ": $message" );
+        $logger->info($this->getDisplayName() . ": $message");
     }
 
     /**

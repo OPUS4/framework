@@ -142,9 +142,10 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function getDocumentIds() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $ids = $db->fetchCol(
-                'SELECT document_id FROM link_documents_series ' .
-                'WHERE series_id = ?',
-                $this->getId());
+            'SELECT document_id FROM link_documents_series ' .
+            'WHERE series_id = ?',
+            $this->getId()
+        );
         return $ids;
     }
 
@@ -155,7 +156,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
         $db = Zend_Db_Table::getDefaultAdapter();
         $ids = $db->fetchCol(
             'SELECT document_id FROM link_documents_series WHERE series_id = ? ORDER BY doc_sort_order DESC',
-            $this->getId());
+            $this->getId()
+        );
         return $ids;
     }
 
@@ -185,9 +187,10 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function isNumberAvailable($number) {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-                'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-                'WHERE series_id = ? AND number = ?',
-                array($this->getId(), $number));
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
+            'WHERE series_id = ? AND number = ?',
+            array($this->getId(), $number)
+        );
         return $count === '0';
     }
 
@@ -199,9 +202,10 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function getNumOfAssociatedDocuments() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-                'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
-                'WHERE series_id = ?',
-                $this->getId());
+            'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
+            'WHERE series_id = ?',
+            $this->getId()
+        );
         return intval($count);
     }
 
@@ -214,10 +218,11 @@ class Opus_Series extends Opus_Model_AbstractDb {
     public function getNumOfAssociatedPublishedDocuments() {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
-                'SELECT COUNT(*) AS rows_count ' .
-                'FROM link_documents_series l, documents d ' .
-                'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
-                $this->getId());
+            'SELECT COUNT(*) AS rows_count ' .
+            'FROM link_documents_series l, documents d ' .
+            'WHERE l.document_id = d.id AND d.server_state = \'published\' AND l.series_id = ?',
+            $this->getId()
+        );
         return intval($count);
     }
 
