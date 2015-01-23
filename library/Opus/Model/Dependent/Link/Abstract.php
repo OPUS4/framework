@@ -141,10 +141,12 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         // use own __call method if field is appended to the link model
         if (true === isset($this->_fields[$fieldname])) {
             return parent::__call($name, $arguments);
-        } else {
+        }
+        else {
             if (array_key_exists(0, $arguments) === true) {
                 return $this->_model->$name($arguments[0]);
-            } else {
+            }
+            else {
                 return $this->_model->$name();
             }
         }
@@ -199,14 +201,14 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * not itself appended to this link model.
      *
      * @param string $name           Name of the requested field.
-     * @param bool   $ignore_pending If a pending field's values should be fetched, or not.
+     * @param bool   $ignorePending If a pending field's values should be fetched, or not.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name, $ignore_pending = false) {
+    public function getField($name, $ignorePending = false) {
         if (true === isset($this->_fields[$name])) {
-            return parent::getField($name, $ignore_pending);
+            return parent::getField($name, $ignorePending); // TODO bug? parent function has only one parameter
         }
-        return $this->_model->getField($name, $ignore_pending);
+        return $this->_model->getField($name, $ignorePending);
     }
 
     /**

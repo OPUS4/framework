@@ -42,7 +42,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     /**
      * Run method invalidateDocumentCacheFor() in postStore if true.
      */
-    protected $postStoreUpdateDocuments = true;
+    protected $_postStoreUpdateDocuments = true;
 
     /**
      * @see {Opus_Model_Plugin_Interface::preStore}
@@ -56,14 +56,14 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         $modelClass = get_class($model);
         $config = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
         if (isset($config->{$modelClass})) {
-            $this->postStoreUpdateDocuments = false;
+            $this->_postStoreUpdateDocuments = false;
             $filter = new Opus_Model_Filter();
             $filter->setModel($model);
             $filter->setBlacklist($config->{$modelClass}->toArray());
             $whitelist = $filter->describe();
             foreach ($whitelist as $fieldName) {
                 if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified()) {
-                    $this->postStoreUpdateDocuments = true;
+                    $this->_postStoreUpdateDocuments = true;
                     break;
                 }
             }
@@ -74,7 +74,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
-        if ($this->postStoreUpdateDocuments) {
+        if ($this->_postStoreUpdateDocuments) {
             $this->invalidateDocumentCacheFor($model);
         }
     }

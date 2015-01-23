@@ -61,7 +61,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
      */
     public function setDomDocument(DOMDocument $dom) {
-        $this->_config->_dom = $dom;
+        $this->_config->dom = $dom;
     }
 
     /**
@@ -86,8 +86,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
 
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
-        if ((null !== $this->_config->_xlinkResolver) and (null !== $ref)) {
-            $model = $this->_config->_xlinkResolver->get($ref->value);
+        if ((null !== $this->_config->xlinkResolver) and (null !== $ref)) {
+            $model = $this->_config->xlinkResolver->get($ref->value);
             return $model;
         }
 
@@ -113,7 +113,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         }
 
         // is there a mapping from class name to resource name?
-        if (true === array_key_exists($valueModelClassName, $this->_config->_resourceNameMap)) {
+        if (true === array_key_exists($valueModelClassName, $this->_config->resourceNameMap)) {
             // is the model a persisted database object?
             if ($model instanceof Opus_Model_AbstractDb) {
 
@@ -126,8 +126,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
                 }
 
                 if (null !== $modelId) {
-                    $resourceName = $this->_config->_resourceNameMap[$valueModelClassName];
-                    $uri = $this->_config->_baseUri . '/' . $resourceName . '/' . $modelId;
+                    $resourceName = $this->_config->resourceNameMap[$valueModelClassName];
+                    $uri = $this->_config->baseUri . '/' . $resourceName . '/' . $modelId;
                 }
             }
         }
@@ -157,7 +157,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             $fields = $model->describe();
         }
 
-        $excludeFields = $this->_config->_excludeFields;
+        $excludeFields = $this->_config->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
         }
@@ -176,19 +176,19 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getDomDocument()
      */
     public function getDomDocument() {
-        if (null === $this->_config->_model) {
+        if (null === $this->_config->model) {
             throw new Opus_Model_Exception('No Model given for serialization.');
         }
 
-        $this->_config->_dom = new DomDocument('1.0', 'UTF-8');
-        $root = $this->_config->_dom->createElement('Opus');
+        $this->_config->dom = new DomDocument('1.0', 'UTF-8');
+        $root = $this->_config->dom->createElement('Opus');
         $root->setAttribute('version', $this->getVersion());
-        $this->_config->_dom->appendChild($root);
+        $this->_config->dom->appendChild($root);
         $root->setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-        $this->_mapModel($this->_config->_model, $this->_config->_dom, $root);
+        $this->_mapModel($this->_config->model, $this->_config->dom, $root);
 
-        return $this->_config->_dom;
+        return $this->_config->dom;
     }
 
     /**
@@ -196,16 +196,16 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getModel()
      */
     public function getModel() {
-        if (null !== $this->_config->_dom) {
-            $root = $this->_config->_dom->getElementsByTagName('Opus')->item(0);
+        if (null !== $this->_config->dom) {
+            $root = $this->_config->dom->getElementsByTagName('Opus')->item(0);
             if (null === $root) {
                 throw new Opus_Model_Exception('Root element "Opus" not found.');
             }
             $model = $this->_createModelFromElement($root->firstChild);
-            $this->_config->_model = $this->_populateModelFromXml($model, $root->firstChild);
+            $this->_config->model = $this->_populateModelFromXml($model, $root->firstChild);
         }
 
-        return $this->_config->_model;
+        return $this->_config->model;
     }
 
     /**
@@ -267,7 +267,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         $modelClass = $field->getValueModelClass();
         $fieldValues = $field->getValue();
 
-        if (true === $this->getConfig()->_excludeEmpty) {
+        if (true === $this->getConfig()->excludeEmpty) {
             if (true === is_null($fieldValues)
                 or (is_string($fieldValues) && trim($fieldValues) == '')
                 or (is_array($fieldValues) && empty($fieldValues)) ) {
@@ -336,7 +336,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      */
     protected function _mapModel(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
         $fields = $model->describe();
-        $excludeFields = $this->getConfig()->_excludeFields;
+        $excludeFields = $this->getConfig()->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
         }

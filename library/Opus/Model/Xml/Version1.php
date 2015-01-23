@@ -142,8 +142,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         $config = $this->getConfig();
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
-        if ((null !== $config->_xlinkResolver) and (null !== $ref)) {
-            $model = $config->_xlinkResolver->get($ref->value);
+        if ((null !== $config->xlinkResolver) and (null !== $ref)) {
+            $model = $config->xlinkResolver->get($ref->value);
         }
 
         $fieldList = $model->describe();
@@ -215,9 +215,9 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
     public function updateFromXml($xml) {
         $this->setXml($xml);
         $config = $this->getConfig();
-        $model_element = $config->_dom->getElementsByTagName(get_class($config->_model))->item(0);
-        if (null !== $model_element) {
-            $this->_updateModelFromXml($config->_model, $model_element);
+        $modelElement = $config->dom->getElementsByTagName(get_class($config->model))->item(0);
+        if (null !== $modelElement) {
+            $this->_updateModelFromXml($config->model, $modelElement);
         }
     }
 

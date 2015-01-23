@@ -35,13 +35,13 @@ class Opus_Model_Xml_Cache {
      *
      * @var bool
      */
-    private $reindexDocumentAfterAddingCacheEntry = true;
+    private $_reindexDocumentAfterAddingCacheEntry = true;
 
     /**
      * Logger object.
      * @var null
      */
-    private $logger = null;
+    private $_logger = null;
 
     /**
      *
@@ -50,7 +50,7 @@ class Opus_Model_Xml_Cache {
      */
     public function __construct($reindexDocumentAfterAddingCacheEntry = true) {
         $this->_table = new Opus_Db_DocumentXmlCache;
-        $this->reindexDocumentAfterAddingCacheEntry = $reindexDocumentAfterAddingCacheEntry;
+        $this->_reindexDocumentAfterAddingCacheEntry = $reindexDocumentAfterAddingCacheEntry;
     }
 
     /**
@@ -117,7 +117,8 @@ class Opus_Model_Xml_Cache {
 
         if ($rows->count() > 0) {
             $result = $rows->toArray();
-        } else {
+        }
+        else {
             $result = array();
         }
 
@@ -160,7 +161,8 @@ class Opus_Model_Xml_Cache {
 
         if (null === $row) {
             $result = false;
-        } else {
+        }
+        else {
             $result = true;
         }
 
@@ -250,7 +252,7 @@ class Opus_Model_Xml_Cache {
      */
     protected function _postPut($documentId) {
         
-        if (!$this->reindexDocumentAfterAddingCacheEntry) {
+        if (!$this->_reindexDocumentAfterAddingCacheEntry) {
             return;
         }
         
@@ -271,10 +273,10 @@ class Opus_Model_Xml_Cache {
      * @return Zend_Log
      */
     public function getLogger() {
-        if (is_null($this->logger)) {
-            $this->logger = Zend_Registry::get('Zend_Log');
+        if (is_null($this->_logger)) {
+            $this->_logger = Zend_Registry::get('Zend_Log');
         }
-        return $this->logger;
+        return $this->_logger;
     }
 
 }

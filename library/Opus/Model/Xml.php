@@ -124,7 +124,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface
      */
     public function setXlinkBaseUri($uri) {
-        $this->_config->_baseUri = $uri;
+        $this->_config->baseUri = $uri;
         return $this;
     }
 
@@ -137,7 +137,7 @@ class Opus_Model_Xml {
      * TODO seems unused in OPUS
      */
     public function setXlinkResolver(Opus_Uri_Resolver $resolver) {
-        $this->_config->_xlinkResolver = $resolver;
+        $this->_config->xlinkResolver = $resolver;
         return $this;
     }
 
@@ -154,7 +154,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface
      */
     public function setResourceNameMap(array $map) {
-        $this->_config->_resourceNameMap = $map;
+        $this->_config->resourceNameMap = $map;
         return $this;
     }
 
@@ -165,7 +165,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface
      */
     public function exclude(array $fields) {
-        $this->_config->_excludeFields = $fields;
+        $this->_config->excludeFields = $fields;
         return $this;
     }
 
@@ -175,7 +175,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface
      */
     public function excludeEmptyFields() {
-        $this->_config->_excludeEmpty = true;
+        $this->_config->excludeEmpty = true;
         return $this;
     }
 
@@ -208,7 +208,7 @@ class Opus_Model_Xml {
      * @return Opus_Model_Xml Fluent interface.
      */
     public function setModel($model) {
-        $this->_config->_model = $model;
+        $this->_config->model = $model;
         return $this;
     }
 
@@ -228,7 +228,7 @@ class Opus_Model_Xml {
      * @return DOMDocument DOM representation of the current Model.
      */
     public function getDomDocument() {
-        $model = $this->_config->_model;
+        $model = $this->_config->model;
         $logger = Zend_Registry::get('Zend_Log');
 
         $result = $this->getDomDocumentFromXmlCache();
@@ -259,7 +259,7 @@ class Opus_Model_Xml {
      * @return DOMDocument DOM representation of the current Model.
      */
     private function getDomDocumentFromXmlCache() {
-        $model = $this->_config->_model;
+        $model = $this->_config->model;
         $logger = Zend_Registry::get('Zend_Log');
 
         if (null === $this->_cache) {

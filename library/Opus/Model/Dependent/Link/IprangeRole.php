@@ -85,7 +85,8 @@ class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Ab
     protected function _init() {
         if (is_null($this->getId()) === false) {
             $this->setModel(new Opus_UserRole($this->_primaryTableRow->role_id));
-        } else {
+        }
+        else {
             $this->setModel(new Opus_UserRole);
         }
     }

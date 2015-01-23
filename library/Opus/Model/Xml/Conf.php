@@ -44,48 +44,48 @@ class Opus_Model_Xml_Conf {
      *
      * @var Opus_Model_Abstract
      */
-    public $_model = null;
+    public $model = null;
 
     /**
      * Holds the current DOM representation.
      *
      * @var DOMDocument
      */
-    public $_dom = null;
+    public $dom = null;
 
     /**
      * List of fields to skip on serialization.
      *
      * @var array
      */
-    public $_excludeFields = array();
+    public $excludeFields = array();
 
     /**
      * True, if empty fields get excluded from serialization.
      *
      * @var bool
      */
-    public $_excludeEmpty = false;
+    public $excludeEmpty = false;
 
     /**
      * Base URI for xlink:ref elements
      *
      * @var string
      */
-    public $_baseUri = '';
+    public $baseUri = '';
 
     /**
      * Holds Resolver instance to get contents of xlink referenced resources.
      *
      * @var Opus_Uri_Resolver
      */
-    public $_xlinkResolver = null;
+    public $xlinkResolver = null;
 
     /**
      * Map of model class names to resource names for URI generation.
      *
      * @var array
      */
-    public $_resourceNameMap = array();
+    public $resourceNameMap = array();
 
 }

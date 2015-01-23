@@ -89,7 +89,8 @@ class Opus_Model_Dependent_Link_DocumentDnbInstitute extends Opus_Model_Dependen
         $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
-        } else {
+        }
+        else {
             $this->setModel(new $modelClass());
         }
         
