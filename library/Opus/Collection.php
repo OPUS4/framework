@@ -110,7 +110,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      */
     protected function _init() {
 
-        $fields = array('Number', 'Name', 'OaiSubset', 
+        $fields = array('Number', 'Name', 'OaiSubset',
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor',
             'DisplayFrontdoor',
@@ -120,7 +120,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $this->addField($field);
         }
 
-        $visible = new Opus_Model_Field('Visible');        
+        $visible = new Opus_Model_Field('Visible');
         $visible->setCheckbox(true);
         $this->addField($visible);
 
@@ -129,7 +129,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $theme->setSelection(true);
         $this->addField($theme);
 
-        
+
         /**
          * External fields.
          */
@@ -298,7 +298,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $parent = new Opus_Collection($parentId);
             $parentDisplayName = $parent->getDisplayFrontdoor(); // implicitly calls $parent->_fetchDisplayFrontdoor()
             if (!empty($parentDisplayName)) {
-                $displayName = $parentDisplayName . ' / ' . $displayName; 
+                $displayName = $parentDisplayName . ' / ' . $displayName;
             }
         }
         return $displayName;
@@ -308,7 +308,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * empty method to prevent storing of read-only field DisplayFrontdoor
      */
     protected function _storeDisplayFrontdoor() {
-        
+
     }
 
     /**
@@ -777,7 +777,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $nestedSets = $this->_primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId());
     }
-    
+
     /**
      * _storeInternalFields(): Manipulate _primaryTableRow to preserve the
      * nested set property.
@@ -932,7 +932,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * first argument is mandadory and can be an int-array or a SQL-query used
      * as a subselect.  This query must have only have an id-column.
      *
-     * @param  $docIds 
+     * @param  $docIds
      * @return array
      */
     public function filterSubtreeDocumentIds($docIds) {
@@ -1001,7 +1001,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     protected function _storeChildren() {
     }
 
-    
+
     /**
      * An unexpensive way to find out, if the current collection has children,
      * i.e. if it is a leaf node in the tree.
@@ -1038,7 +1038,7 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $this->_primaryTableRow->toArray()
         );
     }
-    
+
     public function getVisibleChildren() {
         if (is_null($this->getId())) {
             return;
@@ -1058,12 +1058,12 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             return;
         }
 
-        $table = $this->_primaryTableRow->getTable();        
+        $table = $this->_primaryTableRow->getTable();
         $select = $table->selectChildrenById($this->getId());
-        $select->where("visible = 1");        
+        $select->where("visible = 1");
         $select->reset('columns');
         $select->distinct(true)->columns("count(id)");
-        
+
         return intval($table->getAdapter()->fetchOne($select)) > 0;
     }
 
@@ -1179,5 +1179,5 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $table = $this->_primaryTableRow->getTable();
         $table->applySortOrderOfChildren($this->getId(), $sortedIds);
     }
-    
+
 }

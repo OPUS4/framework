@@ -39,6 +39,18 @@
 /**
  * Domain model for collection roles in the Opus framework
  *
+ * Fields:
+ *
+ * DisplayBrowsing
+ * DisplayFrontdoor
+ * Acceptable values are:
+ * - 'Name'
+ * - 'Number'
+ * - 'Name, Number'
+ * - 'Number, Name'
+ *
+ *
+ *
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
@@ -77,10 +89,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
         'Opus_CollectionRole_Plugin_DeleteTree' => null,
     );
-    
+
     /**
      * Initialize model.
-     * 
+     *
      * @return void
      */
     protected function _init() {
@@ -381,7 +393,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     /**
      * Fetches all valid/visible/non-empty oai subset names for this role,
-     * (i.e. for those collections that  contain at least one document, are 
+     * (i.e. for those collections that  contain at least one document, are
      * visible, have a proper oai name).
      *
      * FIXME: Unit-tests, if empty OaiSets are returned.
@@ -411,7 +423,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     /**
      * Returns all valid oai role (i.e. for those collection roles that contain
-     * at least one visible collection with proper oai name and at least one 
+     * at least one visible collection with proper oai name and at least one
      * published document).
      *
      * @return array Array-hash with (id, name, oai_name, count)
