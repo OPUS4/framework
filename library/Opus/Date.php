@@ -277,7 +277,7 @@ class Opus_Date extends Opus_Model_Abstract {
      * @return bool
      */
     public function isValid() {
-        return checkdate($this->getMonth(), $this->getDay(), $this->getYear()) 
+        return checkdate($this->getMonth(), $this->getDay(), $this->getYear())
                 and parent::isValid();
     }
 }
