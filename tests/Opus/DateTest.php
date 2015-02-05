@@ -366,6 +366,9 @@ class Opus_DateTest extends TestCase {
         }
     }
 
+    /**
+     * TODO Test may fail because to much time passed between setNow and Zend_Date construction.
+     */
     function testZendDateOutput() {
         $date = new Opus_Date();
         $date->setNow();
