@@ -164,8 +164,8 @@ class Opus_Date extends Opus_Model_Abstract {
         $this->setMinute($datetime->format("i"));
         $this->setSecond($datetime->format("s"));
 
-        $tz = $datetime->format("P");
-        $this->setTimezone($tz === '+00:00' ? 'Z' : $tz);
+        $timeZone = $datetime->format("P");
+        $this->setTimezone($timeZone === '+00:00' ? 'Z' : $timeZone);
         $this->setUnixTimestamp($datetime->getTimestamp());
 
         return $this;

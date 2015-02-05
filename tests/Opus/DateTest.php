@@ -159,17 +159,13 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getMonth(), $past->format('m'), 'Month values dont match.');
         $this->assertEquals($od->getDay(), $past->format('d'), 'Day values dont match.');
 
-        $this->markTestSkipped('Test fails here, but fix is postponed.');
         $this->assertEquals($od->getHour(), $past->format('H'), 'Hour values dont match.');
         $this->assertEquals($od->getMinute(), $past->format('i'), 'Minute values dont match.');
         $this->assertEquals($od->getSecond(), $past->format('s'), 'Second values dont match.');
 
         $this->assertEquals($od->getUnixTimestamp(), $past->getTimestamp(), 'Unix timestamp does not match');
         $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
-
     }
-
-
 
     /**
      * Test creation by passing an *invalid* string constructor argument.
