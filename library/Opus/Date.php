@@ -204,17 +204,11 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @param Zend_Date $date Zend_Date instance to use.
      * @return void
+     *
+     * @deprecated
      */
     public function setZendDate(Zend_Date $date) {
-        $datearray = $date->toArray();
-        $this->setYear($datearray['year']);
-        $this->setMonth($datearray['month']);
-        $this->setDay($datearray['day']);
-        $this->setHour($datearray['hour']);
-        $this->setMinute($datearray['minute']);
-        $this->setSecond($datearray['second']);
-        $this->setTimezone($datearray['timezone']);
-        $this->setUnixTimestamp($date->getTimestamp());
+        $this->setFromString($date->get(Zend_Date::ISO_8601));
     }
 
     /**
@@ -277,8 +271,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @return bool
      */
     public function isValid() {
-        return checkdate($this->getMonth(), $this->getDay(), $this->getYear())
-                and parent::isValid();
+        return checkdate($this->getMonth(), $this->getDay(), $this->getYear()) and parent::isValid();
     }
+
 }
 

@@ -52,7 +52,7 @@ class Opus_DateTest extends TestCase {
         $this->_locale_backup = Zend_Registry::get('Zend_Locale');
         Zend_Registry::set('Zend_Locale', new Zend_Locale('de'));
     }
-    
+
     /**
      * Restore previously set locale
      *
@@ -69,13 +69,13 @@ class Opus_DateTest extends TestCase {
     public function testCreateWithoutArgument() {
         $od = new Opus_Date;
         $this->assertFalse($od->isValid(), 'Opus_Date object should not be valid!');
-    }   
- 
+    }
+
     /**
      * Test if a valid Zend_Date object can be created.
      *
      * @return void
-     */   
+     */
     public function testGetZendDate() {
         $od = new Opus_Date;
         $od->setYear(2005)
@@ -87,7 +87,7 @@ class Opus_DateTest extends TestCase {
         $this->assertNotNull($zd, 'Object expected.');
         $this->assertTrue($zd instanceof Zend_Date, 'Returned object is not Zend_Date.');
     }
-    
+
     /**
      * Test creation by passing string as constructor argument.
      *
@@ -95,9 +95,9 @@ class Opus_DateTest extends TestCase {
      */
     public function testCreateWithStringConstructionArgument() {
         $od = new Opus_Date('1972-11-10');
-        $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');        
-        $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');        
-        $this->assertEquals(10, (int) $od->getDay(), 'Day values dont match.');        
+        $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');
+        $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');
+        $this->assertEquals(10, (int) $od->getDay(), 'Day values dont match.');
         $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
     }
 
@@ -163,14 +163,14 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($od->getHour(), $past->format('H'), 'Hour values dont match.');
         $this->assertEquals($od->getMinute(), $past->format('i'), 'Minute values dont match.');
         $this->assertEquals($od->getSecond(), $past->format('s'), 'Second values dont match.');
-        
+
         $this->assertEquals($od->getUnixTimestamp(), $past->getTimestamp(), 'Unix timestamp does not match');
         $this->assertTrue($od->isValid(), 'Opus_Date should be valid!');
 
     }
 
-    
-    
+
+
     /**
      * Test creation by passing an *invalid* string constructor argument.
      *
@@ -232,13 +232,13 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals(date('Y'), $date->getYear());
         $this->assertEquals(date('m'), $date->getMonth());
         $this->assertEquals(date('d'), $date->getDay());
-        
+
         $dateString = $date->__toString();
         $dateReload = new Opus_Date($dateString);
         $this->assertEquals($date->getYear(), $dateReload->getYear());
         $this->assertEquals($date->getMonth(), $dateReload->getMonth());
         $this->assertEquals($date->getDay(), $dateReload->getDay());
-        
+
     }
 
     /**
@@ -364,6 +364,14 @@ class Opus_DateTest extends TestCase {
             $date = new Opus_Date($timeString);
             $this->assertEquals($timeZone, $date->getTimezone());
         }
+    }
+
+    function testZendDateOutput() {
+        $date = new Opus_Date();
+        $date->setNow();
+        $dateZend = new Opus_Date(new Zend_Date());
+
+        $this->assertEquals($date->__toString(), $dateZend->__toString());
     }
 
 }
