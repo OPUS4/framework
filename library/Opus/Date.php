@@ -28,7 +28,8 @@
  * @package     Opus
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -41,7 +42,14 @@
  */
 class Opus_Date extends Opus_Model_Abstract {
 
+    /**
+     * Regular expression for complete time string.
+     */
     const TIMEDATE_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})T(\d{1,2}):(\d{1,2}):(\d{1,2})([A-Za-z]+|[+-][\d:]+)$/';
+
+    /**
+     * Regular expression for time string with just a date.
+     */
     const DATEONLY_REGEXP = '/^(\d{1,4})-(\d{1,2})-(\d{1,2})$/';
 
     /**
@@ -90,7 +98,8 @@ class Opus_Date extends Opus_Model_Abstract {
     protected function _init() {
         $fields = array(
             'Year', 'Month', 'Day',
-            'Hour', 'Minute', 'Second');
+            'Hour', 'Minute', 'Second'
+        );
 
         foreach ($fields as $fieldName) {
             $field = new Opus_Model_Field($fieldName);
@@ -119,7 +128,8 @@ class Opus_Date extends Opus_Model_Abstract {
             'hour' => $this->getHour(),
             'minute' => $this->getMinute(),
             'second' => $this->getSecond(),
-            'timezone' => $this->getTimezone());
+            'timezone' => $this->getTimezone()
+        );
 
         foreach ($datearray as $key => $value) {
             if (is_null($value)) {
