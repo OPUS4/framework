@@ -147,6 +147,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             // primary keys.  It *does* *not* accept arrays with all primary
             // key columns.
             $rowset = call_user_func_array(array(&$tableGatewayModel, 'find'), $idTupel);
+
             if (false == ($rowset->count() > 0)) {
                 throw new Opus_Model_NotFoundException(
                     'No ' . get_class($tableGatewayModel)
@@ -515,7 +516,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         try {
             // Store basic simple fields to complete the table row
             foreach ($this->_fields as $fieldname => $field) {
-                
+
                 // Skip external fields.
                 if (isset($this->_externalFields[$fieldname])) {
                     continue;
