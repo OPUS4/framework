@@ -58,7 +58,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Plugins to load
-     * 
+     *
      * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come
      * before XmlCache plugin
      *
@@ -419,9 +419,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // Initialize available languages
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
             $this->getField('Language')
-                    ->setDefault(Zend_Registry::get('Available_Languages'))
-                    ->setSelection(true);
+                    ->setDefault(Zend_Registry::get('Available_Languages'));
         }
+        $this->getField('Language')->setSelection(true);
 
         // Type field should be shown as drop-down.
         // TODO: ->setDefault( somehow::getAvailableDocumentTypes() )
@@ -432,7 +432,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $this->getField('BelongsToBibliography')
                 ->setCheckbox(true);
 
-        // Initialize available licences        
+        // Initialize available licences
         $this->getField('Licence')
                 ->setSelection(true);
 
@@ -461,7 +461,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                 )
                 ->setSelection(true);
 
-        // Initialize available publishers        
+        // Initialize available publishers
         $this->getField('ThesisPublisher')
                 ->setSelection(true);
 
@@ -847,7 +847,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Bulk update of ServerDateModified for documents matching selection
-     * 
+     *
      * @param Opus_Date $date Opus_Date-Object holding the date to be set
      * @param array $ids array of document ids
      */
@@ -856,12 +856,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
         if (is_null($ids) || count($ids) == 0) {
             return;
         }
-        
+
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        
-        
+
+
         $where = $table->getAdapter()->quoteInto('id IN (?)', $ids);
-        
+
         try {
             $table->update(array('server_date_modified' => "$date"), $where);
         } catch (Exception $e) {
@@ -1034,7 +1034,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
     public function deletePermanent() {
         $this->delete();
 
-        // remove all files permanently       
+        // remove all files permanently
         $files = $this->getFile();
 
         foreach ($files as $file) {
@@ -1130,7 +1130,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Erase all document fields, which are passed in $fieldnames array.
-     * 
+     *
      * @param array $fieldnames
      * @return Opus_Document Provide fluent interface.
      *
