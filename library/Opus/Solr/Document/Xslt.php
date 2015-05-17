@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,36 +27,65 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-/**
- * Defines methods provided for querying (Solr-based) search database.
- */
-
-interface Opus_Solr_Searchable {
-	/**
-	 * Queries search database for set of matching entries.
-	 *
-	 * @param string $query query selecting documents
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
-	 */
-	public function customSearch( $query, Opus_Solr_Parameters $parameters = null );
+class Opus_Solr_Document_Xslt extends Opus_Solr_Document_Base {
 
 	/**
-	 * Queries search database for set of matching entries using some named
-	 * query defined in configuration.
-	 *
-	 * @param string $name name of query defined in configuration
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
+	 * @var XSLTProcessor
 	 */
-	public function namedSearch( $name, Opus_Solr_Parameters $parameters = null );
+	protected $processor;
+
+
+	public function __construct( Zend_Config $options ) {
+		parent::__construct( $options );
+
+		try {
+			$xslt = new DomDocument;
+			$xslt->load( $options->xsltfile );
+
+			$this->processor = new XSLTProcessor;
+			$this->processor->importStyleSheet( $xslt );
+		} catch ( Exception $e ) {
+			throw new InvalidArgumentException( 'invalid XSLT file for deriving Solr documents', 0, $e );
+		}
+	}
+
+	/**
+	 * Derives Solr-compatible description in XML format of provided Opus
+	 * document.
+	 *
+	 * @note Parameter $solrDoc must be prepared with reference on instance of
+	 *       DOMDocument. It is returned on return.
+	 *
+	 * @example
+	 *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
+	 *
+	 * @param Opus_Document $opusDoc
+	 * @param DOMDocument $solrDoc
+	 * @return DOMDocument
+	 */
+	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
+		if ( !( $solrDoc instanceof DOMDocument ) ) {
+			throw new InvalidArgumentException( 'provided Solr document must be instance of DOMDocument' );
+		}
+
+		$modelXml = $this->getModelXml( $opusDoc );
+
+		$solrDoc->preserveWhiteSpace = false;
+		$solrDoc->loadXML( $this->processor->transformToXML( $modelXml ) );
+
+		if ( Opus_Config::get()->log->prepare->xml ) {
+			$modelXml->formatOutput = true;
+			Opus_Log::get()->debug( "input xml\n" . $modelXml->saveXML() );
+			$solrDoc->formatOutput = true;
+			Opus_Log::get()->debug( "transformed solr xml\n" . $solrDoc->saveXML() );
+		}
+
+		return $solrDoc;
+	}
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,28 +35,17 @@
  */
 
 /**
- * Defines methods provided for querying (Solr-based) search database.
+ * Defines methods provided for extracting fulltext data from files in a
+ * (Solr-based) search database.
  */
 
-interface Opus_Solr_Searchable {
+interface Opus_Solr_Extractable {
 	/**
-	 * Queries search database for set of matching entries.
+	 * Extracts provided file of document.
 	 *
-	 * @param string $query query selecting documents
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
+	 * @param Opus_File $file
+	 * @param Opus_Document $document
+	 * @return Opus_Solr_Extractable fluent interface
 	 */
-	public function customSearch( $query, Opus_Solr_Parameters $parameters = null );
-
-	/**
-	 * Queries search database for set of matching entries using some named
-	 * query defined in configuration.
-	 *
-	 * @param string $name name of query defined in configuration
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
-	 */
-	public function namedSearch( $name, Opus_Solr_Parameters $parameters = null );
+	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
 }

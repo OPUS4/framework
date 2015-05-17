@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,16 +27,15 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
  * Implements exception to be commonly thrown on errors while processing methods
- * implementing interfaces Opus_Solr_Indexer and/or Opus_Solr_Searcher.
+ * implementing interfaces Opus_Solr_Indexable and/or Opus_Solr_Searchable.
  */
 
 class Opus_Solr_Exception extends Exception {
