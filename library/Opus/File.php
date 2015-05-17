@@ -41,6 +41,9 @@
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
+ *
+ * @method string getVisibleInFrontdoor() retrieves value of field VisibleInFrontDoor
+ * @method string getMimeType() retrieves value of field MimeType
  */
 class Opus_File extends Opus_Model_Dependent_Abstract {
 
@@ -332,7 +335,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
      * Perform a verification on a checksum
-     * 
+     *
      * TODO throws Exception in case hash computation is not possible
      *      (e.g., if referenced file is missing in file system)
      *
@@ -340,7 +343,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      */
     public function verify($type, $value = null) {
         if (!empty($value) and $this->getRealHash($type) === $value) {
-            return true; 
+            return true;
         }
 
         return false;
@@ -386,7 +389,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
 
     /**
      * Create hash value model objects from original file.
-     * 
+     *
      * TODO throws Exception in case hash computation is not possible
      *      (e.g., if referenced file is missing in file system)
      *
