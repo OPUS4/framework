@@ -2,7 +2,7 @@
 ; at the University of Stuttgart with funding from the German Research Net,
 ; the Federal Department of Higher Education and Research and the Ministry
 ; of Science, Research and the Arts of the State of Baden-Wuerttemberg.
-; 
+;
 ; OPUS 4 is a complete rewrite of the original OPUS software and was developed
 ; by the Stuttgart University Library, the Library Service Center
 ; Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
@@ -10,7 +10,7 @@
 ; Dresden State and University Library, the Bielefeld University Library and
 ; the University Library of Hamburg University of Technology with funding from
 ; the German Research Foundation and the European Regional Development Fund.
-; 
+;
 ; LICENCE
 ; OPUS is free software; you can redistribute it and/or modify it under the
 ; terms of the GNU General Public License as published by the Free Software
@@ -21,7 +21,7 @@
 ; details. You should have received a copy of the GNU General Public License
 ; along with OPUS; if not, write to the Free Software Foundation, Inc., 51
 ; Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
-; 
+;
 ; @category    Tests
 ; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
 ; @author      Thoralf Klein <thoralf.klein@zib.de>
@@ -67,6 +67,31 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
+searchengine.solr.adapter = Opus_Solr_Solarium_Adapter
+searchengine.solr.service.default.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.service.default.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.service.default.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Solr/solr.xslt"
+searchengine.solr.service.default.marker = default
+
+searchengine.solr.service.index.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.service.index.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.service.index.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.service.index.marker = index
+
+searchengine.solr.service.extract.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.service.extract.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.service.extract.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.service.extract.marker = extract
+
+searchengine.solr.service.search.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.service.search.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.service.search.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.service.search.marker = search
+
+searchengine.solr.query.alldocs.query = "*:*"
+
+;SEARCH ENGINE SETTINGS (deprecated)
 searchengine.index.host = @searchengine.index.host@
 searchengine.index.port = @searchengine.index.port@
 searchengine.index.app = @searchengine.index.app@

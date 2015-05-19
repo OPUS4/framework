@@ -63,6 +63,10 @@ class Opus_Solr_Parameters {
 		);
 	}
 
+	public function __construct() {
+		$this->reset();
+	}
+
 	/**
 	 * Tests if provided name is actually name of known parameter normalizing it
 	 * on return.
@@ -95,7 +99,7 @@ class Opus_Solr_Parameters {
 
 		foreach ( $input as $field ) {
 			if ( !is_string( $field ) ) {
-				throw new InvalidArgumentException( 'invalid field selector: ' . $field );
+				throw new InvalidArgumentException( 'invalid type of field selector' );
 			}
 
 			$fieldNames = preg_split( '/(\s*,)+\s*/', $field );
@@ -123,7 +127,7 @@ class Opus_Solr_Parameters {
 		return $this->_data[$property];
 	}
 
-	public function set( $property, $value, $adding ) {
+	public function set( $property, $value, $adding = false ) {
 		$property = $this->isValidParameter( $property );
 
 		switch ( $property ) {
@@ -133,7 +137,7 @@ class Opus_Solr_Parameters {
 					throw new InvalidArgumentException( 'invalid parameter access on ' . $property );
 				}
 
-				if ( !ctype_digit( $value ) ) {
+				if ( !is_scalar( $value ) || !ctype_digit( trim( $value ) ) ) {
 					throw new InvalidArgumentException( 'invalid parameter value on ' . $property );
 				}
 
@@ -146,6 +150,10 @@ class Opus_Solr_Parameters {
 				if ( $adding ) {
 					$this->_data['fields'] = array_merge( $this->_data['fields'], $fields );
 				} else {
+					if ( !count( $fields ) ) {
+						throw new InvalidArgumentException( 'setting empty set of fields rejected' );
+					}
+
 					$this->_data['fields'] = $fields;
 				}
 
@@ -199,6 +207,10 @@ class Opus_Solr_Parameters {
 
 	public function __get( $name ) {
 		return $this->get( $name );
+	}
+
+	public function __isset( $name ) {
+		return !is_null( $this->get( $name ) );
 	}
 
 	public function __set( $name, $value ) {

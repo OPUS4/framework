@@ -54,7 +54,14 @@ class Opus_Solr_Service {
 
 		if ( !array_key_exists( $serviceName, self::$pool[$serviceType] ) ) {
 			$config    = static::getConfiguration();
-			$className = $config->adapter->get( $serviceType, $config->adapter );
+
+			$className = $config->adapter;
+			if ( $className instanceof Zend_Config ) {
+				$className = $className->get( $serviceName, $className->get( 'default' ) );
+				if ( !$className ) {
+					throw new Zend_Config_Exception( 'missing Solr adapter' );
+				}
+			}
 
 			$class = new ReflectionClass( $className );
 
