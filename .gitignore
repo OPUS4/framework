@@ -5,3 +5,4 @@ vendor
 
 tests/build/
 tests/config.ini
+tests/workspace
