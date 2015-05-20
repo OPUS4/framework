@@ -243,9 +243,9 @@ class Opus_Solr_ParametersTest extends TestCase {
 	 */
 	public function testSupportingExplicitFieldsSetterValidAdding( $value, $property, $method, $expecting ) {
 		$params = new Opus_Solr_Parameters();
-		$params->set( $property, 'first', false );
+		$params->set( $property, 'auto', false );
 		$params->set( $property, $value, true );
-		$this->assertEquals( array_merge( array( 'first' ), $expecting ), $params->get( $property ) );
+		$this->assertEquals( array_merge( array( 'auto' ), $expecting ), $params->get( $property ) );
 	}
 
 	/**
@@ -255,9 +255,9 @@ class Opus_Solr_ParametersTest extends TestCase {
 		$adder = preg_replace( '/^set/', 'add', $method );
 
 		$params = new Opus_Solr_Parameters();
-		$params->{$method}( 'first' );
+		$params->{$method}( 'auto' );
 		$params->{$adder}( $value );
-		$this->assertEquals( array_merge( array( 'first' ), $expecting ), $params->get( $property ) );
+		$this->assertEquals( array_merge( array( 'auto' ), $expecting ), $params->get( $property ) );
 	}
 
 	/**
@@ -290,32 +290,232 @@ class Opus_Solr_ParametersTest extends TestCase {
 	public function provideValidFieldsSettings() {
 		return array(
 			array( '*', 'fields', 'setFields', array( '*' ) ),
+			array( '*,*', 'fields', 'setFields', array( '*' ) ),
 			array( 'a', 'fields', 'setFields', array( 'a' ) ),
+			array( 'a,,', 'fields', 'setFields', array( 'a' ) ),
+			array( ',,a', 'fields', 'setFields', array( 'a' ) ),
 			array( 'a,b', 'fields', 'setFields', array( 'a', 'b' ) ),
+			array( 'a,,b', 'fields', 'setFields', array( 'a', 'b' ) ),
 			array( 'a,a', 'fields', 'setFields', array( 'a' ) ),
 			array( 'ab', 'fields', 'setFields', array( 'ab' ) ),
 			array( 'ab,cd', 'fields', 'setFields', array( 'ab', 'cd' ) ),
 			array( 'abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz', 'fields', 'setFields', array( 'abcdefghijklmnopqrstuvwxyzaaabacadaeafagahaiajakalamanaoapaqarasatauavawaxayaz' ) ),
 			array( array( '*' ), 'fields', 'setFields', array( '*' ) ),
+			array( array( '*,*' ), 'fields', 'setFields', array( '*' ) ),
 			array( array( 'a' ), 'fields', 'setFields', array( 'a' ) ),
 			array( array( 'a', 'b' ), 'fields', 'setFields', array( 'a', 'b' ) ),
 			array( array( 'a', 'a' ), 'fields', 'setFields', array( 'a' ) ),
 			array( array( 'ab,cd', 'ef' ), 'fields', 'setFields', array( 'ab', 'cd', 'ef' ) ),
+			array( array( ',,ab,,cd,,', 'ef' ), 'fields', 'setFields', array( 'ab', 'cd', 'ef' ) ),
 		);
 	}
 
 	public function provideInvalidFieldsSettings() {
 		return array(
+			array( '', 'fields', 'setFields' ),
+			array( ',', 'fields', 'setFields' ),
+			array( true, 'fields', 'setFields' ),
+			array( false, 'fields', 'setFields' ),
 			array( array(), 'fields', 'setFields' ),
+			array( array( '' ), 'fields', 'setFields' ),
 			array( array( array() ), 'fields', 'setFields' ),
-			array( array( array( "a" ) ), 'fields', 'setFields' ),
-			array( array( "a", array() ), 'fields', 'setFields' ),
-			array( array( "a", array( "b" ) ), 'fields', 'setFields' ),
+			array( array( array( 'a' ) ), 'fields', 'setFields' ),
+			array( array( 'a', array() ), 'fields', 'setFields' ),
+			array( array( 'a', array( 'b' ) ), 'fields', 'setFields' ),
 			array( null, 'fields', 'setFields' ),
 			array( array( null ), 'fields', 'setFields' ),
 			array( array( array( null ) ), 'fields', 'setFields' ),
 			array( array( null, array( null ) ), 'fields', 'setFields' ),
-			array( array( "a", null ), 'fields', 'setFields' ),
+			array( array( 'a', null ), 'fields', 'setFields' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideValidSortSettings
+	 */
+	public function testSupportingImplicitSortSetterValid( $value, $property, $method, $expecting ) {
+		$params = new Opus_Solr_Parameters();
+		$params->{$property} = $value;
+		$this->assertEquals( $expecting, $params->{$property} );
+	}
+
+	/**
+	 * @dataProvider provideValidSortSettings
+	 */
+	public function testSupportingExplicitSortSetterValid( $value, $property, $method, $expecting ) {
+		$params = new Opus_Solr_Parameters();
+		$params->set( $property, $value );
+		$this->assertEquals( $expecting, $params->get( $property ) );
+
+		$params->set( $property, $value, false );
+		$this->assertEquals( $expecting, $params->get( $property ) );
+	}
+
+	/**
+	 * @dataProvider provideValidSortSettings
+	 */
+	public function testSupportingSortSetterMethodValid( $value, $property, $method, $expecting ) {
+		$params = new Opus_Solr_Parameters();
+		$params->{$method}( $value );
+		$this->assertEquals( $expecting, $params->get( $property ) );
+	}
+
+	/**
+	 * @dataProvider provideValidSortSettings
+	 */
+	public function testSupportingExplicitSortSetterValidAdding( $value, $property, $method, $expecting ) {
+		$params = new Opus_Solr_Parameters();
+		$params->set( $property, 'auto', false );
+		$params->set( $property, $value, true );
+		$this->assertEquals( array_merge( array( array( 'auto', 'asc' ) ), $expecting ), $params->get( $property ) );
+	}
+
+	/**
+	 * @dataProvider provideValidSortSettings
+	 */
+	public function testSupportingSortSetterMethodValidAdding( $value, $property, $method, $expecting ) {
+		$adder = preg_replace( '/^set/', 'add', $method );
+
+		$params = new Opus_Solr_Parameters();
+		$params->{$method}( 'auto' );
+		$params->{$adder}( $value );
+		$this->assertEquals( array_merge( array( array( 'auto', 'asc' ) ), $expecting ), $params->get( $property ) );
+	}
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 * @dataProvider provideInvalidSortSettings
+	 */
+	public function testSupportingImplicitSortSetterInvalid( $value, $property, $method ) {
+		$params = new Opus_Solr_Parameters();
+		$params->{$property} = $value;
+	}
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 * @dataProvider provideInvalidSortSettings
+	 */
+	public function testSupportingExplicitSortSetterInvalid( $value, $property, $method ) {
+		$params = new Opus_Solr_Parameters();
+		$params->{$property} = $value;
+	}
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 * @dataProvider provideInvalidSortSettings
+	 */
+	public function testSupportingSortSetterMethodInvalid( $value, $property, $method ) {
+		$params = new Opus_Solr_Parameters();
+		$params->{$method}( $value );
+	}
+
+	public function provideValidSortSettings() {
+		return array(
+			array( 'a', 'sort', 'setSort', array( array( 'a', 'asc' ) ) ),
+			array( 'a,b', 'sort', 'setSort', array( array( 'a', 'asc' ), array( 'b', 'asc' ) ) ),
+			array( 'a,b,c', 'sort', 'setSort', array( array( 'a', 'asc' ), array( 'b', 'asc' ), array( 'c', 'asc' ) ) ),
+			array( array( 'a' ), 'sort', 'setSort', array( array( 'a', 'asc' ) ) ),
+			array( array( 'a', 'asc' ), 'sort', 'setSort', array( array( 'a', 'asc' ) ) ),
+			array( array( 'a', 'desc' ), 'sort', 'setSort', array( array( 'a', 'desc' ) ) ),
+			array( array( 'a', 'DeSc' ), 'sort', 'setSort', array( array( 'a', 'desc' ) ) ),
+			array( array( 'a', true ), 'sort', 'setSort', array( array( 'a', 'asc' ) ) ),
+			array( array( 'a', false ), 'sort', 'setSort', array( array( 'a', 'desc' ) ) ),
+			array( array( 'a,b' ), 'sort', 'setSort', array( array( 'a', 'asc' ), array( 'b', 'asc' ) ) ),
+			array( array( 'a,b', true ), 'sort', 'setSort', array( array( 'a', 'asc' ), array( 'b', 'asc' ) ) ),
+			array( array( 'a,b', false ), 'sort', 'setSort', array( array( 'a', 'desc' ), array( 'b', 'desc' ) ) ),
+			array( array( array( 'a' ), false ), 'sort', 'setSort', array( array( 'a', 'desc' ) ) ),
+			array( array( array( 'a', 'b' ), false ), 'sort', 'setSort', array( array( 'a', 'desc' ), array( 'b', 'desc' ) ) ),
+			array( array( array( 'a,b' ), false ), 'sort', 'setSort', array( array( 'a', 'desc' ), array( 'b', 'desc' ) ) ),
+			array( array( array( 'a,b', 'c' ), false ), 'sort', 'setSort', array( array( 'a', 'desc' ), array( 'b', 'desc' ), array( 'c', 'desc' ) ) ),
+		);
+	}
+
+	public function provideInvalidSortSettings() {
+		return array(
+			array( '', 'sort', 'setSort' ),
+			array( '*', 'sort', 'setSort' ),
+			array( '*,a', 'sort', 'setSort' ),
+			array( 'a,*,b', 'sort', 'setSort' ),
+			array( 'a,*', 'sort', 'setSort' ),
+			array( null, 'sort', 'setSort' ),
+			array( true, 'sort', 'setSort' ),
+			array( false, 'sort', 'setSort' ),
+			array( 1, 'sort', 'setSort' ),
+			array( -5.5, 'sort', 'setSort' ),
+			array( array(), 'sort', 'setSort' ),
+			array( array( null ), 'sort', 'setSort' ),
+			array( array( '*' ), 'sort', 'setSort' ),
+			array( array( 'a', 'b' ), 'sort', 'setSort' ),
+			array( array( array() ), 'sort', 'setSort' ),
+			array( array( array( '*' ) ), 'sort', 'setSort' ),
+			array( array( array( array( 'a,b' ) ) ), 'sort', 'setSort' ),
+		);
+	}
+
+	/**
+	 * @dataProvider provideValidAddSortSettings
+	 */
+	public function testSupportingAddingSortValid( $fields, $dir, $reset, $expected ) {
+		$params = new Opus_Solr_Parameters();
+		$params->addSorting( 'auto' );
+		$params->addSorting( $fields, $dir, $reset );
+
+		$this->assertEquals( $expected, $params->sort );
+	}
+
+	/**
+	 * @expectedException InvalidArgumentException
+	 * @dataProvider provideInvalidAddSortSettings
+	 */
+	public function testSupportingAddingSortInvalid( $fields, $dir, $reset ) {
+		$params = new Opus_Solr_Parameters();
+		$params->addSorting( 'auto' );
+		$params->addSorting( $fields, $dir, $reset );
+	}
+
+	public function provideValidAddSortSettings() {
+		return array(
+			array( 'a', true, true, array( array( 'a', 'asc' ) ) ),
+			array( 'a', false, true, array( array( 'a', 'desc' ) ) ),
+			array( 'a', 'ASC', true, array( array( 'a', 'asc' ) ) ),
+			array( 'a', 'DesC', true, array( array( 'a', 'desc' ) ) ),
+			array( 'a', 'DesC', false, array( array( 'auto', 'asc' ), array( 'a', 'desc' ) ) ),
+			array( 'a,b', true, false, array( array( 'auto', 'asc' ), array( 'a', 'asc' ), array( 'b', 'asc' ) ) ),
+			array( array( 'a,b', 'c' ), true, false, array( array( 'auto', 'asc' ), array( 'a', 'asc' ), array( 'b', 'asc' ), array( 'c', 'asc' ) ) ),
+		);
+	}
+
+	public function provideInvalidAddSortSettings() {
+		return array(
+			array( null, true, true ),
+			array( null, true, false ),
+			array( null, false, true ),
+			array( null, false, false ),
+
+			array( '', true, true ),
+			array( '', true, false ),
+			array( '', false, true ),
+			array( '', false, false ),
+
+			array( true, true, true ),
+			array( true, true, false ),
+			array( true, false, true ),
+			array( true, false, false ),
+
+			array( array(), true, true ),
+			array( array(), true, false ),
+			array( array(), false, true ),
+			array( array(), false, false ),
+
+			array( array( array() ), true, true ),
+			array( array( array() ), true, false ),
+			array( array( array() ), false, true ),
+			array( array( array() ), false, false ),
+
+			array( array( array( array( 'a' ) ) ), true, true ),
+			array( array( array( array( 'a' ) ) ), true, false ),
+			array( array( array( array( 'a' ) ) ), false, true ),
+			array( array( array( array( 'a' ) ) ), false, false ),
 		);
 	}
 }
