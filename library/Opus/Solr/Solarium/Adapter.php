@@ -66,7 +66,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 	 *
 	 */
 
-	protected function normalizeFiles( $documents ) {
+	protected function normalizeDocuments( $documents ) {
 		if ( !is_array( $documents ) ) {
 			$documents = array( $documents );
 		}
@@ -80,8 +80,22 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 		return $documents;
 	}
 
+	protected function normalizeDocumentIds( $documentIds ) {
+		if ( !is_array( $documentIds ) ) {
+			$documentIds = array( $documentIds );
+		}
+
+		foreach ( $documentIds as $id ) {
+			if ( !$id ) {
+				throw new InvalidArgumentException( "invalid document ID in provided set" );
+			}
+		}
+
+		return $documentIds;
+	}
+
 	public function addDocumentsToIndex( $documents ) {
-		$documents = $this->normalizeFiles( $documents );
+		$documents = $this->normalizeDocuments( $documents );
 
 		$builder = new Opus_Solr_Solarium_Document( $this->options );
 
@@ -113,6 +127,8 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			if ( $result->getStatus() ) {
 				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
+
+			return $this;
 		} catch ( Opus_Solr_Exception $e ) {
 			Opus_log::get()->err( $e->getMessage() );
 
@@ -133,19 +149,25 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 	}
 
 	public function removeDocumentsFromIndex( $documents ) {
-		$documents = $this->normalizeFiles( $documents );
+		$documents = $this->normalizeDocuments( $documents );
+
+		$documentIds = array_map( function( $doc ) {
+			/** @var Opus_Document $doc */
+			return $doc->getId();
+		}, $documents );
+
+		return $this->removeDocumentsFromIndexById( $documentIds );
+	}
+
+	public function removeDocumentsFromIndexById( $documentIds ) {
+		$documentIds = $this->normalizeDocumentIds( $documentIds );
 
 		try {
 			// split provided set of documents into chunks of 128 documents
-			$slices = array_chunk( $documents, $this->options->get( 'deleteChunkSize', 128 ) );
+			$slices = array_chunk( $documentIds, $this->options->get( 'deleteChunkSize', 128 ) );
 
 			// delete documents of every chunk in a separate request
-			foreach ( $slices as $slice ) {
-				$deleteIds = array_map( function( $doc ) {
-					/** @var Opus_Document $doc */
-					return $doc->getId();
-				}, $slice );
-
+			foreach ( $slices as $deleteIds ) {
 				$delete = $this->client->createUpdate();
 				$delete->addDeleteByIds( $deleteIds );
 
@@ -163,6 +185,8 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			if ( $result->getStatus() ) {
 				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
+
+			return $this;
 		} catch ( Opus_Solr_Exception $e ) {
 			Opus_log::get()->err( $e->getMessage() );
 
@@ -193,6 +217,8 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 		if ( $result->getStatus() ) {
 			throw new Opus_Solr_Exception( 'failed removing all documents from index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 		}
+
+		return $this;
 	}
 
 

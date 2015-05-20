@@ -44,10 +44,10 @@
  * @method void setStart( int $offset )
  * @method void setRows( int $count )
  * @method void setFields( $fields )
- * @method void setSort( $fields )
+ * @method void setSort( $sorting )
  * @method void setUnion( bool $isUnion )
  * @method void addFields( string $fields )
- * @method void addSort( string $fields )
+ * @method void addSort( $sorting )
  */
 class Opus_Solr_Parameters {
 
@@ -102,7 +102,7 @@ class Opus_Solr_Parameters {
 				throw new InvalidArgumentException( 'invalid type of field selector' );
 			}
 
-			$fieldNames = preg_split( '/(\s*,)+\s*/', $field );
+			$fieldNames = preg_split( '/(\s*,)+\s*/', trim( $field, " \r\n\t," ) );
 			foreach ( $fieldNames as $name ) {
 				if ( !preg_match( '/^(?:\*|[a-z0-9_]+)$/i', $name ) ) {
 					throw new InvalidArgumentException( 'malformed field selector: ' . $name );
@@ -112,7 +112,23 @@ class Opus_Solr_Parameters {
 			}
 		}
 
+		if ( !count( $input ) ) {
+			throw new InvalidArgumentException( 'missing field selector' );
+		}
+
 		return $output;
+	}
+
+	protected function normalizeDirection( $ascending ) {
+		if ( !strcasecmp( $ascending, 'asc' ) ) {
+			$ascending = true;
+		} else if ( !strcasecmp( $ascending, 'desc' ) ) {
+			$ascending = false;
+		} else if ( $ascending !== false && $ascending !== true ) {
+			throw new InvalidArgumentException( 'invalid sorting direction selector' );
+		}
+
+		return $ascending;
 	}
 
 	/**
@@ -147,6 +163,10 @@ class Opus_Solr_Parameters {
 			case 'fields' :
 				$fields = $this->normalizeFields( $value );
 
+				if ( $adding && is_null( $this->_data['fields'] ) ) {
+					$adding = false;
+				}
+
 				if ( $adding ) {
 					$this->_data['fields'] = array_merge( $this->_data['fields'], $fields );
 				} else {
@@ -178,10 +198,11 @@ class Opus_Solr_Parameters {
 						throw new InvalidArgumentException( 'invalid sorting selector' );
 				}
 
-				$fields = $this->normalizeFields( $fields );
+				$fields    = $this->normalizeFields( $fields );
+				$ascending = $this->normalizeDirection( $ascending );
 
-				if ( $ascending !== false && $ascending !== true ) {
-					throw new InvalidArgumentException( 'invalid sorting direction selector' );
+				if ( $adding && is_null( $this->_data['sort'] ) ) {
+					$adding = false;
 				}
 
 				if ( !$adding ) {
@@ -189,6 +210,10 @@ class Opus_Solr_Parameters {
 				}
 
 				foreach ( $fields as $field ) {
+					if ( $field === '*' ) {
+						throw new InvalidArgumentException( 'invalid request for sorting by all fields (*)' );
+					}
+
 					$this->_data['sort'][] = array( $field, $ascending ? 'asc' : 'desc' );
 				}
 				break;
@@ -238,7 +263,8 @@ class Opus_Solr_Parameters {
 	}
 
 	public function addSorting( $field, $ascending = true, $reset = false ) {
-		$fields = $this->normalizeFields( $field );
+		$fields    = $this->normalizeFields( $field );
+		$ascending = $this->normalizeDirection( $ascending );
 
 		if ( $reset ) {
 			$this->_data['sort'] = array();
