@@ -45,6 +45,8 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method string getServerState()
  */
 class Opus_Document extends Opus_Model_AbstractDb {
 
