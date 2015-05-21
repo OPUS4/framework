@@ -39,8 +39,8 @@ class Opus_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
 	}
 
-	public function testConversion() {
-		$document = $this->createDocument();
+	public function testArticleConversion() {
+		$document = $this->createDocument( 'article' );
 		$this->assertInstanceOf( 'Opus_Document', $document );
 
 		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
@@ -51,9 +51,9 @@ class Opus_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$xpath  = new DOMXPath( $solr );
 		$simple = simplexml_import_dom( $solr );
 
-		$this->assertTrue( $simple->add );
-		$this->assertTrue( $simple->add->doc );
-		$this->assertTrue( $simple->add->doc->field );
+		$this->assertEquals( 'add', $simple->getName() );
+		$this->assertNotNull( $simple->doc );
+		$this->assertNotNull( $simple->doc[0]->field );
 
 		$container = $xpath->query( '/add/doc' );
 		$this->assertEquals( 1, $container->length );
@@ -62,113 +62,261 @@ class Opus_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$namedFields = $xpath->query( '/add/doc/field[@name]' );
 		$this->assertTrue( $allFields->length == $namedFields->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=id]' );
+		$field = $xpath->query( '/add/doc/field[@name="id"]' );
 		$this->assertEquals( 1, $field->length );
-		$this->assertEquals( $document->id, $field->item( 0 )->nodeValue );
+		$this->assertEquals( $document->getId(), $field->item( 0 )->nodeValue );
 
-		$field = $xpath->query( '/add/doc/field[@name=year]' );
+		$field = $xpath->query( '/add/doc/field[@name="year"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( '', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="year_inverted"]' );
 		$this->assertEquals( 1, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=year_inverted]' );
+		$field = $xpath->query( '/add/doc/field[@name="server_date_published"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=server_date_published]' );
+		$field = $xpath->query( '/add/doc/field[@name="server_date_modified"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="language"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="title"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'Test Main Article', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="title_output"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=server_date_modified]' );
+		$field = $xpath->query( '/add/doc/field[@name="abstract"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=language]' );
+		$field = $xpath->query( '/add/doc/field[@name="abstract_output"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=title]' );
+		$field = $xpath->query( '/add/doc/field[@name="author"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=title_output]' );
+		$field = $xpath->query( '/add/doc/field[@name="author_sort"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="fulltext"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=abstract]' );
+		$field = $xpath->query( '/add/doc/field[@name="has_fulltext"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'false', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="fulltext_id_success"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=abstract_output]' );
+		$field = $xpath->query( '/add/doc/field[@name="fulltext_id_failure"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=author]' );
+		$field = $xpath->query( '/add/doc/field[@name="referee"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=author_sort]' );
+		$field = $xpath->query( '/add/doc/field[@name="persons"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=fulltext]' );
+		$field = $xpath->query( '/add/doc/field[@name="doctype"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'article', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="subject"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=has_fulltext]' );
+		$field = $xpath->query( '/add/doc/field[@name="belongs_to_bibliography"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'false', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="project"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=fulltext_id_success]' );
+		$field = $xpath->query( '/add/doc/field[@name="app_area"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=fulltext_id_failure]' );
+		$field = $xpath->query( '/add/doc/field[@name="institue"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=referee]' );
+		$field = $xpath->query( '/add/doc/field[@name="collection_ids"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=persons]' );
+		$field = $xpath->query( '/add/doc/field[@name="title_parent"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=doctype]' );
+		$field = $xpath->query( '/add/doc/field[@name="title_sub"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=subject]' );
+		$field = $xpath->query( '/add/doc/field[@name="title_additional"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=belongs_to_bibliography]' );
+		$field = $xpath->query( '/add/doc/field[@name="series_ids"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=project]' );
+		$field = $xpath->query( '/add/doc/field[substring(@name,1,21)="series_number_for_id_"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=app_area]' );
+		$field = $xpath->query( '/add/doc/field[substring(@name,1,28)="doc_sort_order_for_seriesid_"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=institue]' );
+		$field = $xpath->query( '/add/doc/field[@name="creating_corporation"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'Creating, Inc.', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="contributing_corporation"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'Contributing, Inc.', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="publisher_name"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=collection_ids]' );
+		$field = $xpath->query( '/add/doc/field[@name="publisher_place"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=title_parent]' );
+		$field = $xpath->query( '/add/doc/field[@name="identifier"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=title_sub]' );
+	}
+
+	public function testBookConversion() {
+		$document = $this->createDocument( 'book' );
+		$this->assertInstanceOf( 'Opus_Document', $document );
+
+		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
+		$solr = $converter->toSolrDocument( $document, new DOMDocument() );
+
+		$this->assertInstanceOf( 'DOMDocument', $solr );
+
+		$xpath  = new DOMXPath( $solr );
+		$simple = simplexml_import_dom( $solr );
+
+		$this->assertEquals( 'add', $simple->getName() );
+		$this->assertNotNull( $simple->doc );
+		$this->assertNotNull( $simple->doc[0]->field );
+
+		$container = $xpath->query( '/add/doc' );
+		$this->assertEquals( 1, $container->length );
+
+		$allFields   = $xpath->query( '/add/doc/field' );
+		$namedFields = $xpath->query( '/add/doc/field[@name]' );
+		$this->assertTrue( $allFields->length == $namedFields->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="id"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( $document->getId(), $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="year"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( '', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="year_inverted"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="server_date_published"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=title_additional]' );
+		$field = $xpath->query( '/add/doc/field[@name="server_date_modified"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="language"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="title"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=series_ids]' );
+		$field = $xpath->query( '/add/doc/field[@name="title_output"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[substring(@name,1,21)=series_number_for_id_]' );
+		$field = $xpath->query( '/add/doc/field[@name="abstract"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[substring(@name,1,28)=doc_sort_order_for_seriesid_]' );
+		$field = $xpath->query( '/add/doc/field[@name="abstract_output"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=creating_corporation]' );
+		$field = $xpath->query( '/add/doc/field[@name="author"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertTrue( !!preg_match( '/jane\s+doe/i', $field->item( 0 )->nodeValue ) );
+
+		$field = $xpath->query( '/add/doc/field[@name="author_sort"]' );
+		$this->assertEquals( 1, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="fulltext"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=contributing_corporation]' );
+		$field = $xpath->query( '/add/doc/field[@name="has_fulltext"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'false', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="fulltext_id_success"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=publisher_name]' );
+		$field = $xpath->query( '/add/doc/field[@name="fulltext_id_failure"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=publisher_place]' );
+		$field = $xpath->query( '/add/doc/field[@name="referee"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name=identifier]' );
+		$field = $xpath->query( '/add/doc/field[@name="persons"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="doctype"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'book', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="subject"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="belongs_to_bibliography"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'true', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="project"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="app_area"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="institue"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="collection_ids"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="title_parent"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="title_sub"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="title_additional"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="series_ids"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[substring(@name,1,21)="series_number_for_id_"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[substring(@name,1,28)="doc_sort_order_for_seriesid_"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="creating_corporation"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'Creating, Inc.', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="contributing_corporation"]' );
+		$this->assertEquals( 1, $field->length );
+		$this->assertEquals( 'Contributing, Inc.', $field->item( 0 )->nodeValue );
+
+		$field = $xpath->query( '/add/doc/field[@name="publisher_name"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="publisher_place"]' );
+		$this->assertEquals( 0, $field->length );
+
+		$field = $xpath->query( '/add/doc/field[@name="identifier"]' );
 		$this->assertEquals( 0, $field->length );
 
 	}
