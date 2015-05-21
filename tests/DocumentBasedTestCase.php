@@ -34,7 +34,7 @@
 
 class DocumentBasedTestCase extends TestCase {
 
-	private $createdDocuments = array();
+	private $created = array();
 
 	protected static $documentPropertySets = array(
 		'article' => array(
@@ -51,6 +51,11 @@ class DocumentBasedTestCase extends TestCase {
 			'PageNumber' => 297,
 			'CompletedYear' => 1960,
 			'CompletedDate' => '1901-01-01',
+			'BelongsToBibliography' => 0,
+			'TitleMain' => array(
+				'Value' => 'Test Main Article',
+				'Type' => 'main',
+			)
 		),
 		'book' => array(
 			'Type' => 'book',
@@ -68,6 +73,13 @@ class DocumentBasedTestCase extends TestCase {
 			'CompletedDate' => '1996-10-02',
 			'BelongsToBibliography' => 1,
 			'EmbargoDate' => '2010-01-04',
+			'PersonAuthor' => array(
+				'Opus_Person', array(
+					'AcademicTitle' => 'Prof.',
+					'FirstName' => 'Jane',
+					'LastName' => 'Doe',
+				)
+			)
 		)
 	);
 
@@ -103,18 +115,78 @@ class DocumentBasedTestCase extends TestCase {
 	protected function createDocument( $documentProperties = null ) {
 		if ( is_null( $documentProperties ) ) {
 			$documentProperties = self::$documentPropertySets['article'];
+		} if ( is_string( $documentProperties ) ) {
+			$documentProperties = self::$documentPropertySets[$documentProperties];
 		}
 
 		$document = new Opus_Document();
 
+
+		/*
+		 * set all defined internal properties of document
+		 */
+
 		foreach ( $documentProperties as $property => $value ) {
-			$method = 'set' . $property;
-			$document->$method( $value );
+			if ( !is_array( $value ) ) {
+				// got value of some document-internal field
+				$method = 'set' . $property;
+				$document->$method( $value );
+			}
 		}
 
 		$document->store();
 
-		$this->createdDocuments[] = $document;
+		$this->created[] = $document;
+
+
+		/*
+		 * add all defined dependent models of document
+		 */
+
+		foreach ( $documentProperties as $property => $value ) {
+			if ( is_array( $value ) ) {
+				// got some document-external/dependent field
+				if ( array_key_exists( 0, $value ) && is_string( $value[0] ) && is_array( $value[1] ) ) {
+					$pre   = new ReflectionClass( $value[0] );
+					$value = $value[1];
+				} else {
+					$pre = false;
+				}
+
+				$copy = array_values( $value );
+				if ( !is_array( $copy[0] ) ) {
+					$value = array( $value );
+				}
+
+				$adder = 'add' . $property;
+
+				// add another dependent model for every given description
+				foreach ( $value as $set ) {
+					/** @var Opus_Model_Dependent_Abstract $related */
+					if ( $pre ) {
+						$related = $pre->newInstance();
+					} else {
+						$related = $document->$adder();
+					}
+
+					foreach ( $set as $name => $value ) {
+						$setter = 'set' . $name;
+						$related->$setter( $value );
+					}
+
+					$related->store();
+
+					$this->created[] = $related;
+
+					if ( $pre ) {
+						$document->$adder( $related );
+					}
+				}
+			}
+		}
+
+		// store document again e.g. for updating related caches
+		$document->store();
 
 		return $document;
 	}
@@ -125,9 +197,16 @@ class DocumentBasedTestCase extends TestCase {
 	public function tearDown() {
 		parent::tearDown();
 
-		foreach ( $this->createdDocuments as $document ) {
-			/** @var Opus_Document $document */
-			$document->delete();
+		$cache = new Opus_Model_Xml_Cache( false );
+
+		foreach ( $this->created as $model ) {
+			/** @var Opus_Model_AbstractDb $model */
+			if ( $model instanceof Opus_Document ) {
+				// drop any model XML cached on document to delete next
+				$cache->removeAllEntriesWhereDocumentId( $model->getId() );
+			}
+
+			$model->delete();
 		}
 	}
 }
