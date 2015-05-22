@@ -42,6 +42,16 @@ class Opus_Search_ParametersFactory {
 	}
 
 	/**
+	 * Creates query parameter set prepared for searching all documents.
+	 *
+	 * @return Opus_Search_Parameters
+	 */
+	public function selectAllDocuments() {
+		return Opus_Search_Service::createDomainParameters( $this->adapter->getDomain() )
+			->addFilter( '*', '*' );
+	}
+
+	/**
 	 * Creates query parameter set prepared for searching given document.
 	 *
 	 * @param Opus_Document $document
@@ -63,7 +73,7 @@ class Opus_Search_ParametersFactory {
 		}
 
 		return Opus_Search_Service::createDomainParameters( $this->adapter->getDomain() )
-		                          ->addFilter( 'id', intval( $documentId ) );
+			->addFilter( 'id', intval( $documentId ) );
 	}
 
 }

@@ -33,33 +33,4 @@
  */
 
 
-class Opus_Search_Solr_Parameters extends Opus_Search_Parameters {
-	public function __construct() {
-		parent::__construct();
-	}
-
-	public function get( $name ) {
-		switch ( $name ) {
-			case 'filter' :
-				$filters = array();
-
-				foreach ( $this->_data as $field => $values ) {
-					switch ( $field ) {
-						case 'has_fulltext' :
-							$value = $field . ':' . array_shift( $values );
-							break;
-
-						default :
-							$value = '{!raw f=' . $field . '}' . $value;
-					}
-
-					$filters[$field] = $value;
-				}
-
-				return $filters;
-
-			default :
-				return parent::get( $name );
-		}
-	}
-}
+class Opus_Search_Solr_Parameters extends Opus_Search_Parameters {}

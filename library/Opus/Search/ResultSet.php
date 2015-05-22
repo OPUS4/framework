@@ -69,9 +69,11 @@ class Opus_Search_ResultSet {
 			throw new InvalidArgumentException( 'invalid number of overall matches' );
 		}
 
-		$allMatchesCount = intval( $allMatchesCount );
 
-		$this->data = compact( 'matches', 'allMatchesCount' );
+		$this->data = array(
+			'matches'         => $matches,
+			'allmatchescount' => intval( $allMatchesCount ),
+		);
 	}
 
 	public function __get( $name ) {

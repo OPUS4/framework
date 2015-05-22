@@ -343,10 +343,12 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			if ( $filters !== null ) {
 				$query->clearFilterQueries();
 
-				foreach ( $filters as $field => $filter ) {
-					$filterQuery = $query->createFilterQuery();
-					$filterQuery->setQuery( $filter );
-					$query->addFilterQuery( $filterQuery );
+				foreach ( $filters as $field => $values ) {
+					$query->addFilterQuery(
+						$query->createFilterQuery()
+							->setKey( $field )
+							->setQuery( array_shift( $values ) )
+					);
 				}
 			}
 

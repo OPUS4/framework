@@ -49,16 +49,16 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 
 	public function testEmptyIndex() {
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->customSearch( '*:*' );
+		$result = $search->customSearch( $search->getParametersFactory()->selectAllDocuments() );
 
-		$this->assertEquals( 0, count( $matches ) );
+		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
 	public function testEmptyIndexNamed() {
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'alldocs' );
+		$result = $search->namedSearch( 'alldocs' );
 
-		$this->assertEquals( 0, count( $matches ) );
+		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
 	public function testSingleDoc() {
@@ -67,11 +67,11 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->customSearch( '*:*' );
+		$result = $search->customSearch( $search->getParametersFactory()->selectAllDocuments() );
 
-		$this->assertEquals( 1, count( $matches ) );
+		$this->assertEquals( 1, $result->getAllMatchesCount() );
 
-		$this->assertEquals( $doc->getId(), $matches[0]->getId() );
+		$this->assertEquals( $doc->getId(), $result->getMatches()[0]->getId() );
 	}
 
 	public function testSingleDocNamed() {
@@ -81,11 +81,11 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->addDocumentsToIndex( $doc );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'alldocs' );
+		$result = $search->namedSearch( 'alldocs' );
 
-		$this->assertEquals( 1, count( $matches ) );
+		$this->assertEquals( 1, $result->getAllMatchesCount() );
 
-		$this->assertEquals( $doc->getId(), $matches[0]->getId() );
+		$this->assertEquals( $doc->getId(), $result->getMatches()[0]->getId() );
 	}
 
 	public function testClearedIndex() {
@@ -97,9 +97,9 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->removeDocumentsFromIndexbyId( $doc->getId() );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->customSearch( '*:*' );
+		$result = $search->customSearch( $search->getParametersFactory()->selectAllDocuments() );
 
-		$this->assertEquals( 0, count( $matches ) );
+		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
 	public function testClearedIndexNamed() {
@@ -111,9 +111,9 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->removeDocumentsFromIndex( $doc );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'alldocs' );
+		$result = $search->namedSearch( 'alldocs' );
 
-		$this->assertEquals( 0, count( $matches ) );
+		$this->assertEquals( 0, $result->getAllMatchesCount() );
 	}
 
 	public function testTwoDocs() {
@@ -124,9 +124,9 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->customSearch( '*:*' );
+		$result = $search->customSearch( $search->getParametersFactory()->selectAllDocuments() );
 
-		$this->assertEquals( 2, count( $matches ) );
+		$this->assertEquals( 2, $result->getAllMatchesCount() );
 	}
 
 	public function testTwoDocsNamed() {
@@ -137,9 +137,9 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'alldocs' );
+		$result = $search->namedSearch( 'alldocs' );
 
-		$this->assertEquals( 2, count( $matches ) );
+		$this->assertEquals( 2, $result->getAllMatchesCount() );
 	}
 
 	public function testTwoDocsNamedSpecial() {
@@ -150,9 +150,10 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'onedoc' );
+		$result = $search->namedSearch( 'onedoc' );
 
-		$this->assertEquals( 1, count( $matches ) );
+		$this->assertEquals( 2, $result->getAllMatchesCount() );
+		$this->assertEquals( 1, count( $result->getMatches() ) );
 	}
 
 	public function testTwoDocsNamedSpecialAdjusted() {
@@ -166,9 +167,10 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 		$opts->setRows( 1 );
 
 		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$matches = $search->namedSearch( 'alldocs', $opts );
+		$result = $search->namedSearch( 'alldocs', $opts );
 
-		$this->assertEquals( 1, count( $matches ) );
+		$this->assertEquals( 2, $result->getAllMatchesCount() );
+		$this->assertEquals( 1, count( $result->getMatches() ) );
 	}
 
 }
