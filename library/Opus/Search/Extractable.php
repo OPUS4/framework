@@ -27,6 +27,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
+ * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,12 +35,17 @@
  */
 
 /**
- * Implements exception to be commonly thrown on errors while processing methods
- * implementing interfaces Opus_Solr_Indexable and/or Opus_Solr_Searchable.
+ * Defines methods provided for extracting fulltext data from files in a
+ * (Solr-based) search database.
  */
 
-class Opus_Solr_Exception extends Exception {
-	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
-		parent::__construct( $message, $code, $previous );
-	}
+interface Opus_Search_Extractable {
+	/**
+	 * Extracts provided file of document.
+	 *
+	 * @param Opus_File $file
+	 * @param Opus_Document $document
+	 * @return Opus_Search_Extractable fluent interface
+	 */
+	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
 }

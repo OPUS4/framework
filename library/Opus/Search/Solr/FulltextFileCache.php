@@ -33,7 +33,7 @@
  * @version     $Id$
  */
 
-class Opus_Solr_FulltextFileCache {
+class Opus_Search_Solr_FulltextFileCache {
 
 	const MAX_FILE_SIZE = 16777216; // 16 MiByte
 

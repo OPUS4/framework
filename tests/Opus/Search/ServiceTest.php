@@ -33,17 +33,17 @@
  */
 
 
-class Opus_Solr_ServiceTest extends TestCase {
+class Opus_Search_ServiceTest extends TestCase {
 
 	public function testProvidesSearchConfiguration() {
-		$config = Opus_Solr_Service::getServiceConfiguration( 'search' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'search', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'search', $config->marker );
 	}
 
 	public function testProvidesIndexConfiguration() {
-		$config = Opus_Solr_Service::getServiceConfiguration( 'index' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'index', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'index', $config->marker );
@@ -53,7 +53,7 @@ class Opus_Solr_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesExtractConfiguration() {
-		$config = Opus_Solr_Service::getServiceConfiguration( 'extract' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'extract', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'extract', $config->marker );
@@ -63,7 +63,7 @@ class Opus_Solr_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesDefaultConfiguration() {
-		$config = Opus_Solr_Service::getServiceConfiguration( 'default' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'default', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'default', $config->marker );
@@ -73,7 +73,7 @@ class Opus_Solr_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesDefaultConfigurationAsFallback() {
-		$config = Opus_Solr_Service::getServiceConfiguration( 'missing' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'missing', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'default', $config->marker );
@@ -83,7 +83,7 @@ class Opus_Solr_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesAllSolrConfiguration() {
-		$config = Opus_Solr_Service::getConfiguration();
+		$config = Opus_Search_Service::getDomainConfiguration( 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertInstanceOf( 'Zend_Config', $config->service );
@@ -91,23 +91,23 @@ class Opus_Solr_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesIndexService() {
-		$service = Opus_Solr_Service::selectIndexingService();
+		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Solr_Indexable', $service );
-		$this->assertInstanceOf( 'Opus_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus_Search_Indexable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesExtractService() {
-		$service = Opus_Solr_Service::selectExtractingService();
+		$service = Opus_Search_Service::selectExtractingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Solr_Extractable', $service );
-		$this->assertInstanceOf( 'Opus_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus_Search_Extractable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesSearchService() {
-		$service = Opus_Solr_Service::selectSearchingService();
+		$service = Opus_Search_Service::selectSearchingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Solr_Searchable', $service );
-		$this->assertInstanceOf( 'Opus_Solr_Solarium_Adapter', $service );
+		$this->assertInstanceOf( 'Opus_Search_Searchable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 }

@@ -33,7 +33,7 @@
  * @version     $Id$
  */
 
-abstract class Opus_Solr_Document_Base {
+abstract class Opus_Search_Solr_Document_Base {
 
 	public function __construct( Zend_Config $options ) {}
 
@@ -94,7 +94,7 @@ abstract class Opus_Solr_Document_Base {
 
 
 		// fetch reference on probably separate service for extracting fulltext data
-		$extractingService = Opus_Solr_Service::selectExtractingService();
+		$extractingService = Opus_Search_Service::selectExtractingService();
 
 		// extract fulltext data for every file left in set after filtering before
 		foreach ( $files as $file ) {
@@ -103,7 +103,7 @@ abstract class Opus_Solr_Document_Base {
 			try {
 				$fulltext = $extractingService->extractDocumentFile( $file );
 				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
-			} catch ( Opus_Solr_Exception $e ) {
+			} catch ( Opus_Search_Exception $e ) {
 				Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage() );
 			}
 

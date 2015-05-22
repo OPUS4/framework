@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -33,54 +32,38 @@
  * @version     $Id$
  */
 
-/**
- * Implements description of solr documents when using `Solarium` client
- * library.
- *
- * To keep things compatible with previous releases this implementation is
- * transforming Opus_Document instances to generic XML first for transforming
- * that to some Solr-specific XML to be parsed and read back finally. This is
- * basically due to supporting customized XSLT transformations.
- */
 
-class Opus_Solr_Solarium_Document extends Opus_Solr_Document_Xslt {
+class Opus_Search_ParametersFactory {
 
-	public function __construct( Zend_Config $options ) {
-		parent::__construct( $options );
+	protected $adapter;
+
+	public function __construct( Opus_Search_Adapter $adapter ) {
+		$this->adapter = $adapter;
 	}
 
 	/**
-	 * Derives Solr-compatible description in XML format of provided Opus
-	 * document.
+	 * Creates query parameter set prepared for searching given document.
 	 *
-	 * @note Parameter $solrDoc must be prepared with reference on Solr document
-	 *       to be added or updated. It is returned on return.
-	 *
-	 * @example
-	 *     $update  = $solariumClient->createUpdate();
-	 *     $solrDoc = $update->addDocument();
-	 *     $solrDoc = $doc->toSolrDocument( $opusDoc, $solrDoc );
-	 *
-	 * @param Opus_Document $opusDoc
-	 * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
-	 * @return \Solarium\QueryType\Update\Query\Document\Document
+	 * @param Opus_Document $document
+	 * @return Opus_Search_Parameters
 	 */
-	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
-		if ( !( $solrDoc instanceof Solarium\QueryType\Update\Query\Document\Document ) ) {
-			throw new InvalidArgumentException( 'provided Solr document must be instance of Solarium Update Document' );
-		}
-
-		// convert Opus document to Solr XML document for supporting custom transformations
-		$solrDomDoc = parent::toSolrDocument( $opusDoc, new DOMDocument() );
-
-		// read back fields from generated Solr XML document
-		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->doc[0];
-
-		$solrDoc->clear();
-		foreach ( $solrXmlDoc->field as $field ) {
-			$solrDoc->addField( strval( $field['name'] ), strval( $field ) );
-		}
-
-		return $solrDoc;
+	public function selectDocument( Opus_Document $document ) {
+		return $this->selectDocumentId( $document->getId() );
 	}
+
+	/**
+	 * Creates query parameter set prepared for searching document by given ID.
+	 *
+	 * @param int $documentId
+	 * @return Opus_Search_Parameters
+	 */
+	public function selectDocumentId( $documentId ) {
+		if ( !ctype_digit( trim( $documentId ) ) || !$documentId ) {
+			throw new InvalidArgumentException( 'invalid document ID' );
+		}
+
+		return Opus_Search_Service::createDomainParameters( $this->adapter->getDomain() )
+		                          ->addFilter( 'id', intval( $documentId ) );
+	}
+
 }

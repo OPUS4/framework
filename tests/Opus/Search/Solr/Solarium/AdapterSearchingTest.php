@@ -33,29 +33,29 @@
  */
 
 
-class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
+class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 
 	public function testService() {
-		$search = Opus_Solr_Service::selectSearchingService();
-		$this->assertInstanceOf( 'Opus_Solr_Solarium_Adapter', $search );
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $search );
 	}
 
 	/**
-	 * @expectedException Opus_Solr_Exception
+	 * @expectedException Opus_Search_Exception
 	 */
 	public function testDisfunctServiceFails() {
-		Opus_Solr_Service::selectSearchingService( 'disfunct' );
+		Opus_Search_Service::selectSearchingService( 'disfunct', 'solr' );
 	}
 
 	public function testEmptyIndex() {
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->customSearch( '*:*' );
 
 		$this->assertEquals( 0, count( $matches ) );
 	}
 
 	public function testEmptyIndexNamed() {
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 0, count( $matches ) );
@@ -64,9 +64,9 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testSingleDoc() {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->customSearch( '*:*' );
 
 		$this->assertEquals( 1, count( $matches ) );
@@ -77,10 +77,10 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testSingleDocNamed() {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 1, count( $matches ) );
@@ -91,12 +91,12 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testClearedIndex() {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
 		$index->removeDocumentsFromIndexbyId( $doc->getId() );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->customSearch( '*:*' );
 
 		$this->assertEquals( 0, count( $matches ) );
@@ -105,12 +105,12 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 	public function testClearedIndexNamed() {
 		$doc = $this->createDocument( 'article' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( $doc );
 
 		$index->removeDocumentsFromIndex( $doc );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 0, count( $matches ) );
@@ -120,10 +120,10 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->customSearch( '*:*' );
 
 		$this->assertEquals( 2, count( $matches ) );
@@ -133,10 +133,10 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'alldocs' );
 
 		$this->assertEquals( 2, count( $matches ) );
@@ -146,10 +146,10 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'onedoc' );
 
 		$this->assertEquals( 1, count( $matches ) );
@@ -159,13 +159,13 @@ class Opus_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCase {
 		$docA = $this->createDocument( 'article' );
 		$docB = $this->createDocument( 'book' );
 
-		$index = Opus_Solr_Service::selectIndexingService();
+		$index = Opus_Search_Service::selectIndexingService( null, 'solr' );
 		$index->addDocumentsToIndex( array( $docA, $docB ) );
 
-		$opts = new Opus_Solr_Parameters();
+		$opts = new Opus_Search_Parameters();
 		$opts->setRows( 1 );
 
-		$search = Opus_Solr_Service::selectSearchingService();
+		$search = Opus_Search_Service::selectSearchingService( null, 'solr' );
 		$matches = $search->namedSearch( 'alldocs', $opts );
 
 		$this->assertEquals( 1, count( $matches ) );

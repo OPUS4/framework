@@ -33,7 +33,7 @@
  */
 
 
-class Opus_Solr_Solarium_DocumentTest extends DocumentBasedTestCase {
+class Opus_Search_Solr_Solarium_DocumentTest extends DocumentBasedTestCase {
 
 	public function testConvertingArticle() {
 		$service = new \Solarium\Client();
@@ -41,7 +41,7 @@ class Opus_Solr_Solarium_DocumentTest extends DocumentBasedTestCase {
 
 		$article = $this->createDocument( 'article' );
 
-		$converter = new Opus_Solr_Solarium_Document( Opus_Solr_Service::getConfiguration() );
+		$converter = new Opus_Search_Solr_Solarium_Document( Opus_Search_Service::getDomainConfiguration( 'solr' ) );
 		$solrDoc   = $converter->toSolrDocument( $article, $update->createDocument() );
 		$this->assertInstanceOf( '\Solarium\QueryType\Update\Query\Document\Document', $solrDoc );
 

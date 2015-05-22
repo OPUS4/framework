@@ -41,6 +41,7 @@
  * @method string[] getFields()
  * @method array getSort()
  * @method bool getUnion()
+ * @method array getFilter()
  * @method void setStart( int $offset )
  * @method void setRows( int $count )
  * @method void setFields( $fields )
@@ -49,7 +50,7 @@
  * @method void addFields( string $fields )
  * @method void addSort( $sorting )
  */
-class Opus_Solr_Parameters {
+class Opus_Search_Parameters {
 
 	protected $_data;
 
@@ -60,6 +61,7 @@ class Opus_Solr_Parameters {
 			'fields' => null,
 			'sort'   => null,
 			'union'  => null,
+			'filter' => null,
 		);
 	}
 
@@ -225,6 +227,9 @@ class Opus_Solr_Parameters {
 
 				$this->_data[$property] = !!$value;
 				break;
+
+			case 'filter' :
+				throw new RuntimeException( 'implicitly setting filter rejected, use addFilter() instead' );
 		}
 
 		return $this;
@@ -266,12 +271,30 @@ class Opus_Solr_Parameters {
 		$fields    = $this->normalizeFields( $field );
 		$ascending = $this->normalizeDirection( $ascending );
 
-		if ( $reset ) {
+		if ( $reset || !is_array( $this->_data['sort'] ) ) {
 			$this->_data['sort'] = array();
 		}
 
 		foreach ( $fields as $field ) {
 			$this->_data['sort'][] = array( $field, $ascending ? 'asc' : 'desc' );
+		}
+
+		return $this;
+	}
+
+	public function addFilter( $field, $value, $reset = false ) {
+		$fields = $this->normalizeFields( $field );
+
+		if ( $reset || !is_array( $this->_data['filter'] ) ) {
+			$this->_data['filter'] = array();
+		}
+
+		foreach ( $fields as $field ) {
+			if ( array_key_exists( $field, $this->_data['filter'] ) ) {
+				$this->_data['filter'][$field] = array( $value );
+			} else {
+				$this->_data['filter'][$field][] = $value;
+			}
 		}
 
 		return $this;

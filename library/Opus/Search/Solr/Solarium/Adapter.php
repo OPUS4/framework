@@ -33,7 +33,7 @@
  * @version     $Id$
  */
 
-class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searchable, Opus_Solr_Extractable {
+class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexable, Opus_Search_Searchable, Opus_Search_Extractable {
 
 	/**
 	 * @var Zend_Config
@@ -47,7 +47,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 
 	public function __construct( $serviceName ) {
-		$this->options = Opus_Solr_Service::getServiceConfiguration( $serviceName );
+		$this->options = Opus_Search_Service::getServiceConfiguration( $serviceName, 'solr' );
 		$this->client  = new Solarium\Client( $this->options );
 
 		// ensure service is basically available
@@ -56,18 +56,29 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 		try {
 			$result = $this->client->execute( $ping );
 		} catch ( \Exception $e ) {
-			throw new Opus_Solr_Exception( 'failed pinging service', $e->getCode(), $e );
+			throw new Opus_Search_Exception( 'failed pinging service', $e->getCode(), $e );
 		}
 
 		if ( $result->getStatus() ) {
-			throw new Opus_Solr_Exception( 'failed pinging service: ' . $serviceName );
+			throw new Opus_Search_Exception( 'failed pinging service: ' . $serviceName );
 		}
 	}
 
 
 	/*
 	 *
-	 * -- part of Opus_Solr_Indexable --
+	 * -- part of Opus_Search_Adapter --
+	 *
+	 */
+
+	public function getDomain() {
+		return 'solr';
+	}
+
+
+	/*
+	 *
+	 * -- part of Opus_Search_Indexable --
 	 *
 	 */
 
@@ -102,7 +113,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 	public function addDocumentsToIndex( $documents ) {
 		$documents = $this->normalizeDocuments( $documents );
 
-		$builder = new Opus_Solr_Solarium_Document( $this->options );
+		$builder = new Opus_Search_Solr_Solarium_Document( $this->options );
 
 		try {
 			// split provided set of documents into chunks of 16 documents
@@ -121,11 +132,11 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 				try {
 					$result = $this->client->execute( $update );
 				} catch ( \Exception $e ) {
-					throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+					throw new Opus_Search_Exception( 'failed executing query against solr service', $e->getCode(), $e );
 				}
 
 				if ( $result->getStatus() ) {
-					throw new Opus_Solr_Exception( 'failed updating slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+					throw new Opus_Search_Exception( 'failed updating slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 				}
 			}
 
@@ -136,15 +147,15 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			try {
 				$result = $this->client->execute( $update );
 			} catch ( \Exception $e ) {
-				throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+				throw new Opus_Search_Exception( 'failed executing query against solr service', $e->getCode(), $e );
 			}
 
 			if ( $result->getStatus() ) {
-				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+				throw new Opus_Search_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
 
 			return $this;
-		} catch ( Opus_Solr_Exception $e ) {
+		} catch ( Opus_Search_Exception $e ) {
 			Opus_log::get()->err( $e->getMessage() );
 
 			if ( $this->options->get( 'rollback', 1 ) ) {
@@ -196,11 +207,11 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 				try {
 					$result = $this->client->execute( $delete );
 				} catch ( \Exception $e ) {
-					throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+					throw new Opus_Search_Exception( 'failed executing query against solr service', $e->getCode(), $e );
 				}
 
 				if ( $result->getStatus() ) {
-					throw new Opus_Solr_Exception( 'failed deleting slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+					throw new Opus_Search_Exception( 'failed deleting slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 				}
 			}
 
@@ -211,15 +222,15 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			try {
 				$result = $this->client->execute( $update );
 			} catch ( \Exception $e ) {
-				throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+				throw new Opus_Search_Exception( 'failed executing query against solr service', $e->getCode(), $e );
 			}
 
 			if ( $result->getStatus() ) {
-				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+				throw new Opus_Search_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
 
 			return $this;
-		} catch ( Opus_Solr_Exception $e ) {
+		} catch ( Opus_Search_Exception $e ) {
 			Opus_log::get()->err( $e->getMessage() );
 
 			if ( $this->options->get( 'rollback', 1 ) ) {
@@ -254,7 +265,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 		$result = $this->client->execute( $update );
 
 		if ( $result->getStatus() ) {
-			throw new Opus_Solr_Exception( 'failed removing all documents from index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+			throw new Opus_Search_Exception( 'failed removing all documents from index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 		}
 
 		return $this;
@@ -263,32 +274,31 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 	/*
 	 *
-	 * -- part of Opus_Solr_Searchable --
+	 * -- part of Opus_Search_Searchable --
 	 *
 	 */
 
-	public function customSearch( $query, Opus_Solr_Parameters $parameters = null ) {
+	public function customSearch( Opus_Search_Parameters $query ) {
 		$search = $this->client->createSelect();
-		$search->setQuery( $query );
 
-		return $this->processQuery( $this->applyParametersOnQuery( $search, $parameters ) );
+		return $this->processQuery( $this->applyParametersOnQuery( $search, $query ) );
 	}
 
-	public function namedSearch( $name, Opus_Solr_Parameters $parameters = null ) {
+	public function namedSearch( $name, Opus_Search_Parameters $parameters = null ) {
 		if ( !preg_match( '/^[a-z_]+$/i', $name ) ) {
-			throw new Opus_Solr_Exception( 'invalid name of pre-defined query: ' . $name );
+			throw new Opus_Search_Exception( 'invalid name of pre-defined query: ' . $name );
 		}
 
 		// lookup named query in Solr configuration
-		$definitions = Opus_Solr_Service::getConfiguration()->query;
+		$definitions = Opus_Search_Service::getDomainConfiguration( 'solr' )->query;
 		$definition = $definitions->get( $name );
 		if ( !$definition ) {
-			throw new Opus_Solr_Exception( 'selected query is not pre-defined: ' . $name );
+			throw new Opus_Search_Exception( 'selected query is not pre-defined: ' . $name );
 		}
 
-		$query = $this->client->createSelect( $definition );
+		$search = $this->client->createSelect( $definition );
 
-		return $this->processQuery( $this->applyParametersOnQuery( $query, $parameters ) );
+		return $this->processQuery( $this->applyParametersOnQuery( $search, $parameters ) );
 	}
 
 	/**
@@ -296,13 +306,13 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 	 * success.
 	 *
 	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @return Opus_Document[]
-	 * @throws Opus_Solr_Exception
+	 * @return Opus_Search_ResultSet
+	 * @throws Opus_Search_Exception
 	 */
 	protected function processQuery( $query ) {
 		$result = $this->client->execute( $query );
 		if ( $result->getStatus() ) {
-			throw new Opus_Solr_Exception( 'failed querying index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+			throw new Opus_Search_Exception( 'failed querying index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 		}
 
 		$documents = array();
@@ -316,18 +326,29 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			}
 		}
 
-		return $documents;
+		return new Opus_Search_ResultSet( $documents, $result->getNumFound() );
 	}
 
 	/**
 	 * Adjusts provided query depending on explicitly defined parameters.
 	 *
 	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @param Opus_Solr_Parameters $parameters
+	 * @param Opus_Search_Parameters $parameters
 	 * @return mixed
 	 */
-	protected function applyParametersOnQuery( $query, Opus_Solr_Parameters $parameters = null ) {
+	protected function applyParametersOnQuery( \Solarium\QueryType\Select\Query\Query $query, Opus_Search_Parameters $parameters = null ) {
 		if ( $parameters ) {
+
+			$filters = $parameters->getFilter();
+			if ( $filters !== null ) {
+				$query->clearFilterQueries();
+
+				foreach ( $filters as $field => $filter ) {
+					$filterQuery = $query->createFilterQuery();
+					$filterQuery->setQuery( $filter );
+					$query->addFilterQuery( $filterQuery );
+				}
+			}
 
 			$start = $parameters->getStart();
 			if ( $start !== null ) {
@@ -362,7 +383,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 	/*
 	 *
-	 * -- part of Opus_Solr_Extractable --
+	 * -- part of Opus_Search_Extractable --
 	 *
 	 */
 
@@ -372,20 +393,20 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 		try {
 			// ensure file is basically available and extracting is supported
 			if ( !$file->exists() ) {
-				throw new Opus_Solr_Exception( $file->getPath() . ' does not exist.' );
+				throw new Opus_Search_Exception( $file->getPath() . ' does not exist.' );
 			}
 
 			if ( !$file->isReadable() ) {
-				throw new Opus_Solr_Exception( $file->getPath() . ' is not readable.' );
+				throw new Opus_Search_Exception( $file->getPath() . ' is not readable.' );
 			}
 
 			if ( !$this->isMimeTypeSupported( $file ) ) {
-				throw new Opus_Solr_Exception( $file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported' );
+				throw new Opus_Search_Exception( $file->getPath() . ' has MIME type ' . $file->getMimeType() . ' which is not supported' );
 			}
 
 
 			// use cached result of previous extraction if available
-			$fulltext = Opus_Solr_FulltextFileCache::readOnFile( $file );
+			$fulltext = Opus_Search_Solr_FulltextFileCache::readOnFile( $file );
 			if ( $fulltext !== false ) {
 				Opus_Log::get()->info( 'Found cached fulltext for file ' . $file->getPath() );
 				return $fulltext;
@@ -399,7 +420,7 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 			$result = $this->client->execute( $extract );
 			if ( $result->getStatus() ) {
-				throw new Opus_Solr_Exception( 'Extracting fulltext data failed: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+				throw new Opus_Search_Exception( 'Extracting fulltext data failed: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
 
 			// got response -> extract
@@ -413,13 +434,13 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			// always write returned fulltext data to cache to keep client from
 			// re-extracting same file as query has been processed properly this
 			// time
-			Opus_Solr_FulltextFileCache::writeOnFile( $file, $fulltext );
+			Opus_Search_Solr_FulltextFileCache::writeOnFile( $file, $fulltext );
 
 			return $fulltext;
 
 		} catch ( Exception $e ) {
-			if ( !( $e instanceof Opus_Solr_Exception ) ) {
-				$e = new Opus_Solr_Exception( 'error while extracting fulltext from file ' . $file->getPath(), 1, $e );
+			if ( !( $e instanceof Opus_Search_Exception ) ) {
+				$e = new Opus_Search_Exception( 'error while extracting fulltext from file ' . $file->getPath(), 1, $e );
 			}
 
 			Opus_Log::get()->err( $e->getMessage() );

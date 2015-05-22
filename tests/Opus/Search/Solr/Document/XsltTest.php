@@ -33,17 +33,17 @@
  */
 
 
-class Opus_Solr_Document_XsltTest extends DocumentBasedTestCase {
+class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 
 	public function createConverter() {
-		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
+		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Service::getDomainConfiguration( 'solr' ) );
 	}
 
 	public function testArticleConversion() {
 		$document = $this->createDocument( 'article' );
 		$this->assertInstanceOf( 'Opus_Document', $document );
 
-		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
+		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Service::getDomainConfiguration( 'solr' ) );
 		$solr = $converter->toSolrDocument( $document, new DOMDocument() );
 
 		$this->assertInstanceOf( 'DOMDocument', $solr );
@@ -184,7 +184,7 @@ class Opus_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$document = $this->createDocument( 'book' );
 		$this->assertInstanceOf( 'Opus_Document', $document );
 
-		$converter = new Opus_Solr_Document_Xslt( Opus_Solr_Service::getConfiguration() );
+		$converter = new Opus_Search_Solr_Document_Xslt( Opus_Search_Service::getDomainConfiguration( 'solr' ) );
 		$solr = $converter->toSolrDocument( $document, new DOMDocument() );
 
 		$this->assertInstanceOf( 'DOMDocument', $solr );

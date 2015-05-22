@@ -37,7 +37,7 @@
  * Defines methods provided for indexing data in (Solr-based) search database.
  */
 
-interface Opus_Solr_Indexable {
+interface Opus_Search_Indexable {
 	/**
 	 * Adds provided set of Opus_Document instances to index.
 	 *
@@ -46,8 +46,8 @@ interface Opus_Solr_Indexable {
 	 *       rolled back on any error.
 	 *
 	 * @param Opus_Document|Opus_Document[] $documents set of documents to add
-	 * @return Opus_Solr_Indexable
-	 * @throws Opus_Solr_Exception in case of error
+	 * @return Opus_Search_Indexable
+	 * @throws Opus_Search_Exception in case of error
 	 */
 	public function addDocumentsToIndex( $documents );
 
@@ -59,8 +59,8 @@ interface Opus_Solr_Indexable {
 	 *       rolled back on any error.
 	 *
 	 * @param Opus_Document|Opus_Document[] $documents set of document to remove
-	 * @return Opus_Solr_Indexable
-	 * @throws Opus_Solr_Exception in case of error
+	 * @return Opus_Search_Indexable
+	 * @throws Opus_Search_Exception in case of error
 	 */
 	public function removeDocumentsFromIndex( $documents );
 
@@ -72,8 +72,8 @@ interface Opus_Solr_Indexable {
 	 *       rolled back on any error.
 	 *
 	 * @param int|int[] $documentIds set of IDs of documents to remove
-	 * @return Opus_Solr_Indexable
-	 * @throws Opus_Solr_Exception in case of error
+	 * @return Opus_Search_Indexable
+	 * @throws Opus_Search_Exception in case of error
 	 */
 	public function removeDocumentsFromIndexById( $documentIds );
 
@@ -84,8 +84,8 @@ interface Opus_Solr_Indexable {
 	 *       by adding all listed documents as part of a transaction to be
 	 *       rolled back on any error.
 	 *
-	 * @return Opus_Solr_Indexable
-	 * @throws Opus_Solr_Exception in case of error
+	 * @return Opus_Search_Indexable
+	 * @throws Opus_Search_Exception in case of error
 	 */
 	public function removeAllDocumentsFromIndex();
 }

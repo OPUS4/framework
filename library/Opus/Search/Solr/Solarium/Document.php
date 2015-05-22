@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,7 +27,6 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -34,28 +34,53 @@
  */
 
 /**
- * Defines methods provided for querying (Solr-based) search database.
+ * Implements description of solr documents when using `Solarium` client
+ * library.
+ *
+ * To keep things compatible with previous releases this implementation is
+ * transforming Opus_Document instances to generic XML first for transforming
+ * that to some Solr-specific XML to be parsed and read back finally. This is
+ * basically due to supporting customized XSLT transformations.
  */
 
-interface Opus_Solr_Searchable {
-	/**
-	 * Queries search database for set of matching entries.
-	 *
-	 * @param string $query query selecting documents
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
-	 */
-	public function customSearch( $query, Opus_Solr_Parameters $parameters = null );
+class Opus_Search_Solr_Solarium_Document extends Opus_Search_Solr_Document_Xslt {
+
+	public function __construct( Zend_Config $options ) {
+		parent::__construct( $options );
+	}
 
 	/**
-	 * Queries search database for set of matching entries using some named
-	 * query defined in configuration.
+	 * Derives Solr-compatible description in XML format of provided Opus
+	 * document.
 	 *
-	 * @param string $name name of query defined in configuration
-	 * @param Opus_Solr_Parameters $parameters set of parameters customizing selected query
-	 * @returns Opus_Document[] set of documents matching query
-	 * @throws Opus_Solr_Exception in case of error
+	 * @note Parameter $solrDoc must be prepared with reference on Solr document
+	 *       to be added or updated. It is returned on return.
+	 *
+	 * @example
+	 *     $update  = $solariumClient->createUpdate();
+	 *     $solrDoc = $update->addDocument();
+	 *     $solrDoc = $doc->toSolrDocument( $opusDoc, $solrDoc );
+	 *
+	 * @param Opus_Document $opusDoc
+	 * @param \Solarium\QueryType\Update\Query\Document\Document $solrDoc
+	 * @return \Solarium\QueryType\Update\Query\Document\Document
 	 */
-	public function namedSearch( $name, Opus_Solr_Parameters $parameters = null );
+	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
+		if ( !( $solrDoc instanceof Solarium\QueryType\Update\Query\Document\Document ) ) {
+			throw new InvalidArgumentException( 'provided Solr document must be instance of Solarium Update Document' );
+		}
+
+		// convert Opus document to Solr XML document for supporting custom transformations
+		$solrDomDoc = parent::toSolrDocument( $opusDoc, new DOMDocument() );
+
+		// read back fields from generated Solr XML document
+		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->doc[0];
+
+		$solrDoc->clear();
+		foreach ( $solrXmlDoc->field as $field ) {
+			$solrDoc->addField( strval( $field['name'] ), strval( $field ) );
+		}
+
+		return $solrDoc;
+	}
 }

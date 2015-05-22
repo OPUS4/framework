@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,25 +26,71 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Defines methods provided for extracting fulltext data from files in a
- * (Solr-based) search database.
+ * Implements description of particular search query's result in case of
+ * success.
+ *
+ * @method Opus_Document[] getMatches()
+ * @method int getAllMatchesCount()
  */
 
-interface Opus_Solr_Extractable {
+class Opus_Search_ResultSet {
+
+	protected $data;
+
+
 	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Solr_Extractable fluent interface
+	 * @param Opus_Document[] $matches set of matching documents or set of matching documents' IDs
+	 * @param int $allMatchesCount overall number of matches
 	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	public function __construct( $matches, $allMatchesCount ) {
+		if ( !is_array( $matches ) ) {
+			throw new InvalidArgumentException( 'invalid set of matches' );
+		}
+
+		foreach ( $matches as $key => $match ) {
+			if ( !( $match instanceof Opus_Document ) ) {
+				if ( !ctype_digit( trim( $match ) ) ) {
+					throw new InvalidArgumentException( 'invalid element in set of matches' );
+				}
+
+				$matches[$key] = new Opus_Document( $match );
+			}
+		}
+
+		if ( !ctype_digit( trim( $allMatchesCount ) ) ) {
+			throw new InvalidArgumentException( 'invalid number of overall matches' );
+		}
+
+		$allMatchesCount = intval( $allMatchesCount );
+
+		$this->data = compact( 'matches', 'allMatchesCount' );
+	}
+
+	public function __get( $name ) {
+		$name = strtolower( trim( $name ) );
+
+		return array_key_exists( $name, $this->data ) ? $this->data[$name] : null;
+	}
+
+	public function __isset( $name ) {
+		return array_key_exists( $name, $this->data );
+	}
+
+	public function __call( $name, $args ) {
+		switch ( substr( strtolower( $name ), 0, 3 ) ) {
+			case 'get' :
+				return $this->__get( substr( $name, 3 ) );
+			default :
+				throw new RuntimeException( 'invalid call for method: ' . $name );
+		}
+	}
+
 }
