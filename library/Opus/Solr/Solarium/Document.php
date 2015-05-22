@@ -74,11 +74,11 @@ class Opus_Solr_Solarium_Document extends Opus_Solr_Document_Xslt {
 		$solrDomDoc = parent::toSolrDocument( $opusDoc, new DOMDocument() );
 
 		// read back fields from generated Solr XML document
-		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->add->doc;
+		$solrXmlDoc = simplexml_import_dom( $solrDomDoc )->doc[0];
 
 		$solrDoc->clear();
 		foreach ( $solrXmlDoc->field as $field ) {
-			$solrDoc->addField( $field['name'], strval( $field ) );
+			$solrDoc->addField( strval( $field['name'] ), strval( $field ) );
 		}
 
 		return $solrDoc;

@@ -52,7 +52,12 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 		// ensure service is basically available
 		$ping   = $this->client->createPing();
-		$result = $this->client->execute( $ping );
+
+		try {
+			$result = $this->client->execute( $ping );
+		} catch ( \Exception $e ) {
+			throw new Opus_Solr_Exception( 'failed pinging service', $e->getCode(), $e );
+		}
 
 		if ( $result->getStatus() ) {
 			throw new Opus_Solr_Exception( 'failed pinging service: ' . $serviceName );
@@ -113,7 +118,12 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 
 				$update->addDocuments( $updateDocs );
 
-				$result = $this->client->execute( $update );
+				try {
+					$result = $this->client->execute( $update );
+				} catch ( \Exception $e ) {
+					throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+				}
+
 				if ( $result->getStatus() ) {
 					throw new Opus_Solr_Exception( 'failed updating slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 				}
@@ -123,7 +133,12 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			$update = $this->client->createUpdate();
 			$update->addCommit();
 
-			$result = $this->client->execute( $update );
+			try {
+				$result = $this->client->execute( $update );
+			} catch ( \Exception $e ) {
+				throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+			}
+
 			if ( $result->getStatus() ) {
 				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
@@ -137,10 +152,17 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 				$update = $this->client->createUpdate();
 				$update->addRollback();
 
-				$result = $this->client->execute( $update );
+				try {
+					$result = $this->client->execute( $update );
+				} catch ( \Exception $inner ) {
+					// SEVERE case: rolling back failed, too
+					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $inner->getMessage() );
+					throw $e;
+				}
+
 				if ( $result->getStatus() ) {
 					// SEVERE case: rolling back failed, too
-					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $result->getResponse()->getStatusMessage() );
 				}
 			}
 
@@ -171,7 +193,12 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 				$delete = $this->client->createUpdate();
 				$delete->addDeleteByIds( $deleteIds );
 
-				$result = $this->client->execute( $delete );
+				try {
+					$result = $this->client->execute( $delete );
+				} catch ( \Exception $e ) {
+					throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+				}
+
 				if ( $result->getStatus() ) {
 					throw new Opus_Solr_Exception( 'failed deleting slice of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 				}
@@ -181,7 +208,12 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 			$update = $this->client->createUpdate();
 			$update->addCommit();
 
-			$result = $this->client->execute( $update );
+			try {
+				$result = $this->client->execute( $update );
+			} catch ( \Exception $e ) {
+				throw new Opus_Solr_Exception( 'failed executing query against solr service', $e->getCode(), $e );
+			}
+
 			if ( $result->getStatus() ) {
 				throw new Opus_Solr_Exception( 'failed commiting update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
 			}
@@ -195,10 +227,17 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 				$update = $this->client->createUpdate();
 				$update->addRollback();
 
-				$result = $this->client->execute( $update );
+				try {
+					$result = $this->client->execute( $update );
+				} catch ( \Exception $inner ) {
+					// SEVERE case: rolling back failed, too
+					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $inner->getMessage() );
+					throw $e;
+				}
+
 				if ( $result->getStatus() ) {
 					// SEVERE case: rolling back failed, too
-					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
+					Opus_Log::get()->alert( 'failed rolling back update of documents: ' . $result->getResponse()->getStatusMessage() );
 				}
 			}
 
@@ -229,10 +268,10 @@ class Opus_Solr_Solarium_Adapter implements Opus_Solr_Indexable, Opus_Solr_Searc
 	 */
 
 	public function customSearch( $query, Opus_Solr_Parameters $parameters = null ) {
-		$query = $this->client->createSelect();
-		$query->setQuery( $query );
+		$search = $this->client->createSelect();
+		$search->setQuery( $query );
 
-		return $this->processQuery( $this->applyParametersOnQuery( $query, $parameters ) );
+		return $this->processQuery( $this->applyParametersOnQuery( $search, $parameters ) );
 	}
 
 	public function namedSearch( $name, Opus_Solr_Parameters $parameters = null ) {
