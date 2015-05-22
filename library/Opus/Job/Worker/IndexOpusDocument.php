@@ -132,10 +132,10 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
         if ($data->task === 'index') {
 	        $document = new Opus_Document($data->documentId);
 
-	        Opus_Solr_Service::selectIndexingService( 'jobRunner' )
+	        Opus_Search_Service::selectIndexingService( 'jobRunner' )
 		        ->addDocumentsToIndex($document);
         } else if ($data->task === 'remove') {
-            Opus_Solr_Service::selectIndexingService( 'jobRunner' )
+            Opus_Search_Service::selectIndexingService( 'jobRunner' )
 	            ->removeDocumentsFromIndexById($data->documentId);
         } else {
             throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");

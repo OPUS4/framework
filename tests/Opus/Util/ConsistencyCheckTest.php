@@ -42,7 +42,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
     public function setUp() {
         parent::setUp();
-        
+
 	    $this->doc = new Opus_Document();
         $this->doc->setServerState('published');
         $this->docId = $this->doc->store();
@@ -100,13 +100,13 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
     }
 
     public function testWithInconsistentStateAfterModifyingDocument() {
-        $searcher = new Opus_SolrSearch_Searcher();
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
-        $query->setField('id', $this->docId);
-        $result = $searcher->search($query);
-        $resultList = $result->getResults();
+	    $searcher = Opus_Search_Service::selectSearchingService();
+	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
 
-        $this->assertEquals(1, $result->getNumberOfHits(), 'asserting that document ' . $this->docId . ' is in search index');
+	    $result = $searcher->customSearch( $query );
+        $resultList = $result->getMatches();
+
+        $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
 
         $this->manipulateSolrConfig();
@@ -117,25 +117,25 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
         $this->restoreSolrConfig();
 
-        $searcher = new Opus_SolrSearch_Searcher();
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
-        $query->setField('id', $this->docId);
-        $result = $searcher->search($query);
-        $resultList = $result->getResults();
+        $searcher = Opus_Search_Service::selectSearchingService();
+        $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
 
-        $this->assertEquals(1, $result->getNumberOfHits(), 'asserting that document ' . $this->docId . ' is in search index');
+        $result = $searcher->customSearch( $query );
+        $resultList = $result->getMatches();
+
+        $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() < $this->doc->getServerDateModified()->getUnixTimestamp(), 'change of serverDateModified is not reflected in Solr index');
 
         $consistencyCheck = new Opus_Util_ConsistencyCheck();
         $consistencyCheck->run();
 
-        $searcher = new Opus_SolrSearch_Searcher();
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
-        $query->setField('id', $this->docId);
-        $result = $searcher->search($query);
-        $resultList = $result->getResults();
+	    $searcher = Opus_Search_Service::selectSearchingService();
+	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
 
-        $this->assertEquals(1, $result->getNumberOfHits(), 'asserting that document ' . $this->docId . ' is in search index');
+	    $result = $searcher->customSearch( $query );
+	    $resultList = $result->getMatches();
+
+	    $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
     }
 
@@ -143,9 +143,8 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
 
         // remove document from search index directly
-        $indexer = new Opus_SolrSearch_Index_Indexer();
-        $indexer->removeDocumentFromEntryIndexById($this->docId);
-        $indexer->commit();
+	    $indexer = Opus_Search_Service::selectIndexingService();
+	    $indexer->removeDocumentsFromIndexById( $this->docId );
 
         $this->assertFalse($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is not in search index');
 
@@ -157,20 +156,19 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
     private function manipulateSolrConfig() {
         $config = Zend_Registry::get('Zend_Config');
-        $this->indexHost = $config->searchengine->index->host;
-        $config->searchengine->index->host = 'example.org';
+        $this->indexHost = $config->searchengine->solr->index->endpoint->primary->host;
+        $config->searchengine->solr->index->endpoint->primary->host = 'example.org';
     }
 
     private function restoreSolrConfig() {
         $config = Zend_Registry::get('Zend_Config');
-        $config->searchengine->index->host = $this->indexHost;
+        $config->searchengine->solr->index->endpoint->primary->host = $this->indexHost;
     }
 
     private function isDocumentInSearchIndex() {
-        $searcher = new Opus_SolrSearch_Searcher();
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
-        $query->setField('id', $this->docId);
-        $resultList = $searcher->search($query);
-        return $resultList->getNumberOfHits() == 1;
+	    $searcher = Opus_Search_Service::selectSearchingService();
+	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
+        $result   = $searcher->customSearch( $query );
+        return $result->getAllMatchesCount() == 1;
     }
 }

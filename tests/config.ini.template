@@ -67,11 +67,11 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
-searchengine.solr.adapter = Opus_Solr_Solarium_Adapter
+searchengine.solr.adapter = Opus_Search_Solr_Solarium_Adapter
 searchengine.solr.service.default.endpoint.primary.host = @searchengine.default.host@
 searchengine.solr.service.default.endpoint.primary.port = @searchengine.default.port@
 searchengine.solr.service.default.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Solr/solr.xslt"
+searchengine.solr.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
 searchengine.solr.service.default.marker = default
 
 searchengine.solr.service.index.endpoint.primary.host = @searchengine.default.host@

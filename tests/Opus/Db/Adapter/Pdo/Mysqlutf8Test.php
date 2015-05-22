@@ -72,7 +72,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
         // Register the adapter within Zend_Registry.
         Zend_Registry::getInstance()->set('db_adapter', $db);
     }
-    
+
     /**
      * Tear down database changed.
      *
@@ -104,7 +104,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
             $this->fail('Failed start of nested transaction.');
         }
     }
-    
+
     /**
      * Test if all opened transactions can be committed.
      *
@@ -115,7 +115,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();
-        
+
         $dba->commit();
         $dba->commit();
         $dba->commit();
@@ -126,7 +126,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
             return;
         }
         $this->fail('Commit without transaction goes ok.');
-    }   
+    }
 
 
     /**
@@ -141,7 +141,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
         $dba->beginTransaction();
         $dba->beginTransaction();
         $dba->beginTransaction();
-        
+
         $dba->rollback();
         $dba->rollback();
         $dba->rollback();
@@ -152,5 +152,5 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
             return;
         }
         $this->fail('Rollback without transaction goes ok.');
-    }   
+    }
 }

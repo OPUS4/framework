@@ -124,10 +124,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
         } else {
             $log->debug(__METHOD__ . ': ' . 'Removing document ' . $documentId . ' from index.');
             try {
-	            Opus_Solr_Service::selectIndexingService( 'onDocumentChange' )
+	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
 		            ->removeDocumentsFromIndexById( $documentId );
             }
-            catch (Opus_Solr_Exception $e) {
+            catch (Opus_Search_Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Removing document-id ' . $documentId . ' from index failed: ' . $e->getMessage());
             }
         }
@@ -171,10 +171,10 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract {
             $log->debug(__METHOD__ . ': ' . 'Index document ' . $documentId . '.');
 
             try {
-	            Opus_Solr_Service::selectIndexingService( 'onDocumentChange' )
+	            Opus_Search_Service::selectIndexingService( 'onDocumentChange' )
 		            ->addDocumentsToIndex( $document );
             }
-            catch (Opus_Solr_Exception $e) {
+            catch (Opus_Search_Exception $e) {
                 $log->debug(__METHOD__ . ': ' . 'Indexing document ' . $documentId . ' failed: ' . $e->getMessage());
             }
             catch (InvalidArgumentException $e) {
