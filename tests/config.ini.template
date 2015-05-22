@@ -89,7 +89,14 @@ searchengine.solr.service.search.endpoint.primary.port = @searchengine.default.p
 searchengine.solr.service.search.endpoint.primary.path = @searchengine.default.path@
 searchengine.solr.service.search.marker = search
 
+searchengine.solr.service.disfunct.endpoint.primary.host = 1.2.3.4
+searchengine.solr.service.disfunct.endpoint.primary.port = 12345
+searchengine.solr.service.disfunct.endpoint.primary.path = /solr-disfunct/
+
 searchengine.solr.query.alldocs.query = "*:*"
+
+searchengine.solr.query.onedoc.query = "*:*"
+searchengine.solr.query.onedoc.rows = 1
 
 ;SEARCH ENGINE SETTINGS (deprecated)
 searchengine.index.host = @searchengine.index.host@

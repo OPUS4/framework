@@ -80,6 +80,50 @@ class DocumentBasedTestCase extends TestCase {
 					'LastName' => 'Doe',
 				)
 			)
+		),
+		'monograph' => array(
+			'Type' => 'monograph',
+			'Language' => 'eng',
+			'ContributingCorporation' => 'Contributing, Inc.',
+			'CreatingCorporation' => 'Creating, Inc.',
+			'ThesisDateAccepted' => '1999-12-31',
+			'Edition' => 2,
+			'Issue' => 1,
+			'Volume' => 2,
+			'PageFirst' => 1,
+			'PageLast' => 465,
+			'PageNumber' => 465,
+			'CompletedYear' => 1996,
+			'CompletedDate' => '1996-10-02',
+			'BelongsToBibliography' => 1,
+			'EmbargoDate' => '2010-01-04',
+			'PersonAuthor' => array(
+				'Opus_Person', array(
+					'FirstName' => 'John',
+					'LastName' => 'Doe',
+				)
+			),
+			'TitleMain' => array(
+				'Value' => 'A Monograph On Indexing',
+			    'Type' => 'main'
+			)
+		),
+		'report' => array(
+			'Type' => 'report',
+			'Language' => 'fra',
+			'ContributingCorporation' => 'Contributing, Inc.',
+			'CreatingCorporation' => 'Creating, Inc.',
+			'ThesisDateAccepted' => '1999-12-31',
+			'Edition' => 2,
+			'Issue' => 1,
+			'Volume' => 2,
+			'PageFirst' => 1,
+			'PageLast' => 465,
+			'PageNumber' => 465,
+			'CompletedYear' => 1996,
+			'CompletedDate' => '1996-10-02',
+			'BelongsToBibliography' => 1,
+			'EmbargoDate' => '2010-01-04'
 		)
 	);
 
@@ -191,6 +235,26 @@ class DocumentBasedTestCase extends TestCase {
 		return $document;
 	}
 
+	public function qualifyTestFilename( $filename ) {
+		return APPLICATION_PATH . '/tests/fulltexts/' . basename( $filename );
+	}
+
+	public function getTestFile( $filename ) {
+		return file_get_contents( $this->qualifyTestFilename( $filename ) );
+	}
+
+	public function addFileToDocument( Opus_Document $document, $filename, $label, $visibleInFrontdoor ) {
+		$file = $document->addFile();
+		$file->setTempFile( $this->qualifyTestFilename( $filename ) );
+		$file->setPathName( $filename );
+		$file->setLabel( $label );
+		$file->setVisibleInFrontdoor( $visibleInFrontdoor ? '1' : '0' );
+
+		$document->store();
+
+		return $document;
+	}
+
 	/**
 	 * Manages to delete all documents created in a test run.
 	 */
@@ -198,12 +262,23 @@ class DocumentBasedTestCase extends TestCase {
 		parent::tearDown();
 
 		$cache = new Opus_Model_Xml_Cache( false );
+		$files = APPLICATION_PATH . '/tests/workspace/files/';
 
 		foreach ( $this->created as $model ) {
 			/** @var Opus_Model_AbstractDb $model */
 			if ( $model instanceof Opus_Document ) {
 				// drop any model XML cached on document to delete next
 				$cache->removeAllEntriesWhereDocumentId( $model->getId() );
+
+				// clear all files related to that document
+				$docFiles = $files . $model->getId();
+				if ( is_dir( $docFiles ) && is_readable( $docFiles ) ) {
+					foreach ( glob( $docFiles . '/*' ) as $file ) {
+						if ( is_readable( $file ) ) {
+							unlink( $file );
+						}
+					}
+				}
 			}
 
 			$model->delete();
