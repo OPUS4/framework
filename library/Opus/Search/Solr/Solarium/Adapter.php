@@ -281,7 +281,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	public function customSearch( Opus_Search_Parameters $query ) {
 		$search = $this->client->createSelect();
 
-		return $this->processQuery( $this->applyParametersOnQuery( $search, $query ) );
+		return $this->processQuery( $this->applyParametersOnQuery( $search, $query ), $query->getQualify( true ) );
 	}
 
 	public function namedSearch( $name, Opus_Search_Parameters $parameters = null ) {
@@ -298,7 +298,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 		$search = $this->client->createSelect( $definition );
 
-		return $this->processQuery( $this->applyParametersOnQuery( $search, $parameters ) );
+		return $this->processQuery( $this->applyParametersOnQuery( $search, $parameters ), $parameters ? $parameters->getQualify( true ) : true );
 	}
 
 	/**
@@ -306,10 +306,11 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * success.
 	 *
 	 * @param \Solarium\QueryType\Select\Query\Query $query
+	 * @param bool $retrieveDocumentInstances true for retrieving instances of Opus_Document
 	 * @return Opus_Search_ResultSet
 	 * @throws Opus_Search_Exception
 	 */
-	protected function processQuery( $query ) {
+	protected function processQuery( $query, $retrieveDocumentInstances = false ) {
 		$result = $this->client->execute( $query );
 		if ( $result->getStatus() ) {
 			throw new Opus_Search_Exception( 'failed querying index: ' . $result->getResponse()->getStatusMessage(), $result->getResponse()->getStatusCode() );
@@ -318,15 +319,19 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		$documents = array();
 
 		foreach ( $result as $match ) {
-			try {
-				$document    = new Opus_Document( $match->id );
-				$documents[] = $document;
-			} catch ( Opus_DocumentFinder_Exception $e ) {
-				Opus_Log::get()->info( 'skipping matching, but locally missing document #' . $match->id );
+			if ( $retrieveDocumentInstances ) {
+				try {
+					$document    = new Opus_Document( $match->id );
+					$documents[] = $document;
+				} catch ( Opus_DocumentFinder_Exception $e ) {
+					Opus_Log::get()->info( 'skipping matching, but locally missing document #' . $match->id );
+				}
+			} else {
+				$documents[] = $match->id;
 			}
 		}
 
-		return new Opus_Search_ResultSet( $documents, $result->getNumFound() );
+		return new Opus_Search_ResultSet( $documents, $result->getNumFound(), $retrieveDocumentInstances );
 	}
 
 	/**

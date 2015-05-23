@@ -45,6 +45,8 @@ class Opus_Search_Service {
 	 * @throws Zend_Config_Exception
 	 */
 	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null ) {
+		$serviceDomain = static::getQualifiedDomain( $serviceDomain );
+
 		if ( !$serviceName ) {
 			$serviceName = 'default';
 		}

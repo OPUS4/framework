@@ -36,17 +36,19 @@
 /**
  * Implements normalized query parameter support.
  *
- * @method int getStart()
- * @method int getRows()
- * @method string[] getFields()
- * @method array getSort()
- * @method bool getUnion()
- * @method array getFilter()
+ * @method int getStart( int $default = null )
+ * @method int getRows( int $default = null )
+ * @method string[] getFields( array $default = null )
+ * @method array getSort( array $default = null )
+ * @method bool getUnion( bool $default = null )
+ * @method bool getQualify( bool $default = null )
+ * @method array getFilter( array $default = null )
  * @method void setStart( int $offset )
  * @method void setRows( int $count )
  * @method void setFields( $fields )
  * @method void setSort( $sorting )
  * @method void setUnion( bool $isUnion )
+ * @method void setQualify( bool $qualifyResults )
  * @method void addFields( string $fields )
  * @method void addSort( $sorting )
  */
@@ -56,12 +58,13 @@ class Opus_Search_Parameters {
 
 	public function reset() {
 		$this->_data = array(
-			'start'  => null,
-			'rows'   => null,
-			'fields' => null,
-			'sort'   => null,
-			'union'  => null,
-			'filter' => null,
+			'start'   => null,
+			'rows'    => null,
+			'fields'  => null,
+			'sort'    => null,
+			'union'   => null,
+			'filter'  => null,
+			'qualify' => null,
 		);
 	}
 
@@ -136,13 +139,14 @@ class Opus_Search_Parameters {
 	/**
 	 * Retrieves value of selected parameter.
 	 *
-	 * @param $property
-	 * @return mixed
+	 * @param string $parameterName name of parameter to read
+	 * @param mixed $defaultValue value to retrieve if parameter hasn't been set internally
+	 * @return mixed value of selected parameter, default if missing internally
 	 */
-	public function get( $property ) {
-		$property = $this->isValidParameter( $property );
+	public function get( $parameterName, $defaultValue = null ) {
+		$parameterName = $this->isValidParameter( $parameterName );
 
-		return $this->_data[$property];
+		return is_null( $this->_data[$parameterName] ) ? $defaultValue : $this->_data[$parameterName];
 	}
 
 	public function set( $property, $value, $adding = false ) {
@@ -221,6 +225,7 @@ class Opus_Search_Parameters {
 				break;
 
 			case 'union' :
+			case 'qualify' :
 				if ( $adding ) {
 					throw new InvalidArgumentException( 'invalid parameter access on ' . $property );
 				}
@@ -252,7 +257,7 @@ class Opus_Search_Parameters {
 			$property = $this->isValidParameter( $matches[2] );
 			switch ( strtolower( $matches[1] ) ) {
 				case 'get' :
-					return $this->get( $property );
+					return $this->get( $property, @$arguments[0] );
 
 				case 'set' :
 					$this->set( $property, array_shift( $arguments ), false );

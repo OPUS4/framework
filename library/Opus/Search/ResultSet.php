@@ -36,9 +36,6 @@
 /**
  * Implements description of particular search query's result in case of
  * success.
- *
- * @method Opus_Document[] getMatches()
- * @method int getAllMatchesCount()
  */
 
 class Opus_Search_ResultSet {
@@ -47,21 +44,29 @@ class Opus_Search_ResultSet {
 
 
 	/**
-	 * @param Opus_Document[] $matches set of matching documents or set of matching documents' IDs
+	 * @param Opus_Document[]|int[] $matches set of matching documents or set of matching documents' IDs
 	 * @param int $allMatchesCount overall number of matches
+	 * @param bool $listingIds true if IDs listed in $matches mustn't be resolved
 	 */
-	public function __construct( $matches, $allMatchesCount ) {
+	public function __construct( $matches, $allMatchesCount, $listingIds ) {
 		if ( !is_array( $matches ) ) {
 			throw new InvalidArgumentException( 'invalid set of matches' );
 		}
 
+		// normalize provided set of matches according to selected mode of delivery
 		foreach ( $matches as $key => $match ) {
-			if ( !( $match instanceof Opus_Document ) ) {
+			if ( $match instanceof Opus_Document ) {
+				if ( $listingIds ) {
+					$matches[$key] = $match->getId();
+				}
+			} else {
 				if ( !ctype_digit( trim( $match ) ) ) {
 					throw new InvalidArgumentException( 'invalid element in set of matches' );
 				}
 
-				$matches[$key] = new Opus_Document( $match );
+				if ( !$listingIds ) {
+					$matches[$key] = new Opus_Document( $match );
+				}
 			}
 		}
 
@@ -71,27 +76,75 @@ class Opus_Search_ResultSet {
 
 
 		$this->data = array(
-			'matches'         => $matches,
-			'allmatchescount' => intval( $allMatchesCount ),
+			'matches'   => $matches,
+			'count'     => intval( $allMatchesCount ),
+			'qualified' => !$listingIds,
 		);
 	}
 
+	/**
+	 * Retrieves set of matching and locally existing documents.
+	 *
+	 * @return Opus_Document[]
+	 */
+	public function getMatches() {
+		if ( $this->data['qualified'] ) {
+			return $this->data['matches'];
+		}
+
+		$matches = array();
+
+		foreach ( $this->data['matches'] as $match ) {
+			if ( $match instanceof Opus_Document ) {
+				$matches[] = $match;
+			} else {
+				try {
+					$matches[] = new Opus_Document( $match );
+				} catch ( Opus_Document_Exception $e ) {
+					Opus_Log::get()->warn( 'skipping matching but locally missing document #' . $match );
+				}
+			}
+		}
+
+		return $matches;
+	}
+
+	/**
+	 * Retrieves set of matching documents' IDs.
+	 *
+	 * @note If query was requesting to retrieve non-qualified matches this set
+	 *       might include IDs of documents that doesn't exist locally anymore.
+	 *
+	 * @return int[]
+	 */
+	public function getMatchingIds() {
+		return array_map( function( $match ) {
+			return $match instanceof Opus_Document ? $match->getId() : $match;
+		}, $this->data['matches'] );
+	}
+
+	/**
+	 * Retrieves overall number of matches.
+	 *
+	 * @note This number includes matches not included in fetched subset of
+	 *       matches.
+	 *
+	 * @return int
+	 */
+	public function getAllMatchesCount() {
+		return $this->data['count'];
+	}
+
 	public function __get( $name ) {
-		$name = strtolower( trim( $name ) );
+		switch ( strtolower( trim( $name ) ) ) {
+			case 'matches' :
+				return $this->getMatches();
 
-		return array_key_exists( $name, $this->data ) ? $this->data[$name] : null;
-	}
+			case 'allmatchescount' :
+				return $this->getAllMatchesCount();
 
-	public function __isset( $name ) {
-		return array_key_exists( $name, $this->data );
-	}
-
-	public function __call( $name, $args ) {
-		switch ( substr( strtolower( $name ), 0, 3 ) ) {
-			case 'get' :
-				return $this->__get( substr( $name, 3 ) );
 			default :
-				throw new RuntimeException( 'invalid call for method: ' . $name );
+				throw new RuntimeException( 'invalid request for property ' . $name );
 		}
 	}
 
