@@ -44,7 +44,7 @@ class Opus_Search_Service {
 	 * @return Opus_Search_Indexable|Opus_Search_Searchable|Opus_Search_Extractable
 	 * @throws Zend_Config_Exception
 	 */
-	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = 'solr' ) {
+	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null ) {
 		if ( !$serviceName ) {
 			$serviceName = 'default';
 		}
@@ -88,7 +88,7 @@ class Opus_Search_Service {
 	 * @return Opus_Search_Indexable
 	 * @throws Zend_Config_Exception
 	 */
-	public static function selectIndexingService( $serviceName = null, $serviceDomain = 'solr' ) {
+	public static function selectIndexingService( $serviceName = null, $serviceDomain = null ) {
 		return static::selectService( 'index', 'Opus_Search_Indexable', $serviceName, $serviceDomain );
 	}
 
@@ -98,7 +98,7 @@ class Opus_Search_Service {
 	 * @return Opus_Search_Searchable
 	 * @throws Zend_Config_Exception
 	 */
-	public static function selectSearchingService( $serviceName = null, $serviceDomain = 'solr' ) {
+	public static function selectSearchingService( $serviceName = null, $serviceDomain = null ) {
 		return static::selectService( 'search', 'Opus_Search_Searchable', $serviceName, $serviceDomain );
 	}
 
@@ -108,7 +108,7 @@ class Opus_Search_Service {
 	 * @return Opus_Search_Extractable
 	 * @throws Zend_Config_Exception
 	 */
-	public static function selectExtractingService( $serviceName = null, $serviceDomain = 'solr' ) {
+	public static function selectExtractingService( $serviceName = null, $serviceDomain = null ) {
 		return static::selectService( 'extract', 'Opus_Search_Extractable', $serviceName, $serviceDomain );
 	}
 
@@ -129,10 +129,8 @@ class Opus_Search_Service {
 	 * @param string $serviceDomain name of a search engine's domain
 	 * @return Zend_Config
 	 */
-	public static function getDomainConfiguration( $serviceDomain = 'solr' ) {
-		if ( !$serviceDomain || !is_string( $serviceDomain ) ) {
-			throw new InvalidArgumentException( 'missing search engine domain' );
-		}
+	public static function getDomainConfiguration( $serviceDomain = null ) {
+		$serviceDomain = static::getQualifiedDomain( $serviceDomain );
 
 		$config = static::getConfiguration()->get( $serviceDomain );
 		if ( !( $config instanceof Zend_Config ) ) {
@@ -151,7 +149,7 @@ class Opus_Search_Service {
 	 * @param string $serviceDomain name of domain selected service belongs to
 	 * @return Zend_Config
 	 */
-	public static function getServiceConfiguration( $serviceName = null, $serviceDomain = 'solr' ) {
+	public static function getServiceConfiguration( $serviceName = null, $serviceDomain = null ) {
 		$config = static::getDomainConfiguration( $serviceDomain )->service;
 
 		if ( !$serviceName || !is_string( $serviceName ) ) {
@@ -168,13 +166,36 @@ class Opus_Search_Service {
 	 * @param string $serviceDomain desired name of search engine's domain to manage parameters for
 	 * @return Opus_Search_Parameters
 	 */
-	public static function createDomainParameters( $serviceDomain = 'solr' ) {
-		switch ( $serviceDomain ) {
+	public static function createDomainParameters( $serviceDomain = null ) {
+		switch ( static::getQualifiedDomain( $serviceDomain ) ) {
 			case 'solr' :
 				return new Opus_Search_Solr_Parameters();
 
 			default :
 				throw new InvalidArgumentException( 'invalid search engine domain' );
 		}
+	}
+
+	/**
+	 * Validates provided explicit selection of search domain using any
+	 * configured domain by default.
+	 *
+	 * @note If configuration is missing explicit definition of default search
+	 *       domain, "solr" is returned by default.
+	 *
+	 * @param string $searchDomain explicitly selected search domain
+	 * @return string
+	 */
+	protected static function getQualifiedDomain( $searchDomain = null ) {
+		if ( is_null( $searchDomain ) ) {
+			$config = static::getConfiguration();
+			$searchDomain = $config->get( 'domain', 'solr' );
+		}
+
+		if ( !is_string( $searchDomain ) || !trim( $searchDomain ) ) {
+			throw new InvalidArgumentException( 'invalid default search domain' );
+		}
+
+		return trim( $searchDomain );
 	}
 }
