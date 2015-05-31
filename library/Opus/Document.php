@@ -1014,8 +1014,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
         // De-fatalize Search Index errors.
         try {
             // Remove from index
-            $indexer = new Opus_SolrSearch_Index_Indexer();
-            $indexer->removeDocumentFromEntryIndex($this);
+            Opus_Search_Service::selectIndexingService()->removeDocumentsFromIndex( $this );
         }
         catch (Exception $e) {
             $this->logger("removeDocumentFromIndex failed: " . $e->getMessage());
@@ -1058,6 +1057,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * The array is sorted ascending according to the sortOrder and the fileId, see compareFiles().
      *
      * Overwrites getFile()-method
+     *
+     * @return Opus_File[]
      */
     public function getFile($param = null) {
         if (is_null($param)) {

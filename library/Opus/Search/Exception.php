@@ -34,12 +34,20 @@
  */
 
 /**
- * Implements exception to be commonly thrown on errors while processing methods
- * implementing interfaces Opus_Search_Indexable and/or Opus_Search_Searchable.
+ * Implements common exception to be used in code of search engine adapters.
  */
 
 class Opus_Search_Exception extends Exception {
 	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
 		parent::__construct( $message, $code, $previous );
+	}
+
+	public function __toString() {
+		$previousMessage = '';
+		if ( !is_null( $this->getPrevious() ) ) {
+			$previousMessage = $this->getPrevious()->getMessage();
+		}
+
+		return 'unknown error while trying to search: ' . $previousMessage;
 	}
 }

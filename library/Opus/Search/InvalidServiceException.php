@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,25 +26,28 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
+ * Indicates invalid service e.g. due to being unavailable/offline.
  */
 
-interface Opus_Search_Extractable {
-	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
-	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+class Opus_Search_InvalidServiceException extends Opus_Search_Exception {
+	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
+		parent::__construct( $message, $code, $previous );
+	}
+
+	public function __toString() {
+		$previousMessage = '';
+		if ( !is_null( $this->getPrevious() ) ) {
+			$previousMessage = $this->getPrevious()->getMessage();
+		}
+
+		return 'search engine is unreachable: ' . $previousMessage;
+	}
 }

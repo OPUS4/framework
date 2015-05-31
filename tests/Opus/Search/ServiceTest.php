@@ -36,14 +36,14 @@
 class Opus_Search_ServiceTest extends TestCase {
 
 	public function testProvidesSearchConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'search', 'solr' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'search', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'search', $config->marker );
 	}
 
 	public function testProvidesIndexConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'index', 'solr' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'index', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'index', $config->marker );
@@ -53,7 +53,7 @@ class Opus_Search_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesExtractConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'extract', 'solr' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'extract', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'extract', $config->marker );
@@ -63,7 +63,7 @@ class Opus_Search_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesDefaultConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'default', 'solr' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'default', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'default', $config->marker );
@@ -73,7 +73,7 @@ class Opus_Search_ServiceTest extends TestCase {
 	}
 
 	public function testProvidesDefaultConfigurationAsFallback() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'missing', 'solr' );
+		$config = Opus_Search_Service::getServiceConfiguration( 'missing', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertEquals( 'default', $config->marker );

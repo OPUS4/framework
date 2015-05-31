@@ -54,7 +54,7 @@ class Opus_Job_RunnerTest extends TestCase {
     }
 
     public function testRunIndexWorkerWithInvalidJob() {
-        
+
         $document = new Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
@@ -68,7 +68,6 @@ class Opus_Job_RunnerTest extends TestCase {
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
 
         $runner = new Opus_Job_Runner();
         $runner->registerWorker($indexWorker);
@@ -79,11 +78,11 @@ class Opus_Job_RunnerTest extends TestCase {
         $error = $job->getErrors();
         $this->assertNotEquals('', $error, 'Expected error message from job.');
 //        $job->delete();
-        
+
     }
 
     public function testRunIndexWorkerWithValidJob() {
-        
+
         $document = new Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
@@ -97,7 +96,6 @@ class Opus_Job_RunnerTest extends TestCase {
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
 
         $runner = new Opus_Job_Runner();
         $runner->registerWorker($indexWorker);
@@ -107,7 +105,7 @@ class Opus_Job_RunnerTest extends TestCase {
         if($job instanceof Opus_Job)
             $job->delete();
     }
-    
+
 
 }
 

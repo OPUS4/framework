@@ -33,27 +33,21 @@
  */
 
 
+/**
+ * This class provides some base class for implementing search engine adapters
+ * on behalf on Opus4.
+ *
+ * An adapter is a class providing unified access on several kinds of search
+ * engine backends with each backend providing one or more adapters implementing
+ * required interfaces Opus_Search_Searchable, Opus_Search_Indexable and
+ * Opus_Search_Extractable each.
+ */
+
 abstract class Opus_Search_Adapter {
-
-	protected $parametersFactory;
-
 	/**
 	 * Retrieves name of current adapter's search engine domain.
 	 *
 	 * @return string
 	 */
 	abstract public function getDomain();
-
-	/**
-	 * Retrieves current adapter's query factory.
-	 *
-	 * @return Opus_Search_ParametersFactory
-	 */
-	public function getParametersFactory() {
-		if ( !( $this->parametersFactory instanceof Opus_Search_ParametersFactory ) ) {
-			$this->parametersFactory = new Opus_Search_ParametersFactory( $this );
-		}
-
-		return $this->parametersFactory;
-	}
 }

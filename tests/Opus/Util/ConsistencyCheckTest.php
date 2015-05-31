@@ -101,10 +101,10 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
     public function testWithInconsistentStateAfterModifyingDocument() {
 	    $searcher = Opus_Search_Service::selectSearchingService();
-	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
+	    $query    = Opus_Search_QueryFactory::selectDocumentById( $searcher, $this->docId );
 
 	    $result = $searcher->customSearch( $query );
-        $resultList = $result->getMatches();
+        $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
@@ -118,10 +118,10 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
         $this->restoreSolrConfig();
 
         $searcher = Opus_Search_Service::selectSearchingService();
-        $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
+        $query    = Opus_Search_QueryFactory::selectDocumentById( $searcher, $this->docId );
 
         $result = $searcher->customSearch( $query );
-        $resultList = $result->getMatches();
+        $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() < $this->doc->getServerDateModified()->getUnixTimestamp(), 'change of serverDateModified is not reflected in Solr index');
@@ -130,10 +130,10 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
         $consistencyCheck->run();
 
 	    $searcher = Opus_Search_Service::selectSearchingService();
-	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
+	    $query    = Opus_Search_QueryFactory::selectDocumentById( $searcher, $this->docId );
 
 	    $result = $searcher->customSearch( $query );
-	    $resultList = $result->getMatches();
+	    $resultList = $result->getReturnedMatches();
 
 	    $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
         $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
@@ -167,7 +167,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
     private function isDocumentInSearchIndex() {
 	    $searcher = Opus_Search_Service::selectSearchingService();
-	    $query    = $searcher->getParametersFactory()->selectDocumentId( $this->docId );
+	    $query    = Opus_Search_QueryFactory::selectDocumentById( $searcher, $this->docId );
         $result   = $searcher->customSearch( $query );
         return $result->getAllMatchesCount() == 1;
     }

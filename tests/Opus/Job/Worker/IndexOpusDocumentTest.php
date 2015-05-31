@@ -37,21 +37,20 @@ class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
      * Tests working on job.
      */
     public function testWork() {
-        
+
         $document = new Opus_Document();
         $document->setServerState('published');
         $documentId = $document->store();
-        
-        
+
+
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
         $job->setData(array(
             'documentId' => $documentId,
             'task' => 'index'));
-        
+
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
-        
+
         $indexWorker->work($job);
 
     }

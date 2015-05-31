@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,25 +26,30 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
+ * Describes base for all terms describing conditions to be met by matching
+ * documents.
+ *
+ * This class is part of API used to describe query terms independently of any
+ * actually used search engine. Declared abstract method compile() has to be
+ * provided by search engine adapters for converting described filter terms into
+ * search query string complying with query syntax of particular search engine.
  */
 
-interface Opus_Search_Extractable {
+abstract class Opus_Search_Filter_Base implements Opus_Search_Filtering {
+
 	/**
-	 * Extracts provided file of document.
+	 * Compiles filter description to term for use with search engine adapter.
 	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
+	 * @param mixed $context adapter-specific reference on context the compiled term will be queried in
+	 * @return string|null compiled term for use in given context, null if context has been prepared internally already
 	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	abstract public function compile( $context );
 }

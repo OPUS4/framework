@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,7 +26,6 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -35,17 +33,20 @@
  */
 
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
+ * Implements support for passing raw Solr query terms.
+ *
+ * @note This class is provided for supporting backward compatibility, only.
+ *
+ * @deprecated
  */
+class Opus_Search_Solr_Filter_Raw extends Opus_Search_Filter_Base {
+	protected $rawTerm;
 
-interface Opus_Search_Extractable {
-	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
-	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	public function __construct( $rawTerm ) {
+		$this->rawTerm = $rawTerm;
+	}
+
+	public function compile( $context ) {
+		return $this->rawTerm;
+	}
 }

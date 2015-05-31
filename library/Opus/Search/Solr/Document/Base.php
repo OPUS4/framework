@@ -128,7 +128,7 @@ abstract class Opus_Search_Solr_Document_Base {
 	 * @param Opus_File $file
 	 * @return string
 	 */
-	private function getFulltextHash($file) {
+	private function getFulltextHash( Opus_File $file ) {
 		$hash = '';
 
 		try {

@@ -67,31 +67,26 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
-searchengine.solr.adapter = Opus_Search_Solr_Solarium_Adapter
-searchengine.solr.service.default.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.service.default.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.service.default.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
-searchengine.solr.service.default.marker = default
+searchengine.solr.adapterClass = Opus_Search_Solr_Solarium_Adapter
+searchengine.solr.default.service.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.default.service.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.default.service.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.default.service.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
+searchengine.solr.default.service.marker = default
 
-searchengine.solr.service.index.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.service.index.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.service.index.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.service.index.marker = index
+searchengine.solr.default.service.index.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.default.service.index.marker = index
 
-searchengine.solr.service.extract.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.service.extract.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.service.extract.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.service.extract.marker = extract
+searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.default.service.search.marker = search
 
-searchengine.solr.service.search.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.service.search.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.service.search.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.service.search.marker = search
-
-searchengine.solr.service.disfunct.endpoint.primary.host = 1.2.3.4
-searchengine.solr.service.disfunct.endpoint.primary.port = 12345
-searchengine.solr.service.disfunct.endpoint.primary.path = /solr-disfunct/
+searchengine.solr.disfunct.service.endpoint.primary.host = 1.2.3.4
+searchengine.solr.disfunct.service.endpoint.primary.port = 12345
+searchengine.solr.disfunct.service.endpoint.primary.path = /solr-disfunct/
 
 searchengine.solr.query.alldocs.query = "*:*"
 

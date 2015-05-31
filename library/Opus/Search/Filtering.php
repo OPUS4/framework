@@ -33,47 +33,5 @@
  */
 
 
-class Opus_Search_ParametersFactory {
-
-	protected $adapter;
-
-	public function __construct( Opus_Search_Adapter $adapter ) {
-		$this->adapter = $adapter;
-	}
-
-	/**
-	 * Creates query parameter set prepared for searching all documents.
-	 *
-	 * @return Opus_Search_Parameters
-	 */
-	public function selectAllDocuments() {
-		return Opus_Search_Service::createDomainParameters( $this->adapter->getDomain() )
-			->addFilter( '*', '*' );
-	}
-
-	/**
-	 * Creates query parameter set prepared for searching given document.
-	 *
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Parameters
-	 */
-	public function selectDocument( Opus_Document $document ) {
-		return $this->selectDocumentId( $document->getId() );
-	}
-
-	/**
-	 * Creates query parameter set prepared for searching document by given ID.
-	 *
-	 * @param int $documentId
-	 * @return Opus_Search_Parameters
-	 */
-	public function selectDocumentId( $documentId ) {
-		if ( !ctype_digit( trim( $documentId ) ) || !$documentId ) {
-			throw new InvalidArgumentException( 'invalid document ID' );
-		}
-
-		return Opus_Search_Service::createDomainParameters( $this->adapter->getDomain() )
-			->addFilter( 'id', intval( $documentId ) );
-	}
-
+interface Opus_Search_Filtering {
 }

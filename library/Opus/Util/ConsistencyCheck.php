@@ -35,7 +35,7 @@
 class Opus_Util_ConsistencyCheck {
 
     private $logger;
-    
+
     private $searcher;
 
     private $indexer;
@@ -45,14 +45,12 @@ class Opus_Util_ConsistencyCheck {
     private $numOfUpdates = 0;
 
     private $numOfDeletions = 0;
-    
-    // disable cross-checking of document IDs from Solr index against database
-    private $validateDocIds = false;
+
 
     public function __construct($logger = null) {
         $this->logger = is_null($logger) ? Zend_Registry::get('Zend_Log') : $logger;
-        $this->searcher = new Opus_SolrSearch_Searcher();
-        $this->indexer = new Opus_SolrSearch_Index_Indexer();                
+        $this->searcher = Opus_Search_Service::selectSearchingService();
+        $this->indexer = Opus_Search_Service::selectIndexingService();
     }
 
     public function run() {
@@ -68,7 +66,7 @@ class Opus_Util_ConsistencyCheck {
             $this->logger->info("number of deletions: $this->numOfDeletions");
             $numOfErrors = $this->numOfInconsistencies - $resolvedInconsistencies;
             if ($numOfErrors > 0) {
-                $this->log->err("$numOfErrors error(s) occurred -- check log messages above for more details.");
+                $this->logger->err("$numOfErrors error(s) occurred -- check log messages above for more details.");
             }
         }
         else {
@@ -83,7 +81,7 @@ class Opus_Util_ConsistencyCheck {
      * Check for each database document in serverState publish if it exists in
      * Solr index. Furthermore, compare field value of serverDateModified in
      * database and Solr index.
-     * 
+     *
      */
     private function checkDatabase() {
         $finder = new Opus_DocumentFinder();
@@ -104,47 +102,46 @@ class Opus_Util_ConsistencyCheck {
             $serverDataModified = $doc->getServerDateModified()->getUnixTimestamp();
 
             // retrieve document from index and compare serverDateModified fields
-            $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::DOC_ID);
-            $query->setField('id', $id);
-            $resultList = $this->searcher->search($query, $this->validateDocIds);
-            $results = $resultList->getResults();
-            if ($resultList->getNumberOfHits() == 0) {
-                $this->logger->info("inconsistency found for document $id: document is in database, but is not in Solr index.");
-                $this->numOfInconsistencies++;
-                if ($this->forceReindexing($doc)) {
-                    $this->numOfUpdates++;
-                }
-            }
-            else if ($resultList->getNumberOfHits() == 1) {
-                if ($results[0]->getServerDateModified() != $serverDataModified) {
-                    $this->numOfInconsistencies++;
-                    $this->logger->info("inconsistency found for document $id: mismatch between values of server_date_modified in database and Solr index.");
-                    if ($this->forceReindexing($doc)) {
-                        $this->numOfUpdates++;
-                    }
-                }
-            }
-            else {
-                $this->logger->err('unexpected state: document with id ' . $id . ' exists multiple times in index.');
-            }
+            $query = Opus_Search_QueryFactory::selectDocumentById( $this->searcher, $id );
+            $result = $this->searcher->customSearch( $query );
 
+	        switch ( $result->getAllMatchesCount() ) {
+		        case 0 :
+			        $this->logger->info("inconsistency found for document $id: document is in database, but is not in Solr index.");
+			        $this->numOfInconsistencies++;
+			        if ($this->forceReindexing($doc)) {
+				        $this->numOfUpdates++;
+			        }
+		            break;
+
+		        case 1 :
+			        if ( $result->getReturnedMatches()[0]->getServerDateModified() != $serverDataModified ) {
+				        $this->numOfInconsistencies++;
+				        $this->logger->info("inconsistency found for document $id: mismatch between values of server_date_modified in database and Solr index.");
+				        if ($this->forceReindexing($doc)) {
+					        $this->numOfUpdates++;
+				        }
+			        }
+	                break;
+
+		        default :
+			        $this->logger->err('unexpected state: document with id ' . $id . ' exists multiple times in index.');
+	        }
         }
     }
 
     /**
      * Find documents in Solr index, that are not in database or that are in
-     * datbase but not in serverState published Remove such documents from Solr
+     * database but not in serverState published Remove such documents from Solr
      * index.
-     * 
+     *
      */
     private function checkSearchIndex() {
-        $query = new Opus_SolrSearch_Query();
-        $query->setCatchAll("*:*");
-        $query->setRows(Opus_SolrSearch_Query::MAX_ROWS);
-        $resultList = $this->searcher->search($query, $this->validateDocIds);
-        $results = $resultList->getResults();
-        foreach ($results as $result) {
-            $id = $result->getId();
+	    $query = Opus_Search_QueryFactory::selectAllDocuments( $this->searcher );
+	    $result = $this->searcher->customSearch( $query );
+
+        $results = $result->getReturnedMatchingIds();
+        foreach ($results as $id) {
             try {
                 $doc = new Opus_Document($id);
             }
@@ -175,10 +172,9 @@ class Opus_Util_ConsistencyCheck {
     private function forceReindexing($doc) {
         try {
             $doc->unregisterPlugin('Opus_Document_Plugin_Index'); // prevent document from being indexed twice
-            $this->indexer->addDocumentToEntryIndex($doc);
-            $this->indexer->commit();
+            $this->indexer->addDocumentsToIndex( $doc );
         }
-        catch (Opus_SolrSearch_Exception $e) {
+        catch (Opus_Search_Exception $e) {
             $this->logger->err('Could not force reindexing of document ' . $doc->getId() . ' : ' . $e->getMessage());
             return false;
         }
@@ -193,10 +189,9 @@ class Opus_Util_ConsistencyCheck {
      */
     private function removeDocumentFromSearchIndex($id) {
         try {
-            $this->indexer->removeDocumentFromEntryIndexById($id);
-            $this->indexer->commit();
+            $this->indexer->removeDocumentsFromIndexById( $id );
         }
-        catch (Opus_SolrSearch_Exception $e) {
+        catch (Opus_Search_Exception $e) {
             $this->logger->err('Could not delete document ' . $id . ' from index : ' . $e->getMessage());
             return false;
         }

@@ -27,25 +27,45 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
+class Opus_Search_Solr_Filter_Helper {
+	public static function escapePhrase( $term ) {
+		$term = trim( $term );
 
-/**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
- */
+		// add one " to the end of $query if it contains an odd number of "
+		if ( substr_count( $term, '"' ) % 2 == 1 ) {
+			$term .= '"';
+		}
 
-interface Opus_Search_Extractable {
-	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
-	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+		// escape special characters (currently ignore " \* \?) outside of ""
+		$insidePhrase = false;
+		$result       = '';
+
+		foreach ( explode( '"', $term ) as $phrase ) {
+			if ( $insidePhrase ) {
+				$result .= '"' . $phrase . '"';
+			} else {
+				$phrase = static::lowercaseLiterals( $phrase );
+				$result .= preg_replace( '/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/', '\\\$1', $phrase );
+			}
+
+			$insidePhrase = !$insidePhrase;
+		}
+
+		return $result;
+	}
+
+	protected static function lowercaseLiterals( $query ) {
+		// check if $query is a wildcard query
+		if ( strpos( $query, '*' ) === false && strpos( $query, '?' ) === false ) {
+			return $query;
+		}
+
+		// lowercase query
+		return strtolower( $query );
+	}
 }

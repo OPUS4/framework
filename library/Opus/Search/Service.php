@@ -34,7 +34,32 @@
 
 class Opus_Search_Service {
 
-	protected static $pool = array();
+	protected static $adaptersPool = array();
+
+
+	/**
+	 * Validates provided explicit selection of search domain using any
+	 * configured domain by default.
+	 *
+	 * @note If configuration is missing explicit definition of default search
+	 *       domain, "solr" is returned by default.
+	 *
+	 * @param string $searchDomain explicitly selected search domain
+	 * @return string
+	 */
+	public static function getQualifiedDomain( $searchDomain = null ) {
+		if ( is_null( $searchDomain ) ) {
+			$config = Opus_Search_Config::getConfiguration();
+			$searchDomain = $config->get( 'domain', 'solr' );
+		}
+
+		if ( !is_string( $searchDomain ) || !trim( $searchDomain ) ) {
+			throw new InvalidArgumentException( 'invalid default search domain' );
+		}
+
+		return trim( $searchDomain );
+	}
+
 
 	/**
 	 * @param string $serviceType one out of 'index', 'search' or 'extract'
@@ -45,31 +70,30 @@ class Opus_Search_Service {
 	 * @throws Zend_Config_Exception
 	 */
 	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null ) {
+		// manage pool of domains
 		$serviceDomain = static::getQualifiedDomain( $serviceDomain );
 
-		if ( !$serviceName ) {
-			$serviceName = 'default';
-		}
-
-		if ( !array_key_exists( $serviceDomain, self::$pool ) ) {
-			self::$pool[$serviceDomain] = array(
+		if ( !array_key_exists( $serviceDomain, self::$adaptersPool ) ) {
+			self::$adaptersPool[$serviceDomain] = array(
 				'index'   => array(),
 				'search'  => array(),
 				'extract' => array(),
 			);
 		}
 
-		$domainPool =& self::$pool[$serviceDomain];
+		$domainPool =& self::$adaptersPool[$serviceDomain];
+
+		// select one of several probably configured service
+		if ( !$serviceName ) {
+			$serviceName = 'default';
+		}
 
 		if ( !array_key_exists( $serviceName, $domainPool[$serviceType] ) ) {
-			$config    = static::getDomainConfiguration( $serviceDomain );
+			$config = Opus_Search_Config::getServiceConfiguration( $serviceType, $serviceName, $serviceDomain );
 
-			$className = $config->adapter;
-			if ( $className instanceof Zend_Config ) {
-				$className = $className->get( $serviceName, $className->get( 'default' ) );
-				if ( !$className ) {
-					throw new Zend_Config_Exception( 'missing search engine adapter' );
-				}
+			$className = $config->adapterClass;
+			if ( !$className || $className instanceof Zend_Config ) {
+				throw new Zend_Config_Exception( 'missing search engine adapter' );
 			}
 
 			$class = new ReflectionClass( $className );
@@ -78,7 +102,7 @@ class Opus_Search_Service {
 				throw new Zend_Config_Exception( 'invalid search engine adapter' );
 			}
 
-			$domainPool[$serviceType][$serviceName] = $class->newInstance( $serviceName );
+			$domainPool[$serviceType][$serviceName] = $class->newInstance( $serviceName, $config );
 		}
 
 		return $domainPool[$serviceType][$serviceName];
@@ -112,92 +136,5 @@ class Opus_Search_Service {
 	 */
 	public static function selectExtractingService( $serviceName = null, $serviceDomain = null ) {
 		return static::selectService( 'extract', 'Opus_Search_Extractable', $serviceName, $serviceDomain );
-	}
-
-	/**
-	 * Retrieves extract from configuration regarding integration with some
-	 * search engine.
-	 *
-	 * @return Zend_Config
-	 */
-	public static function getConfiguration() {
-		return Opus_Config::get()->searchengine;
-	}
-
-	/**
-	 * Retrieves extract from configuration regarding integration with search
-	 * engine of selected domain.
-	 *
-	 * @param string $serviceDomain name of a search engine's domain
-	 * @return Zend_Config
-	 */
-	public static function getDomainConfiguration( $serviceDomain = null ) {
-		$serviceDomain = static::getQualifiedDomain( $serviceDomain );
-
-		$config = static::getConfiguration()->get( $serviceDomain );
-		if ( !( $config instanceof Zend_Config ) ) {
-			throw new InvalidArgumentException( 'invalid search engine domain: ' . $serviceDomain );
-		}
-
-		return $config;
-	}
-
-	/**
-	 * Retrieves configuration of selected Solr integration service.
-	 *
-	 * @note Default is retrieved if explicitly selected service is missing.
-	 *
-	 * @param string $serviceName name of service, omit for 'default'
-	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Zend_Config
-	 */
-	public static function getServiceConfiguration( $serviceName = null, $serviceDomain = null ) {
-		$config = static::getDomainConfiguration( $serviceDomain )->service;
-
-		if ( !$serviceName || !is_string( $serviceName ) ) {
-			$serviceName = 'default';
-		}
-
-		return $config->get( $serviceName, $config->default );
-	}
-
-	/**
-	 * Retrieves new instance for managing parameters in selected search engine
-	 * domain.
-	 *
-	 * @param string $serviceDomain desired name of search engine's domain to manage parameters for
-	 * @return Opus_Search_Parameters
-	 */
-	public static function createDomainParameters( $serviceDomain = null ) {
-		switch ( static::getQualifiedDomain( $serviceDomain ) ) {
-			case 'solr' :
-				return new Opus_Search_Solr_Parameters();
-
-			default :
-				throw new InvalidArgumentException( 'invalid search engine domain' );
-		}
-	}
-
-	/**
-	 * Validates provided explicit selection of search domain using any
-	 * configured domain by default.
-	 *
-	 * @note If configuration is missing explicit definition of default search
-	 *       domain, "solr" is returned by default.
-	 *
-	 * @param string $searchDomain explicitly selected search domain
-	 * @return string
-	 */
-	protected static function getQualifiedDomain( $searchDomain = null ) {
-		if ( is_null( $searchDomain ) ) {
-			$config = static::getConfiguration();
-			$searchDomain = $config->get( 'domain', 'solr' );
-		}
-
-		if ( !is_string( $searchDomain ) || !trim( $searchDomain ) ) {
-			throw new InvalidArgumentException( 'invalid default search domain' );
-		}
-
-		return trim( $searchDomain );
 	}
 }

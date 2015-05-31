@@ -33,4 +33,4 @@
  */
 
 
-class Opus_Search_Solr_Parameters extends Opus_Search_Parameters {}
+class Opus_Search_Solr_Query extends Opus_Search_Query {}

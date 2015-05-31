@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -27,25 +26,60 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
+ * Implements globally available methods for creating pre-configured instances
+ * of Opus_Search_Query describing search requests frequently used in Opus.
  */
 
-interface Opus_Search_Extractable {
+class Opus_Search_QueryFactory {
+
 	/**
-	 * Extracts provided file of document.
+	 * Creates query on provided adapter initially searching all documents.
 	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
+	 * @param Opus_Search_Searchable $adapter
+	 * @return Opus_Search_Query
 	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	public static function selectAllDocuments( Opus_Search_Searchable $adapter ) {
+		$filter = $adapter->createFilter();
+		$filter->createSimpleEqualityFilter( '*' )->addValue( '*' );
+
+		return $adapter->createQuery()->setSubFilter( "alldocs", $filter );
+	}
+
+	/**
+	 * Creates query on provided adapter initially searching given document.
+	 *
+	 * @param Opus_Search_Searchable $adapter
+	 * @param Opus_Document $document
+	 * @return Opus_Search_Query
+	 */
+	public static function selectDocument( Opus_Search_Searchable $adapter, Opus_Document $document ) {
+		$filter = $adapter->createFilter();
+		$filter->createSimpleEqualityFilter( 'id' )->addValue( $document->getId() );
+
+		return $adapter->createQuery()->setFilter( $filter );
+	}
+
+	/**
+	 * Creates query on provided adapter initially searching document by given
+	 * ID.
+	 *
+	 * @param Opus_Search_Searchable $adapter
+	 * @param int $documentId
+	 * @return Opus_Search_Query
+	 */
+	public static function selectDocumentById( Opus_Search_Searchable $adapter, $documentId ) {
+		$filter = $adapter->createFilter();
+		$filter->createSimpleEqualityFilter( 'id' )->addValue( $documentId );
+
+		return $adapter->createQuery()->setFilter( $filter );
+	}
+
 }
