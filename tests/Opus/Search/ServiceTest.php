@@ -35,61 +35,6 @@
 
 class Opus_Search_ServiceTest extends TestCase {
 
-	public function testProvidesSearchConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'search', null, 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertEquals( 'search', $config->marker );
-	}
-
-	public function testProvidesIndexConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'index', null, 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertEquals( 'index', $config->marker );
-		$this->assertNotNull( $config->endpoint->primary->host );
-		$this->assertNotNull( $config->endpoint->primary->port );
-		$this->assertNotNull( $config->endpoint->primary->path );
-	}
-
-	public function testProvidesExtractConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'extract', null, 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertEquals( 'extract', $config->marker );
-		$this->assertNotNull( $config->endpoint->primary->host );
-		$this->assertNotNull( $config->endpoint->primary->port );
-		$this->assertNotNull( $config->endpoint->primary->path );
-	}
-
-	public function testProvidesDefaultConfiguration() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'default', null, 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertEquals( 'default', $config->marker );
-		$this->assertNotNull( $config->endpoint->primary->host );
-		$this->assertNotNull( $config->endpoint->primary->port );
-		$this->assertNotNull( $config->endpoint->primary->path );
-	}
-
-	public function testProvidesDefaultConfigurationAsFallback() {
-		$config = Opus_Search_Service::getServiceConfiguration( 'missing', null, 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertEquals( 'default', $config->marker );
-		$this->assertNotNull( $config->endpoint->primary->host );
-		$this->assertNotNull( $config->endpoint->primary->port );
-		$this->assertNotNull( $config->endpoint->primary->path );
-	}
-
-	public function testProvidesAllSolrConfiguration() {
-		$config = Opus_Search_Service::getDomainConfiguration( 'solr' );
-
-		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->service );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
-	}
-
 	public function testProvidesIndexService() {
 		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
 

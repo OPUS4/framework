@@ -404,12 +404,72 @@ class Opus_Search_Query {
 		return $this->_data['subfilters'];
 	}
 
+	public static function getParameterDefault( $name, $fallbackIfMissing, $oldName = null ) {
+		$config   = Opus_Search_Config::getDomainConfiguration();
+		$defaults = $config->parameterDefaults;
+
+		if ( $defaults instanceof Zend_Config ) {
+			return $defaults->get( $name, $fallbackIfMissing );
+		}
+
+		if ( $oldName ) {
+			return $config->get( $oldName, $fallbackIfMissing );
+		}
+
+		return $fallbackIfMissing;
+	}
+
+	/**
+	 * Retrieves configured default offset for paging results.
+	 *
+	 * @return int
+	 */
+	public static function getDefaultStart() {
+		return static::getParameterDefault( 'start', 0 );
+	}
+
 	/**
 	 * Retrieves configured default number of rows to show (per page).
 	 *
 	 * @return int
 	 */
 	public static function getDefaultRows() {
-		return Opus_Search_Config::getDomainConfiguration()->get( 'numberOfDefaultSearchResults', 10 );
+		return static::getParameterDefault( 'rows', 10, 'numberOfDefaultSearchResults' );
+	}
+
+	/**
+	 * Retrieves configured default sorting.
+	 *
+	 * @return string[]
+	 */
+	public static function getDefaultSorting() {
+		$sorting = static::getParameterDefault( 'sortField', 'score desc' );
+
+		$parts = preg_split( '/[\s,]+/', trim( $sorting ), null, PREG_SPLIT_NO_EMPTY );
+
+		$sorting = array( array_shift( $parts ) );
+
+		if ( !count( $parts ) ) {
+			$sorting[] = 'asc';
+		} else {
+			$dir = array_shift( $parts );
+			if ( strcasecmp( $dir, 'asc' ) || strcasecmp( $dir, 'desc' ) ) {
+				$dir = 'asc';
+			}
+
+			$sorting[] = strtolower( $dir );
+		}
+
+		return $sorting;
+	}
+
+	/**
+	 * Retrieves configured name of field to use for sorting results by default.
+	 *
+	 * @return string
+	 */
+	public static function getDefaultSortingField() {
+		$sorting = static::getDefaultSorting();
+		return $sorting[0];
 	}
 }
