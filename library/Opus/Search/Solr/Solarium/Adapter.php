@@ -87,6 +87,23 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		return $result;
 	}
 
+	/**
+	 * Maps name of field returned by search engine into name of asset to use
+	 * on storing field's value in context of related match.
+	 *
+	 * This mapping relies on runtime configuration.
+	 *
+	 * @param string $fieldName
+	 * @return string
+	 */
+	protected function mapResultFieldToAsset( $fieldName ) {
+		if ( $this->options->fieldToAsset instanceof Zend_Config ) {
+			return $this->options->fieldToAsset->get( $fieldName, $fieldName );
+		}
+
+		return $fieldName;
+	}
+
 
 	/*
 	 *
@@ -316,16 +333,31 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 		// add description on every returned match
 		$excluded = 0;
 		foreach ( $request->getDocuments() as $document ) {
-			if ( array_key_exists( 'id', $document ) ) {
-				$match = $result->addMatch( $document['id'] );
+			/** @var Solarium\QueryType\Select\Result\Document $document */
+			$fields = $document->getFields();
 
-				if ( array_key_exists( 'score', $document ) ) {
-					$match->setScore( $document['score'] );
+			if ( array_key_exists( 'id', $fields ) ) {
+				$match = $result->addMatch( $fields['id'] );
+
+				foreach ( $fields as $fieldName => $fieldValue ) {
+					switch ( $fieldName ) {
+						case 'id' :
+							break;
+
+						case 'score' :
+							$match->setScore( $fieldValue );
+							break;
+
+						case 'server_date_modified' :
+							$match->setServerDateModified( $fieldValue );
+							break;
+
+						default :
+							$match->setAsset( $this->mapResultFieldToAsset( $fieldName ), $fieldValue );
+							break;
+					}
 				}
 
-				if ( array_key_exists( 'server_date_modified', $document ) ) {
-					$match->setServerDateModified( $document['server_date_modified'] );
-				}
 			} else {
 				$excluded++;
 			}
@@ -409,8 +441,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			if ( $facet !== null ) {
 				$facetSet = $query->getFacetSet();
 				foreach ( $facet->getFields() as $field ) {
-					$facetSet->createFacetField( $field )
-					         ->setField( $field )
+					$facetSet->createFacetField( $field->getName() )
+					         ->setField( $field->getName() )
 					         ->setMinCount( $field->getMinCount() )
 					         ->setLimit( $field->getLimit() );
 				}

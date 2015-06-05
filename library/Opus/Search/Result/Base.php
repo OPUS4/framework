@@ -170,7 +170,7 @@ class Opus_Search_Result_Base {
 	 * Retrieves set of matching and locally existing documents returned in
 	 * response to some search query.
 	 *
-	 * @return Opus_Document[]
+	 * @return Opus_Search_Result_Match[]
 	 */
 	public function getReturnedMatches() {
 		if ( is_null( $this->data['matches'] ) ) {
@@ -184,7 +184,8 @@ class Opus_Search_Result_Base {
 		foreach ( $this->data['matches'] as $match ) {
 			try {
 				/** @var Opus_Search_Result_Match $match */
-				$matches[] = $match->getDocument();
+				$match->getDocument();
+				$matches[] = $match;
 			} catch ( Opus_Document_Exception $e ) {
 				Opus_Log::get()->warn( 'skipping matching but locally missing document #' . $match->getId() );
 			}

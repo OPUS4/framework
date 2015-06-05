@@ -92,6 +92,8 @@ class Opus_SolrSearch_Searcher {
 		            break;
 
 		        default :
+					$request->addSorting( $query->getSortField(), $query->getSortOrder() );
+
 			        if ( $query->isReturnIdsOnly() ) {
 				        $request
 					        ->setFields( 'id' );
