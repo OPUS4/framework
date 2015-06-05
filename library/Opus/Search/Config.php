@@ -51,6 +51,14 @@ class Opus_Search_Config {
 
 
 	/**
+	 * Drops any cached configuration.
+	 *
+	 */
+	public static function dropCached() {
+		self::$configurationsPool = array();
+	}
+
+	/**
 	 * Retrieves extract from configuration regarding integration with some
 	 * search engine.
 	 *
@@ -118,12 +126,14 @@ class Opus_Search_Config {
 			$result->merge( $config->default->service->{$serviceType} );
 		}
 
-		if ( isset( $config->{$serviceName}->service ) ) {
-			$result->merge( $config->{$serviceName}->service );
-		}
+		if ( $serviceName && $serviceName != 'default' ) {
+			if ( isset( $config->{$serviceName}->service ) ) {
+				$result->merge( $config->{$serviceName}->service );
+			}
 
-		if ( isset( $config->{$serviceName}->service->{$serviceType} ) ) {
-			$result->merge( $config->{$serviceName}->service->{$serviceType} );
+			if ( isset( $config->{$serviceName}->service->{$serviceType} ) ) {
+				$result->merge( $config->{$serviceName}->service->{$serviceType} );
+			}
 		}
 
 		$result->setReadOnly();

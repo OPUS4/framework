@@ -72,6 +72,26 @@ class Opus_Search_ConfigTest extends TestCase {
 		$this->assertNotNull( $config->endpoint->primary->path );
 	}
 
+	public function testProvidesSpecialSearchConfiguration() {
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'special', 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertEquals( 'search2', $config->marker );
+		$this->assertEquals( '127.0.0.2', $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertEquals( '/solr-special/', $config->endpoint->primary->path );
+	}
+
+	public function testProvidesSpecialExtractConfiguration() {
+		$config = Opus_Search_Config::getServiceConfiguration( 'extract', 'special', 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertEquals( 'extract2', $config->marker );
+		$this->assertNotNull( $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertEquals( '/solr-special/', $config->endpoint->primary->path );
+	}
+
 	public function testProvidesDefaultConfigurationAsFallback() {
 		$config = Opus_Search_Config::getServiceConfiguration( 'missing', null, 'solr' );
 
@@ -86,7 +106,23 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getDomainConfiguration( 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
-		$this->assertInstanceOf( 'Zend_Config', $config->service );
+		$this->assertInstanceOf( 'Zend_Config', $config->default );
+		$this->assertInstanceOf( 'Zend_Config', $config->special );
 		$this->assertInstanceOf( 'Zend_Config', $config->query );
 	}
+
+	public function testProvidesCachedConfiguration() {
+		$configA = Opus_Search_Config::getServiceConfiguration( 'search' );
+		$configB = Opus_Search_Config::getServiceConfiguration( 'search' );
+
+		$this->assertTrue( $configA === $configB );
+
+		Opus_Search_Config::dropCached();
+
+		$configC = Opus_Search_Config::getServiceConfiguration( 'search' );
+
+		$this->assertTrue( $configA === $configB );
+		$this->assertTrue( $configA !== $configC );
+	}
+
 }

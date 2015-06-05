@@ -67,8 +67,8 @@ class Opus_Search_Result_Base {
 	 * @return Opus_Search_Result_Match
 	 */
 	public function addMatch( $documentId ) {
-		if ( !is_array( $this->data['mathes'] ) ) {
-			$this->data['mathes'] = array();
+		if ( !is_array( $this->data['matches'] ) ) {
+			$this->data['matches'] = array();
 		}
 
 		$match = Opus_Search_Result_Match::create( $documentId );

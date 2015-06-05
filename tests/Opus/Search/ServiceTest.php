@@ -55,4 +55,19 @@ class Opus_Search_ServiceTest extends TestCase {
 		$this->assertInstanceOf( 'Opus_Search_Searchable', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
+
+	public function testCachingService() {
+		$searchA = Opus_Search_Service::selectSearchingService( null, 'solr' );
+		$searchB = Opus_Search_Service::selectSearchingService( null, 'solr' );
+
+		$this->assertTrue( $searchA === $searchB );
+
+		Opus_Search_Service::dropCached();
+
+		$searchC = Opus_Search_Service::selectSearchingService( null, 'solr' );
+
+		$this->assertTrue( $searchA === $searchB );
+		$this->assertTrue( $searchA !== $searchC );
+	}
+
 }

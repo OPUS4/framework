@@ -74,7 +74,6 @@ searchengine.solr.default.service.endpoint.primary.path = @searchengine.default.
 searchengine.solr.default.service.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
 searchengine.solr.default.service.marker = default
 
-searchengine.solr.default.service.index.endpoint.primary.host = @searchengine.default.host@
 searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.default.port@
 searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.default.path@
 searchengine.solr.default.service.index.marker = index
@@ -83,6 +82,15 @@ searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.d
 searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.default.port@
 searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.default.path@
 searchengine.solr.default.service.search.marker = search
+
+searchengine.solr.default.service.extract.marker = extract
+
+searchengine.solr.special.service.endpoint.primary.path = /solr-special/
+
+searchengine.solr.special.service.search.endpoint.primary.host = "127.0.0.2"
+searchengine.solr.special.service.search.marker = search2
+
+searchengine.solr.special.service.extract.marker = extract2
 
 searchengine.solr.disfunct.service.endpoint.primary.host = 1.2.3.4
 searchengine.solr.disfunct.service.endpoint.primary.port = 12345

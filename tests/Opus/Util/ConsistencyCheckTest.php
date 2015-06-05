@@ -107,7 +107,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
 
         $this->manipulateSolrConfig();
 
@@ -124,7 +124,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
         $resultList = $result->getReturnedMatches();
 
         $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified() < $this->doc->getServerDateModified()->getUnixTimestamp(), 'change of serverDateModified is not reflected in Solr index');
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() < $this->doc->getServerDateModified()->getUnixTimestamp(), 'change of serverDateModified is not reflected in Solr index');
 
         $consistencyCheck = new Opus_Util_ConsistencyCheck();
         $consistencyCheck->run();
@@ -136,7 +136,7 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 	    $resultList = $result->getReturnedMatches();
 
 	    $this->assertEquals(1, $result->getAllMatchesCount(), 'asserting that document ' . $this->docId . ' is in search index');
-        $this->assertTrue($resultList[0]->getServerDateModified() == $this->doc->getServerDateModified()->getUnixTimestamp());
+        $this->assertTrue($resultList[0]->getServerDateModified()->getUnixTimestamp() == $this->doc->getServerDateModified()->getUnixTimestamp());
     }
 
     public function testWithInconsistentStateAfterIndexDeletion() {
@@ -156,13 +156,22 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
 
     private function manipulateSolrConfig() {
         $config = Zend_Registry::get('Zend_Config');
-        $this->indexHost = $config->searchengine->solr->index->endpoint->primary->host;
-        $config->searchengine->solr->index->endpoint->primary->host = 'example.org';
+        $this->indexHost = $config->searchengine->solr->default->service->endpoint->primary->host;
+        $config->searchengine->solr->default->service->endpoint->primary->host = 'example.org';
+
+	    Opus_Search_Config::dropCached();
+	    Opus_Search_Service::dropCached();
+
+	    $this->assertEquals( 'example.org', Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
     }
 
     private function restoreSolrConfig() {
         $config = Zend_Registry::get('Zend_Config');
-        $config->searchengine->solr->index->endpoint->primary->host = $this->indexHost;
+        $config->searchengine->solr->default->service->endpoint->primary->host = $this->indexHost;
+	    Opus_Search_Config::dropCached();
+	    Opus_Search_Service::dropCached();
+
+	    $this->assertNotEquals( 'example.org', Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
     }
 
     private function isDocumentInSearchIndex() {

@@ -319,6 +319,10 @@ class Opus_Search_Query {
 		$fields    = $this->normalizeFields( $field );
 		$ascending = $this->normalizeDirection( $ascending );
 
+		if ( !count( $fields ) ) {
+			throw new InvalidArgumentException( 'missing field for sorting result' );
+		}
+
 		if ( $reset || !is_array( $this->_data['sort'] ) ) {
 			$this->_data['sort'] = array();
 		}

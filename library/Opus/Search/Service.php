@@ -37,6 +37,15 @@ class Opus_Search_Service {
 	protected static $adaptersPool = array();
 
 
+
+	/**
+	 * Drops any cached service adapter.
+	 *
+	 */
+	public static function dropCached() {
+		self::$adaptersPool = array();
+	}
+
 	/**
 	 * Validates provided explicit selection of search domain using any
 	 * configured domain by default.

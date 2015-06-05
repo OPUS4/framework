@@ -35,20 +35,10 @@
 
 class Opus_Config {
 	/**
-	 * @var Zend_Config
-	 */
-	protected static $cachedReference;
-
-
-	/**
 	 * @return Zend_Config
 	 * @throws Zend_Exception
 	 */
 	public static function get() {
-		if ( !self::$cachedReference ) {
-			self::$cachedReference = Zend_Registry::get( 'Zend_Config' );
-		}
-
-		return self::$cachedReference;
+		return Zend_Registry::get( 'Zend_Config' );
 	}
 }

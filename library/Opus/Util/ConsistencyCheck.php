@@ -115,7 +115,7 @@ class Opus_Util_ConsistencyCheck {
 		            break;
 
 		        case 1 :
-			        if ( $result->getReturnedMatches()[0]->getServerDateModified() != $serverDataModified ) {
+			        if ( $result->getReturnedMatches()[0]->getServerDateModified()->getUnixTimestamp() != $serverDataModified ) {
 				        $this->numOfInconsistencies++;
 				        $this->logger->info("inconsistency found for document $id: mismatch between values of server_date_modified in database and Solr index.");
 				        if ($this->forceReindexing($doc)) {
