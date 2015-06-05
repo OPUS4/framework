@@ -458,10 +458,12 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			}
 
 
+
 			// query Solr service for extracting fulltext data
 			$extract = $this->client->createExtract()
 				->setExtractOnly( true )
-				->setFile( $file->getPath() );
+				->setFile( $file->getPath() )
+				->setCommit( true );
 
 			$result = $this->execute( $extract, 'failed extracting fulltext data' );
 			/** @var Solarium\QueryType\Extract\Result $response */
@@ -498,6 +500,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			if ( is_null( $fulltext ) ) {
 				Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
 				$fulltext = '';
+			} else {
+				$fulltext = trim( $fulltext );
 			}
 
 			// always write returned fulltext data to cache to keep client from
@@ -508,7 +512,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			return $fulltext;
 
 		} catch ( Exception $e ) {
-			if ( !( $e instanceof Opus_Search_Exception ) ) {
+			if ( !( $e instanceof Opus_Search_Exception ) && !( $e instanceof Opus_Storage_Exception ) ) {
 				$e = new Opus_Search_Exception( 'error while extracting fulltext from file ' . $file->getPath(), null, $e );
 			}
 
