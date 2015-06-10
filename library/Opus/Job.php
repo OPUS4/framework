@@ -35,22 +35,25 @@
 /**
  * Job model used to manage job descriptions.
  *
+ * @method string getLabel()
+ * @method setLabel( string )
+ *
  * @category    Framework
  * @package     Opus
  */
 class Opus_Job extends Opus_Model_AbstractDb {
-    
+
     const STATE_PROCESSING = 'processing';
     const STATE_FAILED = 'failed';
     const STATE_UNDEFINED = 'undefined';
-    
+
     /**
      * Specify then table gateway.
      *
      * @var string
      */
     protected static $_tableGatewayClass = 'Opus_Db_Jobs';
-    
+
     /**
      * Initialize model with the following fields:
      * - Language
@@ -64,7 +67,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
             ->setValidator(new Zend_Validate_NotEmpty());
 
         $state = new Opus_Model_Field('State');
-        
+
         $data = new Opus_Model_Field('Data');
 
         $errors = new Opus_Model_Field('Errors');
@@ -84,7 +87,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
         $this->_primaryTableRow->sha1_id = $this->getSha1Id();
         return parent::_preStore();
     }
-    
+
     /**
      * Intercept setter logic to do JSON encoding.
      *
@@ -99,7 +102,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
         }
         $this->_getField('Data')->setValue($jsonEncode);
     }
-    
+
     /**
      * Intercept getter logic to do JSON decoding.
      *
@@ -114,7 +117,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
         }
         return $jsonDecode;
     }
-    
+
     /**
      * Retrieve number of Opus_Job entries in the database.
      *
@@ -181,11 +184,11 @@ class Opus_Job extends Opus_Model_AbstractDb {
             }
         }
         $rowset = $table->fetchAll($select);
-        
+
         $result = array();
         foreach ($rowset as $row) {
             $result[$row->label] = $row->count;
-        }                
+        }
         return $result;
     }
 
@@ -198,8 +201,8 @@ class Opus_Job extends Opus_Model_AbstractDb {
     public static function getAll(array $ids = null) {
         return self::getAllFrom('Opus_Job', self::$_tableGatewayClass, $ids);
     }
-    
-    
+
+
     /**
      * Retrieve all Jobs that have a certain label.
      *
@@ -216,7 +219,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table);
         foreach ($labels as $label) {
-            $select->orWhere('label = ?', $label);    
+            $select->orWhere('label = ?', $label);
         }
         if (!is_null($state)) {
             if ($state == Opus_Job::STATE_UNDEFINED) {
@@ -236,7 +239,7 @@ class Opus_Job extends Opus_Model_AbstractDb {
         $result = array();
         foreach ($rowset as $row) {
             $result[] = new Opus_Job($row);
-        }                
+        }
         return $result;
     }
 
@@ -264,6 +267,6 @@ class Opus_Job extends Opus_Model_AbstractDb {
         $content = $this->getLabel() . serialize($this->getData());
         return sha1($content);
     }
-    
+
 }
 

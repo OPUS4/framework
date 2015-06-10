@@ -51,20 +51,18 @@ set_include_path('.'
         . PATH_SEPARATOR . $scriptDir // Skriptverzeichnis
         . PATH_SEPARATOR . $scriptDir . DIRECTORY_SEPARATOR . 'support' // Support Klassen für Tests
         . PATH_SEPARATOR . dirname($scriptDir) . DIRECTORY_SEPARATOR . 'library' // OPUS Klassen
+        . PATH_SEPARATOR . dirname($scriptDir) . DIRECTORY_SEPARATOR . 'vendor' // 3rd-party dependencies
         . PATH_SEPARATOR . get_include_path()); // Standard Include-Pfad
 
+require_once 'autoload.php';
+
 // enable fallback autoloader for testing
-require_once 'Zend/Loader/Autoloader.php';
 $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->suppressNotFoundWarnings(false);
 $autoloader->setFallbackAutoloader(true);
 
-// Zend_Loader is'nt available yet. We have to do a require_once in order
-// to find the bootstrap class.
-require_once 'Zend/Application.php';
-
 // Do test environment initializiation.
-$application = new Zend_Application(APPLICATION_ENV, 
+$application = new Zend_Application(APPLICATION_ENV,
             array(
                 "config" => array(
                     APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'tests.ini',
