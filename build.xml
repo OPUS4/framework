@@ -3,14 +3,13 @@
 
     <property environment="env" />
     <property name="workspace" value="${env.WORKSPACE}" /> <!-- Wird von Jenkins gesetzt. -->
-    <property name="serverdir" location="${basedir}/../server" />
     <property name="configfile" location="${workspace}/../opus-config.properties" />
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
     <property name="codingstandard" location="${libsdir}/opus4cs/ruleset.xml" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
-    
+
     <target name="build" depends="prepare,lint,analyse-code,pdepend,phpdoc,phpcb" />
 
     <target name="build-fast" depends="prepare,lint,phpunit-fast"/>
@@ -32,15 +31,14 @@
         </delete>
     </target>
 
-    <target name="setup" depends="prepare-dependencies,prepare-createdb" description="Prepares the configuration." />
+    <target name="setup" depends="prepare-dependencies,prepare-config,prepare-createdb"
+            description="Prepares the configuration." />
 
     <target name="prepare-createdb">
-        <copy file="${serverdir}/db/createdb.sh.template"
-              toFile="${serverdir}/db/createdb.sh" filtering="true" overwrite="true">
-            <filterset filtersFile="${configfile}" />
-        </copy>
-        <chmod file="${serverdir}/db/createdb.sh" perm="+x" />
+        <chmod file="${basedir}/db/createdb.sh" perm="+x" />
+    </target>
 
+    <target name="prepare-config">
         <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
                 overwrite="true">
             <filterset filtersFile="${configfile}" />
@@ -48,7 +46,6 @@
     </target>
 
     <target name="prepare-dependencies">
-        <symlink link="${serverdir}/db/schema" resource="${basedir}/db/schema" failonerror="false" />
         <symlink link="${basedir}/library/Zend" resource="${libsdir}/ZendFramework/library/Zend" failonerror="false" />
         <symlink link="${basedir}/library/Apache" resource="${libsdir}/SolrPhpClient/Apache" failonerror="false" />
     </target>
@@ -70,7 +67,7 @@
             </fileset>
         </apply>
     </target>
-    
+
     <target name="phploc" description="Measure project size using 'phploc'.">
         <exec executable="phploc" dir="${basedir}">
             <arg value="--log-csv" />
@@ -125,7 +122,7 @@
             <arg value="${basedir}/library" />
         </exec>
     </target>
-    
+
     <target name="phpcb" description="Aggregates tool output with PHP_CodeBrowser.">
         <exec executable="phpcb">
             <arg value="--log" />
@@ -138,7 +135,7 @@
     </target>
 
     <target name="create-database">
-        <exec executable="./createdb.sh" dir="${serverdir}/db" failonerror="on" />
+        <exec executable="./createdb.sh" dir="${basedir}/db" failonerror="on" />
     </target>
 
     <target name="phpunit" depends="create-database">
