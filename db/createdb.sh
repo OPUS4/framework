@@ -4,11 +4,20 @@ set -e
 
 #
 # Load parameters from file
+# File config.sh should contain values for following parameters
+#   user=opus4admin - (should have permissions granted to drop and create a database)
+#   password=
+#   host=localhost  - (optional)
+#   port=3306       - (optional)
+#   dbname=opusdb
+
+# user should has rights to drop and create a database (grant rights)
+
 #
 if [ -f config.sh ]; then
     source config.sh
 else
-    echo "config.sh not found"
+    echo "config.sh with parameters not found"
     exit 1;
 fi
 
