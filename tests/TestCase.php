@@ -67,7 +67,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename) {        
+    protected function clearTable($tablename) {
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
 
@@ -82,9 +82,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * Removes all documents from Solr index.
      */
     protected function clearSolrIndex() {
-        $indexer = new Opus_SolrSearch_Index_Indexer();
-        $indexer->deleteAllDocs();
-        $indexer->commit();
+	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
     }
 
     /**
@@ -94,10 +92,10 @@ class TestCase extends PHPUnit_Framework_TestCase {
      */
     protected function setUp() {
         parent::setUp();
-        
+
         $this->_clearTables();
         $this->clearSolrIndex();
-        
+
         $config = Zend_Registry::get('Zend_Config');
         if (!is_null($config)) {
             $this->config_backup = clone $config;
@@ -108,7 +106,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
         if (!is_null($this->config_backup)) {
             Zend_Registry::set('Zend_Config', $this->config_backup);
         }
-        
-        parent::tearDown();        
+
+        parent::tearDown();
     }
 }

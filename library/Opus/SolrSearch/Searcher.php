@@ -34,231 +34,131 @@
 
 class Opus_SolrSearch_Searcher {
 
-    /**
-     * Logger
-     *
-     * @var Zend_Log
-     */
-    private $log;
-
-    /**
-     * Connection to Solr server
-     *
-     * @var Apache_Solr_Service
-     */
-    private $solr_server;
-
-    /**
-     * Connection string
-     *
-     * @var string
-     */
-    private $solr_server_url;
-
-    /**
-     * Application Configuration
-     *
-     * @var Zend_Config
-     */
-    private $config;
-
     /*
      * Holds numbers of facets
      */
     private $facetArray;
 
-    /**
-     *
-     * @throws Opus_SolrSearch_Exception If connection to Solr server could not be established.
-     */
-    public function  __construct() {
-        $this->log = Zend_Registry::get('Zend_Log');
-        $this->config = Zend_Registry::get('Zend_Config');
-        $this->solr_server = $this->getSolrServer();
-        if (false === $this->solr_server->ping()) {
-            $this->log->err('Connection to Solr server ' . $this->solr_server_url . ' could not be established.');
-            throw new Opus_SolrSearch_Exception('Solr server ' . $this->solr_server_url . ' is not responding.', Opus_SolrSearch_Exception::SERVER_UNREACHABLE);
-        }
-        $this->log->info('Connection to Solr server ' . $this->solr_server_url . ' was successfully established.');
-    }
 
 
-    /**
-     * TODO remove code duplication (Opus_SolrSearch_Index_Indexer)
-     * Returns a Apache_Solr_Service object which encapsulates the communication
-     * with the Solr server.
-     *
-     * @return Apache_Solr_Server
-     */
-    private function getSolrServer() {        
-        $solr_host = $this->config->searchengine->index->host;
-        $solr_port = $this->config->searchengine->index->port;
-        $solr_app = '/' . $this->config->searchengine->index->app;
-        $this->solr_server_url = 'http://' . $solr_host . ':' . $solr_port . $solr_app;
-        return new Apache_Solr_Service($solr_host, $solr_port, $solr_app);
-    }
+    public function  __construct() {}
 
     /**
      *
      * @param Opus_SolrSearch_Query $query
      * @param bool $validateDocIds check document IDs coming from Solr index against database
-     * @return Opus_SolrSearch_ResultList
-     * @throws Opus_SolrSearch Exception If Solr server responds with an error or the response is empty.
+     * @return Opus_Search_Result_Base
+     * @throws Opus_SolrSearch_Exception If Solr server responds with an error or the response is empty.
      */
     public function search($query, $validateDocIds = true) {
 
-        /**
-         * @var Apache_Solr_Response $solr_response
-         */
-        $solr_response = null;
         try {
-            $this->log->debug("query: " . $query->getQ());
-            $solr_response = $this->solr_server->search($query->getQ(), $query->getStart(), $query->getRows(), $this->getParams($query));            
+            Opus_Log::get()->debug("query: " . $query->getQ());
+
+	        // get service adapter for searching
+	        $service = Opus_Search_Service::selectSearchingService( null, 'solr' );
+
+	        // basically create query
+	        $request = $service->createQuery()
+		        ->setFilter( new Opus_Search_Solr_Filter_Raw( $query->getQ() ) )
+		        ->setStart( $query->getStart() )
+		        ->setRows( $query->getRows() );
+
+
+	        switch ( $query->getSearchType() ) {
+		        case Opus_SolrSearch_Query::LATEST_DOCS :
+			        $request
+				        ->addSorting( $query->getSortField(), $query->getSortOrder() );
+
+		        case Opus_SolrSearch_Query::DOC_ID :
+					if ( $query->isReturnIdsOnly() ) {
+						$request
+							->setFields( 'id' );
+					} else {
+						$request
+							->setFields( array( '*', 'score' ) );
+					}
+			        break;
+
+		        case Opus_SolrSearch_Query::FACET_ONLY :
+					$facet = Opus_Search_Facet_Set::create()
+						->setFacetOnly();
+
+					$facet->addField( $query->getFacetField() )
+						->setMinCount( 1 )
+						->setLimit( -1 );
+
+					$request->setFacet( $facet );
+		            break;
+
+		        default :
+					$request->addSorting( $query->getSortField(), $query->getSortOrder() );
+
+			        if ( $query->isReturnIdsOnly() ) {
+				        $request
+					        ->setFields( 'id' );
+			        } else {
+				        $request
+					        ->setFields( array( '*', 'score' ) );
+
+				        $facet = Opus_Search_Facet_Set::create();
+
+				        if ( isset( $this->facetArray ) ) {
+					        $facet->overrideLimits( $this->facetArray );
+				        }
+
+		                $fields = Opus_Search_Config::getFacetFields( $facet->getSetName(), 'solr' );
+				        if ( empty( $fields ) ) {
+					        // no facets are being configured
+					        Opus_Log::get()->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
+				        } else {
+					        $request->setFacet( $facet->setFields( $fields ) );
+				        }
+	                }
+
+
+			        $fq = $query->getFilterQueries();
+			        if ( !empty( $fq ) ) {
+				        foreach ( $fq as $index => $sub ) {
+					        $request->setSubFilter( "fq$index", new Opus_Search_Solr_Filter_Raw( $sub ) );
+				        }
+			        }
+	        }
+
+	        $response = $service->customSearch( $request );
+
+	        if ( $validateDocIds ) {
+		        $response->dropLocallyMissingMatches();
+	        }
+
+	        return $response;
         }
-        catch (Exception $e) {
-            $msg = 'Solr server responds with an error ' . $e->getMessage();
-            $this->log->err($msg);
-            if ($e instanceof Apache_Solr_HttpTransportException) {
-                if ($e->getResponse()->getHttpStatus() == '400') {
-                    // 400 seems to indicate org.apache.lucene.query.ParserParseException
-                    throw new Opus_SolrSearch_Exception($msg, Opus_SolrSearch_Exception::INVALID_QUERY, $e);
-                }
-                if ($e->getResponse()->getHttpStatus() == '404') {
-                    // 404 seems to indicate Solr server is unreachable
-                    throw new Opus_SolrSearch_Exception($msg, Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e);
-                }
-            }
-            throw new Opus_SolrSearch_Exception($msg, null, $e);
+        catch ( Opus_Search_InvalidServiceException $e ) {
+	        return $this->mapException( Opus_SolrSearch_Exception::INVALID_QUERY, $e );
         }
-        if (is_null($solr_response)) {
-            $msg = 'could not get an Apache_Solr_Response object';
-            $this->log->err($msg);
-            throw new Opus_SolrSearch_Exception($msg);
+        catch( Opus_Search_InvalidQueryException $e ) {
+	        return $this->mapException( Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e );
         }
-        $responseRenderer = new Opus_SolrSearch_ResponseRenderer($solr_response, $validateDocIds, $query->getSeriesId());
-        return $responseRenderer->getResultList();
+	    catch ( Exception $e ) {
+		    return $this->mapException( null, $e );
+	    }
     }
 
-    /**
-     *
-     * @param Opus_SolrSearch_Query $query
-     * @return string
-     */
-    private function getParams($query) {
-        if ($query->getSearchType() === Opus_SolrSearch_Query::LATEST_DOCS) {
-            return array(
-                'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
-                'facet' => 'false',
-                'sort' => $query->getSortField() . ' ' . $query->getSortOrder()
-            );
-        }
+	/**
+	 * @param mixed $type
+	 * @param Exception $previousException
+	 * @throws Opus_SolrSearch_Exception
+	 * @return no-return
+	 */
+	private function mapException( $type, Exception $previousException ) {
+		$msg = 'Solr server responds with an error ' . $previousException->getMessage();
+		Opus_Log::get()->err($msg);
 
-        if ($query->getSearchType() === Opus_SolrSearch_Query::FACET_ONLY) {
-            return array(
-                'fl' => '',
-                'facet' => 'true',
-                'facet.field' => $query->getFacetField(),
-                'facet.mincount' => 1,
-                'facet.limit' => -1
-            );
-        }
-
-        if ($query->getSearchType() === Opus_SolrSearch_Query::DOC_ID) {
-            return array(
-                'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
-                'facet' => 'false'
-            );
-        }
-
-        $params = array( 
-            'fl' => $query->isReturnIdsOnly() ? 'id' : '* score',
-            'facet' => $query->isReturnIdsOnly() ? 'false' : 'true',
-            'facet.field' => $this->setFacetFieldsFromConfig(),
-            'facet.mincount' => 1,
-            'sort' => $query->getSortField() . ' ' . $query->getSortOrder(),
-            'facet.limit' => isset($this->config->searchengine->solr->globalfacetlimit) ? $this->config->searchengine->solr->globalfacetlimit : 10
-        );
-        $fq = $query->getFilterQueries();
-        if (!empty($fq)) {
-            $params['fq'] = $fq;
-        }
-        if (isset($this->facetArray)) {
-            $params = array_merge($params,
-                    $this->getFacetArray(),
-                    $this->getFacetSortsFromConfig());
-        }
-        else {
-            $params = array_merge($params,
-                    $this->getFacetLimitsFromConfig(),
-                    $this->getFacetSortsFromConfig());
-        }
-        return $params;
-    }
-
-    private function getAvailableFacetsFromConfig() {
-        if (isset($this->config->searchengine->solr->facets)) {
-            return explode((","), $this->config->searchengine->solr->facets);
-        }
-        return array();
-    }
-
-    private function getFacetLimitsFromConfig() {
-        if (!isset($this->config->searchengine->solr->facets) || !isset($this->config->searchengine->solr->facetlimit)) {
-            return array();
-        }
-        $result = array();
-        $limits = $this->config->searchengine->solr->facetlimit;
-        $facets = $this->getAvailableFacetsFromConfig();
-        foreach ($facets as $facet) {
-            if (isset($limits->$facet) && is_numeric($limits->$facet)) {
-                $result["f.$facet.facet.limit"] = $limits->$facet;
-
-            }
-        }
-        return $result;
-    }
+		throw new Opus_SolrSearch_Exception($msg, $type, $previousException);
+	}
 
     public function setFacetArray($array) {
         $this->facetArray = $array;
     }
-
-    public function getFacetArray() {
-        $result = array();
-        foreach ($this->facetArray as $facet => $value) {
-            $result["f.$facet.facet.limit"] = $value;
-
-        }
-        return $result;
-    }
-
-    private function getFacetSortsFromConfig() {
-        if (!isset($this->config->searchengine->solr->facets) || !isset($this->config->searchengine->solr->sortcrit)) {
-            return array();
-        }
-        $result = array();
-        $sortcrit = $this->config->searchengine->solr->sortcrit;
-        $facets = $this->getAvailableFacetsFromConfig();
-        foreach ($facets as $facet) {
-            if (isset($sortcrit->$facet) && $sortcrit->$facet == 'lexi') {
-                $result["f.$facet.facet.sort"] = 'index';
-            }
-        }
-        return $result;
-    }
-
-    private function setFacetFieldsFromConfig() {
-        if (!isset($this->config->searchengine->solr->facets)) {
-            // no facets are being configured
-            $this->log->warn("Key searchengine.solr.facets is not present in config. No facets will be displayed.");
-            return array();
-        }
-        $result = array();
-        $facets = $this->getAvailableFacetsFromConfig();
-        foreach ($facets as $facet) {
-            array_push($result, trim($facet));
-        }
-        return $result;
-    }
-
 }
 

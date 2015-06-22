@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -24,35 +24,47 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework Unit Test
- * @author      Edouard Simon <edouard.simon@zib.de>
+ * @category    Framework
+ * @package     Opus_Search
+ * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
 
-    /**
-     * Tests working on job.
-     */
-    public function testWork() {
+/**
+ * Implements API for accessing single result of faceted search.
+ */
 
-        $document = new Opus_Document();
-        $document->setServerState('published');
-        $documentId = $document->store();
+class Opus_Search_Result_Facet {
 
+    private $text;
+    private $count;
 
-        $job = new Opus_Job();
-        $job->setLabel('opus-index-document');
-        $job->setData(array(
-            'documentId' => $documentId,
-            'task' => 'index'));
-
-        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-
-        $indexWorker->work($job);
-
+    public function  __construct($text, $count) {
+        $this->text = $text;
+        $this->count = $count;
     }
 
+    public function getText() {
+        return $this->text;
+    }
+
+    public function setText($text) {
+        $this->text = $text;
+    }
+
+    public function getCount() {
+        return $this->count;
+    }
+
+    public function setCount($count) {
+        $this->count = $count;
+    }
+
+    public function  __toString() {
+        return $this->getText() . ' => ' . $this->getCount();
+    }
 }
+

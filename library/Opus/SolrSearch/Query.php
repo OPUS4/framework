@@ -79,12 +79,12 @@ class Opus_SolrSearch_Query {
      */
     public function  __construct($searchType = self::SIMPLE) {
         $this->invalidQCache();
-        
+
         if ($searchType === self::SIMPLE || $searchType === self::ADVANCED || $searchType === self::ALL_DOCS) {
             $this->searchType = $searchType;
             return;
         }
-        
+
         if ($searchType === self::FACET_ONLY) {
             $this->searchType = self::FACET_ONLY;
             $this->setRows(0);
@@ -99,7 +99,7 @@ class Opus_SolrSearch_Query {
         }
 
         if ($searchType === self::DOC_ID) {
-            $this->searchType = self::DOC_ID;            
+            $this->searchType = self::DOC_ID;
             return;
         }
 
@@ -203,8 +203,8 @@ class Opus_SolrSearch_Query {
             $filterQuery = '{!raw f=' . $filterField . '}' . $filterValue;
         }
         array_push($this->filterQueries, $filterQuery);
-        
-        // we need to store the ID of the requested series here, 
+
+        // we need to store the ID of the requested series here,
         // since we need it later to build the index field name
         if ($filterField === 'series_ids') {
             $this->seriesId = $filterValue;
@@ -239,7 +239,7 @@ class Opus_SolrSearch_Query {
             $this->fieldValues[$name] = $value;
             $this->modifier[$name] = $modifier;
             $this->invalidQCache();
-        }        
+        }
     }
 
     /**
@@ -271,7 +271,7 @@ class Opus_SolrSearch_Query {
             // earlier cached query was marked as invalid: perform new setup of query cache
             $this->q = $this->setupQCache();
         }
-        
+
         // return cached result (caching is done here since building q is an expensive operation)
         return $this->q;
     }
@@ -306,7 +306,7 @@ class Opus_SolrSearch_Query {
             else {
                 $q .= ' ';
             }
-            
+
             if ($this->modifier[$fieldname] === self::SEARCH_MODIFIER_CONTAINS_ANY) {
                 $q .= $this->combineSearchTerms($fieldname, $fieldvalue, 'OR');
                 continue;
@@ -373,7 +373,7 @@ class Opus_SolrSearch_Query {
                 $result .= preg_replace('/(\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\)/', '\\\$1', $this->lowercaseWildcardQuery($phrase));
             }
             $insidePhrase = !$insidePhrase;
-        }        
+        }
         return $result;
     }
 

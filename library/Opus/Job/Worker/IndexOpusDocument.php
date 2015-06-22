@@ -45,13 +45,6 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
     const LABEL = 'opus-index-document';
 
     /**
-     * Holds the index.
-     *
-     * @var Opus_SolrSearch_Index_Indexer
-     */
-    private $_index = null;
-
-    /**
      * Holds the job currently worked on.
      *
      * @var Opus_Job
@@ -67,7 +60,6 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
 
     /**
      * @param mixed $logger (Optional)
-     * @return void
      */
     public function __construct($logger = null) {
         $this->setLogger($logger);
@@ -87,6 +79,7 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      *
      * @param Zend_Log $logger Logger instance.
      * @return void
+     * @throws InvalidArgumentException
      */
     public function setLogger($logger) {
         if (null === $logger) {
@@ -94,31 +87,17 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
         } else if ($logger instanceof Zend_Log) {
             $this->_logger = $logger;
         } else {
-            throw new IllegalArgumentException('Zend_Log instance expected.');
+            throw new InvalidArgumentException('Zend_Log instance expected.');
         }
     }
 
     /**
      * Set the search index to add documents to.
      *
-     * @param Opus_SolrSearch_Index_Indexer $index Index implementation.
      * @return void
      */
-    public function setIndex(Opus_SolrSearch_Index_Indexer $index) {
-        $this->_index = $index;
-    }
-
-    /**
-     * Get the search index to add documents to.
-     * If no index instance is set via setIndex(),
-     * this method returns a new instance.
-     *
-     * @return Opus_SolrSearch_Index_Indexer $index
-     */
-    private function getIndex() {
-        if(is_null($this->_index))
-            $this->_index = new Opus_SolrSearch_Index_Indexer();
-        return $this->_index;
+    public function setIndex() {
+        throw new RuntimeException( 'Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!' );
     }
 
     /**
@@ -127,6 +106,7 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      *
      * @param Opus_Job $job Job description and attached data.
      * @return void
+     * @throws Opus_Job_Worker_InvalidJobException
      */
     public function work(Opus_Job $job) {
 
@@ -150,14 +130,13 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
 
         // create index document or remove index, depending on task
         if ($data->task === 'index') {
-            $document = new Opus_Document($data->documentId);
-            $this->getIndex()
-                    ->addDocumentToEntryIndex($document)
-                    ->commit();
+	        $document = new Opus_Document($data->documentId);
+
+	        Opus_Search_Service::selectIndexingService( 'jobRunner' )
+		        ->addDocumentsToIndex($document);
         } else if ($data->task === 'remove') {
-            $this->getIndex()
-                    ->removeDocumentFromEntryIndexById($data->documentId)
-                    ->commit();
+            Opus_Search_Service::selectIndexingService( 'jobRunner' )
+	            ->removeDocumentsFromIndexById($data->documentId);
         } else {
             throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
         }
