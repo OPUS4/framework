@@ -36,5 +36,5 @@ ant phpunit-fast
 or
 
 ```
-composer test
+vender/bin/phpunit -c tests
 ```
