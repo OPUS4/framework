@@ -139,7 +139,7 @@
     </target>
 
     <target name="phpunit" depends="create-database">
-        <exec executable="phpunit" dir="${basedir}/tests" failonerror="on">
+        <exec executable="${basedir}/vendor/bin/phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--coverage-clover ${basedir}/build/logs/phpunit.coverage.xml" />
             <arg line="--coverage-html ${basedir}/build/coverage" />
@@ -149,7 +149,7 @@
     </target>
 
     <target name="phpunit-fast" depends="create-database">
-        <exec executable="phpunit" dir="${basedir}/tests" failonerror="on">
+        <exec executable="${basedir}/vendor/bin/phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--configuration phpunit.xml" />
             <arg value="${testpath}" />
