@@ -134,10 +134,10 @@ class Opus_SolrSearch_Searcher {
 	        return $response;
         }
         catch ( Opus_Search_InvalidServiceException $e ) {
-	        return $this->mapException( Opus_SolrSearch_Exception::INVALID_QUERY, $e );
+	        return $this->mapException( Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e );
         }
         catch( Opus_Search_InvalidQueryException $e ) {
-	        return $this->mapException( Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e );
+	        return $this->mapException( Opus_SolrSearch_Exception::INVALID_QUERY, $e );
         }
 	    catch ( Exception $e ) {
 		    return $this->mapException( null, $e );

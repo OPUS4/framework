@@ -35,6 +35,8 @@
 
 /**
  * Indicates invalid service e.g. due to being unavailable/offline.
+ *
+ * TODO in Ordnung?
  */
 
 class Opus_Search_InvalidConfigException extends Zend_Config_Exception {

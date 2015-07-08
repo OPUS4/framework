@@ -36,6 +36,8 @@
 /**
  * Implements globally available methods for creating pre-configured instances
  * of Opus_Search_Query describing search requests frequently used in Opus.
+ *
+ * TODO nicht ganz klar
  */
 
 class Opus_Search_QueryFactory {

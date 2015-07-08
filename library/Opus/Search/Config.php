@@ -42,6 +42,8 @@
  * configuration to support fallback
  *
  * @author Thomas Urban <thomas.urban@cepharum.de>
+ *
+ * TODO review Tests and check how class is used
  */
 
 class Opus_Search_Config {

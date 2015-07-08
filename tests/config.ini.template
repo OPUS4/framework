@@ -85,6 +85,7 @@ searchengine.solr.default.service.search.marker = search
 
 searchengine.solr.default.service.extract.marker = extract
 
+; TODO was ist "special"?
 searchengine.solr.special.service.endpoint.primary.path = /solr-special/
 
 searchengine.solr.special.service.search.endpoint.primary.host = "127.0.0.2"
@@ -92,6 +93,7 @@ searchengine.solr.special.service.search.marker = search2
 
 searchengine.solr.special.service.extract.marker = extract2
 
+; TODO was ist "disfunct"?
 searchengine.solr.disfunct.service.endpoint.primary.host = 1.2.3.4
 searchengine.solr.disfunct.service.endpoint.primary.port = 12345
 searchengine.solr.disfunct.service.endpoint.primary.path = /solr-disfunct/

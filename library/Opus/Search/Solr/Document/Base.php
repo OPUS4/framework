@@ -101,10 +101,14 @@ abstract class Opus_Search_Solr_Document_Base {
 			$fulltext = '';
 
 			try {
-				$fulltext = $extractingService->extractDocumentFile( $file );
-				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
-			} catch ( Opus_Search_Exception $e ) {
-				Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage() );
+                $fulltext = $extractingService->extractDocumentFile($file);
+                $fulltext = trim(iconv("UTF-8", "UTF-8//IGNORE", $fulltext));
+            }
+            catch (Opus_Search_Exception $se) {
+                Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $se->getMessage() );
+			}
+            catch ( Opus_Storage_Exception $se ) {
+                Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $se->getMessage() );
 			}
 
 			if ( $fulltext != '' ) {

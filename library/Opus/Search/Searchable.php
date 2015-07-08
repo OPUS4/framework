@@ -35,6 +35,8 @@
 
 /**
  * Defines methods provided for querying search database.
+ *
+ * TODO should the name not be something like Searcher
  */
 
 interface Opus_Search_Searchable {
