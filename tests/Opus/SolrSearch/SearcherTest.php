@@ -45,7 +45,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
             sleep(1);
             array_push($ids, $document->getId());
         }
-        
+
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
         $query->setRows($rows);
         $searcher = new Opus_SolrSearch_Searcher();
@@ -72,9 +72,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $query->setRows(1);
         $searcher = new Opus_SolrSearch_Searcher();
         $results = $searcher->search($query);
-        
+
         $this->assertEquals(1, count($results));
-        $result = $results->getResults();        
+        $result = $results->getResults();
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified());
     }
 
@@ -101,7 +101,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $this->assertTrue($serverDateModified > $result[0]->getServerDateModified());
+        $this->assertTrue($serverDateModified > $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
     /**
@@ -115,7 +115,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
-        
+
         $collId = $root->getId();
 
         $root = new Opus_Collection($collId);
@@ -139,7 +139,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(1, count($result));
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
-        $serverDateModified1 = $result[0]->getServerDateModified();        
+        $serverDateModified1 = $result[0]->getServerDateModified();
 
         sleep(1);
 
@@ -152,7 +152,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1 == $serverDateModified2);        
+        $this->assertTrue($serverDateModified1 == $serverDateModified2);
 
         sleep(1);
 
@@ -162,7 +162,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");        
+        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
@@ -188,7 +188,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $result = $this->searchDocumentsAssignedToCollection();
         $this->assertEquals(1, count($result));
-        
+
         $serverDateModified4 = $result[0]->getServerDateModified();
         $this->assertTrue($serverDateModified3 < $serverDateModified4);
     }
@@ -201,7 +201,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
-        
+
         $collId = $root->getId();
 
         $root = new Opus_Collection($collId);
@@ -214,7 +214,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $doc = new Opus_Document($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to collection $collId");
-        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();        
+        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
 
         sleep(1);
 
@@ -225,7 +225,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified1 < $serverDateModified2);        
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
 
         sleep(1);
 
@@ -236,16 +236,16 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');        
+        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
 
         sleep(1);
-        
+
         $root->delete();
 
         $doc = new Opus_Document($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');        
+        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
 
         sleep(1);
 
