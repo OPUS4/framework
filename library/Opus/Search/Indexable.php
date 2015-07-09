@@ -35,9 +35,12 @@
 
 /**
  * Defines methods provided for indexing data in (Solr-based) search database.
+ *
+ * TODO Indexer instead of Indexable
  */
 
 interface Opus_Search_Indexable {
+
 	/**
 	 * Adds provided set of Opus_Document instances to index.
 	 *
@@ -88,4 +91,5 @@ interface Opus_Search_Indexable {
 	 * @throws Opus_Search_Exception in case of error
 	 */
 	public function removeAllDocumentsFromIndex();
+
 }

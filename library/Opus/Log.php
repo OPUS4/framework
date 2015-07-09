@@ -34,6 +34,8 @@
  */
 
 /**
+ * TODO was macht das hier?
+ *
  * @method void emerg( string $message, mixed $extras = null )
  * @method void alert( string $message, mixed $extras = null )
  * @method void crit( string $message, mixed $extras = null )
@@ -42,13 +44,15 @@
  * @method void notice( string $message, mixed $extras = null )
  * @method void info( string $message, mixed $extras = null )
  * @method void debug( string $message, mixed $extras = null )
+ *
+ * TODO static factory sinnvoll?
  */
 class Opus_Log {
+
 	/**
 	 * @var Zend_Log
 	 */
 	protected static $cachedReference;
-
 
 	/**
 	 * @return Opus_Log
@@ -68,4 +72,5 @@ class Opus_Log {
 	public static function drop() {
 		self::$cachedReference = null;
 	}
+
 }

@@ -35,6 +35,8 @@
 
 /**
  * Indicates invalid service e.g. due to being unavailable/offline.
+ *
+ * TODO code duplication
  */
 
 class Opus_Search_InvalidServiceException extends Opus_Search_Exception {

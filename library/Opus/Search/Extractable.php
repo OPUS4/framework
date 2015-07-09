@@ -37,6 +37,8 @@
 /**
  * Defines API provided for extracting fulltext data from files attached to
  * Opus documents.
+ *
+ * TODO should the name be something like Extractor
  */
 
 interface Opus_Search_Extractable {

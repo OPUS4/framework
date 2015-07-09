@@ -35,6 +35,8 @@
 
 /**
  * Implements common exception to be used in code of search engine adapters.
+ *
+ * TODO code duplication in extending classes
  */
 
 class Opus_Search_Exception extends Exception {

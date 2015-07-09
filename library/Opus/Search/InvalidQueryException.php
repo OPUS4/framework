@@ -36,6 +36,8 @@
 /**
  * Indicates invalid query either detected client-side or due to related
  * response from service.
+ *
+ * TODO überlappungen zu anderen Exceptions
  */
 
 class Opus_Search_InvalidQueryException extends Opus_Search_Exception {

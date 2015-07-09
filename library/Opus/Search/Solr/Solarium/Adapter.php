@@ -33,7 +33,8 @@
  * @version     $Id$
  */
 
-class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexable, Opus_Search_Searchable, Opus_Search_Extractable {
+class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexable,
+    Opus_Search_Searchable, Opus_Search_Extractable {
 
 	/**
 	 * @var Zend_Config

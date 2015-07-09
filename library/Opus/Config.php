@@ -33,7 +33,11 @@
  * @version     $Id$
  */
 
+/**
+ * TODO sinnvoll? Should be injected in classes?
+ */
 class Opus_Config {
+
 	/**
 	 * @return Zend_Config
 	 * @throws Zend_Exception
@@ -41,4 +45,5 @@ class Opus_Config {
 	public static function get() {
 		return Zend_Registry::get( 'Zend_Config' );
 	}
+
 }

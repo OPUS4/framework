@@ -55,6 +55,8 @@ class Opus_Search_Service {
 	 *
 	 * @param string $searchDomain explicitly selected search domain
 	 * @return string
+     *
+     * TODO was ist eine Domain?
 	 */
 	public static function getQualifiedDomain( $searchDomain = null ) {
 		if ( is_null( $searchDomain ) ) {

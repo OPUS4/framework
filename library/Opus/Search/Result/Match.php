@@ -250,7 +250,7 @@ class Opus_Search_Result_Match {
 	 * @return mixed|null
 	 */
 	public function getAsset( $name ) {
-		return $this->data[$name];
+		return isset($this->data[$name]) ? $this->data[$name] : null;
 	}
 
 	/**
