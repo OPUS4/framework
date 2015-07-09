@@ -454,11 +454,11 @@ class Opus_Search_Query {
 		$sorting = array( array_shift( $parts ) );
 
 		if ( !count( $parts ) ) {
-			$sorting[] = 'asc';
+			$sorting[] = 'desc';
 		} else {
 			$dir = array_shift( $parts );
 			if ( strcasecmp( $dir, 'asc' ) || strcasecmp( $dir, 'desc' ) ) {
-				$dir = 'asc';
+				$dir = 'desc';
 			}
 
 			$sorting[] = strtolower( $dir );

@@ -210,8 +210,10 @@ class Opus_Search_Facet_Set {
 	 * Normalizes set of fields for faceted search according to contained input
 	 * parameters of script.
 	 *
-	 * @note This method is provided for downward compatibility as it is used
-	 *       by query-building components of Opus4 application.
+	 * @note This method is replacing functionality of application's
+	 *       Solrsearch_Model_FacetMenu::buildFacetArray() for containing its
+	 *       feature in Opus_Search package more closely and for slightly
+	 *       revising it by supporting provision of limit to apply per switch.
 	 *
 	 * @param array $input
 	 * @param int $limit limit to set on every given field in input

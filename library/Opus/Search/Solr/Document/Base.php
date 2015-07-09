@@ -105,6 +105,8 @@ abstract class Opus_Search_Solr_Document_Base {
 				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
 			} catch ( Opus_Search_Exception $e ) {
 				Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage() );
+			} catch ( Opus_Storage_Exception $e ) {
+				Opus_Log::get()->err( 'Failed accessing file for extracting fulltext for document with id ' . $docId . ': ' . $e->getMessage() );
 			}
 
 			if ( $fulltext != '' ) {

@@ -61,4 +61,11 @@ class Opus_Log {
 
 		return self::$cachedReference;
 	}
+
+	/**
+	 * Drops any cached reference on logging facility to use.
+	 */
+	public static function drop() {
+		self::$cachedReference = null;
+	}
 }

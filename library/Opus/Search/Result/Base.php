@@ -149,7 +149,7 @@ class Opus_Search_Result_Base {
 	 * @return Opus_Search_Result_Facet[][] map of fields' names into sets of facet result per field
 	 */
 	public function getFacets() {
-		return $this->data['facets'];
+		return is_null( $this->data['facets'] ) ? array() : $this->data['facets'];
 	}
 
 	/**
