@@ -88,21 +88,31 @@ class Opus_RequireTest extends TestCase {
         exec($cmd, $classes);
 
         $blacklist = array(
-           "Opus_Validate_MateDecorator",
-           "Opus_Db_Adapter_Pdo_Mysqlutf8",
-           "Opus_Bootstrap_Base",
-           "Opus_Statistic_LocalCounter",
-           "Opus_Identifier_Urn",
-           "Opus_GPG",
-           "Opus_SolrSearch_ResponseRenderer",
-           "Opus_SolrSearch_FacetItem",
-           "Opus_Security_Realm",
-           "Opus_Model_Field",
-           "Opus_Storage_File",
-           "Opus_Reviewer",
-           "Opus_Privilege",
-           "Opus_SolrSearch_Exception",
-           "Opus_Util_MetadataImport"
+            "Opus_Validate_MateDecorator",
+            "Opus_Db_Adapter_Pdo_Mysqlutf8",
+            "Opus_Bootstrap_Base",
+            "Opus_Statistic_LocalCounter",
+            "Opus_Identifier_Urn",
+            "Opus_GPG",
+            "Opus_SolrSearch_ResponseRenderer",
+            "Opus_SolrSearch_FacetItem",
+            "Opus_Security_Realm",
+            "Opus_Model_Field",
+            "Opus_Storage_File",
+            "Opus_Reviewer",
+            "Opus_Privilege",
+            "Opus_SolrSearch_Exception",
+            "Opus_Util_MetadataImport",
+            "Opus_Search_Solr_Solarium_Document",
+            "Opus_Search_Solr_Solarium_Adapter",
+            "Opus_Search_Solr_Solarium_Filter_Complex",
+            "Opus_Search_Solr_Document_Xslt",
+            "Opus_Search_Solr_Filter_Raw",
+            "Opus_Search_Facet_Set",
+            "Opus_Search_Facet_Field",
+            "Opus_Search_Result_Facet",
+            "Opus_Search_Result_Match",
+            "Opus_Search_Filter_Simple"
         );
 
         foreach ($classes AS $class) {
