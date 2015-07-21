@@ -68,6 +68,7 @@ class Opus_Job_RunnerTest extends TestCase {
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
 
         $runner = new Opus_Job_Runner();
         $runner->registerWorker($indexWorker);
@@ -96,6 +97,7 @@ class Opus_Job_RunnerTest extends TestCase {
         $jobId = $job->store();
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
 
         $runner = new Opus_Job_Runner();
         $runner->registerWorker($indexWorker);

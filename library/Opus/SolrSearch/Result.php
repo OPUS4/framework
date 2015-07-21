@@ -68,7 +68,7 @@ class Opus_SolrSearch_Result {
         return $this->authors;
     }
 
-    public function  setAuthors($authors) {
+    public function setAuthors($authors) {
         $this->authors = is_array($authors) ? $authors : array($authors);
     }
 

@@ -82,7 +82,9 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * Removes all documents from Solr index.
      */
     protected function clearSolrIndex() {
-	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
+        $indexer = new Opus_SolrSearch_Index_Indexer();
+        $indexer->deleteAllDocs();
+        $indexer->commit();
     }
 
     /**
