@@ -35,6 +35,9 @@
 /**
  * Job model used to manage job descriptions.
  *
+ * @method string getLabel()
+ * @method setLabel( string )
+ *
  * @category    Framework
  * @package     Opus
  */
