@@ -13,6 +13,7 @@
 
     <testsuite name="FrameworkTests">
         <directory>./</directory>
+	    <exclude>./Opus/SolrSearch</exclude>
     </testsuite>
 
     <logging>

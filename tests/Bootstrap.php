@@ -61,9 +61,6 @@ $autoloader = Zend_Loader_Autoloader::getInstance();
 $autoloader->suppressNotFoundWarnings(false);
 $autoloader->setFallbackAutoloader(true);
 
-// Zend_Loader is'nt available yet. We have to do a require_once in order
-// to find the bootstrap class.
-
 // Do test environment initializiation.
 $application = new Zend_Application(APPLICATION_ENV,
             array(
