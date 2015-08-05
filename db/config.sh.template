@@ -1,3 +1,4 @@
+# TODO find better solution where information doesn't have to be provided in two files
 user=@db.admin.name@
 password=@db.admin.password@
 dbname=@db.name@
