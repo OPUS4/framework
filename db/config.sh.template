@@ -1,0 +1,3 @@
+user=@db.admin.name@
+password=@db.admin.password@
+dbname=@db.name@
