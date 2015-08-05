@@ -69,6 +69,7 @@
             <fileset dir="${basedir}" followsymlinks="false">
                 <include name="**/*.php"/>
                 <modified />
+                <exclude name="vendor/**"/>
             </fileset>
         </apply>
     </target>
