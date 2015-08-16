@@ -56,7 +56,7 @@ abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
         } else if ($logger instanceof Zend_Log) {
             $this->_logger = $logger;
         } else {
-            throw new IllegalArgumentException('Zend_Log instance expected.');
+            throw new InvalidArgumentException('Zend_Log instance expected.');
         }
     }
 
