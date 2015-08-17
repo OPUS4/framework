@@ -33,12 +33,15 @@
  */
 
 
-class Opus_Search_ConfigTest extends TestCase {
+class Opus_Search_ConfigTest extends SimpleTestCase {
 
 	public function testProvidesSearchConfiguration() {
 		$config = Opus_Search_Config::getServiceConfiguration( 'search', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'search', $config->marker );
 	}
 
@@ -46,6 +49,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'index', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -56,6 +62,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'extract', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'extract', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -66,6 +75,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'default', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'default', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -76,6 +88,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'special', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'search2', $config->marker );
 		$this->assertEquals( '127.0.0.2', $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -86,6 +101,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'extract', 'special', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'extract2', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -96,6 +114,9 @@ class Opus_Search_ConfigTest extends TestCase {
 		$config = Opus_Search_Config::getServiceConfiguration( 'missing', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
 		$this->assertEquals( 'default', $config->marker );
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
@@ -108,7 +129,6 @@ class Opus_Search_ConfigTest extends TestCase {
 		$this->assertInstanceOf( 'Zend_Config', $config );
 		$this->assertInstanceOf( 'Zend_Config', $config->default );
 		$this->assertInstanceOf( 'Zend_Config', $config->special );
-		$this->assertInstanceOf( 'Zend_Config', $config->query );
 	}
 
 	public function testProvidesCachedConfiguration() {
@@ -121,7 +141,6 @@ class Opus_Search_ConfigTest extends TestCase {
 
 		$configC = Opus_Search_Config::getServiceConfiguration( 'search' );
 
-		$this->assertTrue( $configA === $configB );
 		$this->assertTrue( $configA !== $configC );
 	}
 

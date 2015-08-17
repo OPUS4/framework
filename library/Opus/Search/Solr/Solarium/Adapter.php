@@ -33,8 +33,8 @@
  * @version     $Id$
  */
 
-class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexable,
-    Opus_Search_Searchable, Opus_Search_Extractable {
+class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements Opus_Search_Indexing,
+    Opus_Search_Searching, Opus_Search_Extracting {
 
 	/**
 	 * @var Zend_Config
@@ -119,7 +119,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 	/*
 	 *
-	 * -- part of Opus_Search_Indexable --
+	 * -- part of Opus_Search_Indexing --
 	 *
 	 */
 
@@ -267,7 +267,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 	/*
 	 *
-	 * -- part of Opus_Search_Searchable --
+	 * -- part of Opus_Search_Searching --
 	 *
 	 */
 
@@ -282,17 +282,11 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			throw new Opus_Search_Exception( 'invalid name of pre-defined query: ' . $name );
 		}
 
-		// lookup named query configuration of current service
+		// lookup named query in configuration of current service
 		if ( isset( $this->options->query->{$name} ) ) {
 			$definition = $this->options->query->{$name};
 		} else {
-			// fallback: lookup named query in configuration of domain of current service
-			$domainConfig = Opus_Search_Config::getDomainConfiguration( $this->getDomain() );
-			if ( isset( $domainConfig->query->{$name} ) ) {
-				$definition = $domainConfig->query->{$name};
-			} else {
-				$definition = null;
-			}
+			$definition = null;
 		}
 
 		if ( !$definition || !( $definition instanceof Zend_Config ) ) {
@@ -461,7 +455,7 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 	/*
 	 *
-	 * -- part of Opus_Search_Extractable --
+	 * -- part of Opus_Search_Extracting --
 	 *
 	 */
 
@@ -484,63 +478,70 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 
 
 			// use cached result of previous extraction if available
-			$fulltext = Opus_Search_Solr_FulltextFileCache::readOnFile( $file );
+			$fulltext = Opus_Search_FulltextFileCache::readOnFile( $file );
 			if ( $fulltext !== false ) {
 				Opus_Log::get()->info( 'Found cached fulltext for file ' . $file->getPath() );
 				return $fulltext;
 			}
 
 
+			if ( filesize( $file->getPath() ) ) {
 
-			// query Solr service for extracting fulltext data
-			$extract = $this->client->createExtract()
-				->setExtractOnly( true )
-				->setFile( $file->getPath() )
-				->setCommit( true );
+				// query Solr service for extracting fulltext data
+				$extract = $this->client->createExtract()
+				                        ->setExtractOnly( true )
+				                        ->setFile( $file->getPath() )
+				                        ->setCommit( true );
 
-			$result = $this->execute( $extract, 'failed extracting fulltext data' );
-			/** @var Solarium\QueryType\Extract\Result $response */
+				$result = $this->execute( $extract, 'failed extracting fulltext data' );
+				/** @var Solarium\QueryType\Extract\Result $response */
 
-			// got response -> extract
-			$response = $result->getData();
-			$fulltext = null;
+				// got response -> extract
+				$response = $result->getData();
+				$fulltext = null;
 
-			if ( is_array( $response ) ) {
-				$keys = array_keys( $response );
-				foreach ( $keys as $k => $key ) {
-					if ( substr( $key, -9 ) === '_metadata' && array_key_exists( substr( $key, 0, -9 ), $response ) ) {
-						unset( $response[$key] );
-					}
-				}
-
-				$fulltextData = array_shift( $response );
-				if ( is_string( $fulltextData ) ) {
-					if ( substr( $fulltextData, 0, 6 ) === '<?xml ' ) {
-						$dom = new DOMDocument();
-						$dom->loadHTML( $fulltextData );
-						$body = $dom->getElementsByTagName( "body" )->item( 0 );
-						if ( $body ) {
-							$fulltext = $body->textContent;
-						} else {
-							$fulltext = $dom->textContent;
+				if ( is_array( $response ) ) {
+					$keys = array_keys( $response );
+					foreach ( $keys as $k => $key ) {
+						if ( substr( $key, -9 ) === '_metadata' && array_key_exists( substr( $key, 0, -9 ), $response ) ) {
+							unset( $response[$key] );
 						}
-					} else {
-						$fulltext = $fulltextData;
+					}
+
+					$fulltextData = array_shift( $response );
+					if ( is_string( $fulltextData ) ) {
+						if ( substr( $fulltextData, 0, 6 ) === '<?xml ' ) {
+							$dom = new DOMDocument();
+							$dom->loadHTML( $fulltextData );
+							$body = $dom->getElementsByTagName( "body" )->item( 0 );
+							if ( $body ) {
+								$fulltext = $body->textContent;
+							} else {
+								$fulltext = $dom->textContent;
+							}
+						} else {
+							$fulltext = $fulltextData;
+						}
 					}
 				}
+
+				if ( is_null( $fulltext ) ) {
+					Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
+					$fulltext = '';
+				} else {
+					$fulltext = trim( $fulltext );
+				}
+
+			} else {
+				// empty file -> empty fulltext index
+				$fulltext = '';
 			}
 
-			if ( is_null( $fulltext ) ) {
-				Opus_Log::get()->err( 'failed extracting fulltext data from solr response' );
-				$fulltext = '';
-			} else {
-				$fulltext = trim( $fulltext );
-			}
 
 			// always write returned fulltext data to cache to keep client from
 			// re-extracting same file as query has been processed properly this
 			// time
-			Opus_Search_Solr_FulltextFileCache::writeOnFile( $file, $fulltext );
+			Opus_Search_FulltextFileCache::writeOnFile( $file, $fulltext );
 
 			return $fulltext;
 

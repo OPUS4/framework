@@ -89,7 +89,17 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 		if ( !count( $values ) ) {
 			throw new InvalidArgumentException( 'missing values on field ' . $simple->getName() );
 		} else {
-			$name = ( $negated ? '-' : '' ) . $simple->getName() . ':';
+			$name = $simple->getName();
+			if ( $name === '*' && ( count( $values ) !== 1 || $values[0] !== '*' ) ) {
+				// special case: simple term requests to match any field
+				$name = '';
+			} else {
+				$name = $name . ':';
+			}
+
+			if ( $negated ) {
+				$name = '-' . $name;
+			}
 
 			$values = array_map( function( $value ) use ( $name, $query ) {
 				return $name . Opus_Search_Solr_Filter_Helper::escapePhrase( $value );

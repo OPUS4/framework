@@ -39,11 +39,11 @@
  *
  * All configuration is available through static methods to be globally
  * accessible in code. This API implements some merging of existing
- * configuration to support fallback
+ * configuration to support fallback.
+ *
+ * @see https://github.com/soletan/opus4-framework/wiki/Runtime-Configuration
  *
  * @author Thomas Urban <thomas.urban@cepharum.de>
- *
- * TODO review Tests and check how class is used
  */
 
 class Opus_Search_Config {
@@ -89,11 +89,11 @@ class Opus_Search_Config {
 	}
 
 	/**
-	 * Retrieves configuration of selected Solr integration service.
+	 * Retrieves configuration of selected search integration service.
 	 *
 	 * @note Default is retrieved if explicitly selected service is missing.
 	 *
-	 * @param string $serviceType one out of 'index', 'search' or 'extract'
+	 * @param string $serviceType one of Opus_Search_Service::SERVICE_TYPE_* constants
 	 * @param string $serviceName name of service, omit for 'default'
 	 * @param string $serviceDomain name of domain selected service belongs to
 	 * @return Zend_Config
@@ -114,23 +114,36 @@ class Opus_Search_Config {
 
 		$base = array();
 
-		if ( isset( $config->adapterClass ) ) {
-			$base['adapterClass'] = $config->adapterClass;
+		if ( isset( $config->default->adapterClass ) ) {
+			$base['adapterClass'] = $config->default->adapterClass;
 		}
 
 		$result = new Zend_Config( $base, true );
 
-		if ( isset( $config->default->service ) ) {
-			$result->merge( $config->default->service );
+		// include most common options of current service (including
+		if ( isset( $config->default ) ) {
+			$result->merge( $config->default );
+		}
+
+		if ( $serviceName && $serviceName != 'default' ) {
+			if ( isset( $config->{$serviceName} ) ) {
+				$result->merge( $config->{$serviceName} );
+			}
+		}
+
+		// merge with more service-specific default options
+		if ( isset( $config->default->service->default ) ) {
+			$result->merge( $config->default->service->default );
 		}
 
 		if ( isset( $config->default->service->{$serviceType} ) ) {
 			$result->merge( $config->default->service->{$serviceType} );
 		}
 
+		// merge with most specific options of current named service
 		if ( $serviceName && $serviceName != 'default' ) {
-			if ( isset( $config->{$serviceName}->service ) ) {
-				$result->merge( $config->{$serviceName}->service );
+			if ( isset( $config->{$serviceName}->service->default ) ) {
+				$result->merge( $config->{$serviceName}->service->default );
 			}
 
 			if ( isset( $config->{$serviceName}->service->{$serviceType} ) ) {

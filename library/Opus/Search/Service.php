@@ -37,6 +37,26 @@ class Opus_Search_Service {
 	protected static $adaptersPool = array();
 
 
+	/**
+	 * Selects service type for querying search index.
+	 */
+
+	const SERVICE_TYPE_SEARCH = "search";
+
+	/**
+	 * Selects service type for indexing/updating search index.
+	 */
+
+	const SERVICE_TYPE_INDEX = "index";
+
+	/**
+	 * Selects service type for extracting full text from documents utilizing
+	 * search index.
+	 */
+
+	const SERVICE_TYPE_EXTRACT = "extract";
+
+
 
 	/**
 	 * Drops any cached service adapter.
@@ -55,8 +75,6 @@ class Opus_Search_Service {
 	 *
 	 * @param string $searchDomain explicitly selected search domain
 	 * @return string
-     *
-     * TODO was ist eine Domain?
 	 */
 	public static function getQualifiedDomain( $searchDomain = null ) {
 		if ( is_null( $searchDomain ) ) {
@@ -74,10 +92,10 @@ class Opus_Search_Service {
 
 	/**
 	 * @param string $serviceType one out of 'index', 'search' or 'extract'
-	 * @param string $serviceInterface required interface of service adapter, e.g. 'Opus_Search_Indexable'
+	 * @param string $serviceInterface required interface of service adapter, e.g. 'Opus_Search_Indexing'
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Indexable|Opus_Search_Searchable|Opus_Search_Extractable
+	 * @return Opus_Search_Indexing|Opus_Search_Searching|Opus_Search_Extracting
 	 * @throws Zend_Config_Exception
 	 */
 	protected static function selectService( $serviceType, $serviceInterface, $serviceName = null, $serviceDomain = null ) {
@@ -122,30 +140,30 @@ class Opus_Search_Service {
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Indexable
+	 * @return Opus_Search_Indexing
 	 * @throws Zend_Config_Exception
 	 */
 	public static function selectIndexingService( $serviceName = null, $serviceDomain = null ) {
-		return static::selectService( 'index', 'Opus_Search_Indexable', $serviceName, $serviceDomain );
+		return static::selectService( 'index', 'Opus_Search_Indexing', $serviceName, $serviceDomain );
 	}
 
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Searchable
+	 * @return Opus_Search_Searching
 	 * @throws Zend_Config_Exception
 	 */
 	public static function selectSearchingService( $serviceName = null, $serviceDomain = null ) {
-		return static::selectService( 'search', 'Opus_Search_Searchable', $serviceName, $serviceDomain );
+		return static::selectService( 'search', 'Opus_Search_Searching', $serviceName, $serviceDomain );
 	}
 
 	/**
 	 * @param string|null $serviceName name of configured service to work with
 	 * @param string $serviceDomain name of domain selected service belongs to
-	 * @return Opus_Search_Extractable
+	 * @return Opus_Search_Extracting
 	 * @throws Zend_Config_Exception
 	 */
 	public static function selectExtractingService( $serviceName = null, $serviceDomain = null ) {
-		return static::selectService( 'extract', 'Opus_Search_Extractable', $serviceName, $serviceDomain );
+		return static::selectService( 'extract', 'Opus_Search_Extracting', $serviceName, $serviceDomain );
 	}
 }

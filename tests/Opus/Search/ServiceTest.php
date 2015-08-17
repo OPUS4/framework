@@ -38,21 +38,21 @@ class Opus_Search_ServiceTest extends TestCase {
 	public function testProvidesIndexService() {
 		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Indexable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Indexing', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesExtractService() {
 		$service = Opus_Search_Service::selectExtractingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Extractable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Extracting', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 
 	public function testProvidesSearchService() {
 		$service = Opus_Search_Service::selectSearchingService( null, 'solr' );
 
-		$this->assertInstanceOf( 'Opus_Search_Searchable', $service );
+		$this->assertInstanceOf( 'Opus_Search_Searching', $service );
 		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
 	}
 

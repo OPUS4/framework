@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -7,12 +8,11 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
- * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
- * and State Library, the Saxon State Library - Dresden State and University
- * Library, the Bielefeld University Library and the University Library of
- * Hamburg University of Technology with funding from the German Research
- * Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -25,29 +25,42 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @category    Tests
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
-
 /**
- * This class provides some base class for implementing search engine adapters
- * on behalf on Opus4.
+ * Superclass for all tests.  Providing maintainance tasks.
  *
- * An adapter is a class providing unified access on several kinds of search
- * engine backends with each backend providing one or more adapters implementing
- * required interfaces Opus_Search_Searching, Opus_Search_Indexing and
- * Opus_Search_Extracting each.
+ * @category Tests
  */
+class SimpleTestCase extends PHPUnit_Framework_TestCase {
 
-abstract class Opus_Search_Adapter {
-	/**
-	 * Retrieves name of current adapter's search engine domain.
-	 *
-	 * @return string
-	 */
-	abstract public function getDomain();
+    private $config_backup;
+
+
+    /**
+     * Standard setUp method for clearing database.
+     *
+     * @return void
+     */
+    protected function setUp() {
+        parent::setUp();
+
+        $config = Zend_Registry::get('Zend_Config');
+        if (!is_null($config)) {
+            $this->config_backup = clone $config;
+        }
+    }
+
+    protected function  tearDown() {
+        if (!is_null($this->config_backup)) {
+            Zend_Registry::set('Zend_Config', $this->config_backup);
+        }
+
+        parent::tearDown();
+    }
 }
