@@ -53,6 +53,9 @@
         <exec executable="composer">
             <arg value="install" />
         </exec>
+        <exec executable="composer">
+            <arg value="update" />
+        </exec>
     </target>
 
     <target name="prepare" depends="clean">
