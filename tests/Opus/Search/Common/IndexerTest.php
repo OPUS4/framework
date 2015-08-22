@@ -251,26 +251,6 @@ class Opus_Search_Common_IndexerTest extends TestCase {
 		$this->_addOneDocumentToIndex();
 	}
 
-	public function testDeleteAllDocsInConstructor() {
-		$this->markTestSkipped( "doesn't apply to Opus_Search API" );
-
-		$this->_addOneDocumentToIndex();
-		$this->indexer = new Opus_SolrSearch_Index_Indexer( true );
-		$this->assertEquals( 0, $this->_getNumberOfIndexDocs() );
-
-		$this->indexer->deleteAllDocs();
-		$this->indexer->commit();
-		$this->_addOneDocumentToIndex();
-		$this->indexer = new Opus_SolrSearch_Index_Indexer( false );
-		$this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
-
-		$this->indexer->deleteAllDocs();
-		$this->indexer->commit();
-		$this->_addOneDocumentToIndex();
-		$this->indexer = new Opus_SolrSearch_Index_Indexer();
-		$this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
-	}
-
 	public function testAddDocumentToEmptyIndex() {
 		$this->_addOneDocumentToIndex();
 		$this->assertEquals( 1, $this->_getNumberOfIndexDocs() );
