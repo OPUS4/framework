@@ -35,7 +35,24 @@
 
 class Opus_Search_ConfigTest extends SimpleTestCase {
 
+	protected function dropDeprecatedConfiguration() {
+		$config = Opus_Config::get()->searchengine;
+
+		unset(
+			$config->index->host,
+			$config->index->port,
+			$config->index->app,
+			$config->extract->host,
+			$config->extract->port,
+			$config->extract->app
+		);
+
+		Opus_Search_Config::dropCached();
+	}
+
 	public function testProvidesSearchConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'search', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -43,9 +60,14 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
 
 		$this->assertEquals( 'search', $config->marker );
+		$this->assertNotNull( $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertNotNull( $config->endpoint->primary->path );
 	}
 
 	public function testProvidesIndexConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -59,6 +81,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesExtractConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'extract', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -72,6 +96,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesDefaultConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'default', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -85,6 +111,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesSpecialSearchConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'special', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -98,6 +126,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesSpecialExtractConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'extract', 'special', 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -111,6 +141,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesDefaultConfigurationAsFallback() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getServiceConfiguration( 'missing', null, 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -124,6 +156,8 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 	}
 
 	public function testProvidesAllSolrConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
 		$config = Opus_Search_Config::getDomainConfiguration( 'solr' );
 
 		$this->assertInstanceOf( 'Zend_Config', $config );
@@ -144,4 +178,135 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 		$this->assertTrue( $configA !== $configC );
 	}
 
+	public function testAdoptsDeprecatedSearchConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
+		// test new style configuration as provided in ini-file
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'search', $config->marker );
+		$this->assertNotNull( $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertNotNull( $config->endpoint->primary->path );
+
+		$this->assertNotEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertNotEquals( '12345', $config->endpoint->primary->port );
+		$this->assertNotEquals( '/some/fallback', $config->endpoint->primary->path );
+
+		// provide some deprecated-style configuration to overlay
+		$this->adjustConfiguration( array( 'searchengine' => array( 'index' => array(
+			'host' => '10.1.2.3',
+			'port' => 12345,
+			'app'  => 'some/fallback'
+		) ) ) );
+
+		$this->assertEquals( '10.1.2.3', Opus_Config::get()->searchengine->index->host );
+		$this->assertEquals( '12345', Opus_Config::get()->searchengine->index->port );
+		$this->assertEquals( 'some/fallback', Opus_Config::get()->searchengine->index->app );
+
+		// repeat test above now expecting to get overlaid configuration
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'search', $config->marker );
+
+		$this->assertEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertEquals( '12345', $config->endpoint->primary->port );
+		$this->assertEquals( '/some/fallback', $config->endpoint->primary->path );
+	}
+
+	public function testAdoptsDeprecatedIndexConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
+		// test new style configuration as provided in ini-file
+		$config = Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'index', $config->marker );
+		$this->assertNotNull( $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertNotNull( $config->endpoint->primary->path );
+
+		$this->assertNotEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertNotEquals( '12345', $config->endpoint->primary->port );
+		$this->assertNotEquals( '/some/fallback', $config->endpoint->primary->path );
+
+		// provide some deprecated-style configuration to overlay
+		$this->adjustConfiguration( array( 'searchengine' => array( 'index' => array(
+			'host' => '10.1.2.3',
+			'port' => 12345,
+			'app'  => 'some/fallback'
+		) ) ) );
+
+		$this->assertEquals( '10.1.2.3', Opus_Config::get()->searchengine->index->host );
+		$this->assertEquals( '12345', Opus_Config::get()->searchengine->index->port );
+		$this->assertEquals( 'some/fallback', Opus_Config::get()->searchengine->index->app );
+
+		// repeat test above now expecting to get overlaid configuration
+		$config = Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'index', $config->marker );
+
+		$this->assertEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertEquals( '12345', $config->endpoint->primary->port );
+		$this->assertEquals( '/some/fallback', $config->endpoint->primary->path );
+	}
+
+	public function testAdoptsDeprecatedExtractConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
+		// test new style configuration as provided in ini-file
+		$config = Opus_Search_Config::getServiceConfiguration( 'extract', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'extract', $config->marker );
+		$this->assertNotNull( $config->endpoint->primary->host );
+		$this->assertNotNull( $config->endpoint->primary->port );
+		$this->assertNotNull( $config->endpoint->primary->path );
+
+		$this->assertNotEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertNotEquals( '12345', $config->endpoint->primary->port );
+		$this->assertNotEquals( '/some/fallback', $config->endpoint->primary->path );
+
+		// provide some deprecated-style configuration to overlay
+		$this->adjustConfiguration( array( 'searchengine' => array( 'extract' => array(
+			'host' => '10.1.2.3',
+			'port' => 12345,
+			'app'  => 'some/fallback'
+		) ) ) );
+
+		$this->assertEquals( '10.1.2.3', Opus_Config::get()->searchengine->extract->host );
+		$this->assertEquals( '12345', Opus_Config::get()->searchengine->extract->port );
+		$this->assertEquals( 'some/fallback', Opus_Config::get()->searchengine->extract->app );
+
+		// repeat test above now expecting to get overlaid configuration
+		$config = Opus_Search_Config::getServiceConfiguration( 'extract', null, 'solr' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'extract', $config->marker );
+
+		$this->assertEquals( '10.1.2.3', $config->endpoint->primary->host );
+		$this->assertEquals( '12345', $config->endpoint->primary->port );
+		$this->assertEquals( '/some/fallback', $config->endpoint->primary->path );
+	}
 }

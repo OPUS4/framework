@@ -83,7 +83,7 @@ class Opus_SolrSearch_ResponseRenderer {
         foreach ($solrResponse->response->docs as $doc) {
             $result = new Opus_SolrSearch_Result();
             if (isset($doc->id)) $result->setId($doc->id);
-            if (isset($doc->score)) $result->setScore($doc->score);            
+            if (isset($doc->score)) $result->setScore($doc->score);
             if (isset($doc->author)) $result->setAuthors($doc->author);
             if (isset($doc->year)) $result->setYear($doc->year);
             if (isset($doc->title_output)) $result->setTitle($doc->title_output);
@@ -116,24 +116,23 @@ class Opus_SolrSearch_ResponseRenderer {
             }
         }
         catch (Exception $e) {
-            $this->log->warn("error while decoding solr's json response");            
+            $this->log->warn("error while decoding solr's json response");
         }
     }
 
     private function getFacets() {
-        $config = Zend_Registry::get('Zend_Config');
-        if (!isset($config->searchengine->solr->facets)) {
+        $facets = Opus_Search_Config::getFacetFields();
+        if (!count($facets)) {
             $this->log->debug('config parameter searchengine.solr.facets is not defined -- no facets will be displayed');
             return array();
         }
-        
+
         if (!array_key_exists('facet_counts', $this->jsonResponse) ||
             !array_key_exists('facet_fields', $this->jsonResponse['facet_counts'])) {
             return array();
         }
 
         $facetsResult = $this->jsonResponse['facet_counts']['facet_fields'];
-        $facets = explode(",", $config->searchengine->solr->facets);        
         $result = array();
         foreach ($facets as $facet) {
             $facet = trim($facet);
@@ -154,7 +153,7 @@ class Opus_SolrSearch_ResponseRenderer {
     }
 
     /**
-     * 
+     *
      * @param array $facets
      * @param string $facetName
      * @return array

@@ -43,6 +43,37 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
 
 
     /**
+     * Overwrites selected properties of current configuration.
+     *
+     * @note A test doesn't need to backup and recover replaced configuration as
+     *       this is done in setup and tear-down phases.
+     *
+     * @param array $overlay properties to overwrite existing values in configuration
+     * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
+     * @return Zend_Config reference on previously set configuration
+     */
+    protected function adjustConfiguration( $overlay, $callback = null ) {
+        $previous = Zend_Registry::get( 'Zend_Config' );
+        $updated  = new Zend_Config( array(), true );
+
+        $updated
+            ->merge( $previous )
+            ->merge( new Zend_Config( $overlay ) );
+
+        if ( is_callable( $callback ) ) {
+            $updated = call_user_func( $callback, $updated );
+        }
+
+        $updated->setReadOnly();
+
+        Zend_Registry::set( 'Zend_Config', $updated );
+
+        Opus_Search_Config::dropCached();
+
+        return $previous;
+    }
+
+    /**
      * Standard setUp method for clearing database.
      *
      * @return void

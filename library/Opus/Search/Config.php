@@ -74,6 +74,16 @@ class Opus_Search_Config {
 	 * Retrieves extract from configuration regarding integration with search
 	 * engine of selected domain.
 	 *
+	 * Search engine domains are distinct parts of configuration enabling
+	 * support for different types of search engines using different client
+	 * adapters, e.g. for querying search engine A for indexing results in
+	 * search engine B. All current use cases doesn't require to choose any
+	 * particular domain so using default by omitting parameter is okay for now.
+	 *
+	 * Domains might be used to work with different Solr XML document formats on
+	 * indexing, as well, for XSLT file is configured in scope of such a domain.
+	 * Again this might be handy on migrating from one search engine to another.
+	 *
 	 * @param string $serviceDomain name of a search engine's domain
 	 * @return Zend_Config
 	 */
@@ -85,13 +95,23 @@ class Opus_Search_Config {
 			throw new InvalidArgumentException( 'invalid search engine domain: ' . $serviceDomain );
 		}
 
+		// adopt all basically deprecated non-service-related configuration
+		$config = static::mergeWithDeprecatedDomainConfiguration( $config );
+
 		return $config;
 	}
 
 	/**
-	 * Retrieves configuration of selected search integration service.
+	 * Retrieves configuration of selected (name and) type of service.
 	 *
-	 * @note Default is retrieved if explicitly selected service is missing.
+	 * Named services may be used to apply different configurations to
+	 * different parts of application, e.g. by providing different setup for
+	 * script bulk-indexing documents or for checking consistency or for
+	 * querying to list matching documents.
+	 *
+	 * @note Default service is retrieved if explicitly selected name of service
+	 *       is missing. This enables code to request any special service by
+	 *       name without caring for meeting proper configuration.
 	 *
 	 * @param string $serviceType one of Opus_Search_Service::SERVICE_TYPE_* constants
 	 * @param string $serviceName name of service, omit for 'default'
@@ -151,6 +171,11 @@ class Opus_Search_Config {
 			}
 		}
 
+
+		// adopt all basically deprecated service-related configuration
+		$result = static::mergeWithDeprecatedServiceConfiguration( $result, $serviceType );
+
+
 		$result->setReadOnly();
 
 		self::$configurationsPool[$hash] = $result;
@@ -159,10 +184,109 @@ class Opus_Search_Config {
 	}
 
 	/**
+	 * Transparently adopts configuration used in previous releases of Opus4
+	 * working with Apache's SolrPhpClient.
+	 *
+	 * @param Zend_Config $unqualified
+	 * @return Zend_Config
+	 */
+	protected static function mergeWithDeprecatedDomainConfiguration( Zend_Config $unqualified ) {
+		$config = Opus_Config::get();
+
+		if ( $unqualified->readOnly() ) {
+			// create writable copy of provided unqualified configuration
+			$qualified = new Zend_Config( array(), true );
+			$qualified->merge( $unqualified );
+		} else {
+			// adjust provided instance directly
+			$qualified = $unqualified;
+		}
+
+
+		// merge it with non-service-related setup, only
+
+		// NOTE: searchengine.solr.facets is handled in Opus_Search_Config::getFacetFields()
+		// NOTE: searchengine.solr.facetlimit is still used in Opus_Search_Config::getFacetLimits()
+		// NOTE: searchengine.solr.globalfacetlimit is still used in Opus_Search_Config::getFacetLimits()
+		// NOTE: searchengine.solr.sortcrit is still used in Opus_Search_Config::getFacetSorting()
+
+		// searchengine.solr.xsltfile has been moved to service-related
+		// configuration to support different XSLT transformations per
+		// service
+		if ( isset( $config->searchengine->solr->xsltfile ) ) {
+			$qualified->merge( new Zend_Config( array( 'default' => array( 'service' => array( 'default' => array( 'xsltfile' => $config->searchengine->solr->xsltfile ) ) ) ) ) );
+		}
+
+		// searchengine.solr.numberOfDefaultSearchResults has been moved to
+		// searchengine.solr.parameterDefault.rows to introduce more
+		// intuitive support for configuring defaults of query parameters
+		if ( isset( $config->searchengine->solr->numberOfDefaultSearchResults ) ) {
+			$qualified->merge( new Zend_Config( array( 'parameterDefaults' => array( 'rows' => $config->searchengine->solr->numberOfDefaultSearchResults ) ) ) );
+		}
+
+
+		return $qualified;
+	}
+
+
+	/**
+	 * Transparently adopts configuration used in previous releases of Opus4
+	 * working with Apache's SolrPhpClient.
+	 *
+	 * @param Zend_Config $unqualified
+	 * @return Zend_Config
+	 */
+	protected static function mergeWithDeprecatedServiceConfiguration( Zend_Config $unqualified, $serviceType ) {
+		$deprecatedType = null;
+
+		switch ( $serviceType ) {
+			case 'search' :
+				$deprecatedType = 'index';
+				break;
+			case 'index' :
+			case 'extract' :
+				$deprecatedType = $serviceType;
+				break;
+			default :
+				// service type wasn't supported before -> don't merge anything
+				return $unqualified;
+		}
+
+
+		$config = Opus_Config::get();
+
+		if ( $unqualified->readOnly() ) {
+			// create writable copy of provided unqualified configuration
+			$qualified = new Zend_Config( array(), true );
+			$qualified->merge( $unqualified );
+		} else {
+			// adjust provided instance directly
+			$qualified = $unqualified;
+		}
+
+
+		// searchengine.{index,extract}.host
+		// searchengine.{index,extract}.port
+		// searchengine.{index,extract}.app
+		if ( isset( $config->searchengine->{$deprecatedType}->host ) ) {
+			// ensure to drop multiple new-style endpoint configurations
+			$qualified->endpoint = new Zend_Config( array( 'primary' => array(
+				'host' => $config->searchengine->{$deprecatedType}->host,
+				'port' => $config->searchengine->{$deprecatedType}->port,
+				'path' => '/' . $config->searchengine->{$deprecatedType}->app
+			) ) );
+		}
+
+
+		return $qualified;
+	}
+
+	/**
 	 * Retrieves set of field names to use in faceted search.
 	 *
-	 * @note Provided name enables use of different sets. But extracted set is
-	 *       downward compatible with previous sort of unnamed configurations.
+	 * @note Provided name enables use of different sets. Processing
+	 *       configuration is backward compatible with previous sort of unnamed
+	 *       configurations.
 	 *
 	 * @param string $facetSetName name of configured facets set
 	 * @param string $serviceDomain name of domain to read configuration of
@@ -202,6 +326,14 @@ class Opus_Search_Config {
 		return $set;
 	}
 
+	/**
+	 * Delivers map of configured facet fields into related limit of matches to
+	 * obey on faceted search.
+	 *
+	 * @param string [$facetSetName] name of particular facet set
+	 * @param string [$serviceDomain] name of searchengine domain, omit for default ("solr")
+	 * @return array array mapping field names into count limits (integers)
+	 */
 	public static function getFacetLimits( $facetSetName = null, $serviceDomain = null ) {
 		$facetSetName = is_null( $facetSetName ) ? 'default' : trim( $facetSetName );
 		if ( !$facetSetName ) {
@@ -212,7 +344,7 @@ class Opus_Search_Config {
 		$config = static::getDomainConfiguration( $serviceDomain );
 
 		// get configured limits from configuration
-		$fieldLimits = $config->get( 'facetlimit', array() );
+		$fieldLimits = $config->get( 'facetlimit', (object) array() );
 		$globalLimit = (int) $config->get( 'globalfacetlimit', 10 );
 
 		$set = array(
@@ -223,8 +355,8 @@ class Opus_Search_Config {
 		$fields = static::getFacetFields( $facetSetName, $serviceDomain );
 
 		foreach ( $fields as $field ) {
-			if ( array_key_exists( $field, $fieldLimits ) ) {
-				$set[$field] = (int) $fieldLimits[$field];
+			if ( isset( $fieldLimits->$field ) ) {
+				$set[$field] = (int) $fieldLimits->$field;
 			} else {
 				$set[$field] = $globalLimit;
 			}
@@ -232,7 +364,7 @@ class Opus_Search_Config {
 
 
 		// if facet-name is 'year_inverted', the facet values have to be sorted vice versa
-		// however, the facet-name should be 'year' (reset in framework (ResponseRenderer::getFacets())
+		// however, the facet-name should be 'year' (reset in framework ResponseRenderer::getFacets())
 		if ( array_key_exists( 'year_inverted', $set ) ) {
 			$set['year'] = $set['year_inverted'];
 			unset( $set['year_inverted'] );
@@ -242,6 +374,19 @@ class Opus_Search_Config {
 		return $set;
 	}
 
+	/**
+	 * Retrieves subset of configured facet fields mapping field's name into
+	 * "index" _if searchengine.solr.sortcrit is setting either field to "lexi"_.
+	 *
+	 * The result always lists fields configured in searchengine.solr.facets,
+	 * only, but requires either field to be given in searchengine.solr.sortcrit
+	 * additionally assigning special value there.
+	 *
+	 * @param string $facetSetName requests to fetch one of more probably configured facet field sets (e.g. to have different sets per request purpose)
+	 * @param string $serviceDomain name of service domain, omit for default ("solr")
+	 * @return array map of field names into string "index"
+	 * @throws Zend_Config_Exception
+	 */
 	public static function getFacetSorting( $facetSetName = null, $serviceDomain = null ) {
 		$facetSetName = is_null( $facetSetName ) ? 'default' : trim( $facetSetName );
 		if ( !$facetSetName ) {

@@ -92,7 +92,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 	 * Maps name of field returned by search engine into name of asset to use
 	 * on storing field's value in context of related match.
 	 *
-	 * This mapping relies on runtime configuration.
+	 * This mapping relies on runtime configuration. Mapping is defined per
+	 * service in
 	 *
 	 * @param string $fieldName
 	 * @return string
