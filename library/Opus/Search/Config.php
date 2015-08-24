@@ -130,6 +130,7 @@ class Opus_Search_Config {
 		}
 
 
+		// get domain configuration (e.g. all options with prefix searchengine.solr.*)
 		$config = static::getDomainConfiguration( $serviceDomain );
 
 		$base = array();
@@ -138,41 +139,57 @@ class Opus_Search_Config {
 			$base['adapterClass'] = $config->default->adapterClass;
 		}
 
+		// build resulting service configuration by merging several scopes of
+		// configuration to get a flattened set of configuration parameters
+		// transparently supporting fallback options (starting with generic
+		// parameters to be overwritten by more specific ones)
 		$result = new Zend_Config( $base, true );
 
-		// include most common options of current service (including
+		// most generic:
+		// -> searchengine.solr.default.*
 		if ( isset( $config->default ) ) {
 			$result->merge( $config->default );
 		}
 
+		// specific to current service, but still common:
+		// -> searchengine.solr.<service-name>.*
 		if ( $serviceName && $serviceName != 'default' ) {
 			if ( isset( $config->{$serviceName} ) ) {
 				$result->merge( $config->{$serviceName} );
 			}
 		}
 
-		// merge with more service-specific default options
+		// common to every type of service in defaults of every service
+		// -> searchengine.solr.default.service.default.*
 		if ( isset( $config->default->service->default ) ) {
 			$result->merge( $config->default->service->default );
 		}
 
+		// specific to selected type of service in defaults of every service
+		// -> searchengine.solr.default.service.(search|index|extract).*
 		if ( isset( $config->default->service->{$serviceType} ) ) {
 			$result->merge( $config->default->service->{$serviceType} );
 		}
 
-		// merge with most specific options of current named service
+		// merge with most specific options of any service explicitly requested
+		// by name
 		if ( $serviceName && $serviceName != 'default' ) {
+			// common to every type of service in scope of service requested by name
+			// -> searchengine.solr.<service-name>.service.default.*
 			if ( isset( $config->{$serviceName}->service->default ) ) {
 				$result->merge( $config->{$serviceName}->service->default );
 			}
 
+			// specific to selected type of service in scope of service requested by name
+			// -> searchengine.solr.<service-name>.service.(search|index|extract).*
 			if ( isset( $config->{$serviceName}->service->{$serviceType} ) ) {
 				$result->merge( $config->{$serviceName}->service->{$serviceType} );
 			}
 		}
 
 
-		// adopt all basically deprecated service-related configuration
+		// finally adopt all basically deprecated service-related configuration
+		// (old-style options are thus always preferred over any new-style ones)
 		$result = static::mergeWithDeprecatedServiceConfiguration( $result, $serviceType );
 
 
