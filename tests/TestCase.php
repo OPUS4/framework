@@ -96,20 +96,21 @@ class TestCase extends PHPUnit_Framework_TestCase {
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), array('.', '..'. '.gitignore'));
+            $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
         }
         else {
             $filesDir = $directory;
             $files = array_diff(scandir($filesDir), array('.', '..'));
-
         }
 
         foreach ($files as $file) {
-            if (is_dir($file)) {
-                $this->clearFiles($filesDir . DIRECTORY_SEPARATOR . $file);
+            $path = $filesDir . DIRECTORY_SEPARATOR . $file;
+
+            if (is_dir($path)) {
+                $this->clearFiles($path);
             }
             else {
-                unlink($filesDir . DIRECTORY_SEPARATOR . $file);
+                unlink($path);
             }
         }
 
