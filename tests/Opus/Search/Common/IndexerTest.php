@@ -313,7 +313,7 @@ class Opus_Search_Common_IndexerTest extends TestCase {
 	public function testRemoveMissingDocumentFromIndex() {
 		$this->_addOneDocumentToIndex();
 
-		$this->indexer->removeDocumentsFromIndex();
+		@$this->indexer->removeDocumentsFromIndex();
 	}
 
 	public function testDeleteAllDocsFromNonEmptyIndex() {
