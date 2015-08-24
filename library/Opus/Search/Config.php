@@ -290,7 +290,7 @@ class Opus_Search_Config {
 			$qualified->endpoint = new Zend_Config( array( 'primary' => array(
 				'host' => $config->searchengine->{$deprecatedType}->host,
 				'port' => $config->searchengine->{$deprecatedType}->port,
-				'path' => '/' . $config->searchengine->{$deprecatedType}->app
+				'path' => '/' . ltrim( $config->searchengine->{$deprecatedType}->app, '/' )
 			) ) );
 		}
 
