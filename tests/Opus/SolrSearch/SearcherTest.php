@@ -388,8 +388,11 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document();
         $doc->setServerState('published');
 
+        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR .
+            'fulltexts' . DIRECTORY_SEPARATOR;
+
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts/' . $fulltext1);
+        $file->setTempFile($fulltextDir . $fulltext1);
         $file->setPathName($fulltext1);
         $file->setLabel($fulltext1);
         $file->setVisibleInFrontdoor('1');
@@ -398,7 +401,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         if (!is_null($fulltext2)) {
             $doc = new Opus_Document($doc->getId());
             $file = $doc->addFile();
-            $file->setTempFile('fulltexts/' . $fulltext2);
+            $file->setTempFile($fulltextDir . $fulltext2);
             $file->setPathName($fulltext2);
             $file->setLabel($fulltext2);
             $file->setVisibleInFrontdoor('1');
