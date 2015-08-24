@@ -36,6 +36,12 @@
 
 class Opus_SolrSearch_SearcherTest extends TestCase {
 
+    public function tearDown() {
+        $this->clearFiles();
+
+        parent::tearDown();
+    }
+
     public function testLatestDocumentsQuery() {
         $rows = 5;
         $ids = array();

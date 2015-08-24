@@ -86,6 +86,41 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Deletes folders in workspace/files in case a test didn't do proper cleanup.
+     * @param null $directory
+     */
+    protected function clearFiles($directory = null) {
+        if (is_null($directory)) {
+            if (empty(APPLICATION_PATH)) {
+                return;
+            }
+            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
+                . DIRECTORY_SEPARATOR . 'files';
+            $files = array_diff(scandir($filesDir), array('.', '..'. '.gitignore'));
+        }
+        else {
+            $filesDir = $directory;
+            $files = array_diff(scandir($filesDir), array('.', '..'));
+
+        }
+
+        foreach ($files as $file) {
+            if (is_dir($file)) {
+                $this->clearFiles($filesDir . DIRECTORY_SEPARATOR . $file);
+            }
+            else {
+                unlink($filesDir . DIRECTORY_SEPARATOR . $file);
+            }
+        }
+
+        if (!is_null($directory)) {
+            rmdir($directory);
+        }
+
+        return;
+    }
+
+    /**
      * Standard setUp method for clearing database.
      *
      * @return void
