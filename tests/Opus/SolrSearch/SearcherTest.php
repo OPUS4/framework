@@ -28,7 +28,8 @@
  * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
  * @author      Michael Lang <lang@zib.de>
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
@@ -282,13 +283,13 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(1, count($success));
 
         $doc = new Opus_Document($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
+        $this->assertEquals(1, count($success));
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
@@ -302,19 +303,22 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->getSearchResultForFulltextTests();
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(1, count($failure));
 
         $doc = new Opus_Document($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
+        $this->assertEquals(1, count($failure));
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
         $this->assertEquals(0, count($success));
     }
 
+    /**
+     * TODO fix cleanup
+     */
     public function testFulltextFieldsForValidAndInvalidPDFFulltexts() {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test-invalid.pdf';
