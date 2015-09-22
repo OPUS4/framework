@@ -39,8 +39,8 @@
  *
  * An adapter is a class providing unified access on several kinds of search
  * engine backends with each backend providing one or more adapters implementing
- * required interfaces Opus_Search_Searchable, Opus_Search_Indexable and
- * Opus_Search_Extractable each.
+ * required interfaces Opus_Search_Searching, Opus_Search_Indexing and
+ * Opus_Search_Extracting each.
  */
 
 abstract class Opus_Search_Adapter {

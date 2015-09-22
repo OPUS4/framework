@@ -47,7 +47,7 @@ class Opus_SolrSearch_Index_Indexer {
      * @var Apache_Solr_Service
      */
     private $extract_server = null;
-    
+
     /**
      * Solr server URL
      * @var string
@@ -60,7 +60,7 @@ class Opus_SolrSearch_Index_Indexer {
      */
     private $extract_server_url;
 
-    /**    
+    /**
      * @var Zend_Log
      */
     private $log;
@@ -97,7 +97,7 @@ class Opus_SolrSearch_Index_Indexer {
             $urlVarName = $server . '_server_url';
             $this->$urlVarName = "http://$host:$port/$app";
         }
-        
+
         if (true === $deleteAllDocs) {
             $this->deleteAllDocs();
             $this->commit();
@@ -126,14 +126,14 @@ class Opus_SolrSearch_Index_Indexer {
      * with the Solr server.
      *
      * @return Apache_Solr_Service
-     * @throws Opus_SolrSearch_Index_Exception If no connection could be 
+     * @throws Opus_SolrSearch_Index_Exception If no connection could be
      * established or Solr server does not react.
      */
     private function getSolrServer($server) {
 
         $serverVarName = $server.'_server';
-        
-        if(isset($this->$serverVarName) 
+
+        if(isset($this->$serverVarName)
         && $this->$serverVarName instanceof Apache_Solr_Service) {
             return $this->$serverVarName;
         }
@@ -141,8 +141,8 @@ class Opus_SolrSearch_Index_Indexer {
         try {
             $config = Zend_Registry::get('Zend_Config');
             $this->$serverVarName = new Apache_Solr_Service(
-                    $config->searchengine->$server->host, 
-                    $config->searchengine->$server->port, 
+                    $config->searchengine->$server->host,
+                    $config->searchengine->$server->port,
                     $config->searchengine->$server->app);
         }
         catch (Apache_Solr_Exception $e) {
@@ -185,7 +185,7 @@ class Opus_SolrSearch_Index_Indexer {
         if (is_null($doc)) {
             throw new InvalidArgumentException("Document parameter must not be NULL.");
         }
-        try {            
+        try {
             // send xml directly to solr server instead of wrapping the document data
             // into an Apache_Solr_Document object provided by the solr php client library
             $this->sendSolrXmlToServer($this->getSolrXmlDocument($doc));
@@ -266,12 +266,14 @@ class Opus_SolrSearch_Index_Indexer {
 
         // Set up XSLT stylesheet
         $xslt = new DomDocument;
-        if (isset($config->searchengine->solr->xsltfile)) {
+        if ( isset( $config->searchengine->solr->xsltfile ) ) {
             $xsltFilePath = $config->searchengine->solr->xsltfile;
-            if (!file_exists($xsltFilePath)) {
-                throw new Application_Exception('Solr XSLT file not found.');
+            if ( !file_exists( $xsltFilePath ) ) {
+                throw new Application_Exception( 'Solr XSLT file not found.' );
             }
-            $xslt->load($xsltFilePath);
+            $xslt->load( $xsltFilePath );
+        } else {
+            throw new Application_Exception( 'Missing configuration of Solr XSLT file used to prepare Opus documents for indexing.' );
         }
 
         // Set up XSLT processor
@@ -279,7 +281,7 @@ class Opus_SolrSearch_Index_Indexer {
         $proc->importStyleSheet($xslt);
 
         $solrXmlDocument = new DOMDocument();
-        $solrXmlDocument->preserveWhiteSpace = false;        
+        $solrXmlDocument->preserveWhiteSpace = false;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
         if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
@@ -293,7 +295,7 @@ class Opus_SolrSearch_Index_Indexer {
 
     /**
      * for each file that is associated to the given document the fulltext and
-     * path information are attached to the xml representation of the document model     
+     * path information are attached to the xml representation of the document model
      *
      * @param DomDocument $modelXml
      * @param Opus_File $files
@@ -303,7 +305,7 @@ class Opus_SolrSearch_Index_Indexer {
     private function attachFulltextToXml($modelXml, $files, $docId) {
         $docXml = $modelXml->getElementsByTagName('Opus_Document')->item(0);
         if (is_null($docXml)) {
-            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);            
+            $this->log->warn('An error occurred while attaching fulltext information to the xml for document with id ' . $docId);
             return;
         }
         // only consider files which are visible in frontdoor
@@ -324,7 +326,7 @@ class Opus_SolrSearch_Index_Indexer {
                 $this->errorFileCount++;
                 $this->log->err('An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage());
             }
-            
+
             if ($fulltext != '') {
                 $element = $modelXml->createElement('Fulltext_Index');
                 $element->appendChild($modelXml->createCDATASection($fulltext));
@@ -341,9 +343,9 @@ class Opus_SolrSearch_Index_Indexer {
             }
         }
     }
-    
+
     /**
-     * 
+     *
      * @param Opus_File $file
      * @return string
      */
@@ -365,7 +367,7 @@ class Opus_SolrSearch_Index_Indexer {
      * @param Opus_File $file
      * @throws Opus_SolrSearch_Index_Exception
      * @return extracted fulltext
-     */    
+     */
     private function getFileContent(Opus_File $file) {
         $this->log->debug('extracting fulltext from ' . $file->getPath());
         if (!$file->exists()) {
@@ -423,7 +425,7 @@ class Opus_SolrSearch_Index_Indexer {
         catch (Exception $e) {
             $this->log->err(__CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e");
             return null;
-        }        
+        }
         $cache_path = realpath($config->workspacePath . "/cache/");
         $cache_filename = "solr_cache---$hash.txt";
         return $cache_path . DIRECTORY_SEPARATOR . $cache_filename;
@@ -443,7 +445,7 @@ class Opus_SolrSearch_Index_Indexer {
 
         $config = Zend_Registry::get('Zend_Config');
         $cache_file = $this->getCachedFileName($file);
-        
+
         if (is_null($cache_file)) {
             return;
         }
@@ -577,7 +579,7 @@ class Opus_SolrSearch_Index_Indexer {
         $this->log->debug('Solr Response Status: ' . $response->getHttpStatus());
         if (!$response->getRawResponse()) {
             throw new Opus_SolrSearch_Index_Exception("Solr Server {$this->index_server_url} not responding.");
-        }        
+        }
     }
 
     /**

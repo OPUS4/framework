@@ -26,54 +26,21 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Application
- * @author      Michael Lang
  * @author      Thomas Urban <thomas.urban@cepharum.de>
  * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
+
 /**
- * Defines methods provided for querying search database.
+ * Indicates invalid service e.g. due to being unavailable/offline.
  *
- * TODO should the name not be something like Searcher
+ * TODO in Ordnung?
  */
 
-interface Opus_Search_Searchable {
-
-	/**
-	 * Queries search database for set of entries matching some prepared set of
-	 * query parameters.
-	 *
-	 * @param Opus_Search_Query $query
-	 * @return Opus_Search_Result_Base set of documents matching query
-	 * @throws Opus_Search_Exception in case of error
-	 */
-	public function customSearch( Opus_Search_Query $query );
-
-	/**
-	 * Queries search database for set of matching entries using some named
-	 * query defined in configuration.
-	 *
-	 * @param string $name name of query defined in configuration
-	 * @param Opus_Search_Query $customization set of customizations to selected query
-	 * @returns Opus_Search_Result_Base set of documents matching query
-	 * @throws Opus_Search_Exception in case of error
-	 */
-	public function namedSearch( $name, Opus_Search_Query $customization = null );
-
-	/**
-	 * Creates query to use on searching documents with current adapter.
-	 *
-	 * @return Opus_Search_Query
-	 */
-	public function createQuery();
-
-	/**
-	 * Creates new complex filter instance for describing set of documents to
-	 * search for.
-	 *
-	 * @return Opus_Search_Filter_Complex
-	 */
-	public function createFilter();
+class Opus_Search_InvalidConfigurationException extends Zend_Config_Exception {
+	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
+		parent::__construct( $message, $code, $previous );
+	}
 }

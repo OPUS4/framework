@@ -67,12 +67,13 @@ autoloaderNamespaces.form = 'Form_'
 autoloaderNamespaces.controller = 'Controller_'
 
 ;SEARCH ENGINE SETTINGS
-searchengine.solr.adapterClass = Opus_Search_Solr_Solarium_Adapter
-searchengine.solr.default.service.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.default.service.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.default.service.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.default.service.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
-searchengine.solr.default.service.marker = default
+searchengine.solr.default.adapterClass = Opus_Search_Solr_Solarium_Adapter
+
+searchengine.solr.default.service.default.endpoint.primary.host = @searchengine.default.host@
+searchengine.solr.default.service.default.endpoint.primary.port = @searchengine.default.port@
+searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.default.path@
+searchengine.solr.default.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
+searchengine.solr.default.service.default.marker = default
 
 searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.default.port@
 searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.default.path@
@@ -85,23 +86,24 @@ searchengine.solr.default.service.search.marker = search
 
 searchengine.solr.default.service.extract.marker = extract
 
-; TODO was ist "special"?
-searchengine.solr.special.service.endpoint.primary.path = /solr-special/
-
+; declare separate named service used by Opus_Search_ConfigTest accessing
+; different named services
+searchengine.solr.special.service.default.endpoint.primary.path = /solr-special/
 searchengine.solr.special.service.search.endpoint.primary.host = "127.0.0.2"
 searchengine.solr.special.service.search.marker = search2
-
 searchengine.solr.special.service.extract.marker = extract2
 
-; TODO was ist "disfunct"?
-searchengine.solr.disfunct.service.endpoint.primary.host = 1.2.3.4
-searchengine.solr.disfunct.service.endpoint.primary.port = 12345
-searchengine.solr.disfunct.service.endpoint.primary.path = /solr-disfunct/
+; declare separate named service addressing unavailable host used by
+; Opus_Search_Solr_Solarium_AdapterIndexingTest
+searchengine.solr.disfunct.service.default.endpoint.primary.host = 1.2.3.4
+searchengine.solr.disfunct.service.default.endpoint.primary.port = 12345
+searchengine.solr.disfunct.service.default.endpoint.primary.path = /solr-disfunct/
 
-searchengine.solr.query.alldocs.query = "*:*"
+; declare queries in runtime configuration used by Opus_Search_QueryTest
+searchengine.solr.default.query.alldocs.query = "*:*"
 
-searchengine.solr.query.onedoc.query = "*:*"
-searchengine.solr.query.onedoc.rows = 1
+searchengine.solr.default.query.onedoc.query = "*:*"
+searchengine.solr.default.query.onedoc.rows = 1
 
 ;SEARCH ENGINE SETTINGS (deprecated)
 searchengine.index.host = @searchengine.index.host@

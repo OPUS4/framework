@@ -83,6 +83,29 @@ class Opus_Search_Filter_Simple implements Opus_Search_Filtering {
 	}
 
 	/**
+	 * Creates new simple filter on selected field.
+	 *
+	 * @param string $field name of field filter is testing
+	 * @param string $comparator comparison operator to use on testing field
+	 * @return Opus_Search_Filter_Simple
+	 */
+	public static function createOnField( $field, $comparator ) {
+		return new static( $field, $comparator );
+	}
+
+	/**
+	 * Creates new simple filter for equality-matching any field.
+	 *
+	 * @note This filter is special and might not be supported by all adapters.
+	 *
+	 * @param string $value value to look up in any field of search engine
+	 * @return Opus_Search_Filter_Simple
+	 */
+	public static function createCatchAll( $value ) {
+		return static::createOnField( '*', self::COMPARE_EQUALITY )->addValue( $value );
+	}
+
+	/**
 	 * Retrieves name of field simple comparison is performed on.
 	 *
 	 * @return string

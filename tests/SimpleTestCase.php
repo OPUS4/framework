@@ -1,5 +1,6 @@
 <?php
-/*
+
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -24,41 +25,73 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Job
- * @author      Jens Schwidder <schwidder@zib.de>
+ * @category    Tests
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 /**
- * Abstract base class for Opus job worker classes.
+ * Superclass for all tests.  Providing maintainance tasks.
+ *
+ * @category Tests
  */
-abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
+class SimpleTestCase extends PHPUnit_Framework_TestCase {
+
+    private $config_backup;
+
 
     /**
-     * Hold current logger instance.
+     * Overwrites selected properties of current configuration.
      *
-     * @var Zend_Log
+     * @note A test doesn't need to backup and recover replaced configuration as
+     *       this is done in setup and tear-down phases.
+     *
+     * @param array $overlay properties to overwrite existing values in configuration
+     * @param callable $callback callback to invoke with adjusted configuration before enabling e.g. to delete some options
+     * @return Zend_Config reference on previously set configuration
      */
-    protected $_logger = null;
+    protected function adjustConfiguration( $overlay, $callback = null ) {
+        $previous = Zend_Registry::get( 'Zend_Config' );
+        $updated  = new Zend_Config( array(), true );
+
+        $updated
+            ->merge( $previous )
+            ->merge( new Zend_Config( $overlay ) );
+
+        if ( is_callable( $callback ) ) {
+            $updated = call_user_func( $callback, $updated );
+        }
+
+        $updated->setReadOnly();
+
+        Zend_Registry::set( 'Zend_Config', $updated );
+
+        Opus_Search_Config::dropCached();
+
+        return $previous;
+    }
 
     /**
-     * Set logging facility.
+     * Standard setUp method for clearing database.
      *
-     * @param Zend_Log $logger Logger instance.
      * @return void
      */
-    public function setLogger($logger) {
-        if (null === $logger) {
-            $this->_logger = new Zend_Log(new Zend_Log_Writer_Null());
-        } else if ($logger instanceof Zend_Log) {
-            $this->_logger = $logger;
-        } else {
-            throw new InvalidArgumentException('Zend_Log instance expected.');
+    protected function setUp() {
+        parent::setUp();
+
+        $config = Zend_Registry::get('Zend_Config');
+        if (!is_null($config)) {
+            $this->config_backup = clone $config;
         }
     }
 
-}
+    protected function  tearDown() {
+        if (!is_null($this->config_backup)) {
+            Zend_Registry::set('Zend_Config', $this->config_backup);
+        }
 
+        parent::tearDown();
+    }
+}

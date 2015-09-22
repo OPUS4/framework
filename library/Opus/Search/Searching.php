@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -35,19 +34,44 @@
  */
 
 /**
- * Defines API provided for extracting fulltext data from files attached to
- * Opus documents.
- *
- * TODO should the name be something like Extractor
+ * Defines methods provided for querying search database.
  */
 
-interface Opus_Search_Extractable {
+interface Opus_Search_Searching {
+
 	/**
-	 * Extracts provided file of document.
+	 * Queries search database for set of entries matching some prepared set of
+	 * query parameters.
 	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extractable fluent interface
+	 * @param Opus_Search_Query $query
+	 * @return Opus_Search_Result_Base set of documents matching query
+	 * @throws Opus_Search_Exception in case of error
 	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+	public function customSearch( Opus_Search_Query $query );
+
+	/**
+	 * Queries search database for set of matching entries using some named
+	 * query defined in configuration.
+	 *
+	 * @param string $name name of query defined in configuration
+	 * @param Opus_Search_Query $customization set of customizations to selected query
+	 * @returns Opus_Search_Result_Base set of documents matching query
+	 * @throws Opus_Search_Exception in case of error
+	 */
+	public function namedSearch( $name, Opus_Search_Query $customization = null );
+
+	/**
+	 * Creates query to use on searching documents with current adapter.
+	 *
+	 * @return Opus_Search_Query
+	 */
+	public function createQuery();
+
+	/**
+	 * Creates new complex filter instance for describing set of documents to
+	 * search for.
+	 *
+	 * @return Opus_Search_Filter_Complex
+	 */
+	public function createFilter();
 }

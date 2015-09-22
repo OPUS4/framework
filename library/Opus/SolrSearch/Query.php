@@ -127,13 +127,7 @@ class Opus_SolrSearch_Query {
     }
 
     public static function getDefaultRows() {
-        $config = Zend_Registry::get('Zend_Config');
-        if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
-            return $config->searchengine->solr->numberOfDefaultSearchResults;
-        }
-        else {
-            return self::DEFAULT_ROWS;
-        }
+        return Opus_Search_Query::getDefaultRows();
     }
 
     public function getRows() {

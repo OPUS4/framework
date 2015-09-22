@@ -37,9 +37,7 @@
  *
  * @category Tests
  */
-class TestCase extends PHPUnit_Framework_TestCase {
-
-    private $config_backup;
+class TestCase extends SimpleTestCase {
 
     /**
      * Empty all listed tables.
@@ -129,19 +127,15 @@ class TestCase extends PHPUnit_Framework_TestCase {
     protected function setUp() {
         parent::setUp();
 
+        Opus_Search_Config::dropCached();
+        Opus_Search_Service::dropCached();
+
         $this->_clearTables();
         $this->clearSolrIndex();
-
-        $config = Zend_Registry::get('Zend_Config');
-        if (!is_null($config)) {
-            $this->config_backup = clone $config;
-        }
     }
 
-    protected function  tearDown() {
-        if (!is_null($this->config_backup)) {
-            Zend_Registry::set('Zend_Config', $this->config_backup);
-        }
+    protected function tearDown() {
+        $this->clearSolrIndex();
 
         parent::tearDown();
     }
