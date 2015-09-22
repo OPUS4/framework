@@ -37,9 +37,7 @@
  *
  * @category Tests
  */
-class TestCase extends PHPUnit_Framework_TestCase {
-
-    private $config_backup;
+class TestCase extends SimpleTestCase {
 
     /**
      * Empty all listed tables.
@@ -82,9 +80,43 @@ class TestCase extends PHPUnit_Framework_TestCase {
      * Removes all documents from Solr index.
      */
     protected function clearSolrIndex() {
-        $indexer = new Opus_SolrSearch_Index_Indexer();
-        $indexer->deleteAllDocs();
-        $indexer->commit();
+	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
+    }
+
+    /**
+     * Deletes folders in workspace/files in case a test didn't do proper cleanup.
+     * @param null $directory
+     */
+    protected function clearFiles($directory = null) {
+        if (is_null($directory)) {
+            if (empty(APPLICATION_PATH)) {
+                return;
+            }
+            $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
+                . DIRECTORY_SEPARATOR . 'files';
+            $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
+        }
+        else {
+            $filesDir = $directory;
+            $files = array_diff(scandir($filesDir), array('.', '..'));
+        }
+
+        foreach ($files as $file) {
+            $path = $filesDir . DIRECTORY_SEPARATOR . $file;
+
+            if (is_dir($path)) {
+                $this->clearFiles($path);
+            }
+            else {
+                unlink($path);
+            }
+        }
+
+        if (!is_null($directory)) {
+            rmdir($directory);
+        }
+
+        return;
     }
 
     /**
@@ -95,19 +127,15 @@ class TestCase extends PHPUnit_Framework_TestCase {
     protected function setUp() {
         parent::setUp();
 
+        Opus_Search_Config::dropCached();
+        Opus_Search_Service::dropCached();
+
         $this->_clearTables();
         $this->clearSolrIndex();
-
-        $config = Zend_Registry::get('Zend_Config');
-        if (!is_null($config)) {
-            $this->config_backup = clone $config;
-        }
     }
 
-    protected function  tearDown() {
-        if (!is_null($this->config_backup)) {
-            Zend_Registry::set('Zend_Config', $this->config_backup);
-        }
+    protected function tearDown() {
+        $this->clearSolrIndex();
 
         parent::tearDown();
     }

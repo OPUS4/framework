@@ -36,6 +36,10 @@
 
     <target name="prepare-createdb">
         <chmod file="${basedir}/db/createdb.sh" perm="+x" />
+        <copy file="${basedir}/db/config.sh.template" toFile="${basedir}/db/config.sh" filtering="true"
+              overwrite="true">
+            <filterset filtersFile="${configfile}" />
+        </copy>
     </target>
 
     <target name="prepare-config">
@@ -46,8 +50,12 @@
     </target>
 
     <target name="prepare-dependencies">
-        <symlink link="${basedir}/library/Zend" resource="${libsdir}/ZendFramework/library/Zend" failonerror="false" />
-        <symlink link="${basedir}/library/Apache" resource="${libsdir}/SolrPhpClient/Apache" failonerror="false" />
+        <exec executable="composer">
+            <arg value="install" />
+        </exec>
+        <exec executable="composer">
+            <arg value="update" />
+        </exec>
     </target>
 
     <target name="prepare" depends="clean">
@@ -64,6 +72,7 @@
             <fileset dir="${basedir}" followsymlinks="false">
                 <include name="**/*.php"/>
                 <modified />
+                <exclude name="vendor/**"/>
             </fileset>
         </apply>
     </target>

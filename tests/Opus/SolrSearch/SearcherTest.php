@@ -28,12 +28,19 @@
  * @package     Opus_SolrSearch
  * @author      Sascha Szott <szott@zib.de>
  * @author      Michael Lang <lang@zib.de>
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2015, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
 
 class Opus_SolrSearch_SearcherTest extends TestCase {
+
+    public function tearDown() {
+        $this->clearFiles();
+
+        parent::tearDown();
+    }
 
     public function testLatestDocumentsQuery() {
         $rows = 5;
@@ -45,7 +52,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
             sleep(1);
             array_push($ids, $document->getId());
         }
-        
+
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
         $query->setRows($rows);
         $searcher = new Opus_SolrSearch_Searcher();
@@ -72,9 +79,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $query->setRows(1);
         $searcher = new Opus_SolrSearch_Searcher();
         $results = $searcher->search($query);
-        
+
         $this->assertEquals(1, count($results));
-        $result = $results->getResults();        
+        $result = $results->getResults();
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified());
     }
 
@@ -101,7 +108,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $this->assertTrue($serverDateModified > $result[0]->getServerDateModified());
+        $this->assertTrue($serverDateModified > $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
     /**
@@ -115,7 +122,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
-        
+
         $collId = $root->getId();
 
         $root = new Opus_Collection($collId);
@@ -139,7 +146,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->searchDocumentsAssignedToCollection($collId);
         $this->assertEquals(1, count($result));
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
-        $serverDateModified1 = $result[0]->getServerDateModified();        
+        $serverDateModified1 = $result[0]->getServerDateModified();
 
         sleep(1);
 
@@ -152,7 +159,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
 
         $serverDateModified2 = $result[0]->getServerDateModified();
-        $this->assertTrue($serverDateModified1 == $serverDateModified2);        
+        $this->assertTrue($serverDateModified1 == $serverDateModified2);
 
         sleep(1);
 
@@ -162,7 +169,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         // document in search index was not updated: connection between document $doc
         // and collection $root is still present in search index
         $result = $this->searchDocumentsAssignedToCollection($collId);
-        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");        
+        $this->assertEquals(1, count($result), "Deletion of Collection $collId was propagated to Solr index");
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
 
         $serverDateModified3 = $result[0]->getServerDateModified();
@@ -188,7 +195,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $result = $this->searchDocumentsAssignedToCollection();
         $this->assertEquals(1, count($result));
-        
+
         $serverDateModified4 = $result[0]->getServerDateModified();
         $this->assertTrue($serverDateModified3 < $serverDateModified4);
     }
@@ -201,7 +208,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $root = $role->addRootCollection();
         $role->store();
-        
+
         $collId = $root->getId();
 
         $root = new Opus_Collection($collId);
@@ -214,7 +221,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $doc = new Opus_Document($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId was already assigned to collection $collId");
-        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();        
+        $serverDateModified1 = $doc->getServerDateModified()->getUnixTimestamp();
 
         sleep(1);
 
@@ -225,7 +232,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified2 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified1 < $serverDateModified2);        
+        $this->assertTrue($serverDateModified1 < $serverDateModified2);
 
         sleep(1);
 
@@ -236,16 +243,16 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');        
+        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
 
         sleep(1);
-        
+
         $root->delete();
 
         $doc = new Opus_Document($docId);
         $this->assertEquals(0, count($doc->getCollection()), "Document $docId is still assigned to collection $collId");
         $serverDateModified4 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');        
+        $this->assertTrue($serverDateModified3 < $serverDateModified4, 'Deletion of Collection was not observed by Document');
 
         sleep(1);
 
@@ -282,13 +289,13 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->getSearchResultForFulltextTests();
 
         $success = $result->getFulltextIDsSuccess();
-        $this->assertEquals(1, count($success));
 
         $doc = new Opus_Document($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
+        $this->assertEquals(1, count($success));
         $this->assertEquals($value, $success[0]);
 
         $failure = $result->getFulltextIDsFailure();
@@ -302,19 +309,22 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $result = $this->getSearchResultForFulltextTests();
 
         $failure = $result->getFulltextIDsFailure();
-        $this->assertEquals(1, count($failure));
 
         $doc = new Opus_Document($id);
         $file = $doc->getFile();
         $value = $file[0]->getId() . ':' . $file[0]->getRealHash('md5');
         $this->removeFiles($id, $fileName);
 
+        $this->assertEquals(1, count($failure));
         $this->assertEquals($value, $failure[0]);
 
         $success = $result->getFulltextIDsSuccess();
         $this->assertEquals(0, count($success));
     }
 
+    /**
+     * TODO fix cleanup
+     */
     public function testFulltextFieldsForValidAndInvalidPDFFulltexts() {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test-invalid.pdf';
@@ -378,8 +388,11 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document();
         $doc->setServerState('published');
 
+        $fulltextDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR .
+            'fulltexts' . DIRECTORY_SEPARATOR;
+
         $file = $doc->addFile();
-        $file->setTempFile('fulltexts/' . $fulltext1);
+        $file->setTempFile($fulltextDir . $fulltext1);
         $file->setPathName($fulltext1);
         $file->setLabel($fulltext1);
         $file->setVisibleInFrontdoor('1');
@@ -388,7 +401,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         if (!is_null($fulltext2)) {
             $doc = new Opus_Document($doc->getId());
             $file = $doc->addFile();
-            $file->setTempFile('fulltexts/' . $fulltext2);
+            $file->setTempFile($fulltextDir . $fulltext2);
             $file->setPathName($fulltext2);
             $file->setLabel($fulltext2);
             $file->setVisibleInFrontdoor('1');

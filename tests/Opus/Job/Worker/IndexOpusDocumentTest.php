@@ -50,7 +50,6 @@ class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
             'task' => 'index'));
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
-        $indexWorker->setIndex(new Opus_SolrSearch_Index_Indexer(false));
 
         $indexWorker->work($job);
 
