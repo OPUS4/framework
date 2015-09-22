@@ -44,6 +44,10 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 	 * @expectedException Opus_Search_Exception
 	 */
 	public function testDisfunctServiceFails() {
+		// need to drop deprecated configuration options for interfering with
+		// intention of this test regarding revised configuration structure, only
+		$this->dropDeprecatedConfiguration();
+
 		Opus_Search_Service::selectIndexingService( 'disfunct' );
 	}
 
@@ -256,6 +260,10 @@ class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCas
 	 * @expectedException Opus_Search_Exception
 	 */
 	public function testIndexingArticleOnDisfunctServiceFails() {
+		// need to drop deprecated configuration options for interfering with
+		// intention of this test regarding revised configuration structure, only
+		$this->dropDeprecatedConfiguration();
+
 		$service = Opus_Search_Service::selectIndexingService( 'disfunct', 'solr' );
 
 		$doc = $this->createDocument( 'article' );

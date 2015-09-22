@@ -44,6 +44,10 @@ class Opus_Search_Solr_Solarium_AdapterSearchingTest extends DocumentBasedTestCa
 	 * @expectedException Opus_Search_Exception
 	 */
 	public function testDisfunctServiceFails() {
+		// need to drop deprecated configuration options for interfering with
+		// intention of this test regarding revised configuration structure, only
+		$this->dropDeprecatedConfiguration();
+
 		Opus_Search_Service::selectSearchingService( 'disfunct', 'solr' );
 	}
 

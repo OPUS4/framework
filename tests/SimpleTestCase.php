@@ -74,6 +74,27 @@ class SimpleTestCase extends PHPUnit_Framework_TestCase {
     }
 
     /**
+     * Drops configuration options available in deprecated format supported as
+     * part of downward compatibility but breaking some tests regarding new
+     * setup due to using that deprecated configuration in preference.
+     *
+     */
+    protected function dropDeprecatedConfiguration() {
+        $config = Opus_Config::get()->searchengine;
+
+        unset(
+            $config->index->host,
+            $config->index->port,
+            $config->index->app,
+            $config->extract->host,
+            $config->extract->port,
+            $config->extract->app
+        );
+
+        Opus_Search_Config::dropCached();
+    }
+
+    /**
      * Standard setUp method for clearing database.
      *
      * @return void

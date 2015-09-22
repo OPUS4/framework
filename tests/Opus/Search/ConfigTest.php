@@ -35,21 +35,6 @@
 
 class Opus_Search_ConfigTest extends SimpleTestCase {
 
-	protected function dropDeprecatedConfiguration() {
-		$config = Opus_Config::get()->searchengine;
-
-		unset(
-			$config->index->host,
-			$config->index->port,
-			$config->index->app,
-			$config->extract->host,
-			$config->extract->port,
-			$config->extract->app
-		);
-
-		Opus_Search_Config::dropCached();
-	}
-
 	public function testProvidesSearchConfiguration() {
 		$this->dropDeprecatedConfiguration();
 
@@ -308,5 +293,61 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 		$this->assertEquals( '10.1.2.3', $config->endpoint->primary->host );
 		$this->assertEquals( '12345', $config->endpoint->primary->port );
 		$this->assertEquals( '/some/fallback', $config->endpoint->primary->path );
+	}
+
+	public function testAccessingDisfunctSearchConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'disfunct' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'search', $config->marker );
+		$this->assertEquals( '1.2.3.4', $config->endpoint->primary->host );
+		$this->assertEquals( '12345', $config->endpoint->primary->port );
+		$this->assertEquals( '/solr-disfunct/', $config->endpoint->primary->path );
+	}
+
+	public function testAccessingDisfunctIndexConfiguration() {
+		$this->dropDeprecatedConfiguration();
+
+		$config = Opus_Search_Config::getServiceConfiguration( 'index', 'disfunct' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		$this->assertEquals( 'index', $config->marker );
+		$this->assertEquals( '1.2.3.4', $config->endpoint->primary->host );
+		$this->assertEquals( '12345', $config->endpoint->primary->port );
+		$this->assertEquals( '/solr-disfunct/', $config->endpoint->primary->path );
+	}
+
+	public function testAccessingDisfunctSearchConfigurationFailsDueToDeprecated() {
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'disfunct' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		// deprecated configuration is overlaying newer configuration
+		$this->assertNotEquals( '1.2.3.4', $config->endpoint->primary->host );
+		$this->assertNotEquals( '12345', $config->endpoint->primary->port );
+		$this->assertNotEquals( '/solr-disfunct/', $config->endpoint->primary->path );
+	}
+
+	public function testAccessingDisfunctIndexConfigurationFailsDueToDeprecated() {
+		$config = Opus_Search_Config::getServiceConfiguration( 'search', 'disfunct' );
+
+		$this->assertInstanceOf( 'Zend_Config', $config );
+		$this->assertInstanceOf( 'Zend_Config', $config->query );
+		$this->assertInstanceOf( 'Zend_Config', $config->query->alldocs );
+
+		// deprecated configuration is overlaying newer configuration
+		$this->assertNotEquals( '1.2.3.4', $config->endpoint->primary->host );
+		$this->assertNotEquals( '12345', $config->endpoint->primary->port );
+		$this->assertNotEquals( '/solr-disfunct/', $config->endpoint->primary->path );
 	}
 }
