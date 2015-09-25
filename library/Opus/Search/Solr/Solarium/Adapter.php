@@ -348,6 +348,14 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 							$match->setServerDateModified( $fieldValue );
 							break;
 
+						case 'fulltext_id_success' :
+							$match->setFulltextIDsSuccess( $fieldValue );
+							break;
+
+						case 'fulltext_id_failure' :
+							$match->setFulltextIDsFailure( $fieldValue );
+							break;
+
 						default :
 							$match->setAsset( $this->mapResultFieldToAsset( $fieldName ), $fieldValue );
 							break;
