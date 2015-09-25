@@ -58,11 +58,12 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
     }
 
     public function testWithInconsistentStateAfterDeletion() {
+        $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
+
         $this->manipulateSolrConfig();
-
         $this->doc->delete();
-
         $this->restoreSolrConfig();
+
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
 
         $consistencyCheck = new Opus_Util_ConsistencyCheck();
@@ -87,8 +88,11 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
     public function testWithInconsistentStateAfterServerStateChange() {
         $this->manipulateSolrConfig();
 
-        $this->doc->setServerState('unpublished');
-        $this->doc->store();
+        try {
+            $this->doc->setServerState('unpublished');
+            $this->doc->store();
+        } catch ( Opus_Search_Exception $e ) {
+        }
 
         $this->restoreSolrConfig();
         $this->assertTrue($this->isDocumentInSearchIndex(), 'asserting that document ' . $this->docId . ' is in search index');
@@ -155,23 +159,38 @@ class Opus_Util_ConsistencyCheckTest extends TestCase {
     }
 
     private function manipulateSolrConfig() {
+        $this->dropDeprecatedConfiguration();
+
         $config = Zend_Registry::get('Zend_Config');
-        $this->indexHost = $config->searchengine->solr->default->service->endpoint->primary->host;
-        $config->searchengine->solr->default->service->endpoint->primary->host = 'example.org';
+        $this->indexHost = $config->searchengine->solr->default->service->endpoint;
 
-	    Opus_Search_Config::dropCached();
-	    Opus_Search_Service::dropCached();
+        $this->adjustConfiguration( array(), function( $config ) {
+            $config->searchengine->solr->default->service->default->endpoint = new Zend_Config( array( 'primary' => array(
+                'host' => '1.2.3.4',
+                'port' => '8983',
+                'path' => '/solr/solr',
+            ) ) );
 
-	    $this->assertEquals( 'example.org', Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
+            return $config;
+        } );
+
+	    $this->assertEquals( '1.2.3.4', Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
+
+        Opus_Search_Service::dropCached();
     }
 
     private function restoreSolrConfig() {
-        $config = Zend_Registry::get('Zend_Config');
-        $config->searchengine->solr->default->service->endpoint->primary->host = $this->indexHost;
-	    Opus_Search_Config::dropCached();
-	    Opus_Search_Service::dropCached();
+        $saved = $this->indexHost;
+
+        $this->adjustConfiguration( array(), function( $config ) use ( $saved ) {
+            $config->searchengine->solr->default->service->default->endpoint = $saved;
+
+            return $config;
+        } );
 
 	    $this->assertNotEquals( 'example.org', Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' )->endpoint->primary->host );
+
+        Opus_Search_Service::dropCached();
     }
 
     private function isDocumentInSearchIndex() {
