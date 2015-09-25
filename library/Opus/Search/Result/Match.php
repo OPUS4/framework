@@ -60,6 +60,16 @@ class Opus_Search_Result_Match {
 	protected $serverDateModified = null;
 
 	/**
+	 * @var
+	 */
+	protected $fulltextIdSuccess = null;
+
+	/**
+	 * @var
+	 */
+	protected $fulltextIdFailure = null;
+
+	/**
 	 * Caches current document's mapping of containing serieses into document's
 	 * number in either series.
 	 *
@@ -202,6 +212,42 @@ class Opus_Search_Result_Match {
 		}
 
 		return $this->getDocument()->getServerDateModified();
+	}
+
+	public function setFulltextIDsSuccess( $value ) {
+		if ( !is_null( $this->fulltextIdSuccess ) ) {
+			throw new RuntimeException( 'successful fulltext IDs have been set before' );
+		}
+
+		$this->fulltextIdSuccess = $value;
+
+		return $this;
+	}
+
+	public function getFulltextIDsSuccess() {
+		if ( !is_null( $this->fulltextIdSuccess ) ) {
+			return $this->fulltextIdSuccess;
+		}
+
+		return null;
+	}
+
+	public function setFulltextIDsFailure( $value ) {
+		if ( !is_null( $this->fulltextIdFailure ) ) {
+			throw new RuntimeException( 'failed fulltext IDs have been set before' );
+		}
+
+		$this->fulltextIdFailure = $value;
+
+		return $this;
+	}
+
+	public function getFulltextIDsFailure() {
+		if ( !is_null( $this->fulltextIdFailure ) ) {
+			return $this->fulltextIdFailure;
+		}
+
+		return null;
 	}
 
 	/**
