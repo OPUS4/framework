@@ -75,7 +75,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
 
         $this->assertEquals(1, count($results));
         $result = $results->getResults();
-        $this->assertEquals($serverDateModified, $result[0]->getServerDateModified());
+        $this->assertEquals($serverDateModified, $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
     public function testIndexFieldServerDateModifiedIsCorrectAfterModification() {
