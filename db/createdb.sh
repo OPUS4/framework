@@ -25,8 +25,6 @@ fi
 mysql_bin=/usr/bin/mysql
 # path to schema file
 schema_file=schema/opus4current.sql
-# path to different sql locations
-master_dir=masterdata/
 
 #
 # end editable part
