@@ -266,7 +266,7 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('fooblablub', $collection->getDisplayName('browsing'));
         $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
-    
+
     public function testGetDisplayFrontdoor() {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->setDisplayFrontdoor('Number');
@@ -278,10 +278,10 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('thirteen', $collection->getDisplayFrontdoor());
-        
+
         $this->role_fixture->setDisplayFrontdoor('Number, Name');
         $this->role_fixture->store();
-        
+
         $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('thirteen fooblablub', $collection->getDisplayFrontdoor());
 
@@ -578,7 +578,7 @@ class Opus_CollectionTest extends TestCase {
         $collection->setVisible(true);
         $collection->store();
     }
-    
+
     /**
      * Regression Test for OPUSVIER-3114
      */
@@ -609,7 +609,7 @@ class Opus_CollectionTest extends TestCase {
         $docReloaded = new Opus_Document($docId);
         $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
-    
+
     public function testGetSetVisiblePublish() {
         $collection = $this->role_fixture->getRootCollection();
         $collection->setVisiblePublish(1);
@@ -620,9 +620,9 @@ class Opus_CollectionTest extends TestCase {
         $cId = $collection->store();
         $collection = new Opus_Collection($cId);
         $this->assertEquals(0, $collection->getVisiblePublish());
-        
+
     }
-    
+
     /**
      * Regression Test for OPUSVIER-2726
      */
@@ -637,9 +637,9 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection(8);
         $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
-        
+
         $collection->moveBeforePrevSibling();
-        
+
         $root = new Opus_Collection(1);
         $children = $root->getChildren();
         $this->assertEquals(7, count($children));
@@ -647,16 +647,16 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($children[2]->getNumber(), 'test4');
 
         $childrenOfTest4 = $children[2]->getChildren();
-        
+
         $this->assertEquals($childrenOfTest4[0]->getNumber(), 'test4.1');
         $this->assertEquals($childrenOfTest4[1]->getNumber(), 'test4.2');
-        
+
         $this->assertEquals($children[3]->getNumber(), 'test3');
 
         $childrenOfTest3 = $children[3]->getChildren();
         $this->assertEquals($childrenOfTest3[0]->getNumber(), 'test3.1');
         $this->assertEquals($childrenOfTest3[1]->getNumber(), 'test3.2');
-        
+
         $childrenOfTest3_2 = $childrenOfTest3[1]->getChildren();
         $this->assertEquals($childrenOfTest3_2[0]->getNumber(), 'test3.2.1');
 
@@ -677,14 +677,14 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection(8);
         $this->assertEquals($collection->getNumber(), 'test4', 'Test fixture was modified.');
-        
+
         $collection->moveAfterNextSibling();
-        
+
         $root = new Opus_Collection(1);
         $children = $root->getChildren();
 
         $this->assertEquals(7, count($children));
-        
+
         $this->assertEquals($children[3]->getNumber(), 'test5');
         $this->assertEquals(count($children[3]->getChildren()), 1);
         $this->assertEquals($children[4]->getNumber(), 'test4');
@@ -715,7 +715,7 @@ class Opus_CollectionTest extends TestCase {
      *  13,1,test6    ,"Testeintrag 6",NULL,24,25,1,0,1
      *  14,1,test7    ,"Testeintrag 7",NULL,26,27,1,0,1
      */
-    
+
     protected function setUpFixtureForMoveTests() {
         $root = $this->object;
 
@@ -763,7 +763,7 @@ class Opus_CollectionTest extends TestCase {
         $children[] = $children[count($children) -1]->addLastChild();
         $children[count($children) -1]->setName('Testeintrag 5.1');
         $children[count($children) -1]->setNumber('test5.1');
-        
+
         $children[] = $root->addLastChild();
         $children[count($children) -1]->setName('Testeintrag 6');
         $children[count($children) -1]->setNumber('test6');
@@ -771,7 +771,7 @@ class Opus_CollectionTest extends TestCase {
         $children[] = $root->addLastChild();
         $children[count($children) -1]->setName('Testeintrag 7');
         $children[count($children) -1]->setNumber('test7');
-        
+
         $root->store();
     }
 
@@ -1102,6 +1102,35 @@ class Opus_CollectionTest extends TestCase {
         $validator = new NestedSetValidator($table);
 
         $this->assertTrue($validator->validate(1));
+    }
+
+    public function testDeletedCollectionRemovedFromDocument() {
+        $role = new Opus_CollectionRole();
+        $role->setName('foobar-name');
+        $role->setOaiName('foobar-oainame');
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $doc->addCollection($root);
+        $doc->store();
+
+        $documents = Opus_Collection::fetchCollectionIdsByDocumentId($docId);
+
+        $this->assertCount(1, $documents);
+        $this->assertContains($root->getId(), $documents);
+
+        $root->delete();
+
+        $documents = Opus_Collection::fetchCollectionIdsByDocumentId($docId);
+
+        $this->assertCount(0, $documents);
     }
 
 }
