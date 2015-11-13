@@ -94,8 +94,6 @@ class Opus_RequireTest extends TestCase {
             "Opus_Statistic_LocalCounter",
             "Opus_Identifier_Urn",
             "Opus_GPG",
-            "Opus_SolrSearch_ResponseRenderer",
-            "Opus_SolrSearch_FacetItem",
             "Opus_Security_Realm",
             "Opus_Model_Field",
             "Opus_Storage_File",
