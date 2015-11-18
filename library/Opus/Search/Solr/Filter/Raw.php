@@ -40,7 +40,8 @@
  * @deprecated
  */
 class Opus_Search_Solr_Filter_Raw extends Opus_Search_Filter_Base {
-	protected $rawTerm;
+
+    protected $rawTerm;
 
 	public function __construct( $rawTerm ) {
 		$this->rawTerm = $rawTerm;

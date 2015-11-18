@@ -118,6 +118,7 @@ class Opus_SolrSearch_Searcher {
 
 
 			        $fq = $query->getFilterQueries();
+
 			        if ( !empty( $fq ) ) {
 				        foreach ( $fq as $index => $sub ) {
 					        $request->setSubFilter( "fq$index", new Opus_Search_Solr_Filter_Raw( $sub ) );
