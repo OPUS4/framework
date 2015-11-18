@@ -71,7 +71,7 @@ class Opus_Search_Facet_Field {
 	 */
 	public function setLimit( $limit ) {
 		if ( !preg_match( '/^[+-]?\d+$/', trim( $limit ) ) ) {
-			throw new InvalidArgumentException( "invalid limit value" );
+			throw new InvalidArgumentException( 'invalid limit value' );
 		}
 
 		$this->data['limit'] = intval( $limit );
@@ -88,7 +88,7 @@ class Opus_Search_Facet_Field {
 	 */
 	public function setMinCount( $minCount ) {
 		if ( !preg_match( '/^[+-]?\d+$/', trim( $minCount ) ) ) {
-			throw new InvalidArgumentException( "invalid minCount value" );
+			throw new InvalidArgumentException( 'invalid minCount value' );
 		}
 
 		$this->data['mincount'] = intval( $minCount );
@@ -104,7 +104,7 @@ class Opus_Search_Facet_Field {
 	 */
 	public function setSort( $useIndex = true ) {
 		if ( !is_bool( $useIndex ) && !preg_match( '/^(count|index)$/', $useIndex = strtolower( trim( $useIndex ) ) ) ) {
-			throw new InvalidArgumentException( "invalid sort direction value" );
+			throw new InvalidArgumentException( 'invalid sort direction value' );
 		}
 
 		if ( is_bool( $useIndex ) ) {

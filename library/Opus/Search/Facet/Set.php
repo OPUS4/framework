@@ -47,14 +47,23 @@
 
 class Opus_Search_Facet_Set {
 
+    const GLOBABL_KEY = '__global__';
+
+    const LIMIT_KEY = 'limit';
+
+    const SORT_KEY = 'sort';
+
 	protected $name = 'default';
 
+    /**
+     * Default configuration for fields including limits and sorting.
+     * @var array
+     */
 	protected $config = array();
 
 	protected $fields = array();
 
 	protected $facetOnly = false;
-
 
 	/**
 	 * @param string $facetSetName name of current set of facets
@@ -66,8 +75,8 @@ class Opus_Search_Facet_Set {
 			throw new InvalidArgumentException( 'invalid facet set name' );
 		}
 
-		$this->config['limit'] = Opus_Search_Config::getFacetLimits( $facetSetName, $serviceDomain );
-		$this->config['sort'] = Opus_Search_Config::getFacetSorting( $facetSetName, $serviceDomain );
+		$this->config[self::LIMIT_KEY] = Opus_Search_Config::getFacetLimits( $facetSetName, $serviceDomain );
+		$this->config[self::SORT_KEY] = Opus_Search_Config::getFacetSorting( $facetSetName, $serviceDomain );
 
 		$this->name = $facetSetName;
 	}
@@ -97,11 +106,13 @@ class Opus_Search_Facet_Set {
 		if ( is_array( $limits ) ) {
 			// replace field-specific limits but keep previously cached global
 			// limit unless provided set is overriding that as well.
-			$this->config['limit'] = array( array( '__global__' => $this->config['limits']['__global_'] ), $limits );
-		} else if ( preg_match( '/^[+-]?\d+$/', $limits ) ) {
+			$this->config[self::LIMIT_KEY] = array_replace($this->config[self::LIMIT_KEY], $limits);
+		}
+        else if ( preg_match( '/^[+-]?\d+$/', $limits ) ) {
 			// got single integer ... reset limits to use given one globally, only
-			$this->config['limit'] = array( '__global__' => intval( $limits ) );
-		} else {
+			$this->config[self::LIMIT_KEY] = array( self::GLOBABL_KEY => intval( $limits ) );
+		}
+        else {
 			throw new InvalidArgumentException( 'invalid limits for overriding configuration' );
 		}
 
@@ -131,13 +142,19 @@ class Opus_Search_Facet_Set {
 		$field = Opus_Search_Facet_Field::create( $name )
 			->setMinCount( 1 );
 
-		if ( array_key_exists( $name, $this->config['sort'] ) ) {
-			$field->setSort( $this->config['sort'][$name] );
+		if ( array_key_exists( $name, $this->config[self::SORT_KEY] ) ) {
+			$field->setSort( $this->config[self::SORT_KEY][$name] );
 		}
 
-		if ( array_key_exists( $name, $this->config['limit'] ) ) {
-			$field->setLimit( $this->config['limit'][$name] );
+		if ( array_key_exists( $name, $this->config[self::LIMIT_KEY] ) ) {
+			$field->setLimit( $this->config[self::LIMIT_KEY][$name] );
 		}
+        else if (array_key_exists( self::GLOBABL_KEY, $this->config[self::LIMIT_KEY] )) {
+            $field->setLimit( $this->config[self::LIMIT_KEY][self::GLOBABL_KEY] );
+        }
+        else {
+            $field->setLimit(10);
+        }
 
 		$this->fields[$name] = $field;
 
