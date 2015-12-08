@@ -287,11 +287,17 @@ class Opus_Search_Config {
 		// searchengine.{index,extract}.app
 		if ( isset( $config->searchengine->{$deprecatedType}->host ) ) {
 			// ensure to drop multiple new-style endpoint configurations
-			$qualified->endpoint = new Zend_Config( array( 'primary' => array(
-				'host' => $config->searchengine->{$deprecatedType}->host,
-				'port' => $config->searchengine->{$deprecatedType}->port,
-				'path' => '/' . ltrim( $config->searchengine->{$deprecatedType}->app, '/' )
-			) ) );
+            $options = array( 'primary' => array(
+                'host' => $config->searchengine->{$deprecatedType}->host,
+                'port' => $config->searchengine->{$deprecatedType}->port,
+                'path' => '/' . ltrim( $config->searchengine->{$deprecatedType}->app, '/' )
+            ) );
+
+            if (isset($config->searchengine->{$deprecatedType}->timeout)) {
+                $options['primary']['timeout'] = $config->searchengine->{$deprecatedType}->timeout;
+            }
+
+			$qualified->endpoint = new Zend_Config( $options );
 		}
 
 

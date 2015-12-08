@@ -48,6 +48,9 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 		$this->assertNotNull( $config->endpoint->primary->host );
 		$this->assertNotNull( $config->endpoint->primary->port );
 		$this->assertNotNull( $config->endpoint->primary->path );
+
+        $this->assertNotNull( $config->endpoint->primary->timeout );
+        $this->assertEquals(10, $config->endpoint->primary->timeout );
 	}
 
 	public function testProvidesIndexConfiguration() {
@@ -230,12 +233,14 @@ class Opus_Search_ConfigTest extends SimpleTestCase {
 		$this->adjustConfiguration( array( 'searchengine' => array( 'index' => array(
 			'host' => '10.1.2.3',
 			'port' => 12345,
-			'app'  => 'some/fallback'
+			'app'  => 'some/fallback',
+            'timeout' => 20
 		) ) ) );
 
 		$this->assertEquals( '10.1.2.3', Opus_Config::get()->searchengine->index->host );
 		$this->assertEquals( '12345', Opus_Config::get()->searchengine->index->port );
 		$this->assertEquals( 'some/fallback', Opus_Config::get()->searchengine->index->app );
+        $this->assertEquals( '20', Opus_config::get()->searchengine->index->timeout );
 
 		// repeat test above now expecting to get overlaid configuration
 		$config = Opus_Search_Config::getServiceConfiguration( 'index', null, 'solr' );
