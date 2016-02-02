@@ -126,9 +126,22 @@ class Opus_Search_Result_Base {
 	 * @param string $text description on particular faceted result on field (e.g. single value in field)
 	 * @param int $count number of occurrences of facet on field in all matches
 	 * @return $this fluent interface
+     *
+     * TODO special year_inverted facet handling should be moved to separate class
 	 */
 	public function addFacet( $facetField, $text, $count ) {
 		$facetField = strval( $facetField );
+
+        // remove inverted sorting prefix from year values
+        if ($facetField === 'year_inverted') {
+            $text = explode(':', $text, 2)[1];
+
+            // treat 'year_inverted' as if it was 'year'
+            $facetField = 'year';
+        }
+
+        // treat 'year_inverted' as if it was 'year'
+        if ($facetField === 'year_inverted') $facetField = 'year';
 
 		if ( !is_array( $this->data['facets'] ) ) {
 			$this->data['facets'] = array();
