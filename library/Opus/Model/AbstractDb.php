@@ -282,9 +282,12 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             $key = get_class($plugin);
         }
         if (false === isset($this->_plugins[$key])) {
-            throw new Opus_Model_Exception('Cannot unregister specified plugin: ' . $key);
+            // don't throw exception, just write a warning
+            $this->getLogger()->warn('Cannot unregister specified plugin: ' . $key);
         }
-        unset($this->_plugins[$key]);
+        else {
+            unset($this->_plugins[$key]);
+        }
     }
 
     /**
@@ -1103,4 +1106,5 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         $logger = $registry->get('Zend_Log');
         $logger->info(__CLASS__ . ": $message");
     }
+
 }

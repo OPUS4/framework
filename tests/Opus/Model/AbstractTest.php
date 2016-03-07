@@ -349,4 +349,24 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertNull($doc->getField('FieldDoesNotExist'));
     }
 
+    public function testGetLogger() {
+        $model = new Opus_Model_ModelAbstract();
+
+        $logger = $model->getLogger();
+
+        $this->assertNotNull($logger);
+        $this->assertEquals(Zend_Registry::get('Zend_Log'), $logger);
+    }
+
+    public function testSetLogger() {
+        $logger = new Zend_Log();
+
+        $model = new Opus_Model_ModelAbstract();
+
+        $model->setLogger($logger);
+
+        $this->assertEquals($logger, $model->getLogger());
+        $this->assertNotEquals(Zend_Registry::get('Zend_Log'), $model->getLogger());
+    }
+
 }

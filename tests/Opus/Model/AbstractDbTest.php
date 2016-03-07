@@ -298,7 +298,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testIfModelIsNotStoredWhenUnmodified() {
         // A record with id 1 is created by setUp() using AbstractDataSet.xml
         // So create a mocked Model to detect certain calls
-        $mock = $this->getMock('Opus_Model_ModelAbstractDb', 
+        $mock = $this->getMock('Opus_Model_ModelAbstractDb',
             array('_storeInternalFields', '_storeExternalFields'),
             array(1));
 
@@ -311,7 +311,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         $mock->store();
     }
-    
+
     /**
      * Test if fields get their modified status set back to false after beeing
      * filled with values from the database.
@@ -691,7 +691,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testNewlyCreatedModelCanBeStoredWhenNotModified() {
         $model = new Opus_Model_ModelAbstractDb;
         $id = $model->store();
-        $this->assertNotNull($id, 'Expect newly created but unmodified model to be stored.');  
+        $this->assertNotNull($id, 'Expect newly created but unmodified model to be stored.');
     }
 
     /**
@@ -702,10 +702,10 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     public function testIsNewRecordIsFalseAfterStore() {
         $model = new Opus_Model_ModelAbstractDb;
         $id = $model->store();
-        $this->assertFalse($model->isNewRecord(), 'Expect stored model not to be marked as new record.');  
+        $this->assertFalse($model->isNewRecord(), 'Expect stored model not to be marked as new record.');
     }
 
- 
+
     /**
      * Test if a second call to store() directly after a successful store()
      * does not execute anything.
@@ -906,7 +906,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testUnregisteringPluginThatDoesNotExistShouldThrowException() {
+    public function testUnregisteringPluginThatDoesNotExistShouldNotThrowException() {
         $model = new Opus_Model_ModelAbstractDb;
 
         $plugin = $this->getMock('Opus_Model_Plugin_Abstract',
@@ -916,12 +916,10 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         $model->registerPlugin($plugin);
 
-        $this->setExpectedException('Opus_Model_Exception', 'Cannot unregister specified plugin: foobar');
-
         $model->unregisterPlugin('foobar');
     }
 
-    
+
     /**
      * Test if the modified flag of a field is set to false if no field has changed.
      *
