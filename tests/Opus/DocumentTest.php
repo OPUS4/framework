@@ -2008,7 +2008,6 @@ class Opus_DocumentTest extends TestCase {
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is not registered');
-        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_SequenceNumber'), 'Opus_Document_Plugin_SequenceNumber is registered');
     }
 
     /**
@@ -2031,7 +2030,7 @@ class Opus_DocumentTest extends TestCase {
         $retitle->setValue('Blah Blah Blah');
 
         $redoc->setTitleMain($retitle);
-        
+
         try {
             $redoc->store();
         } catch(Opus_Model_Exception $ome) {
