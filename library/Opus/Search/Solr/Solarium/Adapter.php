@@ -181,8 +181,9 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 			$this->execute( $update, 'failed committing update of documents' );
 
 			return $this;
-		} catch ( Opus_Search_Exception $e ) {
-			Opus_log::get()->err( $e->getMessage() );
+		}
+        catch ( Opus_Search_Exception $e ) {
+			Opus_Log::get()->err( $e->getMessage() );
 
 			if ( $this->options->get( 'rollback', 1 ) ) {
 				// roll back updates due to failure
@@ -448,7 +449,8 @@ class Opus_Search_Solr_Solarium_Adapter extends Opus_Search_Adapter implements O
 					$facetSet->createFacetField( $field->getName() )
 					         ->setField( $field->getName() )
 					         ->setMinCount( $field->getMinCount() )
-					         ->setLimit( $field->getLimit() );
+					         ->setLimit( $field->getLimit() )
+                             ->setSort( $field->getSort() ? 'index' : null );
 				}
 
 				if ( $facet->isFacetOnly() ) {
