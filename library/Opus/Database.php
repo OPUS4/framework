@@ -130,6 +130,8 @@ class Opus_Database {
         }
 
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
+        $pdo->exec('SET CHARACTER SET utf8');
+        $pdo->exec('SET COLLATE utf8_general_ci');
 
         return $pdo;
     }
@@ -174,7 +176,7 @@ class Opus_Database {
      */
     public function drop() {
         $dbName = $this->getName();
-        
+
         $sql = "DROP DATABASE IF EXISTS ${dbName};";
 
         $this->execWithoutDbName($sql);
@@ -210,11 +212,11 @@ class Opus_Database {
      */
     public function getSchemaFile() {
         $path = dirname(dirname(dirname(__FILE__))) . '/db/schema/opus4current.sql';
-        
+
         if (!is_file($path)) {
             throw new Exception('could not find schema file');
         }
-        
+
         return $path;
     }
 
@@ -230,5 +232,5 @@ class Opus_Database {
 
         return $this->_config;
     }
-    
+
 }
