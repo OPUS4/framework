@@ -143,5 +143,22 @@ class Opus_Search_Facet_SetTest extends SimpleTestCase {
         $facets->overrideLimits('all');
     }
 
+    public function testAddFieldSettingSorting() {
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'searchengine' => array( 'solr' => array( 'sortcrit' => array( 'institute' => 'lexi' )))
+        ))));
+
+        $facets = Opus_Search_Facet_Set::create();
+
+        $instituteField = $facets->addField('institute');
+
+        $this->assertEquals('institute', $instituteField->getName());
+
+        $this->assertNotNull($instituteField->getSort());
+        $this->assertTrue($instituteField->getSort());
+    }
+
+
+
 }
 
