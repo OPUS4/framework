@@ -44,7 +44,7 @@ class Opus_DatabaseTest extends TestCase {
     public function testGetSchemaFile() {
         $database = new Opus_Database();
 
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4current.sql', $database->getSchemaFile());
+        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $database->getSchemaFile());
     }
 
 }

@@ -212,7 +212,7 @@ class Opus_Database {
      * @throws Exception
      */
     public function getSchemaFile() {
-        $path = dirname(dirname(dirname(__FILE__))) . '/db/schema/opus4current.sql';
+        $path = dirname(dirname(dirname(__FILE__))) . '/db/schema/opus4schema.sql';
 
         if (!is_file($path)) {
             throw new Exception('could not find schema file');
