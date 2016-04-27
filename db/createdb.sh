@@ -24,7 +24,7 @@ fi
 # path to mysql binary
 mysql_bin=/usr/bin/mysql
 # path to schema file
-schema_file=schema/opus4current.sql
+schema_file=schema/opus4schema.sql
 
 #
 # end editable part
