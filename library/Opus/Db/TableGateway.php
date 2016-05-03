@@ -21,8 +21,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
@@ -98,9 +98,9 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         }
 
 
-        $insert = 'INSERT IGNORE INTO ' . $adapter->quoteTableAs($this->_name) .
+        $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
                 ' (' . implode(', ', $q_keys) . ') ' .
-                ' VALUES (' . implode(', ', $q_values) . ') ';
+                ' VALUES (' . implode(', ', $q_values) . ') ON DUPLICATE KEY UPDATE role_id = role_id';
 
         $adapter->query($insert);
         return;
@@ -131,7 +131,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         $this->delete($where);
         return;
     }
-    
+
     /**
      * FIXME: Constructor should be private due to singleton pattern. This
      * conflicts with the signature of the Zend_Db_Table_Abstract contructor.

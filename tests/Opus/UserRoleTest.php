@@ -92,6 +92,23 @@ class Opus_UserRoleTest extends TestCase {
         $ur->appendAccessDocument(1)->store();
     }
 
+    public function testAppendAccessDocumentAppendExistingIgnored() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+
+        $doc = new Opus_Document();
+        $docId = $doc->store();
+
+        $ur->appendAccessDocument($docId)->store();
+        $list_all = $ur->listAccessDocuments();
+        $this->assertEquals(1, count($list_all));
+        $this->assertEquals(array($docId), $list_all);
+
+        $ur->appendAccessDocument($docId)->store();
+        $list_all = $ur->listAccessDocuments();
+        $this->assertEquals(1, count($list_all));
+        $this->assertEquals(array($docId), $list_all);
+    }
+
     public function testAccessDocumentsInsertRemove() {
         $ur = Opus_UserRole::fetchByName('unit-test');
 
