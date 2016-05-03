@@ -38,7 +38,8 @@ class Opus_DatabaseTest extends TestCase {
 
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
-        $this->assertCount(2, $files);
+        $this->assertCount(1, $files);
+        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files[0]);
     }
 
     public function testGetSchemaFile() {
