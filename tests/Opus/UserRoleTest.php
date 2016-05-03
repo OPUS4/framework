@@ -83,6 +83,15 @@ class Opus_UserRoleTest extends TestCase {
         $this->assertEquals(0, count($list_empty));
     }
 
+    /**
+     * @expectedException Zend_Db_Statement_Exception
+     */
+    public function testAppendAccessDocumentThrowsExceptionForUnknownDokument() {
+        $ur = Opus_UserRole::fetchByName('unit-test');
+
+        $ur->appendAccessDocument(1)->store();
+    }
+
     public function testAccessDocumentsInsertRemove() {
         $ur = Opus_UserRole::fetchByName('unit-test');
 
@@ -133,7 +142,7 @@ class Opus_UserRoleTest extends TestCase {
 
         $ur->removeAccessModule('oai')->store();
     }
-    
+
     public function testGetAllAccountIdsEmpty() {
         $ur = Opus_UserRole::fetchByName('unit-test');
         $list_empty = $ur->getAllAccountIds();
