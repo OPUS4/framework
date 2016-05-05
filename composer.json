@@ -34,7 +34,14 @@
     "phpunit/phpunit-story": "1.0.*",
     "phpunit/php-invoker": "1.1.*",
     "phpunit/phpunit-selenium": "1.4.2",
-    "doctrine/instantiator": "1.0.5"
+    "doctrine/instantiator": "1.0.5",
+    "phploc/phploc": "*",
+    "phpdocumentor/phpdocumentor": "2.*",
+    "phpmd/phpmd" : "@stable",
+    "sebastian/phpcpd": "*",
+    "mayflower/php-codebrowser": "~1.1",
+    "squizlabs/php_codesniffer": "2.*",
+    "opus4-repo/codesniffer": "dev-master"
   },
   "archive": {
     "exclude": ["/tests", "/nbproject"]

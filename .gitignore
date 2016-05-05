@@ -1,16 +1,18 @@
+# Local build files
+build
+
 # Local files
 composer.phar
 composer.lock
 cache.properties
+db/config.sh
 
 # Dependencies
 vendor
 
 # Local test files
-tests/build/
 tests/config.ini
 tests/workspace
 
 # IntelliJ IDEA files
 .idea
-*.iml

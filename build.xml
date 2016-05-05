@@ -2,11 +2,11 @@
 <project name="opus4framework" default="build">
 
     <property environment="env" />
-    <property name="workspace" value="${env.WORKSPACE}" /> <!-- Wird von Jenkins gesetzt. -->
-    <property name="configfile" location="${workspace}/../opus-config.properties" />
+    <property name="configfile" location="${basedir}/../opus-config.properties" />
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
     <property name="codingstandard" location="${libsdir}/opus4cs/ruleset.xml" />
+    <property name="bindir" value="${basedir}/vendor/bin" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
 
@@ -50,12 +50,7 @@
     </target>
 
     <target name="prepare-dependencies">
-        <exec executable="composer">
-            <arg value="install" />
-        </exec>
-        <exec executable="composer">
-            <arg value="update" />
-        </exec>
+        <exec executable="${basedir}/bin/install-composer.sh" dir="${basedir}" failonerror="on" />
     </target>
 
     <target name="prepare" depends="clean">
@@ -78,7 +73,7 @@
     </target>
 
     <target name="phploc" description="Measure project size using 'phploc'.">
-        <exec executable="phploc" dir="${basedir}">
+        <exec executable="${bindir}/phploc" dir="${basedir}">
             <arg value="--log-csv" />
             <arg value="${basedir}/build/logs/phploc.csv" />
             <arg value="./library" />
@@ -86,7 +81,7 @@
     </target>
 
     <target name="phpdoc">
-        <exec executable="phpdoc" dir="${basedir}" logerror="on">
+        <exec executable="${bindir}/phpdoc" dir="${basedir}" logerror="on">
             <arg value="--directory" />
             <arg path="${basedir}/library" />
             <arg value="--target" />
@@ -96,7 +91,7 @@
 
     <target name="phpcs">
         <echo message="Coding Standard = '${codingstandard}'" />
-        <exec executable="phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
+        <exec executable="${bindir}/phpcs" dir="${basedir}" output="${basedir}/build/logs/checkstyle.xml"
               error="${basedir}/build/logs/checkstyle.error.log">
             <arg value="--report=checkstyle" />
             <arg value="--standard=${codingstandard}" />
@@ -105,13 +100,13 @@
     </target>
 
     <target name="phpmd">
-        <exec executable="phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/pmd.xml" >
+        <exec executable="${bindir}/phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/pmd.xml" >
             <arg line="--exclude tests . xml codesize,unusedcode,naming,design "/>
         </exec>
     </target>
 
     <target name="phpcpd">
-        <exec executable="phpcpd" dir="${basedir}" logerror="on" >
+        <exec executable="${bindir}/phpcpd" dir="${basedir}" logerror="on" >
             <arg line="--min-lines 3" />
             <arg line="--min-tokens 30" />
             <arg line="--log-pmd ${basedir}/build/logs/pmd-cpd.xml" />
@@ -120,7 +115,7 @@
     </target>
 
     <target name="pdepend" depends="phpunit" description="Generates software metrics charts.">
-        <exec executable="pdepend" dir="${basedir}" logerror="on">
+        <exec executable="${bindir}/pdepend" dir="${basedir}" logerror="on">
             <arg value="--coverage-report=${basedir}/build/logs/phpunit.coverage.xml" />
             <arg value="--jdepend-xml=${basedir}/build/logs/jdepend.xml" />
             <arg value="--jdepend-chart=${basedir}/build/pdepend/dependencies.svg" />
@@ -133,7 +128,7 @@
     </target>
 
     <target name="phpcb" description="Aggregates tool output with PHP_CodeBrowser.">
-        <exec executable="phpcb">
+        <exec executable="${bindir}/phpcb">
             <arg value="--log" />
             <arg path="${basedir}/build/logs" />
             <arg value="--source" />
@@ -148,7 +143,7 @@
     </target>
 
     <target name="phpunit" depends="create-database">
-        <exec executable="${basedir}/vendor/bin/phpunit" dir="${basedir}/tests" failonerror="on">
+        <exec executable="${bindir}/phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--coverage-clover ${basedir}/build/logs/phpunit.coverage.xml" />
             <arg line="--coverage-html ${basedir}/build/coverage" />
@@ -158,7 +153,7 @@
     </target>
 
     <target name="phpunit-fast" depends="create-database">
-        <exec executable="${basedir}/vendor/bin/phpunit" dir="${basedir}/tests" failonerror="on">
+        <exec executable="${bindir}/phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--configuration phpunit.xml" />
             <arg value="${testpath}" />
