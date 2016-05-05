@@ -8,7 +8,7 @@
     <property name="codingstandard" location="${basedir}/vendor/opus4-repo/codesniffer/ruleset.xml" />
     <property name="bindir" value="${basedir}/vendor/bin" />
 
-    <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
+    <target name="analyse-code" depends="phpcs,phpcpd,phploc" />
 
     <target name="build" depends="prepare,lint,analyse-code,pdepend,phpdoc,phpcb" />
 
@@ -101,7 +101,9 @@
 
     <target name="phpmd">
         <exec executable="${bindir}/phpmd" dir="${basedir}" logerror="on" output="${basedir}/build/logs/pmd.xml" >
-            <arg line="--exclude tests . xml codesize,unusedcode,naming,design "/>
+            <arg line="library" />
+            <arg line="xml" />
+            <arg line="codesize,unusedcode,naming,design" />
         </exec>
     </target>
 
