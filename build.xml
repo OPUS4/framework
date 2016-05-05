@@ -53,7 +53,7 @@
         <exec executable="${basedir}/bin/install-composer.sh" dir="${basedir}" failonerror="on" />
     </target>
 
-    <target name="prepare" depends="clean">
+    <target name="prepare" depends="clean,prepare-dependencies">
         <mkdir dir="${basedir}/build/logs" />
         <mkdir dir="${basedir}/build/api" />
         <mkdir dir="${basedir}/build/coverage" />
