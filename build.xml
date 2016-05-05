@@ -5,7 +5,7 @@
     <property name="configfile" location="${basedir}/../opus-config.properties" />
     <property name="libsdir" value="/home/opus4ci/libs" />
     <property name="testpath" value="" />
-    <property name="codingstandard" location="${libsdir}/opus4cs/ruleset.xml" />
+    <property name="codingstandard" location="${basedir}/vendor/opus4-repo/codesniffer/ruleset.xml" />
     <property name="bindir" value="${basedir}/vendor/bin" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
