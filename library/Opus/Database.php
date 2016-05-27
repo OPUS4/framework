@@ -132,9 +132,7 @@ class Opus_Database {
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         // TODO unit test for character encoding?
-        $pdo->exec('SET CHARACTER SET utf8');
-        $pdo->exec('SET COLLATE utf8_general_ci');
-
+        $pdo->exec('SET CHARACTER SET `utf8`');
 
         return $pdo;
     }
@@ -152,7 +150,7 @@ class Opus_Database {
             $qr = $pdo->exec($sql);
         }
         catch (PDOException $pdoex) {
-            echo(PHP_EOL . $pdoex->getMessage());
+            echo(PHP_EOL . $pdoex->getMessage() . PHP_EOL);
         }
     }
 
