@@ -130,9 +130,11 @@ class Opus_Database {
         }
 
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         // TODO unit test for character encoding?
         $pdo->exec('SET CHARACTER SET utf8');
         $pdo->exec('SET COLLATE utf8_general_ci');
+
 
         return $pdo;
     }
