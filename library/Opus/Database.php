@@ -48,6 +48,11 @@ class Opus_Database {
     private $_config;
 
     /**
+     * @var Zend_Log
+     */
+    private $_logger;
+
+    /**
      * @return string Name of database
      */
     public function getName() {
@@ -109,6 +114,7 @@ class Opus_Database {
             $name = substr($file, strlen(APPLICATION_PATH) + 1);
             echo("Importing '$name' ... ");
             $sql = file_get_contents($file);
+            $this->getLogger()->info("Import SQL file: $name");
             $this->exec($sql);
             echo('done' . PHP_EOL);
         }
@@ -140,6 +146,7 @@ class Opus_Database {
     /**
      * Executes SQL statement.
      * @param $sql string SQL statement
+     * TODO review error handling (one level up?)
      */
     public function exec($sql) {
         $dbName = $this->getName();
@@ -150,7 +157,10 @@ class Opus_Database {
             $qr = $pdo->exec($sql);
         }
         catch (PDOException $pdoex) {
-            echo(PHP_EOL . $pdoex->getMessage() . PHP_EOL);
+            $message = $pdoex->getMessage();
+            echo(PHP_EOL . $message . PHP_EOL);
+            $logger = $this->getLogger();
+            $logger->err($message);
         }
     }
 
@@ -232,6 +242,19 @@ class Opus_Database {
         }
 
         return $this->_config;
+    }
+
+    /**
+     * Returns logger.
+     * @return mixed|Zend_Log
+     * @throws Zend_Exception
+     */
+    public function getLogger() {
+        if (is_null($this->_logger)) {
+            $this->_logger = Zend_Registry::get('Zend_Log');
+        }
+
+        return $this->_logger;
     }
 
 }
