@@ -356,9 +356,9 @@ CREATE  TABLE IF NOT EXISTS `accounts` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `login` VARCHAR(45) NOT NULL COMMENT 'Login name.' ,
   `password` VARCHAR(45) NOT NULL COMMENT 'Password.' ,
-  `email` VARCHAR(255) NOT NULL COMMENT 'Email address.',
-  `first_name` VARCHAR(255) NOT NULL COMMENT 'First name of person.',
-  `last_name` VARCHAR(255) NOT NULL COMMENT 'Last name of person.',
+  `email` VARCHAR(255) NULL COMMENT 'Email address.',
+  `first_name` VARCHAR(255) NULL COMMENT 'First name of person.',
+  `last_name` VARCHAR(255) NULL COMMENT 'Last name of person.',
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC) )
 ENGINE = InnoDB
