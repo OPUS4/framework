@@ -109,6 +109,7 @@ class Opus_Account extends Opus_Model_AbstractDb {
         $login = new Opus_Model_Field('Login');
         $loginValidator = new Zend_Validate;
 
+        // NOTE: Validation is also defined in Application_Form_Element_Login
         $loginValidator->addValidator(new Zend_Validate_Regex('/^[A-Za-z0-9@._-]+$/'));
         $login->setValidator($loginValidator)->setMandatory(true);
 
