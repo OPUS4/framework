@@ -323,7 +323,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             $fieldValues = $fieldValues->getName();
         }
 
-        return $fieldValues;
+        return trim($fieldValues);
     }
 
     /**
