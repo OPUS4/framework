@@ -243,6 +243,16 @@ class Opus_Model_Xml_Cache {
         $where = 'document_id IN ('.$select->assemble().')';
         $this->_table->delete($where);
     }
+
+    /**
+     * Removes all cache entries.
+     *
+     * @return void
+     */
+    public function removeAllEntries() {
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $db->query('truncate table document_xml_cache');
+    }
     
     /**
      * Post cache put hook. Functionality needed to keep 

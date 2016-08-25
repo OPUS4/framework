@@ -229,8 +229,8 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $doc = new Opus_Document();
         $abstract = new Opus_TitleAbstract();
         $abstract->setLanguage('eng');
-        $handle = fopen('fulltexts/bad_abstract.txt', "rb");
-        $contents = fread($handle, filesize('fulltexts/bad_abstract.txt'));
+        $handle = fopen(APPLICATION_PATH . '/tests/fulltexts/bad_abstract.txt', "rb");
+        $contents = fread($handle, filesize(APPLICATION_PATH . '/tests/fulltexts/bad_abstract.txt'));
         $abstract->setValue($contents);
         fclose($handle);
         $doc->setTitleAbstract($abstract);
@@ -312,6 +312,20 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $this->assertTrue($result, 'Remove call returned false instead of true.');
         $this->assertEquals($beforeRemove, $afterRemove + 1, 'Expecting one cache entry are removed.');
         $this->assertFalse($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Expecting right cache entry is removed.');
+    }
+
+    public function testClearCache()
+    {
+        $this->_fillCache();
+        $cache = new Opus_Model_Xml_Cache();
+        $table = new Opus_Db_DocumentXmlCache();
+
+        $beforeRemove = $table->fetchAll()->count();
+        $cache->removeAllEntries();
+        $afterRemove = $table->fetchAll()->count();
+
+        $this->assertEquals($this->_maxEntries, $beforeRemove);
+        $this->assertEquals(0, $afterRemove);
     }
 
     /**
