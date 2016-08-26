@@ -724,5 +724,74 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertEquals('role', $roles[0]['oai_name']);
     }
 
+    public function testFetchAllOaiEnabledRolesNotVisible() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $role->setOaiName('role');
+        $role->setVisibleOai(true);
+        $role->setVisible(0);
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($root);
+        $doc->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertEmpty($roles);
+    }
+
+    public function testFetchAllOaiEnabledRolesWithCollection() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col = $root->addLastChild();
+        $col->setOaiSubset('test');
+
+        $role->setOaiName('role');
+        $role->setVisibleOai(true);
+        $role->setVisible(1);
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col);
+        $doc->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(1, $roles);
+    }
+
+    /**
+     * Return roles as enabled that have documents associated with root collection without oaisubset value.
+     */
+    public function testFetchAllOaiEnabledRolesForRootCollection() {
+        $role = $this->object;
+        $role->store();
+
+        $role->setVisibleOai(1);
+        $root = $role->addRootCollection();
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($root);
+        $doc->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(1, $roles);
+    }
+
 }
 

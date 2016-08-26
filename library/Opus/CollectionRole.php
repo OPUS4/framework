@@ -426,6 +426,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * at least one visible collection with proper oai name and at least one
      * published document).
      *
+     * The visibility and oai name of the root collection is derived from the
+     * collection role (VisibleOai and OaiName).
+     *
      * @return array Array-hash with (id, name, oai_name, count)
      *
      * @see modules/oai/controllers/IndexController.php
@@ -438,11 +441,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             FROM link_documents_collections AS l, collections_roles AS r,
                  collections AS c, documents AS d
             WHERE l.collection_id = c.id
-            AND l.document_id = d.id AND d.server_state = 'published'
+            AND l.document_id = d.id
+            AND d.server_state = 'published'
             AND c.role_id = r.id
-            AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
-            AND r.visible = 1 AND r.visible_oai = 1
-            AND r.oai_name IS NOT NULL AND r.oai_name != ''
+            AND ((c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != '') OR c.parent_id IS NULL)
+            AND r.visible = 1
+            AND r.visible_oai = 1
+            AND r.oai_name IS NOT NULL
+            AND r.oai_name != ''
             GROUP BY r.oai_name";
 
         $db = Zend_Db_Table::getDefaultAdapter();
