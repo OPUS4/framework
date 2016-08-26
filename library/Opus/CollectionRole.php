@@ -414,7 +414,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
             WHERE l.collection_id = c.id AND l.document_id = d.id
             AND c.role_id = ? AND d.server_state = 'published'
             AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
-            GROUP BY c.oai_subset";
+            GROUP BY c.id, c.oai_subset, c.number, c.name";
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $select = $db->quoteInto($select, $this->getId());
@@ -429,6 +429,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array Array-hash with (id, name, oai_name, count)
      *
      * @see modules/oai/controllers/IndexController.php
+     *
+     * TODO why does incomplete GROUP BY not cause an exception here (like in getOaiSetNames)?
      */
     public static function fetchAllOaiEnabledRoles() {
         $select = "SELECT r.id, r.name, r.oai_name,

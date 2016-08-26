@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,9 +27,9 @@
  * @category    Tests
  * @package     Opus_Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -65,7 +64,6 @@ class Opus_CollectionRoleTest extends TestCase {
         $object->setOaiName($oai_name);
 
         return $object;
-
     }
 
     /**
@@ -238,15 +236,28 @@ class Opus_CollectionRoleTest extends TestCase {
 
     }
 
+    public function testFetchByOaiName()
+    {
+        $role = $this->object;
+        $role->setOaiName('test');
+        $role->store();
+
+        $fetched = Opus_CollectionRole::fetchByOaiName('test');
+
+        $this->assertInstanceOf('Opus_CollectionRole', $fetched);
+    }
+
     /**
      * Tests fetchByOaiName().
      */
-    public function testFetchByOaiName() {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-                'This test has not been implemented yet.'
-        );
+    public function testFetchByOaiNameNoMatch()
+    {
+        $role = $this->object;
+        $role->store();
 
+        $fetched = Opus_CollectionRole::fetchByOaiName('test');
+
+        $this->assertNull($fetched);
     }
 
     /**
@@ -280,19 +291,168 @@ class Opus_CollectionRoleTest extends TestCase {
     }
 
     /**
-     * @todo Implement testGetOaiSetNames().
+     *
      */
     public function testGetOaiSetNames() {
         // List of set names on unstored object
         $setnames = $this->object->getOaiSetNames();
         $this->assertTrue(is_array($setnames), "Expected OaiSetNames array.");
+        $this->assertEmpty($setnames);
 
         // List of set names on stored object
         $this->object->store();
         $setnames = $this->object->getOaiSetNames();
         $this->assertTrue(is_array($setnames), "Expected OaiSetNames array.");
+        $this->assertEmpty($setnames);
+    }
 
-        $this->object->delete();
+    public function testGetOaiSetNamesRootCollectionWithDocument() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $root->setOaiSubset('test');
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($root);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(1, $setnames);
+        $this->assertEquals('test', $setnames[0]['oai_subset']);
+    }
+
+    public function testGetOaiSetNamesMultipleSets() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col1 = $root->addLastChild();
+        $col1->setOaiSubset('col1');
+
+        $col2 = $root->addLastChild();
+        $col2->setOaiSubset('col2');
+
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col1);
+        $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col2);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(2, $setnames);
+        $this->assertEquals('col1', $setnames[0]['oai_subset']);
+        $this->assertEquals(1, $setnames[0]['count']);
+        $this->assertEquals('col2', $setnames[1]['oai_subset']);
+        $this->assertEquals(1, $setnames[1]['count']);
+    }
+
+    public function testGetOaiSetNamesMultipleDocs() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col = $root->addLastChild();
+        $col->setOaiSubset('test');
+
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col);
+        $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(1, $setnames);
+        $this->assertEquals('test', $setnames[0]['oai_subset']);
+        $this->assertEquals(2, $setnames[0]['count']);
+    }
+
+    public function testGetOaiSetNamesCollectionWithoutOaiSubset() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $col = $root->addLastChild();
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(0, $setnames);
+    }
+
+    public function testGetOaiSetNamesCollectionNotVisible() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $col = $root->addLastChild();
+        $col->setOaiSubset('test');
+        $col->setVisible(0);
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($col);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(0, $setnames);
+    }
+
+    public function testGetOaiSetNamesDoNotIncludeEmptyCollections() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $colEmpty = $root->addLastChild();
+        $colEmpty->setOaiSubset('empty');
+
+        $colDocs = $root->addLastChild();
+        $colDocs->setOaiSubset('docs');
+
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($colDocs);
+        $doc->store();
+
+        $setnames = $role->getOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(1, $setnames);
+        $this->assertEquals('docs', $setnames[0]['oai_subset']);
     }
 
     /**
@@ -529,6 +689,40 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertTrue(in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook');
     }
 
+
+    public function testFetchAllOaiEnabledRoles() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $root->setOaiSubset('test');
+        $role->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(0, $roles);
+
+        $role->setOaiName('role');
+        $role->setVisibleOai(true);
+        $role->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(0, $roles);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($root);
+        $doc->store();
+
+        $roles = Opus_CollectionRole::fetchAllOaiEnabledRoles();
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(1, $roles);
+        $this->assertEquals('role', $roles[0]['oai_name']);
+    }
 
 }
 
