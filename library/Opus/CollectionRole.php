@@ -422,6 +422,25 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Fetches all oai subset names for this role.
+     * @return array
+     */
+    public function getAllOaiSetNames() {
+        if (is_null($this->getId())) {
+            return array();
+        }
+
+        $select = "SELECT c.id, c.oai_subset, c.number, c.name
+            FROM collections AS c
+            WHERE c.role_id = ? AND c.visible = 1 AND c.oai_subset IS NOT NULL AND c.oai_subset != ''
+            GROUP BY c.id, c.oai_subset, c.number, c.name";
+
+        $db = Zend_Db_Table::getDefaultAdapter();
+        $select = $db->quoteInto($select, $this->getId());
+        return $db->fetchAll($select);
+    }
+
+    /**
      * Returns all valid oai role (i.e. for those collection roles that contain
      * at least one visible collection with proper oai name and at least one
      * published document).

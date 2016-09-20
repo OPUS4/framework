@@ -455,6 +455,33 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertEquals('docs', $setnames[0]['oai_subset']);
     }
 
+    public function testFetchAllOaiSetNames() {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $colEmpty = $root->addLastChild();
+        $colEmpty->setOaiSubset('empty');
+
+        $colDocs = $root->addLastChild();
+        $colDocs->setOaiSubset('docs');
+
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($colDocs);
+        $doc->store();
+
+        $setnames = $role->getAllOaiSetNames();
+
+        $this->assertInternalType('array', $setnames);
+        $this->assertCount(2, $setnames);
+        $this->assertEquals('empty', $setnames[0]['oai_subset']);
+        $this->assertEquals('docs', $setnames[1]['oai_subset']);
+    }
+
     /**
      * @todo Implement testExistsDocumentIdsInSet().
      */
