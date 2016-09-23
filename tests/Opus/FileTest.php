@@ -782,5 +782,84 @@ class Opus_FileTest extends TestCase {
         $this->assertTrue(is_readable($filepath));
         return $filepath;
     }
+
+    public function testStoreDocumentWithFileAndOaiVisibleFalse()
+    {
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setVisibleInOai(false);
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+        $doc->addFile($file);
+
+        $docId = $doc->store();
+    }
+
+    /**
+     * Testing return values for GetVisibleInOai.
+     *
+     * When value false is stored it gets converted into an empty string. The framework therefore converts boolean
+     * values into integers first.
+     */
+    public function testSetGetVisibleInOai()
+    {
+        $filePath = $this->createTestFile('test.txt');
+
+        $file = new Opus_File();
+        $file->setPathName(basename($filePath));
+        $file->setTempFile($filePath);
+
+        $doc = new Opus_Document();
+
+        $file->setVisibleInOai(0);
+        $this->assertEquals(0, $file->getVisibleInOai());
+        $this->assertEquals(false, $file->getVisibleInOai());
+
+        $file->setVisibleInOai(1);
+        $this->assertEquals(1, $file->getVisibleInOai());
+
+        $file->setVisibleInOai(true);
+        $this->assertEquals(true, $file->getVisibleInOai());
+
+        $doc->addFile($file);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $files = $doc->getFile();
+        $file = $files[0];
+
+        if ($file->getVisibleInOai()) {
+        }
+        else {
+            $this->fail('Did not recognize value true.');
+        }
+
+        // $this->assertTrue($file->getVisibleInOai()); // return value is string '1'
+        $this->assertEquals(1, $file->getVisibleInOai());
+        $this->assertEquals(true, $file->getVisibleInOai());
+
+        $file->setVisibleInOai(false);
+        $this->assertEquals(false, $file->getVisibleInOai());
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $files = $doc->getFile();
+        $file = $files[0];
+
+        if ($file->getVisibleInOai()) {
+            $this->fail('Did not recognize value false.');
+        }
+
+        // $this->assertFalse($file->getVisibleInOai()); // return value is string '0'
+        $this->assertEquals(0, $file->getVisibleInOai());
+        // $this->assertEquals(false, $file->getVisibleInOai()); // return value is string '0'
+    }
+
 }
 

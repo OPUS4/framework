@@ -702,4 +702,32 @@ class Opus_Model_FieldTest extends TestCase {
         $this->assertEquals('Opus_Test', $field->getOwningModelClass());
     }
 
+    public function testSetBoolean() {
+        $field = new Opus_Model_Field('VisibleInOai');
+
+        $field->setValue(false);
+
+        $this->assertEquals(0, $field->getValue());
+        $this->assertEquals(false, $field->getValue());
+        $this->assertInternalType('int', $field->getValue());
+
+        $field->setValue(true);
+
+        $this->assertEquals(1, $field->getValue());
+        $this->assertEquals(true, $field->getValue());
+        $this->assertInternalType('int', $field->getValue());
+
+        $field->setValue(0);
+
+        $this->assertEquals(0, $field->getValue());
+        $this->assertEquals(false, $field->getValue());
+        $this->assertInternalType('int', $field->getValue());
+
+        $field->setValue(1);
+
+        $this->assertEquals(1, $field->getValue());
+        $this->assertEquals(true, $field->getValue());
+        $this->assertInternalType('int', $field->getValue());
+    }
+
 }

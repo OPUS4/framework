@@ -291,6 +291,10 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         else if (true === is_array($value) and 0 === count($value)) {
             $value = null;
         }
+        else if (is_bool($value)) {
+            // make sure 'false' is not converted to '' (empty string), but 0 for database
+            $value = (int)$value;
+        }
 
         // if null is given, delete dependent objects
         if (null === $value) {
