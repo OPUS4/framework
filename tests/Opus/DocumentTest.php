@@ -587,8 +587,10 @@ class Opus_DocumentTest extends TestCase {
         $doc->setType("doctoral_thesis");
 
         $patent = new Opus_Patent();
+        $patent->setCountries('Germany');
         $patent->setNumber('X0815');
         $patent->setDateGranted('2001-01-01');
+        $patent->setApplication('description');
 
         $doc->addPatent($patent);
         $doc->store();
@@ -649,6 +651,7 @@ class Opus_DocumentTest extends TestCase {
 
         $title = new Opus_Title();
         $title->setValue('Title of a document');
+        $title->setLanguage('eng');
 
         $doc->addTitleMain($title);
         $doc->store();
@@ -669,6 +672,7 @@ class Opus_DocumentTest extends TestCase {
 
         $abstract = new Opus_Title();
         $abstract->setValue('It is necessary to give an abstract.');
+        $abstract->setLanguage('eng');
 
         $doc->addTitleAbstract($abstract);
         $doc->store();
@@ -791,22 +795,18 @@ class Opus_DocumentTest extends TestCase {
      * Test if multiple languages are (re)stored properly.
      *
      * @return void
+     *
+     * TODO analyse usage of addLanguage function
+     *
+     * @expectedException InvalidArgumentException
+     * @expectedExceptionMessage Cannot add multiple values to Language
      */
     public function testMultipleLanguageStorage() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
         $doc->addLanguage('de');
         $doc->addLanguage('en');
-        $doc->addLanguage('fr');
-        $languages = $doc->getLanguage();
-        $id = $doc->store();
-
-        $doc = new Opus_Document($id);
-        $this->assertEquals($languages, $doc->getLanguage(), 'Document language list corrupted by storage.');
     }
 
     /**
@@ -876,17 +876,17 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testStoreUrnWithEmptyModel() {
-        $this->markTestSkipped("Creating URN for document not implemented?");
-
         $doc = new Opus_Document();
         $doc->setType("doctoral_thesis");
 
         $urn_model = new Opus_Identifier();
         $doc->setIdentifierUrn($urn_model);
         $id = $doc->store();
+
         $doc2 = new Opus_Document($id);
         $this->assertNotNull($doc2->getIdentifierUrn(0)->getValue(), 'URN value should not be empty.');
-        $urn = new Opus_Identifier_Urn('swb', '14', 'opus');
+
+        $urn = new Opus_Identifier_Urn('nbn', 'de:kobv:test-opus');
         $this->assertEquals($urn->getUrn($id), $doc2->getIdentifierUrn(0)->getValue(), 'Stored and expected URN value did not match.');
     }
 
@@ -942,11 +942,7 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testNewlyCreatedDocumentsHaveNoModifiedFields() {
-        // TODO: analyze
-        $this->markTestSkipped('TODO: analyze');
-
         $newdoc = new Opus_Document();
-        $newdoc->setType('article');
 
         $fieldnames = $newdoc->describe();
         foreach ($fieldnames as $fieldname) {
@@ -1020,6 +1016,8 @@ class Opus_DocumentTest extends TestCase {
         $patent = new Opus_Patent();
         $patent->setNumber('08 15');
         $patent->setDateGranted('2008-07-07');
+        $patent->setCountries('Germany');
+        $patent->setApplication('description');
         $doc->addPatent($patent);
 
         $docId = $doc->store();
@@ -1606,7 +1604,7 @@ class Opus_DocumentTest extends TestCase {
 
         // Insert invalid entry into database...
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $table->insert(array('server_date_published' => '1234'));
+        $table->insert(array('server_date_published' => '1234', 'server_date_created' => '1234'));
         $invalidDate = Opus_Document::getEarliestPublicationDate();
         $this->assertNull($invalidDate, "Expected NULL on invalid date.");
     }
@@ -2017,6 +2015,7 @@ class Opus_DocumentTest extends TestCase {
 
         $title = new Opus_Title();
         $title->setValue('Blah Blah');
+        $title->setLanguage('deu');
 
         $doc = new Opus_Document();
         $doc->setTitleMain($title);
@@ -2028,6 +2027,7 @@ class Opus_DocumentTest extends TestCase {
 
         $retitle = new Opus_Title();
         $retitle->setValue('Blah Blah Blah');
+        $retitle->setLanguage('deu');
 
         $redoc->setTitleMain($retitle);
 
@@ -2206,7 +2206,8 @@ class Opus_DocumentTest extends TestCase {
         $this->assertTrue($doc->hasEmbargoPassed($now));
     }
 
-    public function testIsNewRecord() {
+    public function testIsNewRecord()
+    {
         $doc = new Opus_Document();
 
         $this->assertTrue($doc->isNewRecord());

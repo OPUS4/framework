@@ -55,6 +55,7 @@ class DocumentBasedTestCase extends TestCase {
 			'TitleMain' => array(
 				'Value' => 'Test Main Article',
 				'Type' => 'main',
+                'Language' => 'deu'
 			)
 		),
 		'book' => array(
@@ -105,7 +106,8 @@ class DocumentBasedTestCase extends TestCase {
 			),
 			'TitleMain' => array(
 				'Value' => 'A Monograph On Indexing',
-			    'Type' => 'main'
+			    'Type' => 'main',
+                'Language' => 'eng'
 			)
 		),
 		'report' => array(

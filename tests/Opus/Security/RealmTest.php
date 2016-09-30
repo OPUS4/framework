@@ -108,7 +108,9 @@ class Opus_Security_RealmTest extends TestCase {
     private function setUpDocument($rolId) {
         // document
         $doc = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $docId = $doc->insert(array());
+
+        // server_date_created does not have a default value in schema and therefore must be set
+        $docId = $doc->insert(array('server_date_created' => '1234'));
 
         // connect document and role
         $ad = Opus_Db_TableGateway::getInstance('Opus_Db_AccessDocuments');
@@ -122,7 +124,9 @@ class Opus_Security_RealmTest extends TestCase {
 
         // file
         $file = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentFiles');
-        $fileId = $file->insert(array('document_id' => $docId));
+
+        // path_name does not have a default value and therefore must be set
+        $fileId = $file->insert(array('document_id' => $docId, 'path_name' => 'test.txt'));
 
         // connect file and role
         $af = Opus_Db_TableGateway::getInstance('Opus_Db_AccessFiles');

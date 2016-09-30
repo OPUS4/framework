@@ -296,6 +296,7 @@ class Opus_DocumentFinderTest extends TestCase {
         // test dependent model
         $title = $doc3->addTitleMain();
         $title->setValue('Ein deutscher Titel');
+        $title->setLanguage('deu');
         $titleId = $title->store();
 
         $title = new Opus_Title($titleId);

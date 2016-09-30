@@ -164,6 +164,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
             
         }
         $title->setValue('Ein deutscher Titel');
+        $title->setLanguage('deu');
         $titleId = $title->store();
 
         $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry before title');
