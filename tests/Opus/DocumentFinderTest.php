@@ -221,28 +221,49 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testCountsAfterSort() {
+    public function testCountsAfterSortByAuthorLastName()
+    {
         $this->prepareDocuments();
 
         // By Author
         $finder = new Opus_DocumentFinder();
         $finder->orderByAuthorLastname();
         $this->assertEquals(6, count($finder->ids()));
+    }
+
+    public function testCountsAfterSortById()
+    {
+        $this->prepareDocuments();
 
         // By Id
         $finder = new Opus_DocumentFinder();
         $finder->orderById();
         $this->assertEquals(6, count($finder->ids()));
+    }
+
+    public function testCountsAfterSortByServerDatePublished()
+    {
+        $this->prepareDocuments();
 
         // By ServerDatePublished
         $finder = new Opus_DocumentFinder();
         $finder->orderByServerDatePublished();
         $this->assertEquals(6, count($finder->ids()));
+    }
+
+    public function testCountsAfterSortByTitleMain()
+    {
+        $this->prepareDocuments();
 
         // By TitleMain
         $finder = new Opus_DocumentFinder();
         $finder->orderByTitleMain();
         $this->assertEquals(6, count($finder->ids()));
+    }
+
+    public function testCountsAfterSortByType()
+    {
+        $this->prepareDocuments();
 
         // By DocumentType
         $finder = new Opus_DocumentFinder();
