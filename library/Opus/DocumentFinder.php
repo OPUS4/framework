@@ -28,9 +28,9 @@
  * @category    Framework
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2011-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -84,10 +84,13 @@ class Opus_DocumentFinder {
     /**
      * Returns a list of (distinct) document ids for the given constraint set.
      *
+     * NOTE: It was not possible to make sure only DISTINCT identifiers are returned. Therefore array_unique is used.
+     * See OPUSVIER-3644 for more information.
+     *
      * @return array
      */
     public function ids() {
-        return $this->_db->fetchCol($this->getSelectIds());
+        return array_unique($this->_db->fetchCol($this->getSelectIds()));
     }
 
     /**
@@ -106,7 +109,7 @@ class Opus_DocumentFinder {
      */
     public function getSelectIds() {
         $this->_select->reset('columns');
-        $this->_select->distinct(true)->columns("id");
+        $this->_select->distinct(false)->columns('id');
         return $this->_select;
     }
 
@@ -613,7 +616,7 @@ class Opus_DocumentFinder {
                     array('pd' => 'link_persons_documents'), 'd.id = pd.document_id AND pd.role = "author"', array()
                 )
                 ->joinLeft(array('p' => 'persons'), 'pd.person_id = p.id', array())
-                ->group('d.id')
+                ->group(array('d.id', 'p.last_name'))
                 ->order('p.last_name ' . ($order ? 'ASC' : 'DESC'));
         return $this;
     }
@@ -629,7 +632,7 @@ class Opus_DocumentFinder {
                 ->joinLeft(
                     array('t' => 'document_title_abstracts'), 't.document_id = d.id AND t.type = "main"', array()
                 )
-                ->group('d.id')
+                ->group(array('d.id', 't.value'))
                 ->order('t.value ' . ($order ? 'ASC' : 'DESC'));
         return $this;
     }

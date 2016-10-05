@@ -28,9 +28,9 @@
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2011-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -50,20 +50,52 @@ class Opus_DocumentFinderTest extends TestCase {
                 ->setServerState('published')
                 ->store();
 
+        $title = $publishedDoc1->addTitleMain();
+        $title->setValue('Title 1');
+        $title->setLanguage('deu');
+
+        $title = $publishedDoc1->addTitleMain();
+        $title->setValue('Title 2');
+        $title->setLanguage('eng');
+
+        $publishedDoc1->store();
+
         $publishedDoc2 = new Opus_Document();
         $publishedDoc2->setType("article")
                 ->setServerState('published')
                 ->store();
+
+        $title = $publishedDoc2->addTitleMain();
+        $title->setValue('A Title 1');
+        $title->setLanguage('deu');
+
+        $publishedDoc2->store();
 
         $unpublishedDoc1 = new Opus_Document();
         $unpublishedDoc1->setType("doctoral_thesis")
                 ->setServerState('unpublished')
                 ->store();
 
+        $person = new Opus_Person();
+        $person->setLastName('B');
+        $unpublishedDoc1->addPersonAuthor($person);
+
+        $unpublishedDoc1->store();
+
         $unpublishedDoc2 = new Opus_Document();
         $unpublishedDoc2->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
+
+        $person = new Opus_Person();
+        $person->setLastName('C');
+        $unpublishedDoc2->addPersonAuthor($person);
+
+        $person = new Opus_Person();
+        $person->setLastName('A');
+        $unpublishedDoc2->addPersonAuthor($person);
+
+        $unpublishedDoc2->store();
 
         $deletedDoc1 = new Opus_Document();
         $deletedDoc1->setType("article")
@@ -221,54 +253,106 @@ class Opus_DocumentFinderTest extends TestCase {
      *
      * @return void
      */
-    public function testCountsAfterSortByAuthorLastName()
+    public function testSortByAuthorLastName()
     {
         $this->prepareDocuments();
 
         // By Author
         $finder = new Opus_DocumentFinder();
         $finder->orderByAuthorLastname();
-        $this->assertEquals(6, count($finder->ids()));
+
+        $docs = $finder->ids();
+
+        $this->assertEquals(6, count($docs));
+
+        $this->assertEquals(4, $docs[4]);
+        $this->assertEquals(3, $docs[5]);
     }
 
-    public function testCountsAfterSortById()
+    public function testSortById()
     {
         $this->prepareDocuments();
 
         // By Id
         $finder = new Opus_DocumentFinder();
         $finder->orderById();
-        $this->assertEquals(6, count($finder->ids()));
+
+        $docs = $finder->ids();
+
+        $this->assertEquals(6, count($docs));
+
+        $lastDoc = $docs[0];
+
+        foreach ($docs as $docId)
+        {
+            if ($lastDoc > $docId) {
+                $this->fail('documents are not sorted by id');
+            }
+        }
     }
 
-    public function testCountsAfterSortByServerDatePublished()
+    public function testSortByServerDatePublished()
     {
         $this->prepareDocuments();
 
         // By ServerDatePublished
         $finder = new Opus_DocumentFinder();
         $finder->orderByServerDatePublished();
-        $this->assertEquals(6, count($finder->ids()));
+
+        $docs = $finder->ids();
+
+        $this->assertEquals(6, count($docs));
+
+        $lastDate = null;
+
+        foreach ($docs as $docId) {
+            $doc = new Opus_Document($docId);
+            if (is_null($lastDate)) {
+                $lastDate = $doc->getServerDatePublished();
+            }
+            if ($lastDate > $doc->getServerDatePublished()) {
+                $this->fail('documents are not sorted properly');
+            }
+
+        }
     }
 
-    public function testCountsAfterSortByTitleMain()
+    public function testSortByTitleMain()
     {
         $this->prepareDocuments();
 
         // By TitleMain
         $finder = new Opus_DocumentFinder();
         $finder->orderByTitleMain();
-        $this->assertEquals(6, count($finder->ids()));
+
+        $docs = $finder->ids();
+
+        $this->assertEquals(6, count($docs));
+
+        // documents without title come first (0-3)
+        $this->assertEquals(2, $docs[4]);
+        $this->assertEquals(1, $docs[5]);
     }
 
-    public function testCountsAfterSortByType()
+    public function testSortByType()
     {
         $this->prepareDocuments();
 
         // By DocumentType
         $finder = new Opus_DocumentFinder();
         $finder->orderByType();
-        $this->assertEquals(6, count($finder->ids()));
+
+        $docs = $finder->ids();
+
+        $this->assertEquals(6, count($docs));
+
+        $expected_order = array(2, 5, 3, 6, 1, 4);
+
+        foreach($docs as $index => $docId) {
+            if ($docId != $expected_order[$index]) {
+                $this->fail('documents are not in expected order');
+            }
+        }
     }
     
     /**
