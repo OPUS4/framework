@@ -87,7 +87,7 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$this->assertEquals( 'Test Main Article', $field->item( 0 )->nodeValue );
 
 		$field = $xpath->query( '/add/doc/field[@name="title_output"]' );
-		$this->assertEquals( 0, $field->length );
+		$this->assertEquals( 1, $field->length );
 
 		$field = $xpath->query( '/add/doc/field[@name="abstract"]' );
 		$this->assertEquals( 0, $field->length );
