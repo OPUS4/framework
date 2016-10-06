@@ -135,11 +135,11 @@ class Opus_Util_MetadataImport {
     }
 
     private function log($string) {
-	if(is_null($this->logger)){ return; }
-	$this->logger->log($string);
+        if(is_null($this->logger)){ return; }
+        $this->logger->log($string);
     }
 
-   private function __getXML() {
+    private function __getXML() {
         // Enable user error handling while validating input
         libxml_clear_errors();
         libxml_use_internal_errors(true);
@@ -153,7 +153,7 @@ class Opus_Util_MetadataImport {
                 $this->log("... ERROR: Cannot load XML document $this->xmlFile: make sure it is well-formed." . $errMsg);
                 throw new Opus_Util_MetadataImportInvalidXmlException('XML is not well-formed.');
             }
-	} else {
+        } else {
             if (!$xml->loadXML($this->xmlString)) {
                 $errMsg = Opus_Util_MetadataImportXmlValidation::getErrorMessage();
                 $this->log("... ERROR: Cannot load XML document: make sure it is well-formed." . $errMsg);
@@ -179,7 +179,7 @@ class Opus_Util_MetadataImport {
         $this->log('... OK');
     }
 
-   private function appendDocIdToRejectList($docId) {
+    private function appendDocIdToRejectList($docId) {
         $this->log('... SKIPPED');
         if(is_null($this->logfile)){ return; }
         $this->logfile->log($docId);
@@ -198,52 +198,54 @@ class Opus_Util_MetadataImport {
      * @param Opus_Document $doc
      */
     private function resetDocument($doc) {
-                $fieldsToDelete = array_diff(array(
-                    'TitleMain',
-                    'TitleAbstract',
-                    'TitleParent',
-                    'TitleSub',
-                    'TitleAdditional',
-                    'Identifier',
-                    'Note',
-                    'Enrichment',
-                    'Licence',
-                    'Person',
-                    'Series',
-                    'Collection',
-                    'Subject',
-                    'ThesisPublisher',
-                    'ThesisGrantor',
+        $fieldsToDelete = array_diff(array(
+            'TitleMain',
+            'TitleAbstract',
+            'TitleParent',
+            'TitleSub',
+            'TitleAdditional',
+            'Identifier',
+            'Note',
+            'Enrichment',
+            'Licence',
+            'Person',
+            'Series',
+            'Collection',
+            'Subject',
+            'ThesisPublisher',
+            'ThesisGrantor',
 
-                    'PublishedDate',
-                    'PublishedYear',
-                    'CompletedDate',
-                    'CompletedYear',
-                    'ThesisDateAccepted',
-                    'ThesisYearAccepted',
+            'PublishedDate',
+            'PublishedYear',
+            'CompletedDate',
+            'CompletedYear',
+            'ThesisDateAccepted',
+            'ThesisYearAccepted',
 
-                    'ContributingCorporation',
-                    'CreatingCorporation',
-                    'Edition',
-                    'Issue',
-                    'Language',
-                    'PageFirst',
-                    'PageLast',
-                    'PageNumber',
-                    'PublisherName',
-                    'PublisherPlace',
-                    'Type',
-                    'Volume',
-                    'BelongsToBibliography',
-                    'ServerState',
+            'ContributingCorporation',
+            'CreatingCorporation',
+            'Edition',
+            'Issue',
+            'Language',
+            'PageFirst',
+            'PageLast',
+            'PageNumber',
+            'PublisherName',
+            'PublisherPlace',
+            'Type',
+            'Volume',
+            'BelongsToBibliography',
+            'ServerState',
 
-                    'ServerDateCreated',
-                    'ServerDateModified',
-                    'ServerDatePublished',
-                    'ServerDateDeleted'
-                    ),$this->fieldsToKeepOnUpdate);
+            // 'ServerDateCreated', TODO do not delete ServerDateCreated when updating document (no default in db)
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateDeleted'
+            ),
+            $this->fieldsToKeepOnUpdate
+        );
                 
-                $doc->deleteFields($fieldsToDelete);
+        $doc->deleteFields($fieldsToDelete);
     }
 
     /**
