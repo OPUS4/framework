@@ -1620,6 +1620,8 @@ class Opus_DocumentTest extends TestCase {
 
     /**
      * Regression test for OPUSVIER-2111
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage String data, right truncated
      */
     public function testTruncateExceptionIsThrownFor26Chars() {
         $d = new Opus_Document();
@@ -1630,12 +1632,13 @@ class Opus_DocumentTest extends TestCase {
         $d->setEdition($stringWith26Chars);
         $d->setIssue($stringWith26Chars);
         $d->setVolume($stringWith26Chars);
-        $this->setExpectedException('Opus_Model_DbTruncateException');
         $d->store();
     }
 
     /**
      * Regression test for OPUSVIER-2111
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage String data, right truncated
      */
     public function testTruncateExceptionIsThrownFor256Chars() {
         $d = new Opus_Document();
@@ -1646,8 +1649,6 @@ class Opus_DocumentTest extends TestCase {
         $d->setPublisherPlace($stringWith256Chars);
         $d->setPublisherName($stringWith256Chars);
         $d->setLanguage($stringWith256Chars);
-
-        $this->setExpectedException('Opus_Model_DbTruncateException');
         $d->store();
     }
 

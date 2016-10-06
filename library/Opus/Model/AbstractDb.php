@@ -571,7 +571,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
                     $msg = get_class($this);
                     $msg .= ": Database column '$key' has been truncated";
                     $msg .= " by $truncateLength characters!";
-                    throw new Opus_Model_DbTruncateException(get_class($this) . ":  $msg");
+                    throw new Opus_Model_DbException(get_class($this) . ":  $msg");
                 }
             }
         }
