@@ -134,7 +134,8 @@ class Opus_LanguageTest extends TestCase {
     }
 
     /**
-     * TODO Aktuelles Verhalten von MySQL. Müsste mit STRICT arbeiten, um es zu ändern. Exception wäre besser.
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage Data truncated for column 'scope'
      */
     public function testSetScopeInvalid() {
         $lang = new Opus_Language();
@@ -173,7 +174,8 @@ class Opus_LanguageTest extends TestCase {
     }
 
     /**
-     * TODO Aktuelles Verhalten von MySQL. Müsste mit STRICT arbeiten, um es zu ändern. Exception wäre besser.
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage Data truncated for column 'type'
      */
     public function testSetTypeInvalid() {
         $lang = new Opus_Language();
