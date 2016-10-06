@@ -1144,7 +1144,13 @@ class Opus_Document extends Opus_Model_AbstractDb {
             if (is_null($field)) {
                 throw new Opus_Document_Exception("Cannot delete field $fieldname: Does not exist?");
             }
-            $field->setValue(null);
+            switch ($fieldname) {
+                case 'BelongsToBibliography':
+                    $field->setValue(0);
+                    break;
+                default:
+                    $field->setValue(null);
+            }
         }
         return $this;
     }
