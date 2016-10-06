@@ -112,6 +112,7 @@ class Opus_Security_AccountTest extends TestCase {
     public function testRecordExistsAfterCreation() {
         $account = new Opus_Account;
         $account->setLogin('bob');
+        $account->setPassword('testpwd');
         $account->store();
         $rowset = $this->_accounts->fetchAll();
         $this->assertGreaterThan(0, $rowset->count(), 'Accounts table is still empty after creation.');
@@ -125,8 +126,10 @@ class Opus_Security_AccountTest extends TestCase {
     public function testCreatingAccountsWithSameLoginThrowsException() {
         $account1 = new Opus_Account;
         $account1->setLogin('bob');
+        $account1->setPassword('testpwd');
         $account2 = new Opus_Account;
         $account2->setLogin('bob');
+        $account2->setPassword('testpwd2');
 
         $account1->store();
         $this->setExpectedException('Opus_Security_Exception');
