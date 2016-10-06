@@ -1621,7 +1621,7 @@ class Opus_DocumentTest extends TestCase {
     /**
      * Regression test for OPUSVIER-2111
      * @expectedException Opus_Model_DbException
-     * @expectedExceptionMessage String data, right truncated
+     * @expectedExceptionMessage truncated
      */
     public function testTruncateExceptionIsThrownFor26Chars() {
         $d = new Opus_Document();
@@ -1638,7 +1638,7 @@ class Opus_DocumentTest extends TestCase {
     /**
      * Regression test for OPUSVIER-2111
      * @expectedException Opus_Model_DbException
-     * @expectedExceptionMessage String data, right truncated
+     * @expectedExceptionMessage truncated
      */
     public function testTruncateExceptionIsThrownFor256Chars() {
         $d = new Opus_Document();
