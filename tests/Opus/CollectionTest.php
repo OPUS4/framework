@@ -1133,4 +1133,18 @@ class Opus_CollectionTest extends TestCase {
         $this->assertCount(0, $documents);
     }
 
+    public function testHandlingOfNullValues() {
+        $collection = $this->object;
+
+        $collection->setNumber(null);
+        $collection->setOaiSubset(null);
+
+        $collection->store();
+
+        $collection = new Opus_Collection($collection->getId());
+
+        $this->assertNull($collection->getNumber());
+        $this->assertNull($collection->getOaiSubset());
+    }
+
 }
