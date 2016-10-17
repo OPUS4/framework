@@ -2218,4 +2218,28 @@ class Opus_DocumentTest extends TestCase {
         $this->assertFalse($doc->isNewRecord());
     }
 
+    public function testSetServerDateModifiedByIds() {
+        $doc = new Opus_Document();
+        $doc1Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc2Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc3Id = $doc->store();
+
+        $date = new Opus_Date('2016-05-10');
+
+        Opus_Document::setServerDateModifiedByIds($date, array(1, 3));
+
+        $doc = new Opus_Document($doc1Id);
+        $this->assertEquals('2016-05-10', $doc->getServerDateModified());
+
+        $doc = new Opus_Document($doc2Id);
+        $this->assertNotEquals('2016-05-10', $doc->getServerDateModified());
+
+        $doc = new Opus_Document($doc3Id);
+        $this->assertEquals('2016-05-10', $doc->getServerDateModified());
+    }
+
 }
