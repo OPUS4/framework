@@ -341,6 +341,58 @@ class Opus_DocumentFinder {
     }
 
     /**
+     * Add range constraint for embargo date applied to result set.
+     * @param string $from
+     * @param string $until
+     * @return Opus_DocumentFinder fluent interface
+     */
+    public function setEmbargoDateRange($from, $until)
+    {
+        $this->_select->where('d.embargo_date >= ?', $from)
+            ->where('d.embargo_date < ?', $until);
+        return $this;
+    }
+
+    /**
+     * Add range constraint for embargo date applied to result set.
+     * @param string $until
+     * @return Opus_DocumentFinder fluent interface
+     */
+    public function setEmbargoDateBefore($until)
+    {
+        $this->_select->where('d.embargo_date < ?', $until);
+        return $this;
+    }
+
+    /**
+     * Add range constraint for embargo date applied to result set.
+     * @param string $from Start date of range constraint for result set.
+     * @return Opus_DocumentFinder fluent interface
+     */
+    public function setEmbargoDateAfter($from)
+    {
+        $this->_select->where('d.embargo_date >= ?', $from);
+        return $this;
+    }
+
+    /**
+     * Add constraint for documents that have not been saved after the embargo expired.
+     *
+     * This is important in order to determine which documents need to be saved to update ServerDateModified in order
+     * to include the documents in harvesting by the DNB, for instance. The expiration of the embargo does not change
+     * the documents and therefore they do not appear as now available documents.
+     *
+     * @param string $until Date of expiration of embargo
+     * @return Opus_DocumentFinder fluent interface
+     */
+    public function setEmbargoDateBeforeNotModifiedAfter($until)
+    {
+        $this->_select->where('d.embargo_date < ?', $until)
+            ->where('d.server_date_modified < d.embargo_date');
+        return $this;
+    }
+
+    /**
      * Add constraints to be applied on the result set.
      *
      * @param  string $type

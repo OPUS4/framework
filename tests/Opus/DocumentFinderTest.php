@@ -532,7 +532,100 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertTrue(in_array($visibleFileDocId, $foundIds), 'Expected id of Document with visible file in OAI');
         $this->assertTrue(in_array($mixedFileDocId, $foundIds), 'Expected id of Document with visible and invisible file in OAI');
         $this->assertFalse(in_array($invisibleFileDocId, $foundIds), 'Expected no id of Document with invisible file in OAI');
-        
-        
     }
+
+    public function testSetEmbargoDateBefore() {
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-16');
+        $doc1Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-14');
+        $doc2Id = $doc->store();
+
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setEmbargoDateBefore('2016-10-15');
+        $foundIds = $docfinder->ids();
+
+        $this->assertCount(1, $foundIds);
+        $this->assertContains($doc2Id, $foundIds);
+        $this->assertNotContains($doc1Id, $foundIds);
+    }
+
+    public function testSetEmbargoDateAfter() {
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-16');
+        $doc1Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-14');
+        $doc2Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-15');
+        $doc3Id = $doc->store();
+
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setEmbargoDateAfter('2016-10-15');
+        $foundIds = $docfinder->ids();
+
+        $this->assertCount(2, $foundIds);
+        $this->assertContains($doc1Id, $foundIds);
+        $this->assertContains($doc3Id, $foundIds);
+        $this->assertNotContains($doc2Id, $foundIds);
+    }
+
+    public function testSetEmbargoDateRange() {
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-16'); // not in range
+        $doc1Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-13'); // not in range
+        $doc2Id = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate('2016-10-14'); // in range
+        $doc3Id = $doc->store();
+
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setEmbargoDateRange('2016-10-14', '2016-10-16');
+        $foundIds = $docfinder->ids();
+
+        $this->assertCount(1, $foundIds);
+        $this->assertContains($doc3Id, $foundIds);
+        $this->assertNotContains($doc1Id, $foundIds);
+        $this->assertNotContains($doc2Id, $foundIds);
+    }
+
+    /**
+     * Tests from a perspective of two days in the future to avoid the need to manipulate ServerDateModified.
+     */
+    public function testFindDocumentsWithExpiredEmbargoDateForUpdatingServerDateModified() {
+        $tomorrow = date('Y-m-d', time() + (60 * 60 * 24));
+        $dayaftertomorrow = date('Y-m-d', time() + (2 * 60 * 60 * 24));
+        $today = date('Y-m-d', time());
+        $yesterday = date('Y-m-d', time() - (60 * 60 * 24));
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($dayaftertomorrow);
+        $notExpiredId = $doc->store(); // not in result - not yet expired embargo
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($yesterday);
+        $expiredUpdatedId = $doc->store(); // not in result - expired and saved after expiration
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($tomorrow);
+        $expiredNotUpdatedId = $doc->store(); // in result -  expired and saved before expiration
+
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setEmbargoDateBeforeNotModifiedAfter($dayaftertomorrow);
+        $foundIds = $docfinder->ids();
+
+        $this->assertContains($expiredNotUpdatedId, $foundIds);
+        $this->assertNotContains($expiredUpdatedId, $foundIds);
+        $this->assertNotContains($notExpiredId, $foundIds);
+    }
+
 }
