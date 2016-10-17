@@ -628,4 +628,35 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertNotContains($notExpiredId, $foundIds);
     }
 
+    public function testSetEmbargoDateBeforeWithTime() {
+        $now = new Opus_Date();
+        $now->setNow();
+
+        $past = new Opus_Date();
+        $past->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('-1 hour'))));
+
+        $future = new Opus_Date();
+        $future->setDateTime(new DateTime(date('Y-m-d H:i:s', strtotime('+1 hour'))));
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($past);
+        $pastId = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($now);
+        $nowId = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setEmbargoDate($future);
+        $futureId = $doc->store();
+
+        $docfinder = new Opus_DocumentFinder();
+        $docfinder->setEmbargoDateBefore($now);
+        $foundIds = $docfinder->ids();
+
+        $this->assertContains($pastId, $foundIds);
+        $this->assertNotContains($nowId, $foundIds);
+        $this->assertNotContains($futureId, $foundIds);
+    }
+
 }
