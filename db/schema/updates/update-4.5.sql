@@ -45,8 +45,8 @@ ALTER TABLE `documents`
 
 ALTER TABLE `document_files`
     MODIFY `label` TEXT COMMENT 'Display name of the file.',
-    MODIFY 'mime_type' VARCHAR(255) COMMENT 'Mime type of the file.',
-    MODIFY 'file_size' BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'File size in bytes.';
+    MODIFY `mime_type` VARCHAR(255) COMMENT 'Mime type of the file.',
+    MODIFY `file_size` BIGINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'File size in bytes.';
 
 ALTER TABLE `document_licences`
     MODIFY `active` TINYINT NOT NULL DEFAULT 1 COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?',
@@ -63,7 +63,7 @@ ALTER TABLE `accounts`
 ALTER TABLE `collections`
     MODIFY `visible` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1;
 
-ALTER TABLE `collection_roles`
+ALTER TABLE `collections_roles`
     MODIFY `position` INT(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.',
     MODIFY `visible` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Deleted collection trees are invisible. (1=visible, 0=invisible).',
     MODIFY `visible_browsing_start` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Show tree on browsing start page. (1=yes, 0=no).',
