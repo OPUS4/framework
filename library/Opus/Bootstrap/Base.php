@@ -180,8 +180,14 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $logfile = @fopen($logfilePath, 'a', false);
         
         if ( $logfile === false ) {
-            // TODO use Opus exception
-            throw new Exception('Failed to open logging file:' . $logfilePath);
+            $path = dirname($logfilePath);
+
+            if (!is_dir($path)) {
+                throw new Exception('Directory for logging does not exist');
+            }
+            else {
+                throw new Exception('Failed to open logging file:' . $logfilePath);
+            }
         }
 
         $GLOBALS['id_string'] = uniqid(); // Write ID string to global variables, so we can identify/match individual runs.
