@@ -40,6 +40,7 @@ theme = foobar
 ;DB SETTINGS
 ; db.params.host = localhost
 ; db.params.port = 3306
+; TODO use regular OPUS user account for tests
 db.params.username = @db.admin.name@
 db.params.password = @db.admin.password@
 db.params.dbname = @db.name@
