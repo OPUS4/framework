@@ -35,42 +35,24 @@
  */
 
 class Opus_VersionTest extends TestCase {
-    /**
-     * @var    Opus_Version
-     * @access protected
-     */
-    protected $object;
-
-    /**
-     * Sets up the fixture, for example, opens a network connection.
-     * This method is called before a test is executed.
-     *
-     * @access protected
-     */
-    protected function setUp()
-    {
-        $this->object = new Opus_Version;
-    }
-
-    /**
-     * Tears down the fixture, for example, closes a network connection.
-     * This method is called after a test is executed.
-     *
-     * @access protected
-     */
-    protected function tearDown()
-    {
-    }
 
     /**
      * @todo Implement testCompareVersion().
      */
     public function testCompareVersion()
     {
-        // Remove the following lines when you implement this test.
-        $this->markTestIncomplete(
-          'This test has not been implemented yet.'
-        );
+        $this->assertEquals(1, Opus_Version::compareVersion('5.0')); // greater
+        $this->assertEquals(-1, Opus_Version::compareVersion('4.0')); // smaller
+        $this->assertEquals(0, Opus_Version::compareVersion(Opus_Version::VERSION)); // same
     }
+
+    public function testGetSchemaVersion()
+    {
+        $version = Opus_Version::getSchemaVersion();
+
+        $this->assertInternalType('string', $version);
+        $this->assertTrue(strlen($version) >= 3);
+    }
+
 }
 

@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,11 +39,18 @@
  * @package     Opus
  *
  */
-class Opus_Version {
-    /*    
+class Opus_Version
+{
+
+    /**
      * Opus Framework version identification - see compareVersion()
      */
-    const VERSION = '1.0.0';
+    const VERSION = '4.5';
+
+    /**
+     * Version of database schema.
+     */
+    const SCHEMA_VERSION = '4.5';
 
     /**
      * Compare the specified Opus Framework version string $version
@@ -55,8 +62,18 @@ class Opus_Version {
      *                           and +1 if $version is newer.
      *
      */
-    public static function compareVersion($version) {
+    public static function compareVersion($version)
+    {
         return version_compare($version, self::VERSION);
+    }
+
+    /**
+     * Returns required database schema version.
+     * @return string
+     */
+    public static function getSchemaVersion()
+    {
+        return self::SCHEMA_VERSION;
     }
 
 }
