@@ -135,7 +135,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         // Check database version
         if (!Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') &&
-            Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+            !Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 
