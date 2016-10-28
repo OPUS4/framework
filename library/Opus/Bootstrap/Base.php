@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -134,22 +134,25 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         }
 
         // Check database version
-        try {
-            $query = $db->query('SELECT version FROM schema_version');
+        if (!Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
+            Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+            try {
+                $query = $db->query('SELECT version FROM schema_version');
 
-            $result = $query->fetch();
+                $result = $query->fetch();
 
-            if (array_key_exists('version', $result)) {
-                $version = $result['version'];
-                $expectedVersion = Opus_Version::getSchemaVersion();
+                if (array_key_exists('version', $result)) {
+                    $version = $result['version'];
+                    $expectedVersion = Opus_Version::getSchemaVersion();
 
-                if ($version !== $expectedVersion) {
-                    throw new Exception("Database version '$version' does not match required '$expectedVersion'.");
+                    if ($version !== $expectedVersion) {
+                        throw new Exception("Database version '$version' does not match required '$expectedVersion'.");
+                    }
                 }
             }
-        }
-        catch (Zend_Db_Statement_Exception $e) {
-            throw new Exception('Database schema is too old. Please update database.');
+            catch (Zend_Db_Statement_Exception $e) {
+                throw new Exception('Database schema is too old. Please update database.');
+            }
         }
     }
 
