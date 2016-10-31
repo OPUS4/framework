@@ -71,5 +71,6 @@ $application = new Zend_Application(APPLICATION_ENV,
             )
         );
 
+Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
 $application->bootstrap(array('Database','Temp','OpusLocale'));

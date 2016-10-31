@@ -141,13 +141,18 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
                 $result = $query->fetch();
 
-                if (array_key_exists('version', $result)) {
+                if (is_array($result) && array_key_exists('version', $result)) {
                     $version = $result['version'];
                     $expectedVersion = Opus_Version::getSchemaVersion();
 
                     if ($version !== $expectedVersion) {
                         throw new Exception("Database version '$version' does not match required '$expectedVersion'.");
                     }
+                }
+                else {
+                    throw new Exception(
+                        'No database schema version found. Database is probably too old. Please update.'
+                    );
                 }
             }
             catch (Zend_Db_Statement_Exception $e) {
