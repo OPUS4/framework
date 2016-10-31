@@ -2242,4 +2242,14 @@ class Opus_DocumentTest extends TestCase {
         $this->assertEquals('2016-05-10', $doc->getServerDateModified());
     }
 
+    /**
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage truncated
+     */
+    public function testSetServerStateInvalidValue() {
+        $doc = new Opus_Document();
+        $doc->setServerState('unknown');
+        $doc->store();
+    }
+
 }
