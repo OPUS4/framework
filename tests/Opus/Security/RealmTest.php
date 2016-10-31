@@ -155,10 +155,13 @@ class Opus_Security_RealmTest extends TestCase {
         $realm->setUser('');
     }
 
+    /**
+     * @expectedException Opus_Security_Exception
+     * @expectedExceptionMessage An user with the given name: userbla could not be found
+     */
     public function testSetUserFailsOnUnknownUser() {
         $realm = Opus_Security_Realm::getInstance();
 
-        $this->setExpectedException('Opus_Security_Exception');
         $realm->setUser('userbla');
     }
 

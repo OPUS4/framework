@@ -129,7 +129,12 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
         $account = $accounts->fetchRow($accounts->select()->where('login = ?', $username));
         if (null === $account) {
-            throw new Opus_Security_Exception("An user with the given name: $username could not be found.");
+            $logger = Zend_Registry::get('Zend_Log');
+            $message = "An user with the given name: $username could not be found.";
+            if (!is_null($logger)) {
+                $logger->err($message);
+            }
+            throw new Opus_Security_Exception($message);
         }
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
