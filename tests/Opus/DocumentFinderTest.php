@@ -628,7 +628,8 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertNotContains($notExpiredId, $foundIds);
     }
 
-    public function testSetEmbargoDateBeforeWithTime() {
+    public function testSetEmbargoDateBeforeWithTime()
+    {
         $now = new Opus_Date();
         $now->setNow();
 
@@ -657,6 +658,41 @@ class Opus_DocumentFinderTest extends TestCase {
         $this->assertContains($pastId, $foundIds);
         $this->assertNotContains($nowId, $foundIds);
         $this->assertNotContains($futureId, $foundIds);
+    }
+
+    public function testFindDocumentsForXMetaDissPlus() {
+        $today = date('Y-m-d', time());
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setType('article');
+        $publishedId = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setType('periodical');
+        $periodicalId = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setType('article');
+        $doc->setEmbargoDate($today); // today still in embargo until tomorrow
+        $embargoedId = $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $unpublishedId = $doc->store();
+
+        $docfinder = new Opus_DocumentFinder();
+
+        $docfinder->setServerStateInList('published');
+        $docfinder->setTypeInList('article');
+        $docfinder->setNotEmbargoedOn($today);
+
+        $foundIds = $docfinder->ids();
+
+        $this->assertCount(1, $foundIds);
+        $this->assertContains($publishedId, $foundIds);
     }
 
 }

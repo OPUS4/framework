@@ -375,6 +375,12 @@ class Opus_DocumentFinder {
         return $this;
     }
 
+    public function setNotEmbargoedOn($date)
+    {
+        $this->_select->where('d.embargo_date < ? or d.embargo_date IS NULL', $date);
+        return $this;
+    }
+
     /**
      * Add constraint for documents that have not been saved after the embargo expired.
      *
