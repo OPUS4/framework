@@ -402,6 +402,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $display = $this->getName();
         }
 
+        /* TODO use role name for root collection?
+        if ((strlen(trim($display)) === 0) && $this->isRoot()) {
+            $display = $role->getDisplayName();
+        }*/
+
         return trim($display);
     }
 

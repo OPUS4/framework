@@ -1147,4 +1147,34 @@ class Opus_CollectionTest extends TestCase {
         $this->assertNull($collection->getOaiSubset());
     }
 
+    public function testGetDisplayNameForRootCollection() {
+        $role = new Opus_CollectionRole();
+        $role->setName('foobar-name');
+        $role->setOaiName('foobar-oainame');
+        $role->store();
+
+        $role->addRootCollection();
+        $roleId = $role->store();
+
+        // new instanciation is necessary before root collection can access role object properly
+        $role = new Opus_CollectionRole($roleId);
+        $root = $role->getRootCollection();
+
+        $this->assertEquals('foobar-name', $role->getDisplayName());
+        $this->assertEquals('', $root->getDisplayName());
+    }
+
+    public function testGetDisplayNameForRootCollectionWithNameSet() {
+        $role = new Opus_CollectionRole();
+        $role->setName('foobar-name');
+        $role->setOaiName('foobar-oainame');
+        $role->store();
+
+        $root = $role->addRootCollection();
+        $root->setName('rootcol');
+        $roleId = $role->store();
+
+        $this->assertEquals('rootcol', $root->getDisplayName());
+    }
+
 }
