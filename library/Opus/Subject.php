@@ -94,6 +94,46 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract {
             ->addField($externalKey);
     }
 
+    /**
+     * Return matching keywords for use in autocomplete function.
+     *
+     * @param string $term String that must be included in keyword
+     * @param string $type Type of keywords
+     * @param integer $limit Maximum number of returned results
+     * @return array
+     */
+    public static function getMatchingSubjects($term, $type = 'swd', $limit = 20) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $select = $table->select()
+            ->where('value like ?', "%$term%")
+            ->order('value ASC')
+            ->group(array('value', 'external_key'));
+
+        if (!is_null($type)) {
+            $select->where('type = ?', $type);
+        }
+
+        if (!is_null($limit)) {
+            $select->limit($limit, 0);
+        }
+
+        $rows = $table->fetchAll($select);
+
+        $values = array();
+
+        foreach ($rows as $row) {
+            $columns = $row->toArray();
+
+            $subject = array();
+            $subject['value'] = $columns['value'];
+            $subject['extkey'] = $columns['external_key'];
+
+            $values[] = $subject;
+        }
+
+        return $values;
+    }
 
 }
 
