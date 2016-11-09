@@ -73,6 +73,9 @@ ALTER TABLE `collections_roles`
 ALTER TABLE `collections_enrichments`
     MODIFY `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.';
 
+ALTER TABLE `link_persons_documents`
+    MODIFY `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator', 'submitter') NOT NULL COMMENT 'Role of the person in the actual document-person context.';
+
 COMMIT;
 
 -- Modify constraints
