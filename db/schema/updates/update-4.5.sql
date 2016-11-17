@@ -83,15 +83,12 @@ COMMIT;
 START TRANSACTION;
 
 ALTER TABLE `link_documents_collections`
-    DROP FOREIGN KEY `link_documents_collections_idfk_4`;
+    DROP FOREIGN KEY `link_documents_collections_ibfk_4`;
 
 ALTER TABLE `link_documents_collections`
-    ADD CONSTRAINT `link_documents_collections_idfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`) ON DELETE CASCADE ON UPDATE CASCADE;
+    ADD CONSTRAINT `link_documents_collections_ibfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 COMMIT;
-
-
-
 
 -- Reset settings
 
