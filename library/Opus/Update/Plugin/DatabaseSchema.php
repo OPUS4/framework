@@ -24,50 +24,35 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_DatabaseTest extends TestCase {
+/**
+ * Class for updating the database schema for new version of OPUS.
+ */
+class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
 
-    public function testGetSqlFiles() {
-        $database = new Opus_Database();
-
-        $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
-
-        $this->assertCount(1, $files);
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files[0]);
-    }
-
-    public function testGetSchemaFile() {
-        $database = new Opus_Database();
-
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $database->getSchemaFile());
-    }
-
-    public function testGetVersion() {
-        $database = new Opus_Database();
-
-        $version = $database->getVersion();
-    }
-
-    public function testGetUpdateScripts() {
+    /**
+     * Performs update of database schema.
+     *
+     * TODO get SQL update scripts in proper order
+     * TODO figure out version of database
+     * TODO perform update scripts up to current version (parameter)
+     */
+    public function run() {
         $database = new Opus_Database();
 
         $scripts = $database->getUpdateScripts();
 
-        $this->assertCount(1, $scripts);
-    }
-
-    public function testGetUpdateScriptsSorting() {
-        $this->markTestIncomplete('not yet implemented');
-    }
-
-    public function testGetUpdateScriptsRange() {
-        $this->markTestIncomplete('not yet implemented');
+        foreach ($scripts as $scriptPath)
+        {
+            $this->log("Running $scriptPath ...");
+            $database->execScript($scriptPath);
+        }
     }
 
 }

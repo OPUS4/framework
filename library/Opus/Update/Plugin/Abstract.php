@@ -24,50 +24,31 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_DatabaseTest extends TestCase {
+abstract class Opus_Update_Plugin_Abstract
+{
 
-    public function testGetSqlFiles() {
-        $database = new Opus_Database();
-
-        $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
-
-        $this->assertCount(1, $files);
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files[0]);
+    /**
+     * Writes message to log.
+     * @param $message
+     *
+     * TODO log to file
+     */
+    public function log($message)
+    {
+        echo $message . PHP_EOL;
     }
 
-    public function testGetSchemaFile() {
-        $database = new Opus_Database();
-
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $database->getSchemaFile());
-    }
-
-    public function testGetVersion() {
-        $database = new Opus_Database();
-
-        $version = $database->getVersion();
-    }
-
-    public function testGetUpdateScripts() {
-        $database = new Opus_Database();
-
-        $scripts = $database->getUpdateScripts();
-
-        $this->assertCount(1, $scripts);
-    }
-
-    public function testGetUpdateScriptsSorting() {
-        $this->markTestIncomplete('not yet implemented');
-    }
-
-    public function testGetUpdateScriptsRange() {
-        $this->markTestIncomplete('not yet implemented');
-    }
+    /**
+     * Performs update operation.
+     * @return mixed
+     */
+    abstract public function run();
 
 }

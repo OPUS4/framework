@@ -43,6 +43,16 @@
 class Opus_Database {
 
     /**
+     * Path to current OPUS 4 SQL schema.
+     */
+    const SCHEMA_PATH = '/db/schema/opus4schema.sql';
+
+    /**
+     * Path to folder containing SQL files for updates.
+     */
+    const UPDATE_SCRIPTS_PATH = '/db/schema/updates';
+
+    /**
      * @var Zend_Config
      */
     private $_config;
@@ -121,6 +131,15 @@ class Opus_Database {
     }
 
     /**
+     * Loads and executes SQL file.
+     * @param $path Path to SQL file
+     */
+    public function execScript($path) {
+        $sql = file_get_contents($path);
+        $this->exec($sql);
+    }
+
+    /**
      * Returns database connection object.
      * @param null $dbName string
      * @return PDO
@@ -131,7 +150,8 @@ class Opus_Database {
 
         $connStr = "mysql:host=localhost;default-character-set=utf8;default-collate=utf8_general_ci";
 
-        if (!is_null($dbName)) {
+        if (!is_null($dbName))
+        {
             $connStr .= ";dbname=$dbName";
         }
 
@@ -154,7 +174,7 @@ class Opus_Database {
         try {
             $pdo = $this->getPdo($dbName);
 
-            $qr = $pdo->exec($sql);
+            return $pdo->exec($sql);
         }
         catch (PDOException $pdoex) {
             $message = $pdoex->getMessage();
@@ -222,7 +242,7 @@ class Opus_Database {
      * @throws Exception
      */
     public function getSchemaFile() {
-        $path = dirname(dirname(dirname(__FILE__))) . '/db/schema/opus4schema.sql';
+        $path = dirname(dirname(dirname(__FILE__))) . self::SCHEMA_PATH;
 
         if (!is_file($path)) {
             throw new Exception('could not find schema file');
@@ -255,6 +275,36 @@ class Opus_Database {
         }
 
         return $this->_logger;
+    }
+
+    /**
+     * Returns schema version from database.
+     */
+    public function getVersion() {
+        $sql = 'SELECT `revision` FROM `schema_version`';
+
+        $result = $this->exec($sql);
+
+
+    }
+
+    /**
+     * Update database for a new version of OPUS.
+     */
+    public function update() {
+        $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
+        $schemaUpdate->run();
+    }
+
+    /**
+     * Returns SQL update scripts.
+     */
+    public function getUpdateScripts() {
+        $scriptsPath = APPLICATION_PATH . self::UPDATE_SCRIPTS_PATH;
+
+        $files = $this->getSqlFiles($scriptsPath);
+
+        return $files;
     }
 
 }
