@@ -59,7 +59,9 @@ class Opus_DatabaseTest extends TestCase {
 
         $scripts = $database->getUpdateScripts();
 
-        $this->assertCount(1, $scripts);
+        $this->assertGreaterThan(0, $scripts);
+
+        $this->assertEquals("update-4.5.sql", basename($scripts[0]));
     }
 
     public function testGetUpdateScriptsSorting() {
@@ -69,5 +71,108 @@ class Opus_DatabaseTest extends TestCase {
     public function testGetUpdateScriptsRange() {
         $this->markTestIncomplete('not yet implemented');
     }
+
+    /**
+     * Tests if an error in multiple statements is reported.
+     * @expectedException PDOException
+     * @expectedExceptionMessage 'opusdb.schema_ver' doesn't exist
+     */
+    public function testPdoExecErrorReportingFirstStatement()
+    {
+        $database = new Opus_Database();
+
+        $pdo = $database->getPdo();
+
+        $sql = 'TRUNCATE TABLE `schema_ver`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');';
+
+        $pdo->exec($sql);
+    }
+
+    /**
+     * Error in second statement does not produce exception.
+     */
+    public function testPdoExecErrorReportingSecondStatement()
+    {
+        $database = new Opus_Database();
+
+        $pdo = $database->getPdo();
+
+        $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');';
+
+        $statement = $pdo->exec($sql);
+
+        $this->assertEquals('00000', $pdo->errorCode());
+
+        $stmt = $pdo->query('SELECT `version` FROM `schema_version`');
+
+        $this->assertEquals(0, $stmt->rowCount());
+    }
+
+    /**
+     * Using 'query' function produces exceptions when iterating through statements.
+     *
+     * @expectedException PDOException
+     * @expectedExceptionMessage 'opusdb.schema_ver' doesn't exist
+     */
+    public function testPdoQueryErrorReporting()
+    {
+        $database = new Opus_Database();
+
+        $pdo = $database->getPdo();
+
+        $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');';
+
+        $statement = $pdo->query($sql);
+
+        $this->assertEquals('00000', $statement->errorCode());
+
+        $statement->nextRowset();
+    }
+
+    public function testPdoQueryErrorReportingExecutionAfterError()
+    {
+        $database = new Opus_Database();
+
+        $pdo = $database->getPdo();
+
+        $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');'
+            . 'INSERT INTO `schema_version` (`version`) VALUES (\'6.0\');';
+
+        $statement = $pdo->query($sql);
+
+        $this->assertEquals('00000', $statement->errorCode());
+
+        try {
+            $statement->nextRowset();
+
+            $this->fail('Should have thrown exception.');
+        }
+        catch(PDOException $pdoex) {
+        }
+
+        $this->assertFalse($statement->nextRowset());
+    }
+
+
+    public function testPdoQueryIteratingResults()
+    {
+        $database = new Opus_Database();
+
+        $pdo = $database->getPdo();
+
+        $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');'
+            . 'INSERT INTO `schema_version` (`version`) VALUES (\'6.0\');';
+
+        $statement = $pdo->query($sql);
+
+        // at this point all statements have been executed (if there is no error)
+
+        $this->assertEquals('00000', $statement->errorCode());
+
+        $this->assertTrue($statement->nextRowset()); // 2nd statement
+        $this->assertTrue($statement->nextRowset()); // 3rd statement
+        $this->assertFalse($statement->nextRowset()); // 4th not existing statement
+    }
+
 
 }

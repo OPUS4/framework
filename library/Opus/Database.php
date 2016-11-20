@@ -136,7 +136,7 @@ class Opus_Database {
      */
     public function execScript($path) {
         $sql = file_get_contents($path);
-        $this->exec($sql);
+        return $this->exec($sql);
     }
 
     /**
@@ -150,10 +150,12 @@ class Opus_Database {
 
         $connStr = "mysql:host=localhost;default-character-set=utf8;default-collate=utf8_general_ci";
 
-        if (!is_null($dbName))
+        if (is_null($dbName) || strlen(trim($dbName)) === 0)
         {
-            $connStr .= ";dbname=$dbName";
+            $dbName = $this->getName();
         }
+
+        $connStr .= ";dbname=$dbName";
 
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -168,7 +170,8 @@ class Opus_Database {
      * @param $sql string SQL statement
      * TODO review error handling (one level up?)
      */
-    public function exec($sql) {
+    public function exec($sql)
+    {
         $dbName = $this->getName();
 
         try {
@@ -178,7 +181,8 @@ class Opus_Database {
         }
         catch (PDOException $pdoex) {
             $message = $pdoex->getMessage();
-            echo(PHP_EOL . $message . PHP_EOL);
+            echo('Error executing SQL' . PHP_EOL);
+            echo($message . PHP_EOL);
             $logger = $this->getLogger();
             $logger->err($message);
         }
