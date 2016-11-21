@@ -73,6 +73,19 @@ class Opus_DatabaseTest extends TestCase {
     }
 
     /**
+     * @expectedException PDOException
+     */
+    public function testBadSqlThrowsException() {
+        $this->markTestIncomplete('exec function does not throw exceptions yet');
+
+        $database = new Opus_Database();
+
+        $sql = 'SELECT * FROM `schema_version2`';
+
+        $database->exec($sql);
+    }
+
+    /**
      * Tests if an error in multiple statements is reported.
      * @expectedException PDOException
      * @expectedExceptionMessage 'opusdb.schema_ver' doesn't exist
@@ -173,6 +186,8 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertTrue($statement->nextRowset()); // 3rd statement
         $this->assertFalse($statement->nextRowset()); // 4th not existing statement
     }
+
+
 
 
 }
