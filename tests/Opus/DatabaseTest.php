@@ -81,7 +81,7 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $pdo = $database->getPdo();
+        $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_ver`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');';
 
@@ -95,7 +95,7 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $pdo = $database->getPdo();
+        $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');';
 
@@ -118,7 +118,7 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $pdo = $database->getPdo();
+        $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');';
 
@@ -133,7 +133,7 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $pdo = $database->getPdo();
+        $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_ver` (`version`) VALUES (\'5.0\');'
             . 'INSERT INTO `schema_version` (`version`) VALUES (\'6.0\');';
@@ -158,7 +158,7 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $pdo = $database->getPdo();
+        $pdo = $database->getPdo($database->getName());
 
         $sql = 'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_version` (`version`) VALUES (\'5.0\');'
             . 'INSERT INTO `schema_version` (`version`) VALUES (\'6.0\');';

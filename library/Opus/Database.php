@@ -150,12 +150,10 @@ class Opus_Database {
 
         $connStr = "mysql:host=localhost;default-character-set=utf8;default-collate=utf8_general_ci";
 
-        if (is_null($dbName) || strlen(trim($dbName)) === 0)
+        if (!is_null($dbName) && strlen(trim($dbName)) > 0)
         {
-            $dbName = $this->getName();
+            $connStr .= ";dbname=$dbName";
         }
-
-        $connStr .= ";dbname=$dbName";
 
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -177,7 +175,11 @@ class Opus_Database {
         try {
             $pdo = $this->getPdo($dbName);
 
-            return $pdo->exec($sql);
+            $statement = $pdo->query($sql);
+
+            while($statement->nextRowset()) {
+                // iterate through results until finished or exception thrown
+            }
         }
         catch (PDOException $pdoex) {
             $message = $pdoex->getMessage();
@@ -199,7 +201,12 @@ class Opus_Database {
         try {
             $pdo = $this->getPdo();
 
-            $qr = $pdo->exec($sql);
+            $statement = $pdo->query($sql);
+
+            while ($statement->nextRowset())
+            {
+                // iterate over rowsets until finished or exception is thrown
+            }
         }
         catch (PDOException $pdoex) {
             echo(PHP_EOL . $pdoex->getMessage());
