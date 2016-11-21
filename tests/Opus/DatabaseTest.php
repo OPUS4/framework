@@ -48,12 +48,6 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $database->getSchemaFile());
     }
 
-    public function testGetVersion() {
-        $database = new Opus_Database();
-
-        $version = $database->getVersion();
-    }
-
     public function testGetUpdateScripts() {
         $database = new Opus_Database();
 
@@ -187,7 +181,26 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertFalse($statement->nextRowset()); // 4th not existing statement
     }
 
+    public function testGetVersion()
+    {
+        $database = new Opus_Database();
 
+        $database->exec('INSERT INTO `schema_version` (`version`) VALUES (\'4.5\');');
 
+        $version = $database->getVersion();
+
+        $this->assertEquals('4.5', $version);
+    }
+
+    public function testGetVersionOldSchema()
+    {
+        $database = new Opus_Database();
+
+        $database->exec('ALTER TABLE `opusdb.schema_version` DROP `version`;');
+
+        $version = $database->getVersion();
+
+        $this->assertNull($version);
+    }
 
 }

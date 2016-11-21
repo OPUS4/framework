@@ -292,11 +292,22 @@ class Opus_Database {
      * Returns schema version from database.
      */
     public function getVersion() {
-        $sql = 'SELECT `revision` FROM `schema_version`';
+        $pdo = $this->getPdo($this->getName());
 
-        $result = $this->exec($sql);
+        $version = null;
 
+        try {
+            $sql = 'SELECT * FROM `schema_version`';
 
+            $result = $pdo->query($sql)->fetch();
+
+            $version = $result['version'];
+        }
+        catch(PDOException $pdoex) {
+            // TODO logging
+        }
+
+        return $version;
     }
 
     /**

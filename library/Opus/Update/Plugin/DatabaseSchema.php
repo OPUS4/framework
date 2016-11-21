@@ -46,12 +46,24 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
     public function run() {
         $database = new Opus_Database();
 
-        $scripts = $database->getUpdateScripts();
+        $version = $database->getVersion();
 
-        foreach ($scripts as $scriptPath)
+        $this->log("Current version of database: $version");
+
+        // only perform update if database does not have version 4.5
+        if ($version !== '4.5')
         {
-            $this->log("Running $scriptPath ...");
-            $database->execScript($scriptPath);
+            $scripts = $database->getUpdateScripts();
+
+            foreach ($scripts as $scriptPath) {
+                $this->log("Running $scriptPath ...");
+
+                $result = $database->execScript($scriptPath);
+            }
+        }
+        else
+        {
+            $this->log('No update needed');
         }
     }
 
