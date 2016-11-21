@@ -192,11 +192,9 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertEquals('4.5', $version);
     }
 
-    public function testGetVersionOldSchema()
+    public function testGetVersionNullForOldDatabase()
     {
         $database = new Opus_Database();
-
-        $database->exec('ALTER TABLE `opusdb.schema_version` DROP `version`;');
 
         $version = $database->getVersion();
 
