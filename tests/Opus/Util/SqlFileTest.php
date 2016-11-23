@@ -34,13 +34,14 @@ class Opus_Util_SqlFileTest extends TestCase
 {
 
     public function testGetStatements() {
+        $this->markTestIncomplete('not yet implemented');
         $sqlFile = new Opus_Util_SqlFile();
 
         $statements = $sqlFile->getStatements(APPLICATION_PATH . '/db/schema/updates/update-4.5.sql');
 
         // $this->assertCount(32, $statements);
 
-        var_dump($statements);
+        // var_dump($statements);
     }
 
 
