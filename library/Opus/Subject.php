@@ -106,6 +106,7 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
 
         $select = $table->select()
+            ->from($table, array('value', 'external_key'))
             ->where('value like ?', "%$term%")
             ->order('value ASC')
             ->group(array('value', 'external_key'));
