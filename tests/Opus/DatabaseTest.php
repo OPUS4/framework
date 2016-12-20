@@ -82,7 +82,7 @@ class Opus_DatabaseTest extends TestCase {
     /**
      * Tests if an error in multiple statements is reported.
      * @expectedException PDOException
-     * @expectedExceptionMessage 'opusdb.schema_ver' doesn't exist
+     * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoExecErrorReportingFirstStatement()
     {
@@ -119,7 +119,7 @@ class Opus_DatabaseTest extends TestCase {
      * Using 'query' function produces exceptions when iterating through statements.
      *
      * @expectedException PDOException
-     * @expectedExceptionMessage 'opusdb.schema_ver' doesn't exist
+     * @expectedExceptionMessage schema_ver' doesn't exist
      */
     public function testPdoQueryErrorReporting()
     {
