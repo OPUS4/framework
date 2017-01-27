@@ -1177,4 +1177,49 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('rootcol', $root->getDisplayName());
     }
 
+    public function testIsVisible()
+    {
+        $this->object->setVisible('1');
+        $this->object->store();
+
+        $colA = new Opus_Collection();
+        $colA->setName('colA');
+        $colA->setVisible('0');
+        $this->object->addFirstChild($colA);
+        $colA->store();
+        $this->object->store();
+
+        $colB = new Opus_Collection();
+        $colB->setName('colB');
+        $colB->setVisible('1');
+        $colA->addFirstChild($colB);
+        $colB->store();
+        $colA->store();
+
+        $this->assertEquals(0, $colA->getVisible());
+        $this->assertEquals(1, $colB->getVisible());
+
+        $this->assertFalse($colB->isVisible());
+
+        $colA->setVisible('1');
+        $colA->store();
+
+        $this->assertTrue($colB->isVisible());
+    }
+
+    public function testIsVisibleForUnstoredCollection()
+    {
+        $coll = new Opus_Collection();
+
+        $this->assertFalse($coll->isVisible()); // field 'visible' = null
+
+        $coll->setVisible(1);
+
+        $this->assertTrue($coll->isVisible());
+
+        $coll->setVisible(0);
+
+        $this->assertFalse($coll->isVisible());
+    }
+
 }

@@ -539,6 +539,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
                         ->where("target.{$this->_primary[1]} = ?", $id)
                         ->where("node.{$this->_tree} = target.{$this->_tree}")
                         ->order("node.{$this->_left} DESC");
+
         return $select;
     }
 

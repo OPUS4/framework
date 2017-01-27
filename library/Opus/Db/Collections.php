@@ -112,4 +112,27 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
             'Opus_Db_Collections',
     );
 
+    /**
+     * Returns if node is visible.
+     *
+     * Checks if node or any parent node has a value of 0 for column visible.
+     *
+     * @param $id Node identifier
+     * @return bool true if node is visible, false - if not visible
+     */
+    public function isVisible($id)
+    {
+        $select = $this->select()
+            ->from("{$this->_name} AS node", 'id')
+            ->from("{$this->_name} AS target", '')
+            ->where("target.{$this->_left} BETWEEN node.{$this->_left} AND node.{$this->_right}")
+            ->where("target.{$this->_primary[1]} = ?", $id)
+            ->where("node.{$this->_tree} = target.{$this->_tree}")
+            ->where("node.visible = 0");
+
+        $rows = $this->fetchAll($select);
+
+        return $rows->count() === 0;
+    }
+
 }

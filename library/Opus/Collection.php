@@ -845,7 +845,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return parent::_storeInternalFields();
     }
 
-
     /**
      * PendingNodes: Add new nodes to the tree.  The position depends on the
      * $key parameter.
@@ -854,7 +853,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param Opus_CollectionNode $collection
      * @return <type>
      */
-
     protected function addPendingNodes($key = null, $collection = null) {
         if (isset($collection)) {
             $collection = parent::addPendingNodes($collection);
@@ -879,7 +877,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * This is an internal field, which doesn't get stored in the model.  There
      * is no reason to "fetch" pending nodes.
      */
-
     public function _fetchPendingNodes() {
     }
 
@@ -910,7 +907,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return int Number of subtree Entries.
      */
-
     public function getNumSubtreeEntries() {
         $nestedsets = $this->_primaryTableRow->getTable();
         $subselect = $nestedsets
@@ -1183,6 +1179,23 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     public function applySortOrderOfChildren($sortedIds) {
         $table = $this->_primaryTableRow->getTable();
         $table->applySortOrderOfChildren($this->getId(), $sortedIds);
+    }
+
+    /**
+     * Checks if collection is visible based on settings including parents.
+     */
+    public function isVisible() {
+        $colId = $this->getId();
+
+        // return value for collection that has not been stored yet
+        if (is_null($colId)) {
+            $visible = $this->getVisible();
+            return is_null($visible) ? false : (bool) $visible;
+        }
+
+        $table = $this->_primaryTableRow->getTable();
+
+        return $table->isVisible($colId);
     }
 
 }
