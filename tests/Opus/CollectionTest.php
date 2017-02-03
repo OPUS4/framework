@@ -382,6 +382,66 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(1, $this->object->getNumSubtreeEntries(), 'Collection has one published entry.');
     }
 
+    public function testGetNumSubTreeEntriesExcludeInvisibleSubtrees()
+    {
+        $this->object->setVisible(1);
+        $this->object->store();
+
+        $colA = new Opus_Collection();
+        $colA->setName('colA');
+        $colA->setVisible(1);
+
+        $colB = new Opus_Collection();
+        $colB->setName('colB');
+        $colB->setVisible(1);
+
+        $colC = new Opus_Collection();
+        $colC->setName('colC');
+        $colC->setVisible(1);
+
+        $this->object->addFirstChild($colA);
+        $colA->store();
+        $this->object->store();
+
+        $this->object->addLastChild($colB);
+        $colB->store();
+        $this->object->store();
+
+        $colB->addFirstChild($colC);
+        $colC->store();
+        $colB->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($colA);
+        $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($colB);
+        $doc->store();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->addCollection($colC);
+        $doc->store();
+
+        $this->assertEquals(3, $this->object->getNumSubtreeEntries());
+        $this->assertEquals(1, $colA->getNumSubtreeEntries());
+        $this->assertEquals(2, $colB->getNumSubtreeEntries());
+        $this->assertEquals(1, $colC->getNumSubtreeEntries());
+
+        // make node B and therefore childnode C invisible
+        $colB->setVisible(0);
+        $colB->store();
+
+        // only node A should count now
+        $this->assertEquals(1, $this->object->getNumSubtreeEntries());
+        $this->assertEquals(1, $colA->getNumSubtreeEntries());
+        $this->assertEquals(0, $colB->getNumSubtreeEntries()); // invisible
+        $this->assertEquals(0, $colC->getNumSubtreeEntries()); // parent invisible
+    }
+
     public function testDeleteCollectionFromDocumentDoesNotDeleteCollection() {
         $this->object->setVisible(1);
         $collectionId = $this->object->store();

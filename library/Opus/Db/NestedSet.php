@@ -503,17 +503,15 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract {
      * @access public
      * @return Zend_Db_Table_Select
      */
-    public function selectSubtreeById($id, $cols = '*') {
-
+    public function selectSubtreeById($id, $cols = '*')
+    {
         $select = $this->select()
                         ->from("{$this->_name} AS node", $cols)
-//                ->order("node.{$this->_left}")
                         ->from("{$this->_name} AS start", "")
                         ->where("start.{$this->_primary[1]} = ?", $id)
                         ->where("node.{$this->_left} BETWEEN start.{$this->_left} AND start.{$this->_right}")
                         ->where("node.{$this->_tree} = start.{$this->_tree}");
 
-        // echo "selectSubtreeById($id) new: ", $select->__toString(), "\n";
         return $select;
     }
 

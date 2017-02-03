@@ -906,6 +906,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * Returns documents of complete subtree.
      *
      * @return int Number of subtree Entries.
+     *
+     * TODO modify subselect to exclude invisible nodes
      */
     public function getNumSubtreeEntries() {
         $nestedsets = $this->_primaryTableRow->getTable();
