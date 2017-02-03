@@ -2,8 +2,6 @@
 
 set -e
 
-echo "got here!"
-
 #
 # Load parameters from file
 # File config.sh should contain values for following parameters

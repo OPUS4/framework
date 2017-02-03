@@ -66,22 +66,20 @@ $application = new Zend_Application(
     )
 );
 
+Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+
 // Bootstrapping application
 $application->bootstrap('Backend');
 
 $options = getopt('v:n:');
 
-var_dump($options);
-
 $database = new Opus_Database();
-
-$dbname = $options['n'];
 
 echo $database->getName() . PHP_EOL;
 
-// $database->drop();
-// $database->create();
-// $database->import(APPLICATION_PATH . '/db/schema/opus4schema.sql');
+$database->drop();
+$database->create();
+$database->import(APPLICATION_PATH . '/db/schema/opus4schema.sql');
 
 
 
