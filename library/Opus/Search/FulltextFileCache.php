@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,32 +27,45 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
+/**
+ * Cache for fulltext extractions of files.
+ *
+ * Rather than extracting the texts from PDF and other files over and over again by sending them to Solr the cache
+ * allows reusing the extraction results if a document has to be indexed again.
+ *
+ * The name of the cache file include hashes of the original file. That way a change in the stored file will cause a
+ * cache miss and trigger a new extraction request. This makes sure the indexed content matches the actually stored
+ * file.
+ *
+ * TODO report cache misses (detect corruption of files)
+ */
 class Opus_Search_FulltextFileCache {
 
 	const MAX_FILE_SIZE = 16777216; // 16 MiByte
 
-
-	protected static function getCacheFileName( Opus_File $file ) {
+	public static function getCacheFileName( Opus_File $file ) {
 		$name = null;
 
 		try {
 			$hash = $file->getRealHash('md5') . '-' . $file->getRealHash('sha256');
-			$name = realpath( Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt" );
+			$name = Opus_Config::get()->workspacePath . "/cache/solr_cache---$hash.txt";
 		}
 		catch (Exception $e) {
-			Opus_Log::get()->err(__CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e");
+			Opus_Log::get()->err(
+                __CLASS__ . '::' . __METHOD__ . ' : could not compute hash values for ' . $file->getPath() . " : $e"
+            );
 		}
 
 		return $name;
 	}
 
 	/**
-	 * Tries readng cached fulltext data linked with given Opus file from cache.
+	 * Tries reading cached fulltext data linked with given Opus file from cache.
 	 *
 	 * @param Opus_File $file
 	 * @return false|string found fulltext data, false on missing data in cache
@@ -61,10 +73,12 @@ class Opus_Search_FulltextFileCache {
 	public static function readOnFile( Opus_File $file ) {
 		$fileName = static::getCacheFileName( $file );
 		if ( $fileName && is_readable( $fileName ) ) {
-			// TODO: Why keeping huge files in cache for not actually using here but trying to fetch extraction from remote Solr service over and over again?
+			// TODO: Why keeping huge files in cache if not actually using them but trying to fetch extraction
+            //       from remote Solr service over and over again?
 			if ( filesize( $fileName ) > self::MAX_FILE_SIZE ) {
 				Opus_Log::get()->info( 'Skipped reading fulltext HUGE cache file ' . $fileName );
-			} else {
+			}
+            else {
 				// try reading cached content
 				$fileContent = file_get_contents( $fileName );
 				if ( $fileContent !== false ) {
@@ -74,6 +88,9 @@ class Opus_Search_FulltextFileCache {
 				Opus_Log::get()->info( 'Failed reading fulltext cache file ' . $fileName );
 			}
 		}
+        else {
+            Opus_Log::get()->err($file->getPath());
+        }
 
 		return false;
 	}
@@ -113,4 +130,5 @@ class Opus_Search_FulltextFileCache {
 			}
 		}
 	}
+
 }
