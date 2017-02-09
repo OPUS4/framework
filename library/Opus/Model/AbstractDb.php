@@ -821,15 +821,16 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * @return void
      */
     public function delete() {
-        $this->_callPluginMethod('preDelete');
-
         $modelId = $this->getId();
 
         // if no primary key is set the model has
         // not been stored yet, so delete gets skipped
+        // therefore postDelete of plugins does not get called either
         if (null === $modelId) {
             return;
         }
+
+        $this->_callPluginMethod('preDelete');
 
         // Start transaction
         $dbadapter = $this->getTableRow()->getTable()->getAdapter();

@@ -28,7 +28,7 @@
  * @package     Opus_Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -702,9 +702,29 @@ class Opus_CollectionRoleTest extends TestCase {
     
     /**
      * Regression-Test for OPUSVIER-2937
+     *
+     * Hook gets only called if object has been stored in database.
      */
-    public function testPreDeletePluginHookGetsCalled() {
+    public function testPreDeletePluginHookGetsCalled()
+    {
+        $pluginMock = new Opus_Model_Plugin_Mock();
 
+        $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
+
+        $collectionRole = new Opus_CollectionRole();
+        $collectionRole->setName('test');
+        $collectionRole->setOaiName('oainame');
+        $collectionRole->registerPlugin($pluginMock);
+        $collectionRole->store();
+        $collectionRole->delete();
+
+        $this->assertTrue(
+            in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook'
+        );
+    }
+
+    public function testPreDeletePluginHookNotCalledIfObjectNotStored()
+    {
         $pluginMock = new Opus_Model_Plugin_Mock();
 
         $this->assertTrue(empty($pluginMock->calledHooks), 'expected empty array');
@@ -713,7 +733,9 @@ class Opus_CollectionRoleTest extends TestCase {
         $collectionRole->registerPlugin($pluginMock);
         $collectionRole->delete();
 
-        $this->assertTrue(in_array('Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected call to preDelete hook');
+        $this->assertFalse(in_array(
+            'Opus_Model_Plugin_Mock::preDelete', $pluginMock->calledHooks), 'expected no call to preDelete hook'
+        );
     }
 
 
