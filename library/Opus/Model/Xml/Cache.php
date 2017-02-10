@@ -260,8 +260,8 @@ class Opus_Model_Xml_Cache {
      * 
      * @param int $documentId Id of document to process
      */
-    protected function _postPut($documentId) {
-        
+    protected function _postPut($documentId)
+    {
         if (!$this->_reindexDocumentAfterAddingCacheEntry) {
             return;
         }

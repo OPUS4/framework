@@ -28,14 +28,16 @@
  * @category    Framework
  * @package     Opus_Model_Plugin
  * @author      Edouard Simon <edouard.simon@zib.de>
- * @copyright   Copyright (c) 2013
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2013-2017
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Plugin deleting xml cache entries and updating the modification date of documents related to the model.
  *
+ * This plugin is attached to all the model classes except Opus_Document that contain information that is part of the
+ * aggregated metadata of a document in OPUS 4.
  */
 class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
 
@@ -49,7 +51,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * Check wether to update documents on postStore.
      * If there is no information about a Model
      * the postStore hook is not triggered.
-     * 
+     *
      */
     public function preStore(Opus_Model_AbstractDb $model) {
 
@@ -81,10 +83,10 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
     /**
      * @see {Opus_Model_Plugin_Interface::preDelete}
-     * 
+     *
      * Run plugin for documents depending on to-be-deleted model.
      * If model is not persistent (i. e. modelId is not set and /or model states to be a new record)
-     * preDelete operation is skipped. 
+     * preDelete operation is skipped.
      */
     public function preDelete(Opus_Model_AbstractDb $model) {
         $modelId = $model->getId();
@@ -93,6 +95,18 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         }
     }
 
+    /**
+     * Removes cache entries and updates last modified dates for documents.
+     *
+     * Finds all documents that are linked to the provided model and removes them from the xml cache and updates the
+     * last modified date.
+     *
+     * NOTE: logically it is the reverse. The document has been modified (the date changes), therefore the cache
+     *       needs to be invalidated.
+     *
+     * @param Opus_Model_AbstractDb $model
+     * @throws Opus_DocumentFinder_Exception
+     */
     protected function invalidateDocumentCacheFor(Opus_Model_AbstractDb $model) {
         $documentFinder = new Opus_DocumentFinder();
 

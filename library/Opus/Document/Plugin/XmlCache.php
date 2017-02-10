@@ -28,7 +28,6 @@
  * @copyright   Copyright (c) 2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -54,7 +53,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
         // TODO can that be eleminated? why is it necessary?
         $model = new Opus_Document($model->getId());
 
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Opus_Model_Xml_Cache(false);
         $omx = new Opus_Model_Xml();
 
         // remove document from cache. This can always be done, because postStore is only called if model was modified.
@@ -84,7 +83,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
      * @see {Opus_Model_Plugin_Interface::postDelete}
      */
     public function postDelete($modelId) {
-        $cache = new Opus_Model_Xml_Cache();
+        $cache = new Opus_Model_Xml_Cache(false);
         $omx = new Opus_Model_Xml;
 
         // xml version 1
