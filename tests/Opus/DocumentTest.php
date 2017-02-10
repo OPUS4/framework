@@ -2256,7 +2256,8 @@ class Opus_DocumentTest extends TestCase {
      * TODO how to test if indexing is called only once?
      *
      * Probably the best way of testing this would be replacing the regular Solr adapter with a dummy adapter, that
-     * just counts functions calls. However it isn't clear yet how such an adapter can be injected.
+     * just counts functions calls. However it isn't clear yet how such an adapter can be injected. Such an adapter
+     * would be very valuable to verify the indexing behaviour of OPUS under various conditions.
      */
     public function testStoreingPublishedIndexingOnlyOnce()
     {
