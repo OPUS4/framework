@@ -2252,4 +2252,21 @@ class Opus_DocumentTest extends TestCase {
         $doc->store();
     }
 
+    /**
+     * TODO how to test if indexing is called only once?
+     *
+     * Probably the best way of testing this would be replacing the regular Solr adapter with a dummy adapter, that
+     * just counts functions calls. However it isn't clear yet how such an adapter can be injected.
+     */
+    public function testStoreingPublishedIndexingOnlyOnce()
+    {
+        $this->markTestIncomplete('Requires way of counting calls to indexing adapter');
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+
+        // check indexing operations
+    }
+
 }
