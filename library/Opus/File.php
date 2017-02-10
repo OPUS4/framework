@@ -92,6 +92,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         ),
     );
 
+    private $_hashValues = array();
+
     /**
      * Initialize model with the following fields:
      * - PathName
@@ -321,9 +323,18 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @param string $type Type of the hash value, @see hash_file();
      * @return string hash value
+     *
+     * TODO gets called too often and does not cache values
      */
     public function getRealHash($type) {
+        if (array_key_exists($type, $this->_hashValues))
+        {
+            return $this->_hashValues[$type];
+        }
+
         $hash = @hash_file($type, $this->getPath());
+
+        $this->_hashValues[$type] = $hash;
 
         if (empty($hash)) {
             throw new Exception("Empty HASH for file '" . $this->getPath() . "'");
