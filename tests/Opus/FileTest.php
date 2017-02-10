@@ -512,6 +512,9 @@ class Opus_FileTest extends TestCase {
         fwrite($fh, "foo");
         fclose($fh);
 
+        // need new object because Opus_File caches calculated hash values
+        $file = new Opus_File($file->getId());
+
         $this->assertFalse($file->verify('md5', $expected_hash));
         $this->assertFalse($file->verifyAll());
     }
