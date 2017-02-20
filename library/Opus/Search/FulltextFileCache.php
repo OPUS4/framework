@@ -89,7 +89,7 @@ class Opus_Search_FulltextFileCache {
 			}
 		}
         else {
-            Opus_Log::get()->err($file->getPath());
+            Opus_Log::get()->debug( "Fulltext cache miss for (File ID = {$file->getId()}):  . {$file->getPath()}");
         }
 
 		return false;
