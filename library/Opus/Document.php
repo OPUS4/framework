@@ -1052,7 +1052,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
 
     /**
      * Returns title in document language.
-     * @return null
+     * @return Opus_Title
      *
      * TODO could be done using the database directly, but Opus_Title would still have to instantiated
      */
@@ -1060,6 +1060,31 @@ class Opus_Document extends Opus_Model_AbstractDb {
     {
         $titles = $this->getTitleMain();
 
+        return $this->_findTitleForLanguage($titles, $language);
+    }
+
+    /**
+     * Returns the main abstract of the document.
+     *
+     * @param null $language
+     * @return Opus_TitleAbstract
+     */
+    public function getMainAbstract($language = null)
+    {
+        $titles = $this->getTitleAbstract();
+
+        return $this->_findTitleForLanguage($titles, $language);
+    }
+
+    /**
+     * Finds the title for the language or abstract in array.
+     *
+     * @param $titles Array of titles or abstracts
+     * @param $language Language string like 'deu'
+     * @return Opus_Title|Opus_TitleAbstract
+     */
+    protected function _findTitleForLanguage($titles, $language)
+    {
         $docLanguage = $this->getLanguage();
 
         if (is_null($language))
