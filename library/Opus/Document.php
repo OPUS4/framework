@@ -1050,6 +1050,57 @@ class Opus_Document extends Opus_Model_AbstractDb {
         parent::delete();
     }
 
+    /**
+     * Returns title in document language.
+     * @return null
+     *
+     * TODO could be done using the database directly, but Opus_Title would still have to instantiated
+     */
+    public function getMainTitle($language = null)
+    {
+        $titles = $this->getTitleMain();
+
+        $docLanguage = $this->getLanguage();
+
+        if (is_null($language))
+        {
+            $language = $docLanguage;
+        }
+
+        if (count($titles) > 0)
+        {
+            if (!is_null($language))
+            {
+                $titleInDocLang = null;
+
+                foreach ($titles as $title)
+                {
+                    $titleLanguage = $title->getLanguage();
+
+                    if ($language === $titleLanguage)
+                    {
+                        return $title;
+                    }
+                    else if ($docLanguage == $titleLanguage)
+                    {
+                        $titleInDocLang = $title;
+                    }
+                }
+
+                // if available return title in document language
+                if (!is_null($titleInDocLang))
+                {
+                    return $titleInDocLang;
+                }
+            }
+
+            // if no title in document language ist found use first title
+            return $titles[0];
+        }
+
+        return null;
+    }
+
     /*
      * If param is set, the Opus_File-object on position 'param' is returned. It is equal to the file-id.
      * If no parameter is provided, an array with all files of the document is sorted and returned.

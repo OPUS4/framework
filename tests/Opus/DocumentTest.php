@@ -2270,4 +2270,103 @@ class Opus_DocumentTest extends TestCase {
         // check indexing operations
     }
 
+    protected function setupDocumentWithMultipleTitles()
+    {
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('French');
+        $title->setLanguage('fre');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Deutsch');
+        $title->setLanguage('deu');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('English');
+        $title->setLanguage('eng');
+
+        return $doc->store();
+    }
+
+    public function testGetMainTitle()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertCount(3, $doc->getTitleMain());
+
+        $title = $doc->getMainTitle();
+
+        $this->assertInstanceOf('Opus_Title', $title);
+        $this->assertEquals('Deutsch', $title->getValue());
+        $this->assertEquals('deu', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle('fre');
+
+        $this->assertEquals('French', $title->getValue());
+        $this->assertEquals('fre', $title->getLanguage());
+
+        $title = $doc->getMainTitle('eng');
+
+        $this->assertEquals('English', $title->getValue());
+        $this->assertEquals('eng', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForUnknownLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle('rus');
+
+        // should return title in document language
+        $this->assertEquals('Deutsch', $title->getValue());
+        $this->assertEquals('deu', $title->getLanguage());
+    }
+
+    public function testGetMainTitleWithNoDocumentLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->setLanguage(null);
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNull($doc->getLanguage());
+
+        $title = $doc->getMainTitle();
+
+        // should return first title
+        $this->assertEquals('French', $title->getValue());
+        $this->assertEquals('fre', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForNoTitles()
+    {
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle();
+
+        $this->assertNull($title);
+
+    }
+
 }
