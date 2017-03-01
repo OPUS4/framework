@@ -203,5 +203,25 @@ class Opus_LanguageTest extends TestCase {
         $this->assertEquals('', $lang->getType());
     }
 
+    public function testGetPart2tForPart1() {
+        $lang = new Opus_Language();
+        $lang->setPart2T('deu');
+        $lang->setRefName('German');
+        $lang->setPart1('de');
+        $lang->setType(null);
+        $lang->store();
+
+        $lang = new Opus_Language();
+        $lang->setPart2T('eng');
+        $lang->setRefName('English');
+        $lang->setPart1('en');
+        $lang->setType(null);
+        $lang->store();
+
+        $this->assertEquals('deu', Opus_Language::getPart2tForPart1('de'));
+        $this->assertEquals('eng', Opus_Language::getPart2tForPart1('en'));
+        $this->assertNull(Opus_Language::getPart2tForPart1('ch'));
+    }
+
 }
 

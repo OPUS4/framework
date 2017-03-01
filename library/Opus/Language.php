@@ -131,6 +131,21 @@ class Opus_Language extends Opus_Model_AbstractDb {
         return isset($rows[0]) ? $rows[0] : null;
         
     }
+
+    /**
+     * Returns part2_t language code for locale (part1 code).
+     * @param $locale string
+     */
+    public static function getPart2tForPart1($locale) {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $table->select()->from(array($table->info('name')), array('part2_t'))->where('part1 = ?', $locale);
+        $rows = $table->fetchRow($select);
+        if (!is_null($rows) && isset($rows['part2_t']))
+        {
+            return $rows['part2_t'];
+        }
+        return null;
+    }
     
     /**
      * Returns reference language name.
