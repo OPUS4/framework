@@ -1004,23 +1004,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Remove the model instance from the database.
-     * This only means: set state to deleted
+     * Sets document to state deleted.
      *
-     * @return void
+     * Documents are not deleted from database like other model objects. Calling
+     * deletePermanent removes a document from the database.
      */
     public function delete() {
-        // De-fatalize Search Index errors.
-        try {
-            // Remove from index
-            Opus_Search_Service::selectIndexingService()->removeDocumentsFromIndex( $this );
-        }
-        catch (Exception $e) {
-            $this->logger("removeDocumentFromIndex failed: " . $e->getMessage());
-        }
+        $this->_callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
+
+        $this->_callPluginMethod('postDelete', $this->getId());
     }
 
     /**

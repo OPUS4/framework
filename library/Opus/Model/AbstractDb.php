@@ -364,7 +364,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * @param string $methodname Name of plugin method to call
      * @param mixed  $parameter  Value that gets passed instead of the model instance.
      */
-    private function _callPluginMethod($methodname, $parameter = null) {
+    protected function _callPluginMethod($methodname, $parameter = null) {
         try {
             if (null === $parameter) {
                 $param = $this;
