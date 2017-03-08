@@ -1249,4 +1249,21 @@ class Opus_Document extends Opus_Model_AbstractDb {
         return ($embargoDate < $now);
     }
 
+    /**
+     * Only consider files which are visible in frontdoor.
+     *
+     * @return bool|void
+     */
+    public function hasFulltext()
+    {
+        $files = $this->getFile();
+
+        $files = array_filter($files, function ($file)
+        {
+            return $file->getVisibleInFrontdoor() === '1';
+        });
+
+        return count($files) > 0;
+    }
+
 }

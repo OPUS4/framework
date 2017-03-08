@@ -2366,7 +2366,37 @@ class Opus_DocumentTest extends TestCase {
         $title = $doc->getMainTitle();
 
         $this->assertNull($title);
+    }
 
+    public function testHasFulltext()
+    {
+        $doc = new Opus_Document();
+
+        $config = Zend_Registry::get('Zend_Config');
+        $tempFile = $config->workspacePath . '/tmp/'. uniqid();
+
+        touch($tempFile);
+
+        $file = $doc->addFile();
+        $file->setPathName('test.txt');
+        $file->setMimeType('text/plain');
+        $file->setTempFile($tempFile);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $files = $doc->getFile();
+
+        $this->assertTrue($doc->hasFulltext());
+
+        $files[0]->setVisibleInFrontdoor(0);
+
+        $doc = new Opus_Document($doc->store());
+
+        $this->assertFalse($doc->hasFulltext());
+
+        unlink($files[0]->getPath());
     }
 
 }
