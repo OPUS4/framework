@@ -92,7 +92,9 @@ class Opus_Mail_SendMail {
      * @throws Opus_Mail_Exception Thrown if the mail could not be sent.
      * @throws Opus_Mail_Exception Thrown if the from address is invalid.
      */
-    public function sendMail($from, $fromName, $subject, $bodyText, $recipients) {
+    public function sendMail($from, $fromName, $subject, $bodyText, $recipients, $replyTo = null,
+                             $replyToName = null, $returnPath = null)
+    {
         $logger = Zend_Registry::get('Zend_Log');
 
         if (trim($from) === '') {
@@ -108,6 +110,16 @@ class Opus_Mail_SendMail {
         $mail->setFrom($from, $fromName);
         $mail->setSubject($subject);
         $mail->setBodyText($bodyText);
+
+        if (!is_null($replyTo))
+        {
+            $mail->setReplyTo($replyTo, $replyToName);
+        }
+
+        if (!is_null($returnPath))
+        {
+            $mail->setReturnPath($returnPath);
+        }
 
         foreach ($recipients as $recip) {
             self::validateAddress($recip['address']);

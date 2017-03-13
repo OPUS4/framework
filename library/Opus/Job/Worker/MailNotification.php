@@ -79,6 +79,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
+        $replyTo = $this->_getReplyTo();
 
         if (!is_null($users) and !is_array($users)) {
             $users = array($users);
@@ -101,7 +102,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
         $this->_logger->info(__CLASS__ . ': Sending notification email...');
         $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
-        $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient);
+        $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo);
 
         return true;
     }
@@ -127,6 +128,36 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
             return $this->config->mail->opus->name;
         }
         return 'not configured';
+    }
+
+    protected function _getReplyTo()
+    {
+        if (isset($this->config->mail->opus->replyTo))
+        {
+            return $this->config->mail->opus->replyTo;
+        }
+
+        return null;
+    }
+
+    protected function _getReplyToName()
+    {
+        if (isset($this->config->mail->opus->replyToName))
+        {
+            return $this->config->mail->opus->replyToName;
+        }
+
+        return null;
+    }
+
+    protected function _getReturnPath()
+    {
+        if (isset($this->config->mail->opus->returnPath))
+        {
+            return $this->config->mail->opus->returnPath;
+        }
+
+        return null;
     }
 
     public function getRecipients($users = null) {
