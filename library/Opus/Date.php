@@ -215,7 +215,12 @@ class Opus_Date extends Opus_Model_Abstract {
      * @param Zend_Date $date Zend_Date instance to use.
      * @return void
      *
-     * @deprecated
+     * TODO new Opus_Date(new Zend_Date('2017/03/12') often works, but sometimes
+     * the resulting date is '2017/12/03'. This happens in the OPUS 4 application
+     * sometimes and can be tested there. Maybe it depends on the locale that has
+     * been set during bootstrapping.
+     *
+     * @deprecated Sometimes date conversion does not work properly (OPUSVIER-3713).
      */
     public function setZendDate(Zend_Date $date) {
         $this->setFromString($date->get(Zend_Date::ISO_8601));
