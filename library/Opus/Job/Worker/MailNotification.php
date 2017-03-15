@@ -80,6 +80,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
         $replyTo = $this->_getReplyTo();
+        $replyToName = $this->_getReplyToName();
+        $returnPath = $this->_getReturnPath();
 
         if (!is_null($users) and !is_array($users)) {
             $users = array($users);
@@ -102,7 +104,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
         $this->_logger->info(__CLASS__ . ': Sending notification email...');
         $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
-        $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo);
+        $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo, $replyToName, $returnPath);
 
         return true;
     }
