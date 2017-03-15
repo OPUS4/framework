@@ -842,5 +842,35 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertCount(1, $roles);
     }
 
+    public function testGetCollectionByOaiSubset()
+    {
+        $role = $this->object;
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col = new Opus_Collection();
+        $col->setName('test-collection');
+        $col->setOaiSubset('open_access');
+
+        $root->addFirstChild($col);
+        $role->store();
+
+        $result = $role->getCollectionByOaiSubset('open_access');
+
+        $this->assertInstanceOf('Opus_Collection', $result);
+        $this->assertEquals($col->getId(), $result->getId());
+    }
+
+    public function testGetCollectionByOaiSubsetNoMatch()
+    {
+        $role = $this->object;
+        $role->store();
+
+        $result = $role->getCollectionByOaiSubset('open_access');
+
+        $this->assertNull($result);
+    }
+
 }
 

@@ -572,6 +572,32 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
     }
 
+    /**
+     * Returns collection for OAI subset.
+     * @param $oaisubset
+     */
+    public function getCollectionByOaiSubset($oaisubset)
+    {
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $quoteOaiSubset = $db->quote("$oaisubset");
+
+        $select = "SELECT c.id
+            FROM collections_roles AS r, collections AS c
+            WHERE c.role_id = r.id
+            AND c.oai_subset = $quoteOaiSubset";
+
+        $result = $db->fetchOne($select);
+
+        if ($result === false)
+        {
+            return null;
+        }
+        else {
+            return new Opus_Collection($result);
+        }
+    }
+
     /* ********************************************************************** *
      * Everything which depends on $this->getRootNode() goes here:
      * ********************************************************************** */
