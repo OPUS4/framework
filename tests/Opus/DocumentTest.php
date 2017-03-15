@@ -2399,4 +2399,37 @@ class Opus_DocumentTest extends TestCase {
         unlink($files[0]->getPath());
     }
 
+    public function testIsOpenAccess()
+    {
+        $role = new Opus_CollectionRole();
+        $role->setName('open_access');
+        $role->setOaiName('open_access');
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col = new Opus_Collection();
+        $col->setName('open_access');
+        $col->setOaiSubset('open_access');
+
+        $root->addFirstChild($col);
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article');
+        $doc->addCollection($col);
+        $docId = $doc->store();
+
+        $this->assertTrue($col->holdsDocumentById($docId));
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertTrue($doc->isOpenAccess());
+
+        $doc->setCollection(null);
+        $doc->store();
+
+        $this->assertFalse($doc->isOpenAccess());
+    }
+
 }

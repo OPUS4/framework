@@ -1266,4 +1266,36 @@ class Opus_Document extends Opus_Model_AbstractDb {
         return count($files) > 0;
     }
 
+    /**
+     * Checks if document is marked as open access.
+     *
+     * Currently the document has to be assigned to the open access collection.
+     *
+     * TODO support different mechanisms implemented in separate classes
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function isOpenAccess()
+    {
+        $docId = $this->getId();
+
+        // can only be open access if it has been stored
+        if (is_null($docId))
+        {
+            return false;
+        }
+
+        $role = Opus_CollectionRole::fetchByName('open_access');
+        $collection = $role->getCollectionByOaiSubset('open_access');
+
+        if (!is_null($collection))
+        {
+            return $collection->holdsDocumentById($this->getId());
+        }
+        else {
+            return false;
+        }
+    }
+
 }
