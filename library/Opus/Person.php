@@ -269,4 +269,30 @@ class Opus_Person extends Opus_Model_AbstractDb {
         return $result->toArray();
     }
 
+    public static function getPersonDocuments($person)
+    {
+        $database = Zend_Db_Table::getDefaultAdapter();
+
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+
+        $select = $documentsLinkTable->select()
+            ->from(
+                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                array('link.document_id')
+            )->join(
+                array('p' => 'persons'),
+                'link.person_id = p.id',
+                array()
+            );
+
+        foreach ($person as $column => $value) {
+            $select->where("p.$column = ?", $value);
+        }
+
+        $documents = $documentsLinkTable->getAdapter()->fetchCol($select);
+
+        return $documents;
+
+    }
+
 }

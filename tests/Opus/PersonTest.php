@@ -422,4 +422,29 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(1, $roles);
     }
 
+    public function testGetPersonDocuments()
+    {
+        $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall'));
+
+        $this->assertInternalType('array', $documents);
+        $this->assertCount(10, $documents);
+
+        $doc = new Opus_Document($this->_documents[0]->getId());
+        $person = new Opus_Person();
+        $person->setLastName('Zufall');
+        $doc->addPersonOther($person);
+        $doc->store();
+
+        $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall'));
+
+        $this->assertInternalType('array', $documents);
+        $this->assertCount(11, $documents);
+
+        $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall', 'first_name' => 'Rainer'));
+
+        $this->assertInternalType('array', $documents);
+        $this->assertCount(10, $documents);
+
+    }
+
 }
