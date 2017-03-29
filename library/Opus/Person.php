@@ -235,4 +235,34 @@ class Opus_Person extends Opus_Model_AbstractDb {
         return $result->toArray();
     }
 
+    /**
+     * Returns roles for a person.
+     *
+     */
+    public static function getPersonRoles($person)
+    {
+        $database = Zend_Db_Table::getDefaultAdapter();
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $select = $documentsLinkTable->select()
+            ->from(
+                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                array('link.role', 'documents' => 'count(link.document_id)')
+            )->join(
+                array('p' => 'persons'),
+                'link.person_id = p.id',
+                array()
+            )->group(
+                array('link.role')
+            );
+
+        $select->where('p.last_name = ?', $person['last_name']);
+
+        $result = $table->fetchAll($select);
+
+        return $result->toArray();
+    }
+
 }

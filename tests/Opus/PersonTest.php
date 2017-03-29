@@ -390,4 +390,31 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(3, $persons);
     }
 
+    public function testGetPersonRoles()
+    {
+        $roles = Opus_Person::getPersonRoles(array('last_name' => 'Zufall'));
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(1, $roles);
+
+        $role = $roles[0];
+
+        $this->assertInternalType('array', $role);
+        $this->assertArrayHasKey('role', $role);
+        $this->assertEquals('author', $role['role']);
+        $this->assertArrayHasKey('documents', $role);
+        $this->assertEquals(10, $role['documents']);
+
+        $doc = new Opus_Document($this->_documents[0]->getId());
+        $person = new Opus_Person();
+        $person->setLastName('Zufall');
+        $doc->addPersonOther($person);
+        $doc->store();
+
+        $roles = Opus_Person::getPersonRoles(array('last_name' => 'Zufall'));
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(2, $roles);
+    }
+
 }
