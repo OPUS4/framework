@@ -444,7 +444,12 @@ class Opus_PersonTest extends TestCase {
 
         $this->assertInternalType('array', $documents);
         $this->assertCount(10, $documents);
+    }
 
+    public function testGetPersonDocumentsEmptyColumns()
+    {
+        $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall', 'first_name' => 'Rainer',
+            'identifier_orcid' => null));
     }
 
 }

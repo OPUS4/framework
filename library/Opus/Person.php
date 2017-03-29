@@ -260,8 +260,12 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 array('link.role')
             );
 
-        foreach ($person as $column => $value) {
-            $select->where("p.$column = ?", $value);
+        foreach ($person as $column => $value)
+        {
+            if (strlen(trim($value)) > 0)
+            {
+                $select->where("p.$column = ?", $value);
+            }
         }
 
         $result = $table->fetchAll($select);
@@ -285,8 +289,12 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 array()
             );
 
-        foreach ($person as $column => $value) {
-            $select->where("p.$column = ?", $value);
+        foreach ($person as $column => $value)
+        {
+            if (strlen(trim($value)) > 0)
+            {
+                $select->where("p.$column = ?", $value);
+            }
         }
 
         $documents = $documentsLinkTable->getAdapter()->fetchCol($select);
