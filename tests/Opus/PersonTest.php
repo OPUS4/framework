@@ -415,6 +415,11 @@ class Opus_PersonTest extends TestCase {
 
         $this->assertInternalType('array', $roles);
         $this->assertCount(2, $roles);
+
+        $roles = Opus_Person::getPersonRoles(array('last_name' => 'Zufall', 'first_name' => 'Rainer'));
+
+        $this->assertInternalType('array', $roles);
+        $this->assertCount(1, $roles);
     }
 
 }

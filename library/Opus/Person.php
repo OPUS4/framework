@@ -238,6 +238,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
     /**
      * Returns roles for a person.
      *
+     * TODO verify columns
+     * TODO use object for person
      */
     public static function getPersonRoles($person)
     {
@@ -258,7 +260,9 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 array('link.role')
             );
 
-        $select->where('p.last_name = ?', $person['last_name']);
+        foreach ($person as $column => $value) {
+            $select->where("p.$column = ?", $value);
+        }
 
         $result = $table->fetchAll($select);
 
