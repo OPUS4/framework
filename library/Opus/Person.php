@@ -178,4 +178,61 @@ class Opus_Person extends Opus_Model_AbstractDb {
         return self::getAllFrom('Opus_Person', 'Opus_Db_Persons');
     }
 
+    /**
+     * Returns all persons in the database without duplicates.
+     *
+     * Every real person might be represented by several objects, one for each document.
+     *
+     * @return array
+     *
+     * TODO return objects ?
+     *
+     */
+    public static function getAllPersons($role = null, $start = 0, $limit = 0)
+    {
+        $database = Zend_Db_Table::getDefaultAdapter();
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $result = null;
+
+        $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
+
+        if (is_null($role)) {
+            $select = $table->select()
+                ->from(
+                    array('p' => 'persons'),
+                    $identityColumns
+                )->group(
+                    $identityColumns
+                )->order('last_name');
+        }
+        else {
+            $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+
+            $select = $table->select()
+                ->from(
+                    array('p' => 'persons'),
+                    $identityColumns
+                )->join(
+                    array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                    'p.id = link.person_id',
+                    array()
+                )->where(
+                    $database->quoteInto('link.role = ?', $role)
+                )->group(
+                    $identityColumns
+                )->order('last_name');
+
+        }
+
+        if ($start !== 0 || $limit !== 0) {
+            $select->limit($limit, $start);
+        }
+
+        $result = $table->fetchAll($select);
+
+        return $result->toArray();
+    }
+
 }

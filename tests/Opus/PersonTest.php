@@ -75,8 +75,8 @@ class Opus_PersonTest extends TestCase {
 
         for ($i = 0; $i<10; $i++) {
             $p = new Opus_Person;
-            $p->setFirstName('Dummy-'.$p)
-                ->setLastName('Empty-'.$p)
+            $p->setFirstName("Dummy-$i")
+                ->setLastName("Empty-$i")
                 ->store();
         }
 
@@ -226,5 +226,168 @@ class Opus_PersonTest extends TestCase {
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
 
+    public function testGetAllPersons()
+    {
+        $persons = Opus_Person::getAllPersons();
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(11, $persons);
+
+        $first = $persons[0];
+
+        $this->assertArrayHasKey('last_name', $first);
+        $this->assertArrayHasKey('first_name', $first);
+        $this->assertArrayHasKey('identifier_orcid', $first);
+        $this->assertArrayHasKey('identifier_gnd', $first);
+        $this->assertArrayHasKey('identifier_misc', $first);
+    }
+
+    public function testGetAllPersonsPartial()
+    {
+        $persons = Opus_Person::getAllPersons(null, 0, 1);
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person = $persons[0];
+
+        $this->assertEquals('Empty-0', $person['last_name']);
+        $this->assertEquals('Dummy-0', $person['first_name']);
+
+        $persons = Opus_Person::getAllPersons(null, 10, 1);
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person = $persons[0];
+
+        $this->assertEquals('Zufall', $person['last_name']);
+        $this->assertEquals('Rainer', $person['first_name']);
+
+        $persons = Opus_Person::getAllPersons(null, 2, 4);
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(4, $persons);
+
+        $person = $persons[0];
+
+        $this->assertEquals('Empty-2', $person['last_name']);
+        $this->assertEquals('Dummy-2', $person['first_name']);
+    }
+
+    public function testGetAllPersonsInRole()
+    {
+        $persons = Opus_Person::getAllPersons('author');
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person = $persons[0];
+
+        $this->assertEquals('Zufall', $person['last_name']);
+        $this->assertEquals('Rainer', $person['first_name']);
+
+        $persons = Opus_Person::getAllPersons('other');
+
+        $this->assertCount(0, $persons);
+
+        $docId = $this->_documents[0]->getId();
+
+        $doc = new Opus_Document($docId);
+        $other = new Opus_Person();
+        $other->setLastName('Musterfrau');
+        $other->setFirstName('Erika');
+        $doc->addPersonOther($other);
+        $doc->store();
+
+        $persons = Opus_Person::getAllPersons('other');
+
+        $this->assertCount(1, $persons);
+
+        $person = $persons[0];
+
+        $this->assertEquals('Musterfrau', $person['last_name']);
+        $this->assertEquals('Erika', $person['first_name']);
+    }
+
+    /**
+     * TODO should this throw an exception?
+     */
+    public function testGetAllPersonsInUnknownRole()
+    {
+        $persons = Opus_Person::getAllPersons('cook');
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(0, $persons);
+    }
+
+    public function testGetAllPersonsSorting()
+    {
+        $doc = new Opus_Document($this->_documents[0]->getId());
+
+        $person = new Opus_Person();
+        $person->setLastName('Blau');
+        $doc->addPersonReferee($person);
+
+        $person = new Opus_Person();
+        $person->setLastName('Rot');
+        $doc->addPersonReferee($person);
+
+        $person = new Opus_Person();
+        $person->setLastName('Grün');
+        $doc->addPersonReferee($person);
+
+        $doc->store();
+
+        $persons = Opus_Person::getAllPersons('referee');
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(3, $persons);
+
+        $this->assertEquals('Blau', $persons[0]['last_name']);
+        $this->assertEquals('Grün', $persons[1]['last_name']);
+        $this->assertEquals('Rot', $persons[2]['last_name']);
+    }
+
+    /**
+     * Persons that have different identifiers are not considered the same.
+     */
+    public function testGetAllPersonsHandlingOfIdentifier()
+    {
+        $doc = new Opus_Document($this->_documents[0]->getId());
+
+        $person1 = new Opus_Person();
+        $person1->setLastName('Person');
+        $doc->addPersonReferee($person1);
+
+        $person2 = new Opus_Person();
+        $person2->setLastName('Person');
+        $doc->addPersonReferee($person2);
+
+        $person3 = new Opus_Person();
+        $person3->setLastName('Person');
+        $doc->addPersonReferee($person3);
+
+        $doc->store();
+
+        $persons = Opus_Person::getAllPersons('referee');
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person3->setIdentifierMisc('123');
+        $person3->store();
+
+        $persons = Opus_Person::getAllPersons('referee');
+
+        $this->assertCount(2, $persons);
+
+        $person2->setIdentifierGnd('654');
+        $person2->store();
+
+        $persons = Opus_Person::getAllPersons('referee');
+
+        $this->assertCount(3, $persons);
+    }
 
 }
