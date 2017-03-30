@@ -188,7 +188,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
      * TODO return objects ?
      *
      */
-    public static function getAllPersons($role = null, $start = 0, $limit = 0)
+    public static function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
     {
         $database = Zend_Db_Table::getDefaultAdapter();
 
@@ -218,16 +218,19 @@ class Opus_Person extends Opus_Model_AbstractDb {
                     array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
                     'p.id = link.person_id',
                     array()
-                )->where(
-                    $database->quoteInto('link.role = ?', $role)
                 )->group(
                     $identityColumns
                 )->order('last_name');
 
+                $select->where($database->quoteInto('link.role = ?', $role));
         }
 
         if ($start !== 0 || $limit !== 0) {
             $select->limit($limit, $start);
+        }
+
+        if (!is_null($filter)) {
+            $select->where('last_name LIKE ?', "%$filter%");
         }
 
         $result = $table->fetchAll($select);

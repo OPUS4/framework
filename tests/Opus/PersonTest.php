@@ -448,8 +448,25 @@ class Opus_PersonTest extends TestCase {
 
     public function testGetPersonDocumentsEmptyColumns()
     {
+        $this->markTestIncomplete('not implemented yet'); // TODO
         $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall', 'first_name' => 'Rainer',
             'identifier_orcid' => null));
+    }
+
+    public function testGetAllPersonsWithFilter()
+    {
+        $persons = Opus_Person::getAllPersons(null, 0, 0);
+
+        $this->assertCount(11, $persons);
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'fal');
+
+        $this->assertCount(1, $persons);
+        $this->assertEquals('Zufall', $persons[0]['last_name']);
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'pty');
+
+        $this->assertCount(10, $persons);
     }
 
 }
