@@ -231,6 +231,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         if (!is_null($filter)) {
             $select->where('last_name LIKE ?', "%$filter%");
+            $select->orWhere('first_name LIKE ?', "%$filter%");
         }
 
         $result = $table->fetchAll($select);

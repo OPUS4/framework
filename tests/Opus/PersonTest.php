@@ -469,4 +469,29 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(10, $persons);
     }
 
+    public function testGetAllPersonsWithFilterFirstName()
+    {
+        $doc = new Opus_Document($this->_documents[0]->getId());
+        $person = new Opus_Person();
+        $person->setLastName('Mustermann');
+        $person->setFirstName('Bafala');
+        $doc->addPersonOther($person);
+        $doc->store();
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'fal');
+
+        $this->assertCount(2, $persons);
+    }
+
+    public function testGetAllPersonsWithFilterCaseInsensitive()
+    {
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'FAL');
+
+        $this->assertCount(1, $persons);
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'uFa');
+
+        $this->assertCount(1, $persons);
+    }
+
 }
