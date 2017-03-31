@@ -310,6 +310,11 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Erika', $person['first_name']);
     }
 
+    public function testGetAllPersonsInRoleWithFilter()
+    {
+        $this->markTestIncomplete('not implemented yet');
+    }
+
     /**
      * TODO should this throw an exception?
      */
