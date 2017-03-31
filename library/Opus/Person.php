@@ -198,38 +198,34 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
 
-        if (is_null($role)) {
-            $select = $table->select()
-                ->from(
-                    array('p' => 'persons'),
-                    $identityColumns
-                )->group(
-                    $identityColumns
-                );
-        }
-        else {
+        $select = $table->select()
+            ->from(
+                array('p' => 'persons'),
+                $identityColumns
+            )->group(
+                $identityColumns
+            );
+
+        if (!is_null($role))
+        {
             $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
 
-            $select = $table->select()
-                ->from(
-                    array('p' => 'persons'),
-                    $identityColumns
-                )->join(
-                    array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
-                    'p.id = link.person_id',
-                    array()
-                )->group(
-                    $identityColumns
-                );
+            $select->join(
+                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                'p.id = link.person_id',
+                array()
+            );
 
-                $select->where($database->quoteInto('link.role = ?', $role));
+            $select->where($database->quoteInto('link.role = ?', $role));
         }
 
-        if ($start !== 0 || $limit !== 0) {
+        if ($start !== 0 || $limit !== 0)
+        {
             $select->limit($limit, $start);
         }
 
-        if (!is_null($filter)) {
+        if (!is_null($filter))
+        {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
@@ -238,6 +234,47 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $result = $table->fetchAll($select);
 
         return $result->toArray();
+    }
+
+    public static function getAllPersonsCount($role = null, $filter = null)
+    {
+        $database = Zend_Db_Table::getDefaultAdapter();
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
+
+        $select = $table->select()
+            ->from(
+                array('p' => 'persons'),
+                $identityColumns
+            )->group(
+                $identityColumns
+            );
+
+        if (!is_null($role)) {
+            $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+
+            $select->join(
+                    array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                    'p.id = link.person_id',
+                    array()
+                );
+
+            $select->where($database->quoteInto('link.role = ?', $role));
+        }
+
+        if (!is_null($filter)) {
+            $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
+        }
+
+        $countSelect = $table->select()
+            ->from(new Zend_Db_Expr("($select)"), 'count(*) as num')
+            ->setIntegrityCheck(false);
+
+        $result = $table->fetchRow($countSelect);
+
+        return $result['num'];
     }
 
     /**

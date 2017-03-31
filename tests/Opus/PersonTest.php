@@ -527,4 +527,31 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(1, $persons);
     }
 
+    public function testGetAllPersonsCount()
+    {
+        $persons = Opus_Person::getAllPersons();
+        $count = Opus_Person::getAllPersonsCount();
+
+        $this->assertEquals(count($persons), $count);
+        $this->assertEquals(11, $count);
+
+        $persons = Opus_Person::getAllPersons('author');
+        $count = Opus_Person::getAllPersonsCount('author');
+
+        $this->assertEquals(count($persons), $count);
+        $this->assertEquals(1, $count);
+
+        $persons = Opus_Person::getAllPersons('author', 0, 0, 'fal');
+        $count = Opus_Person::getAllPersonsCount('author', 'fal');
+
+        $this->assertEquals(count($persons), $count);
+        $this->assertEquals(1, $count);
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'emp');
+        $count = Opus_Person::getAllPersonsCount(null, 'emp');
+
+        $this->assertEquals(count($persons), $count);
+        $this->assertEquals(10, $count);
+    }
+
 }
