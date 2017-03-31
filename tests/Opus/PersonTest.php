@@ -349,6 +349,34 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Rot', $persons[2]['last_name']);
     }
 
+    public function testGetAllPersonsSortingWithLeadingSpaces()
+    {
+        $doc = new Opus_Document($this->_documents[0]->getId());
+
+        $person = new Opus_Person();
+        $person->setLastName('A');
+        $doc->addPersonReferee($person);
+
+        $person = new Opus_Person();
+        $person->setLastName('B');
+        $doc->addPersonReferee($person);
+
+        $person = new Opus_Person();
+        $person->setLastName(' C');
+        $doc->addPersonReferee($person);
+
+        $doc->store();
+
+        $persons = Opus_Person::getAllPersons('referee');
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(3, $persons);
+
+        $this->assertEquals('A', $persons[0]['last_name']);
+        $this->assertEquals('B', $persons[1]['last_name']);
+        $this->assertEquals(' C', $persons[2]['last_name']);
+    }
+
     /**
      * Persons that have different identifiers are not considered the same.
      */

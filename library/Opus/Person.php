@@ -205,7 +205,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
                     $identityColumns
                 )->group(
                     $identityColumns
-                )->order('last_name');
+                );
         }
         else {
             $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
@@ -220,7 +220,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
                     array()
                 )->group(
                     $identityColumns
-                )->order('last_name');
+                );
 
                 $select->where($database->quoteInto('link.role = ?', $role));
         }
@@ -233,6 +233,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
             $select->where('last_name LIKE ?', "%$filter%");
             $select->orWhere('first_name LIKE ?', "%$filter%");
         }
+
+        $select->order('trim(last_name)');
 
         $result = $table->fetchAll($select);
 
