@@ -229,7 +229,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
-        $select->order('trim(last_name)');
+        $select->order(array('trim(last_name)', 'trim(first_name)'));
 
         $result = $table->fetchAll($select);
 
