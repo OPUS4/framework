@@ -258,5 +258,81 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
                 'Expected serverDateModified to be updated.');
     }
 
+    public function testCacheInvalidatedOnlyOnce()
+    {
+        $this->markTestIncomplete('TODO - no assertions (used for manual debugging)');
+        $doc = new Opus_Document();
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('1');
+
+        $doc->addPatent($patent);
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Another Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('2');
+
+        $doc->addPatent($patent);
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Third Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('3');
+
+        $doc->addPatent($patent);
+
+        $licence = new Opus_Licence();
+        $licence->setLanguage('deu');
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://long.org/licence');
+        // $licenceId = $licence->store();
+
+        $doc->addLicence($licence);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $licences = $doc->getLicence();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Document Title');
+        $title->setLanguage('eng');
+
+        $doc->store();
+    }
+
+    public function testIgnoreCollectionRoleDisplayBrowsing()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $colRole->setDisplayBrowsing('Name,Number');
+        $colRole->store();
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
 }
 
