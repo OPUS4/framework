@@ -38,6 +38,9 @@
  *
  * This plugin is attached to all the model classes except Opus_Document that contain information that is part of the
  * aggregated metadata of a document in OPUS 4.
+ *
+ * TODO filter configuration should only exclude from server_date_modified change (cache should check date)
+ * TODO models should define their own lists (decentralized, object-oriented)
  */
 class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
 
@@ -59,10 +62,12 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
     /**
      * @see {Opus_Model_Plugin_Interface::preStore}
+     *
      * Check wether to update documents on postStore.
      * If there is no information about a Model
      * the postStore hook is not triggered.
      *
+     * TODO break up function
      */
     public function preStore(Opus_Model_AbstractDb $model)
     {
@@ -72,24 +77,45 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
         if (isset($config->{$modelClass}))
         {
-            $this->_postStoreUpdateDocuments = false;
-            $this->_updateServerDateModified = false;
+            $blacklist = $config->{$modelClass}->toArray();
 
             $filter = new Opus_Model_Filter();
             $filter->setModel($model);
-            $filter->setBlacklist($config->{$modelClass}->toArray());
+            $filter->setBlacklist($blacklist);
             $whitelist = $filter->describe();
 
             foreach ($whitelist as $fieldName)
             {
                 if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified())
                 {
+                    // change modifies metadata
                     $this->_postStoreUpdateDocuments = true;
                     $this->_updateServerDateModified = true;
-                    break;
+                    return;
+                }
+            }
+
+            $configKey = 'cache.' . $modelClass;
+
+            if (isset($config->{$configKey}))
+            {
+                $cacheList = $config->{$configKey}->toArray();
+
+                // check if cache should be deleted for blacklisted field
+                foreach ($blacklist as $fieldName)
+                {
+                    if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified() && in_array($fieldName, $cacheList))
+                    {
+                        $this->_postStoreUpdateDocuments = true;
+                        $this->_updateServerDateModified = false;
+                        return;
+                    }
                 }
             }
         }
+
+        $this->_postStoreUpdateDocuments = false;
+        $this->_updateServerDateModified = false;
     }
 
     /**
