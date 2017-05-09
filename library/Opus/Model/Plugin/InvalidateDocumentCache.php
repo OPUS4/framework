@@ -39,8 +39,8 @@
  * This plugin is attached to all the model classes except Opus_Document that contain information that is part of the
  * aggregated metadata of a document in OPUS 4.
  *
- * TODO filter configuration should only exclude from server_date_modified change (cache should check date)
- * TODO models should define their own lists (decentralized, object-oriented)
+ * TODO filter configuration should only exclude from server_date_modified change (should check date) - OPUSVIER-3760
+ * TODO models should define their own lists (decentralized, object-oriented) - OPUSVIER-3759
  */
 class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
 
