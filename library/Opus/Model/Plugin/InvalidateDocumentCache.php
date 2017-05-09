@@ -46,6 +46,17 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      */
     protected $_postStoreUpdateDocuments = true;
 
+    protected $_updateServerDateModified = true;
+
+    /**
+     * Configuration for ignored model fields.
+     *
+     * This configuration should be shared across all objects.
+     *
+     * @var Zend_Config
+     */
+    private static $_filterConfig;
+
     /**
      * @see {Opus_Model_Plugin_Interface::preStore}
      * Check wether to update documents on postStore.
@@ -53,19 +64,28 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * the postStore hook is not triggered.
      *
      */
-    public function preStore(Opus_Model_AbstractDb $model) {
-
+    public function preStore(Opus_Model_AbstractDb $model)
+    {
         $modelClass = get_class($model);
-        $config = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
-        if (isset($config->{$modelClass})) {
+
+        $config = self::getFilterConfig();
+
+        if (isset($config->{$modelClass}))
+        {
             $this->_postStoreUpdateDocuments = false;
+            $this->_updateServerDateModified = false;
+
             $filter = new Opus_Model_Filter();
             $filter->setModel($model);
             $filter->setBlacklist($config->{$modelClass}->toArray());
             $whitelist = $filter->describe();
-            foreach ($whitelist as $fieldName) {
-                if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified()) {
+
+            foreach ($whitelist as $fieldName)
+            {
+                if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified())
+                {
                     $this->_postStoreUpdateDocuments = true;
+                    $this->_updateServerDateModified = true;
                     break;
                 }
             }
@@ -75,8 +95,10 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
-        if ($this->_postStoreUpdateDocuments) {
+    public function postStore(Opus_Model_AbstractDb $model)
+    {
+        if ($this->_postStoreUpdateDocuments)
+        {
             $this->invalidateDocumentCacheFor($model);
         }
     }
@@ -88,9 +110,11 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * If model is not persistent (i. e. modelId is not set and /or model states to be a new record)
      * preDelete operation is skipped.
      */
-    public function preDelete(Opus_Model_AbstractDb $model) {
+    public function preDelete(Opus_Model_AbstractDb $model)
+    {
         $modelId = $model->getId();
-        if (!$model->isNewRecord() && !empty($modelId)) {
+        if (!$model->isNewRecord() && !empty($modelId))
+        {
             $this->invalidateDocumentCacheFor($model);
         }
     }
@@ -107,7 +131,8 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * @param Opus_Model_AbstractDb $model
      * @throws Opus_DocumentFinder_Exception
      */
-    protected function invalidateDocumentCacheFor(Opus_Model_AbstractDb $model) {
+    protected function invalidateDocumentCacheFor(Opus_Model_AbstractDb $model)
+    {
         $documentFinder = new Opus_DocumentFinder();
 
         $documentFinder->setDependentModel($model);
@@ -117,9 +142,37 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         $xmlCache = new Opus_Model_Xml_Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
 
-        $date = new Opus_Date();
-        $date->setNow();
-        Opus_Document::setServerDateModifiedByIds($date, $ids);
+        if ($this->_updateServerDateModified)
+        {
+            $date = new Opus_Date();
+            $date->setNow();
+            Opus_Document::setServerDateModifiedByIds($date, $ids);
+        }
+    }
+
+    /**
+     * Return configuration of ignored model fields.
+     *
+     * @return Zend_Config|Zend_Config_Ini
+     */
+    public static function getFilterConfig()
+    {
+        if (is_null(self::$_filterConfig))
+        {
+            self::$_filterConfig = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
+        }
+
+        return self::$_filterConfig;
+    }
+
+    /**
+     * Set global configuration fir ignored model fields.
+     *
+     * @param $config null|Zend_Config
+     */
+    public static function setFilterConfig($config)
+    {
+        self::$_filterConfig = $config;
     }
 
 }
