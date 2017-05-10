@@ -112,10 +112,10 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
                     }
                 }
             }
-        }
 
-        $this->_postStoreUpdateDocuments = false;
-        $this->_updateServerDateModified = false;
+            $this->_postStoreUpdateDocuments = false;
+            $this->_updateServerDateModified = false;
+        }
     }
 
     /**
