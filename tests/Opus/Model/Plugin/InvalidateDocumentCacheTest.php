@@ -580,5 +580,40 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         );
     }
 
+    public function testCollectionVisibleChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $colRole->setVisibleBrowsingStart(0);
+        $root = $colRole->addRootCollection();
+        $root->setVisible(1);
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $root->setVisible(0);
+        $root->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
 }
 
