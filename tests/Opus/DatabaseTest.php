@@ -27,7 +27,7 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -38,8 +38,8 @@ class Opus_DatabaseTest extends TestCase {
 
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
-        $this->assertCount(1, $files);
-        $this->assertEquals(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files[0]);
+        $this->assertCount(4, $files);
+        $this->assertContains(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files);
     }
 
     public function testGetSchemaFile() {
@@ -55,15 +55,71 @@ class Opus_DatabaseTest extends TestCase {
 
         $this->assertGreaterThan(0, $scripts);
 
-        $this->assertEquals("update-4.5.sql", basename($scripts[0]));
+        $basenames = array_map('basename', $scripts);
+
+        $this->assertContains('001-OPUS-4.4.4.sql', $basenames);
+        $this->assertContains('002-OPUS-4.5.sql', $basenames);
     }
 
     public function testGetUpdateScriptsSorting() {
-        $this->markTestIncomplete('not yet implemented');
+        $database = new Opus_Database();
+
+        $scripts = $database->getUpdateScripts();
+
+        $lastNumber = 0;
+
+        foreach ($scripts as $script)
+        {
+            $basename = basename($script);
+            $number = substr($basename, 0, 3);
+
+            $this->assertGreaterThan($lastNumber, $number);
+            $lastNumber = $number;
+        }
     }
 
-    public function testGetUpdateScriptsRange() {
-        $this->markTestIncomplete('not yet implemented');
+    public function testGetUpdateScriptsFrom() {
+        $database = new Opus_Database();
+
+        $scripts = $database->getUpdateScripts(2);
+
+        $lastNumber = 0;
+
+        foreach ($scripts as $script)
+        {
+            $number = substr(basename($script), 0, 3);
+            $this->assertGreaterThan(2, $number);
+            $this->assertGreaterThan($lastNumber, $number);
+            $lastNumber = $number;
+        }
+    }
+
+    public function testGetUpdateScriptsFromTo() {
+        $database = new Opus_Database();
+
+        $scripts = $database->getUpdateScripts(1, 2);
+
+        $this->assertCount(1, $scripts);
+
+        $number = substr(basename($scripts[0]), 0, 3);
+
+        $this->assertEquals(2, $number);
+    }
+
+    public function testGetUpdateScriptsUntil() {
+        $database = new Opus_Database();
+
+        $scripts = $database->getUpdateScripts(null, 2);
+
+        $lastNumber = 0;
+
+        foreach($scripts as $script)
+        {
+            $number = substr(basename($script), 0, 3);
+            $this->assertLessThanOrEqual(2, $number);
+            $this->assertGreaterThan($lastNumber, $number);
+            $lastNumber = $number;
+        }
     }
 
     /**
@@ -199,6 +255,17 @@ class Opus_DatabaseTest extends TestCase {
         $version = $database->getVersion();
 
         $this->assertNull($version);
+    }
+
+    public function testGetLatestVersion()
+    {
+        $database = new Opus_Database();
+
+        $scripts = $database->getUpdateScripts();
+
+        // TODO this only works if there are no gaps in the numbering
+        $this->assertEquals(count($scripts), $database->getLatestVersion());
+        $this->assertInternalType('int', $database->getLatestVersion());
     }
 
 }

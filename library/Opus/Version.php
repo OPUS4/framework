@@ -50,7 +50,7 @@ class Opus_Version
     /**
      * Version of database schema.
      */
-    const SCHEMA_VERSION = '4.5';
+    const SCHEMA_VERSION = '3';
 
     /**
      * Compare the specified Opus Framework version string $version
@@ -70,6 +70,7 @@ class Opus_Version
     /**
      * Returns required database schema version.
      * @return string
+     *
      */
     public static function getSchemaVersion()
     {

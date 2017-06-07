@@ -50,7 +50,7 @@ class Opus_Database {
     /**
      * Path to folder containing SQL files for updates.
      */
-    const UPDATE_SCRIPTS_PATH = '/db/schema/updates';
+    const UPDATE_SCRIPTS_PATH = '/db/schema';
 
     /**
      * @var Zend_Config
@@ -61,6 +61,11 @@ class Opus_Database {
      * @var Zend_Log
      */
     private $_logger;
+
+    /**
+     * @var int
+     */
+    private $_latestVersion = 0;
 
     /**
      * @return string Name of database
@@ -229,7 +234,7 @@ class Opus_Database {
      * @param $path string Path to directory containing SQL files
      * @return array
      */
-    public function getSqlFiles($path) {
+    public function getSqlFiles($path, $pattern = null) {
         // TODO check $path
 
         $files = new DirectoryIterator($path);
@@ -237,7 +242,8 @@ class Opus_Database {
         $sqlFiles = array();
 
         foreach($files as $file) {
-            if (strrchr($file->getBasename(), '.') == '.sql') {
+            $filename = $file->getBasename();
+            if (strrchr($filename, '.') == '.sql' && (is_null($pattern) || preg_match($pattern, $filename))) {
                 $sqlFiles[] = $file->getPathname();
             }
         }
@@ -291,7 +297,8 @@ class Opus_Database {
     /**
      * Returns schema version from database.
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         $pdo = $this->getPdo($this->getName());
 
         $version = null;
@@ -310,6 +317,17 @@ class Opus_Database {
         return $version;
     }
 
+    public function getLatestVersion()
+    {
+        if ($this->_latestVersion == 0)
+        {
+            $scripts = $this->getUpdateScripts();
+            $this->_latestVersion = ( int )substr(basename(end($scripts)), 0, 3);
+        }
+
+        return $this->_latestVersion;
+    }
+
     /**
      * Update database for a new version of OPUS.
      */
@@ -320,11 +338,38 @@ class Opus_Database {
 
     /**
      * Returns SQL update scripts.
+     *
+     * If a version is specified only the update scripts after that version number are returned. This can be used to
+     * update a database to the newest version.
+     *
+     * @param $version, Current version
+     * @param $targetVersion, Version that should be updated to
+     * @return array with full paths to update script files
      */
-    public function getUpdateScripts() {
+    public function getUpdateScripts($version = null, $targetVersion = null) {
         $scriptsPath = APPLICATION_PATH . self::UPDATE_SCRIPTS_PATH;
 
-        $files = $this->getSqlFiles($scriptsPath);
+        $files = $this->getSqlFiles($scriptsPath, '/^\d{3}-.*/');
+
+        if (!is_null($version))
+        {
+            $files = array_filter($files, function($value) use ($version) {
+                $basename = basename($value);
+                $number = substr($basename, 0, 3);
+                return ($number > $version);
+            });
+        }
+
+        if (!is_null($targetVersion))
+        {
+            $files = array_filter($files, function($value) use ($targetVersion) {
+                $basename = basename($value);
+                $number = substr($basename, 0, 3);
+                return ($number <= $targetVersion);
+            });
+        }
+
+        $files = array_values($files);
 
         return $files;
     }
