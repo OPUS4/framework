@@ -134,7 +134,7 @@ class Opus_Database {
 
         foreach ($files as $file) {
             // TODO make output optional
-            $name = substr($file, strlen(APPLICATION_PATH) + 1);
+            $name = basename($file);
             echo("Importing '$name' ... ");
             $sql = file_get_contents($file);
             $this->getLogger()->info("Import SQL file: $name");
@@ -262,12 +262,24 @@ class Opus_Database {
     }
 
     /**
+     * Returns base path of framework.
+     *
+     * @return string Path to root directory of framework
+     *
+     * TODO should this be placed somewhere else, a more generic place?
+     */
+    public function getBasePath()
+    {
+        return dirname(dirname(dirname(__FILE__)));
+    }
+
+    /**
      * Returns path to database schema file.
      * @return string Path to schema file
      * @throws Exception
      */
     public function getSchemaFile() {
-        $path = dirname(dirname(dirname(__FILE__))) . self::SCHEMA_PATH;
+        $path = $this->getBasePath() . self::SCHEMA_PATH;
 
         if (!is_file($path)) {
             throw new Exception('could not find schema file');
@@ -354,8 +366,9 @@ class Opus_Database {
      * @param $targetVersion, Version that should be updated to
      * @return array with full paths to update script files
      */
-    public function getUpdateScripts($version = null, $targetVersion = null) {
-        $scriptsPath = APPLICATION_PATH . self::UPDATE_SCRIPTS_PATH;
+    public function getUpdateScripts($version = null, $targetVersion = null)
+    {
+        $scriptsPath = $this->getBasePath() . self::UPDATE_SCRIPTS_PATH;
 
         $files = $this->getSqlFiles($scriptsPath, '/^\d{3}-.*/');
 
