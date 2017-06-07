@@ -8,10 +8,6 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
-    `last_changed_date` VARCHAR(100) ,
-    `revision` VARCHAR(20) ,
-    `author` VARCHAR(100),
-    `hash` TEXT COMMENT 'Hash of schema file.',
     `version` TEXT COMMENT 'Version number of schema.'
 )
 ENGINE = InnoDB
@@ -22,7 +18,7 @@ COMMENT = 'Holds revision information from subversion properties.';
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (version) VALUES ('4.5');
+INSERT INTO `schema_version` (version) VALUES (3);
 
 -- -----------------------------------------------------
 -- Table `documents`
