@@ -106,6 +106,14 @@ class Opus_Database {
     }
 
     /**
+     * Imports the database schema.
+     */
+    public function importSchema()
+    {
+        $this->import($this->getSchemaFile());
+    }
+
+    /**
      * Imports SQL file or folder containing SQL files.
      * @param $path string Path to file or folder
      * @throws Exception

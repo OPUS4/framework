@@ -268,4 +268,9 @@ class Opus_DatabaseTest extends TestCase {
         $this->assertInternalType('int', $database->getLatestVersion());
     }
 
+    public function testImportSchema()
+    {
+        $this->markTestIncomplete('TODO - how to do schema import testing within the regular test environment?');
+    }
+
 }
