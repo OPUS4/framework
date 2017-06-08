@@ -73,13 +73,24 @@ $application->bootstrap('Backend');
 
 $options = getopt('v:n:');
 
+$version = null;
+
+if (array_key_exists('v', $options))
+{
+    $version = $options['v'];
+    if (!ctype_digit($version))
+    {
+        $version = null;
+    }
+}
+
 $database = new Opus_Database();
 
 echo $database->getName() . PHP_EOL;
 
 $database->drop();
 $database->create();
-$database->importSchema();
+$database->importSchema($version);
 
 
 

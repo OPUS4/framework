@@ -106,9 +106,30 @@ class Opus_Database {
     /**
      * Imports the database schema.
      */
-    public function importSchema()
+    public function importSchema($targetVersion = null)
     {
-        $this->import($this->getSchemaFile());
+        if (is_null($targetVersion))
+        {
+            $schemaFile = $this->getSchemaFile();
+
+            if (!is_null($schemaFile))
+            {
+                $this->import($schemaFile);
+            }
+            else
+            {
+                // TODO some meaningfull output
+            }
+        }
+        else {
+            // TODO create database in steps
+            $scripts = $this->getUpdateScripts(null, $targetVersion);
+
+            foreach($scripts as $script)
+            {
+                $this->import($script);
+            }
+        }
     }
 
     /**
