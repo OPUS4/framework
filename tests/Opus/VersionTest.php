@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,19 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_VersionTest extends TestCase {
+class Opus_VersionTest extends TestCase
+{
 
-    /**
-     * @todo Implement testCompareVersion().
-     */
     public function testCompareVersion()
     {
         $this->assertEquals(1, Opus_Version::compareVersion('5.0')); // greater
@@ -51,7 +48,7 @@ class Opus_VersionTest extends TestCase {
         $version = Opus_Version::getSchemaVersion();
 
         $this->assertInternalType('string', $version);
-        $this->assertTrue(strlen($version) >= 3);
+        $this->assertTrue(ctype_digit($version));
     }
 
 }
