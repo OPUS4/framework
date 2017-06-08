@@ -24,76 +24,24 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Class for updating the database schema for new version of OPUS.
- */
-class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
+class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
+{
 
-    private $_targetVersion = null;
-
-    /**
-     * Performs update of database schema.
-     */
-    public function run() {
-        $database = new Opus_Database();
-
-        $version = $database->getVersion();
-
-        $this->log("Current version of database: $version");
-
-        $version = $this->mapVersion($version);
-
-        $scripts = $database->getUpdateScripts($version, $this->getTargetVersion());
-
-        if (count($scripts) > 0)
-        {
-            foreach ($scripts as $scriptPath) {
-                $this->log("Running $scriptPath ...");
-
-                $result = $database->execScript($scriptPath);
-            }
-        }
-        else
-        {
-            $this->log('No update needed');
-        }
-    }
-
-    /**
-     * Maps version value to schema version.
-     *
-     * @param $version
-     * @return int
-     */
-    public function mapVersion($version)
+    public function testMapVersion()
     {
-        if (is_null($version))
-        {
-            return 1;
-        }
-        else if ($version === '4.5')
-        {
-            return 2;
-        }
+        $plugin = new Opus_Update_Plugin_DatabaseSchema();
 
-        return $version;
-    }
-
-    public function setTargetVersion($targetVersion)
-    {
-        $this->_targetVersion = $targetVersion;
-    }
-
-    public function getTargetVersion()
-    {
-        return $this->_targetVersion;
+        $this->assertEquals(1, $plugin->mapVersion(null));
+        $this->assertEquals(2, $plugin->mapVersion('4.5'));
+        $this->assertEquals(1, $plugin->mapVersion('1'));
+        $this->assertEquals(4, $plugin->mapVersion('4'));
     }
 
 }

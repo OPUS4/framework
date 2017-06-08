@@ -25,75 +25,75 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Class for updating the database schema for new version of OPUS.
+ * Script for updating OPUS 4 database schema with optional name and version
+ * parameters.
+ *
+ * The version parameter specifies the target version for update. If it is not
+ * provided the script will update to the latest version of the schema.
+ *
+ * TODO name parameter not supported yet (still needed?)
  */
-class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
 
-    private $_targetVersion = null;
+defined('APPLICATION_PATH')
+    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
 
-    /**
-     * Performs update of database schema.
-     */
-    public function run() {
-        $database = new Opus_Database();
+defined('APPLICATION_ENV')
+    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
 
-        $version = $database->getVersion();
+// Configure include path.
+set_include_path(
+    implode(
+        PATH_SEPARATOR, array(
+            '.',
+            dirname(__FILE__),
+            APPLICATION_PATH . '/library',
+            APPLICATION_PATH . '/vendor',
+            get_include_path(),
+        )
+    )
+);
 
-        $this->log("Current version of database: $version");
+require_once 'autoload.php';
 
-        $version = $this->mapVersion($version);
+$application = new Zend_Application(
+    APPLICATION_ENV,
+    array(
+        "config"=>array(
+            APPLICATION_PATH . '/tests/config.ini',
+            APPLICATION_PATH . '/tests/tests.ini'
+        )
+    )
+);
 
-        $scripts = $database->getUpdateScripts($version, $this->getTargetVersion());
+Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
 
-        if (count($scripts) > 0)
-        {
-            foreach ($scripts as $scriptPath) {
-                $this->log("Running $scriptPath ...");
+// Bootstrapping application
+$application->bootstrap('Backend');
 
-                $result = $database->execScript($scriptPath);
-            }
-        }
-        else
-        {
-            $this->log('No update needed');
-        }
-    }
+$options = getopt('v:n:');
 
-    /**
-     * Maps version value to schema version.
-     *
-     * @param $version
-     * @return int
-     */
-    public function mapVersion($version)
+$targetVersion = null;
+
+if (array_key_exists('v', $options))
+{
+    $targetVersion = $options['v'];
+    if (!ctype_digit($targetVersion))
     {
-        if (is_null($version))
-        {
-            return 1;
-        }
-        else if ($version === '4.5')
-        {
-            return 2;
-        }
-
-        return $version;
+        $targetVersion = null;
     }
-
-    public function setTargetVersion($targetVersion)
-    {
-        $this->_targetVersion = $targetVersion;
-    }
-
-    public function getTargetVersion()
-    {
-        return $this->_targetVersion;
-    }
-
 }
+
+$database = new Opus_Database();
+
+echo $database->getName() . PHP_EOL;
+
+$database->update($targetVersion);
+
+
+

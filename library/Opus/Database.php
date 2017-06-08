@@ -105,6 +105,8 @@ class Opus_Database {
 
     /**
      * Imports the database schema.
+     *
+     * TODO remove support for single schema file?
      */
     public function importSchema($targetVersion = null)
     {
@@ -114,21 +116,24 @@ class Opus_Database {
 
             if (!is_null($schemaFile))
             {
+                // if present use single schema file
                 $this->import($schemaFile);
+
+                return;
             }
             else
             {
                 // TODO some meaningfull output
+
             }
         }
-        else {
-            // TODO create database in steps
-            $scripts = $this->getUpdateScripts(null, $targetVersion);
 
-            foreach($scripts as $script)
-            {
-                $this->import($script);
-            }
+        // if targetVersion is specified or no complete schema file is present
+        $scripts = $this->getUpdateScripts(null, $targetVersion);
+
+        foreach($scripts as $script)
+        {
+            $this->import($script);
         }
     }
 
@@ -347,7 +352,10 @@ class Opus_Database {
 
             $result = $pdo->query($sql)->fetch();
 
-            $version = $result['version'];
+            if (isset($result['version']))
+            {
+                $version = $result['version'];
+            }
         }
         catch(PDOException $pdoex) {
             // TODO logging
@@ -370,8 +378,9 @@ class Opus_Database {
     /**
      * Update database for a new version of OPUS.
      */
-    public function update() {
+    public function update($targetVersion = null) {
         $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
+        $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
     }
 
