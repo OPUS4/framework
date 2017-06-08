@@ -79,7 +79,7 @@ echo $database->getName() . PHP_EOL;
 
 $database->drop();
 $database->create();
-$database->import(APPLICATION_PATH . '/db/schema/opus4schema.sql');
+$database->importSchema();
 
 
 

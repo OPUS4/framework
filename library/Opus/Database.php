@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,9 +36,7 @@
  *
  * This class is used to drop and create the database schema and also import the master data and the test data.
  *
- * TODO maybe move to Opus_Util_Database?
- * TODO logging
- * TODO use for createdb.sh
+ * TODO more logging
  */
 class Opus_Database {
 

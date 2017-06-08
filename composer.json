@@ -25,9 +25,6 @@
       "dev-master": "4.6-dev"
     }
   },
-  "bin": [
-    "db/createdb.sh"
-  ],
   "require-dev": {
     "phpunit/phpunit": "4.8.5",
     "phpunit/dbunit": "1.4.*",
