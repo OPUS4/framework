@@ -373,4 +373,29 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($date->__toString(), $dateZend->__toString());
     }
 
+    function testGetUnixTimestamp()
+    {
+        $date = new Opus_Date();
+        $date->setNow();
+
+        $timestamp = $date->getUnixTimestamp();
+
+        $this->assertEquals(
+            $date->getDateTime()->format('Y-m-d H:i:s'),
+            date('Y-m-d H:i:s', $timestamp)
+        );
+    }
+
+    function testGetUnixTimestampForCustomDate()
+    {
+        $date = new Opus_Date('2012-10-17');
+
+        $timestamp = $date->getUnixTimestamp();
+
+        $this->assertEquals(
+            $date->getDateTime()->format('Y-m-d H:i:s'),
+            date('Y-m-d H:i:s', $timestamp)
+        );
+    }
+
 }
