@@ -31,15 +31,8 @@
         </delete>
     </target>
 
-    <target name="setup" depends="prepare-dependencies,prepare-config,prepare-createdb"
+    <target name="setup" depends="prepare-dependencies,prepare-config"
             description="Prepares the configuration." />
-
-    <target name="prepare-createdb">
-        <copy file="${basedir}/db/config.sh.template" toFile="${basedir}/db/config.sh" filtering="true"
-              overwrite="true">
-            <filterset filtersFile="${configfile}" />
-        </copy>
-    </target>
 
     <target name="prepare-config">
         <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
