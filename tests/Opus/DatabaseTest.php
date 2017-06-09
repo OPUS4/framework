@@ -243,7 +243,7 @@ class Opus_DatabaseTest extends TestCase {
         $database = new Opus_Database();
 
         $database->exec(
-            'TRUNCATE TABLE `schema_version`: INSERT INTO `schema_version` (`version`) VALUES (\'5\');'
+            'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_version` (`version`) VALUES (\'5\');'
         );
 
         $version = $database->getVersion();
