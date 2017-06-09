@@ -6,19 +6,29 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 -- -----------------------------------------------------
 -- Table to store schema versioning information
 -- -----------------------------------------------------
+
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
-    `version` TEXT COMMENT 'Version number of schema.'
+    `version` INT UNSIGNED NOT NULL COMMENT 'Version number of schema.'
 )
-ENGINE = InnoDB
-COMMENT = 'Holds revision information from subversion properties.';
+    ENGINE = InnoDB
+    COMMENT = 'Holds revision information from subversion properties.';
+
+-- Table to store version of application (to control updates)
+
+CREATE TABLE IF NOT EXISTS `opus_version` (
+    `version` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Internal version number of OPUS.'
+)
+    ENGINE = InnoDB
+    COMMENT = 'Holds internal OPUS version for controlling update steps.';
+
 -- -----------------------------------------------------
 -- Insert revision information
 --
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (version) VALUES (3);
+INSERT INTO `schema_version` (version) VALUES (4);
 
 -- -----------------------------------------------------
 -- Table `documents`
