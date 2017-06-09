@@ -38,8 +38,9 @@ class Opus_DatabaseTest extends TestCase {
 
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
-        $this->assertCount(4, $files);
+        $this->assertGreaterThan(4, $files);
         $this->assertContains(APPLICATION_PATH . '/db/schema/opus4schema.sql', $files);
+        $this->assertContains( APPLICATION_PATH . '/db/schema/001-OPUS-4.4.4.sql', $files);
     }
 
     public function testGetSchemaFile() {
@@ -241,11 +242,21 @@ class Opus_DatabaseTest extends TestCase {
     {
         $database = new Opus_Database();
 
-        $database->exec('INSERT INTO `schema_version` (`version`) VALUES (\'4.5\');');
+        $database->exec(
+            'TRUNCATE TABLE `schema_version`: INSERT INTO `schema_version` (`version`) VALUES (\'5\');'
+        );
 
         $version = $database->getVersion();
 
-        $this->assertEquals('4.5', $version);
+        $this->assertEquals('5', $version);
+
+        $database->exec(
+            'TRUNCATE TABLE `schema_version`; INSERT INTO `schema_version` (`version`) VALUES (\'2\');'
+        );
+
+        $version = $database->getVersion();
+
+        $this->assertEquals(2, $version);
     }
 
     public function testGetVersionNullForOldDatabase()
