@@ -872,5 +872,34 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertNull($result);
     }
 
+    public function testGetLastPosition()
+    {
+        $role = $this->object;
+        $role->store();
+
+        $result = Opus_CollectionRole::getLastPosition();
+
+        $this->assertNotNull($result);
+        $this->assertInternalType('int', $result);
+        $this->assertEquals(0, $result);
+
+        $role->setPosition(10);
+        $role->store();
+
+        $result = Opus_CollectionRole::getLastPosition();
+
+        $this->assertEquals(10, $result);
+
+        $role2 = new Opus_CollectionRole();
+        $role2->setName('Test Col2');
+        $role2->setOaiName('col2oai');
+        $role2->setPosition(20);
+        $role2->store();
+
+        $result = Opus_CollectionRole::getLastPosition();
+
+        $this->assertEquals(20, $result);
+    }
+
 }
 

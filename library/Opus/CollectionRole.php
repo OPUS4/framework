@@ -201,6 +201,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Returns position number of last collection role.
+     * @return int Highest used position number for collection roles
+     */
+    public static function getLastPosition()
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $db = $table->getAdapter();
+
+        $query = 'SELECT MAX(position) FROM collections_roles;';
+
+        $result = $db->fetchOne($query);
+
+        return ( int )$result;
+    }
+
+    /**
      * Overwrite standard storage procedure to shift positions.  The parameter
      * describes the new position of the current role.
      *
