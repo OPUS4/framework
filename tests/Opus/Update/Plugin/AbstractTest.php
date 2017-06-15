@@ -31,7 +31,7 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
+class Opus_Update_Plugin_AbstractTest extends TestCase
 {
 
     private $_stub;
