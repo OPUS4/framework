@@ -46,6 +46,12 @@ abstract class Opus_Update_Plugin_Abstract
     private $_config;
 
     /**
+     * Suppresses output to console.
+     * @var boolean
+     */
+    private $_quietMode;
+
+    /**
      * Set logger for this class.
      * @param Zend_Log $logger
      */
@@ -101,7 +107,19 @@ abstract class Opus_Update_Plugin_Abstract
         }
 
         // TODO make output optional (quiet option)?
-        echo $message . PHP_EOL;
+        if (!$this->getQuietMode()) {
+            echo $message . PHP_EOL;
+        }
+    }
+
+    public function setQuietMode($enabled)
+    {
+        $this->_quietMode = $enabled;
+    }
+
+    public function getQuietMode()
+    {
+        return $this->_quietMode;
     }
 
     /**
