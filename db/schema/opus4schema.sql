@@ -349,6 +349,7 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
   `link_logo` MEDIUMTEXT NULL COMMENT 'URI of the licence logo.' ,
   `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form.' ,
   `mime_type` VARCHAR(30) NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".' ,
+  `name` VARCHAR(255) NULL COMMENT 'Short name of the licence as displayed to users.',
   `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
   `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).' ,
   `sort_order` TINYINT NOT NULL DEFAULT 0 COMMENT 'Sort order (00 to 99).' ,

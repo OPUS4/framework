@@ -132,5 +132,19 @@ class Opus_LicenceTest extends TestCase {
         $this->assertEquals((string)$serverDateModified, (string)$docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
 
+    public function testStoreName()
+    {
+        $licence = new Opus_Licence();
+        $licence->setName('Short name');
+        $licence->setNameLong('Long name');
+        $licence->setLinkLicence('link');
+        $licenceId = $licence->store();
+
+        $licence = new Opus_Licence($licenceId);
+
+        $this->assertEquals('Short name', $licence->getName());
+        $this->assertEquals('Long name', $licence->getNameLong());
+    }
+
 
 }
