@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `opus_version` (
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (version) VALUES (4);
+INSERT INTO `schema_version` (version) VALUES (6);
 
 -- -----------------------------------------------------
 -- Table `documents`
