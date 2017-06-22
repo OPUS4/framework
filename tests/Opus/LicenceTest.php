@@ -192,4 +192,20 @@ class Opus_LicenceTest extends TestCase {
         $licence->store();
     }
 
+    /**
+     * Multiple licences can have NULL for column 'name'.
+     */
+    public function testNameNullNotUnique()
+    {
+        $licence = new Opus_Licence();
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
+        $licence->setLinkLicence('link');
+        $licence->store();
+
+        $licence = new Opus_Licence();
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
+        $licence->setLinkLicence('link 2');
+        $licence->store();
+    }
+
 }

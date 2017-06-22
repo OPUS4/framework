@@ -12,7 +12,7 @@ START TRANSACTION;
 -- Remove column "link_sign" from "document_licences" (OPUSVIER-1492)
 
 ALTER TABLE `document_licences`
-  ADD COLUMN `name` VARCHAR(255) NULL COMMENT 'Short name of the licence as displayed to users.';
+  ADD COLUMN `name` VARCHAR(255) NULL UNIQUE COMMENT 'Short name of the licence as displayed to users.';
 
 -- Update database version
 
