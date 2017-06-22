@@ -58,6 +58,24 @@ class Opus_Licence extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Fetch licence with matching name.
+     * @return Opus_Licence
+     */
+    public static function fetchByName($name)
+    {
+        $licences = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $licences->select()->where('name = ?', $name);
+        $row = $licences->fetchRow($select);
+
+        if (isset($row))
+        {
+            return new Opus_Licence($row);
+        }
+
+        return null;
+    }
+
+    /**
      * Plugins to load
      *
      * @var array

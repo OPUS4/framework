@@ -339,21 +339,36 @@ COMMENT = 'Key table for database scheme enhancements.';
 -- Table `document_licences`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `document_licences` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `active` TINYINT NOT NULL DEFAULT 1 COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?' ,
-  `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment.' ,
-  `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML etc.).' ,
-  `desc_text` MEDIUMTEXT NULL COMMENT 'Description of the licence in short and pure text form.' ,
-  `language` VARCHAR(3) NULL COMMENT 'Language of the licence.' ,
-  `link_licence` MEDIUMTEXT NOT NULL COMMENT 'URI of the licence text.' ,
-  `link_logo` MEDIUMTEXT NULL COMMENT 'URI of the licence logo.' ,
-  `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form.' ,
-  `mime_type` VARCHAR(30) NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".' ,
-  `name` VARCHAR(255) NULL COMMENT 'Short name of the licence as displayed to users.',
-  `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
-  `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).' ,
-  `sort_order` TINYINT NOT NULL DEFAULT 0 COMMENT 'Sort order (00 to 99).' ,
-  PRIMARY KEY (`id`) )
+  `id`               INT UNSIGNED NOT NULL AUTO_INCREMENT
+  COMMENT 'Primary key.',
+  `active`           TINYINT      NOT NULL DEFAULT 1
+  COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?',
+  `comment_internal` MEDIUMTEXT   NULL
+  COMMENT 'Internal comment.',
+  `desc_markup`      MEDIUMTEXT   NULL
+  COMMENT 'Description of the licence in a markup language (XHTML etc.).',
+  `desc_text`        MEDIUMTEXT   NULL
+  COMMENT 'Description of the licence in short and pure text form.',
+  `language`         VARCHAR(3)   NULL
+  COMMENT 'Language of the licence.',
+  `link_licence`     MEDIUMTEXT   NOT NULL
+  COMMENT 'URI of the licence text.',
+  `link_logo`        MEDIUMTEXT   NULL
+  COMMENT 'URI of the licence logo.',
+  `link_sign`        MEDIUMTEXT   NULL
+  COMMENT 'URI of the licence contract form.',
+  `mime_type`        VARCHAR(30)  NULL
+  COMMENT 'Mime type of the licence text linked in \"link_licence\".',
+  `name`             VARCHAR(255) NULL UNIQUE
+  COMMENT 'Short name of the licence as displayed to users.',
+  `name_long`        VARCHAR(255) NOT NULL
+  COMMENT 'Full name of the licence as displayed to users.',
+  `pod_allowed`      TINYINT(1)   NOT NULL DEFAULT 0
+  COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).',
+  `sort_order`       TINYINT      NOT NULL DEFAULT 0
+  COMMENT 'Sort order (00 to 99).',
+  PRIMARY KEY (`id`)
+)
 ENGINE = InnoDB
 COMMENT = 'Table for licence related data.';
 
