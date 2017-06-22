@@ -50,7 +50,7 @@ class Opus_Version
     /**
      * Version of database schema.
      */
-    const SCHEMA_VERSION = '4';
+    const SCHEMA_VERSION = '6';
 
     /**
      * Compare the specified Opus Framework version string $version
