@@ -21,7 +21,7 @@ ALTER TABLE `collections_roles`
 -- Update database version
 
 TRUNCATE TABLE `schema_version`;
-INSERT INTO `schema_version` (`version`) VALUES (7);
+INSERT INTO `schema_version` (`version`) VALUES (6);
 
 COMMIT;
 
