@@ -554,4 +554,17 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals(10, $count);
     }
 
+    public function testOpusId()
+    {
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $person->setOpusId('12345');
+        $personId = $person->store();
+
+        $person = new Opus_Person($personId);
+
+        $this->assertEquals('12345', $person->getOpusId());
+        $this->assertEquals('Testy', $person->getLastName());
+    }
+
 }

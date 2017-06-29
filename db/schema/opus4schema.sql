@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `opus_version` (
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (`version`) VALUES (6);
+INSERT INTO `schema_version` (`version`) VALUES (7);
 
 -- -----------------------------------------------------
 -- Table `documents`
@@ -204,6 +204,7 @@ COMMENT = 'Table with title and abstract related data.';
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `persons` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `opus_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Internal person identifier.',
   `academic_title` VARCHAR(255) NULL COMMENT 'Academic title.' ,
   `date_of_birth` VARCHAR(50) NULL COMMENT 'Date of birth.' ,
   `email` VARCHAR(100) NULL COMMENT 'E-mail address.' ,
