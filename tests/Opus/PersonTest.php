@@ -486,6 +486,63 @@ class Opus_PersonTest extends TestCase {
             'identifier_orcid' => null));
     }
 
+    public function testGetPersonDocumentsByState()
+    {
+        $person = array('last_name' => 'Zufall');
+
+        $documents = Opus_Person::getPersonDocuments($person);
+
+        $this->assertCount(10, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($person, 'unpublished');
+
+        $this->assertCount(10, $documents);
+
+        for ($i = 0; $i < 5; $i++)
+        {
+            $doc = $this->_documents[$i];
+            $doc->setServerState('audited');
+            $doc->store();
+        }
+
+        $documents = Opus_Person::getPersonDocuments($person, 'audited');
+
+        $this->assertCount(5, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($person, 'unpublished');
+
+        $this->assertCount(5, $documents);
+    }
+
+    public function testGetPersonDocumentsDistinct()
+    {
+        $person = array('last_name' => 'Zufall');
+
+        $documents = Opus_Person::getPersonDocuments($person);
+
+        $this->assertCount(10, $documents);
+
+        $person2 = new Opus_Person();
+        $person2->setLastName('Zufall');
+        $this->_documents[0]->addPersonAuthor($person2);
+        $this->_documents[0]->store();
+
+        $documents = Opus_Person::getPersonDocuments($person);
+
+        $this->assertNotCount(11, $documents);
+        $this->assertCount(10, $documents);
+    }
+
+    public function testGetPersonDocumentsSorted()
+    {
+
+    }
+
+    public function testGetPersonDocumentsByStateSorted()
+    {
+
+    }
+
     public function testGetAllPersonsWithFilter()
     {
         $persons = Opus_Person::getAllPersons(null, 0, 0);
@@ -518,6 +575,7 @@ class Opus_PersonTest extends TestCase {
 
     public function testGetAllPersonsWithFilterCaseInsensitive()
     {
+        exit(1);
         $persons = Opus_Person::getAllPersons(null, 0, 0, 'FAL');
 
         $this->assertCount(1, $persons);

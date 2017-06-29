@@ -317,16 +317,34 @@ class Opus_Person extends Opus_Model_AbstractDb {
         return $result->toArray();
     }
 
-    public static function getPersonDocuments($person)
+    /**
+     * Returns document for person.
+     *
+     * The $person parameter is an array of columns and values that determine which person is meant.
+     *
+     * - first name
+     * - last name
+     * - identifier_orcid
+     * - identifier_gnd
+     * - identifier_misc
+     *
+     * @param $person array
+     * @return array
+     */
+    public static function getPersonDocuments($person, $state = null)
     {
         $database = Zend_Db_Table::getDefaultAdapter();
 
-        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+        $documentsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
 
-        $select = $documentsLinkTable->select()
+        $select = $documentsTable->select()
             ->from(
-                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
-                array('link.document_id')
+                array('d' => $documentsTable->info(Zend_Db_Table::NAME)),
+                array('distinct(d.id)')
+            )->join(
+                array('link' => 'link_persons_documents'),
+                'link.document_id = d.id',
+                array()
             )->join(
                 array('p' => 'persons'),
                 'link.person_id = p.id',
@@ -341,7 +359,13 @@ class Opus_Person extends Opus_Model_AbstractDb {
             }
         }
 
-        $documents = $documentsLinkTable->getAdapter()->fetchCol($select);
+        if (!is_null($state))
+        {
+            // TODO check $state value
+            $select->where('d.server_state = ?', $state);
+        }
+
+        $documents = $documentsTable->getAdapter()->fetchCol($select);
 
         return $documents;
 
