@@ -31,6 +31,13 @@
         </delete>
     </target>
 
+    <target name="prepare-workspace">
+        <mkdir dir="${basedir}/tests/workspace/cache" />
+        <mkdir dir="${basedir}/tests/workspace/tmp" />
+        <mkdir dir="${basedir}/tests/workspace/log" />
+        <mkdir dir="${basedir}/tests/workspace/files" />
+    </target>
+
     <target name="setup" depends="prepare-dependencies,prepare-config"
             description="Prepares the configuration." />
 
