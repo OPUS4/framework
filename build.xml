@@ -38,7 +38,7 @@
         <mkdir dir="${basedir}/tests/workspace/files" />
     </target>
 
-    <target name="setup" depends="prepare-dependencies,prepare-config"
+    <target name="setup" depends="prepare-dependencies,prepare-workspace,prepare-config"
             description="Prepares the configuration." />
 
     <target name="prepare-config">
