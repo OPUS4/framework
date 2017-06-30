@@ -409,6 +409,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $documents = $documentsTable->getAdapter()->fetchCol($select);
 
+        $documents = array_unique($documents); // just in case (TODO sorting by title creates duplicates)
+
         return $documents;
 
     }
