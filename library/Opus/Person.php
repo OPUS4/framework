@@ -362,7 +362,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         }
 
         if (!is_null($state) && in_array($state,
-                array('published', 'unpublished', 'in-progress', 'audited', 'restricted', 'deleted')
+                array('published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted')
             ))
         {
             $select->where('d.server_state = ?', $state);
