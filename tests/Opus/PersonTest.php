@@ -471,7 +471,7 @@ class Opus_PersonTest extends TestCase {
         $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall'));
 
         $this->assertInternalType('array', $documents);
-        $this->assertCount(11, $documents);
+        $this->assertCount(10, $documents);
 
         $documents = Opus_Person::getPersonDocuments(array('last_name' => 'Zufall', 'first_name' => 'Rainer'));
 
@@ -533,14 +533,290 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(10, $documents);
     }
 
-    public function testGetPersonDocumentsSorted()
+    public function testGetPersonDocumentsSortedById()
     {
+        $doc1 = new Opus_Document();
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc1->addPersonAuthor($person);
+        $docId1 = $doc1->store();
 
+        $doc2 = new Opus_Document();
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'id', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'id', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
+    }
+
+
+    public function testGetPersonDocumentsSortedByType()
+    {
+        $doc1 = new Opus_Document();
+        $doc1->setType('article');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc1->addPersonAuthor($person);
+        $docId1 = $doc1->store();
+
+        $doc2 = new Opus_Document();
+        $doc2->setType('dissertation');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'docType', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'docType', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
+    }
+
+    public function testGetPersonDocumentsSortedByPublicationDate()
+    {
+        $doc1 = new Opus_Document();
+        $date = new Opus_Date(new DateTime());
+        $doc1->setServerDatePublished($date);
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc1->addPersonAuthor($person);
+        $docId1 = $doc1->store();
+
+        sleep(2);
+
+        $doc2 = new Opus_Document();
+        $date = new Opus_Date(new DateTime());
+        $doc2->setServerDatePublished($date);
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'publicationDate', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'publicationDate', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
+    }
+
+    public function testGetPersonDocumentsSortedByTitle()
+    {
+        $doc1 = new Opus_Document();
+        $title = $doc1->addTitleMain();
+        $title->setValue('A Title');
+        $title->setLanguage('eng');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc1->addPersonAuthor($person);
+        $docId1 = $doc1->store();
+
+        $doc2 = new Opus_Document();
+        $title = $doc2->addTitleMain();
+        $title->setValue('B Title');
+        $title->setLanguage('eng');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'title', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'title', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
+    }
+
+    public function testGetPersonDocumentsSortedByAuthor()
+    {
+        $this->markTestSkipped('TODO - sorting by author not properly working yet OPUSVIER-3810');
+        $doc1 = new Opus_Document();
+        $person = new Opus_Person();
+        $person->setLastName('A Person');
+        $personLink = $doc1->addPersonAuthor($person);
+        $personLink->setSortOrder(0);
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $personLink = $doc1->addPersonAuthor($person);
+        $personLink->setSortOrder(1);
+        $docId1 = $doc1->store();
+
+        $doc2 = new Opus_Document();
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'author', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, null, null, 'author', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
     }
 
     public function testGetPersonDocumentsByStateSorted()
     {
+        $doc1 = new Opus_Document();
+        $title = $doc1->addTitleMain();
+        $title->setValue('A Title');
+        $title->setLanguage('eng');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc1->addPersonAuthor($person);
+        $docId1 = $doc1->store();
 
+        $doc2 = new Opus_Document();
+        $title = $doc2->addTitleMain();
+        $title->setValue('B Title');
+        $title->setLanguage('eng');
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc2->addPersonAuthor($person);
+        $docId2 = $doc2->store();
+
+        $personMatch = array('last_name' => 'Testy');
+
+        $documents = Opus_Person::getPersonDocuments($personMatch);
+
+        $this->assertCount(2, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', true);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId1, $documents[0]);
+        $this->assertEquals($docId2, $documents[1]);
+
+        $documents = Opus_Person::getPersonDocuments($personMatch, 'unpublished', null, 'title', false);
+
+        $this->assertCount(2, $documents);
+
+        $this->assertEquals($docId2, $documents[0]);
+        $this->assertEquals($docId1, $documents[1]);
+    }
+
+    public function testGetPersonDocumentsByRole()
+    {
+        $person = array('last_name' => 'Zufall');
+
+        $documents = Opus_Person::getPersonDocuments($person, null,'author');
+
+        $this->assertCount(10, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($person, null,'editor');
+
+        $this->assertCount(0, $documents);
+
+        $doc = $this->_documents[0];
+
+        $editor = new Opus_Person();
+        $editor->setLastName('Zufall');
+        $doc->addPersonEditor($editor);
+        $doc->store();
+
+        $documents = Opus_Person::getPersonDocuments($person, null, 'editor');
+
+        $this->assertCount(1, $documents);
+    }
+
+    public function testGetPersonDocumentsByStateAndRole()
+    {
+        $person = array('last_name' => 'Zufall');
+
+        $documents = Opus_Person::getPersonDocuments($person, 'unpublished', 'author');
+        $this->assertCount(10, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($person, 'published', 'author');
+        $this->assertCount(0, $documents);
+
+        $documents = Opus_Person::getPersonDocuments($person, 'unpublished', 'editor');
+        $this->assertCount(0, $documents);
+
+        $doc = $this->_documents[0];
+
+        $doc->setServerState('published');
+        $editor = new Opus_Person();
+        $editor->setLastName('Zufall');
+        $doc->addPersonEditor($editor);
+        $doc->store();
+
+        $documents = Opus_Person::getPersonDocuments($person, 'published', 'editor');
+        $this->assertCount(1, $documents);
     }
 
     public function testGetAllPersonsWithFilter()
@@ -575,7 +851,6 @@ class Opus_PersonTest extends TestCase {
 
     public function testGetAllPersonsWithFilterCaseInsensitive()
     {
-        exit(1);
         $persons = Opus_Person::getAllPersons(null, 0, 0, 'FAL');
 
         $this->assertCount(1, $persons);

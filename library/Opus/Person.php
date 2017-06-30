@@ -330,8 +330,10 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @param $person array
      * @return array
+     *
+     * TODO quote everything
      */
-    public static function getPersonDocuments($person, $state = null)
+    public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
     {
         $database = Zend_Db_Table::getDefaultAdapter();
 
@@ -359,10 +361,50 @@ class Opus_Person extends Opus_Model_AbstractDb {
             }
         }
 
-        if (!is_null($state))
+        if (!is_null($state) && in_array($state,
+                array('published', 'unpublished', 'in-progress', 'audited', 'restricted', 'deleted')
+            ))
         {
-            // TODO check $state value
             $select->where('d.server_state = ?', $state);
+        }
+
+        if (!is_null($role) && in_array($role,
+                array('author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter')
+            ))
+        {
+            $select->where('link.role = ?', $role);
+        }
+
+        if (!is_null($sort) and in_array($sort, array('id', 'title', 'publicationDate', 'docType', 'author')))
+        {
+            switch ($sort)
+            {
+                case 'id':
+                    $select->order('d.id' . ($order ? ' ASC' : ' DESC'));
+                    break;
+                case 'title':
+                    $select->setIntegrityCheck(false);
+                    $select->join(array('t' => 'document_title_abstracts'),
+                        't.document_id = d.id',
+                        array());
+
+                    $select->columns(array('d.id', 't.value'));
+                    $select->order('t.value' . (($order) ? ' ASC' : ' DESC'));
+                    break;
+                case 'publicationDate':
+                    $select->columns(array('d.id', 'd.server_date_published'));
+                    $select->order('d.server_date_published' . (($order) ? ' ASC' : ' DESC'));
+                    break;
+                case 'docType':
+                    $select->columns(array('d.id', 'd.type'));
+                    $select->order('d.type' . (($order) ? ' ASC' : ' DESC'));
+                    break;
+                case 'author':
+                    $select->setIntegrityCheck(false);
+                    $select->columns(array('d.id', 'p.last_name'));
+                    $select->order('p.last_name' . ($order ? ' ASC' : ' DESC'));
+                    break;
+            }
         }
 
         $documents = $documentsTable->getAdapter()->fetchCol($select);
