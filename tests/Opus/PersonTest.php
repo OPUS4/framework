@@ -900,4 +900,44 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Testy', $person->getLastName());
     }
 
+    public function testGetPersonValues()
+    {
+        $personCrit = array('last_name' => 'Zufall');
+
+        $values = Opus_Person::getPersonValues($personCrit);
+
+        $this->assertCount(11, $values);
+
+        $this->assertArrayHasKey('id', $values);
+
+        $personIds = $values['id'];
+
+        $this->assertInternalType('array', $personIds);
+        $this->assertCount(10, $personIds);
+
+        $this->assertArrayHasKey('last_name', $values);
+        $this->assertInternalType('string', $values['last_name']);
+        $this->assertEquals('Zufall', $values['last_name']);
+
+        foreach ($values as $key => $value)
+        {
+            if ($key !== 'id')
+            {
+                $this->assertNotInternalType('array', $value);
+            }
+        }
+
+        $person = new Opus_Person($personIds[0]);
+        $person->setPlaceOfBirth('Hamburg');
+        $person->store();
+
+        $values = Opus_Person::getPersonValues($personCrit);
+
+        $this->assertArrayHasKey('place_of_birth', $values);
+        $this->assertInternalType('array', $values['place_of_birth']);
+        $this->assertCount(2, $values['place_of_birth']);
+
+        var_dump($values);
+    }
+
 }

@@ -287,7 +287,6 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public static function getPersonRoles($person)
     {
-        $database = Zend_Db_Table::getDefaultAdapter();
         $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
 
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
@@ -412,7 +411,68 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $documents = array_unique($documents); // just in case (TODO sorting by title creates duplicates)
 
         return $documents;
+    }
 
+    /**
+     * Returns the value of matching person objects.
+     *
+     * @param $person
+     * @return array
+     */
+    public static function getPersonValues($person)
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $result = null;
+
+        $select = $table->select()->from(array('p' => 'persons'));
+
+        foreach ($person as $column => $value)
+        {
+            if (strlen(trim($value)) > 0)
+            {
+                $select->where("p.$column = ?", $value);
+            }
+        }
+
+        $rows = $table->fetchAll($select);
+
+        $data = $rows->toArray();
+
+        $merged = array();
+
+        foreach ($data as $personId => $values)
+        {
+            foreach ($values as $key => $value)
+            {
+                if (isset($merged[$key]))
+                {
+                    $allValues = $merged[$key];
+
+                    if (is_array($allValues))
+                    {
+                        if (array_search($value, $allValues) === false)
+                        {
+                            array_push($merged[$key], $value);
+                        }
+                    }
+                    else
+                    {
+                        if ($value !== $allValues)
+                        {
+                            $merged[$key] = array();
+                            array_push($merged[$key], $allValues, $value);
+                        }
+                    }
+                }
+                else
+                {
+                    $merged[$key] = $value;
+                }
+            }
+        }
+
+        return $merged;
     }
 
 }
