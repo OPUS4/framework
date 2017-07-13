@@ -329,8 +329,6 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @param $person array
      * @return array
-     *
-     * TODO quote everything
      */
     public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
     {
@@ -473,6 +471,111 @@ class Opus_Person extends Opus_Model_AbstractDb {
         }
 
         return $merged;
+    }
+
+    /**
+     * Returns ids of person objects matching criteria and documents.
+     *
+     * TODO filter by role?
+     *
+     * @param $person Criteria for matching persons
+     * @param null $documents Array with ids of documents
+     * @return array Array with IDs of persons
+     */
+    public static function getPersonsForDocuments($person, $documents = null)
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $database = $table->getAdapter();
+
+        $select = $table->select()
+            ->from(
+                array('p' => 'persons'),
+                array('distinct(p.id)')
+            )->join(
+                array('link' => 'link_persons_documents'),
+                'link.person_id = p.id',
+                array()
+            );
+
+        foreach ($person as $column => $value)
+        {
+            if (strlen(trim($value)) > 0)
+            {
+                $select->where("p.$column = ?", $value);
+            }
+        }
+
+        $select->where('link.document_id IN (?)', $documents);
+
+        $persons = $database->fetchCol($select);
+
+        return $persons;
+    }
+
+    /**
+     * Updates select columns of matching persons.
+     *
+     * Optionally the scope can be limited to specified set of documents.
+     *
+     * @param $person Criteria for matching persons
+     * @param $changes Map of column names and new values
+     * @param null $documents Array with document Ids
+     */
+    public static function updateAll($person, $changes, $documents = null)
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $database = $table->getAdapter();
+
+        $changes = self::convertChanges($changes);
+
+        $where = array();
+
+        if (!is_null($documents))
+        {
+            $persons = self::getPersonsForDocuments($person, $documents);
+
+            // TODO deal with empty result
+
+            $where[] = $database->quoteInto('id IN (?)', $persons);
+        }
+        else
+        {
+            // TODO move this into get persons as well?
+
+            foreach ($person as $column => $value)
+            {
+                if (strlen(trim($value)) > 0)
+                {
+                    $where[] = $database->quoteInto("$column = ?", $value);
+                }
+            }
+        }
+
+        // TODO verify changes
+
+        $table->update($changes, $where);
+    }
+
+    /**
+     * Converts map with field names into array with column names.
+     *
+     * @param $changes Map of field names and values
+     * @return array Map of column names and values
+     */
+    public static function convertChanges($changes)
+    {
+        $columnChanges = array();
+
+        foreach ($changes as $fieldName => $value)
+        {
+            $column = self::convertFieldnameToColumn($fieldName);
+
+            $columnChanges[$column] = $value;
+        }
+
+        return $columnChanges;
     }
 
 }

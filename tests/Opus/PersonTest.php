@@ -936,8 +936,143 @@ class Opus_PersonTest extends TestCase {
         $this->assertArrayHasKey('place_of_birth', $values);
         $this->assertInternalType('array', $values['place_of_birth']);
         $this->assertCount(2, $values['place_of_birth']);
+    }
 
-        var_dump($values);
+    public function testUpdateAll()
+    {
+        $personCrit = array('last_name' => 'Zufall');
+
+        $changes = array(
+            'Email' => 'bulktest@example.org'
+        );
+
+        Opus_Person::updateAll($personCrit, $changes);
+
+        foreach ($this->_authors as $author)
+        {
+            $person = new Opus_Person($author->getId());
+
+            $this->assertEquals('bulktest@example.org', $person->getEmail());
+        }
+    }
+
+    public function testUpdateAllForSpecifiedDocuments()
+    {
+        $personCrit = array('last_name' => 'Zufall');
+
+        $changes = array(
+            'Email' => 'bulktest@example.org'
+        );
+
+        $documents = array(2, 4, 7);
+
+        Opus_Person::updateAll($personCrit, $changes, $documents);
+
+        foreach($this->_authors as $author)
+        {
+            $person = new Opus_Person($author->getId());
+
+            $personDocs = $person->getDocumentsByRole('author');
+
+            $this->assertCount(1, $personDocs);
+
+            $docId = $personDocs[0]->getId();
+
+            if (in_array($docId, $documents))
+            {
+                $this->assertEquals('bulktest@example.org', $person->getEmail());
+            }
+            else
+            {
+                $this->assertNull($person->getEmail());
+            }
+        }
+    }
+
+    public function testGetPersonsForDocuments()
+    {
+        $personCrit = array('last_name' => 'Zufall');
+
+        $documentIds = array(2, 4, 7, 8);
+
+        $personIds = Opus_Person::getPersonsForDocuments($personCrit, $documentIds);
+
+        $this->assertNotNull($personIds);
+        $this->assertInternalType('array', $personIds);
+        $this->assertCount(4, $personIds);
+
+        foreach ($personIds as $personId)
+        {
+            $person = new Opus_Person($personId);
+
+            $documents = $person->getDocumentsByRole('author');
+
+            $this->assertCount(1, $documents);
+
+            $this->assertContains($documents[0]->getId(), $documentIds);
+
+        }
+    }
+
+    public function testGetPersonsForDocumentsBadIds()
+    {
+        $personCrit = array('first_name' => 'Rainer');
+
+        $persons = Opus_Person::getPersonsForDocuments($personCrit, array(33, 34));
+
+        $this->assertCount(0, $persons);
+    }
+
+    public function testGetPersonsForDocumentsCaseInsensitive()
+    {
+        $personCrit = array('last_name' => 'zuFall');
+
+        $documentIds = array(2, 3, 4);
+
+        $personIds = Opus_Person::getPersonsForDocuments($personCrit, $documentIds);
+
+        $this->assertCount(3, $personIds);
+
+        foreach ($personIds as $personId)
+        {
+            $person = new Opus_Person($personId);
+
+            $this->assertEquals('Zufall', $person->getLastName());
+        }
+    }
+
+    public function testUpdateAllChangeLastName()
+    {
+        $personCrit = array('last_name' => 'Zufall', 'first_name' => 'Rainer');
+
+        $changes = array('LastName' => 'Plannt', 'FirstName' => 'Volge');
+
+        Opus_Person::updateAll($personCrit, $changes);
+
+        foreach ($this->_authors as $author)
+        {
+            $person = new Opus_Person($author->getId());
+
+            $this->assertEquals('Plannt', $person->getLastName());
+            $this->assertEquals('Volge', $person->getFirstName());
+        }
+    }
+
+    public function testConvertChanges()
+    {
+        $changes = array(
+            'LastName' => 'Zufall',
+            'FirstName' => 'Rainer',
+            'Email' => 'example@example.org'
+        );
+
+        $result = Opus_Person::convertChanges($changes);
+
+        $this->assertEquals(array(
+            'last_name' => 'Zufall',
+            'first_name' => 'Rainer',
+            'email' => 'example@example.org'
+        ), $result);
     }
 
 }
