@@ -578,4 +578,60 @@ class Opus_Person extends Opus_Model_AbstractDb {
         return $columnChanges;
     }
 
+    /**
+     * Convert array with column names into array with field names.
+     * @param $person
+     * @return array
+     */
+    public static function convertToFieldNames($person)
+    {
+        $values = array();
+
+        foreach ($person as $column => $value)
+        {
+            $fieldName = self::convertColumnToFieldname($column);
+
+            $values[$fieldName] = $value;
+        }
+
+        return $values;
+    }
+
+    /**
+     * Checks if person matches criteria.
+     *
+     * @param $criteria
+     * @return bool
+     *
+     * TODO refactor
+     */
+    public function matches($criteria)
+    {
+        $defaults = array_fill_keys(array(
+            'LastName', 'FirstName', 'IdentifierOrcid', 'IdentifierGnd', 'IdentifierMisc'
+        ), null);
+        $criteria = array_merge($defaults, $criteria);
+
+        foreach ($criteria as $fieldName => $critValue) {
+            $value = $this->getField($fieldName)->getValue();
+
+            if (is_string($value))
+            {
+                if (stristr($value, $critValue) === FALSE)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if ($value !== $critValue)
+                {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
 }

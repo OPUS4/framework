@@ -1075,4 +1075,34 @@ class Opus_PersonTest extends TestCase {
         ), $result);
     }
 
+    public function testConvertToFieldNames()
+    {
+        $values = array(
+            'last_name' => 'Zufall',
+            'first_name' => 'Rainer',
+            'email' => 'example@example.org'
+        );
+
+        $result = Opus_Person::convertToFieldNames($values);
+
+        $this->assertEquals(array(
+            'LastName' => 'Zufall',
+            'FirstName' => 'Rainer',
+            'Email' => 'example@example.org'
+        ), $result);
+    }
+
+    public function testMatches()
+    {
+        $criteria = array('LastName' => 'Zufall');
+
+        $person = $this->_authors[0];
+
+        $this->assertFalse($person->matches($criteria));
+
+        $criteria['FirstName'] = 'Rainer';
+
+        $this->assertTrue($person->matches($criteria));
+    }
+
 }
