@@ -185,7 +185,10 @@ class Opus_Database {
         $dbUser = $this->getUsername();
         $dbPwd = $this->getPassword();
 
-        $connStr = "mysql:host=localhost;default-character-set=utf8;default-collate=utf8_general_ci";
+        $host = $this->getHost();
+        $port  = $this->getPort();
+
+        $connStr = "mysql:host=$host;port=$port;default-character-set=utf8;default-collate=utf8_general_ci";
 
         if (!is_null($dbName) && strlen(trim($dbName)) > 0)
         {
@@ -198,6 +201,42 @@ class Opus_Database {
         $pdo->exec('SET CHARACTER SET `utf8`');
 
         return $pdo;
+    }
+
+    /**
+     * Returns configured host for database.
+     *
+     * @return mixed
+     */
+    public function getHost()
+    {
+        $config = $this->getConfig();
+
+        if (isset($config->db->params->host))
+        {
+            return $config->db->params->host;
+        }
+        else {
+            return '127.0.0.1'; // localhost
+        }
+    }
+
+    /**
+     * Returns configured port for database.
+     *
+     * @return mixed
+     */
+    public function getPort()
+    {
+        $config = $this->getConfig();
+
+        if (isset($config->db->params->port))
+        {
+            return $config->db->params->port;
+        }
+        else {
+            return 3306;
+        }
     }
 
     /**
