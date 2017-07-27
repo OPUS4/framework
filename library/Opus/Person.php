@@ -36,6 +36,36 @@
 /**
  * Domain model for persons in the Opus framework
  *
+ * The class includes a number of static methods for querying or updating the database. These functions are used for
+ * the management of persons in OPUS 4. They will be expanded and maybe moved later as the development of the
+ * management functions continues. Some of them might be replaced by code that uses the search index.
+ *
+ * At this point a real "person" is represented by all the objects matching the identification of that person. For
+ * the identification the following fields are used.
+ *
+ * - LastName
+ * - FirstName
+ * - IdentifierOrcid
+ * - IdentifierGnd
+ * - IdentifierMisc
+ *
+ * TODO Currently a mix of field and column names is used. That should be fixed.
+ *
+ * So a person is specified by providing values for the five identity fields. If not all values are specified, null is
+ * assumed and used for matching.
+ *
+ * A person object with the same name, but no identifier is not the same person as an object that does have an
+ * identifier. So if for a person only a last name is specified, persons with a first name or any kind of id are not
+ * considered the same person.
+ *
+ * TODO in next steps of development LastName and FirstName will become irrelevant and only identifier will be used
+ *
+ * There are currently no mechanisms to handle different writing of the name of a person or aliases.
+ *
+ * Two people with the same name can be distinguished by using an identifier.
+ *
+ * TODO use OPUS-ID for people without external identifier
+ *
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
@@ -146,6 +176,37 @@ class Opus_Person extends Opus_Model_AbstractDb {
             $documents[] = new Opus_Document($document->id);
         }
         return $documents;
+    }
+
+    /**
+     * Returns the ids for all linked documents.
+     *
+     * @return array|void
+     */
+    public function getDocumentIds($role = null)
+    {
+        if ($this->isNewRecord())
+        {
+            // TODO do more?
+            return;
+        }
+
+        $database = Zend_Db_Table::getDefaultAdapter();
+
+        $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
+
+        $select = $documentsLinkTable->select()
+            ->from('link_persons_documents', 'distinct(document_id)')
+            ->where('person_id = ?', $this->getId());
+
+        if (!is_null($role))
+        {
+            $select->where('role = ?', $role);
+        }
+
+        $documentIds = $database->fetchCol($select);
+
+        return $documentIds;
     }
 
     /**
@@ -303,13 +364,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 array('link.role')
             );
 
-        foreach ($person as $column => $value)
-        {
-            if (strlen(trim($value)) > 0)
-            {
-                $select->where("p.$column = ?", $value);
-            }
-        }
+        self::addWherePerson($select, $person);
 
         $result = $table->fetchAll($select);
 
@@ -350,13 +405,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 array()
             );
 
-        foreach ($person as $column => $value)
-        {
-            if (strlen(trim($value)) > 0)
-            {
-                $select->where("p.$column = ?", $value);
-            }
-        }
+        self::addWherePerson($select, $person);
 
         if (!is_null($state) && in_array($state,
                 array('published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted')
@@ -425,13 +474,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $select = $table->select()->from(array('p' => 'persons'));
 
-        foreach ($person as $column => $value)
-        {
-            if (strlen(trim($value)) > 0)
-            {
-                $select->where("p.$column = ?", $value);
-            }
-        }
+        self::addWherePerson($select, $person);
 
         $rows = $table->fetchAll($select);
 
@@ -443,7 +486,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         {
             foreach ($values as $key => $value)
             {
-                if (isset($merged[$key]))
+                if (array_key_exists($key, $merged))
                 {
                     $allValues = $merged[$key];
 
@@ -482,33 +525,62 @@ class Opus_Person extends Opus_Model_AbstractDb {
      * @param null $documents Array with ids of documents
      * @return array Array with IDs of persons
      */
-    public static function getPersonsForDocuments($person, $documents = null)
+    public static function getPersons($person, $documents = null)
     {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
 
         $database = $table->getAdapter();
 
-        $select = $table->select()
-            ->from(
-                array('p' => 'persons'),
-                array('distinct(p.id)')
-            )->join(
+        $select = $table->select()->from(
+            array('p' => 'persons'),
+            array('distinct(p.id)')
+        );
+
+        if (!is_null($documents))
+        {
+            $select->join(
                 array('link' => 'link_persons_documents'),
                 'link.person_id = p.id',
                 array()
             );
 
-        foreach ($person as $column => $value)
-        {
-            if (strlen(trim($value)) > 0)
-            {
-                $select->where("p.$column = ?", $value);
-            }
+            $select->where('link.document_id IN (?)', $documents);
         }
 
-        $select->where('link.document_id IN (?)', $documents);
+        self::addWherePerson($select, $person);
 
         $persons = $database->fetchCol($select);
+
+        return $persons;
+    }
+
+    public static function getPersonsAndDocuments($person, $documents = null)
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $database = $table->getAdapter();
+
+        $select = $table->select()->from(
+            array('p' => 'persons'),
+            array()
+        )->join(
+            array('link' => 'link_persons_documents'),
+            'link.person_id = p.id',
+            array()
+        )->columns(
+            array('link.person_id', 'link.document_id')
+        );
+
+        $select->setIntegrityCheck(false);
+
+        if (!is_null($documents))
+        {
+            $select->where('link.document_id IN (?)', $documents);
+        }
+
+        self::addWherePerson($select, $person);
+
+        $persons = $database->fetchAll($select);
 
         return $persons;
     }
@@ -521,41 +593,87 @@ class Opus_Person extends Opus_Model_AbstractDb {
      * @param $person Criteria for matching persons
      * @param $changes Map of column names and new values
      * @param null $documents Array with document Ids
+     *
+     * TODO update ServerDateModified for modified documents (How?)
      */
     public static function updateAll($person, $changes, $documents = null)
+    {
+        if (empty($person))
+        {
+            // TODO do logging?
+            return;
+        }
+
+        if (empty($changes))
+        {
+            // TODO do logging?
+            return;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $database = $table->getAdapter();
+
+        $model = new Opus_Person();
+
+        foreach ($changes as $name => $value)
+        {
+            if (is_null($model->getField($name)))
+            {
+                // TODO use
+                throw new Opus_Model_Exception("unknown field '$name' for update");
+            }
+        }
+
+        $changes = self::convertChanges($changes);
+
+        $personIds = self::getPersons($person, $documents);
+        $documentIds = self::getDocuments($personIds, $documents);
+
+        if (!empty($personIds))
+        {
+            $table->update($changes, array(
+                $database->quoteInto('id IN (?)', $personIds)
+            ));
+
+            if (!empty($documentIds))
+            {
+                $date = new Opus_Date();
+                $date->setNow();
+
+                Opus_Document::setServerDateModifiedByIds($date, $documentIds);
+            }
+        }
+    }
+
+    public static function getDocuments($personIds, $documents = null)
     {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
 
         $database = $table->getAdapter();
 
-        $changes = self::convertChanges($changes);
+        $select = $table->select()->from(
+            array('p' => 'persons'),
+            array()
+        )->join(
+            array('link' => 'link_persons_documents'),
+            'link.person_id = p.id',
+            array()
+        )->columns(
+            array('distinct(link.document_id)')
+        )->where('link.person_id IN (?)', $personIds);
 
-        $where = array();
+        $select->setIntegrityCheck(false);
 
         if (!is_null($documents))
         {
-            $persons = self::getPersonsForDocuments($person, $documents);
-
-            // TODO deal with empty result
-
-            $where[] = $database->quoteInto('id IN (?)', $persons);
-        }
-        else
-        {
-            // TODO move this into get persons as well?
-
-            foreach ($person as $column => $value)
-            {
-                if (strlen(trim($value)) > 0)
-                {
-                    $where[] = $database->quoteInto("$column = ?", $value);
-                }
-            }
+            $select->where('link.document_id IN (?)', $documents);
         }
 
-        // TODO verify changes
+        $documentIds = $database->fetchCol($select);
 
-        $table->update($changes, $where);
+        return $documentIds;
+
     }
 
     /**
@@ -632,6 +750,39 @@ class Opus_Person extends Opus_Model_AbstractDb {
         }
 
         return true;
+    }
+
+    /**
+     * @param $select
+     * @param $person
+     *
+     * TODO review
+     *
+     * This currently adds criteria to match any person with matching values for the specified columns.
+     *
+     * TODO shoudln't it be an exact match for columns that are empty (only null/empty matches)?
+     *
+     * NOTE: Function updateAll does not use this, because there does not seem to be a way to hand over
+     * an update object like for the select. TODO maybe different with ZF2+
+     */
+    protected static function addWherePerson($select, $person)
+    {
+        $defaults = array_fill_keys(array(
+            'last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'
+        ), null);
+        $person = array_merge($defaults, $person);
+
+        foreach ($person as $column => $value)
+        {
+            if (strlen(trim($value)) > 0)
+            {
+                $select->where("trim(p.$column) = ?", $value);
+            }
+            else
+            {
+                $select->where("p.$column IS NULL");
+            }
+        }
     }
 
 }
