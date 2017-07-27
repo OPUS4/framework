@@ -2432,4 +2432,57 @@ class Opus_DocumentTest extends TestCase {
         $this->assertFalse($doc->isOpenAccess());
     }
 
+    public function testRemoveAllPersons()
+    {
+        // create document with one person
+        $doc = new Opus_Document();
+        $doc->setType('article');
+
+        $title = new Opus_Title();
+        $title->setLanguage('eng');
+        $title->setValue('Test document');
+        $doc->addTitleMain($title);
+
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc->addPersonAuthor($person);
+
+        $docId = $doc->store();
+
+        // add second person
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person = new Opus_Person();
+        $person->setLastName('Tester2');
+        $doc->addPersonReferee($person);
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(2, $persons);
+
+        // remove all persons
+        $doc->setPerson(null);
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(0, $persons);
+    }
+
 }
