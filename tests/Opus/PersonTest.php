@@ -1588,4 +1588,42 @@ class Opus_PersonTest extends TestCase {
         $this->assertContains($this->_documents[4]->getId(), $documentIds);
     }
 
+    public function testGetDocumentsFilterIds()
+    {
+        $personIds = array(
+            $this->_authors[0]->getId(),
+            $this->_authors[4]->getId(),
+        );
+
+        $allowedDocuments = array(
+            $this->_documents[4]->getId()
+        );
+
+        $documentIds = Opus_Person::getDocuments($personIds, $allowedDocuments);
+
+        $this->assertNotNull($documentIds);
+        $this->assertInternalType('array', $documentIds);
+        $this->assertCount(1, $documentIds);
+        $this->assertNotContains($this->_documents[0]->getId(), $documentIds);
+        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+    }
+
+    public function testGetDocumentsEmptyDocumentsParam()
+    {
+        $personIds = array(
+            $this->_authors[0]->getId(),
+            $this->_authors[4]->getId(),
+        );
+
+        $allowedDocuments = array(); // should be handled like null
+
+        $documentIds = Opus_Person::getDocuments($personIds, $allowedDocuments);
+
+        $this->assertNotNull($documentIds);
+        $this->assertInternalType('array', $documentIds);
+        $this->assertCount(2, $documentIds);
+        $this->assertContains($this->_documents[0]->getId(), $documentIds);
+        $this->assertContains($this->_documents[4]->getId(), $documentIds);
+    }
+
 }

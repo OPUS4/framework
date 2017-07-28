@@ -665,7 +665,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $select->setIntegrityCheck(false);
 
-        if (!is_null($documents))
+        if (!is_null($documents) && count($documents) > 0)
         {
             $select->where('link.document_id IN (?)', $documents);
         }
