@@ -1180,6 +1180,25 @@ class Opus_PersonTest extends TestCase {
         $this->assertNull($person->getEmail());
     }
 
+    public function testUpdateAllValuesAreTrimmed()
+    {
+        $personCrit = array('last_name' => 'Tester');
+
+        $persons = array('Tester' => array());
+
+        $personIds = $this->_createPersons($persons);
+
+        $changes = array(
+            'FirstName' => ' John '
+        );
+
+        Opus_Person::updateAll($personCrit, $changes);
+
+        $person = new Opus_Person($personIds[0]);
+
+        $this->assertEquals('John', $person->getFirstName());
+    }
+
     public function testGetPersonsAndDocumentsWithSpaces()
     {
         $personCrit = array('last_name' => 'Tester', 'first_name' => 'Usual');

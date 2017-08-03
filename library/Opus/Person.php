@@ -616,6 +616,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $model = new Opus_Person();
 
+        $trimmed = array();
+
         foreach ($changes as $name => $value)
         {
             if (is_null($model->getField($name)))
@@ -623,9 +625,19 @@ class Opus_Person extends Opus_Model_AbstractDb {
                 // TODO use
                 throw new Opus_Model_Exception("unknown field '$name' for update");
             }
+            else
+            {
+                if (!is_null($value))
+                {
+                    $trimmed[$name] = trim($value);
+                }
+                else {
+                    $trimmed[$name] = null;
+                }
+            }
         }
 
-        $changes = self::convertChanges($changes);
+        $changes = self::convertChanges($trimmed);
 
         $personIds = self::getPersons($person, $documents);
         $documentIds = self::getDocuments($personIds, $documents);
