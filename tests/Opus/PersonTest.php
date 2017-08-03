@@ -367,10 +367,15 @@ class Opus_PersonTest extends TestCase {
         $doc->addPersonReferee($person);
 
         $person = new Opus_Person();
-        $person->setLastName(' C');
+        $person->setLastName('C');
         $doc->addPersonReferee($person);
 
         $doc->store();
+
+        // add leading space to Person 'C' (framework trims leadings spaces - OPUSVIER-3832)
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
+        $database = $table->getAdapter();
+        $table->update(array('last_name' => ' C'), array($database->quoteInto('last_name = ?', 'C')));
 
         $persons = Opus_Person::getAllPersons('referee');
 
@@ -964,6 +969,7 @@ class Opus_PersonTest extends TestCase {
 
         $this->assertArrayHasKey('last_name', $values);
         $this->assertInternalType('array', $values['last_name']);
+
         $this->assertCount(6, $values['last_name']);
         $this->assertContains('Spacey', $values['last_name']);
         $this->assertContains('  spacey  ', $values['last_name']);
@@ -980,6 +986,23 @@ class Opus_PersonTest extends TestCase {
         $this->assertCount(2, $values['academic_title']);
         $this->assertContains('Prof.', $values['academic_title']);
         $this->assertContains(null, $values['academic_title']);
+    }
+
+    public function testCreatePersonTestFunction()
+    {
+        $personValues = array(
+            ' Spacey ' => array()
+        );
+
+        $personIds = $this->_createPersons($personValues);
+
+        $this->assertNotNull($personIds);
+        $this->assertInternalType('array', $personIds);
+        $this->assertCount(1, $personIds);
+
+        $person = new Opus_Person($personIds[0]);
+
+        $this->assertEquals(' Spacey ', $person->getLastName());
     }
 
     public function testUpdateAll()
@@ -1181,8 +1204,7 @@ class Opus_PersonTest extends TestCase {
 
         $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
 
-        var_dump($personDocs);
-        var_dump(Opus_Person::getPersons($personCrit));
+        $this->markTestIncomplete('TODO finish');
     }
 
     public function testGetPersons()
@@ -1319,6 +1341,9 @@ class Opus_PersonTest extends TestCase {
     {
         $personIds = array();
 
+        $table = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
+        $database = $table->getAdapter();
+
         foreach ($persons as $name => $values)
         {
             $person = new Opus_Person();
@@ -1329,7 +1354,18 @@ class Opus_PersonTest extends TestCase {
                 $person->getField($fieldName)->setValue($value);
             }
 
-            array_push($personIds, $person->store());
+            $personId = $person->store();
+
+            array_push($personIds, $personId);
+
+            // check if there are extra spaces
+            if ($name !== trim($name))
+            {
+                $table->update(
+                    array('last_name' => $name),
+                    array($database->quoteInto('id = ?', $personId))
+                );
+            }
         }
 
         return $personIds;
@@ -1414,8 +1450,6 @@ class Opus_PersonTest extends TestCase {
         $doc->store();
 
         $personDocs = Opus_Person::getPersonsAndDocuments($personCrit);
-
-        var_dump($personDocs);
 
         $this->assertNotNull($personDocs);
         $this->assertInternalType('array', $personDocs);
@@ -1638,6 +1672,19 @@ class Opus_PersonTest extends TestCase {
         $this->assertNotNull($persons);
         $this->assertInternalType('array', $persons);
         $this->assertCount(10, $persons);
+    }
+
+    public function testStoreValuesAreTrimmed()
+    {
+        $person = new Opus_Person();
+        $person->setLastName(' Zufall ');
+        $person->setFirstName(' Rainer ');
+        $personId = $person->store();
+
+        $person = new Opus_Person($personId);
+
+        $this->assertEquals('Zufall', $person->getLastName());
+        $this->assertEquals('Rainer', $person->getFirstName());
     }
 
 }

@@ -528,6 +528,11 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
                 // map field values: Cannot process array-valued fields
                 $fieldValue = $field->getValue();
 
+                if (!is_null($fieldValue))
+                {
+                    $fieldValue = trim($fieldValue);
+                }
+
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
                 if (method_exists($this, $callname) === true) {
@@ -611,13 +616,15 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
                     continue;
                 }
 
+                $fieldValue = $this->_fields[$fieldname]->getValue();
+
                 // Check if the store mechanism for the field is overwritten in model.
                 $callname = '_store' . $fieldname;
                 if (method_exists($this, $callname) === true) {
                     $field = $this->_getField($fieldname, true);
                     if (true === $field->isModified()) {
                         // Call custom store method
-                        $this->$callname($this->_fields[$fieldname]->getValue());
+                        $this->$callname($fieldValue);
                     }
                 }
                 else {
@@ -625,7 +632,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
                     if (isset($fieldInfo['options']) === true) {
                         $options = $fieldInfo['options'];
                     }
-                    $this->_storeExternal($this->_fields[$fieldname]->getValue(), $options);
+                    $this->_storeExternal($fieldValue, $options);
                 }
                 // trigger any pending delete operations
                 $this->_fields[$fieldname]->doPendingDeleteOperations();
