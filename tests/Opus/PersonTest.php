@@ -1626,4 +1626,18 @@ class Opus_PersonTest extends TestCase {
         $this->assertContains($this->_documents[4]->getId(), $documentIds);
     }
 
+    public function testPersonRolesWithSpacesAroundParameterValues()
+    {
+        $personCrit = array(
+            'last_name' => ' Zufall ',
+            'first_name' => ' Rainer '
+        );
+
+        $persons = Opus_Person::getPersons($personCrit);
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(10, $persons);
+    }
+
 }
