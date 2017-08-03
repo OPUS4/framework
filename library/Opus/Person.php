@@ -776,7 +776,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         {
             if (strlen(trim($value)) > 0)
             {
-                $select->where("trim(p.$column) = ?", $value);
+                $select->where("trim(p.$column) = ?", trim($value));
             }
             else
             {
