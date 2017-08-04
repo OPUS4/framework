@@ -354,6 +354,9 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Rot', $persons[2]['last_name']);
     }
 
+    /**
+     * Names with leading spaces should not appear at the beginning of the list, but in their proper place.
+     */
     public function testGetAllPersonsSortingWithLeadingSpaces()
     {
         $doc = new Opus_Document($this->_documents[0]->getId());
@@ -375,7 +378,7 @@ class Opus_PersonTest extends TestCase {
         // add leading space to Person 'C' (framework trims leadings spaces - OPUSVIER-3832)
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Persons');
         $database = $table->getAdapter();
-        $table->update(array('last_name' => ' C'), array($database->quoteInto('last_name = ?', 'C')));
+        $table->update(array('last_name' => ' B'), array($database->quoteInto('last_name = ?', 'B')));
 
         $persons = Opus_Person::getAllPersons('referee');
 
@@ -384,7 +387,7 @@ class Opus_PersonTest extends TestCase {
 
         $this->assertEquals('A', $persons[0]['last_name']);
         $this->assertEquals('B', $persons[1]['last_name']);
-        $this->assertEquals(' C', $persons[2]['last_name']);
+        $this->assertEquals('C', $persons[2]['last_name']);
     }
 
     /**
@@ -426,6 +429,27 @@ class Opus_PersonTest extends TestCase {
         $persons = Opus_Person::getAllPersons('referee');
 
         $this->assertCount(3, $persons);
+    }
+
+    public function testGetAllPersonsLeadingSpacesMerged()
+    {
+        $personsSetup = array(
+            'Mueller' => array(),
+            ' Mueller' => array()
+        );
+
+        $this->_createPersons($personsSetup);
+
+        $persons = Opus_Person::getAllPersons(null, 0, 0, 'Mueller');
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $persons = Opus_Person::getAllPersons();
+
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(12, $persons);
     }
 
     public function testGetPersonRoles()

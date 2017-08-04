@@ -253,6 +253,51 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public static function getAllPersons($role = null, $start = 0, $limit = 0, $filter = null)
     {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $select = self::getAllPersonsSelect($role, $filter);
+
+        if ($start !== 0 || $limit !== 0)
+        {
+            $select->limit($limit, $start);
+        }
+
+        $select->order(array('trim(last_name)', 'trim(first_name)'));
+
+        $result = $table->fetchAll($select);
+
+        return $result->toArray();
+    }
+
+    /**
+     * Returns total count of persons for role and filter string.
+     * @param null $role
+     * @param null $filter
+     * @return mixed
+     */
+    public static function getAllPersonsCount($role = null, $filter = null)
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+
+        $select = self::getAllPersonsSelect($role, $filter);
+
+        $countSelect = $table->select()
+            ->from(new Zend_Db_Expr("($select)"), 'count(*) as num')
+            ->setIntegrityCheck(false);
+
+        $result = $table->fetchRow($countSelect);
+
+        return $result['num'];
+    }
+
+    /**
+     * Constructs select statement for getting all persons matching criteria.
+     * @param null $role
+     * @param null $filter
+     * @return Zend_Db_Select
+     */
+    public static function getAllPersonsSelect($role = null, $filter = null)
+    {
         $database = Zend_Db_Table::getDefaultAdapter();
 
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
@@ -261,10 +306,15 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
 
+        $trimmedColumns = array_map(function($value)
+        {
+            return "trim($value) as $value";
+        }, $identityColumns);
+
         $select = $table->select()
             ->from(
                 array('p' => 'persons'),
-                $identityColumns
+                $trimmedColumns
             )->group(
                 $identityColumns
             );
@@ -282,62 +332,18 @@ class Opus_Person extends Opus_Model_AbstractDb {
             $select->where($database->quoteInto('link.role = ?', $role));
         }
 
-        if ($start !== 0 || $limit !== 0)
-        {
-            $select->limit($limit, $start);
-        }
-
         if (!is_null($filter))
         {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
-        $select->order(array('trim(last_name)', 'trim(first_name)'));
-
-        $result = $table->fetchAll($select);
-
-        return $result->toArray();
-    }
-
-    public static function getAllPersonsCount($role = null, $filter = null)
-    {
-        $database = Zend_Db_Table::getDefaultAdapter();
-
-        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-
-        $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
-
-        $select = $table->select()
-            ->from(
-                array('p' => 'persons'),
-                $identityColumns
-            )->group(
-                $identityColumns
-            );
-
-        if (!is_null($role)) {
-            $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
-
-            $select->join(
-                    array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
-                    'p.id = link.person_id',
-                    array()
-                );
-
-            $select->where($database->quoteInto('link.role = ?', $role));
-        }
-
-        if (!is_null($filter)) {
-            $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
-        }
-
-        $countSelect = $table->select()
-            ->from(new Zend_Db_Expr("($select)"), 'count(*) as num')
+        // result still contains name duplicates because of leading spaces -> group trimmed result
+        $mergedSelect = $table->select()
+            ->from(new Zend_Db_Expr("($select)"), $identityColumns)
+            ->group($identityColumns)
             ->setIntegrityCheck(false);
 
-        $result = $table->fetchRow($countSelect);
-
-        return $result['num'];
+        return $mergedSelect;
     }
 
     /**
