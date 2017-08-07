@@ -743,6 +743,12 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public function matches($criteria)
     {
+        if (!is_array($criteria))
+        {
+            // TODO do some logging
+            return false;
+        }
+
         $defaults = array_fill_keys(array(
             'LastName', 'FirstName', 'IdentifierOrcid', 'IdentifierGnd', 'IdentifierMisc'
         ), null);
