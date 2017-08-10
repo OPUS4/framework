@@ -484,6 +484,11 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $rows = $table->fetchAll($select);
 
+        if (count($rows) === 0)
+        {
+            return null;
+        }
+
         $data = $rows->toArray();
 
         $merged = array();

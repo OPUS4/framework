@@ -1012,6 +1012,13 @@ class Opus_PersonTest extends TestCase {
         $this->assertContains(null, $values['academic_title']);
     }
 
+    public function testGetPersonValuesNotFound()
+    {
+        $values = Opus_Person::getPersonValues(array('last_name' => 'doesnotexist'));
+
+        $this->assertNull($values);
+    }
+
     public function testCreatePersonTestFunction()
     {
         $personValues = array(
