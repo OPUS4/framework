@@ -1736,5 +1736,35 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Zufall', $person->getLastName());
         $this->assertEquals('Rainer', $person->getFirstName());
     }
+  
+    /**
+     * OPUSVIER-3764
+     *
+     * @expectedException Opus_Model_Exception
+     * @expectedExceptionMessage No Opus_Db_Documents with id
+     */
+    public function testDeleteAssignedPerson()
+    {
+        $this->markTestIncomplete('TODO not sure what/how to test');
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->setType('article');
+
+        $person = new Opus_Person();
+        $person->setLastName('Tester');
+
+        $doc->addPersonAuthor($person);
+
+        $docId = $doc->store();
+
+        $person->delete();
+
+        // $doc = new Opus_Document($docId);
+
+        $doc->deletePermanent();
+
+        new Opus_Document($docId);
+    }
 
 }
