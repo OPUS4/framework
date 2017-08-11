@@ -1027,6 +1027,16 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
     }
 
+    public function testValuesAreTrimmed()
+    {
+        $model = new Opus_Model_ModelAbstractDb();
+        $model->setValue(' Test ');
+        $modelId = $model->store();
+
+        $model = new Opus_Model_ModelAbstractDb($modelId);
+        $this->assertEquals('Test', $model->getValue());
+    }
+
     /**
      * Test if a model retrieves its external fields in the right order
      */

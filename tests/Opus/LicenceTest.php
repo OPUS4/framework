@@ -132,5 +132,80 @@ class Opus_LicenceTest extends TestCase {
         $this->assertEquals((string)$serverDateModified, (string)$docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
 
+    public function testStoreName()
+    {
+        $licence = new Opus_Licence();
+        $licence->setName('Short name');
+        $licence->setNameLong('Long name');
+        $licence->setLinkLicence('link');
+        $licenceId = $licence->store();
+
+        $licence = new Opus_Licence($licenceId);
+
+        $this->assertEquals('Short name', $licence->getName());
+        $this->assertEquals('Long name', $licence->getNameLong());
+    }
+
+    public function testFetchByName()
+    {
+        $licence = new Opus_Licence();
+        $licence->setName('CC BY 4.0');
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
+        $licence->setLinkLicence('link');
+        $licence->store();
+
+        $licence = Opus_Licence::fetchByName('CC BY 4.0');
+
+        $this->assertNotNull($licence);
+        $this->assertInstanceOf('Opus_Licence', $licence);
+    }
+
+    public function testFetchByNameUnknown()
+    {
+        $licence = new Opus_Licence();
+        $licence->setName('CC BY 4.0');
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
+        $licence->setLinkLicence('link');
+        $licence->store();
+
+        $licence = Opus_Licence::fetchByName('CC BY 3.0');
+
+        $this->assertNull($licence);
+    }
+
+    /**
+     * @expectedException Opus_Model_DbConstrainViolationException
+     * @expectedExceptionMessage Duplicate entry
+     */
+    public function testNameUnique()
+    {
+        $licence = new Opus_Licence();
+        $licence->setName('CC BY 4.0');
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
+        $licence->setLinkLicence('link');
+        $licence->store();
+
+        $licence = new Opus_Licence();
+        $licence->setName('CC BY 4.0');
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
+        $licence->setLinkLicence('link 2');
+        $licence->store();
+    }
+
+    /**
+     * Multiple licences can have NULL for column 'name'.
+     */
+    public function testNameNullNotUnique()
+    {
+        $licence = new Opus_Licence();
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung');
+        $licence->setLinkLicence('link');
+        $licence->store();
+
+        $licence = new Opus_Licence();
+        $licence->setNameLong('Creative Commons 4.0 - Namensnennung 2');
+        $licence->setLinkLicence('link 2');
+        $licence->store();
+    }
 
 }

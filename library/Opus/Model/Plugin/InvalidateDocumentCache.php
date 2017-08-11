@@ -41,6 +41,7 @@
  *
  * TODO filter configuration should only exclude from server_date_modified change (should check date) - OPUSVIER-3760
  * TODO models should define their own lists (decentralized, object-oriented) - OPUSVIER-3759
+ * TODO cache should be transparent - important is updating ServerDateModified
  */
 class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
 

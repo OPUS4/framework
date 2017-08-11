@@ -11,6 +11,7 @@ db/config.sh
 vendor
 
 # Local test files
+tests/build
 tests/config.ini
 tests/workspace
 

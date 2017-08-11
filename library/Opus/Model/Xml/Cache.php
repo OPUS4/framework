@@ -253,6 +253,20 @@ class Opus_Model_Xml_Cache {
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->query('truncate table document_xml_cache');
     }
+
+    /**
+     * Removes all entries that are linked to model.
+     * @param $model
+     */
+    public function removeAllEntriesForDependentModel($model)
+    {
+        $documentFinder = new Opus_DocumentFinder();
+
+        $documentFinder->setDependentModel($model);
+        $select = $documentFinder->getSelectIds();
+
+        $this->removeAllEntriesWhereSubSelect($select);
+    }
     
     /**
      * Post cache put hook. Functionality needed to keep 

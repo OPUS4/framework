@@ -138,11 +138,18 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $displayOai = new Opus_Model_Field('DisplayOai');
         $this->addField($displayOai);
 
+        $isClassification = new Opus_Model_Field('IsClassification');
+        $this->addField($isClassification);
+
+        $assignRoot = new Opus_Model_Field('AssignRoot');
+        $this->addField($assignRoot);
+
+        $assignLeavesOnly = new Opus_Model_Field('AssignLeavesOnly');
+        $this->addField($assignLeavesOnly);
 
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
-
     }
 
     /**

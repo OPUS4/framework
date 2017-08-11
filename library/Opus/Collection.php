@@ -830,8 +830,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
                     throw new Exception("PositionKey($positionKey) invalid.");
             }
 
-            // var_dump($data);
-
             // Dirty fix: After storing the nested set information, the row
             // has still the old information.  But we need the role_id in
             // many other places!
@@ -841,7 +839,6 @@ class Opus_Collection extends Opus_Model_AbstractDb {
             $this->_primaryTableRow->setFromArray($data);
         }
 
-        // var_dump( $this->_primaryTableRow );
         return parent::_storeInternalFields();
     }
 

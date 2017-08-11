@@ -58,6 +58,24 @@ class Opus_Licence extends Opus_Model_AbstractDb {
     }
 
     /**
+     * Fetch licence with matching name.
+     * @return Opus_Licence
+     */
+    public static function fetchByName($name)
+    {
+        $licences = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $select = $licences->select()->where('name = ?', $name);
+        $row = $licences->fetchRow($select);
+
+        if (isset($row))
+        {
+            return new Opus_Licence($row);
+        }
+
+        return null;
+    }
+
+    /**
      * Plugins to load
      *
      * @var array
@@ -78,6 +96,7 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      * - LinkLogo
      * - LinkSign
      * - MimeType
+     * - Name
      * - NameLong
      * - PodAllowed
      * - SortOrder
@@ -110,7 +129,9 @@ class Opus_Licence extends Opus_Model_AbstractDb {
         $linkLogo = new Opus_Model_Field('LinkLogo');
         $linkSign = new Opus_Model_Field('LinkSign');
         $mimeType = new Opus_Model_Field('MimeType');
-        
+
+        $name = new Opus_Model_Field('Name');
+
         $nameLong = new Opus_Model_Field('NameLong');
         $nameLong->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -129,6 +150,7 @@ class Opus_Licence extends Opus_Model_AbstractDb {
             ->addField($linkLogo)
             ->addField($linkSign)
             ->addField($mimeType)
+            ->addField($name)
             ->addField($nameLong)
             ->addField($sortOrder)
             ->addField($podAllowed);

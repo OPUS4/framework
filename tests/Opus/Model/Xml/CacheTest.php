@@ -314,6 +314,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $this->assertFalse($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Expecting right cache entry is removed.');
     }
 
+    /**
+     * TODO does not work for regular database user
+     */
     public function testClearCache()
     {
         $this->_fillCache();
@@ -513,6 +516,28 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $xmlData = $row->xml_data;
 
         $this->assertContains('John', $xmlData, 'Cache should contain author.');
+    }
+
+    public function testRemoveAllEntriesForDependentModel()
+    {
+        $licence = new Opus_Licence();
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://www.example.org');
+        $licence->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article');
+        $doc->setLanguage('deu');
+        $doc->addLicence($licence);
+        $docId = $doc->store();
+
+        $cache = new Opus_Model_Xml_Cache();
+
+        $this->assertNotNull($cache->getData($docId, '1.0'));
+
+        $cache->removeAllEntriesForDependentModel($licence);
+
+        $this->assertNull($cache->getData($docId, '1.0'));
     }
 
 }

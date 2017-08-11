@@ -31,7 +31,14 @@
         </delete>
     </target>
 
-    <target name="setup" depends="prepare-dependencies,prepare-config"
+    <target name="prepare-workspace">
+        <mkdir dir="${basedir}/tests/workspace/cache" />
+        <mkdir dir="${basedir}/tests/workspace/tmp" />
+        <mkdir dir="${basedir}/tests/workspace/log" />
+        <mkdir dir="${basedir}/tests/workspace/files" />
+    </target>
+
+    <target name="setup" depends="prepare-dependencies,prepare-workspace,prepare-config"
             description="Prepares the configuration." />
 
     <target name="prepare-config">
@@ -45,7 +52,7 @@
         <exec executable="${basedir}/bin/install-composer.sh" dir="${basedir}" failonerror="on" />
     </target>
 
-    <target name="prepare" depends="clean,prepare-dependencies">
+    <target name="prepare" depends="clean,prepare-workspace,prepare-dependencies">
         <mkdir dir="${basedir}/build/logs" />
         <mkdir dir="${basedir}/build/api" />
         <mkdir dir="${basedir}/build/coverage" />

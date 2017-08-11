@@ -901,5 +901,68 @@ class Opus_CollectionRoleTest extends TestCase {
         $this->assertEquals(20, $result);
     }
 
+    public function testStoreIsClassification()
+    {
+        $role = $this->object;
+        $roleId = $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getIsClassification());
+
+        $role->setIsClassification(1);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(1, $role->getIsClassification());
+
+        $role->setIsClassification(0);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getIsClassification());
+    }
+
+    public function testStoreAssignRoot()
+    {
+        $role = $this->object;
+        $roleId = $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getAssignRoot());
+
+        $role->setAssignRoot(1);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(1, $role->getAssignRoot());
+
+        $role->setAssignRoot(0);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getAssignRoot());
+    }
+
+    public function testStoreAssignLeavesOnly()
+    {
+        $role = $this->object;
+        $roleId = $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getAssignLeavesOnly());
+
+        $role->setAssignLeavesOnly(1);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(1, $role->getAssignLeavesOnly());
+
+        $role->setAssignLeavesOnly(0);
+        $role->store();
+
+        $role = new Opus_CollectionRole($roleId);
+        $this->assertEquals(0, $role->getAssignLeavesOnly());
+    }
+
 }
 

@@ -347,15 +347,20 @@ class Opus_SolrSearch_Query {
      * the end of $query in case it contains an odd number of double-quotes.
      * @param string $query The query which needs to be escaped.
      */
-    private function escape($query) {
-        if (!$this->escapingEnabled) {
+    public function escape($query)
+    {
+        if (!$this->escapingEnabled)
+        {
             return $query;
         }
         $query = trim($query);
+
         // add one " to the end of $query if it contains an odd number of "
-        if (substr_count($query, '"') % 2 == 1) {
+        $count = preg_match_all('/^"|[^\\\]"/', $query);
+        if ($count % 2 == 1) {
             $query .= '"';
         }
+
         // escape special characters (currently ignore " \* \?) outside of ""
         $insidePhrase = false;
         $result = '';
@@ -368,10 +373,17 @@ class Opus_SolrSearch_Query {
             }
             $insidePhrase = !$insidePhrase;
         }
+
+        // add one " to the end of $query if it contains an odd number of "
+        $activeQuotes = preg_replace('/(?<=[^\\\])(\\\")/', '', $result); // remove escaped quotes for check
+        if (substr_count($activeQuotes, '"') % 2 == 1) {
+            $result .= '"';
+        }
+
         return $result;
     }
 
-    private function lowercaseWildcardQuery($query) {
+    public function lowercaseWildcardQuery($query) {
         // check if $query is a wildcard query
         if (strpos($query, '*') === FALSE && strpos($query, '?') === FALSE) {
             return $query;
