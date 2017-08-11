@@ -315,6 +315,26 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
     }
 
     /**
+     * Checks if a user has access to a module.
+     * @param $module_name Name of module
+     * @param $user Name of user
+     */
+    public static function checkModuleForUser($module_name, $user)
+    {
+        $roles = self::_getUsernameRoles($user);
+
+        $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
+        $results = $db->fetchAll(
+            $db->select()
+                ->from(array('am' => 'access_modules'), array('module_name'))
+                ->join(array('r' => 'user_roles'), 'am.role_id = r.id', '')
+                ->where('r.name IN (?)', $roles)
+                ->where('am.module_name = ?', $module_name)
+        );
+        return (1 <= count($results)) ? true : false;
+    }
+
+    /**
      * Check if user with administrator-role or security is disabled.
      *
      * @return boolean

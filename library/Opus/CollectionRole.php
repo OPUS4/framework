@@ -138,11 +138,18 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $displayOai = new Opus_Model_Field('DisplayOai');
         $this->addField($displayOai);
 
+        $isClassification = new Opus_Model_Field('IsClassification');
+        $this->addField($isClassification);
+
+        $assignRoot = new Opus_Model_Field('AssignRoot');
+        $this->addField($assignRoot);
+
+        $assignLeavesOnly = new Opus_Model_Field('AssignLeavesOnly');
+        $this->addField($assignLeavesOnly);
 
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
-
     }
 
     /**
@@ -198,6 +205,22 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $db->query($reorderQuery);
 
         return;
+    }
+
+    /**
+     * Returns position number of last collection role.
+     * @return int Highest used position number for collection roles
+     */
+    public static function getLastPosition()
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $db = $table->getAdapter();
+
+        $query = 'SELECT MAX(position) FROM collections_roles;';
+
+        $result = $db->fetchOne($query);
+
+        return ( int )$result;
     }
 
     /**
@@ -570,6 +593,32 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         return $result;
 
+    }
+
+    /**
+     * Returns collection for OAI subset.
+     * @param $oaisubset
+     */
+    public function getCollectionByOaiSubset($oaisubset)
+    {
+        $db = Zend_Db_Table::getDefaultAdapter();
+
+        $quoteOaiSubset = $db->quote("$oaisubset");
+
+        $select = "SELECT c.id
+            FROM collections_roles AS r, collections AS c
+            WHERE c.role_id = r.id
+            AND c.oai_subset = $quoteOaiSubset";
+
+        $result = $db->fetchOne($select);
+
+        if ($result === false)
+        {
+            return null;
+        }
+        else {
+            return new Opus_Collection($result);
+        }
     }
 
     /* ********************************************************************** *

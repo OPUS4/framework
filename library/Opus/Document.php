@@ -1004,23 +1004,18 @@ class Opus_Document extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Remove the model instance from the database.
-     * This only means: set state to deleted
+     * Sets document to state deleted.
      *
-     * @return void
+     * Documents are not deleted from database like other model objects. Calling
+     * deletePermanent removes a document from the database.
      */
     public function delete() {
-        // De-fatalize Search Index errors.
-        try {
-            // Remove from index
-            Opus_Search_Service::selectIndexingService()->removeDocumentsFromIndex( $this );
-        }
-        catch (Exception $e) {
-            $this->logger("removeDocumentFromIndex failed: " . $e->getMessage());
-        }
+        $this->_callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
+
+        $this->_callPluginMethod('postDelete', $this->getId());
     }
 
     /**
@@ -1048,6 +1043,82 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
 
         parent::delete();
+    }
+
+    /**
+     * Returns title in document language.
+     * @return Opus_Title
+     *
+     * TODO could be done using the database directly, but Opus_Title would still have to instantiated
+     */
+    public function getMainTitle($language = null)
+    {
+        $titles = $this->getTitleMain();
+
+        return $this->_findTitleForLanguage($titles, $language);
+    }
+
+    /**
+     * Returns the main abstract of the document.
+     *
+     * @param null $language
+     * @return Opus_TitleAbstract
+     */
+    public function getMainAbstract($language = null)
+    {
+        $titles = $this->getTitleAbstract();
+
+        return $this->_findTitleForLanguage($titles, $language);
+    }
+
+    /**
+     * Finds the title for the language or abstract in array.
+     *
+     * @param $titles Array of titles or abstracts
+     * @param $language Language string like 'deu'
+     * @return Opus_Title|Opus_TitleAbstract
+     */
+    protected function _findTitleForLanguage($titles, $language)
+    {
+        $docLanguage = $this->getLanguage();
+
+        if (is_null($language))
+        {
+            $language = $docLanguage;
+        }
+
+        if (count($titles) > 0)
+        {
+            if (!is_null($language))
+            {
+                $titleInDocLang = null;
+
+                foreach ($titles as $title)
+                {
+                    $titleLanguage = $title->getLanguage();
+
+                    if ($language === $titleLanguage)
+                    {
+                        return $title;
+                    }
+                    else if ($docLanguage == $titleLanguage)
+                    {
+                        $titleInDocLang = $title;
+                    }
+                }
+
+                // if available return title in document language
+                if (!is_null($titleInDocLang))
+                {
+                    return $titleInDocLang;
+                }
+            }
+
+            // if no title in document language ist found use first title
+            return $titles[0];
+        }
+
+        return null;
     }
 
     /*
@@ -1176,6 +1247,55 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
         return ($embargoDate < $now);
+    }
+
+    /**
+     * Only consider files which are visible in frontdoor.
+     *
+     * @return bool|void
+     */
+    public function hasFulltext()
+    {
+        $files = $this->getFile();
+
+        $files = array_filter($files, function ($file)
+        {
+            return $file->getVisibleInFrontdoor() === '1';
+        });
+
+        return count($files) > 0;
+    }
+
+    /**
+     * Checks if document is marked as open access.
+     *
+     * Currently the document has to be assigned to the open access collection.
+     *
+     * TODO support different mechanisms implemented in separate classes
+     *
+     * @return bool
+     * @throws Exception
+     */
+    public function isOpenAccess()
+    {
+        $docId = $this->getId();
+
+        // can only be open access if it has been stored
+        if (is_null($docId))
+        {
+            return false;
+        }
+
+        $role = Opus_CollectionRole::fetchByName('open_access');
+        $collection = $role->getCollectionByOaiSubset('open_access');
+
+        if (!is_null($collection))
+        {
+            return $collection->holdsDocumentById($this->getId());
+        }
+        else {
+            return false;
+        }
     }
 
 }

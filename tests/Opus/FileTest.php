@@ -512,8 +512,35 @@ class Opus_FileTest extends TestCase {
         fwrite($fh, "foo");
         fclose($fh);
 
+        // need new object because Opus_File caches calculated hash values
+        $file = new Opus_File($file->getId());
+
         $this->assertFalse($file->verify('md5', $expected_hash));
         $this->assertFalse($file->verifyAll());
+    }
+
+    public function testHashValueCachedOnceCalculated()
+    {
+        $doc = $this->_createDocumentWithFile("foobar.pdf");
+        $file = $doc->getFile(0);
+        $doc->store();
+
+        $expected_hash = 'd41d8cd98f00b204e9800998ecf8427e';
+        $this->assertTrue($file->canVerify());
+        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verifyAll());
+
+        $fh = fopen($file->getPath(), 'w');
+        if ($fh == false) {
+            $this->fail("Unable to write file " . $file->getPath());
+        }
+
+        fwrite($fh, "foo");
+        fclose($fh);
+
+        // file has been changed, but it is still the same Opus_File object and values have been cached
+        $this->assertTrue($file->verify('md5', $expected_hash));
+        $this->assertTrue($file->verifyAll());
     }
 
     /**

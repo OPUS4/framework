@@ -219,8 +219,9 @@ class Opus_Storage_File {
     public function getFileMimeEncoding($file) {
         $fullFile = $this->getWorkingDirectory() . $file;
 
+        // TODO basically this class should exist - why check? We don't for other classes.
         if (true === class_exists('finfo')) {
-            // for PHP >= 5.30 or PECL fileinfo >= 0.1.0
+            // for PHP >= 5.3.0 or PECL fileinfo >= 0.1.0
             $finfo = new finfo(FILEINFO_MIME_TYPE); // return mime type ala mimetype extension
             if (false !== $finfo) {
                 return $finfo->file($fullFile);

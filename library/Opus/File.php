@@ -38,6 +38,11 @@
 /**
  * Domain model for files in the Opus framework
  *
+ * Hash values for files are cached in the object. If a new object is created the hash values will be calculated again.
+ * The hashes are for instance used to generate a filename for the text extraction cache. This causes a lot a hash
+ * calculations. Therefore caching the hashes improves performance. The risk of a file being changed during the
+ * existence of an Opus_File object is small.
+ *
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Abstract
@@ -91,6 +96,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
             'model' => 'Opus_HashValues'
         ),
     );
+
+    private $_hashValues = array();
 
     /**
      * Initialize model with the following fields:
@@ -321,9 +328,18 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
      *
      * @param string $type Type of the hash value, @see hash_file();
      * @return string hash value
+     *
+     * TODO gets called too often and does not cache values
      */
     public function getRealHash($type) {
+        if (array_key_exists($type, $this->_hashValues))
+        {
+            return $this->_hashValues[$type];
+        }
+
         $hash = @hash_file($type, $this->getPath());
+
+        $this->_hashValues[$type] = $hash;
 
         if (empty($hash)) {
             throw new Exception("Empty HASH for file '" . $this->getPath() . "'");

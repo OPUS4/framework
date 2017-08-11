@@ -24,15 +24,20 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Script for creating OPUS 4 database with optional name and version
+ * Script for updating OPUS 4 database schema with optional name and version
  * parameters.
+ *
+ * The version parameter specifies the target version for update. If it is not
+ * provided the script will update to the latest version of the schema.
+ *
+ * TODO name parameter not supported yet (still needed?)
  */
 
 defined('APPLICATION_PATH')
@@ -73,14 +78,14 @@ $application->bootstrap('Backend');
 
 $options = getopt('v:n:');
 
-$version = null;
+$targetVersion = null;
 
 if (array_key_exists('v', $options))
 {
-    $version = $options['v'];
-    if (!ctype_digit($version))
+    $targetVersion = $options['v'];
+    if (!ctype_digit($targetVersion))
     {
-        $version = null;
+        $targetVersion = null;
     }
 }
 
@@ -88,9 +93,7 @@ $database = new Opus_Database();
 
 echo $database->getName() . PHP_EOL;
 
-$database->drop();
-$database->create();
-$database->importSchema($version);
+$database->update($targetVersion);
 
 
 

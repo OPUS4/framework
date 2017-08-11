@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,19 +25,17 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
+ * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_VersionTest extends TestCase {
+class Opus_VersionTest extends TestCase
+{
 
-    /**
-     * @todo Implement testCompareVersion().
-     */
     public function testCompareVersion()
     {
         $this->assertEquals(1, Opus_Version::compareVersion('5.0')); // greater
@@ -51,7 +48,65 @@ class Opus_VersionTest extends TestCase {
         $version = Opus_Version::getSchemaVersion();
 
         $this->assertInternalType('string', $version);
-        $this->assertTrue(strlen($version) >= 3);
+        $this->assertTrue(ctype_digit($version));
+    }
+
+    /**
+     * Check if version in Opus_Version matches current version in 'opus4schema.sql'.
+     */
+    public function testSchemaVersionMatches()
+    {
+        $expectedVersion = Opus_Version::getSchemaVersion();
+
+        $schema = file_get_contents(APPLICATION_PATH . '/db/schema/opus4schema.sql');
+
+        $matches = array();
+
+        $match = preg_match('/INSERT INTO `schema_version` \\(`version`\\) VALUES \\((\d+)\\);/', $schema, $matches);
+
+        $this->assertEquals(1, $match);
+        $this->assertCount(2, $matches);
+
+        $schemaVersion = $matches[1];
+
+        $this->assertEquals($expectedVersion, $schemaVersion, 'Schema version and expected version must match.');
+    }
+
+    public function testSchemaVersionInUpdateScriptMatchesName()
+    {
+        $update = new Opus_Database();
+
+        $scripts = $update->getUpdateScripts();
+
+        foreach ($scripts as $script)
+        {
+            $basename = basename($script);
+            $scriptNameVersion = ( int )substr($basename, 0, 3);
+
+            if ($scriptNameVersion < 3)
+            {
+                // skip check because versioning schema did not exist before
+                continue;
+            }
+
+            $scriptContent = file_get_contents($script);
+
+            $matches = array();
+
+            $match = preg_match(
+                '/INSERT INTO `schema_version` \\(`version`\\) VALUES.*\\((\d+)\\);/', $scriptContent, $matches
+            );
+
+            $this->assertEquals(1, $match, "Could not find version in script '$basename'.");
+            $this->assertCount(2, $matches);
+
+            $scriptSpecifiedVersion = $matches[1];
+
+            $this->assertEquals(
+                $scriptNameVersion, $scriptSpecifiedVersion,
+                'Number of script name must match schema version specified in script.'
+            );
+        }
     }
 
 }

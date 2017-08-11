@@ -37,6 +37,8 @@
  *
  * @category Framework
  * @package  Opus_Model
+ *
+ * TODO pretty sure it should be 'Constraint' (+'t')
  */
 class Opus_Model_DbConstrainViolationException extends Opus_Model_DbException {
 }

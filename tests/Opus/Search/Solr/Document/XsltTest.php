@@ -134,9 +134,6 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$field = $xpath->query( '/add/doc/field[@name="project"]' );
 		$this->assertEquals( 0, $field->length );
 
-		$field = $xpath->query( '/add/doc/field[@name="app_area"]' );
-		$this->assertEquals( 0, $field->length );
-
 		$field = $xpath->query( '/add/doc/field[@name="institute"]' );
 		$this->assertEquals( 0, $field->length );
 
@@ -273,9 +270,6 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 		$this->assertEquals( 'true', $field->item( 0 )->nodeValue );
 
 		$field = $xpath->query( '/add/doc/field[@name="project"]' );
-		$this->assertEquals( 0, $field->length );
-
-		$field = $xpath->query( '/add/doc/field[@name="app_area"]' );
 		$this->assertEquals( 0, $field->length );
 
 		$field = $xpath->query( '/add/doc/field[@name="institute"]' );

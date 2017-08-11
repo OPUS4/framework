@@ -49,7 +49,7 @@ abstract class Opus_Search_Solr_Document_Base {
 		$caching_xml_model->setModel( $opusDoc );
 		$caching_xml_model->excludeEmptyFields();
 		$caching_xml_model->setStrategy( new Opus_Model_Xml_Version1 );
-		$cache = new Opus_Model_Xml_Cache( $opusDoc->hasPlugin( 'Opus_Document_Plugin_Index' ) );
+		$cache = new Opus_Model_Xml_Cache( false );
 		$caching_xml_model->setXmlCache( $cache );
 
 		$modelXml = $caching_xml_model->getDomDocument();
@@ -92,7 +92,6 @@ abstract class Opus_Search_Solr_Document_Base {
 
 		$docXml->appendChild( $modelXml->createElement( 'Has_Fulltext', 'true' ) );
 
-
 		// fetch reference on probably separate service for extracting fulltext data
 		$extractingService = Opus_Search_Service::selectExtractingService();
 
@@ -103,9 +102,11 @@ abstract class Opus_Search_Solr_Document_Base {
 			try {
 				$fulltext = $extractingService->extractDocumentFile( $file );
 				$fulltext = trim( iconv( "UTF-8", "UTF-8//IGNORE", $fulltext ) );
-			} catch ( Opus_Search_Exception $e ) {
+			}
+            catch ( Opus_Search_Exception $e ) {
 				Opus_Log::get()->err( 'An error occurred while getting fulltext data for document with id ' . $docId . ': ' . $e->getMessage() );
-			} catch ( Opus_Storage_Exception $e ) {
+			}
+            catch ( Opus_Storage_Exception $e ) {
 				Opus_Log::get()->err( 'Failed accessing file for extracting fulltext for document with id ' . $docId . ': ' . $e->getMessage() );
 			}
 
@@ -117,7 +118,8 @@ abstract class Opus_Search_Solr_Document_Base {
 				$element = $modelXml->createElement( 'Fulltext_ID_Success' );
 				$element->appendChild( $modelXml->createTextNode( $this->getFulltextHash( $file ) ) );
 				$docXml->appendChild( $element );
-			} else {
+			}
+            else {
 				$element = $modelXml->createElement( 'Fulltext_ID_Failure' );
 				$element->appendChild( $modelXml->createTextNode( $this->getFulltextHash( $file ) ) );
 				$docXml->appendChild( $element );

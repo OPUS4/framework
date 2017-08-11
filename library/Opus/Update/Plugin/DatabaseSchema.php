@@ -36,12 +36,10 @@
  */
 class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
 
+    private $_targetVersion = null;
+
     /**
      * Performs update of database schema.
-     *
-     * TODO get SQL update scripts in proper order
-     * TODO figure out version of database
-     * TODO perform update scripts up to current version (parameter)
      */
     public function run() {
         $database = new Opus_Database();
@@ -50,11 +48,12 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
 
         $this->log("Current version of database: $version");
 
-        // only perform update if database does not have version 4.5
-        if ($version !== '4.5')
-        {
-            $scripts = $database->getUpdateScripts();
+        $version = $this->mapVersion($version);
 
+        $scripts = $database->getUpdateScripts($version, $this->getTargetVersion());
+
+        if (count($scripts) > 0)
+        {
             foreach ($scripts as $scriptPath) {
                 $this->log("Running $scriptPath ...");
 
@@ -65,6 +64,36 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract {
         {
             $this->log('No update needed');
         }
+    }
+
+    /**
+     * Maps version value to schema version.
+     *
+     * @param $version
+     * @return int
+     */
+    public function mapVersion($version)
+    {
+        if (is_null($version))
+        {
+            return 1;
+        }
+        else if ($version === '4.5')
+        {
+            return 2;
+        }
+
+        return $version;
+    }
+
+    public function setTargetVersion($targetVersion)
+    {
+        $this->_targetVersion = $targetVersion;
+    }
+
+    public function getTargetVersion()
+    {
+        return $this->_targetVersion;
     }
 
 }

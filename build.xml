@@ -31,16 +31,15 @@
         </delete>
     </target>
 
-    <target name="setup" depends="prepare-dependencies,prepare-config,prepare-createdb"
-            description="Prepares the configuration." />
-
-    <target name="prepare-createdb">
-        <chmod file="${basedir}/db/createdb.sh" perm="+x" />
-        <copy file="${basedir}/db/config.sh.template" toFile="${basedir}/db/config.sh" filtering="true"
-              overwrite="true">
-            <filterset filtersFile="${configfile}" />
-        </copy>
+    <target name="prepare-workspace">
+        <mkdir dir="${basedir}/tests/workspace/cache" />
+        <mkdir dir="${basedir}/tests/workspace/tmp" />
+        <mkdir dir="${basedir}/tests/workspace/log" />
+        <mkdir dir="${basedir}/tests/workspace/files" />
     </target>
+
+    <target name="setup" depends="prepare-dependencies,prepare-workspace,prepare-config"
+            description="Prepares the configuration." />
 
     <target name="prepare-config">
         <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
@@ -53,7 +52,7 @@
         <exec executable="${basedir}/bin/install-composer.sh" dir="${basedir}" failonerror="on" />
     </target>
 
-    <target name="prepare" depends="clean,prepare-dependencies">
+    <target name="prepare" depends="clean,prepare-workspace,prepare-dependencies">
         <mkdir dir="${basedir}/build/logs" />
         <mkdir dir="${basedir}/build/api" />
         <mkdir dir="${basedir}/build/coverage" />
@@ -141,7 +140,9 @@
     </target>
 
     <target name="create-database">
-        <exec executable="./createdb.sh" dir="${basedir}/db" failonerror="on" />
+        <exec executable="php" dir="${basedir}/db" failonerror="on">
+            <arg line="createdb.php" />
+        </exec>
     </target>
 
     <target name="phpunit" depends="create-database">

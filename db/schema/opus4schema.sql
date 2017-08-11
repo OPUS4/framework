@@ -6,23 +6,29 @@ SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 -- -----------------------------------------------------
 -- Table to store schema versioning information
 -- -----------------------------------------------------
+
 DROP TABLE IF EXISTS `schema_version`;
 CREATE TABLE `schema_version` (
-    `last_changed_date` VARCHAR(100) ,
-    `revision` VARCHAR(20) ,
-    `author` VARCHAR(100),
-    `hash` TEXT COMMENT 'Hash of schema file.',
-    `version` TEXT COMMENT 'Version number of schema.'
+    `version` INT UNSIGNED NOT NULL COMMENT 'Version number of schema.'
 )
-ENGINE = InnoDB
-COMMENT = 'Holds revision information from subversion properties.';
+    ENGINE = InnoDB
+    COMMENT = 'Holds revision information from subversion properties.';
+
+-- Table to store version of application (to control updates)
+
+CREATE TABLE IF NOT EXISTS `opus_version` (
+    `version` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Internal version number of OPUS.'
+)
+    ENGINE = InnoDB
+    COMMENT = 'Holds internal OPUS version for controlling update steps.';
+
 -- -----------------------------------------------------
 -- Insert revision information
 --
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (version) VALUES ('4.5');
+INSERT INTO `schema_version` (`version`) VALUES (7);
 
 -- -----------------------------------------------------
 -- Table `documents`
@@ -198,6 +204,7 @@ COMMENT = 'Table with title and abstract related data.';
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `persons` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
+  `opus_id` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Internal person identifier.',
   `academic_title` VARCHAR(255) NULL COMMENT 'Academic title.' ,
   `date_of_birth` VARCHAR(50) NULL COMMENT 'Date of birth.' ,
   `email` VARCHAR(100) NULL COMMENT 'E-mail address.' ,
@@ -333,20 +340,36 @@ COMMENT = 'Key table for database scheme enhancements.';
 -- Table `document_licences`
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `document_licences` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-  `active` TINYINT NOT NULL DEFAULT 1 COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?' ,
-  `comment_internal` MEDIUMTEXT NULL COMMENT 'Internal comment.' ,
-  `desc_markup` MEDIUMTEXT NULL COMMENT 'Description of the licence in a markup language (XHTML etc.).' ,
-  `desc_text` MEDIUMTEXT NULL COMMENT 'Description of the licence in short and pure text form.' ,
-  `language` VARCHAR(3) NULL COMMENT 'Language of the licence.' ,
-  `link_licence` MEDIUMTEXT NOT NULL COMMENT 'URI of the licence text.' ,
-  `link_logo` MEDIUMTEXT NULL COMMENT 'URI of the licence logo.' ,
-  `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form.' ,
-  `mime_type` VARCHAR(30) NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".' ,
-  `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
-  `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).' ,
-  `sort_order` TINYINT NOT NULL DEFAULT 0 COMMENT 'Sort order (00 to 99).' ,
-  PRIMARY KEY (`id`) )
+  `id`               INT UNSIGNED NOT NULL AUTO_INCREMENT
+  COMMENT 'Primary key.',
+  `active`           TINYINT      NOT NULL DEFAULT 1
+  COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?',
+  `comment_internal` MEDIUMTEXT   NULL
+  COMMENT 'Internal comment.',
+  `desc_markup`      MEDIUMTEXT   NULL
+  COMMENT 'Description of the licence in a markup language (XHTML etc.).',
+  `desc_text`        MEDIUMTEXT   NULL
+  COMMENT 'Description of the licence in short and pure text form.',
+  `language`         VARCHAR(3)   NULL
+  COMMENT 'Language of the licence.',
+  `link_licence`     MEDIUMTEXT   NOT NULL
+  COMMENT 'URI of the licence text.',
+  `link_logo`        MEDIUMTEXT   NULL
+  COMMENT 'URI of the licence logo.',
+  `link_sign`        MEDIUMTEXT   NULL
+  COMMENT 'URI of the licence contract form.',
+  `mime_type`        VARCHAR(30)  NULL
+  COMMENT 'Mime type of the licence text linked in \"link_licence\".',
+  `name`             VARCHAR(255) NULL UNIQUE
+  COMMENT 'Short name of the licence as displayed to users.',
+  `name_long`        VARCHAR(255) NOT NULL
+  COMMENT 'Full name of the licence as displayed to users.',
+  `pod_allowed`      TINYINT(1)   NOT NULL DEFAULT 0
+  COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).',
+  `sort_order`       TINYINT      NOT NULL DEFAULT 0
+  COMMENT 'Sort order (00 to 99).',
+  PRIMARY KEY (`id`)
+)
 ENGINE = InnoDB
 COMMENT = 'Table for licence related data.';
 
@@ -676,11 +699,14 @@ CREATE TABLE IF NOT EXISTS `collections_roles` (
     `oai_name` VARCHAR(255) NOT NULL COMMENT 'Shortname identifying role in oai context.' ,
     `position` INT(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
     `visible` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Deleted collection trees are invisible. (1=visible, 0=invisible).' ,
-    `visible_browsing_start`     TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Show tree on browsing start page. (1=yes, 0=no).' ,
-    `display_browsing`           VARCHAR(512) NULL               COMMENT 'Comma separated list of collection_contents_x-fields to display in browsing list context.' ,
-    `visible_frontdoor`          TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Show tree on frontdoor. (1=yes, 0=no).' ,
-    `display_frontdoor`          VARCHAR(512) NULL               COMMENT 'Comma separated list of collection_contents_x-fields to display in frontdoor context.' ,
-    `visible_oai`                TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Show tree in oai output. (1=yes, 0=no).' ,
+    `visible_browsing_start` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'Show tree on browsing start page. (1=yes, 0=no).' ,
+    `display_browsing`       VARCHAR(512) NULL               COMMENT 'Comma separated list of collection_contents_x-fields to display in browsing list context.' ,
+    `visible_frontdoor`      TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Show tree on frontdoor. (1=yes, 0=no).' ,
+    `display_frontdoor`      VARCHAR(512) NULL               COMMENT 'Comma separated list of collection_contents_x-fields to display in frontdoor context.' ,
+    `visible_oai`            TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Show tree in oai output. (1=yes, 0=no).' ,
+    `is_classification` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Collection role is a classification (1=yes, 0=no).',
+    `assign_root` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Documents can be assigned to root collection (1=yes, 0=no).',
+    `assign_leaves_only` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Documents can only be assigned to leaf nodes (1=yes, 0=no).',
     PRIMARY KEY (`id`) ,
     UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
     UNIQUE INDEX `UNIQUE_OAI_NAME` (`oai_name` ASC)

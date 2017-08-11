@@ -26,10 +26,10 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2010
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2017
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -88,8 +88,10 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $doc1->store();
 
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry for doc1 after creation id: ' . $doc1->getId());
-
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()),
+            'Expected valid cache entry for doc1 after creation id: ' . $doc1->getId()
+        );
 
         $doc2 = new Opus_Document();
         $doc2->registerPlugin(new Opus_Document_Plugin_XmlCache);
@@ -124,15 +126,39 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $attributes = $elements->item(0)->attributes;
         $this->assertNotNull($attributes, 'element ServerDateModified does not have any attributes');       
         
-        $this->assertEquals($doc2->getServerDateModified()->getUnixTimestamp(), $attributes->getNamedItem('UnixTimestamp')->nodeValue, 'unexpected value for attribute UnixTimestamp');
-        $this->assertEquals($doc2->getServerDateModified()->getYear(), $attributes->getNamedItem('Year')->nodeValue, 'unexpected value for attribute Year');
-        $this->assertEquals($doc2->getServerDateModified()->getMonth(), $attributes->getNamedItem('Month')->nodeValue, 'unexpected value for attribute Month');
-        $this->assertEquals($doc2->getServerDateModified()->getDay(), $attributes->getNamedItem('Day')->nodeValue, 'unexpected value for attribute Day');
-        $this->assertEquals($doc2->getServerDateModified()->getMinute(), $attributes->getNamedItem('Minute')->nodeValue, 'unexpected value for attribute Minute');
-        $this->assertEquals($doc2->getServerDateModified()->getSecond(), $attributes->getNamedItem('Second')->nodeValue, 'unexpected value for attribute Second');
-        $this->assertEquals($doc2->getServerDateModified()->getTimezone(), $attributes->getNamedItem('Timezone')->nodeValue, 'unexpected value for attribute Timezone');        
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getUnixTimestamp(), $attributes->getNamedItem('UnixTimestamp')->nodeValue,
+            'unexpected value for attribute UnixTimestamp'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getYear(), $attributes->getNamedItem('Year')->nodeValue,
+            'unexpected value for attribute Year'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getMonth(), $attributes->getNamedItem('Month')->nodeValue,
+            'unexpected value for attribute Month'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getDay(), $attributes->getNamedItem('Day')->nodeValue,
+            'unexpected value for attribute Day'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getMinute(), $attributes->getNamedItem('Minute')->nodeValue,
+            'unexpected value for attribute Minute'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getSecond(), $attributes->getNamedItem('Second')->nodeValue,
+            'unexpected value for attribute Second'
+        );
+        $this->assertEquals(
+            $doc2->getServerDateModified()->getTimezone(), $attributes->getNamedItem('Timezone')->nodeValue,
+            'unexpected value for attribute Timezone'
+        );
         
-        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId());
+        $this->assertTrue(
+            $xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()),
+            "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId()
+        );
 
         $doc3 = new Opus_Document();
         $doc3->registerPlugin(new Opus_Document_Plugin_XmlCache);
@@ -140,7 +166,10 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $doc3Id = $docIds[] = $doc3->setType("preprint")
                 ->setServerState('unpublished')
                 ->store();
-        $this->assertTrue($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected valid cache entry for doc3 after creation. id: ' . $doc3->getId());
+        $this->assertTrue(
+            $xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()),
+            'Expected valid cache entry for doc3 after creation. id: ' . $doc3->getId()
+        );
 
         $doc4 = new Opus_Document();
         $doc4->registerPlugin(new Opus_Document_Plugin_XmlCache);
@@ -150,7 +179,10 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
 //        $doc4->addLicence($licence);
         $doc4->addCollection($this->collection);
         $doc4->store();
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry for doc4 after creation id: ' . $doc4->getId());
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()),
+            'Expected valid cache entry for doc4 after creation id: ' . $doc4->getId()
+        );
 
         $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();
 
@@ -167,18 +199,34 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $title->setLanguage('deu');
         $titleId = $title->store();
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry before title');
-        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry before title');
-        $this->assertTrue($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected valid cache entry before title');
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry before title');
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry before title'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry before title'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected valid cache entry before title'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry before title'
+        );
 
 
         $plugin->postStore($title);
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry after title');
-        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry after title');
-        $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after title');
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after title');
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry after title'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry after title'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after title'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after title'
+        );
 
 
 //        // test linked model
@@ -193,24 +241,48 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $author->setFirstName('Fritz');
         $author->store();
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry before person');
-        $this->assertTrue($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry before person');
-        $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted before person');
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry before person');
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry before person'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected valid cache entry before person'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted before person'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry before person'
+        );
 
         $plugin->postStore($author);
 
-        $this->assertTrue($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry after person');
-        $this->assertFalse($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected cache entry to be deleted after person');
-        $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after person');
-        $this->assertTrue($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after person');
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected valid cache entry after person'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected cache entry to be deleted after person'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after person'
+        );
+        $this->assertTrue($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after person'
+        );
 //        
         $plugin->postStore($this->collection);
 //
-        $this->assertFalse($xmlCache->hasValidEntry($doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected cache entry to be deleted after collection');
-        $this->assertFalse($xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected cache entry to be deleted after collection');
-        $this->assertFalse($xmlCache->hasValidEntry($doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after collection');
-        $this->assertFalse($xmlCache->hasValidEntry($doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected cache entry to be deleted after collection');
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc1->getId(), 1, $doc1->getServerDateModified()), 'Expected cache entry to be deleted after collection'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc2->getId(), 1, $doc2->getServerDateModified()), 'Expected cache entry to be deleted after collection'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc3->getId(), 1, $doc3->getServerDateModified()), 'Expected cache entry to be deleted after collection'
+        );
+        $this->assertFalse($xmlCache->hasValidEntry(
+            $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected cache entry to be deleted after collection'
+        );
     }
 
     /**
@@ -231,8 +303,10 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         sleep(1);
         $plugin->postStore($this->collection);
         $docReloaded = new Opus_Document($docId);
-        $this->assertTrue($docReloaded->getServerDateModified()->getZendDate()->isLater($doc->getServerDateModified()->getZendDate()),
-                'Expected serverDateModified to be updated.');
+        $this->assertTrue(
+            $docReloaded->getServerDateModified()->getZendDate()->isLater($doc->getServerDateModified()->getZendDate()),
+            'Expected serverDateModified to be updated.'
+        );
     }
 
     public function testPreDeleteHasNoEffectIfModelNotStored() {
@@ -254,8 +328,291 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         sleep(1);
         $plugin->preDelete($licence);
         $docReloaded = new Opus_Document($docId);
-        $this->assertTrue(0 == ($docReloaded->getServerDateModified()->getZendDate()->compare($doc->getServerDateModified()->getZendDate())),
-                'Expected serverDateModified to be updated.');
+        $this->assertTrue(
+            0 == ($docReloaded->getServerDateModified()->getZendDate()->compare(
+                $doc->getServerDateModified()->getZendDate()
+            )),
+            'Expected serverDateModified to be updated.'
+        );
+    }
+
+    public function testCacheInvalidatedOnlyOnce()
+    {
+        $this->markTestIncomplete('TODO - no assertions (used for manual debugging)');
+        $doc = new Opus_Document();
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('1');
+
+        $doc->addPatent($patent);
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Another Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('2');
+
+        $doc->addPatent($patent);
+
+        $patent = new Opus_Patent();
+        $patent->setApplication('Third Test Patent');
+        $patent->setCountries('Germany');
+        $patent->setNumber('3');
+
+        $doc->addPatent($patent);
+
+        $licence = new Opus_Licence();
+        $licence->setLanguage('deu');
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://long.org/licence');
+        // $licenceId = $licence->store();
+
+        $doc->addLicence($licence);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $licences = $doc->getLicence();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Document Title');
+        $title->setLanguage('eng');
+
+        $doc->store();
+    }
+
+    public function testIgnoreCollectionRoleDisplayBrowsing()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2);
+
+        $colRole->setDisplayBrowsing('Name,Number');
+        $colRole->store();
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testCollectionRoleDisplayFrontdoorDeletesCacheDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $colRole->setDisplayFrontdoor('Name,Number');
+        $colRole->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testCollectionRoleVisibleChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $colRole->setVisible(0);
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $colRole->setVisible(1);
+        $colRole->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testCollectionRoleVisibleBrowsingStartChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $colRole->setVisibleBrowsingStart(0);
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $colRole->setVisibleBrowsingStart(1);
+        $colRole->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testCollectionRoleVisibleFrontdoorChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $colRole->setVisibleFrontdoor(0);
+        $root = $colRole->addRootCollection();
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $colRole->setVisibleFrontdoor(1);
+        $colRole->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testSeriesVisibleChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $series = new Opus_Series();
+        $series->setTitle('TestSeries');
+        $series->setVisible(0);
+        $series->store();
+
+        $link = $doc->addSeries($series);
+        $link->setNumber('1234');
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $series->setVisible(1);
+        $series->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
+    }
+
+    public function testCollectionVisibleChangeDeletesCacheButDoesNotChangeDateModified()
+    {
+        $doc = new Opus_Document();
+
+        $colRole = new Opus_CollectionRole();
+        $colRole->setName('TestCol');
+        $colRole->setOaiName('TestColOai');
+        $colRole->setVisibleBrowsingStart(0);
+        $root = $colRole->addRootCollection();
+        $root->setVisible(1);
+        $colRole->store();
+
+        $doc->addCollection($root);
+        $doc->store();
+
+        $lastModified = $doc->getServerDateModified()->getUnixTimestamp();
+
+        sleep(2); // take two seconds, so the timestamps differ
+
+        $root->setVisible(0);
+        $root->store();
+
+        $xmlCache = new Opus_Model_Xml_Cache();
+
+        $this->assertFalse($xmlCache->hasCacheEntry($doc->getId(), 1), 'Document should not be in cache anymore.');
+
+        // need to read document from database again
+        $doc = new Opus_Document($doc->getId());
+
+        $this->assertEquals(
+            $lastModified, $doc->getServerDateModified()->getUnixTimestamp(),
+            'ServerDateModified of document should not have changed.'
+        );
     }
 
 }

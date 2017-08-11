@@ -25,72 +25,38 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
+ * @package     Opus_Update
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Script for creating OPUS 4 database with optional name and version
- * parameters.
- */
-
-defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
-
-defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
-
-// Configure include path.
-set_include_path(
-    implode(
-        PATH_SEPARATOR, array(
-            '.',
-            dirname(__FILE__),
-            APPLICATION_PATH . '/library',
-            APPLICATION_PATH . '/vendor',
-            get_include_path(),
-        )
-    )
-);
-
-require_once 'autoload.php';
-
-$application = new Zend_Application(
-    APPLICATION_ENV,
-    array(
-        "config"=>array(
-            APPLICATION_PATH . '/tests/config.ini',
-            APPLICATION_PATH . '/tests/tests.ini'
-        )
-    )
-);
-
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
-
-// Bootstrapping application
-$application->bootstrap('Backend');
-
-$options = getopt('v:n:');
-
-$version = null;
-
-if (array_key_exists('v', $options))
+class Opus_Update_Plugin_AbstractTest extends TestCase
 {
-    $version = $options['v'];
-    if (!ctype_digit($version))
+
+    private $_stub;
+
+    public function setUp()
     {
-        $version = null;
+        parent::setUp();
+
+        $this->_stub = $this->getMockForAbstractClass(Opus_Update_Plugin_Abstract::class);
     }
+
+
+    public function testQuietModeOff()
+    {
+        $this->expectOutputString('Test output.' . PHP_EOL);
+        $this->_stub->log('Test output.');
+    }
+
+    public function testQuietModeOn()
+    {
+        $this->_stub->setQuietMode(true);
+
+        $this->expectOutputString('');
+        $this->_stub->log('Test output.');
+    }
+
+
 }
-
-$database = new Opus_Database();
-
-echo $database->getName() . PHP_EOL;
-
-$database->drop();
-$database->create();
-$database->importSchema($version);
-
-
-

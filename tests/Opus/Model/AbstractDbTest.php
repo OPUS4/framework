@@ -792,8 +792,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
             array('store', 'postStore'),
             array('store', 'postStoreInternal'),
             array('store', 'postStoreExternal'),
-            array('delete', 'preDelete'),
-//           array('delete', 'postDelete'),
+//            array('delete', 'preDelete'), // only called for stored objects
+//            array('delete', 'postDelete'), // only called for stored objects
         );
     }
 
@@ -809,8 +809,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $plugin = $this->getMock('Opus_Model_Plugin_Abstract');
 
         // define expectation
-        $getsCalled = $plugin->expects($this->once())
-                        ->method($expect);
+        $getsCalled = $plugin->expects($this->once())->method($expect);
 
         // create test model register plugin with it
         $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
@@ -1028,50 +1027,24 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
     }
 
+    public function testValuesAreTrimmed()
+    {
+        $model = new Opus_Model_ModelAbstractDb();
+        $model->setValue(' Test ');
+        $modelId = $model->store();
+
+        $model = new Opus_Model_ModelAbstractDb($modelId);
+        $this->assertEquals('Test', $model->getValue());
+    }
+
     /**
-     * Test if a model retreives its external fields in the right order
-     *
-     * @return void
+     * Test if a model retrieves its external fields in the right order
      */
     public function testFieldsInitializedInWrongOrder() {
-        $this->markTestIncomplete('Still waiting/looking for fix...');
+        $model = new Opus_Model_CheckFieldOrderDummyClass();
 
-        // construct mockup class
-        $model_class_mockup = '
-            class Opus_CheckFieldOrderDummyClass extends Opus_Model_AbstractDb {
-                protected static $_tableGatewayClass = "Opus_Model_AbstractTableProvider";
-
-                protected function _init() {
-                    $this->addField(new Opus_Model_Field("Before"));
-                    $this->addField(new Opus_Model_Field("Target"));
-                    $this->addField(new Opus_Model_Field("After"));
-                }
-
-                protected function _fetchBefore() {
-                    if (!is_null($this->getTarget())) {
-                        return $this->getTarget();
-                    }
-                    return "bar";
-                }
-
-                protected function _fetchTarget() {
-                    return "foo";
-                }
-
-                protected function _fetchAfter() {
-                    if (!is_null($this->getTarget())) {
-                        return $this->getTarget();
-                    }
-                    return "baz";
-                }
-            }
-        ';
-        eval($model_class_mockup);
-
-        $model = new Opus_CheckFieldOrderDummyClass();
-
-        $this->assertEquals($model->getBefore(), "foo");
-        $this->assertEquals($model->getAfter(), "foo");
+        $this->assertEquals('bar', $model->getBefore());
+        $this->assertEquals('baz', $model->getAfter());
     }
 
     public function testNameConversionMethods() {

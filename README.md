@@ -1,40 +1,32 @@
 # OPUS 4 Framework Implementation
 
-The project is starting to use Composer, but it also uses Ant the automate testing on
-the continuous integration system. 
+The project is using Composer for handling dependencies. The OPUS 4 Framework itself is a Composer package
+that is used by the OPUS 4 Application. 
+
+The OPUS 4 Framework is written in PHP. It also uses Ant for scripting common development actions. The Ant
+script (`build.xml`) is used for automation by a continous integration system.
 
 ## Dependencies
 
 The dependencies are declared in composer.json and can be downloaded automatically using 
 
-composer install
+    composer install
 
 ### Database
 
-The database schema can be created using the createdb.sh script
+The database schema can be created using the `createdb.php` script.
 
-ant create-database
+    ant create-database
 
-The database access parameters have to be put into config.sh.
-
-```
-user=
-password=
-host=
-post=
-dbname=
-```
+The database access parameters are stored in `tests/config.ini`.
 
 ### Solr Server
 
 ## Testing
 
-```
-ant phpunit-fast
-```
+    ant phpunit-fast
 
 or
 
-```
-vender/bin/phpunit -c tests
-```
+    vendor/bin/phpunit -c tests
+

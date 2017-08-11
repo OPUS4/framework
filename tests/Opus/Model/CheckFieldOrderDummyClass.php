@@ -25,72 +25,49 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
+ * @package     Opus_Model
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * The fields should be fetched in the order in which they were added. That mean getBefore should return 'bar', if
+ * 'Target' has not been fetched yet and getAfter should return 'baz', if 'Target' has been fetched already.
  */
-
-/**
- * Script for creating OPUS 4 database with optional name and version
- * parameters.
- */
-
-defined('APPLICATION_PATH')
-    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
-
-defined('APPLICATION_ENV')
-    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
-
-// Configure include path.
-set_include_path(
-    implode(
-        PATH_SEPARATOR, array(
-            '.',
-            dirname(__FILE__),
-            APPLICATION_PATH . '/library',
-            APPLICATION_PATH . '/vendor',
-            get_include_path(),
-        )
-    )
-);
-
-require_once 'autoload.php';
-
-$application = new Zend_Application(
-    APPLICATION_ENV,
-    array(
-        "config"=>array(
-            APPLICATION_PATH . '/tests/config.ini',
-            APPLICATION_PATH . '/tests/tests.ini'
-        )
-    )
-);
-
-Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
-
-// Bootstrapping application
-$application->bootstrap('Backend');
-
-$options = getopt('v:n:');
-
-$version = null;
-
-if (array_key_exists('v', $options))
+class Opus_Model_CheckFieldOrderDummyClass extends Opus_Model_AbstractDb
 {
-    $version = $options['v'];
-    if (!ctype_digit($version))
+
+    protected static $_tableGatewayClass = "Opus_Model_AbstractTableProvider";
+
+    private $_targetFetched = false;
+
+    protected function _init()
     {
-        $version = null;
+        $this->addField(new Opus_Model_Field("Before"));
+        $this->addField(new Opus_Model_Field("Target"));
+        $this->addField(new Opus_Model_Field("After"));
     }
+
+    protected function _fetchBefore()
+    {
+        if ($this->_targetFetched === true) {
+            return $this->getTarget();
+        }
+        return "bar"; // target has not been fetched yet
+    }
+
+    protected function _fetchTarget()
+    {
+        $this->_targetFetched = true;
+        return "foo";
+    }
+
+    protected function _fetchAfter()
+    {
+        if ($this->_targetFetched === false) {
+            return $this->getTarget();
+        }
+        return "baz"; // target has been fetched
+    }
+
 }
-
-$database = new Opus_Database();
-
-echo $database->getName() . PHP_EOL;
-
-$database->drop();
-$database->create();
-$database->importSchema($version);
-
-
-

@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -36,9 +36,7 @@
  *
  * This class is used to drop and create the database schema and also import the master data and the test data.
  *
- * TODO maybe move to Opus_Util_Database?
- * TODO logging
- * TODO use for createdb.sh
+ * TODO more logging
  */
 class Opus_Database {
 
@@ -50,7 +48,7 @@ class Opus_Database {
     /**
      * Path to folder containing SQL files for updates.
      */
-    const UPDATE_SCRIPTS_PATH = '/db/schema/updates';
+    const UPDATE_SCRIPTS_PATH = '/db/schema';
 
     /**
      * @var Zend_Config
@@ -61,6 +59,11 @@ class Opus_Database {
      * @var Zend_Log
      */
     private $_logger;
+
+    /**
+     * @var int
+     */
+    private $_latestVersion = 0;
 
     /**
      * @return string Name of database
@@ -101,6 +104,40 @@ class Opus_Database {
     }
 
     /**
+     * Imports the database schema.
+     *
+     * TODO remove support for single schema file?
+     */
+    public function importSchema($targetVersion = null)
+    {
+        if (is_null($targetVersion))
+        {
+            $schemaFile = $this->getSchemaFile();
+
+            if (!is_null($schemaFile))
+            {
+                // if present use single schema file
+                $this->import($schemaFile);
+
+                return;
+            }
+            else
+            {
+                // TODO some meaningfull output
+
+            }
+        }
+
+        // if targetVersion is specified or no complete schema file is present
+        $scripts = $this->getUpdateScripts(null, $targetVersion);
+
+        foreach($scripts as $script)
+        {
+            $this->import($script);
+        }
+    }
+
+    /**
      * Imports SQL file or folder containing SQL files.
      * @param $path string Path to file or folder
      * @throws Exception
@@ -121,7 +158,7 @@ class Opus_Database {
 
         foreach ($files as $file) {
             // TODO make output optional
-            $name = substr($file, strlen(APPLICATION_PATH) + 1);
+            $name = basename($file);
             echo("Importing '$name' ... ");
             $sql = file_get_contents($file);
             $this->getLogger()->info("Import SQL file: $name");
@@ -148,7 +185,10 @@ class Opus_Database {
         $dbUser = $this->getUsername();
         $dbPwd = $this->getPassword();
 
-        $connStr = "mysql:host=localhost;default-character-set=utf8;default-collate=utf8_general_ci";
+        $host = $this->getHost();
+        $port  = $this->getPort();
+
+        $connStr = "mysql:host=$host;port=$port;default-character-set=utf8;default-collate=utf8_general_ci";
 
         if (!is_null($dbName) && strlen(trim($dbName)) > 0)
         {
@@ -161,6 +201,42 @@ class Opus_Database {
         $pdo->exec('SET CHARACTER SET `utf8`');
 
         return $pdo;
+    }
+
+    /**
+     * Returns configured host for database.
+     *
+     * @return mixed
+     */
+    public function getHost()
+    {
+        $config = $this->getConfig();
+
+        if (isset($config->db->params->host))
+        {
+            return $config->db->params->host;
+        }
+        else {
+            return '127.0.0.1'; // localhost
+        }
+    }
+
+    /**
+     * Returns configured port for database.
+     *
+     * @return mixed
+     */
+    public function getPort()
+    {
+        $config = $this->getConfig();
+
+        if (isset($config->db->params->port))
+        {
+            return $config->db->params->port;
+        }
+        else {
+            return 3306;
+        }
     }
 
     /**
@@ -229,7 +305,7 @@ class Opus_Database {
      * @param $path string Path to directory containing SQL files
      * @return array
      */
-    public function getSqlFiles($path) {
+    public function getSqlFiles($path, $pattern = null) {
         // TODO check $path
 
         $files = new DirectoryIterator($path);
@@ -237,7 +313,8 @@ class Opus_Database {
         $sqlFiles = array();
 
         foreach($files as $file) {
-            if (strrchr($file->getBasename(), '.') == '.sql') {
+            $filename = $file->getBasename();
+            if (strrchr($filename, '.') == '.sql' && (is_null($pattern) || preg_match($pattern, $filename))) {
                 $sqlFiles[] = $file->getPathname();
             }
         }
@@ -248,12 +325,24 @@ class Opus_Database {
     }
 
     /**
+     * Returns base path of framework.
+     *
+     * @return string Path to root directory of framework
+     *
+     * TODO should this be placed somewhere else, a more generic place?
+     */
+    public function getBasePath()
+    {
+        return dirname(dirname(dirname(__FILE__)));
+    }
+
+    /**
      * Returns path to database schema file.
      * @return string Path to schema file
      * @throws Exception
      */
     public function getSchemaFile() {
-        $path = dirname(dirname(dirname(__FILE__))) . self::SCHEMA_PATH;
+        $path = $this->getBasePath() . self::SCHEMA_PATH;
 
         if (!is_file($path)) {
             throw new Exception('could not find schema file');
@@ -291,7 +380,8 @@ class Opus_Database {
     /**
      * Returns schema version from database.
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         $pdo = $this->getPdo($this->getName());
 
         $version = null;
@@ -301,7 +391,10 @@ class Opus_Database {
 
             $result = $pdo->query($sql)->fetch();
 
-            $version = $result['version'];
+            if (isset($result['version']))
+            {
+                $version = $result['version'];
+            }
         }
         catch(PDOException $pdoex) {
             // TODO logging
@@ -310,21 +403,61 @@ class Opus_Database {
         return $version;
     }
 
+    public function getLatestVersion()
+    {
+        if ($this->_latestVersion == 0)
+        {
+            $scripts = $this->getUpdateScripts();
+            $this->_latestVersion = ( int )substr(basename(end($scripts)), 0, 3);
+        }
+
+        return $this->_latestVersion;
+    }
+
     /**
      * Update database for a new version of OPUS.
      */
-    public function update() {
+    public function update($targetVersion = null) {
         $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
+        $schemaUpdate->setTargetVersion($targetVersion);
         $schemaUpdate->run();
     }
 
     /**
      * Returns SQL update scripts.
+     *
+     * If a version is specified only the update scripts after that version number are returned. This can be used to
+     * update a database to the newest version.
+     *
+     * @param $version, Current version
+     * @param $targetVersion, Version that should be updated to
+     * @return array with full paths to update script files
      */
-    public function getUpdateScripts() {
-        $scriptsPath = APPLICATION_PATH . self::UPDATE_SCRIPTS_PATH;
+    public function getUpdateScripts($version = null, $targetVersion = null)
+    {
+        $scriptsPath = $this->getBasePath() . self::UPDATE_SCRIPTS_PATH;
 
-        $files = $this->getSqlFiles($scriptsPath);
+        $files = $this->getSqlFiles($scriptsPath, '/^\d{3}-.*/');
+
+        if (!is_null($version))
+        {
+            $files = array_filter($files, function($value) use ($version) {
+                $basename = basename($value);
+                $number = substr($basename, 0, 3);
+                return ($number > $version);
+            });
+        }
+
+        if (!is_null($targetVersion))
+        {
+            $files = array_filter($files, function($value) use ($targetVersion) {
+                $basename = basename($value);
+                $number = substr($basename, 0, 3);
+                return ($number <= $targetVersion);
+            });
+        }
+
+        $files = array_values($files);
 
         return $files;
     }

@@ -243,7 +243,6 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($docId);
         $this->assertEquals(1, count($doc->getCollection()), "Document $docId is not assigned to collection $collId");
         $serverDateModified3 = $doc->getServerDateModified()->getUnixTimestamp();
-        $this->assertTrue($serverDateModified2 < $serverDateModified3, 'Visibility Change of Collection was not observed by Document');
 
         sleep(1);
 

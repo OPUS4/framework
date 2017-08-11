@@ -2252,4 +2252,237 @@ class Opus_DocumentTest extends TestCase {
         $doc->store();
     }
 
+    /**
+     * TODO how to test if indexing is called only once?
+     *
+     * Probably the best way of testing this would be replacing the regular Solr adapter with a dummy adapter, that
+     * just counts functions calls. However it isn't clear yet how such an adapter can be injected. Such an adapter
+     * would be very valuable to verify the indexing behaviour of OPUS under various conditions.
+     */
+    public function testStoreingPublishedIndexingOnlyOnce()
+    {
+        $this->markTestIncomplete('Requires way of counting calls to indexing adapter');
+
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $doc->store();
+
+        // check indexing operations
+    }
+
+    protected function setupDocumentWithMultipleTitles()
+    {
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('French');
+        $title->setLanguage('fre');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Deutsch');
+        $title->setLanguage('deu');
+
+        $title = $doc->addTitleMain();
+        $title->setValue('English');
+        $title->setLanguage('eng');
+
+        return $doc->store();
+    }
+
+    public function testGetMainTitle()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertCount(3, $doc->getTitleMain());
+
+        $title = $doc->getMainTitle();
+
+        $this->assertInstanceOf('Opus_Title', $title);
+        $this->assertEquals('Deutsch', $title->getValue());
+        $this->assertEquals('deu', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle('fre');
+
+        $this->assertEquals('French', $title->getValue());
+        $this->assertEquals('fre', $title->getLanguage());
+
+        $title = $doc->getMainTitle('eng');
+
+        $this->assertEquals('English', $title->getValue());
+        $this->assertEquals('eng', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForUnknownLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle('rus');
+
+        // should return title in document language
+        $this->assertEquals('Deutsch', $title->getValue());
+        $this->assertEquals('deu', $title->getLanguage());
+    }
+
+    public function testGetMainTitleWithNoDocumentLanguage()
+    {
+        $docId = $this->setupDocumentWithMultipleTitles();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->setLanguage(null);
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNull($doc->getLanguage());
+
+        $title = $doc->getMainTitle();
+
+        // should return first title
+        $this->assertEquals('French', $title->getValue());
+        $this->assertEquals('fre', $title->getLanguage());
+    }
+
+    public function testGetMainTitleForNoTitles()
+    {
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $title = $doc->getMainTitle();
+
+        $this->assertNull($title);
+    }
+
+    public function testHasFulltext()
+    {
+        $doc = new Opus_Document();
+
+        $config = Zend_Registry::get('Zend_Config');
+        $tempFile = $config->workspacePath . '/tmp/'. uniqid();
+
+        touch($tempFile);
+
+        $file = $doc->addFile();
+        $file->setPathName('test.txt');
+        $file->setMimeType('text/plain');
+        $file->setTempFile($tempFile);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $files = $doc->getFile();
+
+        $this->assertTrue($doc->hasFulltext());
+
+        $files[0]->setVisibleInFrontdoor(0);
+
+        $doc = new Opus_Document($doc->store());
+
+        $this->assertFalse($doc->hasFulltext());
+
+        unlink($files[0]->getPath());
+    }
+
+    public function testIsOpenAccess()
+    {
+        $role = new Opus_CollectionRole();
+        $role->setName('open_access');
+        $role->setOaiName('open_access');
+        $role->store();
+
+        $root = $role->addRootCollection();
+
+        $col = new Opus_Collection();
+        $col->setName('open_access');
+        $col->setOaiSubset('open_access');
+
+        $root->addFirstChild($col);
+        $role->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article');
+        $doc->addCollection($col);
+        $docId = $doc->store();
+
+        $this->assertTrue($col->holdsDocumentById($docId));
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertTrue($doc->isOpenAccess());
+
+        $doc->setCollection(null);
+        $doc->store();
+
+        $this->assertFalse($doc->isOpenAccess());
+    }
+
+    public function testRemoveAllPersons()
+    {
+        // create document with one person
+        $doc = new Opus_Document();
+        $doc->setType('article');
+
+        $title = new Opus_Title();
+        $title->setLanguage('eng');
+        $title->setValue('Test document');
+        $doc->addTitleMain($title);
+
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+        $doc->addPersonAuthor($person);
+
+        $docId = $doc->store();
+
+        // add second person
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(1, $persons);
+
+        $person = new Opus_Person();
+        $person->setLastName('Tester2');
+        $doc->addPersonReferee($person);
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(2, $persons);
+
+        // remove all persons
+        $doc->setPerson(null);
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $persons = $doc->getPerson();
+
+        $this->assertNotNull($persons);
+        $this->assertInternalType('array', $persons);
+        $this->assertCount(0, $persons);
+    }
+
 }

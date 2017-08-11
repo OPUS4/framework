@@ -230,7 +230,7 @@ class Opus_Security_RealmTest extends TestCase {
     /**
      * checkModule()
      */
-    public function testcheckModuleForUser() {
+    public function testCheckModuleForUser() {
         $this->setUpUserUser();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -246,6 +246,15 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect failed foobar-access by user.');
         $this->assertFalse($realm->checkModule(''),
                 'Expect failed empty module.');
+    }
+
+    public function testStaticCheckModuleForUser()
+    {
+        $this->setUpUserUser();
+
+        $this->assertTrue(Opus_Security_Realm::checkModuleForUser('admin', 'user')); // only module setup for user
+        $this->assertFalse(Opus_Security_Realm::checkModuleForUser('foobar', 'user'));
+        $this->assertFalse(Opus_Security_Realm::checkModuleForUser('frontdoor', 'user'));
     }
 
     public function testcheckModuleForIp() {
