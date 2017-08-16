@@ -1230,6 +1230,52 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('John', $person->getFirstName());
     }
 
+    public function testUpdateAllWithoutDocuments()
+    {
+        $personCrit = array('last_name' => 'Zufall', 'first_name' => 'Rainer');
+
+        $changes = array(
+            'Email' => 'bulktest@example.org'
+        );
+
+        $documents = null;
+
+        Opus_Person::updateAll($personCrit, $changes, $documents);
+
+        foreach($this->_authors as $author)
+        {
+            $person = new Opus_Person($author->getId());
+
+            $personDocs = $person->getDocumentsByRole('author');
+
+            $this->assertCount(1, $personDocs);
+            $this->assertEquals('bulktest@example.org', $person->getEmail());
+        }
+    }
+
+    public function testUpdateAllWithoutDocumentsInArray()
+    {
+        $personCrit = array('last_name' => 'Zufall', 'first_name' => 'Rainer');
+
+        $changes = array(
+            'Email' => 'bulktest@example.org'
+        );
+
+        $documents = array();
+
+        Opus_Person::updateAll($personCrit, $changes, $documents);
+
+        foreach($this->_authors as $author)
+        {
+            $person = new Opus_Person($author->getId());
+
+            $personDocs = $person->getDocumentsByRole('author');
+
+            $this->assertCount(1, $personDocs);
+            $this->assertEquals('bulktest@example.org', $person->getEmail());
+        }
+    }
+
     public function testGetPersonsAndDocumentsWithSpaces()
     {
         $personCrit = array('last_name' => 'Tester', 'first_name' => 'Usual');

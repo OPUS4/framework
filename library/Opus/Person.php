@@ -547,7 +547,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
             array('distinct(p.id)')
         );
 
-        if (!is_null($documents))
+        // TODO handle single document id value
+        if (!is_null($documents) && is_array($documents) && count($documents) > 0)
         {
             $select->join(
                 array('link' => 'link_persons_documents'),
