@@ -1813,4 +1813,31 @@ class Opus_PersonTest extends TestCase {
         new Opus_Document($docId);
     }
 
+    public function testSortOrderDefault()
+    {
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setLastName('Person1');
+        $doc->addPersonAuthor($person);
+
+        $person = new Opus_Person();
+        $person->setLastName('Person2');
+        $doc->addPersonAuthor($person);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $authors = $doc->getPersonAuthor();
+
+        $this->assertNotNull($authors);
+        $this->assertCount(2, $authors);
+
+        $this->assertEquals(1, $authors[0]->getSortOrder());
+        $this->assertEquals('Person1', $authors[0]->getLastName());
+        $this->assertEquals(2, $authors[1]->getSortOrder());
+        $this->assertEquals('Person2', $authors[1]->getLastName());
+    }
+
 }

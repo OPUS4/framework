@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `opus_version` (
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (`version`) VALUES (7);
+INSERT INTO `schema_version` (`version`) VALUES (8);
 
 -- -----------------------------------------------------
 -- Table `documents`
@@ -227,7 +227,7 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
   `person_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: persons.persons_id.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: documents.documents_id.' ,
   `role` ENUM('advisor', 'author', 'contributor', 'editor', 'referee',  'other', 'translator', 'submitter') NOT NULL COMMENT 'Role of the person in the actual document-person context.' ,
-  `sort_order` TINYINT UNSIGNED NOT NULL COMMENT 'Sort order of the persons related to the document.' ,
+  `sort_order` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Sort order of the persons related to the document.' ,
   `allow_email_contact` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'Is e-mail contact in the actual document-person context allowed? (1=yes, 0=no).' ,
   INDEX `fk_link_documents_persons_persons` (`person_id` ASC) ,
   PRIMARY KEY (`person_id`, `document_id`, `role`) ,
@@ -293,7 +293,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `message` TEXT NOT NULL COMMENT 'Message text.' ,
-  `visibility` ENUM('private', 'public') NOT NULL COMMENT 'Visibility: private, public to another document version.' ,
+  `visibility` ENUM('private', 'public') NOT NULL DEFAULT 'private' COMMENT 'Visibility: private, public to another document version.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_notes_document` (`document_id` ASC) ,
   CONSTRAINT `fk_document_notes_document`

@@ -109,5 +109,24 @@ class Opus_VersionTest extends TestCase
         }
     }
 
+    public function testSchemaVersionMatchesHighestScript()
+    {
+        $version = Opus_Version::getSchemaVersion();
+
+        $update = new Opus_Database();
+
+        $scripts = $update->getUpdateScripts();
+
+        $lastScript = array_pop($scripts);
+
+        $basename = basename($lastScript);
+        $scriptVersion = ( int )substr($basename, 0, 3);
+
+        $this->assertEquals(
+            $version, $scriptVersion,
+            'Schema version in opus4schema.sql should match highest number used for an update script.'
+        );
+    }
+
 }
 
