@@ -83,7 +83,7 @@ class Opus_Validate_Issn extends Zend_Validate_Abstract
         $issn = str_split($value);
 
         // Calculate and compare check digit
-        $checkdigit = $this->calculateCheckDigit($issn);
+        $checkdigit = $this->_calculateCheckDigit($issn);
         if ($checkdigit !== $issn[8]) {
             $this->_error(self::MSG_CHECK_DIGIT);
             return false;
@@ -98,7 +98,7 @@ class Opus_Validate_Issn extends Zend_Validate_Abstract
      * @param array $issn Array of digits that form ISSN
      * @return string The check digit
      */
-    protected function calculateCheckDigit(array $issn)
+    protected function _calculateCheckDigit(array $issn)
     {
         $z = $issn;
         $check = (8 * $z[0] + 7 * $z[1] + 6 * $z[2] + 5 * $z[3] + 4 * $z[5] + 3 * $z[6] + 2 * $z[7]);

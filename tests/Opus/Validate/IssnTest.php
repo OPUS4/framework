@@ -39,15 +39,9 @@
 class Opus_Validate_IssnTest extends TestCase
 {
     /**
-     * Overwrite parent methods.
-     */
-    public function setUp() {}
-    public function tearDown() {}
-
-    /**
      * @return array with valid issn's
      */
-    public function validDataProvider() {
+    public function validIssnProvider() {
         return array(
             array('1050-124X'),
             array('0317-8471'),
@@ -60,7 +54,7 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * @return array with invalid issn's
      */
-    public function invalidDataProvider() {
+    public function invalidIssnProvider() {
         return array(
             array(null),
             array(True),
@@ -76,7 +70,7 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * @return array with invalid issn's and it's error-messages and error-keys
      */
-    public function MessageDataProvider() {
+    public function messageIssnProvider() {
         return array(
             array('12345478', 'form', "'12345478' is malformed"),
             array('12456-65478', 'form', "'12456-65478' is malformed"),
@@ -93,8 +87,8 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * Unittest for isValid with valid Arguments.
      * @covers ::isValid
-     * @covers ::calculateCheckDigit
-     * @dataProvider validDataProvider
+     * @covers ::_calculateCheckDigit
+     * @dataProvider validIssnProvider
      */
     public function testValidArguments($arg) {
         $validator = new Opus_Validate_Issn();
@@ -104,8 +98,8 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * Unittest for isValid with invalid Arguments.
      * @covers ::isValid
-     * @covers ::calculateCheckDigit
-     * @dataProvider invalidDataProvider
+     * @covers ::_calculateCheckDigit
+     * @dataProvider invalidIssnProvider
      */
     public function testInvalidArguments($arg) {
         $validator = new Opus_Validate_Issn();
@@ -115,8 +109,8 @@ class Opus_Validate_IssnTest extends TestCase
     /**
      * Unittest to check the error-messages for an invalid ISSN.
      * @covers ::isValid
-     * @covers ::calculateCheckDigit
-     * @dataProvider MessageDataProvider
+     * @covers ::_calculateCheckDigit
+     * @dataProvider MessageIssnProvider
      */
     public function testErrorMessageForm($arg, $err, $msg)
     {
