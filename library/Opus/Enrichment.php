@@ -29,9 +29,9 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -65,10 +65,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract {
      */
     protected function _init() {
         $key = new Opus_Model_Field('KeyName');
-        $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
-                ->setSelection(true)
-                ->setDefault(Opus_EnrichmentKey::getAll());
+        $key->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
 
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
