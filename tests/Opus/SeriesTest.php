@@ -325,6 +325,32 @@ class Opus_SeriesTest extends TestCase {
         $this->assertEquals($series[2]->getId(), $ids[2]);
     }
 
+    public function testGetAllSortedByTitle()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'series' => array('sortByTitle' => '1')
+        )));
+
+        $series = new Opus_Series();
+        $series->setTitle('c');
+        $series->store();
+
+        $series = new Opus_Series();
+        $series->setTitle('a');
+        $series->store();
+
+        $series = new Opus_Series();
+        $series->setTitle('b');
+        $series->store();
+
+        $allSeries = Opus_Series::getAll();
+
+        $this->assertEquals(3, count($allSeries));
+        $this->assertEquals('a', $allSeries[0]->getTitle());
+        $this->assertEquals('b', $allSeries[1]->getTitle());
+        $this->assertEquals('c', $allSeries[2]->getTitle());
+    }
+
     public function testAssignVisibleStatus() {
         $s = new Opus_Series();
         $s->setTitle('foo');
@@ -378,6 +404,29 @@ class Opus_SeriesTest extends TestCase {
 
         for ($i = 0; $i < count($series); $i++) {
             $this->assertEquals($i, $series[$i]->getSortOrder());
+        }
+    }
+
+    public function testGetAllSortedBySortKeyOverriddenToSortByTitle() {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'series' => array('sortByTitle' => '1')
+        )));
+
+        $testValues = array( 3, 1, 2, 5, 4, 0 );
+
+        foreach ($testValues as $value) {
+            $s = new Opus_Series();
+            $s->setTitle($value);
+            $s->setSortOrder(5 - $value); // reverse order
+            $s->store();
+        }
+
+        $allSeries = Opus_Series::getAllSortedBySortKey();
+
+        $this->assertEquals(6, count($allSeries));
+
+        foreach ($allSeries as $index => $series) {
+            $this->assertEquals($index, $series->getTitle());
         }
     }
 

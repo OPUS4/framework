@@ -109,7 +109,16 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Series objects.
      */
     public static function getAll() {
-        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
+        $config = Zend_Registry::get('Zend_Config');
+
+        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
+            $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
+        }
+        else {
+            $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
+        }
+
+        return $all;
     }
 
     /**
@@ -118,7 +127,18 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * @return array Array of Opus_Series objects sorted by sort_order in ascending order.
      */
     public static function getAllSortedBySortKey() {
-        return self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'sort_order');
+        $config = Zend_Registry::get('Zend_Config');
+
+        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
+            $all = self::getAll();
+        }
+        else {
+            $all = self::getAllFrom(
+                'Opus_Series', self::$_tableGatewayClass, null, 'sort_order'
+            );
+        }
+
+        return $all;
     }
 
     /**
