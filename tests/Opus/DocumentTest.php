@@ -2577,7 +2577,10 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(0, $persons);
     }
 
-    public function testGetIdentifierDOI()
+    /**
+     * OPUSVIER-3860 Regression test.
+     */
+    public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
     {
         $doc = new Opus_Document();
         $doc->store();
