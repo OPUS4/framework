@@ -120,77 +120,9 @@ class Opus_Document extends Opus_Model_AbstractDb {
             'model' => 'Opus_Identifier',
             'fetch' => 'lazy'
         ),
-        'IdentifierOld' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'old'),
-            'fetch' => 'lazy'
-        ),
-        'IdentifierSerial' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'serial'),
-            'fetch' => 'lazy'
-        ),
-        'IdentifierUuid' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'uuid'),
-            'fetch' => 'lazy'
-        ),
-        'IdentifierIsbn' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'isbn'),
-            'fetch' => 'lazy'
-        ),
-        'IdentifierUrn' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'urn')
-        ),
-        'IdentifierDoi' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'doi')
-        ),
-        'IdentifierHandle' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'handle')
-        ),
-        'IdentifierUrl' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'url')
-        ),
-        'IdentifierIssn' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'issn')
-        ),
-        'IdentifierStdDoi' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'std-doi')
-        ),
-        'IdentifierCrisLink' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'cris-link')
-        ),
-        'IdentifierSplashUrl' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'splash-url')
-        ),
-        'IdentifierOpus3' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'opus3-id')
-        ),
-        'IdentifierOpac' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'opac-id')
-        ),
         'Reference' => array(
             'model' => 'Opus_Reference',
             'fetch' => 'lazy'
-        ),
-        'IdentifierArxiv' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'arxiv')
-        ),
-        'IdentifierPubmed' => array(
-            'model' => 'Opus_Identifier',
-            'options' => array('type' => 'pmid')
         ),
         'ReferenceIsbn' => array(
             'model' => 'Opus_Reference',
@@ -357,6 +289,26 @@ class Opus_Document extends Opus_Model_AbstractDb {
         )
     );
 
+
+    protected $_identifierMapping = array(
+        'Old' => 'old',
+        'Serial' => 'serial',
+        'Uuid' => 'uuid',
+        'Isbn' => 'isbn',
+        'Urn' => 'urn',
+        'Doi' => 'doi',
+        'Handle' => 'handle',
+        'Url' => 'url',
+        'Issn' => 'issn',
+        'StdDoi' => 'std-doi',
+        'CrisLink' => 'cris-link',
+        'SplashUrl' => 'splash-url',
+        'Opus3' => 'opus3-id',
+        'Opac' => 'opac-id',
+        'Arxiv' => 'arxiv',
+        'Pubmed' => 'pmid'
+    );
+
     /**
      * Initialize the document's fields.  The language field needs special
      * treatment to initialize the default values.
@@ -387,6 +339,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "EmbargoDate"
         );
 
+        // create internal fields
         foreach ($fields as $fieldname) {
             if (isset($this->_externalFields[$fieldname])) {
                 throw new Exception("Field $fieldname exists in _externalFields");
@@ -396,6 +349,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             $this->addField($field);
         }
 
+        // create external fields
         foreach (array_keys($this->_externalFields) AS $fieldname) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMultiplicity('*');
@@ -407,10 +361,11 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $dateFields = array(
             'ThesisDateAccepted', 'CompletedDate', 'PublishedDate',
             'ServerDateCreated',
-            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate');
+            'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate'
+        );
+
         foreach ($dateFields as $fieldName) {
-            $this->getField($fieldName)
-                    ->setValueModelClass('Opus_Date');
+            $this->getField($fieldName)->setValueModelClass('Opus_Date');
         }
 
         $this->initFieldOptionsForDisplayAndValidation();
@@ -1296,6 +1251,105 @@ class Opus_Document extends Opus_Model_AbstractDb {
         else {
             return false;
         }
+    }
+
+    public function __call($name, array $arguments)
+    {
+        $accessor = substr($name, 0, 3);
+        $fieldname = substr($name, 3);
+
+
+        if (!in_array($accessor, array('set', 'get', 'add')))
+        {
+            return parent::__call($name, $arguments);
+        }
+
+        if (substr($fieldname, 0, 10) !== 'Identifier' || $fieldname === 'Identifier') {
+            return parent::__call($name, $arguments);
+        }
+        else {
+            $type = $this->_identifierMapping[substr($fieldname, 10)];
+
+            if (count($arguments) > 0) {
+                $argument = $arguments[0];
+            }
+            else {
+                $argument = null;
+            }
+
+            switch ($accessor) {
+                case 'add':
+                    return $this->addIdentifierForType($type, $argument);
+
+                case 'get':
+                    return $this->getIdentifierByType($type, $argument);
+
+                case 'set':
+                    return $this->setIdentifiersForType($type, $argument);
+
+                default:
+                    return parent::__call($name, $arguments);
+            }
+        }
+    }
+
+    /**
+     * @param $type
+     * @param null $identifier
+     * @return null
+     *
+     * TODO handle error cases
+     */
+    public function addIdentifierForType($type, $identifier = null)
+    {
+        if ($identifier instanceof Opus_Identifier) {
+            $identifier->setType($type);
+            parent::addIdentifier($identifier);
+        }
+        else {
+            $identifier = parent::addIdentifier($identifier);
+            $identifier->setType($type);
+        }
+
+        return $identifier;
+    }
+
+    public function setIdentifiersForType($type, $new)
+    {
+        $all = $this->getIdentifier();
+
+        $type = strtolower($type);
+
+        // remove old value with matching type
+        $all = array_filter($all, function($value) use ($type) {
+            return $value->getType() !== $type;
+        });
+
+        if (!is_array($new)) {
+            $new = array($new);
+        }
+
+        array_walk($new, function($value) use ($type) {
+            $value->setType($type);
+        });
+
+        return $this->setIdentifier(array_merge($all, $new));
+    }
+
+    public function getIdentifierByType($type, $index = null)
+    {
+        $identifier = $this->getIdentifier();
+
+        $values = array_filter($identifier, function($value) use ($type) {
+            return $value->getType() === strtolower($type);
+        });
+
+        // use Opus_Model_Field for value handling
+        $filteredField = new Opus_Model_Field('FilteredIdentifier');
+        $filteredField->setMultiplicity('*');
+        $filteredField->setValue($values);
+
+        return $filteredField->getValue($index);
     }
 
 }
