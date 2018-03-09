@@ -58,11 +58,11 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 	/**
 	 * Compiles simple condition to proper Solr query term.
 	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
+	 * @param \Solarium\Core\Query\AbstractQuery $query
 	 * @param Opus_Search_Filter_Simple $simple
 	 * @return string
 	 */
-	protected static function _compileSimple( \Solarium\Core\Query\Query $query, Opus_Search_Filter_Simple $simple ) {
+	protected static function _compileSimple( \Solarium\Core\Query\AbstractQuery $query, Opus_Search_Filter_Simple $simple ) {
 		// validate desired type of comparison
 		switch ( $simple->getComparator() ) {
 			case Opus_Search_Filter_Simple::COMPARE_EQUALITY :
@@ -117,12 +117,12 @@ class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Comple
 	 * Compiles provided set of subordinated conditions into complex Solr query
 	 * term.
 	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
+	 * @param \Solarium\Core\Query\AbstractQuery $query
 	 * @param Opus_Search_Filtering[] $conditions
 	 * @param string $glue
 	 * @return string
 	 */
-	protected static function _compile( \Solarium\Core\Query\Query $query, $conditions, $glue ) {
+	protected static function _compile( \Solarium\Core\Query\AbstractQuery $query, $conditions, $glue ) {
 		$compiled = array();
 
 		foreach ( $conditions as $condition ) {
