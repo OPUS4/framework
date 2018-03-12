@@ -10,7 +10,7 @@
   "homepage": "http://opus4.kobv.de",
   "require": {
     "zendframework/zendframework1": "1.12.*",
-    "solarium/solarium": "3.8.*"
+    "solarium/solarium": "3.4.*"
   },
   "autoload": {
     "psr-0": {
