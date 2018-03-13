@@ -27,7 +27,7 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Search
+ * @package     Opus_SolrSearch
  * @author      Oliver Marahrens <o.marahrens@tu-harburg.de>
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
@@ -136,9 +136,11 @@
                 <xsl:for-each select="/Opus/Opus_Document/PersonAuthor">
                     <xsl:element name="field">
                         <xsl:attribute name="name">author</xsl:attribute>
-                        <xsl:value-of select="@FirstName" />
-                        <xsl:text> </xsl:text>
                         <xsl:value-of select="@LastName" />
+                        <xsl:if test="@FirstName">
+                            <xsl:text>, </xsl:text>
+                            <xsl:value-of select="@FirstName" />
+                        </xsl:if>
                     </xsl:element>
                 </xsl:for-each>
 

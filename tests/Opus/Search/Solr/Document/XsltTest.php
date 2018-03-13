@@ -234,7 +234,7 @@ class Opus_Search_Solr_Document_XsltTest extends DocumentBasedTestCase {
 
 		$field = $xpath->query( '/add/doc/field[@name="author"]' );
 		$this->assertEquals( 1, $field->length );
-		$this->assertTrue( !!preg_match( '/jane\s+doe/i', $field->item( 0 )->nodeValue ) );
+		$this->assertTrue( !!preg_match( '/doe,\s+jane/i', $field->item( 0 )->nodeValue ) );
 
 		$field = $xpath->query( '/add/doc/field[@name="author_sort"]' );
 		$this->assertEquals( 1, $field->length );
