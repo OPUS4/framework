@@ -585,7 +585,7 @@ class Opus_Search_Common_IndexerTest extends TestCase {
 	/**
 	 * Regression test for OPUSVIER-2240
 	 *
-	 * @expectedException Opus_SolrSearch_Index_Exception
+	 * @expectedException Opus_Search_Exception
 	 */
 	public function testIndexDocumentWithUnknownIndexField() {
 		$this->markTestSkipped( 'not supported in Opus_Search API' );
