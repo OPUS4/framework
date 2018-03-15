@@ -31,12 +31,12 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_SolrSearch_QueryTest extends TestCase
+class Opus_Search_Util_QueryTest extends TestCase
 {
 
     public function testEscape()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('test', $query->escape('test'));
         $this->assertEquals('test\[\]', $query->escape('test[]'));
@@ -51,7 +51,7 @@ class Opus_SolrSearch_QueryTest extends TestCase
 
     public function testEscapeIgnore()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('test*', $query->escape('test*'));
         $this->assertEquals('test?', $query->escape('test?'));
@@ -59,7 +59,7 @@ class Opus_SolrSearch_QueryTest extends TestCase
 
     public function testEscapeEscapes()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('Plus\\\\\\+Test', $query->escape('Plus\+Test')); // TODO does it make sense?
 
@@ -68,14 +68,14 @@ class Opus_SolrSearch_QueryTest extends TestCase
 
     public function testEscapeNotWithinQuotes()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('"te+st"\+', $query->escape('"te+st"+'));
     }
 
     public function testEscapeAddQuoteAtEndIfUnevenQuotesIncludingEscapedQuotes()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('j\\\\"ohn+D\"oe"', $query->escape('j\"ohn+D\"oe'));
         $this->assertEquals('D\\\\"oe, J\"ane"', $query->escape('D\"oe, J\"ane'));
@@ -83,7 +83,7 @@ class Opus_SolrSearch_QueryTest extends TestCase
 
     public function testEscapeUnevenQuotes()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('"test"', $query->escape('"test'));
         $this->assertEquals('test""', $query->escape('test"'));
@@ -95,7 +95,7 @@ class Opus_SolrSearch_QueryTest extends TestCase
 
     public function testLowercaseWildcardQuery()
     {
-        $query = new Opus_SolrSearch_Query();
+        $query = new Opus_Search_Util_Query();
 
         $this->assertEquals('TeSt', $query->lowercaseWildcardQuery('TeSt'));
         $this->assertEquals('te?t', $query->lowercaseWildcardQuery('TE?t'));

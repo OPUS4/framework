@@ -34,7 +34,7 @@
  * @version     $Id$
  */
 
-class Opus_SolrSearch_SearcherTest extends TestCase {
+class Opus_Search_Util_SearcherTest extends TestCase {
 
     public function tearDown() {
         $this->clearFiles();
@@ -53,9 +53,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
             array_push($ids, $document->getId());
         }
 
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
+        $query = new Opus_Search_Util_Query(Opus_Search_Util_Query::LATEST_DOCS);
         $query->setRows($rows);
-        $searcher = new Opus_SolrSearch_Searcher();
+        $searcher = new Opus_Search_Util_Searcher();
         $results = $searcher->search($query);
 
         $i = $rows - 1;
@@ -75,9 +75,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc = new Opus_Document($id);
         $serverDateModified = $doc->getServerDateModified()->getUnixTimestamp();
 
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
+        $query = new Opus_Search_Util_Query(Opus_Search_Util_Query::LATEST_DOCS);
         $query->setRows(1);
-        $searcher = new Opus_SolrSearch_Searcher();
+        $searcher = new Opus_Search_Util_Searcher();
         $results = $searcher->search($query);
 
         $this->assertEquals(1, count($results));
@@ -92,9 +92,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $doc->store();
         $id = $doc->getId();
 
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::LATEST_DOCS);
+        $query = new Opus_Search_Util_Query(Opus_Search_Util_Query::LATEST_DOCS);
         $query->setRows(1);
-        $searcher = new Opus_SolrSearch_Searcher();
+        $searcher = new Opus_Search_Util_Searcher();
         $results = $searcher->search($query);
         $this->assertEquals(1, count($results));
         $result = $results->getResults();
@@ -271,12 +271,12 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
     }
 
     private function searchDocumentsAssignedToCollection($collId = null) {
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query = new Opus_Search_Util_Query(Opus_Search_Util_Query::SIMPLE);
         $query->setCatchAll('*:*');
         if (!is_null($collId)) {
             $query->addFilterQuery('collection_ids', $collId);
         }
-        $searcher = new Opus_SolrSearch_Searcher();
+        $searcher = new Opus_Search_Util_Searcher();
         $results = $searcher->search($query);
         return $results->getResults();
     }
@@ -372,13 +372,13 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
     }
 
     public function testGetDefaultRows() {
-        $rows = Opus_SolrSearch_Query::getDefaultRows();
+        $rows = Opus_Search_Util_Query::getDefaultRows();
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
             $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
         }
         else {
-            $this->assertTrue($rows == Opus_SolrSearch_Query::DEFAULT_ROWS);
+            $this->assertTrue($rows == Opus_Search_Util_Query::DEFAULT_ROWS);
         }
 
     }
@@ -421,9 +421,9 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
     }
 
     private function getSearchResultForFulltextTests() {
-        $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
+        $query = new Opus_Search_Util_Query(Opus_Search_Util_Query::SIMPLE);
         $query->setCatchAll('*:*');
-        $searcher = new Opus_SolrSearch_Searcher();
+        $searcher = new Opus_Search_Util_Searcher();
         $results = $searcher->search($query)->getResults();
         $this->assertEquals(1, count($results));
         return $results[0];

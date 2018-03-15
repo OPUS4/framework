@@ -232,7 +232,7 @@ class Opus_Search_Result_Base {
 	 *
 	 * @note This is provided for downward compatibility, though it's signature
 	 *       has changed in that it's returning set of Opus_Document instances
-	 *       rather than set of Opus_SolrSearch_Result instances.
+	 *       rather than set of Opus_Search_Util_Result instances.
 	 *
 	 * @note The wording is less specific in that all information in response to
 	 *       search query may considered results of search. Thus this new API

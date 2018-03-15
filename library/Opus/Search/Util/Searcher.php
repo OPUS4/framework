@@ -25,14 +25,14 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_SolrSearch
+ * @package     Opus_Search_Util
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_SolrSearch_Searcher {
+class Opus_Search_Util_Searcher
+{
 
     /*
      * Holds numbers of facets
@@ -45,7 +45,7 @@ class Opus_SolrSearch_Searcher {
 
     /**
      *
-     * @param Opus_SolrSearch_Query $query
+     * @param Opus_Search_Util_Query $query
      * @param bool $validateDocIds check document IDs coming from Solr index against database
      * @return Opus_Search_Result_Base
      * @throws Opus_Search_Exception If Solr server responds with an error or the response is empty.
@@ -66,11 +66,11 @@ class Opus_SolrSearch_Searcher {
 
 
 	        switch ( $query->getSearchType() ) {
-		        case Opus_SolrSearch_Query::LATEST_DOCS :
+		        case Opus_Search_Util_Query::LATEST_DOCS :
 			        $request
 				        ->addSorting( $query->getSortField(), $query->getSortOrder() );
 
-		        case Opus_SolrSearch_Query::DOC_ID :
+		        case Opus_Search_Util_Query::DOC_ID :
 					if ( $query->isReturnIdsOnly() ) {
 						$request
 							->setFields( 'id' );
@@ -80,7 +80,7 @@ class Opus_SolrSearch_Searcher {
 					}
 			        break;
 
-		        case Opus_SolrSearch_Query::FACET_ONLY :
+		        case Opus_Search_Util_Query::FACET_ONLY :
 					$facet = Opus_Search_Facet_Set::create()
 						->setFacetOnly();
 
