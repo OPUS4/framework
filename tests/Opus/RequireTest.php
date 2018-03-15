@@ -67,8 +67,10 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function testRequire() {
-        $cmd = 'find ../library/Opus/ -type f -iname "*php" |cut -d/ -f3-';
+    public function testRequire()
+    {
+        $path = APPLICATION_PATH . '/library/Opus/';
+        $cmd = "find $path -type f -iname \"*php\"";
         $classFiles = array();
         exec($cmd, $classFiles);
 
@@ -77,13 +79,10 @@ class Opus_RequireTest extends TestCase {
         }
     }
 
-    /**
-     * Try to load all class files and instanciate objects.
-     *
-     * @return void
-     */
-    public function testInstanciateTest() {
-        $cmd = 'find ../library/Opus/ -type f -iname "*php" -print0 |xargs -r0 grep -hE "class[[:space:]]+Opus_" |cut -d" " -f 2 |grep Opus_';
+    public function instanciateTestProvider()
+    {
+        $path = APPLICATION_PATH . '/library/Opus/';
+        $cmd = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
         $classes = array();
         exec($cmd, $classes);
 
@@ -99,7 +98,7 @@ class Opus_RequireTest extends TestCase {
             "Opus_Storage_File",
             "Opus_Reviewer",
             "Opus_Privilege",
-            "Opus_SolrSearch_Exception",
+            "Opus_Search_Exception",
             "Opus_Util_MetadataImport",
             "Opus_Search_Solr_Solarium_Document",
             "Opus_Search_Solr_Solarium_Adapter",
@@ -113,16 +112,31 @@ class Opus_RequireTest extends TestCase {
             "Opus_Search_Filter_Simple"
         );
 
+        $data = array();
+
         foreach ($classes AS $class) {
             if (in_array($class, $blacklist)) {
-               continue;
+                continue;
             }
-            try {
-               $object = new $class();
-            }
-            catch (Exception $e) {
-               $this->fail("Loading class $class failed: " . $e->getMessage());
-            }
+            $data[$class] = array($class);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Try to load all class files and instanciate objects.
+     *
+     * @return void
+     * @dataProvider instanciateTestProvider
+     */
+    public function testInstanciateTest($class)
+    {
+        try {
+           $object = new $class();
+        }
+        catch (Exception $e) {
+           $this->fail("Loading class $class failed: " . $e->getMessage());
         }
     }
 }

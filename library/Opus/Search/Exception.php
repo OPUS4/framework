@@ -28,9 +28,10 @@
  *
  * @category    Application
  * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2015, OPUS 4 development team
+ * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,17 +39,40 @@
  *
  * TODO code duplication in extending classes
  */
+class Opus_Search_Exception extends Exception
+{
 
-class Opus_Search_Exception extends Exception {
-	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
-		parent::__construct( $message, $code, $previous );
-	}
+    const SERVER_UNREACHABLE = '1';
 
-	public function __toString() {
+    const INVALID_QUERY = '2';
+
+    public function __construct($message, $code = null, $previous = null) {
+        parent::__construct($message, $code, $previous);
+    }
+
+    public function isServerUnreachable() {
+        return $this->code == self::SERVER_UNREACHABLE;
+    }
+
+    public function isInvalidQuery() {
+        return $this->code == self::INVALID_QUERY;
+    }
+
+
+	public function __toString()
+    {
 		$previousMessage = '';
 		if ( !is_null( $this->getPrevious() ) ) {
 			$previousMessage = $this->getPrevious()->getMessage();
 		}
+
+        if ($this->isServerUnreachable()) {
+            return "solr server is unreachable: $previousMessage";
+        }
+
+        if ($this->isInvalidQuery()) {
+            return "given search query is invalid: $previousMessage";
+        }
 
 		return 'unknown error while trying to search: ' . $previousMessage;
 	}

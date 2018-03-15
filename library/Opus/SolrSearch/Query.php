@@ -35,7 +35,9 @@
 /**
  * Encapsulates all parameter values needed to build the Solr query URL.
  */
-class Opus_SolrSearch_Query {
+class Opus_SolrSearch_Query
+{
+
     // currently available search types
     const SIMPLE = 'simple';
     const ADVANCED = 'advanced';
@@ -75,7 +77,7 @@ class Opus_SolrSearch_Query {
     /**
      *
      * @param string $searchType
-     * @throws Opus_SolrSearch_Exception If $searchType is not supported.
+     * @throws Opus_Search_Exception If $searchType is not supported.
      */
     public function  __construct($searchType = self::SIMPLE) {
         $this->invalidQCache();
@@ -103,7 +105,7 @@ class Opus_SolrSearch_Query {
             return;
         }
 
-        throw new Opus_SolrSearch_Exception("searchtype $searchType is not supported");
+        throw new Opus_Search_Exception("searchtype $searchType is not supported");
     }
 
     public function getSearchType() {

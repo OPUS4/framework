@@ -48,7 +48,7 @@ class Opus_SolrSearch_Searcher {
      * @param Opus_SolrSearch_Query $query
      * @param bool $validateDocIds check document IDs coming from Solr index against database
      * @return Opus_Search_Result_Base
-     * @throws Opus_SolrSearch_Exception If Solr server responds with an error or the response is empty.
+     * @throws Opus_Search_Exception If Solr server responds with an error or the response is empty.
      */
     public function search($query, $validateDocIds = true) {
 
@@ -135,10 +135,10 @@ class Opus_SolrSearch_Searcher {
 	        return $response;
         }
         catch ( Opus_Search_InvalidServiceException $e ) {
-	        return $this->mapException( Opus_SolrSearch_Exception::SERVER_UNREACHABLE, $e );
+	        return $this->mapException( Opus_Search_Exception::SERVER_UNREACHABLE, $e );
         }
         catch( Opus_Search_InvalidQueryException $e ) {
-	        return $this->mapException( Opus_SolrSearch_Exception::INVALID_QUERY, $e );
+	        return $this->mapException( Opus_Search_Exception::INVALID_QUERY, $e );
         }
 	    catch ( Exception $e ) {
 		    return $this->mapException( null, $e );
@@ -148,14 +148,14 @@ class Opus_SolrSearch_Searcher {
 	/**
 	 * @param mixed $type
 	 * @param Exception $previousException
-	 * @throws Opus_SolrSearch_Exception
+	 * @throws Opus_Search_Exception
 	 * @return no-return
 	 */
 	private function mapException( $type, Exception $previousException ) {
 		$msg = 'Solr server responds with an error ' . $previousException->getMessage();
 		Opus_Log::get()->err($msg);
 
-		throw new Opus_SolrSearch_Exception($msg, $type, $previousException);
+		throw new Opus_Search_Exception($msg, $type, $previousException);
 	}
 
     public function setFacetArray($array) {
