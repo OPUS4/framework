@@ -77,13 +77,6 @@ class TestCase extends SimpleTestCase {
     }
 
     /**
-     * Removes all documents from Solr index.
-     */
-    protected function clearSolrIndex() {
-	    Opus_Search_Service::selectIndexingService( null, 'solr' )->removeAllDocumentsFromIndex();
-    }
-
-    /**
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      * @param null $directory
      */
@@ -127,16 +120,7 @@ class TestCase extends SimpleTestCase {
     protected function setUp() {
         parent::setUp();
 
-        Opus_Search_Config::dropCached();
-        Opus_Search_Service::dropCached();
-
         $this->_clearTables();
-        $this->clearSolrIndex();
     }
 
-    protected function tearDown() {
-        $this->clearSolrIndex();
-
-        parent::tearDown();
-    }
 }
