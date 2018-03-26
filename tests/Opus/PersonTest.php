@@ -1840,4 +1840,82 @@ class Opus_PersonTest extends TestCase {
         $this->assertEquals('Person2', $authors[1]->getLastName());
     }
 
+    public function testMatchesPersonObjects()
+    {
+        $person1 = new Opus_Person();
+        $person2 = new Opus_Person();
+
+        // Test LastName matching
+
+        $person1->setLastName('Doe');
+
+        $this->assertFalse($person1->matches($person2));
+        $this->assertFalse($person2->matches($person1));
+
+        $person2->setLastName('Doe');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        // Test FirstName matching
+
+        $person1->setFirstName('Jane');
+
+        $this->assertFalse($person1->matches($person2));
+        $this->assertFalse($person2->matches($person1));
+
+        $person2->setFirstName('Jane');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        // Test IdentifierMisc matching
+
+        $person1->setIdentifierMisc('1234');
+
+        $this->assertFalse($person1->matches($person2));
+        $this->assertFalse($person2->matches($person1));
+
+        $person2->setIdentifierMisc('1234');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        // Test IdentifierOrcid matching
+
+        $person1->setIdentifierOrcid('0000-0000-1234-5678');
+
+        $this->assertFalse($person1->matches($person2));
+        $this->assertFalse($person2->matches($person1));
+
+        $person2->setIdentifierOrcid('0000-0000-1234-5678');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        // Test IdentifierGnd matching
+
+        $person1->setIdentifierGnd('4321');
+
+        $this->assertFalse($person1->matches($person2));
+        $this->assertFalse($person2->matches($person1));
+
+        $person2->setIdentifierGnd('4321');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        // Email does not matter
+
+        $person1->setEmail('test1@example.org');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+
+        $person2->setEmail('test2@example.org');
+
+        $this->assertTrue($person1->matches($person2));
+        $this->assertTrue($person2->matches($person1));
+    }
+
 }

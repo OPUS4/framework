@@ -749,6 +749,17 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public function matches($criteria)
     {
+        if ($criteria instanceof Opus_Person) {
+            $person = $criteria;
+
+            $criteria = array();
+            $criteria['LastName'] = $person->getLastName();
+            $criteria['FirstName'] = $person->getFirstName();
+            $criteria['IdentifierOrcid'] = $person->getIdentifierOrcid();
+            $criteria['IdentifierGnd'] = $person->getIdentifierGnd();
+            $criteria['IdentifierMisc'] = $person->getIdentifierMisc();
+        }
+
         if (!is_array($criteria))
         {
             // TODO do some logging
