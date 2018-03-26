@@ -53,6 +53,21 @@ class Opus_Mail_SendMail {
     public function __construct() {
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config, $config->mail->opus)) {
+
+            if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
+                // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
+                $options = array();
+                if (isset($config->mail->opus->file)) {
+                    $options['path'] = $config->mail->opus->file;
+                }
+                $callback = function () {
+                    return 'opus-mail_' . time() . '_' . mt_rand() . '.tmp';
+                };
+                $options['callback'] = $callback;
+                $this->_transport = new Zend_Mail_Transport_File($options);
+                return;
+            }
+
             $this->_transport = new Opus_Mail_Transport($config->mail->opus);
             return;
         }

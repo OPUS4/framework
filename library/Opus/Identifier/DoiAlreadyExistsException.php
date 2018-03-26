@@ -25,58 +25,11 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @package     Opus_Identifier
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Provide Opus Framework Version.
- *
- * @category    Framework
- * @package     Opus
- *
- */
-class Opus_Version
-{
-
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.5';
-
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '9';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
-    {
-        return version_compare($version, self::VERSION);
-    }
-
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
-    {
-        return self::SCHEMA_VERSION;
-    }
-
+class Opus_Identifier_DoiAlreadyExistsException extends Opus_Model_Exception {
 }
-

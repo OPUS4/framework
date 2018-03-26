@@ -68,6 +68,12 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
             throw new Opus_Document_Exception('URN data is not present in config. Aborting...');
+            // FIXME hier sollte keine Exception geworfen werden, weil sonst die Ausführung aller
+            // nachfolgenden Plugins im Plugin-Array abgebrochen wird
+            // Plugins werden nämlich in Schleife nacheinander aufgerufen (ohne Exception Handling zwischen
+            // den einzelnen Aufrufen)
+            // FIXME außerdem ist der Exception Type schlecht gewählt, weil es sich in diesem
+            // Fall ja um einen Konfigurationsfehler handelt und nicht um einen Fehler im Dokument
         }
 
         $log->debug('config.ini is set to support urn auto generation');
@@ -96,6 +102,12 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $model->addIdentifierUrn($urn_model);
     }
 
+    /**
+     * Liefert true, wenn das vorliegende Dokument bereits einen Identifier vom Typ URN besitzt; andernfalls false.
+     *
+     * @param $document
+     * @return bool
+     */
     public function urnAlreadyPresent($document) {
         $identifierUrns = $document->getIdentifierUrn();
         if(count($identifierUrns) > 0) {
@@ -112,6 +124,13 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         return false;
     }
 
+    /**
+     * Liefert true, wenn das vorliegende Dokumente mindestens eine Datei mit OAI-Sichtbarkeit besitzt (nur für solche
+     * Dokumente kann bei der DNB eine URN registriert werden)
+     *
+     * @param $document
+     * @return bool
+     */
     public function allowUrnOnThisDocument($document) {
         $files = array_filter($document->getFile(),
             function ($f) { return $f->getVisibleInOai() == 1; });
