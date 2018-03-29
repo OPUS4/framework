@@ -25,9 +25,9 @@
 ; @category    Tests
 ; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
 ; @author      Thoralf Klein <thoralf.klein@zib.de>
-; @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+; @author      Jens Schwidder <schwidder@zib.de>
+; @copyright   Copyright (c) 2008-2018, OPUS 4 development team
 ; @license     http://www.gnu.org/licenses/gpl.html General Public License
-; @version     $Id$
 
 ; Database adapter configuration using standard Zend_db option names.
 ; Have a look on Zend_Db::factory() method for information about adapter creation.
@@ -71,56 +71,6 @@ bootstrap.class = "Opus_Bootstrap_Base"
 appnamespace = "Application"
 autoloaderNamespaces.opus = 'Opus_'
 
-;SEARCH ENGINE SETTINGS
-searchengine.solr.default.adapterClass = Opus_Search_Solr_Solarium_Adapter
-
-searchengine.solr.default.service.default.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.default.service.default.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.default.service.default.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.default.service.default.endpoint.primary.timeout = 10
-searchengine.solr.default.service.default.xsltfile = APPLICATION_PATH "/tests/Opus/Search/Solr/solr.xslt"
-searchengine.solr.default.service.default.marker = default
-
-searchengine.solr.default.service.index.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.default.service.index.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.default.service.index.marker = index
-
-searchengine.solr.default.service.search.endpoint.primary.host = @searchengine.default.host@
-searchengine.solr.default.service.search.endpoint.primary.port = @searchengine.default.port@
-searchengine.solr.default.service.search.endpoint.primary.path = @searchengine.default.path@
-searchengine.solr.default.service.search.marker = search
-
-searchengine.solr.default.service.extract.marker = extract
-
-; declare separate named service used by Opus_Search_ConfigTest accessing
-; different named services
-searchengine.solr.special.service.default.endpoint.primary.path = /solr-special/
-searchengine.solr.special.service.search.endpoint.primary.host = "127.0.0.2"
-searchengine.solr.special.service.search.marker = search2
-searchengine.solr.special.service.extract.marker = extract2
-
-; declare separate named service addressing unavailable host used by
-; Opus_Search_Solr_Solarium_AdapterIndexingTest
-searchengine.solr.disfunct.service.default.endpoint.primary.host = 1.2.3.4
-searchengine.solr.disfunct.service.default.endpoint.primary.port = 12345
-searchengine.solr.disfunct.service.default.endpoint.primary.path = /solr-disfunct/
-
-; declare queries in runtime configuration used by Opus_Search_QueryTest
-searchengine.solr.default.query.alldocs.query = "*:*"
-
-searchengine.solr.default.query.onedoc.query = "*:*"
-searchengine.solr.default.query.onedoc.rows = 1
-
-;SEARCH ENGINE SETTINGS (deprecated)
-searchengine.index.host = @searchengine.index.host@
-searchengine.index.port = @searchengine.index.port@
-searchengine.index.app = @searchengine.index.app@
-searchengine.extract.host = @searchengine.extract.host@
-searchengine.extract.port = @searchengine.extract.port@
-searchengine.extract.app = @searchengine.extract.app@
-searchengine.solr.facets = author_facet,year,doctype,language,has_fulltext,belongs_to_bibliography,subject,project,institute
-searchengine.solr.xsltfile = APPLICATION_PATH "/tests/resources/solr.xslt"
-
 ;LOGGING RELATED SETTINGS
 ; if set to true all xml that is generated while indexing is prepared for logging
 log.prepare.xml = false
@@ -130,7 +80,6 @@ log.level = DEBUG
 ;mail server, which accepts all mail.
 ; mail.opus.smtp = localhost
 ; mail.opus.port = 25000
-
 
 [testing : production]
 sql.schema.path =
