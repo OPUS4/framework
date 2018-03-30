@@ -98,7 +98,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         $config = Zend_Registry::get('Zend_Config');
 
         if (is_null($generateDoi)) {
-            // Enrichment wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration
+            // Enrichment opus.doi.autoCreate wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration
             $generateDoi = (isset($config->doi->autoCreate) && ($config->doi->autoCreate || $config->doi->autoCreate == '1'));
         }
 
