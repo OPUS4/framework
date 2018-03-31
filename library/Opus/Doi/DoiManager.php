@@ -332,6 +332,8 @@ class Opus_Doi_DoiManager {
 
     /**
      * Prüfe alle registrierten DOIs (im Status registered) für alle OPUS-Dokumente in der Datenbank.
+     *
+     * @return Opus_Doi_DoiManagerStatus
      */
     public function verifyRegistered() {
         return $this->verifyRegisteredBefore();
@@ -453,6 +455,8 @@ class Opus_Doi_DoiManager {
      *
      * @param $beforeDate Zeitstempel der für die Bestimmung der zu prüfenden DOIs verwendet wird: es werden nur DOIs
      *                    geprüft, die vor dem Zeitpunkt, der durch $beforeDate definiert ist, registriert wurden
+     *
+     * @return Opus_Doi_DoiManagerStatus
      *
      */
     public function verifyRegisteredBefore($beforeDate = null) {
