@@ -296,7 +296,7 @@ class Opus_Doi_DoiManager {
                 }
             }
             catch (Opus_Doi_RegistrationException $e) {
-                $message = 'an error occurred in registration of DOI ' . $e->getDoi() . ' of document ' . $id . ': ' . $e->getMessage();
+                $message = 'an error occurred in registration of DOI ' . $e->getDoi()->getValue() . ' of document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
                 $this->doiLog->err($message);
                 if ($notification->isEnabled()) {
