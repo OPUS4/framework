@@ -247,7 +247,7 @@ class Opus_Doi_DoiManagerTest extends TestCase {
                 'localPrefix' => 'OPUS4')
         );
 
-        $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
+        $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'registered');
         $doiManager = new Opus_Doi_DoiManager();
         $status = $doiManager->verifyRegisteredBefore();
 
