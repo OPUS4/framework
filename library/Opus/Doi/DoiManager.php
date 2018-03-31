@@ -284,7 +284,6 @@ class Opus_Doi_DoiManager {
             }
             catch (Opus_Model_NotFoundException $e) {
                 $this->defaultLog->err('could not find document ' . $id . ' in database');
-                $status->addDocWithDoiStatus($id, 'could not find document', true);
                 continue;
             }
 
@@ -294,6 +293,7 @@ class Opus_Doi_DoiManager {
                 if (!is_null($registeredDoi)) {
                     $numOfSuccessfulRegistrations++;
                     $status->addDocWithDoiStatus($id, $registeredDoi->getValue());
+
                     if ($notification->isEnabled()) {
                         $notification->addNotification($id, $registeredDoi);
                     }
@@ -352,8 +352,10 @@ class Opus_Doi_DoiManager {
      * @param $docId ID des zu überprüfenden OPUS-Dokuments
      * @param $allowReverification wenn true, dann werden DOIs, die bereits geprüft wurden, erneut geprüft
      * @param $beforeDate bei der Prüfung nur DOIs berücksichtigen, deren Registrierung vor dem übergebenen Zeitpunkt liegt
+     * @param Opus_Doi_DoiManagerStatus $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
+     *
      */
-    public function verify($docId, $allowReverification = true, $beforeDate = null) {
+    public function verify($docId, $allowReverification = true, $beforeDate = null, $managerStatus = null) {
         try {
             $doc = new Opus_Document($docId);
         }
@@ -412,6 +414,9 @@ class Opus_Doi_DoiManager {
                         $doi->setStatus('verified');
                         $doc->store();
                     }
+                    if (!is_null($managerStatus)) {
+                        $managerStatus->addDocWithDoiStatus($docId, $doi->getValue());
+                    }
                 }
                 else {
                     $message = 'verification of DOI ' . $doi->getValue() . ' in document ' . $docId . ' failed';
@@ -422,6 +427,9 @@ class Opus_Doi_DoiManager {
                         $doi->setStatus('registered');
                         $doc->store();
                     }
+                    if (!is_null($managerStatus)) {
+                        $managerStatus->addDocWithDoiStatus($docId, $doi->getValue(), true);
+                    }
                 }
                 return $doi;
             }
@@ -429,6 +437,9 @@ class Opus_Doi_DoiManager {
                 $message = 'could not get registration status of DOI ' . $doi->getValue() . ' in document ' . $docId . ': ' . $e->getMessage();
                 $this->doiLog->err($message);
                 $this->defaultLog->err($message);
+                if (!is_null($managerStatus)) {
+                    $managerStatus->addDocWithDoiStatus($docId, $message, true);
+                }
                 return $doi;
             }
         }
@@ -458,15 +469,12 @@ class Opus_Doi_DoiManager {
         $notification = new Opus_Doi_DoiMailNotification();
 
         foreach ($ids as $id) {
-            $doi = $this->verify($id, false, $beforeDate);
+            $doi = $this->verify($id, false, $beforeDate, $status);
 
             if (is_null($doi)) {
                 $this->defaultLog->info('could not check DOI registration status of document ' . $id);
-                $status->addDocWithDoiStatus($id, 'could not check DOI registration status', true);
                 continue;
             }
-
-            $status->addDocWithDoiStatus($id, $doi->getValue());
 
             if ($notification->isEnabled()) {
                 if ($doi->getStatus() == 'verified') {
