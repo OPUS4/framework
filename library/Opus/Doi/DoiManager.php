@@ -270,7 +270,6 @@ class Opus_Doi_DoiManager {
         $ids = $docFinder->ids();
         if (empty($ids)) {
             $this->defaultLog->info('could not find documents that provide DOIs');
-            $status->setNoDocsToProcess();
             return $status;
         }
 
@@ -453,7 +452,6 @@ class Opus_Doi_DoiManager {
         $ids = $docFinder->ids();
 
         if (empty($ids)) {
-            $status->setNoDocsToProcess();
             return $status;
         }
 

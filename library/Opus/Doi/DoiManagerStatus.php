@@ -33,22 +33,18 @@
 
 class Opus_Doi_DoiManagerStatus {
 
-    private $noDocsToProcess = false;
-
     private $docsWithDoiStatus = array();
 
     public function isNoDocsToProcess() {
-        return $this->noDocsToProcess;
-    }
-
-    public function setNoDocsToProcess() {
-        $this->noDocsToProcess = true;
+        return empty($this->docsWithDoiStatus);
     }
 
     public function addDocWithDoiStatus($docId, $statusMsg, $error = false) {
-        $this->docsWithDoiStatus[$docId] = array(
-            'msg' => $statusMsg,
-            'error' => $error);
+        $this->docsWithDoiStatus[$docId] =
+            array(
+                'msg' => $statusMsg,
+                'error' => $error
+            );
     }
 
     public function getDocsWithDoiStatus() {
