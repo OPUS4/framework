@@ -255,10 +255,12 @@ class Opus_Doi_DoiManager {
      *                           bei der Registrierung betrachtet); um alle Dokumente unabhängig vom ServerState zu
      *                           betrachten, muss der Wert null übergeben werden (Default: published)
      *
-     * @return Anzahl der erfolgreich registrierten DOIs
+     * @return Opus_Doi_DoiManagerStatus
      *
      */
     public function registerPending($filterServerState = 'published') {
+        $status = new Opus_Doi_DoiManagerStatus();
+
         $docFinder = new Opus_DocumentFinder();
         $docFinder->setIdentifierTypeExists('doi');
         if (!is_null($filterServerState)) {
@@ -268,7 +270,8 @@ class Opus_Doi_DoiManager {
         $ids = $docFinder->ids();
         if (empty($ids)) {
             $this->defaultLog->info('could not find documents that provide DOIs');
-            return 0;
+            $status->setNoDocsToProcess();
+            return $status;
         }
 
         $this->defaultLog->debug('registerPending found ' . count($ids) . ' published documents with DOIs that need to be checked');
@@ -282,6 +285,7 @@ class Opus_Doi_DoiManager {
             }
             catch (Opus_Model_NotFoundException $e) {
                 $this->defaultLog->err('could not find document ' . $id . ' in database');
+                $status->addDocWithDoiStatus($id, 'could not find document', true);
                 continue;
             }
 
@@ -290,6 +294,7 @@ class Opus_Doi_DoiManager {
                 $registeredDoi = $this->register($doc, true);
                 if (!is_null($registeredDoi)) {
                     $numOfSuccessfulRegistrations++;
+                    $status->addDocWithDoiStatus($id, $registeredDoi->getValue());
                     if ($notification->isEnabled()) {
                         $notification->addNotification($id, $registeredDoi);
                     }
@@ -299,6 +304,7 @@ class Opus_Doi_DoiManager {
                 $message = 'an error occurred in registration of DOI ' . $e->getDoi()->getValue() . ' of document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
                 $this->doiLog->err($message);
+                $status->addDocWithDoiStatus($id, $message, true);
                 if ($notification->isEnabled()) {
                     $notification->addNotification($id, $e->getDoi(), $message);
                 }
@@ -307,6 +313,7 @@ class Opus_Doi_DoiManager {
                 $message = 'an error occurred in DOI registration for document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
                 $this->doiLog->err($message);
+                $status->addDocWithDoiStatus($id, $message, true);
                 // hier kann kein Eintrag für die E-Mail erzeugt werden, da es keine DOI als Bezug gibt
             }
         }
@@ -321,14 +328,14 @@ class Opus_Doi_DoiManager {
             $notification->sendRegistrationEmail();
         }
 
-        return $numOfSuccessfulRegistrations;
+        return $status;
     }
 
     /**
      * Prüfe alle registrierten DOIs (im Status registered) für alle OPUS-Dokumente in der Datenbank.
      */
     public function verifyRegistered() {
-        $this->verifyRegisteredBefore();
+        return $this->verifyRegisteredBefore();
     }
 
     /**
@@ -439,12 +446,15 @@ class Opus_Doi_DoiManager {
      *
      */
     public function verifyRegisteredBefore($beforeDate = null) {
+        $status = new Opus_Doi_DoiManagerStatus();
+
         $docFinder = new Opus_DocumentFinder();
         $docFinder->setIdentifierTypeExists('doi');
         $ids = $docFinder->ids();
 
         if (empty($ids)) {
-            return;
+            $status->setNoDocsToProcess();
+            return $status;
         }
 
         $notification = new Opus_Doi_DoiMailNotification();
@@ -454,8 +464,11 @@ class Opus_Doi_DoiManager {
 
             if (is_null($doi)) {
                 $this->defaultLog->info('could not check DOI registration status of document ' . $id);
+                $status->addDocWithDoiStatus($id, 'could not check DOI registration status', true);
                 continue;
             }
+
+            $status->addDocWithDoiStatus($id, $doi->getValue());
 
             if ($notification->isEnabled()) {
                 if ($doi->getStatus() == 'verified') {
@@ -472,6 +485,8 @@ class Opus_Doi_DoiManager {
         if ($notification->isEnabled()) {
             $notification->sendVerificationEmail();
         }
+
+        return $status;
     }
 
     /**

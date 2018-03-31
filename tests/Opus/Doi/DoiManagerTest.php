@@ -166,7 +166,7 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doi = $doiManager->register(new Opus_Document($docId));
     }
 
-    public function testRegisterDocSuccessfully() {
+    public function testRegisterAndVerifyDocSuccessfully() {
         $this->markTestSkipped('kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich (Username und Password werden in config.ini gesetzt)');
 
         // add url to config to allow creation of frontdoor URLs
@@ -197,19 +197,25 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doi->getValue());
         $this->assertEquals('registered', $doi->getStatus());
         $this->assertNotNull($doi->getRegistrationTs());
+
+        $status = $doiManager->verifyRegistered();
+        $this->assertFalse($status->isNoDocsToProcess());
+        $statusOfDoc = $status->getDocsWithDoiStatus()[$docId];
+        $this->assertNotNull($statusOfDoc);
+        $this->assertFalse($statusOfDoc['error']);
     }
 
     public function testRegisterPendingWithoutDocs() {
         $doiManager = new Opus_Doi_DoiManager();
-        $numOfRegistrations = $doiManager->registerPending();
-        $this->assertEquals(0, $numOfRegistrations);
+        $status = $doiManager->registerPending();
+        $this->assertTrue($status->isNoDocsToProcess());
     }
 
     public function testRegisterPendingWithDocWithWrongServerState() {
         $this->createTestDocWithDoi('10.5072/OPUS4-');
         $doiManager = new Opus_Doi_DoiManager();
-        $numOfRegistrations = $doiManager->registerPending();
-        $this->assertEquals(0, $numOfRegistrations);
+        $status = $doiManager->registerPending();
+        $this->assertTrue($status->isNoDocsToProcess());
     }
 
     public function testRegisterPendingWithDoc() {
@@ -218,15 +224,21 @@ class Opus_Doi_DoiManagerTest extends TestCase {
             'localPrefix' => 'OPUS4')
         );
 
-        $this->createTestDocWithDoi('10.5072/OPUS4-');
+        $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
         $doiManager = new Opus_Doi_DoiManager();
-        $numOfRegistrations = $doiManager->registerPending(null);
-        $this->assertEquals(0, $numOfRegistrations);
+        $status = $doiManager->registerPending(null);
+        $this->assertFalse($status->isNoDocsToProcess());
+
+        $statusOfDoc = $status->getDocsWithDoiStatus()[$docId];
+        $this->assertNotNull($statusOfDoc);
+        $this->assertTrue($statusOfDoc['error']);
     }
 
     public function testVerifyRegistered() {
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->verifyRegistered();
+        $status = $doiManager->verifyRegistered();
+
+        $this->assertTrue($status->isNoDocsToProcess());
     }
 
     public function testVerifyRegisteredBefore() {
@@ -235,9 +247,14 @@ class Opus_Doi_DoiManagerTest extends TestCase {
                 'localPrefix' => 'OPUS4')
         );
 
-        $this->createTestDocWithDoi('10.5072/OPUS4-');
+        $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->verifyRegisteredBefore();
+        $status = $doiManager->verifyRegisteredBefore();
+
+        $this->assertFalse($status->isNoDocsToProcess());
+        $statusOfDoc = $status->getDocsWithDoiStatus()[$docId];
+        $this->assertNotNull($statusOfDoc);
+        $this->assertTrue($statusOfDoc['error']);
     }
 
     public function testVerifyWithUnknownDocId() {
@@ -290,7 +307,6 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         // Status-Downgrade prüfen
         $this->assertEquals('registered', $result->getStatus());
     }
-
 
     public function testVerifyWithRegisteredDoiAndMissingConfig() {
         $this->adaptDoiConfiguration(array(
