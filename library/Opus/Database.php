@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -38,7 +38,10 @@
  *
  * TODO more logging
  */
-class Opus_Database {
+class Opus_Database
+{
+
+    use Opus_LoggingTrait;
 
     /**
      * Path to current OPUS 4 SQL schema.
@@ -54,11 +57,6 @@ class Opus_Database {
      * @var Zend_Config
      */
     private $_config;
-
-    /**
-     * @var Zend_Log
-     */
-    private $_logger;
 
     /**
      * @var int
@@ -362,19 +360,6 @@ class Opus_Database {
         }
 
         return $this->_config;
-    }
-
-    /**
-     * Returns logger.
-     * @return mixed|Zend_Log
-     * @throws Zend_Exception
-     */
-    public function getLogger() {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
-        }
-
-        return $this->_logger;
     }
 
     /**

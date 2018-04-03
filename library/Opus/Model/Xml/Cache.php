@@ -15,13 +15,16 @@
  * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2009-2010
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Model_Xml_Cache {
+class Opus_Model_Xml_Cache
+{
+
+    use Opus_LoggingTrait;
 
     /**
      * Holds gateway instance to document xml cache table
@@ -36,12 +39,6 @@ class Opus_Model_Xml_Cache {
      * @var bool
      */
     private $_reindexDocumentAfterAddingCacheEntry = true;
-
-    /**
-     * Logger object.
-     * @var null
-     */
-    private $_logger = null;
 
     /**
      *
@@ -197,7 +194,7 @@ class Opus_Model_Xml_Cache {
         );
 
         $this->_table->insert($newValue);
-        
+
         $this->_postPut($documentId);
     }
 
@@ -267,11 +264,11 @@ class Opus_Model_Xml_Cache {
 
         $this->removeAllEntriesWhereSubSelect($select);
     }
-    
+
     /**
-     * Post cache put hook. Functionality needed to keep 
+     * Post cache put hook. Functionality needed to keep
      * document in a consistent state after cache update.
-     * 
+     *
      * @param int $documentId Id of document to process
      */
     protected function _postPut($documentId)
@@ -279,7 +276,7 @@ class Opus_Model_Xml_Cache {
         if (!$this->_reindexDocumentAfterAddingCacheEntry) {
             return;
         }
-        
+
         try {
             $doc = new Opus_Document($documentId);
         }
@@ -291,17 +288,4 @@ class Opus_Model_Xml_Cache {
         $indexPlugin = new Opus_Document_Plugin_Index();
         $indexPlugin->postStore($doc);
     }
-
-    /**
-     * Returns logger.
-     * @return Zend_Log
-     */
-    public function getLogger() {
-        if (is_null($this->_logger)) {
-            $this->_logger = Zend_Registry::get('Zend_Log');
-        }
-        return $this->_logger;
-    }
-
 }
-

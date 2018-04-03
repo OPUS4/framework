@@ -27,89 +27,37 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-abstract class Opus_Update_Plugin_Abstract
+
+trait Opus_LoggingTrait
 {
-
-    use Opus_LoggingTrait;
-
     /**
-     * Configuration for application.
-     * @var Zend_Config
+     * Logger for class.
      */
-    private $_config;
+    private $logger;
 
     /**
-     * Suppresses output to console.
-     * @var boolean
-     */
-    private $_quietMode;
-
-    /**
-     * Set logger for this class.
-     * @param Zend_Log $logger
-     */
-    public function setLogger($logger) {
-        $this->_logger = $logger;
-    }
-
-    /**
-     * Sets configuration.
-     * @param $config Zend_Config
-     */
-    public function setConfig(Zend_Config $config) {
-        $this->_config = $config;
-    }
-
-    /**
-     * Returns configuration object for application.
-     * @return Zend_Config
+     * Returns logger for this class.
+     * @return Zend_Log
      * @throws Zend_Exception
      */
-    public function getConfig() {
-        if (is_null($this->_config)) {
-            $this->_config = Zend_Registry::get('Zend_Config');
+    public function getLogger()
+    {
+        if (is_null($this->logger)) {
+            $this->logger = Zend_Registry::get('Zend_Log');
         }
-        return $this->_config;
+
+        return $this->logger;
     }
 
     /**
-     * Writes message to log.
-     * @param $message
-     *
-     * TODO log to file
+     * Sets logger for this class.
+     * @param $logger Zend_Log
      */
-    public function log($message)
+    public function setLogger($logger)
     {
-        $logger = $this->getLogger();
-
-        if (!is_null($logger))
-        {
-            $logger->info($message);
-        }
-
-        // TODO make output optional (quiet option)?
-        if (!$this->getQuietMode()) {
-            echo $message . PHP_EOL;
-        }
+        $this->logger = $logger;
     }
-
-    public function setQuietMode($enabled)
-    {
-        $this->_quietMode = $enabled;
-    }
-
-    public function getQuietMode()
-    {
-        return $this->_quietMode;
-    }
-
-    /**
-     * Performs update operation.
-     * @return mixed
-     */
-    abstract public function run();
-
 }

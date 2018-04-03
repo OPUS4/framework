@@ -41,7 +41,10 @@
  * @category    Framework
  * @package     Opus_Model
  */
-abstract class Opus_Model_Abstract {
+abstract class Opus_Model_Abstract
+{
+
+    use Opus_LoggingTrait;
 
     /**
      * Holds all fields of the domain model.
@@ -59,11 +62,6 @@ abstract class Opus_Model_Abstract {
      * @var array
      */
     protected $_internalFields = array();
-
-    /**
-     * Logger for class.
-     */
-    private $logger;
 
     /**
      * Call to _init().
@@ -464,26 +462,4 @@ abstract class Opus_Model_Abstract {
             }
         }
     }
-
-    /**
-     * Returns logger for this class.
-     * @return Zend_Log
-     * @throws Zend_Exception
-     */
-    public function getLogger() {
-        if (is_null($this->logger)) {
-            $this->logger = Zend_Registry::get('Zend_Log');
-        }
-
-        return $this->logger;
-    }
-
-    /**
-     * Sets logger for this class.
-     * @param $logger Zend_Log
-     */
-    public function setLogger($logger) {
-        $this->logger = $logger;
-    }
-
 }
