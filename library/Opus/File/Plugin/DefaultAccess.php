@@ -40,7 +40,7 @@
 class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
 {
 
-    use Opus_LoggingTrait;
+    use \Opus\LoggingTrait;
 
     /**
      * Post-store hook will be called right after the document has been stored

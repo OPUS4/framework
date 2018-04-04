@@ -41,7 +41,7 @@
 class Opus_Database
 {
 
-    use Opus_LoggingTrait;
+    use \Opus\LoggingTrait;
 
     /**
      * Path to current OPUS 4 SQL schema.

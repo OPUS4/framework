@@ -44,7 +44,7 @@
 abstract class Opus_Model_Abstract
 {
 
-    use Opus_LoggingTrait;
+    use \Opus\LoggingTrait;
 
     /**
      * Holds all fields of the domain model.

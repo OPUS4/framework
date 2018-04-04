@@ -24,7 +24,7 @@
 class Opus_Model_Xml_Cache
 {
 
-    use Opus_LoggingTrait;
+    use \Opus\LoggingTrait;
 
     /**
      * Holds gateway instance to document xml cache table

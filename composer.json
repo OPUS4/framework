@@ -10,7 +10,8 @@
   "homepage": "http://opus4.kobv.de",
   "require": {
     "zendframework/zendframework1": "1.12.*",
-    "solarium/solarium": "3.8.*"
+    "solarium/solarium": "3.8.*",
+    "opus4-repo/opus4-common": "4.7.x-dev"
   },
   "autoload": {
     "psr-0": {
@@ -35,6 +36,8 @@
     "squizlabs/php_codesniffer": "3.*",
     "opus4-repo/codesniffer": "dev-master"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "archive": {
     "exclude": ["/tests", "/nbproject"]
   }

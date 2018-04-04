@@ -33,7 +33,7 @@
 abstract class Opus_Update_Plugin_Abstract
 {
 
-    use Opus_LoggingTrait;
+    use \Opus\LoggingTrait;
 
     /**
      * Configuration for application.
