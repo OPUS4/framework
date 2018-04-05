@@ -87,7 +87,6 @@ class Opus_RequireTest extends TestCase {
         exec($cmd, $classes);
 
         $blacklist = array(
-            "Opus_Validate_MateDecorator",
             "Opus_Db_Adapter_Pdo_Mysqlutf8",
             "Opus_Bootstrap_Base",
             "Opus_Statistic_LocalCounter",

@@ -68,7 +68,7 @@ class Opus_Note extends Opus_Model_Dependent_Abstract {
             ->setTextarea(true);
 
         $visibility = new Opus_Model_Field('Visibility');
-        $visibility->setValidator(new Opus_Validate_NoteVisibility())
+        $visibility->setValidator(new \Opus\Validate\NoteVisibility())
              ->setDefault(
                  array(
                  'private' => 'private',
