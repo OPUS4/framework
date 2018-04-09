@@ -538,7 +538,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchOne($select);
-        // $this->logger("$oaiSetName: $result");
+        // $this->log("$oaiSetName: $result");
 
         if (isset($result) and $result > 0) {
             return true;
@@ -589,7 +589,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $result = $db->fetchCol($select);
-        // $role->logger("$oaiSetName: #" . count($result));
+        // $role->log("$oaiSetName: #" . count($result));
 
         return $result;
 

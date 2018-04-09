@@ -1038,7 +1038,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             }
             catch (Opus_Storage_FileNotFoundException $osfnfe) {
                 // if the file was not found (permant delete still succeeds)
-                $this->logger($osfnfe->getMessage());
+                $this->log($osfnfe->getMessage());
             }
         }
 
@@ -1194,6 +1194,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * Log document errors.  Prefixes every log entry with document id.
      *
      * @param string $message
+     *
+     * TODO rename function to log(
      */
     protected function logger($message) {
         $registry = Zend_Registry::getInstance();
