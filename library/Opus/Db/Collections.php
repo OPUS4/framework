@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Collections
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +39,8 @@
  *
  */
 
-class Opus_Db_Collections extends Opus_Db_NestedSet {
+class Opus_Db_Collections extends Opus_Db_NestedSet
+{
 
     /**
      * Table name of the nested set table.
@@ -54,14 +54,14 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var string
      */
-    protected $_left   = 'left_id';
+    protected $_left = 'left_id';
 
     /**
      * Table column holding the right-id for the nested set structure.
      *
      * @var string
      */
-    protected $_right  = 'right_id';
+    protected $_right = 'right_id';
 
     /**
      * Table column holding the parent-id for the structure.  This actually is
@@ -79,7 +79,7 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var string
      */
-    protected $_tree   = 'role_id';
+    protected $_tree = 'role_id';
 
 
     /**
@@ -88,18 +88,18 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Role' => array(
-                            'columns' => 'role_id',
-                            'refTableClass' => 'Opus_Db_CollectionsRoles',
-                            'refColumns' => 'id',
-            ),
-            'Parent' => array(
-                            'columns' => 'parent_id',
-                            'refTableClass' => 'Opus_Db_Collections',
-                            'refColumns' => 'id',
-            ),
-    );
+    protected $_referenceMap = [
+        'Role' => [
+            'columns' => 'role_id',
+            'refTableClass' => 'Opus_Db_CollectionsRoles',
+            'refColumns' => 'id'
+        ],
+        'Parent' => [
+            'columns' => 'parent_id',
+            'refTableClass' => 'Opus_Db_Collections',
+            'refColumns' => 'id'
+        ]
+    ];
 
 
     /**
@@ -108,9 +108,9 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array(
-            'Opus_Db_Collections',
-    );
+    protected $_dependentTables = [
+        'Opus_Db_Collections'
+    ];
 
     /**
      * Returns if node is visible.
@@ -134,5 +134,4 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
 
         return $rows->count() === 0;
     }
-
 }

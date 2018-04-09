@@ -28,9 +28,8 @@
  * @package     Opus_Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,7 +40,8 @@
  *
  */
 
-class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
+class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -56,16 +56,16 @@ class Opus_Db_DocumentEnrichments extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'EnrichmentKeys' => array(
-                'columns' => 'key_name',
-                'refTableClass' => 'Opus_Db_EnrichmentKeys',
-                'refColumns' => 'name',
-                ),
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            );
+    protected $_referenceMap = [
+        'EnrichmentKeys' => [
+            'columns' => 'key_name',
+            'refTableClass' => 'Opus_Db_EnrichmentKeys',
+            'refColumns' => 'name'
+        ],
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => 'id'
+        ]
+    ];
 }

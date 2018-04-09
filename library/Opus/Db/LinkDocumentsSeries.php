@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,11 +27,10 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Susanne Gottwald <gottwald@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
-
 
 /**
  * Table gateway class for link table "link_documents_series".
@@ -41,8 +39,10 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
-/**
+class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway
+{
+
+    /**
      * DB table name.
      *
      * @var string
@@ -54,7 +54,7 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'series_id');
+    protected $_primary = ['document_id', 'series_id'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -62,16 +62,16 @@ class Opus_Db_LinkDocumentsSeries extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            'Series' => array(
-                'columns' => 'series_id',
-                'refTableClass' => 'Opus_Db_Series',
-                'refColumns' => 'id'
-                ),
-            );
+    protected $_referenceMap = [
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => 'id',
+        ],
+        'Series' => [
+            'columns' => 'series_id',
+            'refTableClass' => 'Opus_Db_Series',
+            'refColumns' => 'id'
+        ],
+    ];
 }

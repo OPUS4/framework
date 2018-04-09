@@ -30,7 +30,6 @@
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @copyright   Copyright (c) 2009, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -56,7 +55,8 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return Opus_Db_TableGateway
      */
-    final public static function getInstance($class) {
+    final public static function getInstance($class)
+    {
         if (!isset(self::$instances[$class])) {
             $object = new $class();
             self::$instances[$class] = $object;
@@ -69,14 +69,16 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return array
      */
-    final public static function getAllInstances() {
+    final public static function getAllInstances()
+    {
         return self::$instances;
     }
 
     /**
      * Clear database instances.
      */
-    final public static function clearInstances() {
+    final public static function clearInstances()
+    {
         self::$instances = array();
     }
 
@@ -87,16 +89,17 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * @param array $data
      * @return void
      */
-    public function insertIgnoreDuplicate($data) {
+    public function insertIgnoreDuplicate($data)
+    {
         $adapter = $this->getAdapter();
 
         $q_keys = array();
         $q_values = array();
+
         foreach ($data AS $key => $value) {
             $q_keys[] = $adapter->quoteIdentifier($key);
             $q_values[] = $adapter->quote($value);
         }
-
 
         $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
                 ' (' . implode(', ', $q_keys) . ') ' .
@@ -113,10 +116,12 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * @param array $data
      * @return void
      */
-    public function deleteWhereArray($data) {
+    public function deleteWhereArray($data)
+    {
         $adapter = $this->getAdapter();
 
         $q_clauses = array();
+
         foreach ($data AS $key => $value) {
             $q_key = $adapter->quoteIdentifier($key);
             $q_value = $adapter->quote($value);
@@ -143,7 +148,8 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return void
      */
-    final private function __clone() {
+    final private function __clone()
+    {
     }
 
     /**
@@ -151,6 +157,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return void
      */
-    final private function __sleep() {
+    final private function __sleep()
+    {
     }
 }

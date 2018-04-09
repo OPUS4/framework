@@ -25,13 +25,12 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Db
+ * @package     Opus_Db_Adapter_Pdo
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -43,7 +42,7 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql 
+class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
 {
     /**
      * Number of transaction start attempts.
@@ -84,7 +83,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
             }
         }
 
-
         parent::_connect();
 
         // set connection to utf8
@@ -95,8 +93,6 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         // $this->query("SET sql_mode = 'STRICT_TRANS_TABLES'");
     }
 
-
-
     /**
      * Override to implement transaction start counting.
      *
@@ -104,7 +100,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      *
      * @return bool True
      */
-    protected function _beginTransaction() {
+    protected function _beginTransaction()
+    {
         if ($this->_runningTransactions < 1) {
             $query = $this->getProfiler()->queryStart('real_BEGIN', Zend_Db_Profiler::TRANSACTION);
             parent::_beginTransaction();
@@ -119,7 +116,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      *
      * @return bool True
      */
-    protected function _commit() {
+    protected function _commit()
+    {
         if ($this->_runningTransactions < 2) {
             // Check for values < 2 to not mask errors on misuse of commit()
             $query = $this->getProfiler()->queryStart('real_COMMIT', Zend_Db_Profiler::TRANSACTION);
@@ -135,7 +133,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
      *
      * @return bool True
      */
-    protected function _rollback() {
+    protected function _rollback()
+    {
         if ($this->_runningTransactions < 2) {
             // Check for values < 2 to not mask errors on misuse of rollback()
             parent::_rollback();
@@ -143,5 +142,4 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         $this->_runningTransactions--;
         return true;
     }
-
 }

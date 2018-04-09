@@ -28,9 +28,9 @@
  * @package     Opus_Db
  * @author      Tobias Leidinger (tobias.leidinger@gmail.com)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +40,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_DocumentLicences extends Opus_Db_TableGateway {
+class Opus_Db_DocumentLicences extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -55,5 +56,5 @@ class Opus_Db_DocumentLicences extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_LinkDocumentsLicences');
+    protected $_dependentTables = ['Opus_Db_LinkDocumentsLicences'];
 }

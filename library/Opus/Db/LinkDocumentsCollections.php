@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,7 +39,9 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
+class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
+{
+
     /**
      * DB table name.
      *
@@ -52,7 +54,7 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'collection_id');
+    protected $_primary = ['document_id', 'collection_id'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -60,21 +62,21 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
-                            'columns' => 'document_id',
-                            'refTableClass' => 'Opus_Db_Documents',
-                            'refColumns' => 'id',
-            ),
-            'Collections' => array(
-                            'columns' => 'collection_id',
-                            'refTableClass' => 'Opus_Db_Collections',
-                            'refColumns' => 'id'
-            ),
-            'CollectionRoles' => array(
-                            'columns' => 'role_id',
-                            'refTableClass' => 'Opus_Db_CollectionsRoles',
-                            'refColumns' => 'id'
-            ),
-    );
+    protected $_referenceMap = [
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => 'id',
+        ],
+        'Collections' => [
+            'columns' => 'collection_id',
+            'refTableClass' => 'Opus_Db_Collections',
+            'refColumns' => 'id'
+        ],
+        'CollectionRoles' => [
+            'columns' => 'role_id',
+            'refTableClass' => 'Opus_Db_CollectionsRoles',
+            'refColumns' => 'id'
+        ]
+    ];
 }

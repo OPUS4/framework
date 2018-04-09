@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,8 +39,10 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway {
-/**
+class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway
+{
+
+    /**
      * DB table name.
      *
      * @var string
@@ -52,7 +54,7 @@ class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'dnb_institute_id', 'role');
+    protected $_primary = ['document_id', 'dnb_institute_id', 'role'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -60,16 +62,16 @@ class Opus_Db_LinkDocumentsDnbInstitutes extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
-                'columns' => 'document_id',
-                'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => 'id',
-                ),
-            'DnbInstitutes' => array(
-                'columns' => 'dnb_institute_id',
-                'refTableClass' => 'Opus_Db_DnbInstitutes',
-                'refColumns' => 'id'
-                )
-            );
+    protected $_referenceMap = [
+        'Documents' => [
+            'columns' => 'document_id',
+            'refTableClass' => 'Opus_Db_Documents',
+            'refColumns' => 'id'
+        ],
+        'DnbInstitutes' => [
+            'columns' => 'dnb_institute_id',
+            'refTableClass' => 'Opus_Db_DnbInstitutes',
+            'refColumns' => 'id'
+        ]
+    ];
 }

@@ -28,9 +28,9 @@
  * @package     Opus_Db
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +40,9 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
+class Opus_Db_FileHashvalues extends Opus_Db_TableGateway
+{
+
     /**
      * Contains table name
      *
@@ -53,7 +55,7 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
      *
      * @var array
      */
-    protected $_primary = array('file_id', 'type');
+    protected $_primary = ['file_id', 'type'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -61,11 +63,11 @@ class Opus_Db_FileHashvalues extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'DocumentFiles' => array(
-                'columns' => 'file_id',
-                'refTableClass' => 'Opus_Db_DocumentFiles',
-                'refColumns' => 'id',
-                ),
-            );
+    protected $_referenceMap = [
+        'DocumentFiles' => [
+            'columns' => 'file_id',
+            'refTableClass' => 'Opus_Db_DocumentFiles',
+            'refColumns' => 'id'
+        ]
+    ];
 }

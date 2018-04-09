@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,7 +39,9 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Privileges extends Opus_Db_TableGateway {
+class Opus_Db_Privileges extends Opus_Db_TableGateway
+{
+
     /**
      * Table schema name.
      *
@@ -53,15 +55,16 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Roles' => array(
-                'columns' => 'role_id',
-                'refTableClass' => 'Opus_Db_UserRoles',
-                'refColumns' => 'id',
-                ),
-            'DocumentFiles' => array(
-                'columns' => 'file_id',
-                'refTableClass' => 'Opus_Db_DocumentFiles',
-                'refColumns' => 'id',)
-            );
+    protected $_referenceMap = [
+        'Roles' => [
+            'columns' => 'role_id',
+            'refTableClass' => 'Opus_Db_UserRoles',
+            'refColumns' => 'id',
+        ],
+        'DocumentFiles' => [
+            'columns' => 'file_id',
+            'refTableClass' => 'Opus_Db_DocumentFiles',
+            'refColumns' => 'id'
+        ]
+    ];
 }

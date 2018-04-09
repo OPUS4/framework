@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +38,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_AccessDocuments extends Opus_Db_TableGateway {
+class Opus_Db_AccessDocuments extends Opus_Db_TableGateway
+{
 
     /**
      * Table schema name.
@@ -48,5 +47,4 @@ class Opus_Db_AccessDocuments extends Opus_Db_TableGateway {
      * @var string
      */
     protected $_name = 'access_documents';
-
 }
