@@ -67,6 +67,6 @@ class Opus_Db_Documents extends Opus_Db_TableGateway
         'Opus_Db_DocumentIdentifiers',
         'Opus_Db_LinkDocumentsDnbInstitutes',
         'Opus_Db_LinkPersonsDocuments',
-        'Opus_Db_LinkDocumentsLicences',
+        'Opus_Db_LinkDocumentsLicences'
     ];
 }

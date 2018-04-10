@@ -56,9 +56,7 @@ class Opus_Db_DocumentFiles extends Opus_Db_TableGateway
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = [
-        'Opus_Db_FileHashvalues'
-    ];
+    protected $_dependentTables = ['Opus_Db_FileHashvalues'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
