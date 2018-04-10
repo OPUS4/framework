@@ -25,58 +25,29 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @package     Opus_Util
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Provide Opus Framework Version.
- *
- * @category    Framework
- * @package     Opus
- *
- */
-class Opus_Version
-{
+class Opus_Util_ClassLoaderHelper {
 
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.5';
-
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '9';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
-    {
-        return version_compare($version, self::VERSION);
+    public static function classExists($className) {
+        // Anpassung des Zend-Autoloaders erforderlich, damit keine PHP Warning erzeugt wird, wenn Generator-Klasse
+        // nicht existiert: PHPUnit erzeugt sonst aus PHP Warning (wenn Klasse nicht gefunden wird) eine Exception, weil
+        // in Konfiguration convertWarningsToExceptions="true gesetzt -> das führt zu verändertem Exception-Verhalten
+        $autoloader = Zend_Loader_Autoloader::getInstance();
+        
+        // Default-Wert für späteres Zurücksetzen speichern
+        $suppressNotFoundWarnings = $autoloader->suppressNotFoundWarnings();
+        
+        $autoloader->suppressNotFoundWarnings(true);
+        $classExists = class_exists($className);
+        
+        // Wiederherstellen des Default-Wertes
+        $autoloader->suppressNotFoundWarnings($suppressNotFoundWarnings);
+        
+        return $classExists;
     }
-
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
-    {
-        return self::SCHEMA_VERSION;
-    }
-
 }
-
