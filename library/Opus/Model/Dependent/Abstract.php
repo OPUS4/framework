@@ -30,7 +30,6 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -153,14 +152,12 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
     {
         if (null === $this->_parentId) {
             throw new Opus_Model_Exception(
-                'Dependent Model ' . get_class($this)
-                . ' without parent cannot be persisted.'
+                'Dependent Model ' . get_class($this) . ' without parent cannot be persisted.'
             );
         }
         if (null === $this->_parentColumn) {
             throw new Opus_Model_Exception(
-                'Dependent Model ' . get_class($this)
-                . ' needs to know name of the parent-id column.'
+                'Dependent Model ' . get_class($this) . ' needs to know name of the parent-id column.'
             );
         }
         $this->_primaryTableRow->{$this->_parentColumn} = $this->_parentId;
@@ -187,6 +184,7 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
      *
      * @param string $token Delete token as returned by previous call to delete()
      * @return void
+     * @throws Opus_Model_Exception
      */
     public function doDelete($token)
     {
