@@ -28,7 +28,7 @@
  * @package     Opus_Model_Plugin
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -45,7 +45,8 @@ abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Ab
      *
      * @param Opus_Collection Starting point for recursive update to documents
      */
-    protected function updateDocuments($model) {
+    protected function updateDocuments($model)
+    {
         if (is_null($model) || is_null($model->getId())) {
             // TODO explain why this is right
             return;
@@ -65,6 +66,7 @@ abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Ab
         // update ServerDateModified for affected documents
         $date = new Opus_Date();
         $date->setNow();
+
         Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
     }
 }
