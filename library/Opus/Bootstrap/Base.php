@@ -47,9 +47,10 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
      *
      * @return void
      *
-     * TODO put into configuration file (custom DB adapter)
+     * TODO put into configuration file (custom DB adapter) and move code out of Bootstrap
      */
-    protected function _initDatabase() {
+    protected function _initDatabase()
+    {
         $this->bootstrap(array('ZendCache', 'Logging','Configuration'));
 
         $logger = $this->getResource('Logging');
