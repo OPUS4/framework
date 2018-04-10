@@ -24,59 +24,56 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @category    Tests
+ * @package     Opus_Doi
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Provide Opus Framework Version.
- *
- * @category    Framework
- * @package     Opus
- *
- */
-class Opus_Version
-{
+class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
 
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.5';
+    public function testGenerateMissingFields() {
+        $doc = new Opus_Document();
+        $doc->store();
 
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '9';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
-    {
-        return version_compare($version, self::VERSION);
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $this->setExpectedException('Opus_Doi_DataCiteXmlGenerationException');
+        $generator->getXml($doc);
     }
 
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
-    {
-        return self::SCHEMA_VERSION;
+    public function testGenerateRequiredFields() {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertTrue(is_string($result));
+    }
+
+    private function addRequiredPropsToDoc($doc) {
+        $doi = new Opus_Identifier();
+        $doi->setType('doi');
+        $doi->setValue('10.2345/opustest-' . $doc->getId());
+        $doc->setIdentifier(array($doi));
+        
+        $doc->setCompletedYear(2018);
+        $doc->setServerState('unpublished');
+        $doc->setType('book');
+        $doc->setPublisherName('ACME corp');
+
+        $author = new Opus_Person();
+        $author->setLastName('Doe');
+        $author->setFirstName('John');
+        $doc->addPersonAuthor($author);
+
+        $title = new Opus_Title();
+        $title->setType('main');
+        $title->setValue('Document without meaningful title');
+        $doc->addTitleMain($title);
+
+        $doc->store();
     }
 
 }
-
