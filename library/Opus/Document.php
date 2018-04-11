@@ -1298,4 +1298,65 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
     }
 
+    /**
+     * @param null $key Index or key name
+     * @return mixed|null
+     * @throws Opus_Model_Exception
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichment($key = null)
+    {
+        if (is_null($key) || is_numeric($key)) {
+            return $this->__call('getEnrichment', [$key]);
+        } else {
+            $enrichments = $this->__call('getEnrichment', []);
+
+            $matches = array_filter($enrichments, function ($enrichment) use ($key) {
+                return $enrichment->getKeyName() == $key;
+            });
+
+            switch (count($matches)) {
+                case 0:
+                    return null;
+
+                case 1:
+                    return $matches[0];
+
+                default:
+                    return $matches;
+            }
+        }
+    }
+
+    /**
+     * Returns the value of an enrichment key
+     *
+     * @param $key Name of enrichment
+     * @return mixed
+     * @throws Opus_Model_Exception If the enrichment key does not exist
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichmentValue($key)
+    {
+        $enrichment = $this->getEnrichment($key);
+
+        if (!is_null($enrichment)) {
+            if (is_array($enrichment)) {
+                return array_map(function($value) {
+                    return $value->getValue();
+                }, $enrichment);
+            } else {
+                return $enrichment->getValue();
+            }
+        }
+        else {
+            $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
+
+            if (is_null($enrichmentKey)) {
+                throw new Opus_Model_Exception('unknown enrichment key');
+            } else {
+                return null;
+            }
+        }
+    }
 }
