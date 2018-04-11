@@ -2597,4 +2597,190 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals($test1, $test2);
     }
 
+    public function testGetEnrichment()
+    {
+        $keyName= 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment();
+
+        $this->assertInternalType('array', $enrichment);
+        $this->assertCount(1, $enrichment);
+        $this->assertEquals($keyName, $enrichment[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichment[0]->getValue());
+
+        $enrichment = $doc->getEnrichment(0);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+
+        $enrichment = $doc->getEnrichment($keyName);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+    }
+
+    public function testGetEnrichmentBadKey()
+    {
+        $keyName= 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment('unknownkey');
+
+        $this->assertNull($enrichment);
+    }
+
+    public function testGetEnrichmentValue()
+    {
+        $keyName= 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $value = $doc->getEnrichmentValue($keyName);
+
+        $this->assertEquals('test-value', $value);
+    }
+
+    /**
+     * @expectedException Opus_Model_Exception
+     * @expectedExceptionMessage unknown enrichment key
+     */
+    public function testGetEnrichmentValueBadKey()
+    {
+        $keyName= 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->getEnrichmentValue('unknownkey');
+    }
+
+    public function testGetEnrichmentMultiValue()
+    {
+        $keyName= 'test.key1';
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('otherkey');
+        $enrichmentKey->store();
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value-2');
+
+        $doc->addEnrichment($enrichment);
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName('otherkey');
+        $enrichment->setValue('test-value-other');
+
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichments = $doc->getEnrichment();
+
+        $this->assertInternalType('array', $enrichments);
+        $this->assertCount(3, $enrichments);
+
+        $this->assertEquals($keyName, $enrichments[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichments[0]->getValue());
+
+        $this->assertEquals($keyName, $enrichments[1]->getKeyName());
+        $this->assertEquals('test-value-2', $enrichments[1]->getValue());
+
+        $this->assertEquals('otherkey', $enrichments[2]->getKeyName());
+        $this->assertEquals('test-value-other', $enrichments[2]->getValue());
+
+        $enrichments = $doc->getEnrichment($keyName);
+
+        $this->assertInternalType('array', $enrichments);
+        $this->assertCount(2, $enrichments);
+
+        $this->assertEquals($keyName, $enrichments[0]->getKeyName());
+        $this->assertEquals('test-value', $enrichments[0]->getValue());
+
+        $this->assertEquals($keyName, $enrichments[1]->getKeyName());
+        $this->assertEquals('test-value-2', $enrichments[1]->getValue());
+
+        $values = $doc->getEnrichmentValue($keyName);
+
+        $this->assertInternalType('array', $values);
+        $this->assertCount(2, $values);
+        $this->assertContains('test-value', $values);
+        $this->assertContains('test-value-2', $values);
+    }
 }
