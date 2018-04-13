@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,25 +25,30 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Xml
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * First implementation of Opus XML representation.
+ *
+ * Simple fields are converted to attributes of element.
  */
-class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
+class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->_version = '1.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    {
         $fieldName = $field->getName();
         $fieldValues = $this->getFieldValues($field);
 
@@ -53,7 +57,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         $rootNode->setAttribute($fieldName, $fieldValues);
     }
 
-    protected function createFieldElement(DOMDocument $dom, $fieldName, $value) {
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
+    {
         $childNode = $dom->createElement($fieldName);
         if ($value instanceof Opus_Model_AbstractDb) {
             if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
@@ -70,7 +75,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         return $childNode;
     }
 
-    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model) {
+    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model)
+    {
         $childNode = $dom->createElement(get_class($model));
 
         if ($model instanceof Opus_Model_AbstractDb) {
@@ -91,7 +97,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * @param  DOMElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $fieldList = $model->describe();
 
         // Internal fields exist as attributes
@@ -138,7 +145,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * @param DOMElement          $element Element with new data.
      * @return Opus_Model_Abstract
      */
-    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $config = $this->getConfig();
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
@@ -212,7 +220,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
-    public function updateFromXml($xml) {
+    public function updateFromXml($xml)
+    {
         $this->setXml($xml);
         $config = $this->getConfig();
         $modelElement = $config->dom->getElementsByTagName(get_class($config->model))->item(0);
@@ -220,5 +229,4 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $this->_updateModelFromXml($config->model, $modelElement);
         }
     }
-
 }

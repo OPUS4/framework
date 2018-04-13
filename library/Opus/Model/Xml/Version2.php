@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -26,24 +25,31 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Model
+ * @package     Opus_Model_Xml
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Second implementation of Opus XML representation.
+ *
+ * Simple fields are expressed as child elements.
+ *
+ * TODO Version2 does not seem to be used - What was the intend?
  */
-class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
+class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->_version = '2.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    {
         $fieldName = $field->getName();
         $fieldValues = $this->getFieldValues($field);
 
@@ -63,7 +69,8 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
      * @param  DOMElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $fieldList = $model->describe();
 
         // fields exist as child elements
@@ -79,8 +86,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
 
             if (in_array($fieldName, $fieldList) === false) {
                 throw new Opus_Model_Exception(
-                    'Field ' . $fieldName . ' not defined. Model class: '
-                    . get_class($model)
+                    'Field ' . $fieldName . ' not defined. Model class: ' . get_class($model)
                 );
             }
             else {
@@ -89,8 +95,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
                 // determine accessor function
                 if (true === $fieldObj->hasMultipleValues()) {
                     $accessor = 'add';
-                }
-                else {
+                } else {
                     $accessor = 'set';
                 }
 
@@ -105,20 +110,19 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
                             // if we add values then we need to do this on the returned model
                             $tempModel = $model->$callname($submodel);
                             $this->_populateModelFromXml($tempModel, $fieldNode);
-                        }
-                        else {
+                        } else {
                             // setting of values should be done on submodel
                             $model->$callname($submodel);
                             $this->_populateModelFromXml($submodel, $fieldNode);
                         }
-                    }
-                    else {
+                    } else {
                         $callname = $accessor . $fieldName;
                         $model->$callname($fieldValue);
                     }
                 }
             }
         }
+
         return $model;
     }
 
@@ -126,8 +130,8 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract {
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
-    public function updateFromXml($xml) {
+    public function updateFromXml($xml)
+    {
         throw new Opus_Model_Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
     }
-
 }
