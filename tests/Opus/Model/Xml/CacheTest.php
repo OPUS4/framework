@@ -236,9 +236,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $doc->setTitleAbstract($abstract);
         $doc->store();
 
-        // need to be set: otherwise PHPUnit will throw an error        
+        // need to be set: otherwise PHPUnit will throw an error
         $tmp = libxml_use_internal_errors(true);
-        
+
         $cache = new Opus_Model_Xml_Cache;
         $dom = null;
         try {
@@ -249,7 +249,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
             return;
         }
         $this->assertNotNull($dom);
-        
+
         // undo changes
         libxml_use_internal_errors($tmp);
     }
@@ -269,7 +269,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $dom->appendChild($opus);
         $opusDocument = $dom->createElement('Opus_Document');
         $opus->appendChild($opusDocument);
-        
+
         $table = new Opus_Db_DocumentXmlCache();
         $beforeInput = $table->fetchAll()->count();
 
@@ -280,9 +280,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
             $serverDateModified,
             $dom
             );
-        
+
         $afterInput = $table->fetchAll()->count();
-        
+
         $this->assertEquals($beforeInput + 1, $afterInput, 'Expecting one new cache entry.');
         $this->assertTrue($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Could not verify cache entry.');
         $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), 'Cached xml data differ from given data.');
@@ -324,7 +324,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $table = new Opus_Db_DocumentXmlCache();
 
         $beforeRemove = $table->fetchAll()->count();
-        $cache->removeAllEntries();
+        $cache->clear();
         $afterRemove = $table->fetchAll()->count();
 
         $this->assertEquals($this->_maxEntries, $beforeRemove);
@@ -348,7 +348,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $beforeRemove = $table->fetchAll()->count();
 
         $cache = new Opus_Model_Xml_Cache();
-        $cache->removeAllEntriesWhereDocumentId($documentId);
+        $cache->remove($documentId);
 
         $afterRemove = $table->fetchAll()->count();
 
@@ -372,9 +372,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         $dataSet = $this->_getRandomDataSet();
         $documentId = $dataSet['document_id'];
         $xmlVersion = $dataSet['xml_version'];
-        
+
         $cache = new Opus_Model_Xml_Cache();
-        
+
         $this->assertTrue($cache->hasCacheEntry($documentId, $xmlVersion), 'Expected cache entry.');
     }
 
@@ -426,9 +426,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
             $serverDateModified,
             $dom
             );
-        
+
         $afterSecondPut = $table->fetchAll()->count();
-        
+
         $this->assertEquals($beforeSecondPut, $afterSecondPut, 'Expecting no new cache entry.');
     }
 
@@ -469,9 +469,9 @@ class Opus_Model_Xml_CacheTest extends TestCase {
             $serverDateModified,
             $dom
             );
-        
+
         $afterSecondPut = $table->fetchAll()->count();
-        
+
         $this->assertEquals($beforeSecondPut, $afterSecondPut, 'Expecting no new cache entry.');
         $this->assertTrue($cache->hasValidEntry($documentId, $xmlVersion, $serverDateModified), 'Expecting cache entry has new data.');
         $this->assertEquals($dom->saveXML(), $cache->get($documentId, $xmlVersion)->saveXML(), '');

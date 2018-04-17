@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -29,7 +28,7 @@
  * @package     Opus_Model_Plugin
  * @author      Edouard Simon <edouard.simon@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2013-2017
+ * @copyright   Copyright (c) 2013-2018
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -76,8 +75,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
         $config = self::getFilterConfig();
 
-        if (isset($config->{$modelClass}))
-        {
+        if (isset($config->{$modelClass})) {
             $blacklist = $config->{$modelClass}->toArray();
 
             $filter = new Opus_Model_Filter();
@@ -85,10 +83,8 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
             $filter->setBlacklist($blacklist);
             $whitelist = $filter->describe();
 
-            foreach ($whitelist as $fieldName)
-            {
-                if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified())
-                {
+            foreach ($whitelist as $fieldName) {
+                if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified()) {
                     // change modifies metadata
                     $this->_postStoreUpdateDocuments = true;
                     $this->_updateServerDateModified = true;
@@ -98,15 +94,14 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
 
             $configKey = 'cache.' . $modelClass;
 
-            if (isset($config->{$configKey}))
-            {
+            if (isset($config->{$configKey})) {
                 $cacheList = $config->{$configKey}->toArray();
 
                 // check if cache should be deleted for blacklisted field
-                foreach ($blacklist as $fieldName)
-                {
-                    if ($model->hasField($fieldName) && $model->getField($fieldName)->isModified() && in_array($fieldName, $cacheList))
-                    {
+                foreach ($blacklist as $fieldName) {
+                    if ($model->hasField($fieldName)
+                        && $model->getField($fieldName)->isModified()
+                        && in_array($fieldName, $cacheList)) {
                         $this->_postStoreUpdateDocuments = true;
                         $this->_updateServerDateModified = false;
                         return;
@@ -124,8 +119,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      */
     public function postStore(Opus_Model_AbstractDb $model)
     {
-        if ($this->_postStoreUpdateDocuments)
-        {
+        if ($this->_postStoreUpdateDocuments) {
             $this->invalidateDocumentCacheFor($model);
         }
     }
@@ -140,8 +134,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     public function preDelete(Opus_Model_AbstractDb $model)
     {
         $modelId = $model->getId();
-        if (!$model->isNewRecord() && !empty($modelId))
-        {
+        if (!$model->isNewRecord() && !empty($modelId)) {
             $this->invalidateDocumentCacheFor($model);
         }
     }
@@ -169,8 +162,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
         $xmlCache = new Opus_Model_Xml_Cache();
         $xmlCache->removeAllEntriesWhereSubSelect($select);
 
-        if ($this->_updateServerDateModified)
-        {
+        if ($this->_updateServerDateModified) {
             $date = new Opus_Date();
             $date->setNow();
             Opus_Document::setServerDateModifiedByIds($date, $ids);
@@ -184,8 +176,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      */
     public static function getFilterConfig()
     {
-        if (is_null(self::$_filterConfig))
-        {
+        if (is_null(self::$_filterConfig)) {
             self::$_filterConfig = new Zend_Config_Ini(dirname(__FILE__) . '/updatedocument_filter.ini');
         }
 
@@ -201,6 +192,4 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     {
         self::$_filterConfig = $config;
     }
-
 }
-
