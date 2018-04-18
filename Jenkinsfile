@@ -1,26 +1,17 @@
-#!groovy
+node {
+    stage "checkout"
+    checkout scm
+    stage "docker"
 
-pipeline {
-    agent any
+    docker.image('mysql:5').withRun('-e "MYSQL_ROOT_PASSWORD=root" -p 3388:3306') { c ->
 
-    stages {
-        stage('prepare') {
-            steps {
-                echo 'TODO - Configure database'
-                echo 'TODO - Configure Solr core'
-            }
-        }
+        stage "wait"
+        sh 'while ! mysqladmin ping -h0.0.0.0 --silent; do sleep 1; done'
 
-        stage('build') {
-            steps {
-                echo 'TODO - Run unit tests'
-            }
-        }
+        stage "build"
+        sh 'ant setup build-fast'
 
-        stage('publish') {
-            steps {
-                echo 'TODO - Publish results'
-            }
-        }
+        stage "test"
+        sh 'ant phpunit-fast'
     }
 }
