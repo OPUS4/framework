@@ -85,7 +85,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
             $fieldValue = $fieldNode->nodeValue;
 
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception(
+                throw new Opus\Model\Exception(
                     'Field ' . $fieldName . ' not defined. Model class: ' . get_class($model)
                 );
             }
@@ -132,6 +132,6 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
      */
     public function updateFromXml($xml)
     {
-        throw new Opus_Model_Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
+        throw new Opus\Model\Exception('Method not implemented for strategy Opus_Model_Xml_Version2.');
     }
 }

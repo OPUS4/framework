@@ -70,7 +70,7 @@ trait Opus_Model_DatabaseTrait
     protected $_isNewRecord = true;
 
     /**
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      */
     protected function initDatabase($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
@@ -78,7 +78,7 @@ trait Opus_Model_DatabaseTrait
 
         // Ensure that a default table gateway class is set
         if ((is_null($gatewayClass) === true) and (is_null($tableGatewayModel) === true)) {
-            throw new Opus_Model_Exception(
+            throw new Opus\Model\Exception(
                 'No table gateway model passed or specified by $_tableGatewayClass for class: ' . get_class($this)
             );
         }
@@ -93,7 +93,7 @@ trait Opus_Model_DatabaseTrait
         }
         else if ($id instanceof Zend_Db_Table_Row) {
             if ($id->getTableClass() !== $gatewayClass) {
-                throw new Opus_Model_Exception(
+                throw new Opus\Model\Exception(
                     'Mistyped table row passed. Expected row from ' .
                     $gatewayClass . ', got row from ' . $id->getTableClass() . '.'
                 );
@@ -124,7 +124,7 @@ trait Opus_Model_DatabaseTrait
 
         // Paranoid programming, sorry!  Check if proper row has been created.
         if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
-            throw new Opus_Model_Exception("Invalid row object for class " . get_class($this));
+            throw new Opus\Model\Exception("Invalid row object for class " . get_class($this));
         }
     }
 
@@ -195,12 +195,12 @@ trait Opus_Model_DatabaseTrait
      *
      * @return Zend_Db_Table_Row
      *
-     * @throws Opus_Model_Exception on invalid row object.
+     * @throws Opus\Model\Exception on invalid row object.
      */
     protected function getTableRow()
     {
         if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
-            throw new Opus_Model_Exception(
+            throw new Opus\Model\Exception(
                 "Invalid row object for class " . get_class($this) . " -- got class "
                 . get_class($this->_primaryTableRow)
             );

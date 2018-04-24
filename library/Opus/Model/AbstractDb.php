@@ -41,10 +41,11 @@
  * @category    Framework
  * @package     Opus_Model
  */
-abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus_Model_ModificationTracking
+abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus_Model_ModificationTracking,
+    Opus\Model\ModelInterface
 {
 
-    use Opus_Model_PluginsTrait;
+    use Opus\Model\PluginsTrait;
 
     use Opus_Model_DatabaseTrait;
 
@@ -74,7 +75,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      *
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
      * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
-     * @throws Opus_Model_Exception     Thrown if passed id is invalid.
+     * @throws Opus\Model\Exception     Thrown if passed id is invalid.
      */
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
     {
@@ -154,7 +155,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * Trigger preFetch plugins.
      *
      * @return void
-     * @throw Opus_Model_Exception Throws whenever a plugin failes.
+     * @throw Opus\Model\Exception Throws whenever a plugin failes.
      */
     protected function _preFetch()
     {
@@ -166,7 +167,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      *
      * Currently modification checking and validation.
      *
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      * @return mixed Anything else then null will cancel the storage process.
      */
     protected function _preStore()
@@ -188,7 +189,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             }
             // $this->$fieldname = 'null';
             // TODO: handle error (but without throwing it)
-            throw new Opus_Model_Exception($msg);
+            throw new Opus\Model\Exception($msg);
         }
 
         return null;
@@ -199,7 +200,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      *
      * Sets _isNewRecord to false.
      *
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      * @return void
      */
     protected function _postStore()
@@ -211,7 +212,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
     /**
      * Perform any actions needed after storing internal fields.
      *
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      * @return void
      */
     protected function _postStoreInternalFields()
@@ -223,7 +224,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * Perform any actions needed after storing internal fields.
      *
      * @return void
-     * @throws Opus_Model_Exception Throws whenever an error occurs
+     * @throws Opus\Model\Exception Throws whenever an error occurs
      */
     function _postStoreExternalFields()
     {
@@ -238,7 +239,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      *
      * @see    Opus_Model_Interface::store()
      * @throws Exception
-     * @throws Opus_Model_Exception     Thrown if the store operation could not be performed.
+     * @throws Opus\Model\Exception     Thrown if the store operation could not be performed.
      * @return mixed $id    Primary key of the models primary table row.
      */
     public function store()
@@ -347,17 +348,17 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             }
             throw new Opus_Model_DbException($ze->getMessage(), $ze->getCode(), $ze);
         }
-        catch (Opus_Model_Exception $ome) {
-            // Needed to let instances of Opus_Model_Exception pass without
+        catch (Opus\Model\Exception $ome) {
+            // Needed to let instances of Opus\Model\Exception pass without
             // modifying their type.
             throw $ome;
         }
         catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this);
-            // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
+            // this works with php >= 5.3.0: throw new Opus\Model\Exception($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
-            throw new Opus_Model_Exception($msg);
+            throw new Opus\Model\Exception($msg);
         }
         return $id;
     }
@@ -406,15 +407,15 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             // workaround: throw database adapter exceptions
             throw $zdbe;
         }
-        catch (Opus_Model_Exception $ome) {
+        catch (Opus\Model\Exception $ome) {
             throw $ome;
         }
         catch (Exception $e) {
             $msg = $e->getMessage() . ' Model: ' . get_class($this) . ' Field: ' . $fieldname . '.';
-            // this works with php >= 5.3.0: throw new Opus_Model_Exception($msg, $e->getCode(), $e);
+            // this works with php >= 5.3.0: throw new Opus\Model\Exception($msg, $e->getCode(), $e);
             // workaround:
             $msg .= "\nThrown in " . $e->getFile() . ':' . $e->getLine();
-            throw new Opus_Model_Exception($msg);
+            throw new Opus\Model\Exception($msg);
         }
     }
 
@@ -423,7 +424,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      *
      * @param array|Opus_Model_Dependent_Abstract $values One or mor dependent opus models.
      * @param array                              $conditions (Optional) fixed conditions for certain attributes.
-     * @throws Opus_Model_Exception Thrown when trying to save non Opus_Model_Dependent objects.
+     * @throws Opus\Model\Exception Thrown when trying to save non Opus_Model_Dependent objects.
      * @return void
      */
     protected function _storeExternal($values, array $conditions = null)
@@ -435,7 +436,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         }
         else if (is_null($values) === false) {
             if ($values instanceof Opus_Model_Dependent_Abstract === false) {
-                throw new Opus_Model_Exception('External fields must be Opus_Model_Dependent.');
+                throw new Opus\Model\Exception('External fields must be Opus_Model_Dependent.');
             }
             if (is_null($conditions) === false) {
                 foreach ($conditions as $column => $value) {
@@ -487,7 +488,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * model instances depending on whether the field has multiple linked models or not.
      *
      * @param  string $fieldname Name of the external field.
-     * @throws Opus_Model_Exception If no _fetch-method is defined for an external field.
+     * @throws Opus\Model\Exception If no _fetch-method is defined for an external field.
      * @return void
      */
     protected function _loadExternal($fieldname)
@@ -511,7 +512,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             // Make sure that a field's value model is inherited from Opus_Model_AbstractDb
             if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_AbstractDb') === false) {
                 $message = "Field $fieldname must extend Opus_Model_AbstractDb.";
-                throw new Opus_Model_Exception($message);
+                throw new Opus\Model\Exception($message);
             }
 
             // Do nothing if the current model has not been persisted
@@ -521,7 +522,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             }
 
             if (empty($modelclass) or is_subclass_of($modelclass, 'Opus_Model_Dependent_Abstract') === false) {
-                throw new Opus_Model_Exception(
+                throw new Opus\Model\Exception(
                     'Class of ' . $fieldname . ' does not extend Opus_Model_Dependent_Abstract.  Please check class '
                     . $modelclass . '.'
                 );
@@ -556,7 +557,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
                 $newModel = new $modelclass($row);
 
                 if (is_null($newModel->getParentId())) {
-                    throw new Opus_Model_Exception(
+                    throw new Opus\Model\Exception(
                         'Object in ' . $fieldname . ' contains empty ParentId.  Please check class '
                         . get_class($newModel) . '.'
                     );
@@ -590,7 +591,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * Remove the model instance from the database.
      * NOTE: This method should not be overriden, use plugins instead where needed.
      *
-     * @throws Opus_Model_Exception If a delete operation could not be performed on this model.
+     * @throws Opus\Model\Exception If a delete operation could not be performed on this model.
      * @return void
      */
     public function delete()
@@ -616,7 +617,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         } catch (Exception $e) {
             $dbadapter->rollback();
             $msg = $e->getMessage() . ' Model: ' . get_class($this);
-            throw new Opus_Model_Exception($msg);
+            throw new Opus\Model\Exception($msg);
         }
 
         $this->_callPluginMethod('postDelete', $modelId);
@@ -763,7 +764,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
 
             // Check if $linkmodelclass is a known class name
             if (class_exists($linkmodelclass) === false) {
-                throw new Opus_Model_Exception("Link model class '$linkmodelclass' does not exist.");
+                throw new Opus\Model\Exception("Link model class '$linkmodelclass' does not exist.");
             }
 
             if (is_null($value)) {

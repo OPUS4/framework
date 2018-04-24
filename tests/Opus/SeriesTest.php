@@ -41,7 +41,7 @@ class Opus_SeriesTest extends TestCase {
      */
     public function testCreateRetrieveAndDeleteSeries() {
         $this->assertEquals(0, count(Opus_Series::getAll()), 'Wrong number of objects retrieved.');
-        
+
         $numberOfSetsToCreate = 3;
         $ids = array();
         for ($i = 0; $i < $numberOfSetsToCreate; $i++) {
@@ -78,7 +78,7 @@ class Opus_SeriesTest extends TestCase {
             $d->store();
             $this->fail("Expecting exception.");
         }
-        catch (Opus_Model_Exception $ome) {
+        catch (Opus\Model\Exception $ome) {
             // Nothing.
         }
 
@@ -102,14 +102,14 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue($s->isValid(), 'series should be valid');
         $this->assertFalse($ls->isValid());
 
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $d->store();
     }
 
     public function testAssignSeriesToDocumentWithNumber() {
         $d = new Opus_Document();
         $d->store();
-        
+
         $s = new Opus_Series();
         $s->setTitle('foo');
         $s->store();
@@ -126,22 +126,22 @@ class Opus_SeriesTest extends TestCase {
         $s = $series[0];
         $this->assertEquals('foo', $s->getTitle());
         $this->assertEquals('1', $s->getNumber());
-       
-        // cleanup        
+
+        // cleanup
         $d->deletePermanent();
         $s->delete();
     }
 
 
     /**
-     * 
+     *
      * "CRUD-completness tests on Opus_Series"
      *
      */
-    
+
     public function testCreateSeriesWithoutTitle() {
         $s = new Opus_Series();
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $s->store();
     }
 
@@ -177,16 +177,16 @@ class Opus_SeriesTest extends TestCase {
         $this->assertTrue($s->getTitle() === 'foo');
 
         $s->delete();
-        
+
         $this->setExpectedException('Opus_Model_NotFoundException');
         $s = new Opus_Series($id);
     }
 
-    
+
     /**
      *
      * tests in conjunction with class Opus_Model_Dependent_Link_DocumentSeries
-     * 
+     *
      */
 
     public function testAssignDocumentToSeriesTwice() {
@@ -198,8 +198,8 @@ class Opus_SeriesTest extends TestCase {
         $d->addSeries($s)->setNumber('1');
         $d->addSeries($s)->setNumber('2');
 
-        $this->setExpectedException('Opus_Model_Exception');
-        $d->store();       
+        $this->setExpectedException('Opus\Model\Exception');
+        $d->store();
     }
 
     public function testAssignDocumentToMultipleSeries() {
@@ -219,7 +219,7 @@ class Opus_SeriesTest extends TestCase {
         $d = new Opus_Document($d->getId());
         $series = $d->getSeries();
         $this->assertTrue(count($series) === 2);
-       
+
         $this->assertTrue($series[0]->getTitle() === 'foo');
         $this->assertTrue($series[0]->getNumber() === '1');
 
@@ -379,7 +379,7 @@ class Opus_SeriesTest extends TestCase {
 
         $s = new Opus_Series($s->getId());
         $this->assertTrue($s->getSortOrder() == '0');
-        
+
         $s->setSortOrder('10');
         $s->store();
 
@@ -530,12 +530,12 @@ class Opus_SeriesTest extends TestCase {
         $d2->addSeries($s)->setNumber('II')->setDocSortOrder('2');
         $d2->store();
 
-        
+
         $s = new Opus_Series($s->getId());
-        $ids = $s->getDocumentIds();                
+        $ids = $s->getDocumentIds();
         $this->assertEquals(2, count($ids));
         $this->assertEquals($d1->getId(), $ids[0]);
-        $this->assertEquals($d2->getId(), $ids[1]);        
+        $this->assertEquals($d2->getId(), $ids[1]);
     }
 
     public function testGetDocumentIdsForEmptySeries() {
@@ -661,7 +661,7 @@ class Opus_SeriesTest extends TestCase {
         $d1->store();
         $this->assertTrue($s->getNumOfAssociatedPublishedDocuments() === 0);
     }
-    
+
     /**
      * Regression Test for OPUSVIER-1687
      */
@@ -697,9 +697,9 @@ class Opus_SeriesTest extends TestCase {
 
         $this->assertNull($series->getDocumentIdForNumber('III'));
     }
-    
+
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
-        
+
         $series = new Opus_Series();
         $series->setTitle('foo');
         $series->store();
@@ -712,12 +712,12 @@ class Opus_SeriesTest extends TestCase {
         sleep(1);
         $series->setSortOrder($series->getSortOrder()+1);
         $series->store();
-        
+
         $docReloaded = new Opus_Document($docId);
-        
+
         $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
 
-        
+
     }
 
     public function testGetDisplayName() {

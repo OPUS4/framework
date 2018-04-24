@@ -185,7 +185,7 @@ class Opus_DocumentTest extends TestCase {
 
     /**
      * Test if storing a document wich has a linked model doesnt throw
-     * an Opus_Model_Exception.
+     * an Opus\Model\Exception.
      *
      * @return void
      *
@@ -225,7 +225,7 @@ class Opus_DocumentTest extends TestCase {
      * @return void
      */
     public function testUndefinedFetchMethodForFieldValueClassNotExtendingAbstractModelThrowsException() {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $document = new Opus_Model_ModelWithNonAbstractExtendingClassField;
     }
 
@@ -2034,7 +2034,7 @@ class Opus_DocumentTest extends TestCase {
 
         try {
             $redoc->store();
-        } catch(Opus_Model_Exception $ome) {
+        } catch(Opus\Model\Exception $ome) {
             $this->fail($ome->getMessage());
         }
     }

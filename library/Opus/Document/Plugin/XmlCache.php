@@ -35,14 +35,14 @@
  *
  * @category    Framework
  * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @uses        Opus\Model\Plugin\Abstract
  */
 class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
 
     /**
      * Function is only called if document was modified.
      *
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
     public function postStore(Opus_Model_AbstractDb $model) {
         $logger = Zend_Registry::get('Zend_Log');
@@ -80,7 +80,7 @@ class Opus_Document_Plugin_XmlCache extends Opus_Model_Plugin_Abstract {
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postDelete}
+     * @see {Opus\Model\Plugin\PluginInterface::postDelete}
      */
     public function postDelete($modelId) {
         $cache = new Opus_Model_Xml_Cache(false);

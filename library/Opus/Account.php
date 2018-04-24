@@ -83,12 +83,12 @@ class Opus_Account extends Opus_Model_AbstractDb {
      * @param integer|Zend_Db_Table_Row $id                (Optional) (Id of) Existing database row.
      * @param Zend_Db_Table_Abstract    $tableGatewayModel (Optional) Opus_Db model to fetch table row from.
      * @param string                    $id                (Optional) Login of existing record.
-     * @throws Opus_Model_Exception     Thrown if passed id is invalid or login and id are specified.
+     * @throws Opus\Model\Exception     Thrown if passed id is invalid or login and id are specified.
      */
     public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, $login = null) {
         if (false === is_null($login) && false === empty($login)) {
             if (false === is_null($id) && false === empty($id)) {
-                 throw new Opus_Model_Exception('Login and id of an account are specified, specify either id or login.');
+                 throw new Opus\Model\Exception('Login and id of an account are specified, specify either id or login.');
             }
             $id = Opus_Account::fetchAccountRowByLogin($login);
             if (!isset($id)) {

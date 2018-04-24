@@ -123,7 +123,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         foreach ($element->childNodes as $externalField) {
             $fieldName = $externalField->nodeName;
             if (in_array($fieldName, $fieldList) === false) {
-                throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
+                throw new Opus\Model\Exception('Field ' . $fieldName . ' not defined');
             }
             else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();

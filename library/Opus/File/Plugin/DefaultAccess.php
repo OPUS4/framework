@@ -37,7 +37,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
+class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
 {
 
     use \Opus\LoggingTrait;
@@ -46,9 +46,9 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
      * Post-store hook will be called right after the document has been stored
      * to the database.
      *
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
+    public function postStore(Opus\Model\ModelInterface $model) {
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
             $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');

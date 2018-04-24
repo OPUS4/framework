@@ -37,7 +37,7 @@
  *
  * @category    Framework
  * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @uses        Opus\Model\Plugin\AbstractPlugin
  */
 class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
 
@@ -54,22 +54,22 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $this->collectionRole->store();
         try {
             $this->collectionRole->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
+        } catch (Opus\Model\Exception $ome) {
+
         }
 
         $this->collection = $this->collectionRole->addRootCollection();
         try {
             $this->collection->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
+        } catch (Opus\Model\Exception $ome) {
+
         }
         $this->collection->setName('dummy');
         $this->collection->store();
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      *
      * TODO split up into smaller tests
      */
@@ -102,8 +102,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $author = new Opus_Person();
         try {
             $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
+        } catch (Opus\Model\Exception $ome) {
+
         }
 
         $author->setFirstName('Karl');
@@ -116,16 +116,16 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $doc2->store();
 
         $domDocument = $xmlCache->get($doc2->getId(), 1);
-        $this->assertTrue($domDocument->hasChildNodes(), 'cache entry consists of empty DOM document');        
+        $this->assertTrue($domDocument->hasChildNodes(), 'cache entry consists of empty DOM document');
         $this->assertEquals(1, count($domDocument->childNodes), 'unexpected number of child nodes');
-        
+
         $xpath = new DOMXpath($domDocument);
         $elements = $xpath->query("/Opus/Opus_Document/ServerDateModified");
         $this->assertEquals(1, count($elements), 'unexpected number of matching elements');
-        
+
         $attributes = $elements->item(0)->attributes;
-        $this->assertNotNull($attributes, 'element ServerDateModified does not have any attributes');       
-        
+        $this->assertNotNull($attributes, 'element ServerDateModified does not have any attributes');
+
         $this->assertEquals(
             $doc2->getServerDateModified()->getUnixTimestamp(), $attributes->getNamedItem('UnixTimestamp')->nodeValue,
             'unexpected value for attribute UnixTimestamp'
@@ -154,7 +154,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
             $doc2->getServerDateModified()->getTimezone(), $attributes->getNamedItem('Timezone')->nodeValue,
             'unexpected value for attribute Timezone'
         );
-        
+
         $this->assertTrue(
             $xmlCache->hasValidEntry($doc2->getId(), 1, $doc2->getServerDateModified()),
             "Expected valid cache entry for doc2 after creation. id: " . $doc2->getId()
@@ -192,8 +192,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         // unregister plugin if registered
         try {
             $title->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
+        } catch (Opus\Model\Exception $ome) {
+
         }
         $title->setValue('Ein deutscher Titel');
         $title->setLanguage('deu');
@@ -235,8 +235,8 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         // unregister plugin if registered
         try {
             $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
-            
+        } catch (Opus\Model\Exception $ome) {
+
         }
         $author->setFirstName('Fritz');
         $author->store();
@@ -268,7 +268,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
         $this->assertTrue($xmlCache->hasValidEntry(
             $doc4->getId(), 1, $doc4->getServerDateModified()), 'Expected valid cache entry after person'
         );
-//        
+//
         $plugin->postStore($this->collection);
 //
         $this->assertFalse($xmlCache->hasValidEntry(
@@ -310,18 +310,18 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase {
     }
 
     public function testPreDeleteHasNoEffectIfModelNotStored() {
-        
+
         $doc = new Opus_Document();
         $doc->setType("article")
                 ->setServerState('published');
         $docId = $doc->store();
-        
+
         $licence = new Opus_Licence();
         $licence->setLinkLicence('http://licence');
         $licence->setNameLong('Non-Creative Uncommon');
-        
+
         $doc->addLicence($licence);
-        
+
         $serverDateModified = $doc->getServerDateModified();
 
         $plugin = new Opus_Model_Plugin_InvalidateDocumentCache();

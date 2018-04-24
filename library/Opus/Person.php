@@ -140,7 +140,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $firstName = $this->getFirstName();
 
         if ($firstName !== null) {
-            return $this->getLastName() . ', ' . $firstName; 
+            return $this->getLastName() . ', ' . $firstName;
         }
         else {
             return $this->getLastName();
@@ -635,7 +635,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
             if (is_null($model->getField($name)))
             {
                 // TODO use
-                throw new Opus_Model_Exception("unknown field '$name' for update");
+                throw new Opus\Model\Exception("unknown field '$name' for update");
             }
             else
             {

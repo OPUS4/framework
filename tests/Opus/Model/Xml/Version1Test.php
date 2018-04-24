@@ -74,7 +74,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
     public function testXmlFromEmptyModelThrowsException() {
         $xml = new Opus_Model_Xml();
         $xml->setModel(null);
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $xml->getDomDocument();
     }
 
@@ -446,7 +446,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
      */
     public function testLoadInvalidXmlThrowsException() {
         $omx = new Opus_Model_Xml;
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $omx->setXml('<Opus attr/>');
     }
 
@@ -784,7 +784,7 @@ class Opus_Model_Xml_Version1Test extends TestCase {
     /**
      * Small helper to create invalid utf8 strings.
      *
-     * @return string 
+     * @return string
      */
     private static function createInvalidUTF8String() {
         $invalid_chars = array(

@@ -140,12 +140,12 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * Return a reference to an actual field if not on the blacklist.
      *
      * @param string $name Name of the requested field.
-     * @throws Opus_Model_Exception If the requested field is hidden by the blacklist.
+     * @throws Opus\Model\Exception If the requested field is hidden by the blacklist.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name) {
         if (in_array($name, $this->_blacklist)) {
-            throw new Opus_Model_Exception('Requested field is hidden by the blacklist.');
+            throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
         }
         return $this->_model->getField($name);
     }
@@ -157,14 +157,14 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
      * @throws InvalidArgumentException When adding a link to a field without an argument.
-     * @throws Opus_Model_Exception     If an unknown field or method is requested.
+     * @throws Opus\Model\Exception     If an unknown field or method is requested.
      * @throws Opus_Security_Exception  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
     public function __call($name, array $arguments) {
         $fieldname = substr($name, 3);
         if (in_array($fieldname, $this->_blacklist)) {
-            throw new Opus_Model_Exception('Requested field is hidden by the blacklist.');
+            throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
         }
         $argstring = '';
         foreach ($arguments as $i => $argument) {
@@ -214,7 +214,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         }
         $xml = new Opus_Model_Xml();
         $xml->setModel($this)
-            ->exclude($excludeFields)            
+            ->exclude($excludeFields)
             ->setStrategy($strategy);
         if ($excludeEmptyFields === true) {
             $xml->excludeEmptyFields();

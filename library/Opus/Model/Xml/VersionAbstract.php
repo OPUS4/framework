@@ -73,7 +73,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      *
      * @param DOMElement $element   Element to use for model creation.
      * @param string     $classname (Optional) Class name of class to be created. If not given, the node name is used.
-     * @throws Opus_Model_Exception Thrown if the model reffered to by the elements name is unknown.
+     * @throws Opus\Model\Exception Thrown if the model reffered to by the elements name is unknown.
      * @return Opus_Model_Abstract Created model
      */
     protected function _createModelFromElement(DOMElement $element, $classname = null) {
@@ -81,7 +81,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             $classname = $element->nodeName;
         }
         if (false === class_exists($classname)) {
-            throw new Opus_Model_Exception('Model class ' . $classname . ' not known.');
+            throw new Opus\Model\Exception('Model class ' . $classname . ' not known.');
         }
 
         // When xlink:href given use resolver to obtain model
@@ -177,7 +177,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      */
     public function getDomDocument() {
         if (null === $this->_config->model) {
-            throw new Opus_Model_Exception('No Model given for serialization.');
+            throw new Opus\Model\Exception('No Model given for serialization.');
         }
 
         $this->_config->dom = new DomDocument('1.0', 'UTF-8');
@@ -199,7 +199,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         if (null !== $this->_config->dom) {
             $root = $this->_config->dom->getElementsByTagName('Opus')->item(0);
             if (null === $root) {
-                throw new Opus_Model_Exception('Root element "Opus" not found.');
+                throw new Opus\Model\Exception('Root element "Opus" not found.');
             }
             $model = $this->_createModelFromElement($root->firstChild);
             $this->_config->model = $this->_populateModelFromXml($model, $root->firstChild);
@@ -244,7 +244,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
                 $errmsg = $errmsg . $error->message . "\n";
             }
             libxml_clear_errors();
-            throw new Opus_Model_Exception($errmsg);
+            throw new Opus\Model\Exception($errmsg);
         }
         $this->setDomDocument($dom);
     }

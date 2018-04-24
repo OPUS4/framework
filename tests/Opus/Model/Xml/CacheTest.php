@@ -244,7 +244,7 @@ class Opus_Model_Xml_CacheTest extends TestCase {
         try {
             $dom = $cache->get($doc->getId(), '1.0');
         }
-        catch (Opus_Model_Exception $e) {
+        catch (Opus\Model\Exception $e) {
             $this->assertNotNull($e);
             return;
         }

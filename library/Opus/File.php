@@ -179,7 +179,7 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
         }
 
         if (is_null($this->getParentId())) {
-            throw new Opus_Model_Exception('ParentId is not set!');
+            throw new Opus\Model\Exception('ParentId is not set!');
         }
 
         $config = Zend_Registry::get('Zend_Config');

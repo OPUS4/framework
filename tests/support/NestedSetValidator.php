@@ -57,7 +57,7 @@ class NestedSetValidator
         if (!is_null($table) && $table instanceof Opus_Db_NestedSet) {
             $this->table = $table;
         } else {
-            throw new Opus_Model_Exception('object must be instance of Opus_Db_NestedSet');
+            throw new Opus\Model\Exception('object must be instance of Opus_Db_NestedSet');
         }
     }
 

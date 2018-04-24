@@ -42,7 +42,8 @@
  * TODO models should define their own lists (decentralized, object-oriented) - OPUSVIER-3759
  * TODO cache should be transparent - important is updating ServerDateModified
  */
-class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstract {
+class Opus_Model_Plugin_InvalidateDocumentCache extends Opus\Model\Plugin\AbstractPlugin
+{
 
     /**
      * Run method invalidateDocumentCacheFor() in postStore if true.
@@ -61,7 +62,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     private static $_filterConfig;
 
     /**
-     * @see {Opus_Model_Plugin_Interface::preStore}
+     * @see {Opus\Model\Plugin\PluginInterface::preStore}
      *
      * Check wether to update documents on postStore.
      * If there is no information about a Model
@@ -69,7 +70,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      *
      * TODO break up function
      */
-    public function preStore(Opus_Model_AbstractDb $model)
+    public function preStore(Opus\Model\ModelInterface $model)
     {
         $modelClass = get_class($model);
 
@@ -115,9 +116,9 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model)
+    public function postStore(Opus\Model\ModelInterface $model)
     {
         if ($this->_postStoreUpdateDocuments) {
             $this->invalidateDocumentCacheFor($model);
@@ -125,13 +126,13 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::preDelete}
+     * @see {Opus\Model\Plugin\PluginInterface::preDelete}
      *
      * Run plugin for documents depending on to-be-deleted model.
      * If model is not persistent (i. e. modelId is not set and /or model states to be a new record)
      * preDelete operation is skipped.
      */
-    public function preDelete(Opus_Model_AbstractDb $model)
+    public function preDelete(Opus\Model\ModelInterface $model)
     {
         $modelId = $model->getId();
         if (!$model->isNewRecord() && !empty($modelId)) {
@@ -151,7 +152,7 @@ class Opus_Model_Plugin_InvalidateDocumentCache extends Opus_Model_Plugin_Abstra
      * @param Opus_Model_AbstractDb $model
      * @throws Opus_DocumentFinder_Exception
      */
-    protected function invalidateDocumentCacheFor(Opus_Model_AbstractDb $model)
+    protected function invalidateDocumentCacheFor(Opus\Model\ModelInterface $model)
     {
         $documentFinder = new Opus_DocumentFinder();
 

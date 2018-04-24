@@ -36,7 +36,7 @@
  * Base class for plugins that need to update documents associated with collection tree.
  *
  */
-abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Abstract
+abstract class Opus_Model_Plugin_AbstractCollection extends Opus\Model\Plugin\AbstractPlugin
 {
 
     /**

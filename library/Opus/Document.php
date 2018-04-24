@@ -529,7 +529,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      * Returns all document that are in a specific server (publication) state.
      *
      * @param  string  $state The state to check for.
-     * @throws Opus_Model_Exception Thrown if an unknown state is encountered.
+     * @throws Opus\Model\Exception Thrown if an unknown state is encountered.
      * @return array The list of documents in the specified state.
      *
      * @deprecated

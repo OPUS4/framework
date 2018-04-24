@@ -55,7 +55,7 @@ class Opus_Model_Xml_Cache
      *
      * @param mixed $documentId
      * @param mixed $xmlVersion
-     * @throws Opus_Model_Exception in case an XML processing error occurred
+     * @throws Opus\Model\Exception in case an XML processing error occurred
      * @return DOMDocument
      */
     public function get($documentId, $xmlVersion) {
@@ -78,7 +78,7 @@ class Opus_Model_Xml_Cache
                         'line:column: ' . $error->line . ':' . $error->column;
                 }
                 Zend_Registry::get('Zend_Log')->err($errMsg);
-                throw new Opus_Model_Exception($errMsg);
+                throw new Opus\Model\Exception($errMsg);
             }
         }
 

@@ -65,15 +65,15 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      * @var Zend_Db_Table_Row
      */
     private $_mockTableRow = null;
-    
-    
+
+
     /**
      * Zend_Db_Adapter mockup
      *
      * @var Zend_Db_Adapter
      */
-    private $_mockAdapter = null; 
-    
+    private $_mockAdapter = null;
+
     /**
      * Set up test instance and mock environment.
      *
@@ -111,32 +111,32 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
 
         $this->_mockAdapter = $this->getMock('Zend_Db_Adapter_Abstract',
             array('_connect', '_beginTransaction', '_commit', '_rollback',
-                'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId', 
+                'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId',
                 'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'),
             array($config));
 
         $this->_mockTableGateway = $this->getMock('Opus_Model_Dependent_AbstractTest_MockTableGateway',
             array('createRow'), array(array(Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter)));
 
-        $this->_mockTableRow = $this->getMock('Zend_Db_Table_Row', 
-            array('delete'), 
+        $this->_mockTableRow = $this->getMock('Zend_Db_Table_Row',
+            array('delete'),
             array(array('table' => $this->_mockTableGateway)));
         $this->_mockTableRow->expects($this->any())
             ->method('delete')
             ->will($this->returnValue(1));
-        
+
         $this->_mockTableGateway->expects($this->any())
             ->method('createRow')
             ->will($this->returnValue($this->_mockTableRow));
-            
-        $this->_cut = $this->getMock('Opus_Model_Dependent_Abstract', 
+
+        $this->_cut = $this->getMock('Opus_Model_Dependent_Abstract',
             array('_init', 'getId'), array(null, $this->_mockTableGateway));
         $this->_cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
         // unregister plugin to avoid side effects using mock object
         // plugin relies on table gateway class which is not available
         try {
             $this->_cut->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {}
+        } catch (Opus\Model\Exception $ome) {}
     }
 
     /**
@@ -153,7 +153,7 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         $this->_mockTableRow->expects($this->never())->method('delete');
         $this->_cut->delete();
     }
-    
+
     /**
      * Test if delete() returns a deletion token.
      *
@@ -163,14 +163,14 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         $token = $this->_cut->delete();
         $this->assertNotNull($token, 'No deletion token returned.');
     }
-    
+
     /**
      * Test if doDelete() rejects invalid deletion token.
      *
      * @return void
-     */   
+     */
     public function testInvalidDeletionTokenThrowsException() {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_cut->delete();
         $this->_cut->doDelete('foo');
     }
@@ -179,13 +179,13 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      * Test if doDelete() throws Exception if no deletion token has been required.
      *
      * @return void
-     */   
+     */
     public function testMissingDeletionTokenThrowsException() {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->_cut->doDelete(null);
     }
 
-    
+
     /**
      * Test if doDelete() accepts a valid deletion token.
      *
@@ -195,11 +195,11 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         try {
             $token = $this->_cut->delete();
             $this->_cut->doDelete($token);
-        } catch (Opus_Model_Exception $ex) {
+        } catch (Opus\Model\Exception $ex) {
             $this->fail('Valid deletion token rejected with Exception: '.$ex->getMessage());
         }
-    }   
-    
+    }
+
     /**
      * Test if call to doDelete() with valid token deletes the actual row.
      *
@@ -210,13 +210,13 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
         $token = $this->_cut->delete();
         $this->_cut->doDelete($token);
     }
-    
+
     /**
      * Regression Test for OPUSVIER-1687
      * make sure cache invalidation is enabled when document caching enabled
      */
     public function testInvalidateDocumentCacheEnabled() {
-        
+
         $reflectedClass = new ReflectionClass('Opus_Document');
         $property = $reflectedClass->getProperty('_plugins');
         $props = $reflectedClass->getDefaultProperties();
@@ -230,5 +230,5 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
 
     }
 
-      
+
 }

@@ -387,7 +387,7 @@ class Opus_FileTest extends TestCase {
 
             $this->fail('Expected exception not thrown.');
         }
-        catch (Opus_Model_Exception $e) {
+        catch (Opus\Model\Exception $e) {
             @chmod($path, 0777);
             $expectedMessage = 'Could not rename file from';
             $this->assertStringStartsWith($expectedMessage, $e->getMessage(), 'Caught wrong exception!');
@@ -631,7 +631,7 @@ class Opus_FileTest extends TestCase {
         $file->setPathName('copied-' . $filename);
         $file->setLabel('Volltextdokument-2 (PDF)');
 
-        $this->setExpectedException("Opus_Model_Exception");
+        $this->setExpectedException('Opus\Model\Exception');
         $doc->store();
 
         // This code is not reached if the expected exception is thrown
@@ -661,7 +661,7 @@ class Opus_FileTest extends TestCase {
 
         $file->store();
     }
-    
+
     /**
      * Regression Test for OPUSVIER-1687.
      */
@@ -670,7 +670,7 @@ class Opus_FileTest extends TestCase {
         $filepath = $this->_src_path . DIRECTORY_SEPARATOR . $filename;
 
         touch($filepath);
-        
+
         $doc = new Opus_Document();
         $doc->setType("article");
         $file = $doc->addFile();

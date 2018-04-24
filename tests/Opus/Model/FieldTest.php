@@ -599,7 +599,7 @@ class Opus_Model_FieldTest extends TestCase {
     public function testValueOfUnexpectedTypeThrowsException() {
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass('Zend_Date');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $field->setValue(new stdClass());
     }
 
@@ -616,7 +616,7 @@ class Opus_Model_FieldTest extends TestCase {
             $field->setValue('Foo');
             $this->fail('Missing exception!');
         }
-        catch (Opus_Model_Exception $ome) {
+        catch (Opus\Model\Exception $ome) {
             $this->assertStringStartsWith("Failed to cast value 'Foo'", $ome->getMessage());
         }
     }
@@ -631,7 +631,7 @@ class Opus_Model_FieldTest extends TestCase {
         $field->setValueModelClass('Zend_Date');
         try {
             $field->setValue('10.11.1979');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
             $this->fail('No type check excpetion expected: ' . $ome->getMessage());
         }
         $result = $field->getValue();

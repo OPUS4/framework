@@ -89,7 +89,7 @@ class Opus_EnrichmentKeyTest extends TestCase {
     public function testStoreEqualEnrichmentKey() {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('foo');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
@@ -98,7 +98,7 @@ class Opus_EnrichmentKeyTest extends TestCase {
     public function testStoreEmptyEnrichmentKey() {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
@@ -106,13 +106,13 @@ class Opus_EnrichmentKeyTest extends TestCase {
 
     public function testStoryUnsetEnrichmentKey() {
         $ek = new Opus_EnrichmentKey();
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $ek->store();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
 
-    
+
     /* DELETE */
     public function testDeleteEnrichmentKey() {
         $this->unreferencedEnrichmentKey->delete();
@@ -121,12 +121,12 @@ class Opus_EnrichmentKeyTest extends TestCase {
     }
 
     public function testDeleteReferencedEnrichmentKey() {
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->referencedEnrichmentKey->delete();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));;
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
-    
+
     /* READ */
     public function testReadEnrichmentKey() {
         foreach (array('foo', 'bar') as $name) {
@@ -144,7 +144,7 @@ class Opus_EnrichmentKeyTest extends TestCase {
 
     public function testUpdateReferencedEnrichmentKey() {
         $this->referencedEnrichmentKey->setName('baz');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->setExpectedException('Opus\Model\Exception');
         $this->referencedEnrichmentKey->store();
     }
 
