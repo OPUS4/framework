@@ -54,8 +54,8 @@ class Opus_Validate_Issn extends Zend_Validate_Abstract
      * @var array
      */
     protected $_messageTemplates = array(
-        self::MSG_CHECK_DIGIT => "The check digit of '%value%' is not valid",
-        self::MSG_FORM => "'%value%' is malformed"
+        self::MSG_CHECK_DIGIT => "The check digit of '%value%' is not valid.",
+        self::MSG_FORM => "'%value%' is malformed."
     );
 
     /**
