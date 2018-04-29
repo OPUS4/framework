@@ -71,6 +71,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
         $title = new Opus_Title();
         $title->setType('main');
         $title->setValue('Document without meaningful title');
+        $title->setLanguage('deu');
         $doc->addTitleMain($title);
 
         $doc->store();
