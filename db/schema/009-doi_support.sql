@@ -4,7 +4,7 @@ START TRANSACTION;
 
 ALTER TABLE `document_identifiers`
   ADD `status`          ENUM('registered', 'verified') NULL COMMENT 'DOI registration status',
-  ADD `registration_ts` DATETIME                       NULL COMMENT 'timestamp of DOI registration';
+  ADD `registration_ts` TIMESTAMP                      NULL COMMENT 'timestamp of DOI registration';
 
 -- Update database version
 
