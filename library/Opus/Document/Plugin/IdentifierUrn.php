@@ -64,14 +64,11 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
         // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
         $generateUrn = null;
-        $enrichments = $model->getEnrichment();
-        foreach ($enrichments as $enrichment) {
-            if ($enrichment->getKeyName() == 'opus.urn.autoCreate') {
-                $enrichmentValue = $enrichment->getValue();
-                $generateUrn = ($enrichmentValue == 'true');
-                $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
-                break; // weitere Enrichments müssen nicht betrachtet werden
-            }
+        $enrichment = $model->getEnrichment('opus.urn.autoCreate');
+        if (!is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateUrn = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
         if (is_null($generateUrn)) {

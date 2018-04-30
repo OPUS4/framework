@@ -85,14 +85,11 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
-        $enrichments = $document->getEnrichment();
-        foreach ($enrichments as $enrichment) {
-            if ($enrichment->getKeyName() == 'opus.doi.autoCreate') {
-                $enrichmentValue = $enrichment->getValue();
-                $generateDoi = ($enrichmentValue == 'true');
-                $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
-                break; // weitere Enrichments müssen nicht betrachtet werden
-            }
+        $enrichment = $document->getEnrichment('opus.doi.autoCreate');
+        if (!is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateDoi = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
         }
 
         $config = Zend_Registry::get('Zend_Config');
