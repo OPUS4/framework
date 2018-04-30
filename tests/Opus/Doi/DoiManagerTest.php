@@ -561,15 +561,15 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doiValue);
     }
 
-    public function testDeleteMetadataForDOIDocWithoutDoi() {
+    public function testDeleteMetadataForDoiDocWithoutDoi() {
         $doc = new Opus_Document();
         $doc->store();
 
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI($doc);
+        $doiManager->deleteMetadataForDoi($doc);
     }
 
-    public function testDeleteMetadataForDOIDocWithExternalDoi() {
+    public function testDeleteMetadataForDoiDocWithExternalDoi() {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -579,10 +579,10 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $docId = $this->createTestDocWithDoi('10.9999/system-');
 
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI(new Opus_Document($docId));
+        $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDOIDocWithLocalDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalDoi() {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -592,10 +592,10 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
 
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI(new Opus_Document($docId));
+        $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDOIDocWithLocalRegisteredDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi() {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -612,10 +612,10 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'registered');
 
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI(new Opus_Document($docId));
+        $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDOIDocWithLocalVerifiedDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi() {
         $this->adaptDoiConfiguration(array(
                 'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
                 'prefix' => '10.5072/',
@@ -632,7 +632,7 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'verified');
 
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI(new Opus_Document($docId));
+        $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
     public function testUpdateLandingPageUrlOfDoiWithMissingConfig() {

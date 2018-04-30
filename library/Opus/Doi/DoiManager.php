@@ -100,7 +100,7 @@ class Opus_Doi_DoiManager {
         }
 
         // prüfe, ob es überhaupt eine lokale DOI gibt, die registriert werden kann
-        $localDoi = $this->checkForLocalRegistrableDOI($doc);
+        $localDoi = $this->checkForLocalRegistrableDoi($doc);
         if (is_null($localDoi)) {
             $message = 'document ' . $doc->getId() . ' does not provide a local DOI that can be registered: abort DOI registration process';
             $this->doiLog->info($message);
@@ -139,7 +139,7 @@ class Opus_Doi_DoiManager {
 
         try {
             $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
-            $client->registerDOI($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
+            $client->registerDoi($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
         }
         catch (\Opus\Doi\ClientException $e) {
             $message = 'an error occurred while registering DOI ' . $localDoi->getValue() . ' for document ' . $doc->getId() . ': ' . $e->getMessage();
@@ -206,7 +206,7 @@ class Opus_Doi_DoiManager {
      * Erkennung von lokalen DOIs nur berücksichtigt, wenn er gesetzt ist.
      *
      */
-    private function checkForLocalRegistrableDOI($doc) {
+    private function checkForLocalRegistrableDoi($doc) {
         $doiToBeChecked = $this->getDoi($doc);
         if (is_null($doiToBeChecked)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide an identifier of type DOI that can be registered');
@@ -224,7 +224,7 @@ class Opus_Doi_DoiManager {
             return null;
         }
 
-        if ($this->isLocalDOI($doiValue)) {
+        if ($this->isLocalDoi($doiValue)) {
             return $doiToBeChecked;
         }
 
@@ -237,7 +237,7 @@ class Opus_Doi_DoiManager {
      *
      * @param $value Wert einer DOI, der auf Lokalität geprüft werden soll
      */
-    private function isLocalDOI($value) {
+    private function isLocalDoi($value) {
         $doi = new Opus_Identifier();
         $doi->setValue($value);
         return $doi->isLocalDoi();
@@ -406,7 +406,7 @@ class Opus_Doi_DoiManager {
             // prüfe, ob die DOI $doi bei DataCite erfolgreich registriert ist und setze dann den DOI-Status auf "verified"
             try {
                 $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
-                $result = $client->checkDOI($doi->getValue(), $this->getLandingPageUrlOfDoc($doc));
+                $result = $client->checkDoi($doi->getValue(), $this->getLandingPageUrlOfDoc($doc));
                 if ($result) {
                     $message = 'verification of DOI ' . $doi->getValue() . ' of document ' . $docId . ' was successful';
                     $this->doiLog->info($message);
@@ -523,7 +523,7 @@ class Opus_Doi_DoiManager {
             $firstDoi = $dois[0];
 
             // handelt es sich um eine lokale DOI?
-            if (!$this->isLocalDOI($firstDoi->getValue())) {
+            if (!$this->isLocalDoi($firstDoi->getValue())) {
                 continue;
             }
 
@@ -606,7 +606,7 @@ class Opus_Doi_DoiManager {
      *
      * @param $doc ID des Dokuments
      */
-    public function deleteMetadataForDOI($doc) {
+    public function deleteMetadataForDoi($doc) {
         $dois = $doc->getIdentifierDoi();
         if (empty($dois)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide a DOI - deregistration of DOI is not required');
@@ -646,7 +646,7 @@ class Opus_Doi_DoiManager {
     public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) {
         try {
             $client = new \Opus\Doi\Client($this->config);
-            $client->updateURLforDOI($doiValue, $landingPageURL);
+            $client->updateURLforDoi($doiValue, $landingPageURL);
         }
         catch (\Opus\Doi\ClientException $e) {
             $message = 'could not update landing page URL of DOI ' . $doiValue . ' to ' . $landingPageURL;

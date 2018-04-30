@@ -78,7 +78,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
     private function handleDeleteEvent($document) {
         // Metadatensatz für DOI auf den Status "inactive" setzen
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI($document);
+        $doiManager->deleteMetadataForDoi($document);
     }
 
     private function handlePublishEvent($document, $log) {
