@@ -646,7 +646,7 @@ class Opus_Doi_DoiManager {
     public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) {
         try {
             $client = new \Opus\Doi\Client($this->config);
-            $client->updateURLforDoi($doiValue, $landingPageURL);
+            $client->updateUrlForDoi($doiValue, $landingPageURL);
         }
         catch (\Opus\Doi\ClientException $e) {
             $message = 'could not update landing page URL of DOI ' . $doiValue . ' to ' . $landingPageURL;
