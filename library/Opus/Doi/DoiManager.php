@@ -549,26 +549,17 @@ class Opus_Doi_DoiManager {
      * @throws DoiException
      */
     public function generateNewDoi($doc) {
-        // versuche die Generierungsklasse für DOIs zu instanziieren
-        if (!isset($this->config->doi->generatorClass)) {
-            // Fehler: Generierungsklasse für DOIs wurde nicht definiert
-            $message = 'mandatory configuration key doi.generatorClass is missing - check your configuration';
-            $this->defaultLog->err($message);
-            $this->doiLog->err($message);
-            throw new Opus_Doi_DoiException($message);
-        }
 
-        $generatorClassName = $this->config->doi->generatorClass;
-        $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
+        $generator = null;
+        try {
+            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();    
+        }
+        catch (Opus_Doi_DoiException $e) {
+            $this->defaultLog->err($e->getMessage());
+            $this->doiLog->err($e->getMessage());
+            throw $e;
+        }
         
-        if (!$classExists) {
-            // Generierungsklasse für DOI kann nicht gefunden oder geladen werden
-            $message = 'DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration';
-            $this->defaultLog->err($message);
-            $this->doiLog->err($message);
-            throw new Opus_Doi_DoiException($message);
-        }
-
         if (is_string($doc) && is_numeric($doc)) {
             $docId = $doc;
             try {
@@ -588,11 +579,10 @@ class Opus_Doi_DoiManager {
         }
 
         try {
-            $generator = new $generatorClassName();
             $doiValue = $generator->generate($doc);
         }
         catch (Opus_Doi_Generator_DoiGeneratorException $e) {
-            $message = 'could not generate DOI using generator class ' . $generatorClassName . ': ' . $e->getMessage();
+            $message = 'could not generate DOI using generator class: ' . $e->getMessage();
             $this->defaultLog->err($message);
             $this->doiLog->err($message);
             throw new Opus_Doi_DoiException($message);
