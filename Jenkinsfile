@@ -1,11 +1,17 @@
 #!groovy
 
 /**
-  * We have use an hardcoded job_name, because we actually don't have a better solution.
-  * So actually we made an different set_up for night-containing Jobs and for every other.
-  * Additionaly we have a 3 am trigger for night-builds and an 0 am trigger for every other.
+  * This Jenkinsfile is using to configurate an jenkins-job for testing at an CI-System
+  * For this a env-variable is used. This is for activate a short or an normal build.
+  * A short build do not check the coverage
+  * The short build will be activated, if the job_name has an 'night'-substring. This is actually hardcoded.
+  * So actually we made an different setup for night-containing jobs and for every other.
+  * Additionaly we have a 3 am trigger for night-builds(normal) and an 0 am trigger for every other.
   * For MySQL we use a Docker.
-  * Pay Attention on the Port. In Line 43, the first port have to be set on the port in the config.ini.
+  * Pay Attention on the Port. In Line 49, the first port have to be set on the port in the config.ini
+  *
+  * TODO: Actually the normal build is also triggered with an push on github. We want, that short build are always
+  * triggerd with an push on github, but one time a day for minimum. Normal builds only triggered at night an 3 am.
   */
 
 def jobNameParts = JOB_NAME.tokenize('/') as String[]
@@ -16,7 +22,7 @@ node {
     if(projectName.contains('night')){
         properties([
             parameters([
-                string(name: 'DEPLOY_ENV', defaultValue: 'TRUE')
+                string(name: 'Short_Build', defaultValue: 'FALSE')
             ]),
             pipelineTriggers([
                 cron('0 3 * * *')
@@ -27,7 +33,7 @@ node {
     else{
         properties([
             parameters([
-                string(name: 'DEPLOY_ENV', defaultValue: 'FALSE')
+                string(name: 'Short_Build', defaultValue: 'TRUE')
             ]),
             pipelineTriggers([
                 cron('0 0 * * *')
@@ -46,7 +52,7 @@ node {
         stage "build"
         sh 'ant setup prepare lint'
 
-        if ('${params.DEPLOY_ENV}' == 'TRUE')
+        if ('${params.Short_Build}' == 'TRUE')
         {
             stage "Test"
             sh 'ant phpunit'
