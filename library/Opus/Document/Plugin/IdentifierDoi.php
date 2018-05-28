@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus_Document_Plugin
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -78,21 +78,18 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
     private function handleDeleteEvent($document) {
         // Metadatensatz für DOI auf den Status "inactive" setzen
         $doiManager = new Opus_Doi_DoiManager();
-        $doiManager->deleteMetadataForDOI($document);
+        $doiManager->deleteMetadataForDoi($document);
     }
 
     private function handlePublishEvent($document, $log) {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
-        $enrichments = $document->getEnrichment();
-        foreach ($enrichments as $enrichment) {
-            if ($enrichment->getKeyName() == 'opus.doi.autoCreate') {
-                $enrichmentValue = $enrichment->getValue();
-                $generateDoi = ($enrichmentValue == 'true');
-                $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
-                break; // weitere Enrichments müssen nicht betrachtet werden
-            }
+        $enrichment = $document->getEnrichment('opus.doi.autoCreate');
+        if (!is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateDoi = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
         }
 
         $config = Zend_Registry::get('Zend_Config');
@@ -186,5 +183,4 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         }
 
     }
-
 }

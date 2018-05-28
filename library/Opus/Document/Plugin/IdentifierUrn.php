@@ -29,9 +29,8 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,14 +40,15 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract 
+{
 
     /**
      * Generates a new URN for any document that has no URN assigned yet.
      * URN's are generated for Opus_Document instances only.
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus_Model_AbstractDb $model) 
+    {
         if(!($model instanceof Opus_Document))
             return;
 
@@ -64,14 +64,11 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
         // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
         $generateUrn = null;
-        $enrichments = $model->getEnrichment();
-        foreach ($enrichments as $enrichment) {
-            if ($enrichment->getKeyName() == 'opus.urn.autoCreate') {
-                $enrichmentValue = $enrichment->getValue();
-                $generateUrn = ($enrichmentValue == 'true');
-                $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
-                break; // weitere Enrichments müssen nicht betrachtet werden
-            }
+        $enrichment = $model->getEnrichment('opus.urn.autoCreate');
+        if (!is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateUrn = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
         if (is_null($generateUrn)) {
@@ -150,10 +147,10 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
      * @param $document
      * @return bool
      */
-    public function allowUrnOnThisDocument($document) {
+    public function allowUrnOnThisDocument($document) 
+    {
         $files = array_filter($document->getFile(),
             function ($f) { return $f->getVisibleInOai() == 1; });
         return count($files) > 0;
     }
 }
-

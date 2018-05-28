@@ -100,7 +100,7 @@ class Opus_Doi_DoiManager {
         }
 
         // prüfe, ob es überhaupt eine lokale DOI gibt, die registriert werden kann
-        $localDoi = $this->checkForLocalRegistrableDOI($doc);
+        $localDoi = $this->checkForLocalRegistrableDoi($doc);
         if (is_null($localDoi)) {
             $message = 'document ' . $doc->getId() . ' does not provide a local DOI that can be registered: abort DOI registration process';
             $this->doiLog->info($message);
@@ -139,7 +139,7 @@ class Opus_Doi_DoiManager {
 
         try {
             $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
-            $client->registerDOI($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
+            $client->registerDoi($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
         }
         catch (\Opus\Doi\ClientException $e) {
             $message = 'an error occurred while registering DOI ' . $localDoi->getValue() . ' for document ' . $doc->getId() . ': ' . $e->getMessage();
@@ -206,7 +206,8 @@ class Opus_Doi_DoiManager {
      * Erkennung von lokalen DOIs nur berücksichtigt, wenn er gesetzt ist.
      *
      */
-    private function checkForLocalRegistrableDOI($doc) {
+    private function checkForLocalRegistrableDoi($doc) 
+    {
         $doiToBeChecked = $this->getDoi($doc);
         if (is_null($doiToBeChecked)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide an identifier of type DOI that can be registered');
@@ -224,12 +225,11 @@ class Opus_Doi_DoiManager {
             return null;
         }
 
-        if ($this->isLocalDOI($doiValue)) {
+        if ($this->isLocalDoi($doiValue)) {
             return $doiToBeChecked;
         }
 
         return null;
-
     }
 
     /**
@@ -237,7 +237,8 @@ class Opus_Doi_DoiManager {
      *
      * @param $value Wert einer DOI, der auf Lokalität geprüft werden soll
      */
-    private function isLocalDOI($value) {
+    private function isLocalDoi($value) 
+    {
         $doi = new Opus_Identifier();
         $doi->setValue($value);
         return $doi->isLocalDoi();
@@ -406,7 +407,7 @@ class Opus_Doi_DoiManager {
             // prüfe, ob die DOI $doi bei DataCite erfolgreich registriert ist und setze dann den DOI-Status auf "verified"
             try {
                 $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
-                $result = $client->checkDOI($doi->getValue(), $this->getLandingPageUrlOfDoc($doc));
+                $result = $client->checkDoi($doi->getValue(), $this->getLandingPageUrlOfDoc($doc));
                 if ($result) {
                     $message = 'verification of DOI ' . $doi->getValue() . ' of document ' . $docId . ' was successful';
                     $this->doiLog->info($message);
@@ -523,7 +524,7 @@ class Opus_Doi_DoiManager {
             $firstDoi = $dois[0];
 
             // handelt es sich um eine lokale DOI?
-            if (!$this->isLocalDOI($firstDoi->getValue())) {
+            if (!$this->isLocalDoi($firstDoi->getValue())) {
                 continue;
             }
 
@@ -548,27 +549,18 @@ class Opus_Doi_DoiManager {
      *
      * @throws DoiException
      */
-    public function generateNewDoi($doc) {
-        // versuche die Generierungsklasse für DOIs zu instanziieren
-        if (!isset($this->config->doi->generatorClass)) {
-            // Fehler: Generierungsklasse für DOIs wurde nicht definiert
-            $message = 'mandatory configuration key doi.generatorClass is missing - check your configuration';
-            $this->defaultLog->err($message);
-            $this->doiLog->err($message);
-            throw new Opus_Doi_DoiException($message);
+    public function generateNewDoi($doc) 
+    {
+        $generator = null;
+        try {
+            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();    
         }
-
-        $generatorClassName = $this->config->doi->generatorClass;
-        $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
+        catch (Opus_Doi_DoiException $e) {
+            $this->defaultLog->err($e->getMessage());
+            $this->doiLog->err($e->getMessage());
+            throw $e;
+        }
         
-        if (!$classExists) {
-            // Generierungsklasse für DOI kann nicht gefunden oder geladen werden
-            $message = 'DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration';
-            $this->defaultLog->err($message);
-            $this->doiLog->err($message);
-            throw new Opus_Doi_DoiException($message);
-        }
-
         if (is_string($doc) && is_numeric($doc)) {
             $docId = $doc;
             try {
@@ -588,11 +580,10 @@ class Opus_Doi_DoiManager {
         }
 
         try {
-            $generator = new $generatorClassName();
             $doiValue = $generator->generate($doc);
         }
         catch (Opus_Doi_Generator_DoiGeneratorException $e) {
-            $message = 'could not generate DOI using generator class ' . $generatorClassName . ': ' . $e->getMessage();
+            $message = 'could not generate DOI using generator class: ' . $e->getMessage();
             $this->defaultLog->err($message);
             $this->doiLog->err($message);
             throw new Opus_Doi_DoiException($message);
@@ -606,7 +597,8 @@ class Opus_Doi_DoiManager {
      *
      * @param $doc ID des Dokuments
      */
-    public function deleteMetadataForDOI($doc) {
+    public function deleteMetadataForDoi($doc) 
+    {
         $dois = $doc->getIdentifierDoi();
         if (empty($dois)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide a DOI - deregistration of DOI is not required');
@@ -643,10 +635,11 @@ class Opus_Doi_DoiManager {
         }
     }
 
-    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) {
+    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) 
+    {
         try {
             $client = new \Opus\Doi\Client($this->config);
-            $client->updateURLforDOI($doiValue, $landingPageURL);
+            $client->updateUrlForDoi($doiValue, $landingPageURL);
         }
         catch (\Opus\Doi\ClientException $e) {
             $message = 'could not update landing page URL of DOI ' . $doiValue . ' to ' . $landingPageURL;
@@ -656,12 +649,12 @@ class Opus_Doi_DoiManager {
         }
     }
     
-    private function getLandingPageUrlOfDoc($doc) {
+    private function getLandingPageUrlOfDoc($doc) 
+    {
         if (is_null($this->landingPageUrl)) {
             return null;
         }
         $result = $this->landingPageUrl . $doc->getId();
         return $result;
     }
-
 }

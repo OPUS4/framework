@@ -24,60 +24,40 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
+ * @category    Framework
  * @package     Opus_Doi
  * @author      Sascha Szott <szott@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase 
-{
+class Opus_Doi_Generator_DoiGeneratorFactory {
 
-    public function testGenerateMissingFields() 
-    {
-        $doc = new Opus_Document();
-        $doc->store();
-
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $this->setExpectedException('Opus_Doi_DataCiteXmlGenerationException');
-        $generator->getXml($doc);
-    }
-
-    public function testGenerateRequiredFields() 
-    {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
-
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
-
-        $this->assertTrue(is_string($result));
-    }
-
-    private function addRequiredPropsToDoc($doc) 
-    {
-        $doi = new Opus_Identifier();
-        $doi->setType('doi');
-        $doi->setValue('10.2345/opustest-' . $doc->getId());
-        $doc->setIdentifier(array($doi));
+    public static function create() {
         
-        $doc->setCompletedYear(2018);
-        $doc->setServerState('unpublished');
-        $doc->setType('book');
-        $doc->setPublisherName('ACME corp');
+        $config = Zend_Registry::get('Zend_Config');
 
-        $author = new Opus_Person();
-        $author->setLastName('Doe');
-        $author->setFirstName('John');
-        $doc->addPersonAuthor($author);
+        // versuche die Generierungsklasse für DOIs zu instanziieren
+        if (!isset($config->doi->generatorClass)) {
+            // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
+            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
+        }
+        
+        if ($config->doi->generatorClass == '') {
+            // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
+            throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is empty - check your configuration');
+        }
 
-        $title = new Opus_Title();
-        $title->setType('main');
-        $title->setValue('Document without meaningful title');
-        $title->setLanguage('deu');
-        $doc->addTitleMain($title);
+        $generatorClassName = $config->doi->generatorClass;
+        $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
 
-        $doc->store();
+        if (!$classExists) {
+            // Generierungsklasse für DOIs kann nicht gefunden oder geladen werden
+            throw new Opus_Doi_DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
+        }
+        
+        $generator = new $generatorClassName();
+        return $generator;
     }
+
 }
