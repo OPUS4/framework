@@ -28,9 +28,8 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,6 +38,8 @@
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Dependent_Abstract
+ *
+ * TODO find way to remove DOI and URN functions to separate classes
  */
 class Opus_Identifier extends Opus_Model_Dependent_Abstract {
     /**
@@ -108,7 +109,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
         $this->addField($value);
     }
 
-    protected function _preStore() {
+    protected function _preStore() 
+    {
         $type  = $this->getType();
         $value = $this->getValue();
         if (isset($type) and isset($value)) {
@@ -137,7 +139,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * @throws Opus_Identifier_UrnAlreadyExistsException
      * @throws Opus_Model_Exception
      */
-    private function checkUrnCollision($value, $docId = null) {
+    private function checkUrnCollision($value, $docId = null) 
+    {
         $log = Zend_Registry::get('Zend_Log');
         $log->debug('check URN collision for URN ' . $value);
 
@@ -145,6 +148,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
         $finder->setIdentifierTypeValue('urn', $value);
         $docIds = $finder->ids();
         // remove $docId of current document from $docIds
+
         if (!is_null($docId)) {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
@@ -209,7 +213,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * betrachtet.
      *
      */
-    public function isDoiUnique($docId = null) {
+    public function isDoiUnique($docId = null) 
+    {
         $finder = new Opus_DocumentFinder();
         $finder->setIdentifierTypeValue('doi', $this->getValue());
         $docIds = $finder->ids();
@@ -218,6 +223,10 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
+
+            $generator = new $generatorClassName();
+            $isLocalDoi = $generator->isLocal($this->getValue());
+            return $isLocalDoi;
         }
 
         try {
@@ -241,7 +250,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * @return bool
      * @throws Zend_Exception
      */
-    public function isLocalDoi() {
+    public function isLocalDoi() 
+    {
 
         $generator = null;
         try {
@@ -288,13 +298,15 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
     /**
      * Prüft, dass in der DOI nur die von DataCite erlaubten Werte enthalten sind.
      */
-    public function isValidDoi() {
+    public function isValidDoi() 
+    {
         $value = $this->getValue();
         $containsInvalidChar = preg_match('/[^0-9a-zA-Z\-\.\_\+\:\/]/', $value);
         return $containsInvalidChar !== 1;
     }
 
-    private function checkIdCollision($type, $docIds) {
+    private function checkIdCollision($type, $docIds) 
+    {
         $errorMsg = "$type collision (documents " . implode(",", $docIds) . ")";
         switch ($type) {
             case 'urn':

@@ -86,4 +86,5 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         $this->addField($key);
         $this->addField($value);
     }
+
 }

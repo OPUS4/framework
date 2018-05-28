@@ -31,9 +31,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
+class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase 
+{
 
-    public function testGenerateMissingFields() {
+    public function testGenerateMissingFields() 
+    {
         $doc = new Opus_Document();
         $doc->store();
 
@@ -42,7 +44,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
         $generator->getXml($doc);
     }
 
-    public function testGenerateRequiredFields() {
+    public function testGenerateRequiredFields() 
+    {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 
@@ -52,7 +55,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
         $this->assertTrue(is_string($result));
     }
 
-    private function addRequiredPropsToDoc($doc) {
+    private function addRequiredPropsToDoc($doc) 
+    {
         $doi = new Opus_Identifier();
         $doi->setType('doi');
         $doi->setValue('10.2345/opustest-' . $doc->getId());
@@ -76,5 +80,4 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase {
 
         $doc->store();
     }
-
 }

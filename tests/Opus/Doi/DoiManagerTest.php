@@ -31,7 +31,8 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManagerTest extends TestCase {
+class Opus_Doi_DoiManagerTest extends TestCase 
+{
 
     public function testConstructor() {
         Zend_Registry::set('Zend_Config',
@@ -561,7 +562,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doiValue);
     }
 
-    public function testDeleteMetadataForDoiDocWithoutDoi() {
+    public function testDeleteMetadataForDoiDocWithoutDoi() 
+    {
         $doc = new Opus_Document();
         $doc->store();
 
@@ -569,7 +571,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->deleteMetadataForDoi($doc);
     }
 
-    public function testDeleteMetadataForDoiDocWithExternalDoi() {
+    public function testDeleteMetadataForDoiDocWithExternalDoi() 
+    {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -582,7 +585,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalDoi() 
+    {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -595,7 +599,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi() 
+    {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.5072/',
@@ -615,7 +620,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi() {
+    public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi() 
+    {
         $this->adaptDoiConfiguration(array(
                 'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
                 'prefix' => '10.5072/',
@@ -635,13 +641,15 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testUpdateLandingPageUrlOfDoiWithMissingConfig() {
+    public function testUpdateLandingPageUrlOfDoiWithMissingConfig() 
+    {
         $doiManager = new Opus_Doi_DoiManager();
         $this->setExpectedException('Opus_Doi_DoiException');
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
-    public function testUpdateLandingPageUrlOfDoi() {
+    public function testUpdateLandingPageUrlOfDoi() 
+    {
         $this->adaptDoiConfiguration(array(
                 'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
                 'prefix' => '10.5072/',
@@ -660,7 +668,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
-    public function testUpdateLandingPageUrlOfDoiWithExistingDoi() {
+    public function testUpdateLandingPageUrlOfDoiWithExistingDoi() 
+    {
         $this->markTestSkipped('kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich (Username und Password werden in config.ini gesetzt)');
 
         $config = Zend_Registry::get('Zend_Config');
@@ -715,12 +724,14 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $this->assertEquals('verified', $doi->getStatus());
     }
 
-    private function adaptDoiConfiguration($doiConfig) {
+    private function adaptDoiConfiguration($doiConfig) 
+    {
         Zend_Registry::set('Zend_Config',
             Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
     }
 
-    private function addRequiredPropsToDoc($doc) {
+    private function addRequiredPropsToDoc($doc) 
+    {
         $doc->setCompletedYear(2018);
         $doc->setServerState('unpublished');
         $doc->setType('book');
@@ -740,7 +751,8 @@ class Opus_Doi_DoiManagerTest extends TestCase {
         $doc->store();
     }
 
-    private function createTestDocWithDoi($doiPrefix, $status = null, $registrationTs = null) {
+    private function createTestDocWithDoi($doiPrefix, $status = null, $registrationTs = null) 
+    {
         $doc = new Opus_Document();
         $docId = $doc->store();
 
@@ -759,5 +771,4 @@ class Opus_Doi_DoiManagerTest extends TestCase {
 
         return $docId;
     }
-
 }

@@ -206,7 +206,8 @@ class Opus_Doi_DoiManager {
      * Erkennung von lokalen DOIs nur berücksichtigt, wenn er gesetzt ist.
      *
      */
-    private function checkForLocalRegistrableDoi($doc) {
+    private function checkForLocalRegistrableDoi($doc) 
+    {
         $doiToBeChecked = $this->getDoi($doc);
         if (is_null($doiToBeChecked)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide an identifier of type DOI that can be registered');
@@ -229,7 +230,6 @@ class Opus_Doi_DoiManager {
         }
 
         return null;
-
     }
 
     /**
@@ -237,7 +237,8 @@ class Opus_Doi_DoiManager {
      *
      * @param $value Wert einer DOI, der auf Lokalität geprüft werden soll
      */
-    private function isLocalDoi($value) {
+    private function isLocalDoi($value) 
+    {
         $doi = new Opus_Identifier();
         $doi->setValue($value);
         return $doi->isLocalDoi();
@@ -548,8 +549,8 @@ class Opus_Doi_DoiManager {
      *
      * @throws DoiException
      */
-    public function generateNewDoi($doc) {
-
+    public function generateNewDoi($doc) 
+    {
         $generator = null;
         try {
             $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();    
@@ -596,7 +597,8 @@ class Opus_Doi_DoiManager {
      *
      * @param $doc ID des Dokuments
      */
-    public function deleteMetadataForDoi($doc) {
+    public function deleteMetadataForDoi($doc) 
+    {
         $dois = $doc->getIdentifierDoi();
         if (empty($dois)) {
             $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide a DOI - deregistration of DOI is not required');
@@ -633,7 +635,8 @@ class Opus_Doi_DoiManager {
         }
     }
 
-    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) {
+    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) 
+    {
         try {
             $client = new \Opus\Doi\Client($this->config);
             $client->updateUrlForDoi($doiValue, $landingPageURL);
@@ -646,12 +649,12 @@ class Opus_Doi_DoiManager {
         }
     }
     
-    private function getLandingPageUrlOfDoc($doc) {
+    private function getLandingPageUrlOfDoc($doc) 
+    {
         if (is_null($this->landingPageUrl)) {
             return null;
         }
         $result = $this->landingPageUrl . $doc->getId();
         return $result;
     }
-
 }

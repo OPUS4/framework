@@ -183,5 +183,4 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         }
 
     }
-
 }
