@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,8 +38,13 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method setName(string $string)
+ * @method string getName()
  */
-class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
+class Opus_EnrichmentKey extends Opus_Model_AbstractDb
+{
+
     /**
      * Specify the table gateway.
      *
@@ -52,7 +57,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_EnrichmentKeys objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         return self::getAllFrom('Opus_EnrichmentKey', 'Opus_Db_EnrichmentKeys');
     }
 
@@ -62,7 +68,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $name = new Opus_Model_Field('Name');
         $name->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
@@ -77,7 +84,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
      * @param  string $name
      * @return Opus_EnrichmentKey
      */
-    public static function fetchByName($name = null) {
+    public static function fetchByName($name = null)
+    {
         if (false === isset($name)) {
             return;
         }
@@ -98,7 +106,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
        return $this->getName();
     }
 
@@ -107,7 +116,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_EnrichmentKeys objects.
      */
-    public static function getAllReferenced() {
+    public static function getAllReferenced()
+    {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
         $db = $table->getAdapter();
         $select = $db->select()->from(array('document_enrichments'));
@@ -115,5 +125,4 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb {
         $select->columns("key_name")->distinct(true);
         return $db->fetchCol($select);
     }
-
 }
