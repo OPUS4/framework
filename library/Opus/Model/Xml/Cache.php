@@ -19,9 +19,13 @@
  * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
+ *
+ * @copyright   Copyright (c) 2010-2018 OPUS 4 development team
+ *
+ * TODO add interface (database implementation just one option)
  */
 
-class Opus_Model_Xml_Cache
+class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 {
 
     use \Opus\LoggingTrait;
@@ -34,20 +38,13 @@ class Opus_Model_Xml_Cache
     private $_table = null;
 
     /**
-     * Perform document reindexing after a new cache entry is created
-     *
-     * @var bool
-     */
-    private $_reindexDocumentAfterAddingCacheEntry = true;
-
-    /**
      *
      *
      * @return void
      */
-    public function __construct($reindexDocumentAfterAddingCacheEntry = true) {
-        $this->_table = new Opus_Db_DocumentXmlCache;
-        $this->_reindexDocumentAfterAddingCacheEntry = $reindexDocumentAfterAddingCacheEntry;
+    public function __construct()
+    {
+        $this->_table = new Opus_Db_DocumentXmlCache();
     }
 
     /**
@@ -58,7 +55,8 @@ class Opus_Model_Xml_Cache
      * @throws Opus\Model\Exception in case an XML processing error occurred
      * @return DOMDocument
      */
-    public function get($documentId, $xmlVersion) {
+    public function get($documentId, $xmlVersion)
+    {
         $dom = new DOMDocument('1.0', 'utf-8');
 
         $xmlData = $this->getData($documentId, $xmlVersion);
@@ -91,7 +89,8 @@ class Opus_Model_Xml_Cache
      * @param $xmlVersion Version of XML
      * @return null|string Document XML from cache
      */
-    public function getData($documentId, $xmlVersion) {
+    public function getData($documentId, $xmlVersion)
+    {
         $rowSet = $this->_table->find($documentId, $xmlVersion);
 
         $xmlData = null;
@@ -108,8 +107,8 @@ class Opus_Model_Xml_Cache
      *
      * @return array
      */
-    public function getAllEntries() {
-
+    public function getAllEntries()
+    {
         $rows = $this->_table->fetchAll();
 
         if ($rows->count() > 0) {
@@ -129,7 +128,8 @@ class Opus_Model_Xml_Cache
      * @param mixed $xmlVersion
      * @return boolean
      */
-    public function hasCacheEntry($documentId, $xmlVersion) {
+    public function hasCacheEntry($documentId, $xmlVersion)
+    {
         $rowSet = $this->_table->find($documentId, $xmlVersion);
 
         if (1 === $rowSet->count()) {
@@ -147,8 +147,8 @@ class Opus_Model_Xml_Cache
      * @param mixed $serverDateModified
      * @return bool Returns true on cached hit else false.
      */
-    public function hasValidEntry($documentId, $xmlVersion, $serverDateModified) {
-
+    public function hasValidEntry($documentId, $xmlVersion, $serverDateModified)
+    {
         $select = $this->_table->select()->from($this->_table);
         $select->where('document_id = ?', $documentId)
             ->where('xml_version = ?', $xmlVersion)
@@ -175,7 +175,8 @@ class Opus_Model_Xml_Cache
      * @param DOMDocument $xmlData
      * @return void
      */
-    public function put($documentId, $xmlVersion, $serverDateModified, DOMDocument $xmlData) {
+    public function put($documentId, $xmlVersion, $serverDateModified, DOMDocument $xmlData)
+    {
         // skip adding cache entry if it is a valid entry already existing
         if (true === $this->hasValidEntry($documentId, $xmlVersion, $serverDateModified)) {
             return;
@@ -194,8 +195,6 @@ class Opus_Model_Xml_Cache
         );
 
         $this->_table->insert($newValue);
-
-        $this->_postPut($documentId);
     }
 
     /**
@@ -204,18 +203,25 @@ class Opus_Model_Xml_Cache
      * @param mixed $documentId
      * @param mixed $xmlVersion
      * @return boolean
+     *
+     * TODO simplify (remove all entries for document-id)
      */
-    public function remove($documentId, $xmlVersion) {
-        $rowSet = $this->_table->find($documentId, $xmlVersion);
+    public function remove($documentId, $xmlVersion = null)
+    {
+        if (is_null($xmlVersion)) {
+            $this->removeAllEntriesWhereDocumentId($documentId);
+        } else {
+            $rowSet = $this->_table->find($documentId, $xmlVersion);
 
-        if (1 === $rowSet->count()) {
-            $result = $rowSet->current()->delete();
-            if (1 === $result) {
-                return true;
+            if (1 === $rowSet->count()) {
+                $result = $rowSet->current()->delete();
+                if (1 !== $result) {
+                    return false;
+                }
             }
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -224,7 +230,8 @@ class Opus_Model_Xml_Cache
      * @param mixed $documentId
      * @return void
      */
-    public function removeAllEntriesWhereDocumentId($documentId) {
+    public function removeAllEntriesWhereDocumentId($documentId)
+    {
         $where = array('document_id' => $documentId);
         $this->_table->deleteWhereArray($where);
     }
@@ -236,7 +243,8 @@ class Opus_Model_Xml_Cache
      *  The statement MUST return a list of document ids
      * @return void
      */
-    public function removeAllEntriesWhereSubSelect($select) {
+    public function removeAllEntriesWhereSubSelect($select)
+    {
         $where = 'document_id IN ('.$select->assemble().')';
         $this->_table->delete($where);
     }
@@ -246,7 +254,8 @@ class Opus_Model_Xml_Cache
      *
      * @return void
      */
-    public function removeAllEntries() {
+    public function clear()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->query('truncate table document_xml_cache');
     }
@@ -263,29 +272,5 @@ class Opus_Model_Xml_Cache
         $select = $documentFinder->getSelectIds();
 
         $this->removeAllEntriesWhereSubSelect($select);
-    }
-
-    /**
-     * Post cache put hook. Functionality needed to keep
-     * document in a consistent state after cache update.
-     *
-     * @param int $documentId Id of document to process
-     */
-    protected function _postPut($documentId)
-    {
-        if (!$this->_reindexDocumentAfterAddingCacheEntry) {
-            return;
-        }
-
-        try {
-            $doc = new Opus_Document($documentId);
-        }
-        catch (Opus_Model_NotFoundException $e) {
-            // document requested for indexing does not longer exist: we could simply ignore this
-            return;
-        }
-
-        $indexPlugin = new Opus_Document_Plugin_Index();
-        $indexPlugin->postStore($doc);
     }
 }

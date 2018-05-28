@@ -77,7 +77,6 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @var array
      */
     protected $_plugins = [
-        // 'Opus_Document_Plugin_Index' => null, // TODO OPUSVIER-3871 plugin not part of framework anymore
         'Opus_Document_Plugin_XmlCache' => null,
         'Opus_Document_Plugin_IdentifierUrn' => null
     ];

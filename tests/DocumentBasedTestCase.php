@@ -270,7 +270,7 @@ class DocumentBasedTestCase extends TestCase {
 			/** @var Opus_Model_AbstractDb $model */
 			if ( $model instanceof Opus_Document ) {
 				// drop any model XML cached on document to delete next
-				$cache->removeAllEntriesWhereDocumentId( $model->getId() );
+				$cache->remove( $model->getId() );
 
 				// clear all files related to that document
 				$docFiles = $files . $model->getId();
