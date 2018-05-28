@@ -50,10 +50,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
         'Opus_Collection_Plugin_DeleteSubTree' => null,
-    );
+    ];
 
     /**
      * The collections external fields, i.e. those not mapped directly to the

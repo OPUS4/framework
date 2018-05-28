@@ -80,11 +80,10 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    ];
 
-    
     /**
      * Initialize model with the following fields:
      * - Active
@@ -106,15 +105,15 @@ class Opus_Licence extends Opus_Model_AbstractDb {
     protected function _init() {
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
-        
+
         $commentInternal = new Opus_Model_Field('CommentInternal');
         $commentInternal->setTextarea(true);
-        
+
         $descMarkup = new Opus_Model_Field('DescMarkup');
         $descMarkup->setTextarea(true);
         $descText = new Opus_Model_Field('DescText');
         $descText->setTextarea(true);
-        
+
         $licenceLanguage = new Opus_Model_Field('Language');
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
             $licenceLanguage->setDefault(Zend_Registry::get('Available_Languages'));
@@ -125,7 +124,7 @@ class Opus_Licence extends Opus_Model_AbstractDb {
         $linkLicence = new Opus_Model_Field('LinkLicence');
         $linkLicence->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        
+
         $linkLogo = new Opus_Model_Field('LinkLogo');
         $linkSign = new Opus_Model_Field('LinkSign');
         $mimeType = new Opus_Model_Field('MimeType');
@@ -135,9 +134,9 @@ class Opus_Licence extends Opus_Model_AbstractDb {
         $nameLong = new Opus_Model_Field('NameLong');
         $nameLong->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
-        
+
         $sortOrder = new Opus_Model_Field('SortOrder');
-        
+
         $podAllowed = new Opus_Model_Field('PodAllowed');
         $podAllowed->setCheckbox(true);
 

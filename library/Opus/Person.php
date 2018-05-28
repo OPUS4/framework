@@ -84,9 +84,9 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    ];
 
     /**
      * Initialize model with the following fields:

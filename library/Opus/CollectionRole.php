@@ -85,10 +85,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
         'Opus_CollectionRole_Plugin_DeleteTree' => null,
-    );
+    ];
 
     /**
      * Initialize model.

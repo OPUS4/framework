@@ -55,17 +55,15 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      */
     protected static $_tableGatewayClass  = 'Opus_Db_FileHashvalues';
 
-     /** Plugins to load
+    /** Plugins to load
+     *
+     * Plugin InvalidateDocumentCache should stay disabled here since this model is not directly related to
+     * Opus_Document, therefore 'Opus_Model_Plugin_InvalidateDocumentCache' should not be used.
      *
      * @var array
      */
-    protected $_plugins = array(
-// Plugin InvalidateDocumentCache should stay disabled here since this model is 
-// not directly related to Opus_Document
-//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    protected $_plugins = [];
 
-    
     /**
      * Initialize model with the following fields:
      * - HashType

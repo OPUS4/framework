@@ -73,9 +73,9 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
      *
      * @var array
      */
-    protected $_plugins = array();
+    protected $_plugins = [];
 
-    
+
     /**
      * Initialize model with the following values:
      * - Role
@@ -100,7 +100,7 @@ class Opus_Model_Dependent_Link_AccountRole extends Opus_Model_Dependent_Link_Ab
         $this->_primaryTableRow->role_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->role_id) {            
+        if ($this->getId() !== $this->_primaryTableRow->role_id) {
             parent::store();
         }
     }
