@@ -33,7 +33,8 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_IdentifierTest extends TestCase {
+class Opus_IdentifierTest extends TestCase
+{
 
     private function createDocumentWithIdentifierUrn($urn) {
         $document = new Opus_Document();
@@ -42,7 +43,7 @@ class Opus_IdentifierTest extends TestCase {
                 ->setValue($urn);
         return $document;
     }
-    
+
     /**
      * Check if exactly one document with testUrn exists
      *
@@ -70,7 +71,7 @@ class Opus_IdentifierTest extends TestCase {
         $this->assertEquals('urn', $identifiers[0]->getType());
         $this->assertEquals($testUrn, $identifiers[0]->getValue());
     }
-    
+
     /**
      * Regression test for OPUSVIER-2289
      */
@@ -449,7 +450,4 @@ class Opus_IdentifierTest extends TestCase {
         Zend_Registry::set('Zend_Config',
             Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
     }
-
-
 }
-
