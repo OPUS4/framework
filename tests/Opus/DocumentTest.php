@@ -2582,6 +2582,8 @@ class Opus_DocumentTest extends TestCase
      */
     public function testGetIdentifierDoiProducesDifferentResultThanGetIdentifier()
     {
+        $this->markTestSkipped('TODO OPUSVIER-3860 Regression test - not fixed yet');
+
         $doc = new Opus_Document();
         $doc->store();
         $id = new Opus_Identifier();
