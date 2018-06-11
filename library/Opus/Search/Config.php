@@ -385,14 +385,12 @@ class Opus_Search_Config {
 			}
 		}
 
-
 		// if facet-name is 'year_inverted', the facet values have to be sorted vice versa
 		// however, the facet-name should be 'year' (reset in framework ResponseRenderer::getFacets())
 		if ( array_key_exists( 'year_inverted', $set ) ) {
 			$set['year'] = $set['year_inverted'];
-			unset( $set['year_inverted'] );
+			$set['year_inverted']; // leave set for query to solr 'year_inverted' facet
 		}
-
 
 		return $set;
 	}
