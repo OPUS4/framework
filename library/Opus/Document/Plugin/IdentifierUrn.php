@@ -29,9 +29,8 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2009-2010
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
- * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,14 +40,15 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract 
+{
 
     /**
      * Generates a new URN for any document that has no URN assigned yet.
      * URN's are generated for Opus_Document instances only.
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus_Model_AbstractDb $model) 
+    {
         if(!($model instanceof Opus_Document))
             return;
 
@@ -61,18 +61,40 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
 
         $log->debug('IdentifierUrn postStoreInternal for ' . $model->getDisplayName());
 
-        if(!isset($config->urn->autoCreate) or $config->urn->autoCreate != '1') {
+        // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
+        // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
+        $generateUrn = null;
+        $enrichment = $model->getEnrichment('opus.urn.autoCreate');
+        if (!is_null($enrichment)) {
+            $enrichmentValue = $enrichment->getValue();
+            $generateUrn = ($enrichmentValue == 'true');
+            $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
+        }
+
+        if (is_null($generateUrn)) {
+            // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
+            $generateUrn = (isset($config->urn->autoCreate) && ($config->urn->autoCreate || $config->urn->autoCreate == '1'));
+        }
+
+        if (!$generateUrn) {
             $log->debug('URN auto creation is not configured. skipping...');
             return;
         }
 
-        if(!isset($config->urn->nid) || !isset($config->urn->nss)) {
+        if (!isset($config->urn->nid) || !isset($config->urn->nss)) {
             throw new Opus_Document_Exception('URN data is not present in config. Aborting...');
+            // FIXME hier sollte keine Exception geworfen werden, weil sonst
+            // die Ausführung aller nachfolgenden Plugins im Plugin-Array abgebrochen wird
+            // Plugins werden nämlich in Schleife nacheinander aufgerufen (ohne Exception Handling zwischen
+            // den einzelnen Aufrufen)
+
+            // FIXME außerdem ist der Exception Type schlecht gewählt, weil es sich in diesem
+            // Fall ja um einen Konfigurationsfehler handelt und nicht um einen Fehler im Dokument
         }
 
         $log->debug('config.ini is set to support urn auto generation');
 
-        if($this->urnAlreadyPresent($model)) {
+        if ($this->urnAlreadyPresent($model)) {
             $log->debug('Model ' . $model->getDisplayName() . ' already has a URN. Skipping automatic generation.');
             return;
         }
@@ -96,6 +118,12 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         $model->addIdentifierUrn($urn_model);
     }
 
+    /**
+     * Liefert true, wenn das vorliegende Dokument bereits einen Identifier vom Typ URN besitzt; andernfalls false.
+     *
+     * @param $document
+     * @return bool
+     */
     public function urnAlreadyPresent($document) {
         $identifierUrns = $document->getIdentifierUrn();
         if(count($identifierUrns) > 0) {
@@ -112,10 +140,17 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract {
         return false;
     }
 
-    public function allowUrnOnThisDocument($document) {
+    /**
+     * Liefert true, wenn das vorliegende Dokumente mindestens eine Datei mit OAI-Sichtbarkeit besitzt (nur für solche
+     * Dokumente kann bei der DNB eine URN registriert werden)
+     *
+     * @param $document
+     * @return bool
+     */
+    public function allowUrnOnThisDocument($document) 
+    {
         $files = array_filter($document->getFile(),
             function ($f) { return $f->getVisibleInOai() == 1; });
         return count($files) > 0;
     }
 }
-
