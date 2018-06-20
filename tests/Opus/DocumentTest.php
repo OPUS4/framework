@@ -2639,6 +2639,42 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('test-value', $enrichment->getValue());
     }
 
+    public function testGetEnrichmentSingleMatch()
+    {
+        $keyName = "test.key1";
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName($keyName);
+        $enrichmentKey->store();
+
+        $enrichmentKey = new Opus_EnrichmentKey();
+        $enrichmentKey->setName('anotherKey');
+        $enrichmentKey->store();
+
+        $enrichment1 = new Opus_Enrichment();
+        $enrichment1->setKeyName('anotherKey');
+        $enrichment1->setValue('another-value');
+
+        $enrichment = new Opus_Enrichment();
+        $enrichment->setKeyName($keyName);
+        $enrichment->setValue('test-value');
+
+        $doc = new Opus_Document();
+        $doc->setLanguage('deu');
+        $doc->addEnrichment($enrichment1);
+        $doc->addEnrichment($enrichment);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $enrichment = $doc->getEnrichment($keyName);
+
+        $this->assertInstanceOf('Opus_Enrichment', $enrichment);
+        $this->assertEquals($keyName, $enrichment->getKeyName());
+        $this->assertEquals('test-value', $enrichment->getValue());
+    }
+
     public function testGetEnrichmentBadKey()
     {
         $keyName= 'test.key1';

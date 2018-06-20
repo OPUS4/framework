@@ -1321,7 +1321,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
                     return null;
 
                 case 1:
-                    return $matches[0];
+                    return reset($matches); // get first element in array
 
                 default:
                     return $matches;
