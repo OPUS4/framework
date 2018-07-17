@@ -164,6 +164,18 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         $this->assertFalse($generator->isLocal('12.3456/opustest'));
     }
 
+    /**
+     * Regression OPUSVIER-3900.
+     */
+    public function testIsLocalWithEmptyLocalPrefix()
+    {
+        $this->adaptDoiConfiguration(array('prefix' => '12.3456', 'localPrefix' => ''));
+
+        $generator = new Opus_Doi_Generator_DefaultGenerator();
+
+        $this->assertTrue($generator->isLocal('12.3456/104'));
+    }
+
     public function testIsLocalWithCompleteConfigPositive() {
         $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest'));
 

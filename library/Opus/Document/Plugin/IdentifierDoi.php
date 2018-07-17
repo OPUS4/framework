@@ -71,7 +71,8 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
             return;
         }
 
-        $log->err('plugin ' . __CLASS__ . ' is not applicable for documents with server state ' . $serverState);
+        $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for documents with server state ' . $serverState);
+
         return;
     }
 
