@@ -204,7 +204,7 @@ class Opus_Doi_DoiManager
      * Erkennung von lokalen DOIs nur berücksichtigt, wenn er gesetzt ist.
      *
      */
-    private function checkForLocalRegistrableDoi($doc) 
+    private function checkForLocalRegistrableDoi($doc)
     {
         $doiToBeChecked = $this->getDoi($doc);
         if (is_null($doiToBeChecked)) {
@@ -235,7 +235,7 @@ class Opus_Doi_DoiManager
      *
      * @param $value Wert einer DOI, der auf Lokalität geprüft werden soll
      */
-    private function isLocalDoi($value) 
+    private function isLocalDoi($value)
     {
         $doi = new Opus_Identifier();
         $doi->setValue($value);
@@ -556,18 +556,18 @@ class Opus_Doi_DoiManager
      *
      * @throws DoiException
      */
-    public function generateNewDoi($doc) 
+    public function generateNewDoi($doc)
     {
         $generator = null;
         try {
-            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();    
+            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();
         }
         catch (Opus_Doi_DoiException $e) {
             $this->defaultLog->err($e->getMessage());
             $this->doiLog->err($e->getMessage());
             throw $e;
         }
-        
+
         if (is_string($doc) && is_numeric($doc)) {
             $docId = $doc;
             try {
@@ -604,7 +604,7 @@ class Opus_Doi_DoiManager
      *
      * @param $doc ID des Dokuments
      */
-    public function deleteMetadataForDoi($doc) 
+    public function deleteMetadataForDoi($doc)
     {
         $dois = $doc->getIdentifierDoi();
         if (empty($dois)) {
@@ -645,7 +645,7 @@ class Opus_Doi_DoiManager
         }
     }
 
-    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL) 
+    public function updateLandingPageUrlOfDoi($doiValue, $landingPageURL)
     {
         try {
             $client = new \Opus\Doi\Client($this->config);
@@ -658,8 +658,28 @@ class Opus_Doi_DoiManager
             throw new Opus_Doi_DoiException($message);
         }
     }
-    
-    private function getLandingPageUrlOfDoc($doc) 
+
+    public function getLandingPageBaseUrl()
+    {
+        if (is_null($this->landingPageBaseUrl)) {
+            if (isset($this->config->url)) {
+                $baseUrl = rtrim($this->config->url, '/') . '/';
+
+                if (isset($this->config->doi->landingPageBaseUri)) {
+                    $baseUrl .= ltrim($this->config->doi->landingPageBaseUri, '/');
+                }
+
+                $this->landingPageBaseUrl = rtrim($baseUrl, '/') . '/';
+            }
+            else {
+                // TODO is this too harsh? recover how?
+                throw new Opus_Doi_DoiException('No URL for repository configured. Cannot generate landing page URL.');
+            }
+        }
+        return $this->landingPageBaseUrl;
+    }
+
+    public function getLandingPageUrlOfDoc($doc)
     {
         $baseUrl = $this->getLandingPageBaseUrl();
 
