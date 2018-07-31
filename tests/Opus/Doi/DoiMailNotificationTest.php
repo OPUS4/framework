@@ -27,94 +27,99 @@
  * @category    Tests
  * @package     Opus_Doi
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiMailNotificationTest extends TestCase {
+class Opus_Doi_DoiMailNotificationTest extends TestCase
+{
 
-    public function testConstructMissingConfig() {
+    public function testConstructMissingConfig()
+    {
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertFalse($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig1() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => false,
-                'notificationEmail' => array('doe@localhost')
-            )
-        );
+    public function testConstructPartialConfig1()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => false,
+            'notificationEmail' => ['doe@localhost']
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertFalse($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig2() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => '0',
-                'notificationEmail' => array('doe@localhost')
-            )
-        );
+    public function testConstructPartialConfig2()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => '0',
+            'notificationEmail' => ['doe@localhost']
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertFalse($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig3() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => true,
-                'notificationEmail' => array('doe@localhost')
-            )
-        );
+    public function testConstructPartialConfig3()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => true,
+            'notificationEmail' => ['doe@localhost']
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertTrue($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig4() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => '1',
-                'notificationEmail' => array('doe@localhost')
-            )
-        );
+    public function testConstructPartialConfig4()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => '1',
+            'notificationEmail' => ['doe@localhost']
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertTrue($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig5() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => true
-            )
-        );
+    public function testConstructPartialConfig5()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => true
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertFalse($notification->isEnabled());
     }
 
-    public function testConstructPartialConfig6() {
-        $this->adaptDoiConfiguration(array(
-                'notificationEmailEnabled' => '1'
-            )
-        );
+    public function testConstructPartialConfig6()
+    {
+        $this->adaptDoiConfiguration([
+            'notificationEmailEnabled' => '1'
+        ]);
         $notification = new Opus_Doi_DoiMailNotification();
         $this->assertFalse($notification->isEnabled());
     }
 
-    public function testSendMailEmpty() {
-        $this->adaptDoiConfiguration(array(
+    public function testSendMailEmpty()
+    {
+        $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
-                'notificationEmail' => array('doe@localhost')
-            )
+                'notificationEmail' => ['doe@localhost']
+            ]
         );
         $notification = new Opus_Doi_DoiMailNotification();
         $notification->sendRegistrationEmail();
     }
 
-    public function testSendMailSingle() {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(
-                new Zend_Config(array('url' => 'http://localhost/opus4'))));
+    public function testSendMailSingle()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'url' => 'http://localhost/opus4'
+        ]));
 
-        $this->adaptDoiConfiguration(array(
+        $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
-                'notificationEmail' => array('doe@localhost')
-            )
+                'notificationEmail' => ['doe@localhost']
+            ]
         );
 
         $docId = $this->createTestDocWithDoi('10.2345/opustest-999');
@@ -124,48 +129,52 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase {
         $notification->sendRegistrationEmail();
     }
 
-    public function testSendMailMultiple() {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(
-                new Zend_Config(array('url' => 'http://localhost/opus4'))));
+    public function testSendMailMultiple()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'url' => 'http://localhost/opus4'
+        ]));
 
-        $this->adaptDoiConfiguration(array(
+        $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
-                'notificationEmail' => array('doe@localhost')
-            )
+                'notificationEmail' => ['doe@localhost']
+            ]
         );
 
         $doc1Id = $this->createTestDocWithDoi('10.2345/opustest-888');
         $doc2Id = $this->createTestDocWithDoi('10.2345/opustest-999');
 
         $notification = new Opus_Doi_DoiMailNotification();
-        $notification->addNotification('888', $this->getDoi($doc1Id), 'error');
-        $notification->addNotification('999', $this->getDoi($doc2Id));
+        $notification->addNotification(
+            '888', $this->getDoi($doc1Id), "http://localhost/opus4/$doc1Id", 'error'
+        );
+        $notification->addNotification('999', $this->getDoi($doc2Id), "http://localhost/opus4/$doc2Id");
         $notification->sendRegistrationEmail();
     }
 
-    private function adaptDoiConfiguration($doiConfig) {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
+    private function adaptDoiConfiguration($doiConfig)
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]));
     }
 
-    private function createTestDocWithDoi($doiValue) {
+    private function createTestDocWithDoi($doiValue)
+    {
         $doc = new Opus_Document();
 
         $doi = new Opus_Identifier();
         $doi->setType('doi');
         $doi->setValue($doiValue);
-        $doc->setIdentifier(array($doi));
+        $doc->setIdentifier([$doi]);
 
         $docId = $doc->store();
 
         return $docId;
     }
 
-    private function getDoi($docId) {
+    private function getDoi($docId)
+    {
         $doc = new Opus_Document($docId);
         $dois = $doc->getIdentifier();
         return $dois[0];
     }
-
 }

@@ -41,7 +41,7 @@ class Opus_Doi_DoiManager
 
     private $config;
 
-    private $landingPageUrl;
+    private $landingPageBaseUrl;
 
     public function __construct()
     {
@@ -57,14 +57,6 @@ class Opus_Doi_DoiManager
         $writer->setFormatter($formatter);
 
         $this->doiLog = new Zend_Log($writer);
-
-        if (isset($this->config->url)) {
-            $this->landingPageUrl = $this->config->url;
-            if (substr($this->landingPageUrl, -1) != '/') {
-                $this->landingPageUrl .= '/';
-            }
-            $this->landingPageUrl .= 'frontdoor/index/index/docId/';
-        }
     }
 
     /**
@@ -295,6 +287,8 @@ class Opus_Doi_DoiManager
                 continue;
             }
 
+            $landingPageUrl = $this->getLandingPageUrlOfDoc($doc);
+
             // Registrierung der DOI durchführen, sofern es eine lokale DOI gibt, die noch nicht registriert wurde
             try {
                 $registeredDoi = $this->register($doc, true);
@@ -303,7 +297,7 @@ class Opus_Doi_DoiManager
                     $status->addDocWithDoiStatus($id, $registeredDoi->getValue());
 
                     if ($notification->isEnabled()) {
-                        $notification->addNotification($id, $registeredDoi);
+                        $notification->addNotification($id, $registeredDoi, $landingPageUrl);
                     }
                 }
             }
@@ -313,7 +307,7 @@ class Opus_Doi_DoiManager
                 $this->doiLog->err($message);
                 $status->addDocWithDoiStatus($id, $message, true);
                 if ($notification->isEnabled()) {
-                    $notification->addNotification($id, $e->getDoi(), $message);
+                    $notification->addNotification($id, $e->getDoi(), $landingPageUrl, $message);
                 }
             }
             catch (Opus_Doi_DoiException $e) {
@@ -491,14 +485,16 @@ class Opus_Doi_DoiManager
                 continue;
             }
 
+            $landingPageUrl = $this->getLandingPageUrlOfDoc($id);
+
             if ($notification->isEnabled()) {
                 if ($doi->getStatus() == 'verified') {
                     // erfolgreiche Prüfung der DOI durchgeführt: Erfolg per E-Mail melden
-                    $notification->addNotification($id, $doi);
+                    $notification->addNotification($id, $doi, $landingPageUrl);
                 }
                 else {
                     // fehlgeschlagene Prüfung der DOI: Fehler per E-Mail melden
-                    $notification->addNotification($id, $doi, 'DOI-Prüfung war nicht erfolgreich');
+                    $notification->addNotification($id, $doi, $landingPageUrl, 'DOI-Prüfung war nicht erfolgreich');
                 }
             }
         }
@@ -626,20 +622,23 @@ class Opus_Doi_DoiManager
 
         $status = $doi->getStatus();
         if ($status != 'registered' && $status != 'verified') {
-            $this->defaultLog->debug('document ' . $doc->getId() . ' does not provide a registered local DOI - deregistration of DOI is not required');
+            $this->defaultLog->debug('document ' . $doc->getId() .
+                ' does not provide a registered local DOI - deregistration of DOI is not required');
             return;
         }
 
         try {
             $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
             $client->deleteMetadataForDoi($doi->getValue());
-            $message = 'metadata deletion of DOI ' . $doi->getValue() . ' of document ' . $doc->getId() . ' was successful';
+            $message = 'metadata deletion of DOI ' . $doi->getValue() . ' of document ' . $doc->getId()
+                . ' was successful';
             $this->defaultLog->debug($message);
             $this->doiLog->info($message);
             // TODO sollte der Status der lokalen DOI auf "inactive" o.ä. gesetzt werden
         }
         catch (\Opus\Doi\ClientException $e) {
-            $message = 'an error occurred while deregistering DOI ' . $doi->getValue() . ' of document ' . $doc->getId() . ': ' . $e->getMessage();
+            $message = 'an error occurred while deregistering DOI ' . $doi->getValue() . ' of document ' .
+                $doc->getId() . ': ' . $e->getMessage();
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
             // Exception wird nicht nach oben durchgereicht, weil bislang nur Aufruf aus Plugin erfolgt
@@ -662,10 +661,18 @@ class Opus_Doi_DoiManager
     
     private function getLandingPageUrlOfDoc($doc) 
     {
-        if (is_null($this->landingPageUrl)) {
+        $baseUrl = $this->getLandingPageBaseUrl();
+
+        if (is_null($baseUrl)) {
             return null;
         }
-        $result = $this->landingPageUrl . $doc->getId();
+
+        if ($doc instanceof Opus_Document) {
+            $result = $baseUrl . $doc->getId();
+        } else {
+            $result = $baseUrl . $doc;
+        }
+
         return $result;
     }
 }

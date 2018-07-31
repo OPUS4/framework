@@ -108,12 +108,13 @@ class Opus_Doi_DoiMailNotification
      * @param $doi
      * @param null $errorMessage
      */
-    public function addNotification($docId, $doi, $errorMessage = null)
+    public function addNotification($docId, $doi, $frontdoorUrl, $errorMessage = null)
     {
         $entry = [];
         $entry['docId'] = $docId;
         $entry['doi'] = $doi;
         $entry['errorMessage'] = $errorMessage;
+        $entry['frontdoorUrl'] = $frontdoorUrl;
         $this->notifications[] = $entry;
     }
 
@@ -150,11 +151,9 @@ class Opus_Doi_DoiMailNotification
      * @param $doi DOI auf die sich die Nachricht bezieht
      * @param $errorMessage ggf. Meldung des aufgetretenen Fehlers bei Registrierung oder Prüfung
      */
-    private function buildMessageLine($docId, $doi, $errorMessage)
+    private function buildMessageLine($doi, $frontdoorUrl, $errorMessage)
     {
         $result = $doi->getValue() . ' ';
-
-        $frontdoorUrl = $this->getUrl('frontdoor/index/index/docId/' . $docId);
         $result .= $frontdoorUrl . ' ' . $doi->getStatus();
         if (!is_null($errorMessage)) {
             $result .= ' Fehlermeldung: ' . $errorMessage;
@@ -184,8 +183,9 @@ class Opus_Doi_DoiMailNotification
             $doi = $notification['doi'];
             $docId = $notification['docId'];
             $errorMessage = $notification['errorMessage'];
+            $frontdoorUrl = $notification['frontdoorUrl'];
             $subject .= ' von DOI ' . $doi->getValue() . ' für Dokument mit ID ' . $docId;
-            $message = $this->buildMessageLine($docId, $doi, $errorMessage);
+            $message = $this->buildMessageLine($doi, $frontdoorUrl, $errorMessage);
         }
         else {
             // Versand einer gebündelten E-Mail-Benachrichtigung für mehrere DOIs
@@ -194,7 +194,8 @@ class Opus_Doi_DoiMailNotification
                 $doi = $notification['doi'];
                 $docId = $notification['docId'];
                 $errorMessage = $notification['errorMessage'];
-                $message .= $this->buildMessageLine($docId, $doi, $errorMessage);
+                $frontdoorUrl = $notification['frontdoorUrl'];
+                $message .= $this->buildMessageLine($doi, $errorMessage, $frontdoorUrl);
             }
         }
 
@@ -294,6 +295,8 @@ class Opus_Doi_DoiMailNotification
      *
      * @param $path
      * @return string
+     *
+     * TODO this does not belong here - should be in one place for all OPUS code
      */
     private function getUrl($path)
     {

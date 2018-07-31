@@ -27,11 +27,12 @@
  * @category    Tests
  * @package     Opus_Doi
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManagerTest extends TestCase 
+class Opus_Doi_DoiManagerTest extends TestCase
 {
 
     public function testConstructor() {
@@ -149,6 +150,9 @@ class Opus_Doi_DoiManagerTest extends TestCase
     }
 
     public function testRegisterDocWithRequiredPropsButCompleteConfig() {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org'
+        )));
         $this->adaptDoiConfiguration(array(
             'prefix' => '10.3456/',
             'registration' => array(
@@ -171,9 +175,9 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->markTestSkipped('kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich (Username und Password werden in config.ini gesetzt)');
 
         // add url to config to allow creation of frontdoor URLs
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(
-                new Zend_Config(array('url' => 'http://localhost/opus4/'))));
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://localhost/opus4/'
+        )));
 
         $this->adaptDoiConfiguration(array(
             'prefix' => '10.5072/',
@@ -212,14 +216,21 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertTrue($status->isNoDocsToProcess());
     }
 
-    public function testRegisterPendingWithDocWithWrongServerState() {
+    public function testRegisterPendingWithDocWithWrongServerState()
+    {
         $this->createTestDocWithDoi('10.5072/OPUS4-');
         $doiManager = new Opus_Doi_DoiManager();
         $status = $doiManager->registerPending();
         $this->assertTrue($status->isNoDocsToProcess());
     }
 
-    public function testRegisterPendingWithDoc() {
+    public function testRegisterPendingWithDoc()
+    {
+        // add url to config to allow creation of frontdoor URLs
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://localhost/opus4/'
+        )));
+
         $this->adaptDoiConfiguration(array(
             'prefix' => '10.5072/',
             'localPrefix' => 'OPUS4')
@@ -235,14 +246,21 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertTrue($statusOfDoc['error']);
     }
 
-    public function testVerifyRegistered() {
+    public function testVerifyRegistered()
+    {
         $doiManager = new Opus_Doi_DoiManager();
         $status = $doiManager->verifyRegistered();
 
         $this->assertTrue($status->isNoDocsToProcess());
     }
 
-    public function testVerifyRegisteredBefore() {
+    public function testVerifyRegisteredBefore()
+    {
+        // add url to config to allow creation of frontdoor URLs
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://localhost/opus4/'
+        )));
+
         $this->adaptDoiConfiguration(array(
                 'prefix' => '10.5072/',
                 'localPrefix' => 'OPUS4')
@@ -288,6 +306,9 @@ class Opus_Doi_DoiManagerTest extends TestCase
     }
 
     public function testVerifyWithVerifiedDoiWithReverification() {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org'
+        )));
         $this->adaptDoiConfiguration(array(
             'prefix' => '10.5072/',
             'localPrefix' => 'OPUS4',
@@ -340,7 +361,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $dateTimeZone = new DateTimeZone(date_default_timezone_get());
         $dateTime = new DateTime('now', $dateTimeZone);
         $currentDate = $dateTime->format('Y-m-d H:i:s');
-        
+
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'registered', $currentDate);
 
         $doiManager = new Opus_Doi_DoiManager();
@@ -562,7 +583,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertEquals('10.5072/OPUS4-' . $docId, $doiValue);
     }
 
-    public function testDeleteMetadataForDoiDocWithoutDoi() 
+    public function testDeleteMetadataForDoiDocWithoutDoi()
     {
         $doc = new Opus_Document();
         $doc->store();
@@ -571,7 +592,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi($doc);
     }
 
-    public function testDeleteMetadataForDoiDocWithExternalDoi() 
+    public function testDeleteMetadataForDoiDocWithExternalDoi()
     {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
@@ -585,7 +606,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalDoi() 
+    public function testDeleteMetadataForDoiDocWithLocalDoi()
     {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
@@ -599,7 +620,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi() 
+    public function testDeleteMetadataForDoiDocWithLocalRegisteredDoi()
     {
         $this->adaptDoiConfiguration(array(
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
@@ -620,7 +641,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi() 
+    public function testDeleteMetadataForDoiDocWithLocalVerifiedDoi()
     {
         $this->adaptDoiConfiguration(array(
                 'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
@@ -641,14 +662,14 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->deleteMetadataForDoi(new Opus_Document($docId));
     }
 
-    public function testUpdateLandingPageUrlOfDoiWithMissingConfig() 
+    public function testUpdateLandingPageUrlOfDoiWithMissingConfig()
     {
         $doiManager = new Opus_Doi_DoiManager();
         $this->setExpectedException('Opus_Doi_DoiException');
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
-    public function testUpdateLandingPageUrlOfDoi() 
+    public function testUpdateLandingPageUrlOfDoi()
     {
         $this->adaptDoiConfiguration(array(
                 'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
@@ -668,7 +689,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doiManager->updateLandingPageUrlOfDoi('10.5072/OPUS4-999', 'http://localhost/frontdoor/999');
     }
 
-    public function testUpdateLandingPageUrlOfDoiWithExistingDoi() 
+    public function testUpdateLandingPageUrlOfDoiWithExistingDoi()
     {
         $this->markTestSkipped('kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich (Username und Password werden in config.ini gesetzt)');
 
@@ -724,13 +745,12 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertEquals('verified', $doi->getStatus());
     }
 
-    private function adaptDoiConfiguration($doiConfig) 
+    private function adaptDoiConfiguration($doiConfig)
     {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig)));
     }
 
-    private function addRequiredPropsToDoc($doc) 
+    private function addRequiredPropsToDoc($doc)
     {
         $doc->setCompletedYear(2018);
         $doc->setServerState('unpublished');
@@ -751,7 +771,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doc->store();
     }
 
-    private function createTestDocWithDoi($doiPrefix, $status = null, $registrationTs = null) 
+    private function createTestDocWithDoi($doiPrefix, $status = null, $registrationTs = null)
     {
         $doc = new Opus_Document();
         $docId = $doc->store();
@@ -770,5 +790,124 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doc->store();
 
         return $docId;
+    }
+
+    public function testGetLandingPageBaseUrl()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => '/frontdoor/index/index/docId'
+            )
+        )));
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertNotNull($manager->getLandingPageBaseUrl());
+        $this->assertEquals('http://www.example.org/frontdoor/index/index/docId/', $manager->getLandingPageBaseUrl());
+    }
+
+    public function testGetLangingPageBaseUrlConfiguredForShortUrl()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => ''
+            )
+        )));
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertNotNull($manager->getLandingPageBaseUrl());
+        $this->assertEquals('http://www.example.org/', $manager->getLandingPageBaseUrl());
+    }
+
+    /**
+     * @expectedException Opus_Doi_DoiException
+     * @expectedExceptionMessage No URL for repository configured. Cannot generate landing page URL.
+     */
+    public function testGetLandingPageBaseUrlWithoutRepositoryUrl()
+    {
+        $manager = new Opus_Doi_DoiManager();
+        $manager->getLandingPageBaseUrl();
+    }
+
+    public function testGetLandingPageUrlOfDoc()
+    {
+        $doc = new Opus_Document();
+        $docId = $doc->store();
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => '/frontdoor/index/index/docId/'
+            )
+        )));
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertEquals(
+            "http://www.example.org/frontdoor/index/index/docId/$docId",
+            $manager->getLandingPageUrlOfDoc($doc)
+        );
+    }
+
+    public function testGetLandingPageUrlOfDocConfiguredWithoutSlashes()
+    {
+        $doc = new Opus_Document();
+        $docId = $doc->store();
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => 'frontdoor/index/index/docId'
+            )
+        )));
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertEquals(
+            "http://www.example.org/frontdoor/index/index/docId/$docId",
+            $manager->getLandingPageUrlOfDoc($doc)
+        );
+    }
+
+    public function testGetLandingPageUrlOfDocForShortUrl()
+    {
+        $doc = new Opus_Document();
+        $docId = $doc->store();
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => null
+            )
+        )));
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertEquals(
+            "http://www.example.org/$docId",
+            $manager->getLandingPageUrlOfDoc($doc)
+        );
+    }
+
+    public function testGetLandingPageUrlOfDocForId()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array(
+            'url' => 'http://www.example.org/',
+            'doi' => array(
+                'landingPageBaseUri' => '/frontdoor/index/index/docId/'
+            )
+        )));
+
+        $docId = 17;
+
+        $manager = new Opus_Doi_DoiManager();
+
+        $this->assertEquals(
+            "http://www.example.org/frontdoor/index/index/docId/$docId",
+            $manager->getLandingPageUrlOfDoc($docId)
+        );
     }
 }
