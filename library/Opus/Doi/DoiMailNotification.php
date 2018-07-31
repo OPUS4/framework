@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiMailNotification {
+class Opus_Doi_DoiMailNotification
+{
 
     private $config;
 
@@ -47,8 +49,9 @@ class Opus_Doi_DoiMailNotification {
      */
     private $recipients;
 
-    public function __construct() {
-        $this->notifications = array();
+    public function __construct()
+    {
+        $this->notifications = [];
         $this->config = Zend_Registry::get('Zend_Config');
         $this->log = Zend_Registry::get('Zend_Log');
 
@@ -76,11 +79,12 @@ class Opus_Doi_DoiMailNotification {
     /**
      * Initialisiert die Namen und Adressen der Empfänger von DOI-Benachrichtigungen.
      */
-    private function initRecipients() {
+    private function initRecipients()
+    {
         $recipientAddresses = $this->config->doi->notificationEmail->toArray();
-        $this->recipients = array();
+        $this->recipients = [];
         foreach ($recipientAddresses as $recipient) {
-            $entry = array();
+            $entry = [];
             $entry['name'] = $recipient;
             $entry['address'] = $recipient;
             $this->recipients[] = $entry;
@@ -92,7 +96,8 @@ class Opus_Doi_DoiMailNotification {
      *
      * @return bool
      */
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return $this->enabled;
     }
 
@@ -103,8 +108,9 @@ class Opus_Doi_DoiMailNotification {
      * @param $doi
      * @param null $errorMessage
      */
-    public function addNotification($docId, $doi, $errorMessage = null) {
-        $entry = array();
+    public function addNotification($docId, $doi, $errorMessage = null)
+    {
+        $entry = [];
         $entry['docId'] = $docId;
         $entry['doi'] = $doi;
         $entry['errorMessage'] = $errorMessage;
@@ -119,7 +125,8 @@ class Opus_Doi_DoiMailNotification {
      * der gebündelte Versand aller DOI-Benachrichtigungen in einer E-Mail.
      *
      */
-    public function sendRegistrationEmail() {
+    public function sendRegistrationEmail()
+    {
         $this->prepareMail('Registrierung');
     }
 
@@ -131,7 +138,8 @@ class Opus_Doi_DoiMailNotification {
      * der gebündelte Versand aller DOI-Benachrichtigungen in einer E-Mail.
      *
      */
-    public function sendVerificationEmail() {
+    public function sendVerificationEmail()
+    {
         $this->prepareMail('Prüfung');
     }
 
@@ -142,10 +150,11 @@ class Opus_Doi_DoiMailNotification {
      * @param $doi DOI auf die sich die Nachricht bezieht
      * @param $errorMessage ggf. Meldung des aufgetretenen Fehlers bei Registrierung oder Prüfung
      */
-    private function buildMessageLine($docId, $doi, $errorMessage) {
+    private function buildMessageLine($docId, $doi, $errorMessage)
+    {
         $result = $doi->getValue() . ' ';
 
-        $frontdoorUrl = $this->getUrl('frontdoor/index/index/' . $docId);
+        $frontdoorUrl = $this->getUrl('frontdoor/index/index/docId/' . $docId);
         $result .= $frontdoorUrl . ' ' . $doi->getStatus();
         if (!is_null($errorMessage)) {
             $result .= ' Fehlermeldung: ' . $errorMessage;
@@ -160,7 +169,8 @@ class Opus_Doi_DoiMailNotification {
      *
      * @param $mode Registrierung oder Prüfung von DOIs (wird in den Betreff der E-Mail geschrieben)
      */
-    private function prepareMail($mode) {
+    private function prepareMail($mode)
+    {
         if (!$this->enabled || empty($this->notifications)) {
             // E-Mail-Versand ist nicht aktiviert / konfiguriert bzw. es gibt keinen Inhalt für den Bericht
             return;
@@ -191,7 +201,7 @@ class Opus_Doi_DoiMailNotification {
         $message .= $this->addMailFooter();
 
         // lösche den Nachrichtenpuffer, so dass Benachrichtigungen nicht mehrfach verschickt werden
-        $this->notifications = array();
+        $this->notifications = [];
 
         $this->sendEmailNotification($subject, $message);
     }
@@ -201,14 +211,16 @@ class Opus_Doi_DoiMailNotification {
      *
      * @return string
      */
-    private function addMailFooter() {
+    private function addMailFooter()
+    {
         $result = "\r\n--\r\nDiese automatische E-Mail-Benachrichtigung wurde von OPUS4 verschickt.\r\n";
         $reportUrl = $this->getUrl('admin/report/doi');
         $result .= "Unter $reportUrl können Sie den Registrierungstatus aller lokalen DOIs einsehen.\r\n";
         return $result;
     }
 
-    private function sendEmailNotification($subject, $message) {
+    private function sendEmailNotification($subject, $message)
+    {
         $from = $this->_getFrom();
         $fromName = $this->_getFromName();
         $replyTo = $this->_getReplyTo();
@@ -234,35 +246,40 @@ class Opus_Doi_DoiMailNotification {
         }
     }
 
-    protected function _getFrom() {
+    protected function _getFrom()
+    {
         if (isset($this->config->mail->opus->address)) {
             return $this->config->mail->opus->address;
         }
         return 'not configured';
     }
 
-    protected function _getFromName() {
+    protected function _getFromName()
+    {
         if (isset($this->config->mail->opus->name)) {
             return $this->config->mail->opus->name;
         }
         return 'not configured';
     }
 
-    protected function _getReplyTo() {
+    protected function _getReplyTo()
+    {
         if (isset($this->config->mail->opus->replyTo)) {
             return $this->config->mail->opus->replyTo;
         }
         return null;
     }
 
-    protected function _getReplyToName() {
+    protected function _getReplyToName()
+    {
         if (isset($this->config->mail->opus->replyToName)) {
             return $this->config->mail->opus->replyToName;
         }
         return null;
     }
 
-    protected function _getReturnPath() {
+    protected function _getReturnPath()
+    {
         if (isset($this->config->mail->opus->returnPath)) {
             return $this->config->mail->opus->returnPath;
         }
@@ -278,7 +295,8 @@ class Opus_Doi_DoiMailNotification {
      * @param $path
      * @return string
      */
-    private function getUrl($path) {
+    private function getUrl($path)
+    {
         $result = '';
         if (isset($this->config->url)) {
             $result .= $this->config->url;
@@ -291,5 +309,4 @@ class Opus_Doi_DoiMailNotification {
         $result .= $path;
         return $result;
     }
-
 }

@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManager {
+class Opus_Doi_DoiManager
+{
 
     private $doiLog;
 
@@ -41,7 +43,8 @@ class Opus_Doi_DoiManager {
 
     private $landingPageUrl;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->config = Zend_Registry::get('Zend_Config');
         $this->defaultLog = Zend_Registry::get('Zend_Log');
 
@@ -60,7 +63,7 @@ class Opus_Doi_DoiManager {
             if (substr($this->landingPageUrl, -1) != '/') {
                 $this->landingPageUrl .= '/';
             }
-            $this->landingPageUrl .= 'frontdoor/index/index/';
+            $this->landingPageUrl .= 'frontdoor/index/index/docId/';
         }
     }
 
@@ -77,7 +80,8 @@ class Opus_Doi_DoiManager {
      * @throws DoiException wenn das referenzierte Dokument nicht in der Datenbank existiert
      * @throws RegistrationException wenn bei dem Versuch der Registrierung bei DataCite ein Fehler auftritt
      */
-    public function register($doc, $store = false) {
+    public function register($doc, $store = false)
+    {
         if (is_string($doc)) {
             $docId = $doc;
             try {
@@ -171,11 +175,13 @@ class Opus_Doi_DoiManager {
      *
      * @param $doi Opus_Identifier (vom Typ doi)
      */
-    private function checkDoiUniqueness($doi) {
+    private function checkDoiUniqueness($doi)
+    {
         return $doi->isDoiUnique();
     }
 
-    private function getDoi($doc) {
+    private function getDoi($doc)
+    {
         $identifiers = $doc->getIdentifier();
         if (is_null($identifiers) || empty($identifiers)) {
             return null;
@@ -259,7 +265,8 @@ class Opus_Doi_DoiManager {
      * @return Opus_Doi_DoiManagerStatus
      *
      */
-    public function registerPending($filterServerState = 'published') {
+    public function registerPending($filterServerState = 'published')
+    {
         $status = new Opus_Doi_DoiManagerStatus();
 
         $docFinder = new Opus_DocumentFinder();
@@ -336,7 +343,8 @@ class Opus_Doi_DoiManager {
      *
      * @return Opus_Doi_DoiManagerStatus
      */
-    public function verifyRegistered() {
+    public function verifyRegistered()
+    {
         return $this->verifyRegisteredBefore();
     }
 
@@ -358,7 +366,8 @@ class Opus_Doi_DoiManager {
      * @param Opus_Doi_DoiManagerStatus $managerStatus Objekt zum Ablegen von Statusinformationen der DOI-Prüfung
      *
      */
-    public function verify($docId, $allowReverification = true, $beforeDate = null, $managerStatus = null) {
+    public function verify($docId, $allowReverification = true, $beforeDate = null, $managerStatus = null)
+    {
         try {
             $doc = new Opus_Document($docId);
         }
@@ -460,7 +469,8 @@ class Opus_Doi_DoiManager {
      * @return Opus_Doi_DoiManagerStatus
      *
      */
-    public function verifyRegisteredBefore($beforeDate = null) {
+    public function verifyRegisteredBefore($beforeDate = null)
+    {
         $status = new Opus_Doi_DoiManagerStatus();
 
         $docFinder = new Opus_DocumentFinder();
@@ -506,14 +516,15 @@ class Opus_Doi_DoiManager {
      *
      * @param $statusFilter Erlaubt die Filterung der zu berücksichtigenden DOIs nach ihrem Status.
      */
-    public function getAll($statusFilter = null) {
+    public function getAll($statusFilter = null)
+    {
 
         // ermittle alle Dokumente, die eine lokale DOI haben
         // wenn ein Dokument mehr als eine DOI haben sollte (Altdokument, das noch vor der
         // Einführung des DOI-Supports angelegt wurde), dann wird nur die erste DOI betrachtet
         // weil nur diese für eine DOI-Registrierung überhaupt in Frage kommt
 
-        $result = array();
+        $result = [];
 
         $docFinder = new Opus_DocumentFinder();
         $docFinder->setIdentifierTypeExists('doi');
