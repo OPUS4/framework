@@ -195,7 +195,7 @@ class Opus_Doi_DoiMailNotification
                 $docId = $notification['docId'];
                 $errorMessage = $notification['errorMessage'];
                 $frontdoorUrl = $notification['frontdoorUrl'];
-                $message .= $this->buildMessageLine($doi, $errorMessage, $frontdoorUrl);
+                $message .= $this->buildMessageLine($doi, $frontdoorUrl, $errorMessage);
             }
         }
 
