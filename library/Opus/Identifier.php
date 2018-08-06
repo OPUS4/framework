@@ -262,34 +262,11 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
         // wenn DOI-Generierungsklasse in Konfiguration angegeben wurde, dann nutze die von der Klasse
         // implementierte Methode isLocal für die Prüfung, ob eine lokale DOI vorliegt
 
-        if (!is_null($generator)) {
-            $isLocalDoi = $generator->isLocal($this->getValue());
-
-            return $isLocalDoi;
+        if (is_null($generator)) {
+            $generator = new Opus_Doi_Generator_DefaultGenerator();
         }
 
-        $config = Zend_Registry::get('Zend_Config');
-
-        // es wurde keine DOI-Generierungsklasse angegeben bzw. die Klasse kann nicht gefunden werden.
-        // wir prüfen lediglich, ob die DOI mit dem konfigurierten Präfix beginnt und nach dem Schrägstrich
-        // das ggf. konfigurierte lokale Präfix folgt
-        if (!isset($config->doi->prefix) || $config->doi->prefix == '') {
-            // DOI-Präfix für nicht definiert: daher können wir nicht entscheiden, ob eine DOI lokal ist
-            return false;
-        }
-
-        $prefix = rtrim($config->doi->prefix, '/') . '/';
-
-        if (isset($config->doi->localPrefix) && $config->doi->localPrefix != '') {
-            $prefix .= $config->doi->localPrefix;
-        }
-
-        // beginnt die DOI mit $prefix
-        if (substr($this->getValue(), 0, strlen($prefix)) !== $prefix) {
-            return false;
-        }
-
-        return true; // lokale DOI gefunden
+        return $generator->isLocal($this->getValue());
     }
 
     /**

@@ -85,6 +85,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
         }
 
         $result = substr($doiValue, 0, strlen($prefix)) == $prefix;
+
         return $result;
     }
 
@@ -99,10 +100,8 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
             throw new Opus_Doi_Generator_DoiGeneratorException('configuration setting doi.prefix is missing - DOI cannot be generated');
         }
 
-        $prefix = $this->config->doi->prefix;
-
         // Schrägstrich als Trennzeichen, wenn Präfix nicht bereits einen Schrägstrich als Suffix besitzt
-        $prefix = rtrim($prefix, '/') . '/';
+        $prefix = rtrim($this->config->doi->prefix, '/') . '/';
 
         if (isset($this->config->doi->localPrefix) and $this->config->doi->localPrefix != '') {
             $prefix .= $this->config->doi->localPrefix;
