@@ -29,6 +29,7 @@
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -268,9 +269,9 @@ class Opus_IdentifierTest extends TestCase
             'localPrefix' => 'opustest',
         );
         $this->adaptDoiConfiguration($doiConfig);
-        $docId = $this->createTestDocumentWithDoi('12.3456/opustest-987');
+        $docId = $this->createTestDocumentWithDoi('12.6543/opustest-987');
 
-        $this->assertDoi($docId, '12.3456/opustest-987', false);
+        $this->assertDoi($docId, '12.6543/opustest-987', false);
     }
 
     public function testIsLocalDoiNegativeWithoutGeneratorClass() {
@@ -449,5 +450,37 @@ class Opus_IdentifierTest extends TestCase
     private function adaptDoiConfiguration($doiConfig) {
         Zend_Registry::set('Zend_Config',
             Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
+    }
+
+    public function testCheckDoiCollisionFalse()
+    {
+        $doiConfig = array(
+            'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
+            'prefix' => '12.3456/',
+            'localPrefix' => 'opustest',
+        );
+        $this->adaptDoiConfiguration($doiConfig);
+
+        $doc1 = $this->createTestDocumentWithDoi('12.3457/opustest-789', false);
+        $doc1->store();
+
+        $doc2 = $this->createTestDocumentWithDoi('12.3456/opustest-890', false);
+        $doc2->store();
+
+        $doc3 = $this->createTestDocumentWithDoi('12.3457/opustest-789', false);
+        $dois = $doc3->getIdentifier();
+        $this->assertCount(1, $dois);
+
+        // DOI not local
+        $doi = $dois[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('12.3457/opustest-789', $doi->getValue());
+
+        $this->assertFalse($doi->checkDoiCollision());
+
+        // doi unique
+        $doi->setValue('12.3456/opustest-891');
+
+        $this->assertFalse($doi->checkDoiCollision());
     }
 }

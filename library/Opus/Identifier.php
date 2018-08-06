@@ -186,9 +186,9 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * zurück; andernfalls false.
      *
      */
-    private function checkDoiCollision() {
+    public function checkDoiCollision() {
         if (!$this->isLocalDoi()) {
-            return;
+            return false;
         }
 
         $log = Zend_Registry::get('Zend_Log');
@@ -223,10 +223,6 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
-
-            $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();
-            $isLocalDoi = $generator->isLocal($this->getValue());
-            return $isLocalDoi;
         }
 
         try {
@@ -249,6 +245,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      *
      * @return bool
      * @throws Zend_Exception
+     *
+     * TODO if generator class is missing use default class, if that is missing => fatal error
      */
     public function isLocalDoi()
     {
@@ -263,8 +261,10 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
 
         // wenn DOI-Generierungsklasse in Konfiguration angegeben wurde, dann nutze die von der Klasse
         // implementierte Methode isLocal für die Prüfung, ob eine lokale DOI vorliegt
+
         if (!is_null($generator)) {
             $isLocalDoi = $generator->isLocal($this->getValue());
+
             return $isLocalDoi;
         }
 
@@ -278,10 +278,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
             return false;
         }
 
-        $prefix = $config->doi->prefix;
-        if (substr($prefix, -1) != '/') {
-            $prefix .= '/';
-        }
+        $prefix = rtrim($config->doi->prefix, '/') . '/';
 
         if (isset($config->doi->localPrefix) && $config->doi->localPrefix != '') {
             $prefix .= $config->doi->localPrefix;
