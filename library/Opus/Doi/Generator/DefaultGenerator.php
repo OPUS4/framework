@@ -102,24 +102,15 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
         $prefix = $this->config->doi->prefix;
 
         // Schrägstrich als Trennzeichen, wenn Präfix nicht bereits einen Schrägstrich als Suffix besitzt
-        if (!$this->endsWithChar($prefix, '/')) {
-            $prefix .= '/';
-        }
+        $prefix = rtrim($prefix, '/') . '/';
 
         if (isset($this->config->doi->localPrefix) and $this->config->doi->localPrefix != '') {
             $prefix .= $this->config->doi->localPrefix;
 
             // DocID wird als Suffix mit Bindestrich an das Präfix angefügt (füge Bindestrich hinzu, wenn erforderlich)
-            if (!$this->endsWithChar($prefix, '-')) {
-                $prefix .= '-';
-            }
+            $prefix = rtrim($prefix, '-') . '-';
         }
 
         return $prefix;
-    }
-
-    private function endsWithChar($str, $suffix)
-    {
-        return (substr($str, -1) == $suffix);
     }
 }
