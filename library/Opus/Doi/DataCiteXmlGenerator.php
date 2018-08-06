@@ -27,11 +27,13 @@
  *
  * @category    Application
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGenerator {
+class Opus_Doi_DataCiteXmlGenerator
+{
 
     const STYLESHEET_FILENAME = 'datacite.xslt';
 
@@ -41,11 +43,11 @@ class Opus_Doi_DataCiteXmlGenerator {
      *
      * @param $doc Opus_Document
      */
-    public function getXml($doc) {
-
+    public function getXml($doc)
+    {
         // DataCite-XML wird mittels XSLT aus OPUS-XML erzeugt
         $xslt = new DOMDocument();
-        $xsltPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::STYLESHEET_FILENAME;
+        $xsltPath = $this->getStylesheetPath();
 
         $success = false;
         if (file_exists($xsltPath)) {
@@ -105,7 +107,9 @@ class Opus_Doi_DataCiteXmlGenerator {
     /**
      * @param $doc Opus_Document
      */
-    private function checkRequiredFields($doc, $log) {
+    private function checkRequiredFields($doc, $log)
+    {
+        $log->info('checking document ' . $doc->getId());
 
         // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
         $authorOk = false;
@@ -195,5 +199,32 @@ class Opus_Doi_DataCiteXmlGenerator {
         $xmlDoc->setStrategy(new Opus_Model_Xml_Version1);
         return $xmlDoc->getDomDocument();
     }
-}
 
+    /**
+     * Returns path to DataCite XSLT file.
+     *
+     * TODO refactor getting Zend_Config and Zend_Log
+     */
+    public function getStylesheetPath()
+    {
+        $config = Zend_Registry::get('Zend_Config');
+
+        $stylesheetPath = null;
+
+        if (isset($config->datacite->stylesheetPath)) {
+            $stylesheetPath = $config->datacite->stylesheetPath;
+
+            if (!is_readable($stylesheetPath)) {
+                Zend_Registry::get('Zend_Log')->warn('Configured DataCite XSLT file not found');
+                $stylesheetPath = null;
+            }
+        }
+
+        // use default path if non was given or found
+        if (is_null($stylesheetPath)) {
+            $stylesheetPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . self::STYLESHEET_FILENAME;
+        }
+
+        return $stylesheetPath;
+    }
+}

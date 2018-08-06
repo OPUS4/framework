@@ -31,10 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase 
+class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 {
 
-    public function testGenerateMissingFields() 
+    public function testGenerateMissingFields()
     {
         $doc = new Opus_Document();
         $doc->store();
@@ -44,7 +44,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $generator->getXml($doc);
     }
 
-    public function testGenerateRequiredFields() 
+    public function testGenerateRequiredFields()
     {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
@@ -55,13 +55,13 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->assertTrue(is_string($result));
     }
 
-    private function addRequiredPropsToDoc($doc) 
+    private function addRequiredPropsToDoc($doc)
     {
         $doi = new Opus_Identifier();
         $doi->setType('doi');
         $doi->setValue('10.2345/opustest-' . $doc->getId());
-        $doc->setIdentifier(array($doi));
-        
+        $doc->setIdentifier([$doi]);
+
         $doc->setCompletedYear(2018);
         $doc->setServerState('unpublished');
         $doc->setType('book');
@@ -79,5 +79,48 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->addTitleMain($title);
 
         $doc->store();
+    }
+
+    public function testGetStylesheetPath()
+    {
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $this->assertEquals(
+            APPLICATION_PATH . '/library/Opus/Doi/datacite.xslt',
+            $generator->getStylesheetPath()
+        );
+    }
+
+    public function testGetStylesheetPathConfiguredWithBadPath()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'datacite' => ['stylesheetPath' => 'doesnotexist']
+        ]));
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $this->assertEquals(
+            APPLICATION_PATH . '/library/Opus/Doi/datacite.xslt',
+            $generator->getStylesheetPath()
+        );
+    }
+
+    public function testGetStylesheetPathConfigured()
+    {
+        $temp = tmpfile();
+
+        fwrite($temp, 'OPUS 4 Framework testdata');
+
+        $path = stream_get_meta_data($temp)['uri'];
+
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'datacite' => ['stylesheetPath' => $path]
+        ]));
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $stylesheetPath = $generator->getStylesheetPath();
+
+        $this->assertEquals($path, $stylesheetPath);
     }
 }
