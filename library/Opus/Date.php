@@ -29,9 +29,8 @@
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2015, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +39,8 @@
  * @category    Framework
  * @package     Opus
  */
-class Opus_Date extends Opus_Model_Abstract {
+class Opus_Date extends Opus_Model_Abstract
+{
 
     /**
      * Regular expression for complete time string.
@@ -58,7 +58,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @param Zend_Date|Opus_Date|string $value (Optional) Some sort of date representation.
      * @return void
      */
-    public function __construct($value = null) {
+    public function __construct($value = null)
+    {
         parent::__construct();
 
         if ($value instanceof Zend_Date) {
@@ -95,11 +96,12 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return void
      */
-    protected function _init() {
-        $fields = array(
+    protected function _init()
+    {
+        $fields = [
             'Year', 'Month', 'Day',
             'Hour', 'Minute', 'Second'
-        );
+        ];
 
         foreach ($fields as $fieldName) {
             $field = new Opus_Model_Field($fieldName);
@@ -120,8 +122,9 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return Zend_Date
      */
-    public function getZendDate() {
-        $datearray = array(
+    public function getZendDate()
+    {
+        $datearray = [
             'year' => $this->getYear(),
             'month' => $this->getMonth(),
             'day' => $this->getDay(),
@@ -129,7 +132,7 @@ class Opus_Date extends Opus_Model_Abstract {
             'minute' => $this->getMinute(),
             'second' => $this->getSecond(),
             'timezone' => $this->getTimezone()
-        );
+        ];
 
         foreach ($datearray as $key => $value) {
             if (is_null($value)) {
@@ -146,7 +149,8 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return DateTime
      */
-    public function getDateTime() {
+    public function getDateTime()
+    {
         $date = $this->__toString();
         if ($this->isDateOnly()) {
             $date = substr($date, 0, 10) . 'T00:00:00';
@@ -162,7 +166,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @param DateTime $date DateTime instance to use.
      * @return Opus_Date provide fluent interface.
      */
-    public function setDateTime($datetime) {
+    public function setDateTime($datetime)
+    {
         if (!$datetime instanceof DateTime) {
             throw new InvalidArgumentException('Invalid DateTime object.');
         }
@@ -187,7 +192,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @param DateTime $date DateTime instance to use.
      * @return Opus_Date provide fluent interface.
      */
-    public function setDateOnly($datetime) {
+    public function setDateOnly($datetime)
+    {
         $this->setDateTime($datetime);
         $this->setHour(null);
         $this->setMinute(null);
@@ -202,7 +208,8 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return bool
      */
-    public function isDateOnly() {
+    public function isDateOnly()
+    {
         return is_null($this->getHour())
                 || is_null($this->getMinute())
                 || is_null($this->getSecond())
@@ -222,7 +229,8 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @deprecated Sometimes date conversion does not work properly (OPUSVIER-3713).
      */
-    public function setZendDate(Zend_Date $date) {
+    public function setZendDate(Zend_Date $date)
+    {
         $this->setFromString($date->get(Zend_Date::ISO_8601));
     }
 
@@ -233,7 +241,8 @@ class Opus_Date extends Opus_Model_Abstract {
      * @param  string $date Date string to set.
      * @return void
      */
-    public function setFromString($date) {
+    public function setFromString($date)
+    {
         if (true === empty($date)) {
             throw new InvalidArgumentException('Empty date string passed.');
         }
@@ -257,7 +266,8 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return void
      */
-    public function setNow() {
+    public function setNow()
+    {
         $this->setDateTime(new DateTime());
     }
 
@@ -269,7 +279,8 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return string ISO 8601 date string.
      */
-    public function __toString() {
+    public function __toString()
+    {
         $dateStr = sprintf("%04d-%02d-%02d", $this->getYear(), $this->getMonth(), $this->getDay());
         if ($this->isDateOnly()) {
             return $dateStr;
@@ -285,9 +296,9 @@ class Opus_Date extends Opus_Model_Abstract {
      *
      * @return bool
      */
-    public function isValid() {
+    public function isValid()
+    {
         return checkdate($this->getMonth(), $this->getDay(), $this->getYear()) and parent::isValid();
     }
-
 }
 
