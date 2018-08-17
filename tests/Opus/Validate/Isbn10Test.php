@@ -86,7 +86,8 @@ class Opus_Validate_Isbn10Test extends TestCase {
             array('978-3-86680-192-9',  'ISBN-13 not rejected.'),
             array('3-86680-192-5',      'Wrong check digit not rejected.'),
             array('3 86680 192-0',      'Mixed separators not rejected.'),
-            array('X866801920',      'Malformed string not rejected.')
+            array('X866801920',      'Malformed string not rejected.'),
+            array('3 937602 6930', 'Malformed string not rejected.')
         );
     }
 
