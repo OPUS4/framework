@@ -77,7 +77,6 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract
         // check lenght
         if (strlen($value) !== 10 and strlen($value) !== 13) {
             $this->_error(self::MSG_FORM);
-            print(strlen($value));
             return false;
         }
 
