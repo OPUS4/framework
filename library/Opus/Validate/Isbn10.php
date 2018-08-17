@@ -74,13 +74,14 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
         $this->_setValue($value);
 
         // check lenght
-        if (strlen($value) !== (10+3)) {
+        if (strlen($value) !== 10 and strlen($value) !== 13) {
             $this->_error(self::MSG_FORM);
+            print(strlen($value));
             return false;
         }
 
         // check form
-        if (preg_match('/^[\d]*((-|\s)[\d]*){3}$/', $value) === 0) {
+        if (preg_match('/^[\d]*((-|\s)*[\d]*){2}((-|\s)*[\dX]*)$/', $value) === 0) {
             $this->_error(self::MSG_FORM);
             return false;
         }
@@ -93,10 +94,11 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
 
         // Split ISBN into its parts
         $isbn_parts = preg_split('/(-|\s)/', $value);
+        print(count($isbn_parts));
 
         // Separate digits for checkdigit calculation
         $digits = array();
-        for ($i=0; $i<3; $i++) {
+        for ($i=0; $i < count($isbn_parts); $i++) {
             foreach (str_split($isbn_parts[$i]) as $digit) {
                 $digits[] = $digit;
             }
@@ -104,7 +106,7 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
 
         // Calculate and compare check digit
         $checkdigit = $this->calculateCheckDigit($digits);
-        if ($checkdigit !== $isbn_parts[3]) {
+        if ($checkdigit !== end($digits)) {
             $this->_error(self::MSG_CHECK_DIGIT);
             return false;
         }
@@ -125,6 +127,9 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract {
             $z[10] += ($i * $z[($i-1)]);
         }
         $z[10] = ($z[10] % 11);
+        if ($z[10] == 10){
+            $z[10] = 'X';
+        }
         return "$z[10]";
     }
 

@@ -63,7 +63,7 @@ class Opus_Validate_Isbn13Test extends TestCase {
             array('978-979-3182-63-6'),
             array('978 3 86680 192 9'),
             array('978 5 7931 8163 1'),
-            array('978 979 3182 63 6'),
+            array('978 979 3182 63 6')
         );
     }
 
