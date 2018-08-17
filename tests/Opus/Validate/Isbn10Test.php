@@ -58,10 +58,16 @@ class Opus_Validate_Isbn10Test extends TestCase {
      */
     public function validDataProvider() {
         return array(
+            array('123456789X'),
+            array('1-23456-789-X'),
             array('3-86680-192-0'),
+            array('0-9752298-0-X'),
+            array('0-8044-2957-X'),
             array('3-937602-69-0'),
             array('3 86680 192 0'),
-            array('3 937602 69 0')
+            array('3 937602 69 0'),
+            array('3866801920'),
+            array('3937602690')
         );
     }
 
@@ -79,7 +85,9 @@ class Opus_Validate_Isbn10Test extends TestCase {
             array('4711-0815',          'Malformed string not rejected.'),
             array('978-3-86680-192-9',  'ISBN-13 not rejected.'),
             array('3-86680-192-5',      'Wrong check digit not rejected.'),
-            array('3 86680 192-0',      'Mixed separators not rejected.')
+            array('3 86680 192-0',      'Mixed separators not rejected.'),
+            array('X866801920',      'Malformed string not rejected.'),
+            array('3 937602 6930', 'Malformed string not rejected.')
         );
     }
 
