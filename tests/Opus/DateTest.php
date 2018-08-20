@@ -397,7 +397,7 @@ class Opus_DateTest extends TestCase {
 
         $this->assertEquals(
             $date->getDateTime()->format('Y-m-d H:i:s'),
-            date('Y-m-d H:i:s', $timestamp)
+            gmdate('Y-m-d H:i:s', $timestamp)
         );
     }
 
@@ -489,7 +489,7 @@ class Opus_DateTest extends TestCase {
         $this->assertNotEquals('2012-12-01 22:35:11', date_format($dateTime, 'Y-m-d H:i:s'));
         $this->assertEquals('2012-12-01 00:00:00', date_format($dateTime, 'Y-m-d H:i:s'));
         $this->assertEquals('', $date->getTimezone());
-        $this->assertEquals(1354316400, $date->getUnixTimestamp());
+        $this->assertEquals(1354320000, $date->getUnixTimestamp());
     }
 
     function testUpdateFromArraySimple()
@@ -502,7 +502,7 @@ class Opus_DateTest extends TestCase {
 
         $this->assertEquals('2012-12-01 00:00:00', date_format($dateTime, 'Y-m-d H:i:s'));
         // $this->assertEquals('', $date->getTimezone());
-        $this->assertEquals(1354316400, $date->getUnixTimestamp());
+        $this->assertEquals(1354320000, $date->getUnixTimestamp());
     }
 
     function testUpdateFromArraySimpleLongForm()
@@ -546,7 +546,7 @@ class Opus_DateTest extends TestCase {
         $this->assertTrue($date->isDateOnly());
         $this->assertEquals('2018-05-07', $date->__toString());
         $this->assertNotEquals(1275691013, $date->getUnixTimestamp());
-        $this->assertEquals(1525644000, $date->getUnixTimestamp());
+        $this->assertEquals(1525651200, $date->getUnixTimestamp());
     }
 
     function testUpdateUnixTimestamp()
@@ -561,7 +561,7 @@ class Opus_DateTest extends TestCase {
 
         $this->assertEquals('2017-10-14', date_format($date->getDateTime(), 'Y-m-d'));
         $this->assertNotEquals($timestamp, $date->getUnixTimestamp(), 'Field UnixTimestamp was not updated.');
-        $this->assertEquals('1507932000', $date->getUnixTimestamp());
+        $this->assertEquals('1507939200', $date->getUnixTimestamp());
     }
 
     function testCompareSame()
@@ -722,7 +722,7 @@ class Opus_DateTest extends TestCase {
             'Minute' => null,
             'Second' => null,
             'Timezone' => null,
-            'UnixTimestamp' => 1534284000
+            'UnixTimestamp' => 1534291200
         ], $date->toArray());
     }
 
@@ -838,5 +838,26 @@ class Opus_DateTest extends TestCase {
 
         $this->assertEquals($dateTime->getTimestamp(), $dateTimeUtc->getTimestamp());
         $this->assertEquals(1539986400,$dateTimeUtc->getTimestamp());
+    }
+
+    public function testGetTimestampUsesLocalTimezone()
+    {
+        $date1 = new Opus_Date('2018-10-15');
+        $date2 = new Opus_Date('2018-10-14T22:00:00Z');
+        $date3 = new Opus_Date('2018-10-15T00:00:00+02:00');
+
+        $this->assertEquals('2018-10-15', $date1->__toString());
+        $this->assertEquals('2018-10-14T22:00:00Z', $date2->__toString());
+        $this->assertEquals('2018-10-15T00:00:00+02:00', $date3->__toString());
+
+        // the timestamps are all the same because the local time zone is used when nothing is specified
+        $this->assertEquals(1539561600, $date1->getTimestamp());
+        $this->assertEquals(1539554400, $date2->getTimestamp());
+        $this->assertEquals(1539554400, $date3->getTimestamp());
+
+        // for comparing UTC (Z) is used
+        $this->assertEquals(1, $date1->compare($date2));
+        $this->assertEquals( 0, $date2->compare($date3));
+        $this->assertEquals( -1, $date3->compare($date1));
     }
 }

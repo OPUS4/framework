@@ -294,8 +294,8 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
             $this->setDateTime($datetime);
         }
         else if (preg_match(self::DATEONLY_REGEXP, $date)) {
-            $date = substr($date, 0, 10) . 'T00:00:00';
-            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+            $date = substr($date, 0, 10) . 'T00:00:00Z';
+            $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateOnly($datetime);
         }
         else {
@@ -460,7 +460,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      */
     public function getTimestamp()
     {
-        $dateTime = $this->getDateTime();
+        $dateTime = $this->getDateTime('Z');
         if (!is_null($dateTime)) {
             return $dateTime->getTimestamp();
         } else {

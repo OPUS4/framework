@@ -2950,7 +2950,7 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('2011-10-24 00:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
         $this->assertEquals('2011-10-24', $date->__toString());
         $this->assertNotEquals(1322694000, $date->getUnixTimestamp());
-        $this->assertEquals(1319407200, $date->getUnixTimestamp());
+        $this->assertEquals(1319414400, $date->getUnixTimestamp());
 
         $expected = new DateTime();
         $expected->setTimestamp(1319407200);
