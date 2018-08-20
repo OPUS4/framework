@@ -726,14 +726,16 @@ class Opus_DateTest extends TestCase {
         ], $date->toArray());
     }
 
-    function testGetDateTimeForEmptyDate() {
+    function testGetDateTimeForEmptyDate()
+    {
         $date = new Opus_Date();
 
         $this->assertFalse($date->isValid());
         $this->assertNull($date->getDateTime());
     }
 
-    function testSetUnixTimestampWithLocalTimestamp() {
+    function testSetUnixTimestampWithLocalTimestamp()
+    {
         $timestamp = strtotime('2018-10-15');
 
         $date = new Opus_Date();
@@ -750,5 +752,91 @@ class Opus_DateTest extends TestCase {
             'Timezone' => 'Z',
             'UnixTimestamp' => 1539554400
         ], $date->toArray());
+    }
+
+    public function testCompareFullWithDateOnly()
+    {
+        $date = new Opus_Date('2018-10-20T00:00:00Z');
+        $time = new Opus_Date('2018-10-19T23:59:59Z');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+
+        $date = new Opus_Date('2018-10-20');
+        $time = new Opus_Date('2018-10-19T23:59:59Z');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+
+        $date = new Opus_Date('2018-10-20');
+        $time = new Opus_Date('2018-10-19T23:59:59Z');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+    }
+
+    public function testCompareFullWithDateOnlyWithDifferentTimezone()
+    {
+        $date = new Opus_Date('2018-10-20T00:00:00+02:00');
+        $time = new Opus_Date('2018-10-19T23:59:59+02:00');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+
+        $date = new Opus_Date('2018-10-20');
+        $time = new Opus_Date('2018-10-20T01:59:59+02:00');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+
+        $date = new Opus_Date('2018-10-20');
+        $time = new Opus_Date('2018-10-20T01:59:59+02:00');
+
+        $this->assertEquals(1, $date->compare($time));
+        $this->assertEquals(-1, $time->compare($date));
+
+        $date = new Opus_Date('2018-10-20');
+        $time = new Opus_Date('2018-10-20T02:00:00+02:00');
+
+        $this->assertEquals(0, $date->compare($time));
+    }
+
+    public function testGetDateTimeDateOnlyWithTimezone()
+    {
+        $date = new Opus_Date('2018-10-20');
+
+        $dateTime = $date->getDateTime();
+
+        $this->assertNotNull($dateTime);
+        $this->assertEquals(new DateTimeZone(date_default_timezone_get()), $dateTime->getTimezone());
+        $this->assertEquals(1539986400,$dateTime->getTimestamp());
+
+        $dateTimeUtc = $date->getDateTime('Z');
+
+        $this->assertNotNull($dateTimeUtc);
+        $this->assertEquals(new DateTimeZone('Z'), $dateTimeUtc->getTimezone());
+
+        $this->assertNotEquals($dateTime->getTimestamp(), $dateTimeUtc->getTimestamp());
+        $this->assertEquals(1539993600,$dateTimeUtc->getTimestamp());
+    }
+
+    public function testGetDateTimeWithTimezone()
+    {
+        $date = new Opus_Date('2018-10-20T00:00:00+02:00');
+
+        $dateTime = $date->getDateTime();
+
+        $this->assertNotNull($dateTime);
+        $this->assertEquals(new DateTimeZone('+02:00'), $dateTime->getTimezone());
+        $this->assertEquals(1539986400,$dateTime->getTimestamp());
+
+        // if Opus_Date was created with a time zone -> changing it should not change the timestamp
+        $dateTimeUtc = $date->getDateTime('Z');
+
+        $this->assertNotNull($dateTimeUtc);
+        $this->assertEquals(new DateTimeZone('Z'), $dateTimeUtc->getTimezone());
+
+        $this->assertEquals($dateTime->getTimestamp(), $dateTimeUtc->getTimestamp());
+        $this->assertEquals(1539986400,$dateTimeUtc->getTimestamp());
     }
 }

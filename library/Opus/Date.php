@@ -179,7 +179,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      *
      * @return DateTime
      */
-    public function getDateTime()
+    public function getDateTime($timezone = null)
     {
         if (!$this->isValidDate()) {
             return null;
@@ -187,11 +187,20 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         $date = $this->__toString();
         if ($this->isDateOnly()) {
-            $date = substr($date, 0, 10) . 'T00:00:00';
-            return DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+            if (!is_null($timezone)) {
+                $date = substr($date, 0, 10) . 'T00:00:00' . $timezone;
+                return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+            } else {
+                $date = substr($date, 0, 10) . 'T00:00:00';
+                return DateTime::createFromFormat('Y-m-d\TH:i:s', $date);
+            }
         }
 
-        return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+        $dateTime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
+        if (!is_null($timezone)) {
+            $dateTime->setTimezone(new DateTimeZone($timezone));
+        }
+        return $dateTime;
     }
 
     /**
@@ -414,13 +423,27 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
             throw new Opus_Model_Exception("Cannot compare $dateClass with $class object.");
         }
 
-        $timestamp = $this->getTimestamp();
-        $dateTimestamp = $date->getTimestamp();
+        $thisDateTime = $this->getDateTime('Z');
 
-        if ($timestamp == $dateTimestamp) {
+        if (is_null($thisDateTime)) {
+            $dateStr = htmlspecialchars($this->__toString());
+            throw new Opus_Model_Exception("Date '$dateStr' is invalid.");
+        }
+
+        $dateTime = $date->getDateTime('Z');
+
+        if (is_null($dateTime)) {
+            $dateStr = htmlspecialchars($date->__toString());
+            throw new Opus_Model_Exception("Date '$dateStr' is invalid.");
+        }
+
+        $thisTimestamp = $thisDateTime->getTimestamp();
+        $timestamp = $dateTime->getTimestamp();
+
+        if ($thisTimestamp == $timestamp) {
             return 0; // equal
         }
-        elseif ($timestamp < $dateTimestamp) {
+        elseif ($thisTimestamp < $timestamp) {
             return -1; // less than
         }
         else {
