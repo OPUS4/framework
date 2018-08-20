@@ -32,9 +32,9 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Michael Lang <lang@zib.de>
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -1095,13 +1095,14 @@ class Opus_DocumentTest extends TestCase
     {
         $doc = new Opus_Document();
         $doc->setServerState('published');
-        $doc->setServerDatePublished('2011-11-11T11:11+01:00');
+        $doc->setServerDatePublished('2011-11-11T11:11:11+01:00');
         $doc->store();
 
         $filter = new Opus_Model_Filter;
         $filter->setModel($doc);
 
         $docXml = $doc->toXml(array(), new Opus_Model_Xml_Version1());
+        $xml = $docXml->saveXML();
         $serverDatePublElements = $docXml->getElementsByTagName("ServerDatePublished");
         $this->assertEquals(1, count($serverDatePublElements), 'document xml should contain one field "ServerDatePublished"');
         $this->assertTrue($serverDatePublElements->item(0)->hasAttributes(), 'document xml field "ServerDatePublished" should have attributes');
@@ -2820,5 +2821,159 @@ class Opus_DocumentTest extends TestCase
         $this->assertCount(2, $values);
         $this->assertContains('test-value', $values);
         $this->assertContains('test-value-2', $values);
+    }
+
+    public function testStoreAsNew()
+    {
+        $this->markTestIncomplete('Storing as new document not implemented yet.');
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Title');
+        $title->setLanguage('de');
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $titles = $doc->getTitleMain();
+
+        $this->assertCount(1, $titles);
+
+        $docId2 = $doc->storeAsNew();
+
+        $doc2 = new Opus_Document($docId2);
+
+        $this->assertNotEquals($docId, $docId2);
+
+        $this->assertEquals('Title', $doc2->getMainTitle('de')->getValue());
+    }
+
+    public function testGetCopy()
+    {
+        $this->markTestIncomplete('Getting a copy/clone of a document not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('en');
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $copy = $doc->getCopy();
+
+        $copy->store();
+    }
+
+    public function testToArray() {
+        $this->markTestIncomplete('Test not fully implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('en');
+
+        $docId = $doc->store();
+
+        $data = $doc->toArray();
+
+        // var_dump($data);
+    }
+
+    public function testFromArray()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+    }
+
+    public function testUpdateFrom() {
+        $this->markTestIncomplete('Not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $title = $doc->addTitleMain();
+        $title->setValue('Original Title');
+        $title->setLanguage('en');
+
+        $doc = new Opus_Document($doc->store());
+
+        $copy = new Opus_Document();
+
+        $copy->updateFrom($doc);
+
+        $titles = $copy->getTitleMain();
+
+        $this->assertCount(1, $titles);
+
+        $copy = new Opus_Document($copy->store());
+
+        $this->assertCount(1, $copy->getTitleMain());
+    }
+
+    public function testUpdateFromArrayForFullDocument()
+    {
+        $this->markTestIncomplete('Not implemented yet.');
+
+        $doc = new Opus_Document();
+
+        $data = [
+            'Type' => 'article'
+        ];
+
+        $doc->updateFromArray($data);
+
+        $this->assertEquals($data, $doc->toArray());
+    }
+
+    /**
+     * In the database the date is stored as a single value.
+     *
+     * It used to be, when the value is read the unix timestamp is set to the correct value. Now the setting of the
+     * UNIX timestamp actually changes the date and time in the Opus_Date object.
+     */
+    public function testStoringDateWithConflictingUnixTimestamp()
+    {
+        $doc = new Opus_Document();
+
+        $date = new Opus_Date();
+        $date->setFromString('2011-10-24'); // 1319414400
+        $date->setUnixTimestamp(1322694000); // Field UnixTimestamp is read-only now
+
+        $doc->setCompletedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $date = $doc->getCompletedDate();
+
+        $this->assertEquals('2011-10-24 00:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+        $this->assertEquals('2011-10-24', $date->__toString());
+        $this->assertNotEquals(1322694000, $date->getUnixTimestamp());
+        $this->assertEquals(1319407200, $date->getUnixTimestamp());
+
+        $expected = new DateTime();
+        $expected->setTimestamp(1319407200);
+
+        $this->assertEquals($expected, $date->getDateTime());
+    }
+
+    public function testDateSettingUnixTimestamp()
+    {
+        $doc = new Opus_Document();
+
+        $date = new Opus_Date();
+
+        $date->setTimestamp(1322694000);
+
+        $doc->setCompletedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $date = $doc->getCompletedDate();
+
+        $this->assertEquals(1322694000, $date->getUnixTimestamp());
+        $this->assertEquals('2011-11-30 23:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+        $this->assertEquals('2011-11-30T23:00:00Z', $date->__toString());
     }
 }
