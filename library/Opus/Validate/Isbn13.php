@@ -74,13 +74,13 @@ class Opus_Validate_Isbn13 extends Zend_Validate_Abstract {
         $this->_setValue($value);
 
         // check lenght
-        if (strlen($value) !== 17) {
+        if (strlen($value) !== 13 and strlen($value) !== 17) {
             $this->_error(self::MSG_FORM);
             return false;
         }
 
-        // check form. ISBN13 can have 17 characters. 
-        // All digits are numbers, there are additionally 4 seperator of dashes or spaces.
+        // check form. ISBN13 can have 13 characters or 17 characters. If it has 13 characters, all digits are numbers.
+        // If it has 17 characters, there are additionally 4 seperator of dashes or spaces.
         if (preg_match('/^[\d]*((-|\s)?[\d]*){4}$/', $value) === 0) {
             $this->_error(self::MSG_FORM);
             return false;
