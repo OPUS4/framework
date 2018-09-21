@@ -47,16 +47,29 @@ class Opus_Doi_DoiManager
     {
         $this->config = Zend_Registry::get('Zend_Config');
         $this->defaultLog = Zend_Registry::get('Zend_Log');
+        $this->doiLog = $this->getDoiLogger();
+    }
 
-        $logfilePath = $this->config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus-doi.log';
-        $logfile = @fopen($logfilePath, 'a', false);
-        $writer = new Zend_Log_Writer_Stream($logfile);
+    /**
+     * Creates logger for DOI messages.
+     */
+    public function getDoiLogger()
+    {
+        if (is_null($this->doiLog)) {
+            $logfilePath = $this->config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR
+                . 'opus-doi.log';
 
-        $format = '%timestamp% %priorityName%: %message%' . PHP_EOL;
-        $formatter = new Zend_Log_Formatter_Simple($format);
-        $writer->setFormatter($formatter);
+            $logfile = @fopen($logfilePath, 'a', false);
+            $writer = new Zend_Log_Writer_Stream($logfile);
 
-        $this->doiLog = new Zend_Log($writer);
+            $format = '%timestamp% %priorityName%: %message%' . PHP_EOL;
+            $formatter = new Zend_Log_Formatter_Simple($format);
+            $writer->setFormatter($formatter);
+
+            $this->doiLog = new Zend_Log($writer);
+        }
+
+        return $this->doiLog;
     }
 
     /**
