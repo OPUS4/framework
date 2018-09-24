@@ -53,6 +53,27 @@
  *
  *
  * TODO remove Field objects
+ *
+ * @method void setYear(integer $year)
+ * @method integer getYear()
+ *
+ * @method void setMonth(integer $month)
+ * @method integer getMonth()
+ *
+ * @method void setDay(integer $day)
+ * @method integer getDay()
+ *
+ * @method void setHour(integer $hour)
+ * @method integer getHour()
+ *
+ * @method void setMinute(integer $minute)
+ * @method integer getMinute()
+ *
+ * @method void setSecond(integer $second)
+ * @method integer getSecond()
+ *
+ * @method void setTimezone(string $timezone)
+ * @method string getTimezone()
  */
 class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 {
@@ -311,6 +332,17 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     public function setNow()
     {
         $this->setDateTime(new DateTime());
+    }
+
+    /**
+     * Creates Opus_Date object set to the time of creation.
+     * @return Opus_Date
+     */
+    static function getNow()
+    {
+        $date = new Opus_Date();
+        $date->setNow();
+        return $date;
     }
 
     /**

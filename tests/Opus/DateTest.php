@@ -860,4 +860,16 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals( 0, $date2->compare($date3));
         $this->assertEquals( -1, $date3->compare($date1));
     }
+
+    public function testGetNow()
+    {
+        $now = Opus_Date::getNow();
+
+        $dateTime = new DateTime();
+
+        // don't compare seconds because timestamps will differ slightly
+        $expected = $dateTime->format('Y-m-d\TH:i');
+
+        $this->assertStringStartsWith($expected, $now->__toString());
+    }
 }
