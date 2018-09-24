@@ -43,6 +43,13 @@ class Opus_Doi_DoiManager
 
     private $landingPageBaseUrl;
 
+    /**
+     * Opus_Doi_DoiManager constructor.
+     * @throws Zend_Exception
+     *
+     * TODO create logger only if necessary
+     * TODO use OPUS functions to get configuration and default log
+     */
     public function __construct()
     {
         $this->config = Zend_Registry::get('Zend_Config');
@@ -52,6 +59,12 @@ class Opus_Doi_DoiManager
 
     /**
      * Creates logger for DOI messages.
+     *
+     * This code might be executed as part of a script or as part of a web request. Therefore it is possible that the
+     * log file is created with different permissions. The 'chmod' in the function tries to alleviate the problem by
+     * making sure that the owner and the group (usually 'wwwdata' or apache2 in general) have read/write permissions.
+     *
+     * TODO centralize code for creating log files (like a logging service that can be used by all modules)
      */
     public function getDoiLogger()
     {
@@ -67,6 +80,8 @@ class Opus_Doi_DoiManager
             $writer->setFormatter($formatter);
 
             $this->doiLog = new Zend_Log($writer);
+
+            chmod($logfilePath, 0660); // grant owner and group read/write permission
         }
 
         return $this->doiLog;
