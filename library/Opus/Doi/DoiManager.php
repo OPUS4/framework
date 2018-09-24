@@ -148,6 +148,7 @@ class Opus_Doi_DoiManager
 
         // set status and timestamp after successful DOI registration
         $localDoi->setStatus('registered');
+        // TODO timestamp should always be UTC
         $dateTimeZone = new DateTimeZone(date_default_timezone_get());
         $dateTime = new DateTime('now', $dateTimeZone);
         $localDoi->setRegistrationTs($dateTime->format('Y-m-d H:i:s'));
