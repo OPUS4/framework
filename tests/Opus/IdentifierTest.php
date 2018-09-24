@@ -483,4 +483,40 @@ class Opus_IdentifierTest extends TestCase
 
         $this->assertFalse($doi->checkDoiCollision());
     }
+
+    public function testToArray()
+    {
+        $identifier = new Opus_Identifier();
+        $identifier->setValue('123-4563-123');
+        $identifier->setType('isbn');
+        $identifier->setStatus('registered');
+        $identifier->setRegistrationTs('2018-10-11 15:45:21');
+
+        $data = $identifier->toArray();
+
+        $this->assertEquals([
+            'Value' => '123-4563-123',
+            'Type' => 'isbn',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-11 15:45:21'
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $data = [
+            'Value' => '123-4563-123',
+            'Type' => 'isbn',
+            'Status' => 'registered',
+            'RegistrationTs' => '2018-10-11 15:45:21'
+        ];
+
+        $identifier = new Opus_Identifier();
+        $identifier->updateFromArray($data);
+
+        $this->assertEquals('123-4563-123', $identifier->getValue());
+        $this->assertEquals('isbn', $identifier->getType());
+        $this->assertEquals('registered', $identifier->getStatus());
+        $this->assertEquals('2018-10-11 15:45:21', $identifier->getRegistrationTs());
+    }
 }

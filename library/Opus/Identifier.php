@@ -40,6 +40,14 @@
  * @uses        Opus_Model_Dependent_Abstract
  *
  * TODO find way to remove DOI and URN functions to separate classes
+ *
+ * TODO desing issues - see below
+ * The OPUS 4 framework is mapping objects to database tables (ORM). All identifiers are stored in the same table. The
+ * table was extended with fields relevant only to DOI identifiers. In a pure object model it would make more sense to
+ * extend the basic Opus_Identifier class for specific identifier types to add fields and functionality. Those classes
+ * would then have to be mapped to different table, however they could also still be mapped to the same table. At some
+ * point this will have to be revisited. We need a consistent object model independent of how the data is stored in the
+ * end.
  */
 class Opus_Identifier extends Opus_Model_Dependent_Abstract {
     /**
