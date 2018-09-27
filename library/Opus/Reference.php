@@ -39,6 +39,18 @@
  * @category    Framework
  * @package     Opus_Model
  * @uses        Opus_Model_Dependent_Abstract
+ *
+ * @method void setValue(string $value)
+ * @method string getValue()
+ *
+ * @method void setLabel(string $label)
+ * @method string getLabel()
+ *
+ * @method void setRelation(string $relation)
+ * @method string getRelation()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
  */
 class Opus_Reference extends Opus_Model_Dependent_Abstract {
     /**
