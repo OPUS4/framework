@@ -368,6 +368,19 @@ abstract class Opus_Model_Abstract
      */
     public function updateFromArray($data)
     {
+        if ($this instanceof Opus_Model_Dependent_Link_Abstract) {
+            // Link-model classes proxy functions to a model class
+            $model = $this->getModel();
+            if (is_null($model)) {
+                // if model object not present create one
+                $modelClass = $this->getModelClass();
+                $model = new $modelClass();
+                $this->setModel($model);
+            } else {
+                $model->clearFields();
+            }
+        }
+
         $this->clearFields();
 
         foreach($data as $fieldName => $values) {
@@ -379,8 +392,24 @@ abstract class Opus_Model_Abstract
                 if (is_null($fieldModelClass)) {
                     $field->setValue($values);
                 } else {
-                    $models = [];
-                    foreach ($values as $modelValues) {
+                    if ($field->getMultiplicity() == '*') {
+                        $models = [];
+                        foreach ($values as $modelValues) {
+                            $model = new $fieldModelClass();
+
+                            if (!is_null($linkModelClass)) {
+                                $linkModel = new $linkModelClass();
+                                $linkModel->setModel($model);
+                                $model = $linkModel;
+                            }
+
+                            $model->updateFromArray($modelValues);
+                            $models[] = $model;
+                        }
+
+                        $field->setValue($models);
+                    }
+                    else {
                         $model = new $fieldModelClass();
 
                         if (!is_null($linkModelClass)) {
@@ -389,10 +418,10 @@ abstract class Opus_Model_Abstract
                             $model = $linkModel;
                         }
 
-                        $model->updateFromArray($modelValues);
-                        $models[] = $model;
+                        $model->updateFromArray($values);
+
+                        $field->setvalue($model);
                     }
-                    $field->setValue($models);
                 }
             } else {
                 $modelClass = get_called_class();
