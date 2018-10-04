@@ -28,9 +28,9 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -52,7 +52,8 @@
  * @method void setType(string $type)
  * @method string getType()
  */
-class Opus_Reference extends Opus_Model_Dependent_Abstract {
+class Opus_Reference extends Opus_Model_Dependent_Abstract
+{
     /**
      * Primary key of the parent model.
      *
@@ -74,7 +75,8 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -86,19 +88,16 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract {
         $relation = new Opus_Model_Field('Relation');
         $relation->setMandatory(false);
         $relation->setSelection(true);
-        $relation->setDefault(
-            array(
+        $relation->setDefault([
             'updates' => 'updates',
             'updated-by' => 'updated-by',
             'other' => 'other'
-            )
-        );
+        ]);
 
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false); // TODO change later
         $type->setSelection(true);
-        $type->setDefault(
-            array(
+        $type->setDefault([
             'isbn' => 'isbn',
             'urn' => 'urn',
             'doi' => 'doi',
@@ -109,13 +108,11 @@ class Opus_Reference extends Opus_Model_Dependent_Abstract {
             'cris-link' => 'cris-link',
             'splash-url' => 'splash-url',
             'opus4-id' => 'opus4-id'
-                )
-        );
+        ]);
 
         $this->addField($value);
         $this->addField($label);
         $this->addField($relation);
         $this->addField($type);
     }
-
 }
