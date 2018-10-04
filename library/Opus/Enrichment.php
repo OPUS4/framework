@@ -42,9 +42,10 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  *
- * @method setKeyName(string $name)
+ * @method void setKeyName(string $name)
  * @method string getKeyName()
- * @method setValue(string $value)
+ *
+ * @method void setValue(string $value)
  * @method string getValue()
  */
 class Opus_Enrichment extends Opus_Model_Dependent_Abstract
