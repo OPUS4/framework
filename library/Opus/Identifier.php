@@ -39,6 +39,18 @@
  * @package     Opus_Model
  * @uses        Opus_Model_Dependent_Abstract
  *
+ * @method void setValue(string $value)
+ * @method string getValue()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
+ *
+ * @method void setStatus(string $status)
+ * @method string getStatus()
+ *
+ * @method void setRegistrationTs(string $timestamp)
+ * @method string getRegistrationTs()
+ *
  * TODO find way to remove DOI and URN functions to separate classes
  *
  * TODO desing issues - see below
@@ -49,7 +61,8 @@
  * point this will have to be revisited. We need a consistent object model independent of how the data is stored in the
  * end.
  */
-class Opus_Identifier extends Opus_Model_Dependent_Abstract {
+class Opus_Identifier extends Opus_Model_Dependent_Abstract
+{
     /**
      * Primary key of the parent model.
      *
@@ -71,7 +84,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -81,8 +95,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
         $type->setMandatory(true)
                 ->setSelection(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
-                ->setDefault(
-                    array(
+                ->setDefault([
                     'old' => 'old',
                     'serial' => 'serial',
                     'uuid' => 'uuid',
@@ -99,17 +112,16 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
                     'opac-id' => 'opac-id',
                     'pmid' => 'pmid',
                     'arxiv' => 'arxiv'
-                    )
-                );
+                ]);
         $this->addField($type);
 
         // zwei Felder, die ausschließlich für Identifier vom Typ DOI genutzt werden
         $value = new Opus_Model_Field('Status');
         $value->setMandatory(false)
-            ->setDefault(array(
-                    'registered' => 'registered',
-                    'verified' => 'verified')
-            );
+            ->setDefault([
+                'registered' => 'registered',
+                'verified' => 'verified'
+            ]);
         $this->addField($value);
 
         $value = new Opus_Model_Field('RegistrationTs');
@@ -128,7 +140,9 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
                     break;
                 case 'doi':
                     if ($this->checkDoiCollision()) {
-                        throw new Opus_Identifier_DoiAlreadyExistsException('could not save DOI with value ' . $value . ' since it already exists in your instance');
+                        throw new Opus_Identifier_DoiAlreadyExistsException(
+                            "could not save DOI with value $value since it already exists in your instance"
+                        );
                     }
                     break;
             }
@@ -175,7 +189,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * @param $docId optionale ID eines OPUS-Dokuments
      * @return bool
      */
-    public function isUrnUnique($docId = null) {
+    public function isUrnUnique($docId = null)
+    {
         try {
             $this->checkUrnCollision($this->getValue(), $docId);
             return true;
@@ -194,7 +209,8 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract {
      * zurück; andernfalls false.
      *
      */
-    public function checkDoiCollision() {
+    public function checkDoiCollision()
+    {
         if (!$this->isLocalDoi()) {
             return false;
         }
