@@ -25,67 +25,63 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Gunar Maiwald <maiwald@zib.de>
+ * @package     Tests
  * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Domain model for enrichments in the Opus framework
- *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
- *
- * @method void setKeyName(string $name)
- * @method string getKeyName()
- *
- * @method void setValue(string $value)
- * @method string getValue()
- */
-class Opus_Enrichment extends Opus_Model_Dependent_Abstract
+class Opus_TitleTest extends TestCase
 {
 
-    /**
-     * Primary key of the parent model.
-     *
-     * @var mixed $_parentId.
-     */
-    protected $_parentColumn = 'document_id';
-
-    /**
-     * Specify then table gateway.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
-     */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
-
-    /**
-     * Initialize model with the following fields:
-     * - KeyName
-     * - Value
-     *
-     * @return void
-     */
-    protected function _init()
+    public function testToArray()
     {
-        $key = new Opus_Model_Field('KeyName');
-        $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
-                ->setSelection(true)
-                ->setDefault(Opus_EnrichmentKey::getAll());
+        $title = new Opus_Title();
 
-        $value = new Opus_Model_Field('Value');
-        $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
+        $title->setLanguage('deu');
+        $title->setType(Opus_Title::TYPE_MAIN);
+        $title->setValue('Deutscher Haupttitel');
 
-        $this->addField($key);
-        $this->addField($value);
+        $data = $title->toArray();
+
+        $this->assertEquals([
+            'Language' => 'deu',
+            'Type' => 'main',
+            'Value' => 'Deutscher Haupttitel'
+        ], $data);
     }
 
+    public function testFromArray()
+    {
+        $title = Opus_Title::fromArray([
+            'Language' => 'deu',
+            'Type' => 'main',
+            'Value' => 'Deutscher Haupttitel'
+        ]);
+
+        $this->assertNotNull($title);
+        $this->assertInstanceOf('Opus_Title', $title);
+
+        $this->assertEquals('deu', $title->getLanguage());
+        $this->assertEquals('main', $title->getType());
+        $this->assertEquals('Deutscher Haupttitel', $title->getValue());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $title = new Opus_Title();
+
+        $title->updateFromArray([
+            'Language' => 'deu',
+            'Type' => 'main',
+            'Value' => 'Deutscher Haupttitel'
+        ]);
+
+        $this->assertNotNull($title);
+        $this->assertInstanceOf('Opus_Title', $title);
+
+        $this->assertEquals('deu', $title->getLanguage());
+        $this->assertEquals('main', $title->getType());
+        $this->assertEquals('Deutscher Haupttitel', $title->getValue());
+    }
 }

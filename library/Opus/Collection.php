@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,12 +30,47 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Michael Lang <lang@zib.de>
- * @copyright   Copyright (c) 2010-2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id: CollectionOld.php -1$
  */
 
-class Opus_Collection extends Opus_Model_AbstractDb {
+/**
+ * Class Opus_Collection
+ *
+ * @method void setNumber(string $number)
+ * @method string getNumber()
+ *
+ * @method void setName(string $name)
+ * @method string getName()
+ *
+ * @method void setOaiSubset(string $oaiSubset)
+ * @method string getOaiSubset()
+ *
+ * @method void setVisible(boolean $visible)
+ * @method boolean getVisible()
+ *
+ * @method void setVisiblePublish(boolean $visiblePublish)
+ * @method boolean getVisiblePublish
+ *
+ * Fields proxied from Opus_CollectionRole
+ *
+ * @method void setRoleId(integer $roleId) // TODO correct?
+ * @method integer getRoleId()
+ *
+ * @method void setRole(Opus_CollectionRole $role)
+ * @method Opus_CollectionRole getRole()
+ *
+ * @method void setRoleDisplayFrontdoor() // TODO
+ *
+ * @method void setRoleVisibleFrontdoor() // TODO
+ *
+ * @method string getDisplayFrontdoor() // TODO
+ *
+ * TODO check what output array for Opus_Collection looks like - document!!!
+ */
+class Opus_Collection extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify the table gateway.
@@ -50,10 +84,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
         'Opus_Collection_Plugin_DeleteSubTree' => null,
-    );
+    ];
 
     /**
      * The collections external fields, i.e. those not mapped directly to the
@@ -62,59 +96,62 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array(
-        'Theme' => array(
+    protected $_externalFields = [
+        'Theme' => [
             'fetch' => 'lazy',
-        ),
-        'Role' => array(
+        ],
+        'Role' => [
             'model' => 'Opus_CollectionRole',
             'fetch' => 'lazy',
-        ),
-        'RoleName' => array(
+        ],
+        'RoleName' => [
             'fetch' => 'lazy',
-        ),
-        'RoleDisplayFrontdoor' => array(
+        ],
+        'RoleDisplayFrontdoor' => [
             'fetch' => 'lazy',
-        ),
-        'RoleVisibleFrontdoor' => array(
+        ],
+        'RoleVisibleFrontdoor' => [
             'fetch' => 'lazy',
-        ),
+        ],
 
 
-        'PositionKey' => array(),
-        'PositionId' => array(),
+        'PositionKey' => [],
+        'PositionId' => [],
 
         // Will contain the Collections to the Root Collection
-        'Parents' => array(
+        'Parents' => [
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
-        ),
+        ],
 
         // Will contain the Collections with parentId = this->getId
-        'Children' => array(
+        'Children' => [
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
-        ),
+        ],
 
         // Pending nodes.
-        'PendingNodes' => array(
+        'PendingNodes' => [
             'model' => 'Opus_Collection',
             'fetch' => 'lazy',
-        ),
-    );
+        ],
+    ];
 
     /**
      * Sets up field by analyzing collection content table metadata.
      *
      * @return void
      */
-    protected function _init() {
-
-        $fields = array('Number', 'Name', 'OaiSubset',
+    protected function _init()
+    {
+        $fields = [
+            'Number', 'Name', 'OaiSubset',
             'RoleId', 'Role', 'RoleName',
             'RoleDisplayFrontdoor', 'RoleVisibleFrontdoor',
             'DisplayFrontdoor',
-            'VisiblePublish');
+            'VisiblePublish'
+        ];
+
         foreach ($fields as $field) {
             $field = new Opus_Model_Field($field);
             $this->addField($field);
@@ -147,10 +184,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         /*
          * Fields used to define the position of new nodes.
         */
-        $positionKeys = array( 'Root',
-                'FirstChild', 'LastChild',
-                'NextSibling', 'PrevSibling'
-        );
+        $positionKeys = [
+            'Root',
+            'FirstChild', 'LastChild',
+            'NextSibling', 'PrevSibling'
+        ];
 
         $positionKey = new Opus_Model_Field('PositionKey');
         $positionKey->setDefault($positionKeys);
@@ -173,7 +211,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Create model for these fields - don't ask the database manually!
      * TODO: Use attributes table for this and 'options' on $_externalFields.
      */
-    protected function _fetchTheme() {
+    protected function _fetchTheme()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -203,7 +242,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Create model for these fields - don't ask the database manually!
      * FIXME: Add unit test: new Collection(); ->setTheme(); ->store()
      */
-    protected function _storeTheme($theme = '') {
+    protected function _storeTheme($theme = '')
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -241,7 +281,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return array DocumentId(s).
      */
-    public function getDocumentIds() {
+    public function getDocumentIds()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -264,7 +305,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Method to fetch IDs of all documents in server_state published.
      */
-    public function getPublishedDocumentIds() {
+    public function getPublishedDocumentIds()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -286,12 +328,14 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Internal method to populate external field.
      */
-    protected function _fetchRole() {
+    protected function _fetchRole()
+    {
         $role = new Opus_CollectionRole($this->getRoleId());
         return $role;
     }
 
-    protected function _fetchDisplayFrontdoor() {
+    protected function _fetchDisplayFrontdoor()
+    {
         $displayName = $this->getDisplayName('frontdoor');
         $parentId = $this->getParentNodeId();
         if (!empty($parentId)) {
@@ -307,32 +351,36 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * empty method to prevent storing of read-only field DisplayFrontdoor
      */
-    protected function _storeDisplayFrontdoor() {
-
+    protected function _storeDisplayFrontdoor()
+    {
     }
 
     /**
      * Internal method to store external field to model.
      */
-    protected function _storeRole($role) {
+    protected function _storeRole($role)
+    {
     }
 
     /**
      * empty method to prevent storing of read-only field RoleDisplayFrontdoor
      */
-    protected function _storeRoleDisplayFrontdoor($flag) {
+    protected function _storeRoleDisplayFrontdoor($flag)
+    {
     }
 
     /**
      * empty method to prevent storing of read-only field RoleVisibleFrontdoor
      */
-    protected function _storeRoleVisibleFrontdoor($flag) {
+    protected function _storeRoleVisibleFrontdoor($flag)
+    {
     }
 
     /**
      * empty method to prevent storing of read-only field RoleName
      */
-    protected function _storeRoleName($roleName) {
+    protected function _storeRoleName($roleName)
+    {
     }
 
     /**
@@ -340,7 +388,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    protected function _fetchRoleDisplayFrontdoor() {
+    protected function _fetchRoleDisplayFrontdoor()
+    {
         $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayFrontdoor();
@@ -352,7 +401,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    protected function _fetchRoleVisibleFrontdoor() {
+    protected function _fetchRoleVisibleFrontdoor()
+    {
         $role = $this->getRole();
         if (!is_null($role)) {
             if ($role->getVisible() == 1 and $role->getVisibleFrontdoor() == 1) {
@@ -367,7 +417,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    protected function _fetchRoleName() {
+    protected function _fetchRoleName()
+    {
         $role = $this->getRole();
         if (!is_null($role)) {
             return $role->getDisplayName();
@@ -379,7 +430,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    public function getDisplayName($context = 'browsing', $role = null) {
+    public function getDisplayName($context = 'browsing', $role = null)
+    {
         if (!is_null($role) && (!$role instanceof Opus_CollectionRole || $role->getId() != $this->getRoleId())) {
             throw new InvalidArgumentException('given Collection Role is not compatible');
         }
@@ -410,7 +462,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return trim($display);
     }
 
-    public function getDisplayNameForBrowsingContext($role = null) {
+    public function getDisplayNameForBrowsingContext($role = null)
+    {
         return $this->getDisplayName('browsing', $role);
     }
 
@@ -422,7 +475,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    public function getNumberAndName($delimiter = ' ') {
+    public function getNumberAndName($delimiter = ' ')
+    {
         $name = trim($this->getName());
         $number = trim($this->getNumber());
         if ($number == '') {
@@ -440,7 +494,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    public function getDebugName() {
+    public function getDebugName()
+    {
         return get_class($this) . '#' . $this->getId() . '#' . $this->getRoleId();
     }
 
@@ -449,14 +504,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return integer
      */
-    public function getParentNodeId() {
+    public function getParentNodeId()
+    {
         $table = $this->_primaryTableRow->getTable();
         $parentIdField = $table->getParentFieldName();
         return $this->_primaryTableRow->$parentIdField;
     }
 
     // TODO: Add documentation for method.
-    protected function linkDocument($documentId) {
+    protected function linkDocument($documentId)
+    {
         if (isset($documentId) === false) {
             throw new Exception("linkDocument() needs documend_id parameter.");
         }
@@ -479,7 +536,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function linkDocumentById($documentId = null) {
+    public function linkDocumentById($documentId = null)
+    {
         if (is_null($this->getId())) {
             throw new Exception("linkDocumentById() is not allowed on NewRecord.");
         }
@@ -491,11 +549,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $table = $this->_primaryTableRow->getTable();
         $db = $table->getAdapter();
 
-        $insertData = array(
+        $insertData = [
             'collection_id' => $this->getId(),
             'role_id' => $this->getRoleId(),
             'document_id' => $documentId,
-        );
+        ];
 
         return $db->insert('link_documents_collections', $insertData);
     }
@@ -509,7 +567,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public static function unlinkCollectionsByDocumentId($documentId = null) {
+    public static function unlinkCollectionsByDocumentId($documentId = null)
+    {
         if (is_null($documentId)) {
             return;
         }
@@ -517,9 +576,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
         $db = $table->getAdapter();
 
-        $condition = array(
+        $condition = [
             'document_id = ?' => $documentId
-        );
+        ];
 
         return $db->delete("link_documents_collections", $condition);
     }
@@ -533,8 +592,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Move method to Opus_Db_LinkDocumentsCollections.
      * TODO: Usable return value.
      */
-    public function holdsDocumentById($documentId = null) {
-
+    public function holdsDocumentById($documentId = null)
+    {
         if (is_null($documentId)) {
             return false;
         }
@@ -566,15 +625,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * FIXME: Part of old API.  Please check, if everything works fine.
      * FIXME: Seems unused.  Check if we still need it.
      */
-    public function toArray($call = null) {
+    public function toArray($call = null)
+    {
         $role = $this->getRole();
-        return array(
+        return [
             'Id' => $this->getId(),
             'RoleId' => $this->getRoleId(),
             'RoleName' => $role->getDisplayName(),
             'DisplayBrowsing' => $this->getDisplayName('browsing'),
             'DisplayFrontdoor' => $this->getDisplayName('frontdoor'),
-        );
+        ];
     }
 
     /**
@@ -584,13 +644,13 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return DomDocument Xml representation of the collection.
      */
-    public function toXml(array $excludeFields = null, $strategy = null) {
+    public function toXml(array $excludeFields = null, $strategy = null)
+    {
         // TODO: comment why these fields should always be excluded.
         $alwaysExclude = array('Theme');
         if (is_null($excludeFields) === true) {
             $excludeFields = $alwaysExclude;
-        }
-        else {
+        } else {
             $excludeFields = array_merge($excludeFields, $alwaysExclude);
         }
         return parent::toXml($excludeFields, $strategy);
@@ -605,7 +665,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param  string  $number
      * @return array   Array of Opus_Collection objects.
      */
-    public static function fetchCollectionsByRoleNumber($roleId, $number) {
+    public static function fetchCollectionsByRoleNumber($roleId, $number)
+    {
         if (!isset($number)) {
             throw new Exception("Parameter 'number' is required.");
         }
@@ -631,7 +692,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param  string  $name
      * @return array   Array of Opus_Collection objects.
      */
-    public static function fetchCollectionsByRoleName($roleId, $name) {
+    public static function fetchCollectionsByRoleName($roleId, $name)
+    {
         if (!isset($name)) {
             throw new Exception("Parameter 'name' is required.");
         }
@@ -656,7 +718,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param  int     $roleId
      * @return array   Array of Opus_Collection objects.
      */
-    public static function fetchCollectionsByRoleId($roleId) {
+    public static function fetchCollectionsByRoleId($roleId)
+    {
        if (!isset($roleId)) {
             throw new Exception("Parameter 'role_id' is required.");
        }
@@ -676,9 +739,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * FIXME: This method belongs to Opus_Db_Link_Documents_Collections
      */
-    public static function fetchCollectionIdsByDocumentId($documentId) {
+    public static function fetchCollectionIdsByDocumentId($documentId)
+    {
         if (!isset($documentId)) {
-            return array();
+            return [];
         }
 
         // FIXME: self::$_tableGatewayClass not possible in static methods.
@@ -704,9 +768,9 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus_CollectionRole!
      */
-    public static function createObjects($array) {
-
-        $results = array();
+    public static function createObjects($array)
+    {
+        $results = [];
 
         // FIXME: get_called_class() only supported in PHP5 >= 5.3
         //   $class   = get_called_class();
@@ -726,13 +790,20 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * in the tree.  Do *not* store these values to any external model.
      */
 
-    public function _fetchPositionKey() {
+    public function _fetchPositionKey()
+    {
     }
-    public function _storePositionKey() {
+
+    public function _storePositionKey()
+    {
     }
-    public function _fetchPositionId() {
+
+    public function _fetchPositionId()
+    {
     }
-    public function _storePositionId() {
+
+    public function _storePositionId()
+    {
     }
 
 
@@ -740,45 +811,54 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * Creating new collections.
      */
 
-    public function addFirstChild($node = null) {
+    public function addFirstChild($node = null)
+    {
         return $this->addPendingNodes('FirstChild', $node);
     }
 
-    public function addLastChild($node = null) {
+    public function addLastChild($node = null)
+    {
         return $this->addPendingNodes('LastChild', $node);
     }
 
-    public function addNextSibling($node = null) {
+    public function addNextSibling($node = null)
+    {
         return $this->addPendingNodes('NextSibling', $node);
     }
 
-    public function addPrevSibling($node = null) {
+    public function addPrevSibling($node = null)
+    {
         return $this->addPendingNodes('PrevSibling', $node);
     }
 
-    public function moveAfterNextSibling() {
+    public function moveAfterNextSibling()
+    {
         $nestedsets = $this->_primaryTableRow->getTable();
         $nestedsets->moveSubTreeAfterNextSibling($this->getId());
     }
 
-    public function moveBeforePrevSibling() {
+    public function moveBeforePrevSibling()
+    {
         $nestedsets = $this->_primaryTableRow->getTable();
         $nestedsets->moveSubTreeBeforePreviousSibling($this->getId());
     }
 
-    public function moveToPosition($position) {
+    public function moveToPosition($position)
+    {
         $nestedSets = $this->_primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId(), $position);
     }
 
-    public function moveToStart() {
+    public function moveToStart()
+    {
         $nestedSets = $this->_primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId(), 0);
     }
 
     /**
      */
-    public function moveToEnd() {
+    public function moveToEnd()
+    {
         $nestedSets = $this->_primaryTableRow->getTable();
         $nestedSets->moveSubTreeToPosition($this->getId());
     }
@@ -789,8 +869,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return int The primary id of the created row.
      */
-    public function _storeInternalFields() {
-
+    public function _storeInternalFields()
+    {
         if (is_null($this->getRoleId())) {
             throw new Exception("RoleId must be set when storing Collection!");
         }
@@ -850,11 +930,11 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param Opus_CollectionNode $collection
      * @return <type>
      */
-    protected function addPendingNodes($key = null, $collection = null) {
+    protected function addPendingNodes($key = null, $collection = null)
+    {
         if (isset($collection)) {
             $collection = parent::addPendingNodes($collection);
-        }
-        else {
+        } else {
             $collection = parent::addPendingNodes();
         }
 
@@ -874,14 +954,16 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * This is an internal field, which doesn't get stored in the model.  There
      * is no reason to "fetch" pending nodes.
      */
-    public function _fetchPendingNodes() {
+    public function _fetchPendingNodes()
+    {
     }
 
     /**
      * Storing pending nodes makes sure, that every node knowns which role_id
      * it belongs to and next to which node it will be inserted.
      */
-    public function _storePendingNodes($collections) {
+    public function _storePendingNodes($collections)
+    {
         if (is_null($collections)) {
             return;
         }
@@ -906,7 +988,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * TODO modify subselect to exclude invisible nodes
      */
-    public function getNumSubtreeEntries() {
+    public function getNumSubtreeEntries()
+    {
         $nestedsets = $this->_primaryTableRow->getTable();
         $subselect = $nestedsets
                 ->selectSubtreeById($this->getId(), 'id')
@@ -935,9 +1018,10 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param  $docIds
      * @return array
      */
-    public function filterSubtreeDocumentIds($docIds) {
+    public function filterSubtreeDocumentIds($docIds)
+    {
         if (is_null($docIds) or (is_array($docIds) && empty($docIds))) {
-            return array();
+            return [];
         }
 
         $nestedsets = $this->_primaryTableRow->getTable();
@@ -961,7 +1045,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @return Array of Opus_Collection objects.
      */
 
-    public function _fetchParents() {
+    public function _fetchParents()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -979,7 +1064,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return Array of Opus_Collection objects.
      */
-    protected function _fetchChildren() {
+    protected function _fetchChildren()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -998,7 +1084,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _storeChildren() {
+    protected function _storeChildren()
+    {
     }
 
 
@@ -1006,7 +1093,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * An unexpensive way to find out, if the current collection has children,
      * i.e. if it is a leaf node in the tree.
      */
-    public function hasChildren() {
+    public function hasChildren()
+    {
         if ($this->isNewRecord()) {
             return;
         }
@@ -1021,15 +1109,17 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      *
      * @return array
      */
-    public function describe() {
-        $excludeFields = array( 'Children', 'Role', 'PendingNodes', 'Parents' );
+    public function describe()
+    {
+        $excludeFields = ['Children', 'Role', 'PendingNodes', 'Parents'];
         return array_diff(parent::describe(), $excludeFields);
     }
 
     /**
      * isRoot()
      */
-    public function isRoot() {
+    public function isRoot()
+    {
         if ($this->isNewRecord()) {
             return;
         }
@@ -1039,7 +1129,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         );
     }
 
-    public function getVisibleChildren() {
+    public function getVisibleChildren()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -1053,7 +1144,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-    public function hasVisibleChildren() {
+    public function hasVisibleChildren()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -1067,7 +1159,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return intval($table->getAdapter()->fetchOne($select)) > 0;
     }
 
-    public function getVisiblePublishChildren() {
+    public function getVisiblePublishChildren()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -1082,7 +1175,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         return self::createObjects($rows);
     }
 
-    public function hasVisiblePublishChildren() {
+    public function hasVisiblePublishChildren()
+    {
         if (is_null($this->getId())) {
             return;
         }
@@ -1100,7 +1194,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Sorts the child nodes by value of model field name.
      */
-    public function sortChildrenByName($reverse = false) {
+    public function sortChildrenByName($reverse = false)
+    {
         $table = $this->_primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
@@ -1110,20 +1205,19 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         if ($reverse === false) {
             usort(
                 $children, function ($nodeOne, $nodeTwo) {
-                if ($nodeOne['name'] == $nodeTwo['name']) {
-                    return 0;
-                }
-                return ($nodeOne['name'] < $nodeTwo['name']) ? -1 : 1;
+                    if ($nodeOne['name'] == $nodeTwo['name']) {
+                        return 0;
+                    }
+                    return ($nodeOne['name'] < $nodeTwo['name']) ? -1 : 1;
                 }
             );
-        }
-        else {
+        } else {
             usort(
                 $children, function ($nodeOne, $nodeTwo) {
-                if ($nodeOne['name'] == $nodeTwo['name']) {
-                    return 0;
-                }
-                return ($nodeOne['name'] > $nodeTwo['name']) ? -1 : 1;
+                    if ($nodeOne['name'] == $nodeTwo['name']) {
+                        return 0;
+                    }
+                    return ($nodeOne['name'] > $nodeTwo['name']) ? -1 : 1;
                 }
             );
         }
@@ -1136,7 +1230,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Sorts children by value of model field number.
      */
-    public function sortChildrenByNumber($reverse = false) {
+    public function sortChildrenByNumber($reverse = false)
+    {
         $table = $this->_primaryTableRow->getTable();
 
         $select = $table->selectChildrenById($this->getId());
@@ -1146,20 +1241,19 @@ class Opus_Collection extends Opus_Model_AbstractDb {
         if ($reverse === false) {
             usort(
                 $children, function ($nodeOne, $nodeTwo) {
-                if ($nodeOne['number'] == $nodeTwo['number']) {
-                    return 0;
-                }
-                return ($nodeOne['number'] < $nodeTwo['number']) ? -1 : 1;
+                    if ($nodeOne['number'] == $nodeTwo['number']) {
+                        return 0;
+                    }
+                    return ($nodeOne['number'] < $nodeTwo['number']) ? -1 : 1;
                 }
             );
-        }
-        else {
+        } else {
             usort(
                 $children, function ($nodeOne, $nodeTwo) {
-                if ($nodeOne['number'] == $nodeTwo['number']) {
-                    return 0;
-                }
-                return ($nodeOne['number'] > $nodeTwo['number']) ? -1 : 1;
+                    if ($nodeOne['number'] == $nodeTwo['number']) {
+                        return 0;
+                    }
+                    return ($nodeOne['number'] > $nodeTwo['number']) ? -1 : 1;
                 }
             );
         }
@@ -1175,7 +1269,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
      * @param $sortedIds Array with node IDs in desired order
      * @throws InvalidArgumentException if one of the IDs ist not a child node
      */
-    public function applySortOrderOfChildren($sortedIds) {
+    public function applySortOrderOfChildren($sortedIds)
+    {
         $table = $this->_primaryTableRow->getTable();
         $table->applySortOrderOfChildren($this->getId(), $sortedIds);
     }
@@ -1183,7 +1278,8 @@ class Opus_Collection extends Opus_Model_AbstractDb {
     /**
      * Checks if collection is visible based on settings including parents.
      */
-    public function isVisible() {
+    public function isVisible()
+    {
         $colId = $this->getId();
 
         // return value for collection that has not been stored yet
@@ -1196,5 +1292,4 @@ class Opus_Collection extends Opus_Model_AbstractDb {
 
         return $table->isVisible($colId);
     }
-
 }

@@ -272,9 +272,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     public function setValue($value) {
         // If the fields value is not going to change, leave.
         if (is_object($value) === true) {
-            // weak comparison for objects
-            // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
-            if ($value == $this->_value) {
+            // Opus_Date objects can currently not be compared with "==" because it leads to a endless recursion,
+            // because Opus_Date points to its Opus_Model_DateField objects and those back to Opus_Date. Therefore
+            // Opus_Date implements Opus_Model_Comparable, which is in any case better to ensure that the comparison
+            // follows meaningful rules.
+            if ($value instanceof Opus_Model_Comparable) {
+                if ($value->compare($this->_value) == 0) {
+                    return $this;
+                }
+
+                // weak comparison for objects
+                // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
+                // TODO: Why weak comparisons? They are tricky in PHP.
+            }
+            else if ($value == $this->_value) {
                 return $this;
             }
         }
@@ -346,6 +357,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
     /**
      * Fixes sort order for a given array of fields.
      *
+     * TODO For authors for instance this function prevents specifying the order using SortOrder.
+     *
      * @param array $values
      * @return void
      */
@@ -360,7 +373,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         }
 
         $values = is_array($values) ? $values : array($values);
-        foreach ($values AS $valueNew) {
+        foreach ($values as $valueNew) {
             $valueNew->getField($sortField)->setValue($sortValue);
             $sortValue++;
         }

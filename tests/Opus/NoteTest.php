@@ -27,7 +27,7 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -83,4 +83,47 @@ class Opus_NoteTest extends TestCase
         $this->assertEquals('private', $note->getVisibility());
     }
 
+    public function testToArray()
+    {
+        $note = new Opus_Note();
+        $note->setVisibility(Opus_Note::ACCESS_PUBLIC);
+        $note->setMessage('a public message');
+
+        $data = $note->toArray();
+
+        $this->assertEquals([
+            'Message' => 'a public message',
+            'Visibility' => 'public'
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $note = Opus_Note::fromArray([
+            'Visibility' => 'private',
+            'Message' => 'a private message'
+        ]);
+
+        $this->assertNotNull($note);
+        $this->assertInstanceOf('Opus_Note', $note);
+
+        $this->assertEquals('private', $note->getVisibility());
+        $this->assertEquals('a private message', $note->getMessage());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $note = new Opus_Note();
+
+        $note->updateFromArray([
+            'Visibility' => 'private',
+            'Message' => 'a private message'
+        ]);
+
+        $this->assertNotNull($note);
+        $this->assertInstanceOf('Opus_Note', $note);
+
+        $this->assertEquals('private', $note->getVisibility());
+        $this->assertEquals('a private message', $note->getMessage());
+    }
 }

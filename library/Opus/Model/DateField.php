@@ -25,67 +25,37 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Gunar Maiwald <maiwald@zib.de>
+ * @package     Opus_Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
- * Domain model for enrichments in the Opus framework
+ * Date field retrieving information from parent Opus_Date object.
  *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
+ * For now the field objects are kept for compatibility reasons.
  *
- * @method void setKeyName(string $name)
- * @method string getKeyName()
- *
- * @method void setValue(string $value)
- * @method string getValue()
+ * TODO really necessary - simplify Opus_Date
  */
-class Opus_Enrichment extends Opus_Model_Dependent_Abstract
+class Opus_Model_DateField extends Opus_Model_Field
 {
 
-    /**
-     * Primary key of the parent model.
-     *
-     * @var mixed $_parentId.
-     */
-    protected $_parentColumn = 'document_id';
+    protected $parent;
 
-    /**
-     * Specify then table gateway.
-     *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
-     */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
-
-    /**
-     * Initialize model with the following fields:
-     * - KeyName
-     * - Value
-     *
-     * @return void
-     */
-    protected function _init()
+    public function __construct($name, $parent)
     {
-        $key = new Opus_Model_Field('KeyName');
-        $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
-                ->setSelection(true)
-                ->setDefault(Opus_EnrichmentKey::getAll());
-
-        $value = new Opus_Model_Field('Value');
-        $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-
-        $this->addField($key);
-        $this->addField($value);
+        parent::__construct($name);
+        $this->parent = $parent;
     }
 
+    public function setValue($value)
+    {
+        $this->parent->updateValue($this->getName(), $value);
+    }
+
+    public function getValue($index = null)
+    {
+        return $this->parent->getValue($this->getName());
+    }
 }

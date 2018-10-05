@@ -38,8 +38,25 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setCountries(string $countries)
+ * @method string getCountries()
+ *
+ * @method void setDateGranted(Opus_Date $date)
+ * @method Opus_Date getDateGranted()
+ *
+ * @method void setNumber(string $number)
+ * @method string getNumber()
+ *
+ * @method void setYearApplied(integer $year)
+ * @method integer getYearApplied()
+ *
+ * @method void setApplication(string $application)
+ * @method string getApplication()
+ *
  */
-class Opus_Patent extends Opus_Model_Dependent_Abstract {
+class Opus_Patent extends Opus_Model_Dependent_Abstract
+{
     /**
      * Primary key of the parent model.
      *
@@ -61,7 +78,8 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $countries = new Opus_Model_Field('Countries');
 
         $dateGranted = new Opus_Model_Field('DateGranted');
@@ -82,5 +100,4 @@ class Opus_Patent extends Opus_Model_Dependent_Abstract {
             ->addField($yearApplied)
             ->addField($application);
     }
-
 }

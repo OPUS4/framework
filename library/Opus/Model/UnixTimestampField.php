@@ -25,67 +25,43 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @author      Gunar Maiwald <maiwald@zib.de>
+ * @package     Opus_Model
  * @author      Jens Schwidder <schwidder@zib.de>
- * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Domain model for enrichments in the Opus framework
- *
- * @category    Framework
- * @package     Opus
- * @uses        Opus_Model_Abstract
- *
- * @method void setKeyName(string $name)
- * @method string getKeyName()
- *
- * @method void setValue(string $value)
- * @method string getValue()
- */
-class Opus_Enrichment extends Opus_Model_Dependent_Abstract
+class Opus_Model_UnixTimestampField extends Opus_Model_DateField
 {
 
     /**
-     * Primary key of the parent model.
+     * Returns UNIX timestamp for Opus_Date, but does not allow setting value.
      *
-     * @var mixed $_parentId.
-     */
-    protected $_parentColumn = 'document_id';
-
-    /**
-     * Specify then table gateway.
+     * Only return a timestamp if the Opus_Date object is including a time and a timezone. If it is just a date return
+     * null.
      *
-     * @var string Classname of Zend_DB_Table to use if not set in constructor.
+     * @param null $index
+     * @return mixed|null
      */
-    protected static $_tableGatewayClass = 'Opus_Db_DocumentEnrichments';
-
-    /**
-     * Initialize model with the following fields:
-     * - KeyName
-     * - Value
-     *
-     * @return void
-     */
-    protected function _init()
+    public function getValue($index = null)
     {
-        $key = new Opus_Model_Field('KeyName');
-        $key->setMandatory(true)
-                ->setValidator(new Zend_Validate_NotEmpty())
-                ->setSelection(true)
-                ->setDefault(Opus_EnrichmentKey::getAll());
-
-        $value = new Opus_Model_Field('Value');
-        $value->setMandatory(true)
-            ->setValidator(new Zend_Validate_NotEmpty());
-
-        $this->addField($key);
-        $this->addField($value);
+        $timestamp =  $this->parent->getTimestamp();
+        if (!is_null($timestamp) and $timestamp > 0) {
+            return $timestamp;
+        } else {
+            return null;
+        }
     }
 
+    /**
+     * UnixTimestamp is an read-only field.
+     *
+     * This does not make sense initially, however the original code was written in a way that setting UnixTimestamp
+     * did not really have an effect. In order to maintain compatibility and support the new functionality of importing
+     * from an Array the field UnixTimestamp cannot be set anymore.
+     *
+     * @param $value
+     * @return Opus_Model_Field|void
+     */
+    public function setValue($value) {}
 }

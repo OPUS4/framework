@@ -48,7 +48,7 @@ abstract class Opus_Search_Solr_Document_Base {
 		$caching_xml_model = new Opus_Model_Xml;
 		$caching_xml_model->setModel( $opusDoc );
 		$caching_xml_model->excludeEmptyFields();
-		$caching_xml_model->setStrategy( new Opus_Model_Xml_Version1 );
+		$caching_xml_model->setStrategy(new Opus_Model_Xml_Version1());
 		$cache = new Opus_Model_Xml_Cache( false );
 		$caching_xml_model->setXmlCache( $cache );
 

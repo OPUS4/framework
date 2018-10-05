@@ -39,7 +39,7 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  *
- * @method setName(string $string)
+ * @method void setName(string $string)
  * @method string getName()
  */
 class Opus_EnrichmentKey extends Opus_Model_AbstractDb

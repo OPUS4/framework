@@ -27,18 +27,45 @@
  * @category    Framework
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
+
 /**
  * Domain model for DnbInstitute in the Opus framework
  *
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setName(string $name)
+ * @method string getName()
+ *
+ * @method void setDepartment(string $department)
+ * @method string getDepartment()
+ *
+ * @method void setAddress(string $address)
+ * @method string getAddress()
+ *
+ * @method void setCity(string $city)
+ * @method string getCity()
+ *
+ * @method void setPhone(string $phone)
+ * @method string getPhone()
+ *
+ * @method void setDnbContactId(string $contactId)
+ * @method string getDnbContactId()
+ *
+ * @method void setIsGrantor(boolean $isGrantor)
+ * @method boolean getIsGrantor()
+ *
+ * @method void setIsPublisher(boolean $isPublisher)
+ * @method boolean getIsPublisher()
  */
-class Opus_DnbInstitute extends Opus_Model_AbstractDb {
+class Opus_DnbInstitute extends Opus_Model_AbstractDb
+{
+
     /**
      * Specify then table gateway.
      *
@@ -51,7 +78,8 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_DnbInstitute objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         return self::getAllFrom('Opus_DnbInstitute', 'Opus_Db_DnbInstitutes');
     }
 
@@ -60,13 +88,14 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @return array A list of Opus_DnbInstitutes that act as grantors.
      */
-    public static function getGrantors() {
+    public static function getGrantors()
+    {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
         $select = $table->select()
                 ->where('is_grantor = ?', 1);
 
         $rows = $table->fetchAll($select);
-        $result = array();
+        $result = [];
         foreach ($rows as $row) {
             $result[] = new Opus_DnbInstitute($row);
         }
@@ -78,13 +107,14 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @return array A list of Opus_DnbInstitutes that act as publishers.
      */
-    public static function getPublishers() {
+    public static function getPublishers()
+    {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DnbInstitutes');
         $select = $table->select()
                 ->where('is_publisher = ?', 1);
 
         $rows = $table->fetchAll($select);
-        $result = array();
+        $result = [];
         foreach ($rows as $row) {
             $result[] = new Opus_DnbInstitute($row);
         }
@@ -96,11 +126,10 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    ];
 
-    
     /**
      * Initialize model with the following fields:
      * - name
@@ -112,7 +141,8 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $name = new Opus_Model_Field('Name');
         $name->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
@@ -136,13 +166,13 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
         $isPublisher->setCheckbox(true);
 
         $this->addField($name)
-                ->addField($department)
-                ->addField($address)
-                ->addField($city)
-                ->addField($phone)
-                ->addField($dnbContactId)
-                ->addField($isGrantor)
-                ->addField($isPublisher);
+            ->addField($department)
+            ->addField($address)
+            ->addField($city)
+            ->addField($phone)
+            ->addField($dnbContactId)
+            ->addField($isGrantor)
+            ->addField($isPublisher);
     }
 
     /**
@@ -150,10 +180,9 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
        $departmentName = $this->getDepartment();
        return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
     }
-
-
 }
