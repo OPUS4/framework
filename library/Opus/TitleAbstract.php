@@ -43,6 +43,7 @@
  *
  * TODO Is this class necessary?
  * TODO Should modifying Type be suppressed in this class?
+ * TODO Opus_Title can be used instead of Opus_TitleAbstract for addTitleAbstract, but then Type does not get set properly.
  */
 class Opus_TitleAbstract extends Opus_Title
 {

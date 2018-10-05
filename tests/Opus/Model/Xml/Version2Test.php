@@ -28,9 +28,9 @@
  * @package     Opus_Model
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2009-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -123,8 +123,8 @@ class Opus_Model_Xml_Version2Test extends TestCase
     public function testSettingOfXmlShouldBeEqualToSetModel()
     {
         $document = new Opus_Document();
-        $document->setType("doctoral_thesis");
 
+        $document->setType("doctoral_thesis");
         $document->setLanguage('deu');
 
         $publishedDate = date('Y-m-d');
@@ -144,7 +144,7 @@ class Opus_Model_Xml_Version2Test extends TestCase
         $title->setValue('Creating of tests.');
         $document->addTitleMain($title);
 
-        $abstract = new Opus_Title();
+        $abstract = new Opus_TitleAbstract();
         $abstract->setLanguage('eng');
         $abstract->setValue('this should be a lot of text...');
         $document->addTitleAbstract($abstract);
