@@ -81,9 +81,6 @@
  * @method void setDisplayFrontdoor(string $format)
  * @method string getDisplayFrontdoor()
  *
- * @method void setDisplayOai(string $format)
- * @method string getDisplayOai()
- *
  * @method void setIsClassification(boolean $isClassification)
  * @method boolean getIsClassification()
  *
@@ -177,10 +174,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
         $this->addField($displayFrontdoor);
 
-        // Field to be removed.  See ticket OPUSVIER-2155.
-        $displayOai = new Opus_Model_Field('DisplayOai');
-        $this->addField($displayOai);
-
         $isClassification = new Opus_Model_Field('IsClassification');
         $this->addField($isClassification);
 
@@ -193,30 +186,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
-    }
-
-    /**
-     * Stub methods to savely remove DisplayOai from database.  To be removed.
-     * See ticket OPUSVIER-2155.
-     *
-     * @return string
-     */
-    protected function _fetchDisplayOai()
-    {
-        return "";
-    }
-
-    /**
-     * Stub methods to savely remove DisplayOai from database.  To be removed.
-     * See ticket OPUSVIER-2155.
-     *
-     * @param mixed $string unused
-     *
-     * @return void
-     */
-    protected function _storeDisplayOai($string)
-    {
-        return;
     }
 
     /**
@@ -740,15 +709,5 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         }
 
         return $collection;
-    }
-
-    /**
-     * Field to be removed.  See ticket OPUSVIER-2155.
-     * TODO: Hack to remove field DisplayOai from admin forms.
-     */
-    public function describe()
-    {
-        $fields = parent::describe();
-        return array_diff($fields, ['DisplayOai']);
     }
 }

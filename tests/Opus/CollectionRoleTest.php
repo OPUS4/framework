@@ -195,7 +195,6 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setVisibleOai(1);
         $role->setDisplayBrowsing('name');
         $role->setDisplayFrontdoor('number,name');
-        $role->setDisplayOai('number');
         $role->setIsClassification(0);
         $role->setAssignRoot(1);
         $role->setAssignLeavesOnly(0);
@@ -213,7 +212,7 @@ class Opus_CollectionRoleTest extends TestCase
         $data = $role->toArray();
 
         $this->assertInternalType('array', $data);
-        $this->assertCount(14, $data);
+        $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
             'Name' => $role->getName(),
             'OaiName' => $role->getOaiName(),
@@ -224,7 +223,6 @@ class Opus_CollectionRoleTest extends TestCase
             'VisibleOai' => 1,
             'DisplayBrowsing' => 'name',
             'DisplayFrontdoor' => 'number,name',
-            'DisplayOai' => 'number',
             'IsClassification' => 0,
             'AssignRoot' => 1,
             'AssignLeavesOnly' => 0,
@@ -247,7 +245,7 @@ class Opus_CollectionRoleTest extends TestCase
         $data = $role->toArray();
 
         $this->assertInternalType('array', $data);
-        $this->assertCount(14, $data);
+        $this->assertCount(count($role->describe()), $data); // one entry for every field
         $this->assertEquals([
             'Name' => $role->getName(),
             'OaiName' => $role->getOaiName(),
@@ -258,7 +256,6 @@ class Opus_CollectionRoleTest extends TestCase
             'VisibleOai' => '1',
             'DisplayBrowsing' => 'name',
             'DisplayFrontdoor' => 'number,name',
-            'DisplayOai' => '',
             'IsClassification' => '0',
             'AssignRoot' => '1',
             'AssignLeavesOnly' => '0',
@@ -303,7 +300,6 @@ class Opus_CollectionRoleTest extends TestCase
             'VisibleOai' => '1',
             'DisplayBrowsing' => 'name',
             'DisplayFrontdoor' => 'number,name',
-            'DisplayOai' => '',
             'IsClassification' => '0',
             'AssignRoot' => '1',
             'AssignLeavesOnly' => '0',
