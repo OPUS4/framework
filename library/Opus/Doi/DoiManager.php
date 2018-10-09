@@ -35,13 +35,31 @@
 class Opus_Doi_DoiManager
 {
 
+    /**
+     * Logger for DOI specific information kept separat for convenience, easy access.
+     * @var Zend_Log
+     */
     private $doiLog;
 
+    /**
+     * Logger for normal messages, debugging.
+     * @var Zend_Log
+     */
     private $defaultLog;
 
+    /**
+     * Configuration of the entire application.
+     * @var Zend_Config
+     */
     private $config;
 
     private $landingPageBaseUrl;
+
+    /**
+     * Enables/disables storing of DataCite registration XML in files.
+     * @var bool
+     */
+    private $keepRegistrationXml = true;
 
     /**
      * Opus_Doi_DoiManager constructor.
@@ -164,6 +182,10 @@ class Opus_Doi_DoiManager
             $doiException = new Opus_Doi_RegistrationException($message);
             $doiException->setDoi($localDoi);
             throw $doiException;
+        }
+
+        if ($this->isKeepRegistrationXml()) {
+            $this->storeRegistrationXml($doc, $xmlStr);
         }
 
         try {
@@ -759,5 +781,48 @@ class Opus_Doi_DoiManager
         }
 
         return $result;
+    }
+
+    public function isKeepRegistrationXml()
+    {
+        return $this->keepRegistrationXml;
+    }
+
+    public function setKeepRegistrationXml($enabled)
+    {
+        $this->keepRegistrationXml = $enabled;
+    }
+
+    /**
+     * Store registration XML for error analyis and backup.
+     * @param $doc Opus_Document
+     * @param $xml string
+     */
+    public function storeRegistrationXml($doc, $xml) {
+        $config = $this->config;
+
+        $path = $config->workspacePath . '/log/doi/';
+
+        if (!is_dir($path)) {
+            // TODO optimize? wait for exception?
+            // create path
+            mkdir($path);
+            chmod($path, 0775);
+        }
+
+        $timestamp = new DateTime();
+        $basename = 'doc' . $doc->getId() . $timestamp->format('_Y-m-d\TH:i:s');
+
+        $index = 2;
+        $filename = "$basename.xml";
+
+        while(file_exists($path . $filename)) {
+            $filename = "$basename-$index.xml";
+            $index++;
+        }
+
+        $filePath = $path . $filename;
+
+        file_put_contents($filePath, $xml);
     }
 }
