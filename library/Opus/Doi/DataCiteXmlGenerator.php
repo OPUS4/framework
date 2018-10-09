@@ -32,6 +32,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+/**
+ * Class Opus_Doi_DataCiteXmlGenerator
+ *
+ * TODO processing multiple documents requires getting logger and XSLT over and over again
+ */
 class Opus_Doi_DataCiteXmlGenerator
 {
 
@@ -65,7 +70,9 @@ class Opus_Doi_DataCiteXmlGenerator
         $proc->importStyleSheet($xslt);
 
         if (!$this->checkRequiredFields($doc, $log)) {
-            throw new Opus_Doi_DataCiteXmlGenerationException('required fields are missing in document ' . $doc->getId() . ' - check log for details');
+            throw new Opus_Doi_DataCiteXmlGenerationException(
+                'required fields are missing in document ' . $doc->getId() . ' - check log for details'
+            );
         }
 
         $modelXml = $this->getModelXml($doc);
@@ -180,7 +187,8 @@ class Opus_Doi_DataCiteXmlGenerator
         return true;
     }
 
-    private function handleLibXmlErrors($log, $reset = false) {
+    private function handleLibXmlErrors($log, $reset = false)
+    {
         if ($reset) {
             libxml_clear_errors();
         }
@@ -192,7 +200,8 @@ class Opus_Doi_DataCiteXmlGenerator
         libxml_use_internal_errors($reset);
     }
 
-    private function getModelXml($doc) {
+    private function getModelXml($doc)
+    {
         $xmlDoc = new Opus_Model_Xml();
         $xmlDoc->setModel($doc);
         $xmlDoc->excludeEmptyFields();
