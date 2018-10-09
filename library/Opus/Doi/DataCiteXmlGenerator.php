@@ -137,7 +137,7 @@ class Opus_Doi_DataCiteXmlGenerator
     private function checkRequiredFields($doc)
     {
         $doiLog = $this->getDoiLog();
-        
+
         $doiLog->info('checking document ' . $doc->getId());
 
         // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
