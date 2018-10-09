@@ -36,11 +36,29 @@
  * Class Opus_Doi_DataCiteXmlGenerator
  *
  * TODO processing multiple documents requires getting logger and XSLT over and over again
+ * TODO use LoggingTrait to get standard logger
  */
 class Opus_Doi_DataCiteXmlGenerator
 {
 
     const STYLESHEET_FILENAME = 'datacite.xslt';
+
+    private $doiLog;
+
+    public function getDoiLog()
+    {
+        if (is_null($this->doiLog)) {
+            // use standard logger if nothing is set
+            $this->doiLog = Zend_Registry::get('Zend_Log');
+        }
+
+        return $this->doiLog;
+    }
+
+    public function setDoiLog(Zend_Log $logger)
+    {
+        $this->doiLog = $logger;
+    }
 
     /**
      * Erzeugt für das übergebene OPUS-Dokument eine XML-Repräsentation, die von DataCite als
@@ -59,7 +77,9 @@ class Opus_Doi_DataCiteXmlGenerator
             $success = $xslt->load($xsltPath);
         }
 
-        $log = Zend_Registry::get('Zend_Log');
+        $log = Zend_Registry::get('Zend_Log'); // TODO use LoggingTrait
+        $doiLog = $this->getDoiLog();
+
         if (!$success) {
             $message = "could not find XSLT file $xsltPath";
             $log->err($message);
@@ -114,9 +134,11 @@ class Opus_Doi_DataCiteXmlGenerator
     /**
      * @param $doc Opus_Document
      */
-    private function checkRequiredFields($doc, $log)
+    private function checkRequiredFields($doc)
     {
-        $log->info('checking document ' . $doc->getId());
+        $doiLog = $this->getDoiLog();
+        
+        $doiLog->info('checking document ' . $doc->getId());
 
         // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
         $authorOk = false;
@@ -129,7 +151,7 @@ class Opus_Doi_DataCiteXmlGenerator
         }
         if (!$authorOk) {
             if ($doc->getCreatingCorporation() == '') {
-                $log->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
                 return false;
             }
         }
@@ -152,7 +174,7 @@ class Opus_Doi_DataCiteXmlGenerator
                 }
             }
             if (!$titleOk) {
-                $log->err('document ' . $doc->getId() . ' does not provide content for element title');
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element title');
                 return false;
             }
         }
@@ -172,7 +194,7 @@ class Opus_Doi_DataCiteXmlGenerator
                 }
             }
             if (!$publisherOk) {
-                $log->err('document ' . $doc->getId() . ' does not provide content for element publisher');
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
                 return false;
             }
         }
@@ -180,7 +202,7 @@ class Opus_Doi_DataCiteXmlGenerator
         // CompletedYear muss gefüllt sein
         // FIXME alternativ auch andere Datumsfelder betrachten?
         if ($doc->getCompletedYear() == '') {
-            $log->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
+            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
             return false;
         }
 

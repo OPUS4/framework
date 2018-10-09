@@ -205,6 +205,7 @@ class Opus_Doi_DoiManager
     public function getXmlGenerator()
     {
         $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $generator->setDoiLog($this->getDoiLogger());
         return $generator;
     }
 
