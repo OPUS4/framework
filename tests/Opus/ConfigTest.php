@@ -7,12 +7,11 @@
  *
  * OPUS 4 is a complete rewrite of the original OPUS software and was developed
  * by the Stuttgart University Library, the Library Service Center
- * Baden-Wuerttemberg, the North Rhine-Westphalian Library Service Center,
- * the Cooperative Library Network Berlin-Brandenburg, the Saarland University
- * and State Library, the Saxon State Library - Dresden State and University
- * Library, the Bielefeld University Library and the University Library of
- * Hamburg University of Technology with funding from the German Research
- * Foundation and the European Regional Development Fund.
+ * Baden-Wuerttemberg, the Cooperative Library Network Berlin-Brandenburg,
+ * the Saarland University and State Library, the Saxon State Library -
+ * Dresden State and University Library, the Bielefeld University Library and
+ * the University Library of Hamburg University of Technology with funding from
+ * the German Research Foundation and the European Regional Development Fund.
  *
  * LICENCE
  * OPUS is free software; you can redistribute it and/or modify it under the
@@ -25,25 +24,32 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Application
- * @author      Thomas Urban <thomas.urban@cepharum.de>
- * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
+ * @category    Tests
+ * @package     Opus_Collection
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * TODO sinnvoll? Should be injected in classes?
- * TODO function to verify syntax of INI files?
- */
-class Opus_Config
+class Opus_ConfigTest extends TestCase
 {
 
-	/**
-	 * @return Zend_Config
-	 * @throws Zend_Exception
-	 */
-	public static function get()
+    /**
+     * Checks if the configuration has been parsed properly.
+     *
+     * In some rare situations with additional single or double quotes, an INI file is not parsed properly. In that
+     * case the last property 'syntaxCheck' will not be set properly.
+     *
+     * @throws Zend_Exception
+     */
+    public function testConfigValid()
     {
-		return Zend_Registry::get( 'Zend_Config' );
-	}
+        $config = Opus_Config::get();
+
+        $this->assertEquals(
+            APPLICATION_ENV,
+            $config->syntaxCheck,
+            "Problem parsing configuration. Value of 'syntaxCheck' should match APPLICATION_ENV."
+        );
+    }
 }

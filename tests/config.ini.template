@@ -25,9 +25,9 @@
 ; @category    Tests
 ; @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
 ; @author      Thoralf Klein <thoralf.klein@zib.de>
-; @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+; @author      Jens Schwidder <schwidder@zib.de>
+; @copyright   Copyright (c) 2008-2018, OPUS 4 development team
 ; @license     http://www.gnu.org/licenses/gpl.html General Public License
-; @version     $Id$
 
 ; Database adapter configuration using standard Zend_db option names.
 ; Have a look on Zend_Db::factory() method for information about adapter creation.
@@ -131,6 +131,8 @@ log.level = DEBUG
 ; mail.opus.smtp = localhost
 ; mail.opus.port = 25000
 
+; Used to verify that file has been parsed properly
+syntaxCheck = production
 
 [testing : production]
 sql.schema.path =
@@ -142,3 +144,5 @@ urn.nid = nbn
 urn.nss = de:kobv:test-opus
 urn.autoCreate = true
 
+; Used to verify that file has been parsed properly
+syntaxCheck = testing
