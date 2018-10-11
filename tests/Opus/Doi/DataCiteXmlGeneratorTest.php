@@ -55,6 +55,22 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->assertTrue(is_string($result));
     }
 
+    public function testServerDatePublishedForPublishedYear()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $serverDatePublished = $doc->getServerDatePublished();
+
+        $year = $serverDatePublished->getYear();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertNotContains("<publicationYear>2008</publicationYear>", $result);
+        $this->assertContains("<publicationYear>$year</publicationYear>", $result);
+    }
+
     private function addRequiredPropsToDoc($doc)
     {
         $doi = new Opus_Identifier();
@@ -62,8 +78,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doi->setValue('10.2345/opustest-' . $doc->getId());
         $doc->setIdentifier([$doi]);
 
-        $doc->setCompletedYear(2018);
-        $doc->setServerState('unpublished');
+        $doc->setCompletedYear(2008);
+        $doc->setServerState('published');
         $doc->setType('book');
         $doc->setPublisherName('ACME corp');
 

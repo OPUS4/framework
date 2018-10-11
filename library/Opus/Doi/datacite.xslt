@@ -29,6 +29,7 @@
  * @category    Framework
  * @author      Friederike Gerland
  * @author      Carina Winter
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  *
@@ -94,7 +95,7 @@
             </xsl:if>
 
             <!-- Pflichtangabe -->
-            <xsl:apply-templates select="@CompletedYear"/>
+            <xsl:apply-templates select="ServerDatePublished"/>
 
             <!-- Pflichtangabe -->
             <xsl:apply-templates select="@Type"/>
@@ -358,9 +359,9 @@
         </xsl:element>
     </xsl:template>
 
-    <xsl:template match="@CompletedYear">
+    <xsl:template match="ServerDatePublished">
         <xsl:element name="publicationYear">
-            <xsl:value-of select="."/>
+            <xsl:value-of select="@Year"/>
         </xsl:element>
     </xsl:template>
 

@@ -65,6 +65,7 @@ class Opus_Doi_DataCiteXmlGenerator
      * Metadatenbeschreibung des Dokuments bei der DOI-Registrierung akzeptiert wird.
      *
      * @param $doc Opus_Document
+     * @return string XML for DataCite registration
      */
     public function getXml($doc)
     {
@@ -197,13 +198,6 @@ class Opus_Doi_DataCiteXmlGenerator
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
                 return false;
             }
-        }
-
-        // CompletedYear muss gefüllt sein
-        // FIXME alternativ auch andere Datumsfelder betrachten?
-        if ($doc->getCompletedYear() == '') {
-            $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
-            return false;
         }
 
         return true;
