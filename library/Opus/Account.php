@@ -334,4 +334,19 @@ class Opus_Account extends Opus_Model_AbstractDb
     {
        return $this->getLogin();
     }
+
+    public function getFullName()
+    {
+        $name = $this->getFirstName();
+
+        $lastName = $this->getLastName();
+
+        if (strlen($name) > 0 and strlen($lastName ) > 0) {
+            $name .= ' ';
+        }
+
+        $name .= $lastName;
+
+        return $name;
+    }
 }
