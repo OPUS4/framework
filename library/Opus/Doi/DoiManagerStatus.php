@@ -31,23 +31,26 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DoiManagerStatus {
+class Opus_Doi_DoiManagerStatus
+{
 
     private $docsWithDoiStatus = array();
 
-    public function isNoDocsToProcess() {
+    public function isNoDocsToProcess()
+    {
         return empty($this->docsWithDoiStatus);
     }
 
-    public function addDocWithDoiStatus($docId, $statusMsg, $error = false) {
-        $this->docsWithDoiStatus[$docId] =
-            array(
-                'msg' => $statusMsg,
-                'error' => $error
-            );
+    public function addDocWithDoiStatus($docId, $statusMsg, $error = false)
+    {
+        $this->docsWithDoiStatus[$docId] = [
+            'msg'   => $statusMsg,
+            'error' => $error
+        ];
     }
 
-    public function getDocsWithDoiStatus() {
+    public function getDocsWithDoiStatus()
+    {
         return $this->docsWithDoiStatus;
     }
 }
