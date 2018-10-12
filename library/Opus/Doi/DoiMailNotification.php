@@ -49,6 +49,8 @@ class Opus_Doi_DoiMailNotification
      */
     private $recipients;
 
+    private $recipientProvider;
+
     public function __construct()
     {
         $this->notifications = [];
@@ -59,19 +61,22 @@ class Opus_Doi_DoiMailNotification
         if (isset($this->config->doi->notificationEmailEnabled) &&
             ($this->config->doi->notificationEmailEnabled || $this->config->doi->notificationEmailEnabled == '1')) {
             $this->enabled = true;
-        }
-        else {
-            $this->log->info('configuration setting doi.notificationEmailEnabled was not set - DOI notifications are disabled');
+        } else {
+            $this->log->info(
+                'configuration setting doi.notificationEmailEnabled was not set - DOI notifications are disabled'
+            );
             $this->enabled = false;
             return;
         }
 
         // check if any recipients for DOI notification emails are configured (otherwise notifications are disabled)
-        if (!isset($this->config->doi->notificationEmail) || empty($this->config->doi->notificationEmail->toArray()) || $this->config->doi->notificationEmail->toArray()[0] == '') {
-            $this->log->info('configuration setting doi.notificationEmail[] was not set - DOI notifications are disabled');
+        if (!isset($this->config->doi->notificationEmail) || empty($this->config->doi->notificationEmail->toArray())
+                || $this->config->doi->notificationEmail->toArray()[0] == '') {
+            $this->log->info(
+                'configuration setting doi.notificationEmail[] was not set - DOI notifications are disabled'
+            );
             $this->enabled = false;
-        }
-        else {
+        } else {
             $this->initRecipients();
         }
     }
@@ -81,14 +86,12 @@ class Opus_Doi_DoiMailNotification
      */
     private function initRecipients()
     {
-        $recipientAddresses = $this->config->doi->notificationEmail->toArray();
-        $this->recipients = [];
-        foreach ($recipientAddresses as $recipient) {
-            $entry = [];
-            $entry['name'] = $recipient;
-            $entry['address'] = $recipient;
-            $this->recipients[] = $entry;
+        if (is_null($this->recipientProvider)) {
+            $this->recipientProvider = new Opus_Doi_ConfigRecipientProvider();
         }
+
+        $this->recipients[] = $this->recipientProvider->getRecipients();
+
     }
 
     /**
