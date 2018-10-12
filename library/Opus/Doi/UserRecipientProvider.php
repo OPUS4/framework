@@ -34,7 +34,7 @@
 class Opus_Doi_UserRecipientProvider implements Opus_Doi_NotificationRecipientProvider
 {
 
-    const PERMISSION = 'doi_notification';
+    const PERMISSION = 'resource_doi_notification';
 
     /**
      * Returns array with recipients.
