@@ -32,12 +32,27 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
+/**
+ * TODO this test class sends actual emails - that might cause problems with system/network administrator
+ */
 class Opus_Doi_DoiMailNotificationTest extends TestCase
 {
 
+    private $doiMailNotification;
+
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->doiMailNotification = new Opus_Doi_DoiMailNotification();
+
+        // use recipients configured in INI files for testing
+        $this->doiMailNotification->setRecipientProvider(new Opus_Doi_ConfigRecipientProvider());
+    }
+
     public function testConstructMissingConfig()
     {
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
     }
 
@@ -47,7 +62,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
             'notificationEmailEnabled' => false,
             'notificationEmail' => ['doe@localhost']
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
     }
 
@@ -57,7 +72,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
             'notificationEmailEnabled' => '0',
             'notificationEmail' => ['doe@localhost']
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
     }
 
@@ -67,7 +82,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
             'notificationEmailEnabled' => true,
             'notificationEmail' => ['doe@localhost']
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertTrue($notification->isEnabled());
     }
 
@@ -77,7 +92,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
             'notificationEmailEnabled' => '1',
             'notificationEmail' => ['doe@localhost']
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertTrue($notification->isEnabled());
     }
 
@@ -86,7 +101,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $this->adaptDoiConfiguration([
             'notificationEmailEnabled' => true
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
     }
 
@@ -95,7 +110,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $this->adaptDoiConfiguration([
             'notificationEmailEnabled' => '1'
         ]);
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
     }
 
@@ -106,7 +121,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
                 'notificationEmail' => ['doe@localhost']
             ]
         );
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $notification->sendRegistrationEmail();
     }
 
@@ -124,7 +139,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
 
         $docId = $this->createTestDocWithDoi('10.2345/opustest-999');
 
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $notification->addNotification($docId, $this->getDoi($docId), 'error');
         $notification->sendRegistrationEmail();
     }
@@ -144,7 +159,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $doc1Id = $this->createTestDocWithDoi('10.2345/opustest-888');
         $doc2Id = $this->createTestDocWithDoi('10.2345/opustest-999');
 
-        $notification = new Opus_Doi_DoiMailNotification();
+        $notification = $this->doiMailNotification;
         $notification->addNotification(
             '888', $this->getDoi($doc1Id), "http://localhost/opus4/$doc1Id", 'error'
         );

@@ -44,11 +44,6 @@ class Opus_Doi_DoiMailNotification
      */
     private $enabled;
 
-    /**
-     * @var array Namen und E-Mail-Adressen der Empfänger von DOI-Benachrichtigungen
-     */
-    private $recipients;
-
     private $recipientProvider;
 
     public function __construct()
@@ -56,42 +51,28 @@ class Opus_Doi_DoiMailNotification
         $this->notifications = [];
         $this->config = Zend_Registry::get('Zend_Config');
         $this->log = Zend_Registry::get('Zend_Log');
+    }
 
-        // check if email notifications for DOI events are enabled in general
-        if (isset($this->config->doi->notificationEmailEnabled) &&
-            ($this->config->doi->notificationEmailEnabled || $this->config->doi->notificationEmailEnabled == '1')) {
-            $this->enabled = true;
-        } else {
-            $this->log->info(
-                'configuration setting doi.notificationEmailEnabled was not set - DOI notifications are disabled'
-            );
-            $this->enabled = false;
-            return;
-        }
+    public function setRecipientProvider($provider)
+    {
+        $this->recipientProvider = $provider;
+    }
 
-        // check if any recipients for DOI notification emails are configured (otherwise notifications are disabled)
-        if (!isset($this->config->doi->notificationEmail) || empty($this->config->doi->notificationEmail->toArray())
-                || $this->config->doi->notificationEmail->toArray()[0] == '') {
-            $this->log->info(
-                'configuration setting doi.notificationEmail[] was not set - DOI notifications are disabled'
-            );
-            $this->enabled = false;
-        } else {
-            $this->initRecipients();
-        }
+    public function getRecipientProvider()
+    {
+        return $this->recipientProvider;
     }
 
     /**
      * Initialisiert die Namen und Adressen der Empfänger von DOI-Benachrichtigungen.
      */
-    private function initRecipients()
+    protected function getRecipients()
     {
         if (is_null($this->recipientProvider)) {
-            $this->recipientProvider = new Opus_Doi_ConfigRecipientProvider();
+            $this->recipientProvider = new Opus_Doi_UserRecipientProvider();
         }
 
-        $this->recipients[] = $this->recipientProvider->getRecipients();
-
+        return $this->recipientProvider->getRecipients();
     }
 
     /**
@@ -101,6 +82,21 @@ class Opus_Doi_DoiMailNotification
      */
     public function isEnabled()
     {
+        if (is_null($this->enabled)) {
+            // check if email notifications for DOI events are enabled in general
+            if (isset($this->config->doi->notificationEmailEnabled)
+                && ($this->config->doi->notificationEmailEnabled || $this->config->doi->notificationEmailEnabled == '1')
+                && count($this->getRecipients()) > 0
+            ) {
+                $this->enabled = true;
+            } else {
+                $this->log->info(
+                    'configuration setting doi.notificationEmailEnabled was not set - DOI notifications are disabled'
+                );
+                $this->enabled = false;
+            }
+        }
+
         return $this->enabled;
     }
 
@@ -173,7 +169,7 @@ class Opus_Doi_DoiMailNotification
      */
     private function prepareMail($mode)
     {
-        if (!$this->enabled || empty($this->notifications)) {
+        if (!$this->isEnabled() || empty($this->notifications)) {
             // E-Mail-Versand ist nicht aktiviert / konfiguriert bzw. es gibt keinen Inhalt für den Bericht
             return;
         }
@@ -239,7 +235,7 @@ class Opus_Doi_DoiMailNotification
                 $fromName,
                 $subject,
                 $message,
-                $this->recipients,
+                $this->getRecipients(),
                 $replyTo,
                 $replyToName,
                 $returnPath);
