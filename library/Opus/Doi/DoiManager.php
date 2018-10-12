@@ -798,7 +798,8 @@ class Opus_Doi_DoiManager
      * @param $doc Opus_Document
      * @param $xml string
      */
-    public function storeRegistrationXml($doc, $xml) {
+    public function storeRegistrationXml($doc, $xml)
+    {
         $config = $this->config;
 
         $path = $config->workspacePath . '/log/doi/';
