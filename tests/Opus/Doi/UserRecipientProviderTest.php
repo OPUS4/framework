@@ -38,7 +38,7 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
     {
         $role = new Opus_UserRole();
         $role->setName('DOI');
-        $role->appendAccessModule('doi_notification');
+        $role->appendAccessModule('resource_doi_notification');
         $role->store();
 
         $account = new Opus_Account();
