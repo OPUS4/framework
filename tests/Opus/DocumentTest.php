@@ -3857,4 +3857,36 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('2011-11-30 23:00:00', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
         $this->assertEquals('2011-11-30T23:00:00Z', $date->__toString());
     }
+
+    public function testGetSubjectOrderAsAdded()
+    {
+        $doc = new Opus_Document();
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Berlin');
+
+        $doc->addSubject($keyword);
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Antonplatz');
+
+        $doc->addSubject($keyword);
+
+        $keyword = new Opus_Subject();
+        $keyword->setType(Opus_Subject::SWD);
+        $keyword->setValue('Checkpoint');
+
+        $doc->addSubject($keyword);
+
+        $doc = new Opus_Document($doc->store());
+
+        $subjects = $doc->getSubject();
+
+        $this->assertCount(3, $subjects);
+        $this->assertEquals('Berlin', $subjects[0]->getValue());
+        $this->assertEquals('Antonplatz', $subjects[1]->getValue());
+        $this->assertEquals('Checkpoint', $subjects[2]->getValue());
+    }
 }
