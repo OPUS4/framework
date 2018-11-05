@@ -63,6 +63,7 @@ class Opus_Validate_Isbn13Test extends TestCase {
             array('978-5-7931-8163-1'),
             array('978-979-3182-63-6'),
             array('978 3 86680 192 9'),
+            array('9785793181631'),
             array('978 5 7931 8163 1'),
             array('978 979 3182 63 6')
         );
@@ -83,6 +84,7 @@ class Opus_Validate_Isbn13Test extends TestCase {
             array('980-3-86680-192-9',  'Wrong prefix not rejected.'),
             array('978-3-86680-192-5', 'Wrong check digit not rejected.'),
             array('978 5 7931 816321',  'Malformed string not rejected.'),
+            array('97857931816321', 'Malformed string not rejected.'),
             array('978 3 86680-192-9', 'Mixed separators not rejected.')
         );
     }
