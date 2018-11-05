@@ -45,7 +45,7 @@ class Opus_Version
     /**
      * Opus Framework version identification - see compareVersion()
      */
-    const VERSION = '4.6.3';
+    const VERSION = '4.6.4';
 
     /**
      * Version of database schema.
@@ -77,6 +77,4 @@ class Opus_Version
     {
         return self::SCHEMA_VERSION;
     }
-
 }
-
