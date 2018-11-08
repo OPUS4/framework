@@ -156,10 +156,12 @@
     </target>
 
     <target name="phpunit-fast" depends="create-database">
+        <tstamp />
         <exec executable="${bindir}/phpunit" dir="${basedir}/tests" failonerror="on">
             <arg line="--log-junit ${basedir}/build/logs/phpunit.xml" />
             <arg line="--configuration phpunit.xml" />
             <arg value="${testpath}" />
+            <redirector output="build/testresult-${DSTAMP}-${TSTAMP}.txt" alwayslog="true" />
         </exec>
     </target>
 

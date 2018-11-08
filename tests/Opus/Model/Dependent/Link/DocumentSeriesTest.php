@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,14 +27,16 @@
  * @category    Framework
  * @package     Tests
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase {
+class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase
+{
 
-    public function testAssignDocSortOrder() {
+    public function testAssignDocSortOrder()
+    {
         $s = new Opus_Series();
         $s->setTitle('test_series');
         $s->store();
@@ -95,5 +96,74 @@ class Opus_Model_Dependent_Link_DocumentSeriesTest extends TestCase {
         $this->assertFalse($series[0]->getDocSortOrder() === '11');
         $this->assertTrue($series[0]->getDocSortOrder() === '6');
     }
-    
+
+    public function testToArray()
+    {
+        $seriesLink = new Opus_Model_Dependent_Link_DocumentSeries();
+
+        $seriesLink->setModel(new Opus_Series()); // Fields are proxied for Opus_Series object
+        $seriesLink->setNumber('VI');
+        $seriesLink->setDocSortOrder(4);
+        $seriesLink->setTitle('Schriftenreihe');
+        $seriesLink->setInfobox('Beschreibung');
+        $seriesLink->setVisible(1);
+        $seriesLink->setSortOrder(2);
+
+        $data = $seriesLink->toArray();
+
+        $this->assertEquals([
+            'Title' => 'Schriftenreihe',
+            'Infobox' => 'Beschreibung',
+            'Visible' => 1,
+            'SortOrder' => 2,
+            'Number' => 'VI',
+            'DocSortOrder' => 4
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $seriesLink = Opus_Model_Dependent_Link_DocumentSeries::fromArray([
+            'Title' => 'Schriftenreihe',
+            'Infobox' => 'Beschreibung',
+            'Visible' => 1,
+            'SortOrder' => 2,
+            'Number' => 'VI',
+            'DocSortOrder' => 4
+        ]);
+
+        $this->assertNotNull($seriesLink);
+        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentSeries', $seriesLink);
+
+        $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
+        $this->assertEquals('Beschreibung', $seriesLink->getInfobox());
+        $this->assertEquals(1, $seriesLink->getVisible());
+        $this->assertEquals(2, $seriesLink->getSortOrder());
+        $this->assertEquals('VI', $seriesLink->getNumber());
+        $this->assertEquals(4, $seriesLink->getDocSortOrder());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $seriesLink = new Opus_Model_Dependent_Link_DocumentSeries();
+
+        $seriesLink->updateFromArray([
+            'Title' => 'Schriftenreihe',
+            'Infobox' => 'Beschreibung',
+            'Visible' => 1,
+            'SortOrder' => 2,
+            'Number' => 'VI',
+            'DocSortOrder' => 4
+        ]);
+
+        $this->assertNotNull($seriesLink);
+        $this->assertInstanceOf('Opus_Model_Dependent_Link_DocumentSeries', $seriesLink);
+
+        $this->assertEquals('Schriftenreihe', $seriesLink->getTitle());
+        $this->assertEquals('Beschreibung', $seriesLink->getInfobox());
+        $this->assertEquals(1, $seriesLink->getVisible());
+        $this->assertEquals(2, $seriesLink->getSortOrder());
+        $this->assertEquals('VI', $seriesLink->getNumber());
+        $this->assertEquals(4, $seriesLink->getDocSortOrder());
+    }
 }

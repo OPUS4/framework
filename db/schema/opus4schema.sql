@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS `opus_version` (
 -- The values are generated through svn checkin.
 -- Do not edit here.
 -- -----------------------------------------------------
-INSERT INTO `schema_version` (`version`) VALUES (8);
+INSERT INTO `schema_version` (`version`) VALUES (9);
 
 -- -----------------------------------------------------
 -- Table `documents`
@@ -74,6 +74,8 @@ CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `type` ENUM('doi', 'handle', 'urn', 'std-doi', 'url', 'cris-link', 'splash-url', 'isbn', 'issn', 'opus3-id', 'opac-id', 'uuid', 'serial', 'old', 'pmid', 'arxiv') NOT NULL COMMENT 'Type of the identifier.' ,
   `value` TEXT NOT NULL COMMENT 'Value of the identifier.' ,
+  `status` ENUM('registered', 'verified') NULL COMMENT 'DOI registration status' ,
+  `registration_ts` TIMESTAMP NULL COMMENT 'timestamp of DOI registration' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_identifiers_documents` (`document_id` ASC) ,
   INDEX `fk_document_identifiers_documents_type` (`document_id` ASC, `type` ASC) ,

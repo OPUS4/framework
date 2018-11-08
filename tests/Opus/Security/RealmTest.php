@@ -28,9 +28,9 @@
  * @package     Opus_Security
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,112 +41,122 @@
  *
  * @group RealmTest
  */
-class Opus_Security_RealmTest extends TestCase {
+class Opus_Security_RealmTest extends TestCase
+{
 
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
     }
 
-    protected function tearDown() {
+    protected function tearDown()
+    {
         parent::tearDown();
     }
 
-    private function setUpUserAdmin() {
+    private function setUpUserAdmin()
+    {
         // create role
         $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
-        $rolId = $rol->insert(array('name' => 'administrator'));
+        $rolId = $rol->insert(['name' => 'administrator']);
 
         // create account
         $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        $accId = $acc->insert(array('login' => 'admin', 'password' => md5('adminadmin')));
+        $accId = $acc->insert(['login' => 'admin', 'password' => md5('adminadmin')]);
 
         // connect role and account
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
-        $lar->insert(array('account_id' => $accId, 'role_id' => $rolId));
+        $lar->insert(['account_id' => $accId, 'role_id' => $rolId]);
     }
 
-    private function setUpUserUser() {
+    private function setUpUserUser()
+    {
         // create role
         $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
-        $rolId = $rol->insert(array('name' => 'userrole'));
+        $rolId = $rol->insert(['name' => 'userrole']);
 
         // connect role and module
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_AccessModules');
-        $lar->insert(array('role_id' => $rolId, 'module_name' => 'admin'));
+        $lar->insert(['role_id' => $rolId, 'module_name' => 'admin']);
 
 
         // create account
         $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        $accId = $acc->insert(array('login' => 'user', 'password' => md5('useruser')));
+        $accId = $acc->insert(['login' => 'user', 'password' => md5('useruser')]);
 
         // connect role and account
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_LinkAccountsRoles');
-        $lar->insert(array('account_id' => $accId, 'role_id' => $rolId));
+        $lar->insert(['account_id' => $accId, 'role_id' => $rolId]);
     }
 
-    private function setUpIp() {
+    private function setUpIp()
+    {
         // create role
         $rol = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles');
-        $rolId = $rol->insert(array('name' => 'iprole'));
+        $rolId = $rol->insert(['name' => 'iprole']);
 
         // connect role and module
         $lar = Opus_Db_TableGateway::getInstance('Opus_Db_AccessModules');
-        $lar->insert(array('role_id' => $rolId, 'module_name' => 'oai'));
+        $lar->insert(['role_id' => $rolId, 'module_name' => 'oai']);
 
 
         // create ip
         $acc = Opus_Db_TableGateway::getInstance('Opus_Db_Ipranges');
         $ipFrom = ip2long('127.0.0.1');
         $ipTo = ip2long('127.0.0.42');
-        $ipId = $acc->insert(array('startingip' => $ipFrom, 'endingip' => $ipTo));
+        $ipId = $acc->insert(['startingip' => $ipFrom, 'endingip' => $ipTo]);
 
         // connect role and account
         $lir = Opus_Db_TableGateway::getInstance('Opus_Db_LinkIprangesRoles');
-        $lir->insert(array('iprange_id' => $ipId, 'role_id' => $rolId));
+        $lir->insert(['iprange_id' => $ipId, 'role_id' => $rolId]);
     }
 
-    private function setUpDocument($rolId) {
+    private function setUpDocument($rolId)
+    {
         // document
         $doc = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
 
         // server_date_created does not have a default value in schema and therefore must be set
-        $docId = $doc->insert(array('server_date_created' => '1234'));
+        $docId = $doc->insert(['server_date_created' => '1234']);
 
         // connect document and role
         $ad = Opus_Db_TableGateway::getInstance('Opus_Db_AccessDocuments');
-        $adId = $ad->insert(array('document_id' => $docId, 'role_id' => $rolId));
+        $adId = $ad->insert(['document_id' => $docId, 'role_id' => $rolId]);
 
         return $docId;
     }
 
-    private function setUpFile($rolId) {
+    private function setUpFile($rolId)
+    {
         $docId = $this->setUpDocument($rolId);
 
         // file
         $file = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentFiles');
 
         // path_name does not have a default value and therefore must be set
-        $fileId = $file->insert(array('document_id' => $docId, 'path_name' => 'test.txt'));
+        $fileId = $file->insert(['document_id' => $docId, 'path_name' => 'test.txt']);
 
         // connect file and role
         $af = Opus_Db_TableGateway::getInstance('Opus_Db_AccessFiles');
-        $afId = $af->insert(array('file_id' => $fileId, 'role_id' => $rolId));
+        $afId = $af->insert(['file_id' => $fileId, 'role_id' => $rolId]);
 
         return $fileId;
     }
-    
+
     /**
      * Test getting singleton instance.
      *
      * @return void
      */
-    public function testGetInstance() {
+    public function testGetInstance()
+    {
         $realm = Opus_Security_Realm::getInstance();
         $this->assertNotNull($realm, 'Expected instance');
         $this->assertInstanceOf('Opus_Security_Realm', $realm, 'Expected object of type Opus_Security_Realm.');
     }
 
-    public function testSetUserSuccess() {
+    public function testSetUserSuccess()
+    {
         $this->setUpUserUser();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -159,13 +169,15 @@ class Opus_Security_RealmTest extends TestCase {
      * @expectedException Opus_Security_Exception
      * @expectedExceptionMessage An user with the given name: userbla could not be found
      */
-    public function testSetUserFailsOnUnknownUser() {
+    public function testSetUserFailsOnUnknownUser()
+    {
         $realm = Opus_Security_Realm::getInstance();
 
         $realm->setUser('userbla');
     }
 
-    public function testSetUserFailsOnUnknownUserAndResetsRoles() {
+    public function testSetUserFailsOnUnknownUserAndResetsRoles()
+    {
         $this->setUpUserUser();
 
         // OAI permitted for given IP
@@ -186,7 +198,8 @@ class Opus_Security_RealmTest extends TestCase {
         }
     }
 
-    public function testSetIpSuccess() {
+    public function testSetIpSuccess()
+    {
         $this->setUpIp();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -199,14 +212,16 @@ class Opus_Security_RealmTest extends TestCase {
         $realm->setIp('');
     }
 
-    public function testSetIpFailsOnInvalidIp() {
+    public function testSetIpFailsOnInvalidIp()
+    {
         $realm = Opus_Security_Realm::getInstance();
 
         $this->setExpectedException('Opus_Security_Exception');
         $realm->setIp('12.7.0.0.1');
     }
 
-    public function testSetIpFailsOnInvalidIpAndResetsRoles() {
+    public function testSetIpFailsOnInvalidIpAndResetsRoles()
+    {
         $this->setUpIp();
 
         // OAI permitted for given IP
@@ -230,7 +245,8 @@ class Opus_Security_RealmTest extends TestCase {
     /**
      * checkModule()
      */
-    public function testCheckModuleForUser() {
+    public function testCheckModuleForUser()
+    {
         $this->setUpUserUser();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -257,7 +273,8 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertFalse(Opus_Security_Realm::checkModuleForUser('frontdoor', 'user'));
     }
 
-    public function testcheckModuleForIp() {
+    public function testcheckModuleForIp()
+    {
         $this->setUpIp();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -275,7 +292,8 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect failed empty module.');
     }
 
-    public function testcheckModuleForUserAndIp() {
+    public function testcheckModuleForUserAndIp()
+    {
         $this->setUpUserUser();
         $this->setUpIp();
 
@@ -294,10 +312,13 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect failed empty module.');
     }
 
-    public function testcheckModuleForDisabledSecurity() {
-        $config = new Zend_Config(array(
+    public function testcheckModuleForDisabledSecurity()
+    {
+        $config = new Zend_Config(
+            [
             'security' => '0',
-        ));
+            ]
+        );
         Zend_Registry::set('Zend_Config', $config);
 
         $this->setUpUserUser();
@@ -317,7 +338,8 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect successful empty module.');
     }
 
-    public function testcheckModuleForAdmin() {
+    public function testcheckModuleForAdmin()
+    {
         $this->setUpUserAdmin();
 
         $realm = Opus_Security_Realm::getInstance();
@@ -338,7 +360,8 @@ class Opus_Security_RealmTest extends TestCase {
     /**
      * checkDocument()
      */
-    public function testCheckDocumentForUser() {
+    public function testCheckDocumentForUser()
+    {
         $this->setUpUserUser();
         $docId = $this->setUpDocument(1);
 
@@ -359,7 +382,8 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect failed document check by user for unknown document-id.');
     }
 
-    public function testCheckDocumentForAdmin() {
+    public function testCheckDocumentForAdmin()
+    {
         $this->setUpUserAdmin();
         $docId = $this->setUpDocument(1);
 
@@ -376,7 +400,8 @@ class Opus_Security_RealmTest extends TestCase {
     /**
      * checkFile()
      */
-    public function testCheckFileForUser() {
+    public function testCheckFileForUser()
+    {
         $this->setUpUserUser();
         $fileId = $this->setUpFile(1);
 
@@ -397,7 +422,8 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect failed file ckeck by user for unknown file-id.');
     }
 
-    public function testCheckFileForAdmin() {
+    public function testCheckFileForAdmin()
+    {
         $this->setUpUserAdmin();
         $fileId = $this->setUpFile(1);
 
@@ -411,7 +437,8 @@ class Opus_Security_RealmTest extends TestCase {
                 'Expect successful file ckeck by user for unknown file-id.');
     }
 
-    public function testGetRolesForUnknown() {
+    public function testGetRolesForUnknown()
+    {
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser(''); // TODO otherwise also gets role 'administrator'
 
@@ -421,7 +448,8 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertContains('guest', $roles);
     }
 
-    public function testGetRolesForUser() {
+    public function testGetRolesForUser()
+    {
         $this->setUpUserUser();
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('user');
@@ -434,7 +462,8 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertContains('guest', $roles);
     }
 
-    public function testGetRolesForAdmin() {
+    public function testGetRolesForAdmin()
+    {
         $this->setUpUserAdmin();
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('admin');
@@ -447,7 +476,8 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertContains('guest', $roles);
     }
 
-    public function testGetRolesForUserAndIp() {
+    public function testGetRolesForUserAndIp()
+    {
         $this->setUpUserUser();
         $this->setUpIp();
         $realm = Opus_Security_Realm::getInstance();
@@ -461,28 +491,29 @@ class Opus_Security_RealmTest extends TestCase {
         $this->assertContains('guest', $roles);
         $this->assertContains('iprole', $roles);
     }
-    
-    public function testGetAllowedModuleResources() {
+
+    public function testGetAllowedModuleResources()
+    {
         $this->setUpUserUser();
         $this->setUpIp();
         try {
             Opus_Security_Realm::getAllowedModuleResources();
             $this->fail("Expected Opus_Security_Exception");
         } catch(Opus_Security_Exception $ose) {}
-        
+
         $bogusResources = Opus_Security_Realm::getAllowedModuleResources('fritz');
-        $this->assertEquals(array(), $bogusResources, 'Expected no resources allowed for invalid username');
-        
+        $this->assertEquals([], $bogusResources, 'Expected no resources allowed for invalid username');
+
         $userResources = Opus_Security_Realm::getAllowedModuleResources('user');
         $this->assertEquals(1, count($userResources), 'Expected one resource for user');
         $this->assertContains('admin', $userResources);
         $this->assertNotContains('oai', $userResources);
-        
+
         $ipResources = Opus_Security_Realm::getAllowedModuleResources(null, '127.0.0.1');
         $this->assertEquals(1, count($ipResources), 'Expected one resource for ip');
         $this->assertNotContains('admin', $ipResources);
         $this->assertContains('oai', $ipResources);
-        
+
         $resources = Opus_Security_Realm::getAllowedModuleResources('user', '127.0.0.1');
         $this->assertEquals(2, count($resources), 'Expected two resources for user and ip');
         $this->assertContains('admin', $resources);
@@ -495,7 +526,5 @@ class Opus_Security_RealmTest extends TestCase {
         }
         $this->assertFalse($realm->checkModule('foobar'), "Expected access denied to resource 'foobar'");
         $this->assertFalse($realm->checkModule(''), 'Expect failed access denied to empty resource.');
-        
     }
-
 }

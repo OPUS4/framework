@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -34,9 +33,9 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2014, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -46,10 +45,155 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  *
- * @method string  getServerState()
+ * The following are the magic methods for the simple fields of Opus_Document.
+ *
+ * @method void setCompletedDate(Opus_Date $date)
+ * @method Opus_Date getCompletedDate()
+ *
+ * @method void setCompletedYear(integer $year)
+ * @method integer getCompletedYear()
+ *
+ * @method void setContributingCorporation(string $value)
+ * @method string getContributingCorporation()
+ *
+ * @method void setCreatingCorporation(string $value)
+ * @method string getCreatingCorporation()
+ *
+ * @method void setThesisDateAccepted(Opus_Date $date)
+ * @method Opus_Date getThesisDateAccepted()
+ *
+ * @method void setThesisYearAccepted(integer $year)
+ * @method integer getThesisYearAccepted()
+ *
+ * @method void setEdition(string $value)
+ * @method string getEdition()
+ *
+ * @method void setEmbargoDate(Opus_Date $date)
+ * @method Opus_Date getEmbargoDate()
+ *
+ * @method void setIssue(string $issue)
+ * @method string getIssue()
+ *
+ * @method void setLanguage(string $lang)
+ * @method string getLanguage()
+ *
+ * @method void setPageFirst(string $pageFirst)
+ * @method string getPageFirst()
+ *
+ * @method void setPageLast(string $pageLast)
+ * @method string getPageLast()
+ *
+ * @method void setPageNumber(string $pageNumber)
+ * @method string getPageNumber()
+ *
+ * @method void setPublishedDate(Opus_Date $date)
+ * @method Opus_Date getPublishedDate()
+ *
+ * @method void setPublishedYear(integer $year)
+ * @method integer getPublishedYear()
+ *
+ * @method void setPublisherName(string $name)
+ * @method string getPublisherName()
+ *
+ * @method void setPublisherPlace(string $place)
+ * @method string getPublisherPlace()
+ *
+ * @method void setPublicationState(string $state)
+ * @method string getPublicationState()
+ *
+ * @method void setServerDateCreated(Opus_Date $date)
+ * @method Opus_Date getServerDateCreated()
+ *
+ * @method void setServerDateModified(Opus_Date $date)
+ * @method Opus_Date getServerDateModified()
+ *
+ * @method void setServerDatePublished(Opus_Date $date)
+ * @method Opus_Date getServerDatePublished()
+ *
+ * @method void setServerDateDeleted(Opus_Date $date)
+ * @method Opus_Date getServerDateDeleted()
+ *
+ * @method void setServerState(string $state)
+ * @method string getServerState()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
+ *
+ * @method void setVolume(string $volume)
+ * @method string getVolume()
+ *
+ * @method void setBelongsToBibliography(boolean $bibliography)
+ * @method boolean getBelongsToBibliography()
+ *
+ * Methods for complex fields.
+ *
+ * @method Opus_Note addNote()
+ * @method void setNote(Opus_Note[] $notes)
+ * @method Opus_Note[] getNote()
+ *
+ * @method Opus_Patent addPatent()
+ * @method void setPatent(Opus_Patent[] $patents)
+ * @method Opus_Patent[] getPatent()
+ *
+ * @method Opus_Title addTitleMain()
+ * @method Opus_Title[] getTitleMain()
+ * @method void setTitleMain(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleParent()
+ * @method Opus_Title[] getTitleParent()
+ * @method void setTitleParent(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleSub()
+ * @method Opus_Title[] getTitleSub()
+ * @method void setTitleSub(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleAdditional()
+ * @method Opus_Title[] getTitleAdditional()
+ * @method void setTitleAdditional(Opus_Title[] $titles)
+ *
+ * @method Opus_TitleAbstract addTitleAbstract()
+ * @method Opus_TitleAbstract[] getTitleAbstract()
+ * @method void setTitleAbstract(Opus_TitleAbstract[] $abstracts)
+ *
+ * @method Opus_Subject addSubject(Opus_Subject[] $subject = null)
+ * @method Opus_Subject[] getSubject()
+ * @method void setSubject(Opus_Subject[] $subjects)
+ *
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute addThesisGrantor(Opus_DnbInstitute $institute)
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute[] getThesisGrantor()
+ * @method void setThesisGrantor(Opus_DnbInstitute[] $institutes)
+ *
+ * @method Opus_DnbInstitute addThesisPublisher(Opus_DnbInstitute $institute)
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute[] getThesisPublisher()
+ * @method void setThesisPublisher(Opus_DnbInstitute[] $institutes)
+ *
+ * @method Opus_Enrichment addEnrichment(Opus_Enrichment $enrichment = null)
+ * @method void setEnrichment(Opus_Enrichment[] $enrichments)
+ *
+ * TODO correct?
+ * @method void addCollection(Opus_Collection $collection)
+ * @method Opus_Collection[] getCollection()
+ * @method void setCollection(Opus_Collection[] $collections)
+ *
+ * TODO correct?
+ * @method void addSeries(Opus_Series $series)
+ * @method Opus_Series[] getSeries()
+ * @method void setSeries(Opus_Series[] $series)
+ *
+ * @method Opus_Identifier addIdentifier(Opus_Identifier $identifier = null)
+ * @method void setIdentifier(Opus_Identifier[] $identifiers)
+ * @method Opus_Identifier[] getIdentifier()
+ *
+ * @method Opus_Reference addReference(Opus_Reference $reference = null)
+ * @method void setReference(Opus_Reference[] $references)
+ * @method Opus_Reference[] getReference()
+ *
+ * @method Opus_Model_Dependent_Link_DocumentPerson addPerson(Opus_Person $person)
+ * @method void setPerson(Opus_Model_Dependent_Link_DocumentPerson[] $persons)
+ * @method Opus_Model_Dependent_Link_DocumentPerson[] getPerson()
  */
-class Opus_Document extends Opus_Model_AbstractDb {
-
+class Opus_Document extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -77,11 +221,12 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
+    protected $_plugins = [
         'Opus_Document_Plugin_Index' => null,
         'Opus_Document_Plugin_XmlCache' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null
-    );
+        'Opus_Document_Plugin_IdentifierUrn' => null,
+        'Opus_Document_Plugin_IdentifierDoi' => null
+    ];
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
@@ -90,272 +235,272 @@ class Opus_Document extends Opus_Model_AbstractDb {
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array(
-        'TitleMain' => array(
+    protected $_externalFields = [
+        'TitleMain' => [
             'model' => 'Opus_Title',
-            'options' => array('type' => 'main'),
+            'options' => ['type' => 'main'],
             'fetch' => 'lazy'
-        ),
-        'TitleAbstract' => array(
+        ],
+        'TitleAbstract' => [
             'model' => 'Opus_TitleAbstract',
-            'options' => array('type' => 'abstract'),
+            'options' => ['type' => 'abstract'],
             'fetch' => 'lazy'
-        ),
-        'TitleParent' => array(
+        ],
+        'TitleParent' => [
             'model' => 'Opus_Title',
-            'options' => array('type' => 'parent'),
+            'options' => ['type' => 'parent'],
             'fetch' => 'lazy'
-        ),
-        'TitleSub' => array(
+        ],
+        'TitleSub' => [
             'model' => 'Opus_Title',
-            'options' => array('type' => 'sub'),
+            'options' => ['type' => 'sub'],
             'fetch' => 'lazy'
-        ),
-        'TitleAdditional' => array(
+        ],
+        'TitleAdditional' => [
             'model' => 'Opus_Title',
-            'options' => array('type' => 'additional'),
+            'options' => ['type' => 'additional'],
             'fetch' => 'lazy'
-        ),
-        'Identifier' => array(
+        ],
+        'Identifier' => [
             'model' => 'Opus_Identifier',
             'fetch' => 'lazy'
-        ),
-        'IdentifierOld' => array(
+        ],
+        'IdentifierOld' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'old'),
+            'options' => ['type' => 'old'],
             'fetch' => 'lazy'
-        ),
-        'IdentifierSerial' => array(
+        ],
+        'IdentifierSerial' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'serial'),
+            'options' => ['type' => 'serial'],
             'fetch' => 'lazy'
-        ),
-        'IdentifierUuid' => array(
+        ],
+        'IdentifierUuid' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'uuid'),
+            'options' => ['type' => 'uuid'],
             'fetch' => 'lazy'
-        ),
-        'IdentifierIsbn' => array(
+        ],
+        'IdentifierIsbn' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'isbn'),
+            'options' => ['type' => 'isbn'],
             'fetch' => 'lazy'
-        ),
-        'IdentifierUrn' => array(
+        ],
+        'IdentifierUrn' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'urn')
-        ),
-        'IdentifierDoi' => array(
+            'options' => ['type' => 'urn']
+        ],
+        'IdentifierDoi' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'doi')
-        ),
-        'IdentifierHandle' => array(
+            'options' => ['type' => 'doi']
+        ],
+        'IdentifierHandle' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'handle')
-        ),
-        'IdentifierUrl' => array(
+            'options' => ['type' => 'handle']
+        ],
+        'IdentifierUrl' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'url')
-        ),
-        'IdentifierIssn' => array(
+            'options' => ['type' => 'url']
+        ],
+        'IdentifierIssn' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'issn')
-        ),
-        'IdentifierStdDoi' => array(
+            'options' => ['type' => 'issn']
+        ],
+        'IdentifierStdDoi' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'std-doi')
-        ),
-        'IdentifierCrisLink' => array(
+            'options' => ['type' => 'std-doi']
+        ],
+        'IdentifierCrisLink' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'cris-link')
-        ),
-        'IdentifierSplashUrl' => array(
+            'options' => ['type' => 'cris-link']
+        ],
+        'IdentifierSplashUrl' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'splash-url')
-        ),
-        'IdentifierOpus3' => array(
+            'options' => ['type' => 'splash-url']
+        ],
+        'IdentifierOpus3' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'opus3-id')
-        ),
-        'IdentifierOpac' => array(
+            'options' => ['type' => 'opus3-id']
+        ],
+        'IdentifierOpac' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'opac-id')
-        ),
-        'Reference' => array(
+            'options' => ['type' => 'opac-id']
+        ],
+        'Reference' => [
             'model' => 'Opus_Reference',
             'fetch' => 'lazy'
-        ),
-        'IdentifierArxiv' => array(
+        ],
+        'IdentifierArxiv' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'arxiv')
-        ),
-        'IdentifierPubmed' => array(
+            'options' => ['type' => 'arxiv']
+        ],
+        'IdentifierPubmed' => [
             'model' => 'Opus_Identifier',
-            'options' => array('type' => 'pmid')
-        ),
-        'ReferenceIsbn' => array(
+            'options' => ['type' => 'pmid']
+        ],
+        'ReferenceIsbn' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'isbn'),
+            'options' => ['type' => 'isbn'],
             'fetch' => 'lazy'
-        ),
-        'ReferenceUrn' => array(
+        ],
+        'ReferenceUrn' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'urn')
-        ),
-        'ReferenceDoi' => array(
+            'options' => ['type' => 'urn']
+        ],
+        'ReferenceDoi' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'doi')
-        ),
-        'ReferenceHandle' => array(
+            'options' => ['type' => 'doi']
+        ],
+        'ReferenceHandle' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'handle')
-        ),
-        'ReferenceUrl' => array(
+            'options' => ['type' => 'handle']
+        ],
+        'ReferenceUrl' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'url')
-        ),
-        'ReferenceIssn' => array(
+            'options' => ['type' => 'url']
+        ],
+        'ReferenceIssn' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'issn')
-        ),
-        'ReferenceStdDoi' => array(
+            'options' => ['type' => 'issn']
+        ],
+        'ReferenceStdDoi' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'std-doi')
-        ),
-        'ReferenceCrisLink' => array(
+            'options' => ['type' => 'std-doi']
+        ],
+        'ReferenceCrisLink' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'cris-link')
-        ),
-        'ReferenceSplashUrl' => array(
+            'options' => ['type' => 'cris-link']
+        ],
+        'ReferenceSplashUrl' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'splash-url')
-        ),
-        'ReferenceOpus4' => array(
+            'options' => ['type' => 'splash-url']
+        ],
+        'ReferenceOpus4' => [
             'model' => 'Opus_Reference',
-            'options' => array('type' => 'opus4-id')
-        ),
-        'Note' => array(
+            'options' => ['type' => 'opus4-id']
+        ],
+        'Note' => [
             'model' => 'Opus_Note',
             'fetch' => 'lazy'
-        ),
-        'Patent' => array(
+        ],
+        'Patent' => [
             'model' => 'Opus_Patent',
             'fetch' => 'lazy'
-        ),
-        'Enrichment' => array(
+        ],
+        'Enrichment' => [
             'model' => 'Opus_Enrichment',
             'fetch' => 'lazy'
-        ),
-        'Licence' => array(
+        ],
+        'Licence' => [
             'model' => 'Opus_Licence',
             'through' => 'Opus_Model_Dependent_Link_DocumentLicence',
             'fetch' => 'lazy'
-        ),
-        'Person' => array(
+        ],
+        'Person' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonAdvisor' => array(
+        ],
+        'PersonAdvisor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'advisor'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'advisor'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonAuthor' => array(
+        ],
+        'PersonAuthor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'author'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'author'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonContributor' => array(
+        ],
+        'PersonContributor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'contributor'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'contributor'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonEditor' => array(
+        ],
+        'PersonEditor' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'editor'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'editor'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonReferee' => array(
+        ],
+        'PersonReferee' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'referee'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'referee'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonOther' => array(
+        ],
+        'PersonOther' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'other'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'other'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonTranslator' => array(
+        ],
+        'PersonTranslator' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'translator'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'translator'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'PersonSubmitter' => array(
+        ],
+        'PersonSubmitter' => [
             'model' => 'Opus_Person',
             'through' => 'Opus_Model_Dependent_Link_DocumentPerson',
-                            'options'  => array('role' => 'submitter'),
-                            'sort_order' => array('sort_order' => 'ASC'),   // <-- We need a sorted authors list.
+                            'options'  => ['role' => 'submitter'],
+                            'sort_order' => ['sort_order' => 'ASC'],   // <-- We need a sorted authors list.
             'sort_field' => 'SortOrder',
             'fetch' => 'lazy'
-        ),
-        'Series' => array(
+        ],
+        'Series' => [
             'model' => 'Opus_Series',
             'through' => 'Opus_Model_Dependent_Link_DocumentSeries',
             'fetch' => 'lazy'
-        ),
-        'Subject' => array(
+        ],
+        'Subject' => [
             'model' => 'Opus_Subject',
             'fetch' => 'lazy'
-        ),
-        'File' => array(
+        ],
+        'File' => [
             'model' => 'Opus_File',
             'fetch' => 'lazy'
-        ),
+        ],
 
-        'Collection' => array(
+        'Collection' => [
             'model' => 'Opus_Collection',
             'fetch' => 'lazy'
-        ),
+        ],
 
-        'ThesisPublisher' => array(
+        'ThesisPublisher' => [
             'model' => 'Opus_DnbInstitute',
             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
-            'options' => array('role' => 'publisher'),
-            'addprimarykey' => array('publisher'),
+            'options' => ['role' => 'publisher'],
+            'addprimarykey' => ['publisher'],
             'fetch' => 'lazy'
-        ),
+        ],
 
-        'ThesisGrantor' => array(
+        'ThesisGrantor' => [
             'model' => 'Opus_DnbInstitute',
             'through' => 'Opus_Model_Dependent_Link_DocumentDnbInstitute',
-            'options' => array('role' => 'grantor'),
-            'addprimarykey' => array('grantor'),
+            'options' => ['role' => 'grantor'],
+            'addprimarykey' => ['grantor'],
             'fetch' => 'lazy'
-        )
-    );
+        ]
+    ];
 
     /**
      * Initialize the document's fields.  The language field needs special
@@ -363,13 +508,16 @@ class Opus_Document extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $fields = array(
+            "BelongsToBibliography",
             "CompletedDate", "CompletedYear",
             "ContributingCorporation",
             "CreatingCorporation",
             "ThesisDateAccepted", "ThesisYearAccepted",
             "Edition",
+            "EmbargoDate",
             "Issue",
             "Language",
             "PageFirst", "PageLast", "PageNumber",
@@ -382,9 +530,7 @@ class Opus_Document extends Opus_Model_AbstractDb {
             "ServerDateDeleted",
             "ServerState",
             "Type",
-            "Volume",
-            "BelongsToBibliography",
-            "EmbargoDate"
+            "Volume"
         );
 
         foreach ($fields as $fieldname) {
@@ -1246,7 +1392,8 @@ class Opus_Document extends Opus_Model_AbstractDb {
         $embargoDate->setHour(23);
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
-        return ($embargoDate < $now);
+        $embargoDate->setTimezone('Z');
+        return ($embargoDate->compare($now) == -1);
     }
 
     /**
@@ -1298,4 +1445,124 @@ class Opus_Document extends Opus_Model_AbstractDb {
         }
     }
 
+    /**
+     * @param null $key Index or key name
+     * @return mixed|null
+     * @throws Opus_Model_Exception
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichment($key = null)
+    {
+        if (is_null($key) || is_numeric($key)) {
+            return $this->__call('getEnrichment', [$key]);
+        } else {
+            $enrichments = $this->__call('getEnrichment', []);
+
+            $matches = array_filter($enrichments, function ($enrichment) use ($key) {
+                return $enrichment->getKeyName() == $key;
+            });
+
+            switch (count($matches)) {
+                case 0:
+                    return null;
+
+                case 1:
+                    return reset($matches); // get first element in array
+
+                default:
+                    return $matches;
+            }
+        }
+    }
+
+    /**
+     * Returns the value of an enrichment key
+     *
+     * @param $key Name of enrichment
+     * @return mixed
+     * @throws Opus_Model_Exception If the enrichment key does not exist
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichmentValue($key)
+    {
+        $enrichment = $this->getEnrichment($key);
+
+        if (!is_null($enrichment)) {
+            if (is_array($enrichment)) {
+                return array_map(function($value) {
+                    return $value->getValue();
+                }, $enrichment);
+            } else {
+                return $enrichment->getValue();
+            }
+        }
+        else {
+            $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
+
+            if (is_null($enrichmentKey)) {
+                throw new Opus_Model_Exception('unknown enrichment key');
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Disconnects object from database and stores it as new document.
+     *
+     * @return mixed
+     * @throws Opus_Model_Exception
+     *
+     * TODO no idea how to do this properly
+     * TODO not fully implemented yet
+     *
+     * @deprecated not implemented yet
+     */
+    public function storeAsNew() {
+        $this->resetDatabaseEntry();
+
+        foreach ($this->_fields as $field) {
+            $field->setModified(true);
+        }
+
+        foreach ($this->_externalFields as $fieldName => $fieldInfo) {
+            $field = $this->getField($fieldName);
+            $field->setModified(true);
+
+            $values = $field->getValue();
+
+            foreach ($values as $value) {
+                $value->resetDatabaseEntry();
+            }
+        }
+
+        return $this->store();
+    }
+
+    /**
+     * Create a new object with the same metadata.
+     *
+     * All child objects are copied as well. The copy can then be modified and stored without affecting the original
+     * object.
+     *
+     * @return Opus_Document
+     * @throws Opus_Model_Exception
+     *
+     * TODO track copying in enrichment (?) - do it externally to this function
+     * TODO not fully implemented yet
+     *
+     * @deprecated not implemented yet
+     */
+    public function getCopy() {
+        $document = new Opus_Document();
+
+        foreach($this->_fields as $fieldName => $field) {
+            $document->getField($fieldName)->setValue($field->getValue());
+            // TODO handle simple values
+            // TODO handle complex values -> create new objects
+            // TODO handle complex values with link objects
+        }
+
+        return $document;
+    }
 }

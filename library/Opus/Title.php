@@ -28,9 +28,9 @@
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,8 +39,27 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setLanguage(string $lang)
+ * @method string getLanguage()
+ *
+ * @method void setValue(string $value)
+ * @method string getValue()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
  */
-class Opus_Title extends Opus_Model_Dependent_Abstract {
+class Opus_Title extends Opus_Model_Dependent_Abstract
+{
+
+    const TYPE_MAIN = 'main';
+
+    const TYPE_PARENT = 'parent';
+
+    const TYPE_SUB = 'sub';
+
+    const TYPE_ADDITIONAL = 'additional';
+
     /**
      * Primary key of the parent model.
      *
@@ -62,7 +81,8 @@ class Opus_Title extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $language = new Opus_Model_Field('Language');
         if (Zend_Registry::isRegistered('Available_Languages') === true) {
             $language->setDefault(Zend_Registry::get('Available_Languages'));
@@ -77,18 +97,15 @@ class Opus_Title extends Opus_Model_Dependent_Abstract {
         $type = new Opus_Model_Field('Type');
         $type->setMandatory(false);
         $type->setSelection(true);
-        $type->setDefault(
-            array(
+        $type->setDefault([
             'main' => 'main',
             'parent' => 'parent',
             'sub' => 'sub',
             'additional' => 'additional'
-            )
-        );
+        ]);
 
         $this->addField($language)
             ->addField($value)
             ->addField($type);
     }
-
 }

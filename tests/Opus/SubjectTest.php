@@ -27,7 +27,7 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -164,14 +164,16 @@ class Opus_SubjectTest extends TestCase
         $this->assertCount(2, $values);
     }
 
-    public function testGetMatchingSubjectsNull() {
+    public function testGetMatchingSubjectsNull()
+    {
         $values = Opus_Subject::getMatchingSubjects(null);
 
         $this->assertInternalType('array', $values);
         $this->assertCount(0, $values);
     }
 
-    public function testGetMatchingSubjectsEmpty() {
+    public function testGetMatchingSubjectsEmpty()
+    {
         $values = Opus_Subject::getMatchingSubjects('');
 
         $this->assertInternalType('array', $values);
@@ -201,4 +203,60 @@ class Opus_SubjectTest extends TestCase
         $this->assertCount(1, $values);
     }
 
+    public function testToArray()
+    {
+        $subject = new Opus_Subject();
+
+        $subject->setLanguage('deu');
+        $subject->setType(Opus_Subject::SWD);
+        $subject->setExternalKey('key:Schlagwort');
+        $subject->setValue('Schlagwort');
+
+        $data = $subject->toArray();
+
+        $this->assertEquals([
+            'Language' => 'deu',
+            'Type' => 'swd',
+            'ExternalKey' => 'key:Schlagwort',
+            'Value' => 'Schlagwort'
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $subject = Opus_Subject::fromArray([
+            'Language' => 'deu',
+            'Type' => 'swd',
+            'ExternalKey' => 'key:Schlagwort',
+            'Value' => 'Schlagwort'
+        ]);
+
+        $this->assertNotNull($subject);
+        $this->assertInstanceOf('Opus_Subject', $subject);
+
+        $this->assertEquals('deu', $subject->getLanguage());
+        $this->assertEquals('swd', $subject->getType());
+        $this->assertEquals('key:Schlagwort', $subject->getExternalKey());
+        $this->assertEquals('Schlagwort', $subject->getValue());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $subject = new Opus_Subject();
+
+        $subject->updateFromArray([
+            'Language' => 'deu',
+            'Type' => 'swd',
+            'ExternalKey' => 'key:Schlagwort',
+            'Value' => 'Schlagwort'
+        ]);
+
+        $this->assertNotNull($subject);
+        $this->assertInstanceOf('Opus_Subject', $subject);
+
+        $this->assertEquals('deu', $subject->getLanguage());
+        $this->assertEquals('swd', $subject->getType());
+        $this->assertEquals('key:Schlagwort', $subject->getExternalKey());
+        $this->assertEquals('Schlagwort', $subject->getValue());
+    }
 }

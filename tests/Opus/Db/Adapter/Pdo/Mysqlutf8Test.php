@@ -81,7 +81,9 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8Test extends TestCase {
     public function tearDown() {
         // Close connection for clean transaction state.
         $dba = Zend_Db_Table::getDefaultAdapter();
-        $dba->closeConnection();
+        if (!is_null($dba)) {
+            $dba->closeConnection();    
+        }
 
         // Restore existing adapter
         Zend_Db_Table::setDefaultAdapter($this->dba_backup);

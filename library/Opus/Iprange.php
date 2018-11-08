@@ -28,9 +28,9 @@
  * @package     Opus
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -93,9 +93,7 @@ class Opus_Iprange extends Opus_Model_AbstractDb {
         $endingip->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
                 ->setValidator(new Zend_Validate_Hostname(Zend_Validate_Hostname::ALLOW_IP));
-        $role->setMultiplicity('*')
-                ->setDefault(Opus_UserRole::getAll())
-                ->setSelection(true);
+        $role->setMultiplicity('*');
 
         $this->addField($startingip)
                 ->addField($endingip)

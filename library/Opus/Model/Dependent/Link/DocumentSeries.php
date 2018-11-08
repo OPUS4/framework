@@ -27,12 +27,22 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2008-2012, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link_Abstract {
+/**
+ * Class Opus_Model_Dependent_Link_DocumentSeries
+ *
+ * @method void setNumber(string $number)
+ * @method string getNumber()
+ *
+ * @method void setDocSortOrder(integer $pos)
+ * @method integer getDocSortOrder()
+ */
+class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link_Abstract
+{
 
     /**
      * Primary key of the parent model.
@@ -61,27 +71,28 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_LinkDocumentsSeries';
-    
+
     /**
      * Fields that should not be displayed on a form.
      *
      * @var array
      */
-    protected $_internalFields = array();
+    protected $_internalFields = [];
 
-    
+
     /**
      * Initialize model
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $modelClass = $this->_modelClass;
         if (is_null($this->getId()) === false) {
             $this->setModel(new $modelClass($this->_primaryTableRow->{$this->_modelKey}));
         }
 
-        $number = new Opus_Model_Field('Number');        
+        $number = new Opus_Model_Field('Number');
         $number->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
         $this->addField($number);
@@ -95,30 +106,29 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
      *
      * @return void
      */
-    public function store() {
+    public function store()
+    {
         $this->_primaryTableRow->series_id = $this->_model->store();
         parent::store();
     }
 
-    protected function _storeDocSortOrder() {
+    protected function _storeDocSortOrder()
+    {
         $docSortOrderValue = $this->_fields['DocSortOrder']->getValue();
         if (is_null($docSortOrderValue)) {
             $db = Zend_Db_Table::getDefaultAdapter();
             $max = $db->fetchCol(
-                'SELECT MAX(doc_sort_order)' . 
+                'SELECT MAX(doc_sort_order)' .
                 ' FROM link_documents_series' .
                 ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
                 ' AND document_id != ' . $this->_primaryTableRow->document_id
             );
             if (!is_null($max[0])) {
                 $docSortOrderValue = intval($max[0]) + 1;
-            }
-            else {
+            } else {
                 $docSortOrderValue = 0;
             }
         }
         $this->_primaryTableRow->doc_sort_order = $docSortOrderValue;
     }
-
 }
-

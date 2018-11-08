@@ -29,9 +29,10 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @author      Sascha Szott <szott@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,8 +41,16 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setKeyName(string $name)
+ * @method string getKeyName()
+ *
+ * @method void setValue(string $value)
+ * @method string getValue()
  */
-class Opus_Enrichment extends Opus_Model_Dependent_Abstract {
+class Opus_Enrichment extends Opus_Model_Dependent_Abstract
+{
+
     /**
      * Primary key of the parent model.
      *
@@ -63,7 +72,8 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $key = new Opus_Model_Field('KeyName');
         $key->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty())
@@ -72,7 +82,7 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract {
 
         $value = new Opus_Model_Field('Value');
         $value->setMandatory(true)
-              ->setValidator(new Zend_Validate_NotEmpty());
+            ->setValidator(new Zend_Validate_NotEmpty());
 
         $this->addField($key);
         $this->addField($value);

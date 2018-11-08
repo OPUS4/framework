@@ -189,7 +189,7 @@ class Opus_Search_Result_Match {
 		$this->serverDateModified = new Opus_Date();
 
 		if ( ctype_digit( $timestamp = trim( $timestamp ) ) ) {
-			$this->serverDateModified->setUnixTimestamp( intval( $timestamp ) );
+			$this->serverDateModified->setTimestamp( intval( $timestamp ) );
 		} else {
 			$this->serverDateModified->setFromString( $timestamp );
 		}
