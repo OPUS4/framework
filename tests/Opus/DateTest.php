@@ -883,4 +883,34 @@ class Opus_DateTest extends TestCase {
 
         $this->assertEquals(new DateTimeZone('UTC'), $dateTime->getTimezone());
     }
+
+    public function testStoringDateWithTime() {
+        $date = new Opus_Date('2018-10-20T14:31:12+02:00');
+
+        $doc = new Opus_Document();
+
+        $doc->setPublishedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $dateLoaded = $doc->getPublishedDate();
+
+        $this->assertEquals(0, $date->compare($dateLoaded));
+        $this->assertEquals('2018-10-20T14:31:12+02:00', $dateLoaded->__toString());
+    }
+
+    public function testStoringDateWithTimezoneZ() {
+        $date = new Opus_Date('2018-10-20T14:31:12Z');
+
+        $doc = new Opus_Document();
+
+        $doc->setPublishedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $dateLoaded = $doc->getPublishedDate();
+
+        $this->assertEquals(0, $date->compare($dateLoaded));
+        $this->assertEquals('2018-10-20T14:31:12Z', $dateLoaded->__toString());
+    }
 }
