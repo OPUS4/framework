@@ -219,6 +219,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         $dateTime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
         if (!is_null($timezone)) {
+            if ($timezone === 'Z') {
+                $timezone = 'UTC';
+            }
             $dateTime->setTimezone(new DateTimeZone($timezone));
         }
         return $dateTime;

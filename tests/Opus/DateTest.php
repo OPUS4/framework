@@ -834,7 +834,7 @@ class Opus_DateTest extends TestCase {
         $dateTimeUtc = $date->getDateTime('Z');
 
         $this->assertNotNull($dateTimeUtc);
-        $this->assertEquals(new DateTimeZone('Z'), $dateTimeUtc->getTimezone());
+        $this->assertEquals(new DateTimeZone('UTC'), $dateTimeUtc->getTimezone());
 
         $this->assertEquals($dateTime->getTimestamp(), $dateTimeUtc->getTimestamp());
         $this->assertEquals(1539986400,$dateTimeUtc->getTimestamp());
@@ -871,5 +871,16 @@ class Opus_DateTest extends TestCase {
         $expected = $dateTime->format('Y-m-d\TH:i');
 
         $this->assertStringStartsWith($expected, $now->__toString());
+    }
+
+    public function testUseUtcInsteadOfZ()
+    {
+        $date = new Opus_Date('2018-10-20T00:00:00+02:00');
+
+        $date->setTimezone('Z');
+
+        $dateTime = $date->getDateTime('Z');
+
+        $this->assertEquals(new DateTimeZone('UTC'), $dateTime->getTimezone());
     }
 }
