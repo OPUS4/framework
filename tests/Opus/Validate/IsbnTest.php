@@ -67,7 +67,9 @@ class Opus_Validate_IsbnTest extends TestCase {
             array('3-86680-192-0'),
             array('3-937602-69-0'),
             array('3 86680 192 0'),
-            array('3 937602 69 0')
+            array('3 937602 69 0'),
+            array('9789793182636'),
+            array('3866801920')
         );
     }
 
