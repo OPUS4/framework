@@ -31,6 +31,6 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Identifier_DoiAlreadyExistsException extends Opus_Model_Exception 
+class Opus_Identifier_DoiAlreadyExistsException extends \Opus\Model\Exception
 {
 }
