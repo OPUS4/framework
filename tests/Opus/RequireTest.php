@@ -27,9 +27,9 @@
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -83,33 +83,36 @@ class Opus_RequireTest extends TestCase {
     {
         $path = APPLICATION_PATH . '/library/Opus/';
         $cmd = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
-        $classes = array();
+        $classes = [];
         exec($cmd, $classes);
 
-        $blacklist = array(
-            "Opus_Db_Adapter_Pdo_Mysqlutf8",
-            "Opus_Bootstrap_Base",
-            "Opus_Statistic_LocalCounter",
-            "Opus_Identifier_Urn",
-            "Opus_GPG",
-            "Opus_Security_Realm",
-            "Opus_Model_Field",
-            "Opus_Storage_File",
-            "Opus_Reviewer",
-            "Opus_Privilege",
-            "Opus_Search_Exception",
-            "Opus_Util_MetadataImport",
-            "Opus_Search_Solr_Solarium_Document",
-            "Opus_Search_Solr_Solarium_Adapter",
-            "Opus_Search_Solr_Solarium_Filter_Complex",
-            "Opus_Search_Solr_Document_Xslt",
-            "Opus_Search_Solr_Filter_Raw",
-            "Opus_Search_Facet_Set",
-            "Opus_Search_Facet_Field",
-            "Opus_Search_Result_Facet",
-            "Opus_Search_Result_Match",
-            "Opus_Search_Filter_Simple"
-        );
+        $blacklist = [
+            'Opus_Validate_MateDecorator',
+            'Opus_Db_Adapter_Pdo_Mysqlutf8',
+            'Opus_Bootstrap_Base',
+            'Opus_Statistic_LocalCounter',
+            'Opus_Identifier_Urn',
+            'Opus_GPG',
+            'Opus_Security_Realm',
+            'Opus_Model_Field',
+            'Opus_Model_UnixTimestampField',
+            'Opus_Model_DateField',
+            'Opus_Storage_File',
+            'Opus_Reviewer',
+            'Opus_Privilege',
+            'Opus_SolrSearch_Exception',
+            'Opus_Util_MetadataImport',
+            'Opus_Search_Solr_Solarium_Document',
+            'Opus_Search_Solr_Solarium_Adapter',
+            'Opus_Search_Solr_Solarium_Filter_Complex',
+            'Opus_Search_Solr_Document_Xslt',
+            'Opus_Search_Solr_Filter_Raw',
+            'Opus_Search_Facet_Set',
+            'Opus_Search_Facet_Field',
+            'Opus_Search_Result_Facet',
+            'Opus_Search_Result_Match',
+            'Opus_Search_Filter_Simple'
+        ];
 
         $data = array();
 
@@ -127,6 +130,10 @@ class Opus_RequireTest extends TestCase {
      * Try to load all class files and instanciate objects.
      *
      * @return void
+     *
+     * Class files must be loaded (required_once) before the classes can be used.
+     * @depends testRequire
+     *
      * @dataProvider instanciateTestProvider
      */
     public function testInstanciateTest($class)

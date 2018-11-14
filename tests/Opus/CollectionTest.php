@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,9 +27,9 @@
  * @category    Tests
  * @package     Opus_Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  *
  * TODO Test für das rekursive Speichern von Children
  */
@@ -144,7 +143,6 @@ class Opus_CollectionTest extends TestCase {
     }
 
     /**
-     * Tests toArray().
      */
     public function testGetChildren() {
         $root = $this->object;
@@ -1309,4 +1307,73 @@ class Opus_CollectionTest extends TestCase {
         $this->assertFalse($coll->isVisible());
     }
 
+    public function testToArray()
+    {
+        $root = $this->object;
+
+        $role = $this->role_fixture;
+
+        $role->setDisplayFrontdoor('Number');
+        $role->setDisplayBrowsing('Name');
+
+        $root->setName('colA');
+        $root->setNumber('VI');
+        $root->setVisible('1');
+
+        $role = new Opus_CollectionRole($role->store());
+
+        $root = $role->getRootCollection();
+
+        $data = $root->toArray();
+
+        $this->assertEquals([
+            'Id' => $root->getId(),
+            'RoleId' => $role->getId(),
+            'RoleName' => $role->getName(),
+            'DisplayBrowsing' => 'colA',
+            'DisplayFrontdoor' => 'VI'
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $col = Opus_Collection::fromArray([
+            'Name' => 'OPUS',
+            'Number' => '4',
+            'OaiSubset' => 'opus4',
+            'Visible' => 1,
+            'VisiblePublish' => 1,
+        ]);
+
+        $this->assertNotNull($col);
+        $this->assertInstanceOf('Opus_Collection', $col);
+
+        $this->assertEquals('OPUS', $col->getName());
+        $this->assertEquals('4', $col->getNumber());
+        $this->assertEquals('opus4', $col->getOaiSubset());
+        $this->assertEquals('1', $col->getVisible());
+        $this->assertEquals('1', $col->getVisiblePublish());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $col = new Opus_Collection();
+
+        $col->updateFromArray([
+            'Name' => 'OPUS',
+            'Number' => '4',
+            'OaiSubset' => 'opus4',
+            'Visible' => 1,
+            'VisiblePublish' => 1,
+        ]);
+
+        $this->assertNotNull($col);
+        $this->assertInstanceOf('Opus_Collection', $col);
+
+        $this->assertEquals('OPUS', $col->getName());
+        $this->assertEquals('4', $col->getNumber());
+        $this->assertEquals('opus4', $col->getOaiSubset());
+        $this->assertEquals('1', $col->getVisible());
+        $this->assertEquals('1', $col->getVisiblePublish());
+    }
 }

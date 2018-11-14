@@ -27,34 +27,59 @@
  * @category    Framework
  * @package     Opus
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Domain model for document abstracts in the Opus framework
  *
+ * This is not an 'abstract' class like the name would suggest, but objects of this class
+ * represent abstracts for documents.
+ *
  * @category    Framework
  * @package     Opus
+ *
+ * TODO Is this class necessary?
+ * TODO Should modifying Type be suppressed in this class?
+ * TODO Opus_Title can be used instead of Opus_TitleAbstract for addTitleAbstract, but then Type does not get set properly.
  */
-class Opus_TitleAbstract extends Opus_Title {
-    
+class Opus_TitleAbstract extends Opus_Title
+{
+
+    const TYPE_ABSTRACT = 'abstract';
+
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+        parent::__construct($id, $tableGatewayModel);
+
+        $this->setType(self::TYPE_ABSTRACT); // setting in _init() does not work
+    }
+
     /**
      * Set textarea flag for Value field.
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         parent::_init();
 
         $this->getField('Value')->setTextarea(true);
-        
+
         $type = $this->getField('Type');
         $type->setMandatory(false);
         $type->setSelection(true);
-        $type->setDefault(array('abstract' => 'abstract'));
-        
+        $type->setDefault([self::TYPE_ABSTRACT => self::TYPE_ABSTRACT]);
+        $type->setValue(self::TYPE_ABSTRACT); // TODO this does not work - why?
     }
 
+    public function updateFromArray($data)
+    {
+        if (!array_key_exists('Type', $data)) {
+            $data['Type'] = self::TYPE_ABSTRACT;
+        }
+
+        parent::updateFromArray($data);
+    }
 }

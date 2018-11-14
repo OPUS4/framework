@@ -28,7 +28,8 @@
  * @package     Opus_Model_Dependent
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 

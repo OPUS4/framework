@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,6 +38,46 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setActive(boolean $active)
+ * @method boolean getActive()
+ *
+ * @method void setCommentInternal(string $comment)
+ * @method string getCommentInternal
+ *
+ * @method void setDescMarkup(string $markup)
+ * @method string getDescMarkup()
+ *
+ * @method void setDescText(string $description)
+ * @method string getDescText()
+ *
+ * @method void setLanguage(string $lang)
+ * @method string getLanguage()
+ *
+ * @method void setLinkLicence(string $url)
+ * @method string getLinkLicence()
+ *
+ * @method void setLinkLogo(string $url)
+ * @method string getLinkLogo()
+ *
+ * @method void setLinkSign(string $url)
+ * @method string getLinkSign()
+ *
+ * @method void setMimeType(string $mimeType)
+ * @method string getMimeType()
+ *
+ * @method void setName(string $name)
+ * @method string getName()
+ *
+ * @method void setNameLong(string $longName)
+ * @method string getNameLong()
+ *
+ * @method void setSortOrder(integer $position)
+ * @method integer getSortOrder()
+ *
+ * @method void setPodAllowed(boolean $allowed)
+ * @method boolean getPodAllowed()
+ *
  */
 class Opus_Licence extends Opus_Model_AbstractDb {
 

@@ -45,7 +45,152 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  *
- * @method string  getServerState()
+ * The following are the magic methods for the simple fields of Opus_Document.
+ *
+ * @method void setCompletedDate(Opus_Date $date)
+ * @method Opus_Date getCompletedDate()
+ *
+ * @method void setCompletedYear(integer $year)
+ * @method integer getCompletedYear()
+ *
+ * @method void setContributingCorporation(string $value)
+ * @method string getContributingCorporation()
+ *
+ * @method void setCreatingCorporation(string $value)
+ * @method string getCreatingCorporation()
+ *
+ * @method void setThesisDateAccepted(Opus_Date $date)
+ * @method Opus_Date getThesisDateAccepted()
+ *
+ * @method void setThesisYearAccepted(integer $year)
+ * @method integer getThesisYearAccepted()
+ *
+ * @method void setEdition(string $value)
+ * @method string getEdition()
+ *
+ * @method void setEmbargoDate(Opus_Date $date)
+ * @method Opus_Date getEmbargoDate()
+ *
+ * @method void setIssue(string $issue)
+ * @method string getIssue()
+ *
+ * @method void setLanguage(string $lang)
+ * @method string getLanguage()
+ *
+ * @method void setPageFirst(string $pageFirst)
+ * @method string getPageFirst()
+ *
+ * @method void setPageLast(string $pageLast)
+ * @method string getPageLast()
+ *
+ * @method void setPageNumber(string $pageNumber)
+ * @method string getPageNumber()
+ *
+ * @method void setPublishedDate(Opus_Date $date)
+ * @method Opus_Date getPublishedDate()
+ *
+ * @method void setPublishedYear(integer $year)
+ * @method integer getPublishedYear()
+ *
+ * @method void setPublisherName(string $name)
+ * @method string getPublisherName()
+ *
+ * @method void setPublisherPlace(string $place)
+ * @method string getPublisherPlace()
+ *
+ * @method void setPublicationState(string $state)
+ * @method string getPublicationState()
+ *
+ * @method void setServerDateCreated(Opus_Date $date)
+ * @method Opus_Date getServerDateCreated()
+ *
+ * @method void setServerDateModified(Opus_Date $date)
+ * @method Opus_Date getServerDateModified()
+ *
+ * @method void setServerDatePublished(Opus_Date $date)
+ * @method Opus_Date getServerDatePublished()
+ *
+ * @method void setServerDateDeleted(Opus_Date $date)
+ * @method Opus_Date getServerDateDeleted()
+ *
+ * @method void setServerState(string $state)
+ * @method string getServerState()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
+ *
+ * @method void setVolume(string $volume)
+ * @method string getVolume()
+ *
+ * @method void setBelongsToBibliography(boolean $bibliography)
+ * @method boolean getBelongsToBibliography()
+ *
+ * Methods for complex fields.
+ *
+ * @method Opus_Note addNote()
+ * @method void setNote(Opus_Note[] $notes)
+ * @method Opus_Note[] getNote()
+ *
+ * @method Opus_Patent addPatent()
+ * @method void setPatent(Opus_Patent[] $patents)
+ * @method Opus_Patent[] getPatent()
+ *
+ * @method Opus_Title addTitleMain()
+ * @method Opus_Title[] getTitleMain()
+ * @method void setTitleMain(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleParent()
+ * @method Opus_Title[] getTitleParent()
+ * @method void setTitleParent(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleSub()
+ * @method Opus_Title[] getTitleSub()
+ * @method void setTitleSub(Opus_Title[] $titles)
+ *
+ * @method Opus_Title addTitleAdditional()
+ * @method Opus_Title[] getTitleAdditional()
+ * @method void setTitleAdditional(Opus_Title[] $titles)
+ *
+ * @method Opus_TitleAbstract addTitleAbstract()
+ * @method Opus_TitleAbstract[] getTitleAbstract()
+ * @method void setTitleAbstract(Opus_TitleAbstract[] $abstracts)
+ *
+ * @method Opus_Subject addSubject(Opus_Subject[] $subject = null)
+ * @method Opus_Subject[] getSubject()
+ * @method void setSubject(Opus_Subject[] $subjects)
+ *
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute addThesisGrantor(Opus_DnbInstitute $institute)
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute[] getThesisGrantor()
+ * @method void setThesisGrantor(Opus_DnbInstitute[] $institutes)
+ *
+ * @method Opus_DnbInstitute addThesisPublisher(Opus_DnbInstitute $institute)
+ * @method Opus_Model_Dependent_Link_DocumentDnbInstitute[] getThesisPublisher()
+ * @method void setThesisPublisher(Opus_DnbInstitute[] $institutes)
+ *
+ * @method Opus_Enrichment addEnrichment(Opus_Enrichment $enrichment = null)
+ * @method void setEnrichment(Opus_Enrichment[] $enrichments)
+ *
+ * TODO correct?
+ * @method void addCollection(Opus_Collection $collection)
+ * @method Opus_Collection[] getCollection()
+ * @method void setCollection(Opus_Collection[] $collections)
+ *
+ * TODO correct?
+ * @method void addSeries(Opus_Series $series)
+ * @method Opus_Series[] getSeries()
+ * @method void setSeries(Opus_Series[] $series)
+ *
+ * @method Opus_Identifier addIdentifier(Opus_Identifier $identifier = null)
+ * @method void setIdentifier(Opus_Identifier[] $identifiers)
+ * @method Opus_Identifier[] getIdentifier()
+ *
+ * @method Opus_Reference addReference(Opus_Reference $reference = null)
+ * @method void setReference(Opus_Reference[] $references)
+ * @method Opus_Reference[] getReference()
+ *
+ * @method Opus_Model_Dependent_Link_DocumentPerson addPerson(Opus_Person $person)
+ * @method void setPerson(Opus_Model_Dependent_Link_DocumentPerson[] $persons)
+ * @method Opus_Model_Dependent_Link_DocumentPerson[] getPerson()
  */
 class Opus_Document extends Opus_Model_AbstractDb
 {
@@ -78,7 +223,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected $_plugins = [
         'Opus_Document_Plugin_XmlCache' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null
+        'Opus_Document_Plugin_IdentifierUrn' => null,
+        'Opus_Document_Plugin_IdentifierDoi' => null
     ];
 
     /**
@@ -361,26 +507,26 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected function _init()
     {
         $fields = [
-            "CompletedDate", "CompletedYear",
-            "ContributingCorporation",
-            "CreatingCorporation",
-            "ThesisDateAccepted", "ThesisYearAccepted",
-            "Edition",
-            "Issue",
-            "Language",
-            "PageFirst", "PageLast", "PageNumber",
-            "PublishedDate", "PublishedYear",
-            "PublisherName",  "PublisherPlace",
-            "PublicationState",
-            "ServerDateCreated",
-            "ServerDateModified",
-            "ServerDatePublished",
-            "ServerDateDeleted",
-            "ServerState",
-            "Type",
-            "Volume",
-            "BelongsToBibliography",
-            "EmbargoDate"
+            'BelongsToBibliography',
+            'CompletedDate', 'CompletedYear',
+            'ContributingCorporation',
+            'CreatingCorporation',
+            'ThesisDateAccepted', 'ThesisYearAccepted',
+            'Edition',
+            'EmbargoDate',
+            'Issue',
+            'Language',
+            'PageFirst', 'PageLast', 'PageNumber',
+            'PublishedDate', 'PublishedYear',
+            'PublisherName', 'PublisherPlace',
+            'PublicationState',
+            'ServerDateCreated',
+            'ServerDateModified',
+            'ServerDatePublished',
+            'ServerDateDeleted',
+            'ServerState',
+            'Type',
+            'Volume'
         ];
 
         foreach ($fields as $fieldname) {
@@ -1271,7 +1417,8 @@ class Opus_Document extends Opus_Model_AbstractDb
         $embargoDate->setHour(23);
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
-        return ($embargoDate < $now);
+        $embargoDate->setTimezone('Z');
+        return ($embargoDate->compare($now) == -1);
     }
 
     /**
@@ -1323,4 +1470,124 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
     }
 
+    /**
+     * @param null $key Index or key name
+     * @return mixed|null
+     * @throws Opus_Model_Exception
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichment($key = null)
+    {
+        if (is_null($key) || is_numeric($key)) {
+            return $this->__call('getEnrichment', [$key]);
+        } else {
+            $enrichments = $this->__call('getEnrichment', []);
+
+            $matches = array_filter($enrichments, function ($enrichment) use ($key) {
+                return $enrichment->getKeyName() == $key;
+            });
+
+            switch (count($matches)) {
+                case 0:
+                    return null;
+
+                case 1:
+                    return reset($matches); // get first element in array
+
+                default:
+                    return $matches;
+            }
+        }
+    }
+
+    /**
+     * Returns the value of an enrichment key
+     *
+     * @param $key Name of enrichment
+     * @return mixed
+     * @throws Opus_Model_Exception If the enrichment key does not exist
+     * @throws Opus_Security_Exception
+     */
+    public function getEnrichmentValue($key)
+    {
+        $enrichment = $this->getEnrichment($key);
+
+        if (!is_null($enrichment)) {
+            if (is_array($enrichment)) {
+                return array_map(function($value) {
+                    return $value->getValue();
+                }, $enrichment);
+            } else {
+                return $enrichment->getValue();
+            }
+        }
+        else {
+            $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
+
+            if (is_null($enrichmentKey)) {
+                throw new Opus_Model_Exception('unknown enrichment key');
+            } else {
+                return null;
+            }
+        }
+    }
+
+    /**
+     * Disconnects object from database and stores it as new document.
+     *
+     * @return mixed
+     * @throws Opus_Model_Exception
+     *
+     * TODO no idea how to do this properly
+     * TODO not fully implemented yet
+     *
+     * @deprecated not implemented yet
+     */
+    public function storeAsNew() {
+        $this->resetDatabaseEntry();
+
+        foreach ($this->_fields as $field) {
+            $field->setModified(true);
+        }
+
+        foreach ($this->_externalFields as $fieldName => $fieldInfo) {
+            $field = $this->getField($fieldName);
+            $field->setModified(true);
+
+            $values = $field->getValue();
+
+            foreach ($values as $value) {
+                $value->resetDatabaseEntry();
+            }
+        }
+
+        return $this->store();
+    }
+
+    /**
+     * Create a new object with the same metadata.
+     *
+     * All child objects are copied as well. The copy can then be modified and stored without affecting the original
+     * object.
+     *
+     * @return Opus_Document
+     * @throws Opus_Model_Exception
+     *
+     * TODO track copying in enrichment (?) - do it externally to this function
+     * TODO not fully implemented yet
+     *
+     * @deprecated not implemented yet
+     */
+    public function getCopy() {
+        $document = new Opus_Document();
+
+        foreach($this->_fields as $fieldName => $field) {
+            $document->getField($fieldName)->setValue($field->getValue());
+            // TODO handle simple values
+            // TODO handle complex values -> create new objects
+            // TODO handle complex values with link objects
+        }
+
+        return $document;
+    }
 }

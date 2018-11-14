@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -31,9 +30,9 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
  * @author      Tobias Tappe <tobias.tappe@uni-bielefeld.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -54,8 +53,48 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setName(string $name)
+ * @method string getName()
+ *
+ * @method void setOaiName(string $oaiName)
+ * @method string getOaiName()
+ *
+ * @method void setPosition(integer $pos)
+ * @method integer getPosition()
+ *
+ * @method void setVisible(boolean $visible)
+ * @method boolean getVisible()
+ *
+ * @method void setVisibleBrowsingStart(boolean $visibleBrowsingStart)
+ * @method boolean getVisibleBrowsingStart()
+ *
+ * @method void setVisibleFrontdoor(boolean $visibleFrontdoor)
+ * @method boolean getVisibleFrontdoor()
+ *
+ * @method void setVisibleOai(boolean $visibleOai)
+ * @method boolean getVisibleOai()
+ *
+ * @method void setDisplayBrowsing(string $format)
+ * @method string getDisplayBrowsing()
+ *
+ * @method void setDisplayFrontdoor(string $format)
+ * @method string getDisplayFrontdoor()
+ *
+ * @method void setIsClassification(boolean $isClassification)
+ * @method boolean getIsClassification()
+ *
+ * @method void setAssignRoot(boolean $assignRoot)
+ * @method boolean getAssignRoot()
+ *
+ * @method void setAssignLeavesOnly(boolean $assignLeavesOnly)
+ * @method boolean getAssignLeavesOnly()
+ *
+ * @method void setRootCollection(Opus_Collection $collection)
+ * @method Opus_Collection getRootCollection()
  */
-class Opus_CollectionRole extends Opus_Model_AbstractDb {
+class Opus_CollectionRole extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -71,14 +110,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @var array
      * @see Opus_Model_Abstract::$_externalFields
      */
-    protected $_externalFields = array(
+    protected $_externalFields = [
         // Will contain the Root Node of this Role.
-        'RootCollection' => array(
+        'RootCollection' => [
             'model' => 'Opus_Collection',
-            'options' => array('left_id' => 1),
+            'options' => ['left_id' => 1],
             'fetch' => 'lazy',
-        ),
-    );
+        ],
+    ];
 
     /**
      * Plugins to load
@@ -95,7 +134,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
         $name->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
@@ -134,10 +174,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $displayFrontdoor = new Opus_Model_Field('DisplayFrontdoor');
         $this->addField($displayFrontdoor);
 
-        // Field to be removed.  See ticket OPUSVIER-2155.
-        $displayOai = new Opus_Model_Field('DisplayOai');
-        $this->addField($displayOai);
-
         $isClassification = new Opus_Model_Field('IsClassification');
         $this->addField($isClassification);
 
@@ -153,28 +189,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
     }
 
     /**
-     * Stub methods to savely remove DisplayOai from database.  To be removed.
-     * See ticket OPUSVIER-2155.
-     *
-     * @return string
-     */
-    protected function _fetchDisplayOai() {
-        return "";
-    }
-
-    /**
-     * Stub methods to savely remove DisplayOai from database.  To be removed.
-     * See ticket OPUSVIER-2155.
-     *
-     * @param mixed $string unused
-     *
-     * @return void
-     */
-    protected function _storeDisplayOai($string) {
-        return;
-    }
-
-    /**
      * Returns long name.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
@@ -182,9 +196,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Outsource this->getName to this->getRootNode->getName
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
         return $this->getName();
-
     }
 
     /**
@@ -192,7 +206,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    public static function fixPositions() {
+    public static function fixPositions()
+    {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $db = $table->getAdapter();
 
@@ -234,7 +249,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _storePosition($to = PHP_INT_MAX) {
+    protected function _storePosition($to = PHP_INT_MAX)
+    {
         $field = $this->_getField('Position', true);
         if (false === $field->isModified()) {
             return;
@@ -269,8 +285,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
                 $range = $db->quoteInto($range, $to, null, 1);
                 $range = $db->quoteInto($range, $pos, null, 1);
                 $posShift = ' + 1 ';
-            }
-            else {
+            } else {
                 $range = $db->quoteInto($range, $pos, null, 1);
                 $range = $db->quoteInto($range, $to, null, 1);
                 $posShift = ' - 1 ';
@@ -287,7 +302,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $row->{'position'} = (int) $to;
 
         return;
-
     }
 
     /**
@@ -297,24 +311,29 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * @return array A (nested) array representation of the model.
      * @deprecated Method shouldn't be used any more.  Use object or xml.
      *
-     * TODO: Check why this method isn't used any more.
+     * TODO Check why this method isn't used any more.
+     * TODO What should be the behaviour of this function.
      */
-    public function toArray() {
-        $result = array();
+    public function toArray()
+    {
+        $result = parent::toArray();
 
         $root = $this->getRootCollection();
-        if (!isset($root)) {
-            return $result;
+
+        if (isset($root)) {
+            $collections = [];
+
+            foreach ($root->getChildren() as $child) {
+                $collections[] = [
+                    'Id' => $child->getId(),
+                    'Name' => $child->getName(),
+                ];
+            }
+
+            $result['RootCollection'] = $collections;
         }
 
-        foreach ($root->getChildren() as $child) {
-            $result[] = array(
-                'Id' => $child->getId(),
-                'Name' => $child->getName(),
-            );
-        }
         return $result;
-
     }
 
     /**
@@ -325,7 +344,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return Opus_CollectionRole
      */
-    public static function fetchByName($name = null) {
+    public static function fetchByName($name = null)
+    {
         if (false === isset($name)) {
             return;
         }
@@ -339,7 +359,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return;
-
     }
 
     /**
@@ -352,7 +371,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return Opus_CollectionRole
      */
-    public static function fetchByOaiName($oaiName = null) {
+    public static function fetchByOaiName($oaiName = null)
+    {
         if (false === isset($oaiName)) {
             return;
         }
@@ -366,7 +386,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return;
-
     }
 
     /**
@@ -376,12 +395,12 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO: Modify self::getAllFrom to take parameters.
      */
-    public static function fetchAll() {
+    public static function fetchAll()
+    {
         // $roles = self::getAllFrom('Opus_CollectionRole', self::$_tableGatewayClass);
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $roles = $table->fetchAll(null, 'position');
         return self::createObjects($roles);
-
     }
 
     /**
@@ -394,8 +413,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * TODO: Refactor this method as fetchAllFromSubselect(...) in AbstractDb?
      * TODO: Code duplication from/in Opus_Collection!
      */
-    public static function createObjects($array) {
-        $results = array();
+    public static function createObjects($array)
+    {
+        $results = [];
 
         // FIXME: get_called_class() only supported in PHP5 >= 5.3
         //   $class   = get_called_class();
@@ -407,7 +427,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return $results;
-
     }
 
     /* ********************************************************************** *
@@ -425,9 +444,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @see modules/oai/controllers/IndexController.php
      */
-    public function getOaiSetNames() {
+    public function getOaiSetNames()
+    {
         if (is_null($this->getId())) {
-            return array();
+            return [];
         }
 
         $select = "SELECT c.id, c.oai_subset, c.number, c.name,
@@ -448,9 +468,10 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      * Fetches all oai subset names for this role.
      * @return array
      */
-    public function getAllOaiSetNames() {
+    public function getAllOaiSetNames()
+    {
         if (is_null($this->getId())) {
-            return array();
+            return [];
         }
 
         $select = "SELECT c.id, c.oai_subset, c.number, c.name
@@ -477,7 +498,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * TODO why does incomplete GROUP BY not cause an exception here (like in getOaiSetNames)?
      */
-    public static function fetchAllOaiEnabledRoles() {
+    public static function fetchAllOaiEnabledRoles()
+    {
         $select = "SELECT r.id, r.name, r.oai_name,
                           count(DISTINCT l.document_id) AS count
             FROM link_documents_collections AS l, collections_roles AS r,
@@ -511,7 +533,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @see modules/oai/controllers/IndexController.php
      */
-    public function existsDocumentIdsInSet($oaiSetName) {
+    public function existsDocumentIdsInSet($oaiSetName)
+    {
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
@@ -545,7 +568,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         }
 
         return false;
-
     }
 
     /**
@@ -561,7 +583,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @see modules/oai/controllers/IndexController.php
      */
-    public static function getDocumentIdsInSet($oaiSetName) {
+    public static function getDocumentIdsInSet($oaiSetName)
+    {
         $colonPos = strrpos($oaiSetName, ':');
         $oaiPrefix = substr($oaiSetName, 0, $colonPos);
         $oaiPostfix = substr($oaiSetName, $colonPos + 1);
@@ -592,7 +615,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         // $role->log("$oaiSetName: #" . count($result));
 
         return $result;
-
     }
 
     /**
@@ -612,11 +634,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         $result = $db->fetchOne($select);
 
-        if ($result === false)
-        {
+        if ($result === false) {
             return null;
-        }
-        else {
+        } else {
             return new Opus_Collection($result);
         }
     }
@@ -630,7 +650,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return Opus_Collection
      */
-    protected function _fetchRootCollection() {
+    protected function _fetchRootCollection()
+    {
         if ($this->isNewRecord()) {
             return;
         }
@@ -652,7 +673,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @see Opus_Model_AbstractDb
      */
-    public function _storeRootCollection($collection) {
+    public function _storeRootCollection($collection)
+    {
         if (!isset($collection)) {
             return;
         }
@@ -665,7 +687,6 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
         $collection->store();
     }
 
-
     /**
      * Extend magic add-method.  Add $collection if given; otherwise
      * create.
@@ -674,11 +695,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
      *
      * @return Opus_Collection
      */
-    public function addRootCollection($collection = null) {
+    public function addRootCollection($collection = null)
+    {
         if (isset($collection)) {
             $collection = parent::addRootCollection($collection);
-        }
-        else {
+        } else {
             $collection = parent::addRootCollection();
         }
 
@@ -689,14 +710,4 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb {
 
         return $collection;
     }
-
-    /**
-     * Field to be removed.  See ticket OPUSVIER-2155.
-     * TODO: Hack to remove field DisplayOai from admin forms.
-     */
-    public function describe() {
-        $fields = parent::describe();
-        return array_diff($fields, array('DisplayOai'));
-    }
-
 }

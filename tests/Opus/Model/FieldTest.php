@@ -356,6 +356,20 @@ class Opus_Model_FieldTest extends TestCase {
         $this->assertFalse($field->isModified(), 'Assigning equal objects should not raise modified flag.');
     }
 
+    public function testComparisonForOpusDateObjects()
+    {
+        $field = new Opus_Model_Field('MyField');
+
+        $date1 = new Opus_Date('2018-10-14');
+        $date2 = new Opus_Date('2018-10-14');
+
+        $field->setValue($date1);
+        $field->clearModified();
+
+        $field->setValue($date2);
+        $this->assertFalse($field->isModified(), 'Assigning equal date should not raise modified flag.');
+    }
+
     /**
      * Test if setting a non-object value enforces strong comparision
      * including type checking.

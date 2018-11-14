@@ -50,8 +50,8 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
     use Opus_Model_DatabaseTrait;
 
     /**
-     * @TODO: Change name of this array to somewhat more general.
-     * @TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
+     * TODO: Change name of this array to somewhat more general.
+     * TODO: Not enforce existence of custom _fetch and _store methods in Opus_Model_AbstractDb.
      *
      * In this array extra information for each field of the model can be
      * given, such like the classname of a referenced model object or specific options.
@@ -65,7 +65,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * @var array
      */
     protected $_externalFields = [];
-
 
     /**
      * Construct a new model instance and connect it a database table's row.

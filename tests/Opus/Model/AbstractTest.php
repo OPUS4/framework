@@ -29,9 +29,9 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -42,22 +42,22 @@
  *
  * @group AbstractTest
  */
-class Opus_Model_AbstractTest extends TestCase {
+class Opus_Model_AbstractTest extends TestCase
+{
 
     /**
      * Test if describe() returns the fieldnames of all previosly added fields.
      *
      * @return void
      */
-    public function testDescribeReturnsAllFields() {
+    public function testDescribeReturnsAllFields()
+    {
         $mock = new Opus_Model_ModelAbstract;
         $mock->addField(new Opus_Model_Field('Field1'))
             ->addField(new Opus_Model_Field('Field2'));
         $fields = $mock->describe();
-        $this->assertEquals(array('Id', 'Value', 'Field1', 'Field2'), $fields, 'Wrong set of field names returned.');
+        $this->assertEquals(['Id', 'Value', 'Field1', 'Field2'], $fields, 'Wrong set of field names returned.');
     }
-
-
 
     /**
      * Test if a field can be defined as internal thus it gets not reported by
@@ -65,7 +65,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testHideInternalField() {
+    public function testHideInternalField()
+    {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $result = $model->describe();
         $this->assertNotContains('HiddenField', $result, 'Field "HiddenField" gets reported.');
@@ -76,7 +77,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testSetCallToInternalFieldThrowsException() {
+    public function testSetCallToInternalFieldThrowsException()
+    {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $this->setExpectedException('Opus\Model\Exception');
         $model->setHiddenField('value');
@@ -87,7 +89,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testGetCallToInternalFieldThrowsException() {
+    public function testGetCallToInternalFieldThrowsException()
+    {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $this->setExpectedException('Opus\Model\Exception');
         $model->getHiddenField();
@@ -98,7 +101,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testAddCallToInternalFieldThrowsException() {
+    public function testAddCallToInternalFieldThrowsException()
+    {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $this->setExpectedException('Opus\Model\Exception');
         $model->addHiddenField();
@@ -109,7 +113,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testGetInternalFieldThrowsException() {
+    public function testGetInternalFieldThrowsException()
+    {
         $model = new Opus_Model_ModelWithHiddenField(null);
         $this->setExpectedException('Opus\Model\Exception');
         $model->getField('HiddenField');
@@ -121,7 +126,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testFluentInterfaceOnSetCall() {
+    public function testFluentInterfaceOnSetCall()
+    {
         $model = new Opus_Model_ModelAbstract;
 
         $result = $model->setValue('Value');
@@ -135,7 +141,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testCallToUnknownMethodThrowsBadMethodCallException() {
+    public function testCallToUnknownMethodThrowsBadMethodCallException()
+    {
         $this->setExpectedException('BadMethodCallException');
         $model = new Opus_Model_ModelAbstract;
         $model->notAMethodOfThisClass();
@@ -146,7 +153,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidateModel() {
+    public function testValidateModel()
+    {
         $model = new Opus_Model_ModelAbstract;
         $model->setValue('FieldValue');
 
@@ -174,7 +182,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testNotMandatoryFieldsValidateEvenIfEmpty() {
+    public function testNotMandatoryFieldsValidateEvenIfEmpty()
+    {
         $model = new Opus_Model_ModelAbstract;
         $model->getField('Value')->setMandatory(false);
         $model->setValue('');
@@ -186,7 +195,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationIsSkippedForFieldsWithNoValidator() {
+    public function testValidationIsSkippedForFieldsWithNoValidator()
+    {
         $model = new Opus_Model_ModelAbstract;
         $model->setValue('FieldValue');
 
@@ -205,7 +215,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationErrorsAreObtainable() {
+    public function testValidationErrorsAreObtainable()
+    {
         $model = new Opus_Model_ModelAbstract;
         $model->getField('Value')->setMandatory(true);
         $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
@@ -220,7 +231,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationErrorsAreObtainablePerField() {
+    public function testValidationErrorsAreObtainablePerField()
+    {
         $model = new Opus_Model_ModelAbstract;
         $model->getField('Value')->setMandatory(true);
         $model->getField('Value')->setValidator(new Zend_Validate_NotEmpty());
@@ -236,7 +248,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationOfSubmodelIfStoredInMandatoryField() {
+    public function testValidationOfSubmodelIfStoredInMandatoryField()
+    {
         $submodel = $this->getMock('Opus_Model_ModelAbstract');
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('Submodel');
@@ -260,7 +273,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationOfSubmodelsInMultivalueFields() {
+    public function testValidationOfSubmodelsInMultivalueFields()
+    {
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
         $submodels[] = $this->getMock('Opus_Model_ModelAbstract');
@@ -289,7 +303,8 @@ class Opus_Model_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testValidationFailsIfSubmodelValidationDoesSo() {
+    public function testValidationFailsIfSubmodelValidationDoesSo()
+    {
         $submodel = $this->getMock('Opus_Model_ModelAbstract');
         $model = new Opus_Model_ModelAbstract;
         $field = new Opus_Model_Field('Submodel');
@@ -310,7 +325,8 @@ class Opus_Model_AbstractTest extends TestCase {
     /**
      * Test if property owningModelClass gets set for field of Opus_Document.
      */
-    public function testGetOwningModelClassForFieldOfDocument() {
+    public function testGetOwningModelClassForFieldOfDocument()
+    {
         $doc = new Opus_Document();
         $field = $doc->getField('Type');
         $this->assertEquals('Opus_Document', $field->getOwningModelClass());
@@ -319,7 +335,8 @@ class Opus_Model_AbstractTest extends TestCase {
     /**
      * Test if property owningModelClass gets set for field of Opus_Person.
      */
-    public function testGetOwningModelClassForFieldOfPerson() {
+    public function testGetOwningModelClassForFieldOfPerson()
+    {
         $person = new Opus_Person();
         $field = $person->getField('FirstName');
         $this->assertEquals('Opus_Person', $field->getOwningModelClass());
@@ -328,7 +345,8 @@ class Opus_Model_AbstractTest extends TestCase {
     /**
      * Test if property owningModelClass gets set for link class.
      */
-    public function testGetOwningModelClassForFieldOfDocumentPerson() {
+    public function testGetOwningModelClassForFieldOfDocumentPerson()
+    {
         $doc = new Opus_Document();
         $person = new Opus_Person();
         $doc->addPerson($person);
@@ -344,12 +362,14 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertEquals('Opus_Model_Dependent_Link_DocumentPerson', $field->getOwningModelClass());
     }
 
-    public function testGetFieldForUnkownField() {
+    public function testGetFieldForUnkownField()
+    {
         $doc = new Opus_Document();
         $this->assertNull($doc->getField('FieldDoesNotExist'));
     }
 
-    public function testGetLogger() {
+    public function testGetLogger()
+    {
         $model = new Opus_Model_ModelAbstract();
 
         $logger = $model->getLogger();
@@ -358,7 +378,8 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertEquals(Zend_Registry::get('Zend_Log'), $logger);
     }
 
-    public function testSetLogger() {
+    public function testSetLogger()
+    {
         $logger = new Zend_Log();
 
         $model = new Opus_Model_ModelAbstract();
@@ -369,4 +390,132 @@ class Opus_Model_AbstractTest extends TestCase {
         $this->assertNotEquals(Zend_Registry::get('Zend_Log'), $model->getLogger());
     }
 
+    public function testToArrayWithPerson()
+    {
+        $doc = new Opus_Document();
+
+        $person = new Opus_Person();
+        $person->setLastName('Testy');
+
+        $link = $doc->addPerson($person);
+        $link->setRole('author');
+
+        $doc = new Opus_Document($doc->store());
+
+        $data = $doc->toArray();
+
+        $this->assertCount(78, $data);
+
+        $this->assertArrayNotHasKey('id', $data); // database id to part of array
+        $this->assertArrayHasKey('PersonAuthor', $data);
+
+        $authors = $data['PersonAuthor'];
+
+        $this->assertCount(1, $authors);
+
+        $author = array_pop($authors);
+
+        $this->assertArrayHasKey('LastName', $author);
+        $this->assertEquals('Testy', $author['LastName']);
+    }
+
+    public function testUpdateFromArray() {
+        $doc = new Opus_Document();
+
+        $doc->updateFromArray([
+            'Type' => 'article',
+            'Edition' => 'First'
+        ]);
+
+        $this->assertEquals('article', $doc->getType());
+        $this->assertEquals('First', $doc->getEdition());
+    }
+
+    public function testUpdateFromArrayComplexValue()
+    {
+        $doc = new Opus_Document();
+
+        $doc->updateFromArray([
+            'Type' => 'article',
+            'PersonAuthor' => [
+                ['LastName' => 'Tester']
+            ]
+        ]);
+
+        $this->assertEquals('article', $doc->getType());
+
+        $authors = $doc->getPersonAuthor();
+
+        $this->assertCount(1, $authors);
+
+        $author = $authors[0];
+
+        $this->assertEquals('Tester', $author->getLastName());
+    }
+
+    public function testUpdateFromArrayMultipleComplexValues()
+    {
+        $doc = new Opus_Document();
+
+        $doc->updateFromArray([
+            'Type' => 'article',
+            'PersonAuthor' => [
+                ['LastName' => 'author1'],
+                ['LastName' => 'author2', 'Email' => 'author@example.org']
+            ]
+        ]);
+
+        $this->assertEquals('article', $doc->getType());
+
+        $authors = $doc->getPersonAuthor();
+
+        $this->assertCount(2, $authors);
+
+        $author1 = $authors[0];
+
+        $this->assertEquals('author1', $author1->getLastName());
+        $this->assertEquals(1, $author1->getSortOrder());
+
+        $author2 = $authors[1];
+
+        $this->assertEquals('author2', $author2->getLastName());
+        $this->assertEquals(2, $author2->getSortOrder());
+        $this->assertEquals('author@example.org', $author2->getEmail());
+    }
+
+    public function testUpdateFromArrayForLinkToLicence()
+    {
+        $this->markTestIncomplete('not implemented yet');
+    }
+
+    public function testClearFields()
+    {
+        $date = new Opus_Date();
+        $date->setFromString('2018-05-11T22:35:11Z');
+
+        $this->assertEquals('2018-05-11 22:35:11', date_format($date->getDateTime(), 'Y-m-d H:i:s'));
+
+        $date->clearFields();
+
+        $this->assertNull($date->getYear());
+        $this->assertNull($date->getMonth());
+        $this->assertNull($date->getDay());
+        $this->assertNull($date->getHour());
+        $this->assertNull($date->getMinute());
+        $this->assertNull($date->getSecond());
+        $this->assertNull($date->getTimezone());
+        $this->assertNull($date->getUnixTimestamp());
+    }
+
+    public function testFromArray()
+    {
+        $date = Opus_Date::fromArray([
+            'Year' => 2018,
+            'Month' => 10,
+            'Day' => 12
+        ]);
+
+        $this->assertInstanceOf('Opus_Date', $date);
+        $this->assertEquals('2018-10-12', $date->__toString());
+    }
 }

@@ -26,11 +26,11 @@
  *
  * @category    Framework
  * @package     Opus
- * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
+ * @author      Ralf Claußnitzer <ralf.claussnitzer@slub-dresden.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -69,8 +69,39 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setAcademicTitle(string $title)
+ * @method string getAcademicTitle()
+ *
+ * @method void setFirstName(string $firstName)
+ * @method string getFirstName()
+ *
+ * @method void setLastName(string $lastName)
+ * @method string getLastName()
+ *
+ * @method void setDateOfBirth(Opus_Date $date)
+ * @method Opus_Date getDateOfBirth()
+ *
+ * @method void setPlaceOfBirth(string $place)
+ * @method string getPlaceOfBirth()
+ *
+ * @method void setIdentifierOrcid(string $orcid)
+ * @method string getIdentifierOrcid()
+ *
+ * @method void setIdentifierGnd(string $gnd)
+ * @method string getIdentifierGnd()
+ *
+ * @method void setIdentifierMisc(string $misc)
+ * @method string getIdentifierMisc()
+ *
+ * @method void setEmail(string $email)
+ * @method string getEmail()
+ *
+ * @method void setOpusId(string $internalId)
+ * @method string getOpusId()
  */
-class Opus_Person extends Opus_Model_AbstractDb {
+class Opus_Person extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -97,7 +128,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $title = new Opus_Model_Field('AcademicTitle');
 
         $firstName = new Opus_Model_Field('FirstName');
@@ -136,13 +168,13 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @return string
      */
-    public function getName() {
+    public function getName()
+    {
         $firstName = $this->getFirstName();
 
         if ($firstName !== null) {
             return $this->getLastName() . ', ' . $firstName;
-        }
-        else {
+        } else {
             return $this->getLastName();
         }
     }
@@ -152,7 +184,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
        return $this->getName();
     }
 
@@ -162,7 +195,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
      * @param string $role The role that the person has for the documents.
      * @return array An array of Opus_Document
      */
-    public function getDocumentsByRole($role) {
+    public function getDocumentsByRole($role)
+    {
         // $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
         $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
         $documentsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
@@ -216,7 +250,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
      * @param string $role Role name.
      * @return array List of Opus_Person Ids for Person models assigned to the specified Role.
      */
-    public static function getAllIdsByRole($role) {
+    public static function getAllIdsByRole($role)
+    {
         // $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
         $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
         $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
@@ -226,7 +261,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
 
         if (is_null($personIds) === true) {
-            $personIds = array();
+            $personIds = [];
         }
 
         return $personIds;
@@ -237,7 +272,8 @@ class Opus_Person extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_Person objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         return self::getAllFrom('Opus_Person', 'Opus_Db_Persons');
     }
 
@@ -257,12 +293,11 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $select = self::getAllPersonsSelect($role, $filter);
 
-        if ($start !== 0 || $limit !== 0)
-        {
+        if ($start !== 0 || $limit !== 0) {
             $select->limit($limit, $start);
         }
 
-        $select->order(array('trim(last_name)', 'trim(first_name)'));
+        $select->order(['trim(last_name)', 'trim(first_name)']);
 
         $result = $table->fetchAll($select);
 
@@ -304,7 +339,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $result = null;
 
-        $identityColumns = array('last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc');
+        $identityColumns = ['last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'];
 
         $trimmedColumns = array_map(function($value)
         {
@@ -313,27 +348,25 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $select = $table->select()
             ->from(
-                array('p' => 'persons'),
+                ['p' => 'persons'],
                 $trimmedColumns
             )->group(
                 $identityColumns
             );
 
-        if (!is_null($role))
-        {
+        if (!is_null($role)) {
             $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
 
             $select->join(
-                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
+                ['link' => $documentsLinkTable->info(Zend_Db_Table::NAME)],
                 'p.id = link.person_id',
-                array()
+                []
             );
 
             $select->where($database->quoteInto('link.role = ?', $role));
         }
 
-        if (!is_null($filter))
-        {
+        if (!is_null($filter)) {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
@@ -360,14 +393,14 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $select = $documentsLinkTable->select()
             ->from(
-                array('link' => $documentsLinkTable->info(Zend_Db_Table::NAME)),
-                array('link.role', 'documents' => 'count(link.document_id)')
+                ['link' => $documentsLinkTable->info(Zend_Db_Table::NAME)],
+                ['link.role', 'documents' => 'count(link.document_id)']
             )->join(
-                array('p' => 'persons'),
+                ['p' => 'persons'],
                 'link.person_id = p.id',
-                array()
+                []
             )->group(
-                array('link.role')
+                ['link.role']
             );
 
         self::addWherePerson($select, $person);
@@ -393,41 +426,39 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public static function getPersonDocuments($person, $state = null, $role = null, $sort = null, $order = true)
     {
-        $database = Zend_Db_Table::getDefaultAdapter();
-
         $documentsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
 
         $select = $documentsTable->select()
             ->from(
-                array('d' => $documentsTable->info(Zend_Db_Table::NAME)),
-                array('distinct(d.id)')
+                ['d' => $documentsTable->info(Zend_Db_Table::NAME)],
+                ['distinct(d.id)']
             )->join(
-                array('link' => 'link_persons_documents'),
+                ['link' => 'link_persons_documents'],
                 'link.document_id = d.id',
-                array()
+                []
             )->join(
-                array('p' => 'persons'),
+                ['p' => 'persons'],
                 'link.person_id = p.id',
-                array()
+                []
             );
 
         self::addWherePerson($select, $person);
 
         if (!is_null($state) && in_array($state,
-                array('published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted')
+                ['published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted']
             ))
         {
             $select->where('d.server_state = ?', $state);
         }
 
         if (!is_null($role) && in_array($role,
-                array('author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter')
+                ['author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter']
             ))
         {
             $select->where('link.role = ?', $role);
         }
 
-        if (!is_null($sort) and in_array($sort, array('id', 'title', 'publicationDate', 'docType', 'author')))
+        if (!is_null($sort) and in_array($sort, ['id', 'title', 'publicationDate', 'docType', 'author']))
         {
             switch ($sort)
             {
@@ -436,24 +467,26 @@ class Opus_Person extends Opus_Model_AbstractDb {
                     break;
                 case 'title':
                     $select->setIntegrityCheck(false);
-                    $select->join(array('t' => 'document_title_abstracts'),
+                    $select->join(
+                        ['t' => 'document_title_abstracts'],
                         't.document_id = d.id',
-                        array());
+                        []
+                    );
 
-                    $select->columns(array('d.id', 't.value'));
+                    $select->columns(['d.id', 't.value']);
                     $select->order('t.value' . (($order) ? ' ASC' : ' DESC'));
                     break;
                 case 'publicationDate':
-                    $select->columns(array('d.id', 'd.server_date_published'));
+                    $select->columns(['d.id', 'd.server_date_published']);
                     $select->order('d.server_date_published' . (($order) ? ' ASC' : ' DESC'));
                     break;
                 case 'docType':
-                    $select->columns(array('d.id', 'd.type'));
+                    $select->columns(['d.id', 'd.type']);
                     $select->order('d.type' . (($order) ? ' ASC' : ' DESC'));
                     break;
                 case 'author':
                     $select->setIntegrityCheck(false);
-                    $select->columns(array('d.id', 'p.last_name'));
+                    $select->columns(['d.id', 'p.last_name']);
                     $select->order('p.last_name' . ($order ? ' ASC' : ' DESC'));
                     break;
             }
@@ -478,7 +511,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $result = null;
 
-        $select = $table->select()->from(array('p' => 'persons'));
+        $select = $table->select()->from(['p' => 'persons']);
 
         self::addWherePerson($select, $person);
 
@@ -491,34 +524,24 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $data = $rows->toArray();
 
-        $merged = array();
+        $merged = [];
 
-        foreach ($data as $personId => $values)
-        {
-            foreach ($values as $key => $value)
-            {
-                if (array_key_exists($key, $merged))
-                {
+        foreach ($data as $personId => $values) {
+            foreach ($values as $key => $value) {
+                if (array_key_exists($key, $merged)) {
                     $allValues = $merged[$key];
 
-                    if (is_array($allValues))
-                    {
-                        if (array_search($value, $allValues) === false)
-                        {
+                    if (is_array($allValues)) {
+                        if (array_search($value, $allValues) === false) {
                             array_push($merged[$key], $value);
                         }
-                    }
-                    else
-                    {
-                        if ($value !== $allValues)
-                        {
-                            $merged[$key] = array();
+                    } else {
+                        if ($value !== $allValues) {
+                            $merged[$key] = [];
                             array_push($merged[$key], $allValues, $value);
                         }
                     }
-                }
-                else
-                {
+                } else {
                     $merged[$key] = $value;
                 }
             }
@@ -543,17 +566,16 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $database = $table->getAdapter();
 
         $select = $table->select()->from(
-            array('p' => 'persons'),
-            array('distinct(p.id)')
+            ['p' => 'persons'],
+            ['distinct(p.id)']
         );
 
         // TODO handle single document id value
-        if (!is_null($documents) && is_array($documents) && count($documents) > 0)
-        {
+        if (!is_null($documents) && is_array($documents) && count($documents) > 0) {
             $select->join(
-                array('link' => 'link_persons_documents'),
+                ['link' => 'link_persons_documents'],
                 'link.person_id = p.id',
-                array()
+                []
             );
 
             $select->where('link.document_id IN (?)', $documents);
@@ -573,20 +595,19 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $database = $table->getAdapter();
 
         $select = $table->select()->from(
-            array('p' => 'persons'),
-            array()
+            ['p' => 'persons'],
+            []
         )->join(
-            array('link' => 'link_persons_documents'),
+            ['link' => 'link_persons_documents'],
             'link.person_id = p.id',
-            array()
+            []
         )->columns(
-            array('link.person_id', 'link.document_id')
+            ['link.person_id', 'link.document_id']
         );
 
         $select->setIntegrityCheck(false);
 
-        if (!is_null($documents))
-        {
+        if (!is_null($documents)) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
@@ -610,14 +631,12 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public static function updateAll($person, $changes, $documents = null)
     {
-        if (empty($person))
-        {
+        if (empty($person)) {
             // TODO do logging?
             return;
         }
 
-        if (empty($changes))
-        {
+        if (empty($changes)) {
             // TODO do logging?
             return;
         }
@@ -628,22 +647,16 @@ class Opus_Person extends Opus_Model_AbstractDb {
 
         $model = new Opus_Person();
 
-        $trimmed = array();
+        $trimmed = [];
 
-        foreach ($changes as $name => $value)
-        {
-            if (is_null($model->getField($name)))
-            {
+        foreach ($changes as $name => $value) {
+            if (is_null($model->getField($name))) {
                 // TODO use
                 throw new Opus\Model\Exception("unknown field '$name' for update");
-            }
-            else
-            {
-                if (!is_null($value))
-                {
+            } else {
+                if (!is_null($value)) {
                     $trimmed[$name] = trim($value);
-                }
-                else {
+                } else {
                     $trimmed[$name] = null;
                 }
             }
@@ -654,14 +667,12 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $personIds = self::getPersons($person, $documents);
         $documentIds = self::getDocuments($personIds, $documents);
 
-        if (!empty($personIds))
-        {
-            $table->update($changes, array(
+        if (!empty($personIds)) {
+            $table->update($changes, [
                 $database->quoteInto('id IN (?)', $personIds)
-            ));
+            ]);
 
-            if (!empty($documentIds))
-            {
+            if (!empty($documentIds)) {
                 $date = new Opus_Date();
                 $date->setNow();
 
@@ -677,20 +688,19 @@ class Opus_Person extends Opus_Model_AbstractDb {
         $database = $table->getAdapter();
 
         $select = $table->select()->from(
-            array('p' => 'persons'),
-            array()
+            ['p' => 'persons'],
+            []
         )->join(
-            array('link' => 'link_persons_documents'),
+            ['link' => 'link_persons_documents'],
             'link.person_id = p.id',
-            array()
+            []
         )->columns(
-            array('distinct(link.document_id)')
+            ['distinct(link.document_id)']
         )->where('link.person_id IN (?)', $personIds);
 
         $select->setIntegrityCheck(false);
 
-        if (!is_null($documents) && count($documents) > 0)
-        {
+        if (!is_null($documents) && count($documents) > 0) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
@@ -710,8 +720,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
     {
         $columnChanges = array();
 
-        foreach ($changes as $fieldName => $value)
-        {
+        foreach ($changes as $fieldName => $value) {
             $column = self::convertFieldnameToColumn($fieldName);
 
             $columnChanges[$column] = $value;
@@ -727,10 +736,9 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     public static function convertToFieldNames($person)
     {
-        $values = array();
+        $values = [];
 
-        foreach ($person as $column => $value)
-        {
+        foreach ($person as $column => $value) {
             $fieldName = self::convertColumnToFieldname($column);
 
             $values[$fieldName] = $value;
@@ -752,7 +760,7 @@ class Opus_Person extends Opus_Model_AbstractDb {
         if ($criteria instanceof Opus_Person) {
             $person = $criteria;
 
-            $criteria = array();
+            $criteria = [];
             $criteria['LastName'] = $person->getLastName();
             $criteria['FirstName'] = $person->getFirstName();
             $criteria['IdentifierOrcid'] = $person->getIdentifierOrcid();
@@ -760,31 +768,25 @@ class Opus_Person extends Opus_Model_AbstractDb {
             $criteria['IdentifierMisc'] = $person->getIdentifierMisc();
         }
 
-        if (!is_array($criteria))
-        {
+        if (!is_array($criteria)) {
             // TODO do some logging
             return false;
         }
 
-        $defaults = array_fill_keys(array(
+        $defaults = array_fill_keys([
             'LastName', 'FirstName', 'IdentifierOrcid', 'IdentifierGnd', 'IdentifierMisc'
-        ), null);
+        ], null);
         $criteria = array_merge($defaults, $criteria);
 
         foreach ($criteria as $fieldName => $critValue) {
             $value = $this->getField($fieldName)->getValue();
 
-            if (is_string($value))
-            {
-                if (stristr($value, $critValue) === FALSE)
-                {
+            if (is_string($value)) {
+                if (stristr($value, $critValue) === FALSE) {
                     return false;
                 }
-            }
-            else
-            {
-                if ($value !== $critValue)
-                {
+            } else {
+                if ($value !== $critValue) {
                     return false;
                 }
             }
@@ -808,22 +810,17 @@ class Opus_Person extends Opus_Model_AbstractDb {
      */
     protected static function addWherePerson($select, $person)
     {
-        $defaults = array_fill_keys(array(
+        $defaults = array_fill_keys([
             'last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'
-        ), null);
+        ], null);
         $person = array_merge($defaults, $person);
 
-        foreach ($person as $column => $value)
-        {
-            if (strlen(trim($value)) > 0)
-            {
+        foreach ($person as $column => $value) {
+            if (strlen(trim($value)) > 0) {
                 $select->where("trim(p.$column) = ?", trim($value));
-            }
-            else
-            {
+            } else {
                 $select->where("p.$column IS NULL");
             }
         }
     }
-
 }

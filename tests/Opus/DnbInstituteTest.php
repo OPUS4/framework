@@ -27,9 +27,9 @@
  * @category    Tests
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,9 +40,11 @@
  *
  * @group DnbInstituteTests
  */
-class Opus_DnbInstituteTest extends TestCase {
+class Opus_DnbInstituteTest extends TestCase
+{
 
-    public function testStoreAndLoadDnbInstitute() {
+    public function testStoreAndLoadDnbInstitute()
+    {
         $name = 'Forschungsinstitut für Code Coverage';
         $address = 'Musterstr. 23 - 12345 Entenhausen - Calisota';
         $city = 'Calisota';
@@ -62,7 +64,7 @@ class Opus_DnbInstituteTest extends TestCase {
 
         //load
         $loaded_institute = new Opus_DnbInstitute($id);
-        
+
         $this->assertEquals($name, $loaded_institute->getName(),
                 'Loaded other name, then stored.');
         $this->assertEquals($address, $loaded_institute->getAddress(),
@@ -82,8 +84,9 @@ class Opus_DnbInstituteTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveAllDnbInstitutes() {
-        $dnb_institutes = array();
+    public function testRetrieveAllDnbInstitutes()
+    {
+        $dnb_institutes = [];
         for ($i = 1; $i <= 3; $i++) {
             $dnb_institute = new Opus_DnbInstitute();
             $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
@@ -96,9 +99,10 @@ class Opus_DnbInstituteTest extends TestCase {
         $this->assertEquals(count($dnb_institutes), count($result), 'Wrong number of objects retrieved.');
     }
 
-    public function testRetrieveGrantors() {
-        $publishers = array();
-        $grantors = array();
+    public function testRetrieveGrantors()
+    {
+        $publishers = [];
+        $grantors = [];
         for ($i = 1; $i <= 10; $i++) {
             $dnb_institute = new Opus_DnbInstitute();
             $dnb_institute->setName('Forschungsinstitut für Code Coverage Abt. ' + $i);
@@ -117,25 +121,34 @@ class Opus_DnbInstituteTest extends TestCase {
     }
 
     /**
-     * Test if the DnbInstitute display name matches its name, 
+     * Test if the DnbInstitute display name matches its name,
      * optionally followed by its department name if set.
-     * 
+     *
      *
      * @return void
      */
-    public function testDisplayNameMatchesNameAndDepartmentIfSet() {
+    public function testDisplayNameMatchesNameAndDepartmentIfSet()
+    {
         $dnbInstitute = new Opus_DnbInstitute();
         $dnbInstitute->setName('MyTestName');
-        $this->assertEquals($dnbInstitute->getName(), $dnbInstitute->getDisplayName(), 'Displayname does not match name.');
+        $this->assertEquals(
+            $dnbInstitute->getName(),
+            $dnbInstitute->getDisplayName(),
+            'Displayname does not match name.'
+        );
         $dnbInstitute->setDepartment('MyTestDepartment');
-        $this->assertEquals($dnbInstitute->getName().', '.$dnbInstitute->getDepartment(), $dnbInstitute->getDisplayName(), 'Displayname does not match name and department.');
+        $this->assertEquals(
+            $dnbInstitute->getName() . ', ' . $dnbInstitute->getDepartment(),
+            $dnbInstitute->getDisplayName(),
+            'Displayname does not match name and department.'
+        );
     }
 
     /**
      * Regression Test for OPUSVIER-1687
      */
-    public function testInvalidateDocumentCache() {
-
+    public function testInvalidateDocumentCache()
+    {
         $dnb_institute = new Opus_DnbInstitute();
         $dnbId = $dnb_institute->setName('Test')
                 ->setCity('Berlin')
@@ -154,33 +167,33 @@ class Opus_DnbInstituteTest extends TestCase {
         $dnb_institute->store();
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
     }
-    
+
     /**
      * Regression Test for OPUSVIER-3041
      * added field 'department' to model
      */
-    
-    public function testDepartmentIsStored() {
-        
+
+    public function testDepartmentIsStored()
+    {
         $dnbInstitute = new Opus_DnbInstitute();
         $dnbId = $dnbInstitute->setName('Foo University')
                 ->setDepartment('Paranormal Research Institute')
                 ->setCity('Berlin')
                 ->setIsGrantor(1)
                 ->store();
-        
+
         $dnbReloaded = new Opus_DnbInstitute($dnbId);
-        
+
         $this->assertEquals('Paranormal Research Institute', $dnbReloaded->getDepartment());
     }
 
     /**
      * Regression Test for OPUSVIER-3114
      */
-    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
+    {
+        $fields = ['Address','City','Phone','DnbContactId'];
 
-        $fields = array('Address','City','Phone','DnbContactId');
-        
         $dnb_institute = new Opus_DnbInstitute();
         $dnbId = $dnb_institute->setName('Test')
                 ->setCity('Berlin')
@@ -193,19 +206,106 @@ class Opus_DnbInstituteTest extends TestCase {
                 ->setThesisGrantor($dnb_institute);
         $docId = $doc->store();
         $serverDateModified = $doc->getServerDateModified();
-        
+
         sleep(1);
 
         foreach($fields as $fieldName) {
             $oldValue = $dnb_institute->{'get' . $fieldName}();
             $dnb_institute->{'set' . $fieldName}(1);
-            $this->assertNotEquals($dnb_institute->{'get' . $fieldName}(), $oldValue, 'Expected different values before and after setting value');
+            $this->assertNotEquals(
+                $dnb_institute->{'get' . $fieldName}(),
+                $oldValue,
+                'Expected different values before and after setting value'
+            );
         }
         $dnb_institute->store();
         $docReloaded = new Opus_Document($docId);
-        
-        $this->assertEquals((string)$serverDateModified, (string)$docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
+
+        $this->assertEquals(
+            (string)$serverDateModified,
+            (string)$docReloaded->getServerDateModified(),
+            'Expected no difference in server date modified.'
+        );
     }
 
-    
+    public function testToArray()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $institute->setName('Solutions');
+        $institute->setDepartment('Big Solutions');
+        $institute->setAddress('Research Street');
+        $institute->setCity('Berlin');
+        $institute->setPhone('555-1234');
+        $institute->setDnbContactId('123');
+        $institute->setIsGrantor(0);
+        $institute->setIsPublisher(1);
+
+        $data = $institute->toArray();
+
+        $this->assertEquals([
+            'Name' => 'Solutions',
+            'Department' => 'Big Solutions',
+            'Address' => 'Research Street',
+            'City' => 'Berlin',
+            'Phone' => '555-1234',
+            'DnbContactId' => '123',
+            'IsGrantor' => 0,
+            'IsPublisher' => 1
+        ], $data);
+    }
+
+    public function testFromArray()
+    {
+        $institute = Opus_DnbInstitute::fromArray([
+            'Name' => 'Solutions',
+            'Department' => 'Big Solutions',
+            'Address' => 'Research Street',
+            'City' => 'Berlin',
+            'Phone' => '555-1234',
+            'DnbContactId' => '123',
+            'IsGrantor' => 0,
+            'IsPublisher' => 1
+        ]);
+
+        $this->assertNotNull($institute);
+        $this->assertInstanceOf('Opus_DnbInstitute', $institute);
+
+        $this->assertEquals('Solutions', $institute->getName());
+        $this->assertEquals('Big Solutions', $institute->getDepartment());
+        $this->assertEquals('Research Street', $institute->getAddress());
+        $this->assertEquals('Berlin', $institute->getCity());
+        $this->assertEquals('555-1234', $institute->getPhone());
+        $this->assertEquals('123', $institute->getDnbContactId());
+        $this->assertEquals(0, $institute->getIsGrantor());
+        $this->assertEquals(1, $institute->getIsPublisher());
+    }
+
+    public function testUpdateFromArray()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $institute->updateFromArray([
+            'Name' => 'Solutions',
+            'Department' => 'Big Solutions',
+            'Address' => 'Research Street',
+            'City' => 'Berlin',
+            'Phone' => '555-1234',
+            'DnbContactId' => '123',
+            'IsGrantor' => 0,
+            'IsPublisher' => 1
+        ]);
+
+        $this->assertNotNull($institute);
+        $this->assertInstanceOf('Opus_DnbInstitute', $institute);
+
+        $this->assertEquals('Solutions', $institute->getName());
+        $this->assertEquals('Big Solutions', $institute->getDepartment());
+        $this->assertEquals('Research Street', $institute->getAddress());
+        $this->assertEquals('Berlin', $institute->getCity());
+        $this->assertEquals('555-1234', $institute->getPhone());
+        $this->assertEquals('123', $institute->getDnbContactId());
+        $this->assertEquals(0, $institute->getIsGrantor());
+        $this->assertEquals(1, $institute->getIsPublisher());
+    }
 }

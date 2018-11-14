@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -30,9 +29,9 @@
  * @author      Sascha Szott <szott@zib.de>
  * @author      Susanne Gottwald <gottwald@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,8 +40,21 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setTitle(string $title)
+ * @method string getTitle()
+ *
+ * @method void setInfobox(string $info)
+ * @method string getInfobox()
+ *
+ * @method void setVisible(boolean $visible)
+ * @method boolean getVisible()
+ *
+ * @method void setSortOrder(integer $pos)
+ * @method integer getSortOrder()
  */
-class Opus_Series extends Opus_Model_AbstractDb {
+class Opus_Series extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -65,7 +77,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $title = new Opus_Model_Field('Title');
         $title->setMandatory(true)
                 ->setValidator(new Zend_Validate_NotEmpty());
@@ -94,8 +107,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * @param integer $id
      * @return Opus_Db_TableGateway
      */
-
-    public static function createRowWithCustomId($id) {
+    public static function createRowWithCustomId($id)
+    {
         $tableGatewayModel = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $row = $tableGatewayModel->createRow();
         $row->id = $id;
@@ -107,13 +120,13 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_Series objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         $config = Zend_Registry::get('Zend_Config');
 
         if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
-        }
-        else {
+        } else {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
         }
 
@@ -125,13 +138,13 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_Series objects sorted by sort_order in ascending order.
      */
-    public static function getAllSortedBySortKey() {
+    public static function getAllSortedBySortKey()
+    {
         $config = Zend_Registry::get('Zend_Config');
 
         if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
             $all = self::getAll();
-        }
-        else {
+        } else {
             $all = self::getAllFrom(
                 'Opus_Series', self::$_tableGatewayClass, null, 'sort_order'
             );
@@ -145,20 +158,23 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * Return 0 if database does not contain any series.
      *
      */
-    public static function getMaxSortKey() {
+    public static function getMaxSortKey()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $max = $db->fetchOne('SELECT MAX(sort_order) FROM document_series');
 
         if (is_null($max)) {
             return 0;
         }
+
         return $max;
     }
 
     /**
      * Return document ids associated to this series.
      */
-    public function getDocumentIds() {
+    public function getDocumentIds()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $ids = $db->fetchCol(
             'SELECT document_id FROM link_documents_series ' .
@@ -171,7 +187,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
     /**
      * Return document ids associated to this series ordered descending by sorting key.
      */
-    public function getDocumentIdsSortedBySortKey() {
+    public function getDocumentIdsSortedBySortKey()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $ids = $db->fetchCol(
             'SELECT document_id FROM link_documents_series WHERE series_id = ? ORDER BY doc_sort_order DESC',
@@ -183,7 +200,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
     /**
      * @return int|null Document id associated with series number or null.
      */
-    public function getDocumentIdForNumber($number) {
+    public function getDocumentIdForNumber($number)
+    {
         if (strlen(trim($number)) == 0) {
             return null;
         }
@@ -203,7 +221,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
      * @return boolean
      *
      */
-    public function isNumberAvailable($number) {
+    public function isNumberAvailable($number)
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
             'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
@@ -218,7 +237,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @return int
      */
-    public function getNumOfAssociatedDocuments() {
+    public function getNumOfAssociatedDocuments()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
             'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
@@ -234,7 +254,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
      *
      * @return int
      */
-    public function getNumOfAssociatedPublishedDocuments() {
+    public function getNumOfAssociatedPublishedDocuments()
+    {
         $db = Zend_Db_Table::getDefaultAdapter();
         $count = $db->fetchOne(
             'SELECT COUNT(*) AS rows_count ' .
@@ -245,8 +266,8 @@ class Opus_Series extends Opus_Model_AbstractDb {
         return intval($count);
     }
 
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
         return parent::getTitle();
     }
-
 }

@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,8 +38,20 @@
  * @category    Framework
  * @package     Opus
  * @uses        Opus_Model_Abstract
+ *
+ * @method void setMessage(string $message)
+ * @method string getMessage()
+ *
+ * @method void setVisibility(string $visibility)
+ * @method string getVisibility
  */
-class Opus_Note extends Opus_Model_Dependent_Abstract {
+class Opus_Note extends Opus_Model_Dependent_Abstract
+{
+
+    const ACCESS_PUBLIC = 'public';
+
+    const ACCESS_PRIVATE = 'private';
+
     /**
      * Primary key of the parent model.
      *
@@ -61,7 +73,8 @@ class Opus_Note extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $message = new Opus_Model_Field('Message');
         $message->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty())
@@ -69,15 +82,13 @@ class Opus_Note extends Opus_Model_Dependent_Abstract {
 
         $visibility = new Opus_Model_Field('Visibility');
         $visibility->setValidator(new \Opus\Validate\NoteVisibility())
-             ->setDefault(
-                 array(
-                 'private' => 'private',
-                 'public' => 'public')
-             )
-              ->setSelection(true);
+            ->setDefault([
+                'private' => 'private',
+                'public' => 'public'
+            ])
+            ->setSelection(true);
 
         $this->addField($visibility)
             ->addField($message);
     }
-
 }
