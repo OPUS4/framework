@@ -2725,7 +2725,7 @@ class Opus_DocumentTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage unknown enrichment key
      */
     public function testGetEnrichmentValueBadKey()

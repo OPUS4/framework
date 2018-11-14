@@ -316,13 +316,11 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         if (preg_match(self::TIMEDATE_REGEXP, $date)) {
             $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateTime($datetime);
-        }
-        else if (preg_match(self::DATEONLY_REGEXP, $date)) {
+        } else if (preg_match(self::DATEONLY_REGEXP, $date)) {
             $date = substr($date, 0, 10) . 'T00:00:00Z';
             $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateOnly($datetime);
-        }
-        else {
+        } else {
             throw new InvalidArgumentException('Invalid date-time string.');
         }
     }
@@ -418,35 +416,37 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     {
         if (is_array($data)) {
             parent::updateFromArray($data);
-        }
-        else {
+        } else {
             if (is_int($data)) {
                 $this->setTimestamp($data);
-            }
-            else {
+            } else {
                 $this->setFromString($data);
             }
         }
     }
 
-    public function updateValue($name, $value) {
+    public function updateValue($name, $value)
+    {
         $this->values[$name] = $value;
     }
 
-    public function getValue($name) {
+    public function getValue($name)
+    {
         return $this->values[$name];
     }
 
-    public function clear() {
+    public function clear()
+    {
         $this->resetValues();
     }
 
     /**
      * Compares to another Opus_Date objekt.
      * @param $date2 Opus_Date object
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      */
-    public function compare($date) {
+    public function compare($date)
+    {
         if (is_null($date)) {
             // a date is always "larger than" null
             return 1;
@@ -455,7 +455,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         if (!$date instanceof Opus_Date) {
             $class = get_class();
             $dateClass = get_class($date);
-            throw new Opus_Model_Exception("Cannot compare $dateClass with $class object.");
+            throw new Opus\Model\Exception("Cannot compare $dateClass with $class object.");
         }
 
         $thisDateTime = $this->getDateTime('Z');
@@ -477,11 +477,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         if ($thisTimestamp == $timestamp) {
             return 0; // equal
-        }
-        elseif ($thisTimestamp < $timestamp) {
+        } elseif ($thisTimestamp < $timestamp) {
             return -1; // less than
-        }
-        else {
+        } else {
             return 1; // larger than
         }
     }

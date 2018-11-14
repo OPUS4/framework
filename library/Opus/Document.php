@@ -1505,7 +1505,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @param $key Name of enrichment
      * @return mixed
-     * @throws Opus_Model_Exception If the enrichment key does not exist
+     * @throws Opus\Model\Exception If the enrichment key does not exist
      * @throws Opus_Security_Exception
      */
     public function getEnrichmentValue($key)
@@ -1525,7 +1525,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
 
             if (is_null($enrichmentKey)) {
-                throw new Opus_Model_Exception('unknown enrichment key');
+                throw new Opus\Model\Exception('unknown enrichment key');
             } else {
                 return null;
             }

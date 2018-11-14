@@ -40,7 +40,8 @@
  *
  * @group DateTest
  */
-class Opus_DateTest extends TestCase {
+class Opus_DateTest extends TestCase
+{
 
     protected $_locale_backup;
 
@@ -48,7 +49,8 @@ class Opus_DateTest extends TestCase {
      * Prepare german locale setup.
      *
      */
-    public function setUp() {
+    public function setUp()
+    {
         $this->_locale_backup = Zend_Registry::get('Zend_Locale');
         Zend_Registry::set('Zend_Locale', new Zend_Locale('de'));
     }
@@ -57,7 +59,8 @@ class Opus_DateTest extends TestCase {
      * Restore previously set locale
      *
      */
-    public function tearDown() {
+    public function tearDown()
+    {
         Zend_Registry::set('Zend_Locale', $this->_locale_backup);
     }
 
@@ -66,7 +69,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithoutArgument() {
+    public function testCreateWithoutArgument()
+    {
         $od = new Opus_Date;
         $this->assertFalse($od->isValid(), 'Opus_Date object should not be valid!');
     }
@@ -76,7 +80,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testGetZendDate() {
+    public function testGetZendDate()
+    {
         $od = new Opus_Date;
         $od->setYear(2005)
             ->setMonth(10)
@@ -93,7 +98,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithStringConstructionArgument() {
+    public function testCreateWithStringConstructionArgument()
+    {
         $od = new Opus_Date('1972-11-10');
         $this->assertEquals(1972, (int) $od->getYear(), 'Year values dont match.');
         $this->assertEquals(11, (int) $od->getMonth(), 'Month values dont match.');
@@ -106,7 +112,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithZendDateConstructionArgument() {
+    public function testCreateWithZendDateConstructionArgument()
+    {
         $now = new Zend_Date;
         $od = new Opus_Date($now);
         $this->assertEquals($od->getYear(), $now->get(Zend_Date::YEAR), 'Year values dont match.');
@@ -120,7 +127,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithOpusDateConstructionArgument() {
+    public function testCreateWithOpusDateConstructionArgument()
+    {
         $now = new Opus_Date;
         $now->setNow();
         $od = new Opus_Date($now);
@@ -135,7 +143,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithDateTimeConstructionArgument() {
+    public function testCreateWithDateTimeConstructionArgument()
+    {
         $now = new DateTime;
         $od = new Opus_Date($now);
         $this->assertEquals($od->getYear(), $now->format('Y'), 'Year values dont match.');
@@ -150,7 +159,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithModifiedDateTimeConstructionArgument() {
+    public function testCreateWithModifiedDateTimeConstructionArgument()
+    {
         $past = new DateTime;
         $past->sub(new DateInterval('PT10M'));
         $od = new Opus_Date($past);
@@ -172,7 +182,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithTooLongYearStringConstructionArgumentShouldBeInvalid() {
+    public function testCreateWithTooLongYearStringConstructionArgumentShouldBeInvalid()
+    {
         $od = new Opus_Date("1234567-12-12T11:11:11Z");
         $this->assertFalse($od->isValid(), 'Opus_Date object should be INVALID!');
     }
@@ -182,7 +193,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testCreateWithShortYearStringConstructionArgumentShouldBeValid() {
+    public function testCreateWithShortYearStringConstructionArgumentShouldBeValid()
+    {
         $od = new Opus_Date("10-12-12T11:11:11Z");
         $this->assertTrue($od->isValid(), 'Opus_Date object should be valid!');
     }
@@ -192,7 +204,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testIfParsingOfIsoDateSwapsDayAndMonth() {
+    function testIfParsingOfIsoDateSwapsDayAndMonth()
+    {
         $locale = new Zend_Locale("en");
         Zend_Registry::set('Zend_Locale', $locale);
         $date = new Opus_Date('2010-06-04T02:36:53Z');
@@ -206,7 +219,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testSetNow() {
+    function testSetNow()
+    {
         $date = new Opus_Date();
         $date->setNow();
 
@@ -221,7 +235,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testSetNowToStringIsValid() {
+    function testSetNowToStringIsValid()
+    {
         $date = new Opus_Date();
         $date->setNow();
 
@@ -234,7 +249,6 @@ class Opus_DateTest extends TestCase {
         $this->assertEquals($date->getYear(), $dateReload->getYear());
         $this->assertEquals($date->getMonth(), $dateReload->getMonth());
         $this->assertEquals($date->getDay(), $dateReload->getDay());
-
     }
 
     /**
@@ -242,7 +256,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testFromStringToStringIsInvariant() {
+    function testFromStringToStringIsInvariant()
+    {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04T22:36:53Z');
 
@@ -262,7 +277,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testFromDateOnlyStringToStringIsInvariant() {
+    function testFromDateOnlyStringToStringIsInvariant()
+    {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04');
 
@@ -278,7 +294,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testFromStringToStringKeepsTimeZone() {
+    function testFromStringToStringKeepsTimeZone()
+    {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04T22:36:53+2:3');
 
@@ -298,7 +315,8 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    public function testStringOutputPadding() {
+    public function testStringOutputPadding()
+    {
         $date = new Opus_Date();
 
         $date->setYear(2013);
@@ -318,17 +336,17 @@ class Opus_DateTest extends TestCase {
      *
      * @return void
      */
-    function testSetFromStringErrorHandling() {
-
-        $invalidStrings = array(
+    function testSetFromStringErrorHandling()
+    {
+        $invalidStrings = [
             '',
             null,
             '2010',
             '2011-12-bla',
             '01.01.2010',
             '2011-12-12T23:59:59',
-            '2011-12-12X99:99:99Z',
-        );
+            '2011-12-12X99:99:99Z'
+        ];
         foreach ($invalidStrings AS $invalidString) {
             try {
                 $date = new Opus_Date();
@@ -339,14 +357,14 @@ class Opus_DateTest extends TestCase {
                 // OK.
             }
         }
-
     }
 
     /**
      * @return void
      */
-    function testSetTimezone() {
-        $timeZoneStrings = array(
+    function testSetTimezone()
+    {
+        $timeZoneStrings = [
             '2011-12-12'                => null,
             '2011-12-12T23:59:59Z'      => 'Z',
             '2011-12-12T23:59:59UTC'    => 'Z',
@@ -355,7 +373,8 @@ class Opus_DateTest extends TestCase {
             '2011-12-12T23:59:59+0000'  => 'Z',
             '2011-12-12T23:59:59+00:00' => 'Z',
             '2011-12-12T23:59:59EST'    => '-05:00',
-        );
+        ];
+
         foreach ($timeZoneStrings AS $timeString => $timeZone) {
             $date = new Opus_Date($timeString);
             $this->assertEquals($timeZone, $date->getTimezone());
@@ -365,7 +384,8 @@ class Opus_DateTest extends TestCase {
     /**
      * TODO Test may fail because to much time passed between setNow and Zend_Date construction.
      */
-    function testZendDateOutput() {
+    function testZendDateOutput()
+    {
         $date = new Opus_Date();
         $date->setNow();
         $dateZend = new Opus_Date(new Zend_Date());
@@ -679,10 +699,11 @@ class Opus_DateTest extends TestCase {
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage Cannot compare Zend_Config with Opus_Date object.
      */
-    function testCompareWithOtherObjectType() {
+    function testCompareWithOtherObjectType()
+    {
         $date = new Opus_Date('2018-10-14');
 
         $date->compare(new Zend_Config([]));

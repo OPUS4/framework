@@ -27,6 +27,7 @@
  * @category    Framework
  * @package     Opus_Document_Plugin
  * @author      Sascha Szott <szott@zib.de>
+ * @author      Jens Schwidder <schwidder@zib.de>
  * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
@@ -35,7 +36,8 @@
  * Plugin for generating identifiers of type DOI.
  *
  */
-class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierDoi extends Opus\Model\Plugin\AbstractPlugin
+{
 
     // was muss hier alles ausgewertet werden:
     // automatische Generierung einer DOI für das vorliegende Dokument, wenn
@@ -49,8 +51,8 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
     // laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
     // diese DOI ist entweder lokal oder extern
     // im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus\Model\ModelInterface $model)
+    {
         $log = Zend_Registry::get('Zend_Log');
 
         if (!($model instanceof Opus_Document)) {
@@ -76,13 +78,15 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         return;
     }
 
-    private function handleDeleteEvent($document) {
+    private function handleDeleteEvent($document)
+    {
         // Metadatensatz für DOI auf den Status "inactive" setzen
         $doiManager = new Opus_Doi_DoiManager();
         $doiManager->deleteMetadataForDoi($document);
     }
 
-    private function handlePublishEvent($document, $log) {
+    private function handlePublishEvent($document, $log)
+    {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
@@ -127,8 +131,8 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
      *
      * @param $model Opus_Document zu dem die DOI hinzugefügt werden soll
      */
-    private function addDoi($model, $log) {
-
+    private function addDoi($model, $log)
+    {
         try {
             $doiManager = new Opus_Doi_DoiManager();
             $doiValue = $doiManager->generateNewDoi($model);
@@ -158,8 +162,8 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
      *
      * @param $model
      */
-    private function registerDoi($model, $log, $config) {
-
+    private function registerDoi($model, $log, $config)
+    {
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
         if (!isset($config->doi->registerAtPublish) || !($config->doi->registerAtPublish || $config->doi->registerAtPublish == '1')) {
             $log->debug('registration of DOIs at publish time is disabled in configuration');
@@ -182,6 +186,5 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
         catch (Opus_Doi_DoiException $e) {
             $log->err('unexpected error in DOI-registration of document ' . $model->getId() . ': ' . $e->getMessage());
         }
-
     }
 }

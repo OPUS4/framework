@@ -35,7 +35,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
 {
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage Access to internal field not allowed: Role
      */
     public function testRoleFieldNoSetAccess()
@@ -46,7 +46,7 @@ class Opus_Model_Dependent_Link_DocumentDnbInstituteTest extends TestCase
     }
 
     /**
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage Access to internal field not allowed: Role
      */
     public function testRoleFieldNoGetAccess()
