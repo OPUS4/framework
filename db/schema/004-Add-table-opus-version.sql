@@ -4,6 +4,8 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='STRICT_TRANS_TABLES,NO_AUTO_VALUE_ON_ZER
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 SET @OLD_TIME_ZONE=@@TIME_ZONE, TIME_ZONE = "+00:00";
 
+SET default_storage_engine = InnoDB;
+
 -- Schema changes
 
 START TRANSACTION;
@@ -13,7 +15,6 @@ START TRANSACTION;
 CREATE TABLE IF NOT EXISTS `opus_version` (
     `version` INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Internal version number of OPUS.'
 )
-ENGINE = InnoDB
 COMMENT = 'Holds internal OPUS version for controlling update steps.';
 
 -- Update database version
