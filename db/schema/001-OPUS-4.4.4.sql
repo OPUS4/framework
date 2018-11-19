@@ -655,7 +655,6 @@ CREATE TABLE IF NOT EXISTS `collections` (
     CONSTRAINT `collections_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `collections_roles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `collections_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `collections` (`id`)
 )
-    DEFAULT CHARSET=utf8
     AUTO_INCREMENT=15985;
 
 -- --------------------------------------------------------
@@ -679,7 +678,6 @@ CREATE TABLE IF NOT EXISTS `collections_roles` (
     UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
     UNIQUE INDEX `UNIQUE_OAI_NAME` (`oai_name` ASC)
 )
-    DEFAULT CHARSET=utf8
     COMMENT = 'Administration table for the individual collection trees.'
     AUTO_INCREMENT=17;
 
@@ -698,8 +696,6 @@ CREATE TABLE IF NOT EXISTS collections_enrichments (
     INDEX(collection_id, key_name),
     CONSTRAINT `collections_enrichments_ibfk_1` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 )
-    CHARACTER SET = 'utf8'
-    COLLATE = 'utf8_general_ci'
     AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -721,7 +717,6 @@ CREATE TABLE IF NOT EXISTS `link_documents_collections` (
     CONSTRAINT `link_documents_collections_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `collections_roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `link_documents_collections_ibfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`)
 )
-    DEFAULT CHARSET=utf8
     AUTO_INCREMENT=20;
 
 
