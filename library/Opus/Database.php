@@ -38,7 +38,7 @@
  *
  * TODO more logging
  */
-class Opus_Database 
+class Opus_Database
 {
 
     /**
@@ -79,7 +79,7 @@ class Opus_Database
     /**
      * @return string Name of database
      */
-    public function getName() 
+    public function getName()
     {
         $config = $this->getConfig();
 
@@ -90,7 +90,7 @@ class Opus_Database
      * Returns name of admin user.
      * @return mixed
      */
-    public function getUsername() 
+    public function getUsername()
     {
         $config = $this->getConfig();
 
@@ -101,7 +101,7 @@ class Opus_Database
      * Returns password for admin user.
      * @return mixed
      */
-    public function getPassword() 
+    public function getPassword()
     {
         $config = $this->getConfig();
 
@@ -111,7 +111,7 @@ class Opus_Database
     /**
      * Creates database schema.
      */
-    public function create() 
+    public function create()
     {
         $dbName = $this->getName();
         $sql = "CREATE SCHEMA IF NOT EXISTS ${dbName}" .
@@ -153,7 +153,7 @@ class Opus_Database
      * @param $path string Path to file or folder
      * @throws Exception
      */
-    public function import($path) 
+    public function import($path)
     {
         if (!is_readable($path)) {
             throw new Exception('Path not readable');
@@ -183,7 +183,7 @@ class Opus_Database
      * Loads and executes SQL file.
      * @param $path Path to SQL file
      */
-    public function execScript($path) 
+    public function execScript($path)
     {
         $sql = file_get_contents($path);
         return $this->exec($sql);
@@ -194,7 +194,7 @@ class Opus_Database
      * @param null $dbName string
      * @return PDO
      */
-    public function getPdo($dbName = null) 
+    public function getPdo($dbName = null)
     {
         $dbUser = $this->getUsername();
         $dbPwd = $this->getPassword();
@@ -291,7 +291,7 @@ class Opus_Database
      *
      * @param $sql string
      */
-    public function execWithoutDbName($sql) 
+    public function execWithoutDbName($sql)
     {
         try {
             $pdo = $this->getPdo();
@@ -311,7 +311,7 @@ class Opus_Database
     /**
      * Drops database schema.
      */
-    public function drop() 
+    public function drop()
     {
         $dbName = $this->getName();
 
@@ -325,7 +325,7 @@ class Opus_Database
      * @param $path string Path to directory containing SQL files
      * @return array
      */
-    public function getSqlFiles($path, $pattern = null) 
+    public function getSqlFiles($path, $pattern = null)
     {
         // TODO check $path
 
@@ -362,7 +362,7 @@ class Opus_Database
      * @return string Path to schema file
      * @throws Exception
      */
-    public function getSchemaFile() 
+    public function getSchemaFile()
     {
         $path = $this->getBasePath() . self::SCHEMA_PATH;
 
@@ -378,7 +378,7 @@ class Opus_Database
      * @return null|Zend_Config
      * @throws Zend_Exception
      */
-    public function getConfig() 
+    public function getConfig()
     {
         if (is_null($this->_config)) {
             $this->_config = Zend_Registry::get('Zend_Config');
@@ -392,7 +392,7 @@ class Opus_Database
      * @return mixed|Zend_Log
      * @throws Zend_Exception
      */
-    public function getLogger() 
+    public function getLogger()
     {
         if (is_null($this->_logger)) {
             $this->_logger = Zend_Registry::get('Zend_Log');
@@ -441,7 +441,7 @@ class Opus_Database
     /**
      * Update database for a new version of OPUS.
      */
-    public function update($targetVersion = null) 
+    public function update($targetVersion = null)
     {
         $schemaUpdate = new Opus_Update_Plugin_DatabaseSchema();
         $schemaUpdate->setTargetVersion($targetVersion);
