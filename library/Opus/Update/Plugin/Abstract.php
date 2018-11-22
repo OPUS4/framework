@@ -97,7 +97,7 @@ abstract class Opus_Update_Plugin_Abstract
      *
      * TODO log to file
      */
-    public function log($message)
+    public function log($message = '')
     {
         $logger = $this->getLogger();
 
