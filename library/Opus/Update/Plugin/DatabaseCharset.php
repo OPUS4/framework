@@ -36,6 +36,8 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
     private $pdo;
 
+    private $database;
+
     public function run()
     {
         $this->convertDatabase();
@@ -68,6 +70,14 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
         $pdo->beginTransaction();
 
+        $database = $this->getDatabase();
+
+        // set character set and collation for entire database
+        $database->execWithoutDbName(
+            'ALTER DATABASE `' . $database->getName() . '`'
+            . ' character set = ' . Opus_Database::DEFAULT_CHARACTER_SET
+            . ' collate = ' . Opus_Database::DEFAULT_COLLATE);
+
         // remove VARCHAR foreign key before converting character set
         $pdo->query(
             'ALTER TABLE document_enrichments DROP FOREIGN KEY fk_document_enrichment_enrichmentkeys'
@@ -97,11 +107,20 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     public function getPdo()
     {
         if (is_null($this->pdo)) {
-            $database = new Opus_Database();
+            $database = $this->getDatabase();
             $this->pdo = $database->getPdo($database->getName());
         }
 
         return $this->pdo;
+    }
+
+    public function getDatabase()
+    {
+        if (is_null($this->database)) {
+            $this->database = new Opus_Database();
+        }
+
+        return $this->database;
     }
 
     /**
