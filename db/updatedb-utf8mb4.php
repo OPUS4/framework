@@ -73,12 +73,3 @@ $application->bootstrap('Backend');
 $update = new Opus_Update_Plugin_DatabaseCharset();
 
 $update->run();
-
-$color = "\033[1;33m";
-
-echo PHP_EOL;
-echo  "{$color}After converting the database to 'utf8mb4' you should run 'repair' and 'optimize' on your database."
-    . ' The following command performs these operations for all databases. See your database documentation for more'
-    . ' information.';
-echo PHP_EOL . PHP_EOL . "{$color}$ mysqlcheck -u root -p --auto-repair --optimize --all-databases";
-echo PHP_EOL . PHP_EOL;

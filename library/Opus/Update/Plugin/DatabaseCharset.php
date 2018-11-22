@@ -39,6 +39,20 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
     public function run()
     {
         $this->convertDatabase();
+
+        $colors = new Opus_Util_ConsoleColors();
+
+        $this->log();
+        $this->log($colors->yellow(
+            'After converting the database to \'utf8mb4\' you should run \'repair\' and \'optimize\' on your database.'
+            . ' The following command performs these operations for all databases. See your database documentation for more'
+            . ' information.'
+        ));
+        $this->log();
+        $this->log($colors->yellow(
+            '$ mysqlcheck -u root -p --auto-repair --optimize --all-databases'
+        ));
+        $this->log();
     }
 
     /**
