@@ -519,4 +519,37 @@ class Opus_IdentifierTest extends TestCase
         $this->assertEquals('registered', $identifier->getStatus());
         $this->assertEquals('2018-10-11 15:45:21', $identifier->getRegistrationTs());
     }
+
+    public function testModifyingStatusDoesNotChangeServerDateModified()
+    {
+        $doc = new Opus_Document();
+        $identifier = new Opus_Identifier();
+        $identifier->setType('old');
+        $identifier->setValue('123-45678-123');
+        $doc->addIdentifier($identifier);
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $modified = $doc->getServerDateModified();
+
+        sleep(2);
+
+        $identifier = $doc->getIdentifier(0);
+
+        $this->assertNotEquals('registered', $identifier->getStatus());
+
+        $identifier->setStatus('registered');
+        $identifier->store();
+
+        // $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        // var_dump($modified->__toString());
+        // var_dump($doc->getServerDateModified()->__toString());
+
+        $this->assertEquals(0, $doc->getServerDateModified()->compare($modified));
+    }
 }
