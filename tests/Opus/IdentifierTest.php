@@ -543,13 +543,9 @@ class Opus_IdentifierTest extends TestCase
         $identifier->setStatus('registered');
         $identifier->store();
 
-        // $doc->store();
-
         $doc = new Opus_Document($docId);
 
-        // var_dump($modified->__toString());
-        // var_dump($doc->getServerDateModified()->__toString());
-
         $this->assertEquals(0, $doc->getServerDateModified()->compare($modified));
+        $this->assertEquals('registered', $doc->getIdentifier(0)->getStatus());
     }
 }
