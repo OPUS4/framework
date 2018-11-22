@@ -33,8 +33,6 @@
 
 /**
  * Class for adding color to strings for output on console.
- *
- * TODO allow adding or using additional colors?
  */
 class Opus_Util_ConsoleColors
 {
@@ -95,8 +93,6 @@ class Opus_Util_ConsoleColors
      * @param null $background Background color name or code
      *
      * @return string Colored string
-     *
-     * TODO allow using codes directly as arguments?
      */
     public function getColoredString($message, $color = null, $background = null)
     {
