@@ -38,7 +38,8 @@
  * @category Framework
  * @package  Opus_Model
  */
-interface Opus_Model_ModificationTracking {
+interface Opus_Model_ModificationTracking
+{
 
     /**
      * Returns true if modification status is set.
@@ -47,5 +48,12 @@ interface Opus_Model_ModificationTracking {
      */
     public function isModified();
 
-
+    /**
+     * Sets modified status.
+     *
+     * @param $modified
+     *
+     * @return mixed
+     */
+    public function setModified($modified);
 }

@@ -1569,6 +1569,14 @@ class Opus_DocumentTest extends TestCase
         // Do something with authors: reverse
         $authors = $document->getPersonAuthor();
         $new_authors = array_reverse($authors);
+
+        $index = 1;
+
+        foreach ($authors as $author) {
+            $this->assertEquals($index, $author->getSortOrder());
+            $index++;
+        }
+
         $document->setPersonAuthor($new_authors);
         $document->store();
 
@@ -1644,7 +1652,7 @@ class Opus_DocumentTest extends TestCase
     private function _checkPersonAuthorSortOrderForDocument($document)
     {
         $authors = $document->getPersonAuthor();
-        $numbers = array();
+        $numbers = [];
         foreach ($authors AS $author) {
             $this->assertNotNull($author->getSortOrder());
             $numbers[] = $author->getSortOrder();
@@ -1861,10 +1869,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $this->assertTrue(count($doc->getPerson()) == 0, 'testcase changed?');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1876,10 +1884,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1900,17 +1908,16 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $persons = $doc->getPerson();
-        $this->assertTrue(count($persons) == 1, 'testcase changed?');
+        $this->assertCount(1, $persons, 'testcase changed?');
 
-        $this->assertEquals(false, $persons[0]->getModel()->isModified(), 'linked model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->getModel()->isModified(),'linked model has just been loaded and is not modified!');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $persons[0]->isModified(), 'link model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->isModified(),'link model has just been loaded and should not be modified!');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getPerson!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getPerson!');
     }
 
     /**
@@ -1931,18 +1938,17 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
      */
-    public function testPlinkIsNotModified()
+    public function testPlinkIsModifiedAfterFixingSortOrder()
     {
         $doc = new Opus_Document();
 
@@ -1960,15 +1966,14 @@ class Opus_DocumentTest extends TestCase
             ->setValue(123)
             ->clearModified();
 
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified before');
+        $this->assertFalse($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified');
 
         $newField = new Opus_Model_Field('test');
         $newField->setSortFieldName('SortOrder');
-        $newField->setValue(array($plink));
+        $newField->setValue([$plink]);
 
-        $this->markTestIncomplete('Modification tracking bug with SortOrder field not fully fixed yet.');
-
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified after');
+        $this->assertTrue($plink->isModified());
+        $this->assertTrue($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should be modified');
     }
 
     public function testChangeTitleType()
