@@ -39,7 +39,8 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_HashValues extends Opus_Model_Dependent_Abstract {
+class Opus_HashValues extends Opus_Model_Dependent_Abstract
+{
 
     /**
      * Primary key of the parent model.
@@ -59,13 +60,13 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      *
      * @var array
      */
-    protected $_plugins = array(
-// Plugin InvalidateDocumentCache should stay disabled here since this model is 
+    protected $_plugins = [
+// Plugin InvalidateDocumentCache should stay disabled here since this model is
 // not directly related to Opus_Document
 //        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    ];
 
-    
+
     /**
      * Initialize model with the following fields:
      * - HashType
@@ -73,7 +74,8 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $hashtype = new Opus_Model_Field('Type');
         $hashtype->setMandatory(true)
             ->setValidator(new Zend_Validate_NotEmpty());
@@ -91,7 +93,8 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      *
      * @return void
      */
-    protected function _postStoreInternalFields() {
+    protected function _postStoreInternalFields()
+    {
         $isNewFlagBackup = $this->_isNewRecord;
         $this->_isNewRecord = false;
 
@@ -105,7 +108,8 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract {
      *
      * @return array|null Primary key or Null if the Linked Model has not been persisted.
      */
-    public function getId() {
+    public function getId()
+    {
         // The given id consists of the ids of the referenced linked models,
         // but there is no evidence that the LinkModel itself has been persisted yet.
         // We so have to validate, if the LinkModel is persistent or still transient.
