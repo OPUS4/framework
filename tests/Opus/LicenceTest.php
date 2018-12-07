@@ -104,7 +104,7 @@ class Opus_LicenceTest extends TestCase
      */
     public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
     {
-        $fields = array('SortOrder', 'CommentInternal', 'PodAllowed');
+        $fields = ['SortOrder', 'CommentInternal', 'PodAllowed'];
 
         $licence = new Opus_Licence();
         $licenceId = $licence
@@ -321,5 +321,56 @@ class Opus_LicenceTest extends TestCase
         $this->assertEquals('Licence', $licence->getNameLong());
         $this->assertEquals(2, $licence->getSortOrder());
         $this->assertEquals(1, $licence->getPodAllowed());
+    }
+
+    public function testIsUsed()
+    {
+        $licence = new Opus_Licence();
+        $licence->updateFromArray([
+            'NameLong' => 'Licence',
+            'Name' => 'L',
+            'LinkLicence' => 'http://www.example.org/licence'
+        ]);
+
+        $licence->store();
+
+        $this->assertFalse($licence->isUsed());
+
+        $doc = new Opus_Document();
+        $doc->addLicence($licence);
+        $doc->store();
+
+        $this->assertTrue($licence->isUsed());
+    }
+
+    public function testGetDocumentCount()
+    {
+        $licence = new Opus_Licence();
+        $licence->updateFromArray([
+            'NameLong' => 'Licence',
+            'Name' => 'L',
+            'LinkLicence' => 'http://www.example.org/licence'
+        ]);
+
+        $licence->store();
+
+        $this->assertEquals(0, $licence->getDocumentCount());
+
+        $doc = new Opus_Document();
+        $doc->addLicence($licence);
+        $doc->store();
+
+        $this->assertEquals(1, $licence->getDocumentCount());
+
+        $doc = new Opus_Document();
+        $doc->addLicence($licence);
+        $doc->store();
+
+        $this->assertEquals(2, $licence->getDocumentCount());
+
+        $doc->setLicence(null);
+        $doc->store();
+
+        $this->assertEquals(1, $licence->getDocumentCount());
     }
 }
