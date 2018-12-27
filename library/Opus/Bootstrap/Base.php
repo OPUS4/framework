@@ -28,7 +28,7 @@
  * @package     Opus_Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2016, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -39,22 +39,25 @@
  * @package     Opus_Bootstrap
  *
  */
-class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
+class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
+{
 
     /**
      * Override this to do custom backend setup.
      *
      * @return void
      */
-    protected function _initBackend() {
-        $this->bootstrap(array('ZendCache', 'OpusLocale', 'Database', 'Logging'));
+    protected function _initBackend()
+    {
+        $this->bootstrap(['ZendCache', 'OpusLocale', 'Database', 'Logging']);
     }
 
     /**
      * Initializes the location for temporary files.
      *
      */
-    protected function _initTemp() {
+    protected function _initTemp()
+    {
         $this->bootstrap('Configuration');
         $config = $this->getResource('Configuration');
         $tempDirectory = $config->workspacePath . '/tmp/';
@@ -66,20 +69,21 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * @return void
      */
-    protected function _initZendCache() {
+    protected function _initZendCache()
+    {
         $this->bootstrap('Configuration');
         $config = $this->getResource('Configuration');
 
-        $frontendOptions = array(
+        $frontendOptions = [
             'lifetime' => 600, // in seconds
             'automatic_serialization' => true,
-        );
+        ];
 
-        $backendOptions = array(
+        $backendOptions = [
             // Directory where to put the cache files. Must be writeable for
             // application server
             'cache_dir' => $config->workspacePath . '/cache/'
-        );
+        ];
 
         $cache = Zend_Cache::factory('Core', 'File', $frontendOptions, $backendOptions);
 
@@ -98,18 +102,22 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * TODO put into configuration file (custom DB adapter)
      */
-    protected function _initDatabase() {
-        $this->bootstrap(array('ZendCache', 'Logging','Configuration'));
+    protected function _initDatabase()
+    {
+        $this->bootstrap(['ZendCache', 'Logging', 'Configuration']);
 
         $logger = $this->getResource('Logging');
         $logger->debug('Initializing database.');
 
         // use custom DB adapter
-        $config = new Zend_Config(array(
-            'db' => array(
+        $config = new Zend_Config([
+            'db' => [
                 'adapter' => 'Pdo_Mysqlutf8',
-                'params' => array(
-                    'adapterNamespace' => 'Opus_Db_Adapter'))), true);
+                'params' => [
+                    'adapterNamespace' => 'Opus_Db_Adapter'
+                ]
+            ]
+        ], true);
 
         // Include the above made configuration changes in the application configuration.
         $config->merge(Zend_Registry::get('Zend_Config'));
@@ -127,8 +135,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
             // Register the adapter within Zend_Registry.
             Zend_Registry::set('db_adapter', $db);
-        }
-        catch (Zend_Db_Adapter_Exception $e) {
+        } catch (Zend_Db_Adapter_Exception $e) {
             $logger->err($e);
             throw new Exception('OPUS Bootstrap Error: Could not connect to database.');
         }
@@ -148,14 +155,12 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
                     if ($version !== $expectedVersion) {
                         throw new Exception("Database version '$version' does not match required '$expectedVersion'.");
                     }
-                }
-                else {
+                } else {
                     throw new Exception(
                         'No database schema version found. Database is probably too old. Please update.'
                     );
                 }
-            }
-            catch (Zend_Db_Statement_Exception $e) {
+            } catch (Zend_Db_Statement_Exception $e) {
                 throw new Exception('Database schema is too old. Please update database.');
             }
         }
@@ -176,10 +181,10 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      * @return Zend_Config
      *
      */
-    protected function _initConfiguration() {
+    protected function _initConfiguration()
+    {
         $config = new Zend_Config($this->getOptions());
         Zend_Registry::set('Zend_Config', $config);
-
         return $config;
     }
 
@@ -197,14 +202,12 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $config = $this->getResource('Configuration');
 
         // Detect if running in CGI environment.
-        if (isset($config->log->filename))
-        {
+        if (isset($config->log->filename)) {
             $logFilename = $config->log->filename;
-        }
-        else
-        {
+        } else {
             $logFilename = 'opus.log';
-            if (!array_key_exists('SERVER_PROTOCOL', $_SERVER) and !array_key_exists('REQUEST_METHOD', $_SERVER)) {
+            if (!array_key_exists('SERVER_PROTOCOL', $_SERVER) and
+                !array_key_exists('REQUEST_METHOD', $_SERVER)) {
                 $logFilename = "opus-console.log";
             }
         }
@@ -212,19 +215,19 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $logfilePath = $config->workspacePath . '/log/' . $logFilename;
 
         $logfile = @fopen($logfilePath, 'a', false);
-        
+
         if ( $logfile === false ) {
             $path = dirname($logfilePath);
 
             if (!is_dir($path)) {
                 throw new Exception('Directory for logging does not exist');
-            }
-            else {
+            } else {
                 throw new Exception('Failed to open logging file:' . $logfilePath);
             }
         }
 
-        $GLOBALS['id_string'] = uniqid(); // Write ID string to global variables, so we can identify/match individual runs.
+        // Write ID string to global variables, so we can identify/match individual runs.
+        $GLOBALS['id_string'] = uniqid();
 
         $format = '%timestamp% %priorityName% (%priority%, ID '.$GLOBALS['id_string'].'): %message%' . PHP_EOL;
         $formatter = new Zend_Log_Formatter_Simple($format);
@@ -238,8 +241,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
 
         if (isset($config->log->level)) {
             $logLevelName = strtoupper($config->log->level);
-        }
-        else {
+        } else {
             $logLevelNotConfigured = true;
         }
 
@@ -282,7 +284,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
      *
      * @return void
      */
-    protected function _initOpusLocale() {
+    protected function _initOpusLocale()
+    {
         // Need cache initializatino for Zend_Locale.
         $this->bootstrap('ZendCache');
 
@@ -291,5 +294,4 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap {
         $locale = new Zend_Locale("de");
         Zend_Registry::set('Zend_Locale', $locale);
     }
-
 }
