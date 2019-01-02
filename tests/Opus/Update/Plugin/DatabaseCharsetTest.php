@@ -25,22 +25,33 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Tests
- * @package     Opus
+ * @package     Opus_Update_Plugin
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
+class Opus_Update_Plugin_DatabaseCharsetTest extends TestCase
 {
 
-    public function testMapVersion()
-    {
-        $plugin = new Opus_Update_Plugin_DatabaseSchema();
+    private $plugin;
 
-        $this->assertEquals(1, $plugin->mapVersion(null));
-        $this->assertEquals(2, $plugin->mapVersion('4.5'));
-        $this->assertEquals(1, $plugin->mapVersion('1'));
-        $this->assertEquals(4, $plugin->mapVersion('4'));
+    public function setUp()
+    {
+        parent::setUp();
+
+        $this->plugin = new Opus_Update_Plugin_DatabaseCharset();
+    }
+
+    public function testGetAllTables()
+    {
+        $tables = $this->plugin->getAllTables();
+
+        $this->assertCount(37, $tables);
+
+        $this->assertContains('documents', $tables);
+        $this->assertContains('link_persons_documents', $tables);
+        $this->assertContains('languages', $tables);
+        $this->assertContains('user_roles', $tables);
     }
 }

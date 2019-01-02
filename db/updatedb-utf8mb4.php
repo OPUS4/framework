@@ -24,23 +24,52 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Tests
- * @package     Opus
+ * @category    Framework
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
-{
+/**
+ * Script for converting database to 'utf8mb4'.
+ */
 
-    public function testMapVersion()
-    {
-        $plugin = new Opus_Update_Plugin_DatabaseSchema();
+defined('APPLICATION_PATH')
+    || define('APPLICATION_PATH', realpath(dirname(dirname(__FILE__))));
 
-        $this->assertEquals(1, $plugin->mapVersion(null));
-        $this->assertEquals(2, $plugin->mapVersion('4.5'));
-        $this->assertEquals(1, $plugin->mapVersion('1'));
-        $this->assertEquals(4, $plugin->mapVersion('4'));
-    }
-}
+defined('APPLICATION_ENV')
+    || define('APPLICATION_ENV', (getenv('APPLICATION_ENV') ? getenv('APPLICATION_ENV') : 'production'));
+
+// Configure include path.
+set_include_path(
+    implode(
+        PATH_SEPARATOR, array(
+            '.',
+            dirname(__FILE__),
+            APPLICATION_PATH . '/library',
+            APPLICATION_PATH . '/vendor',
+            get_include_path(),
+        )
+    )
+);
+
+require_once 'autoload.php';
+
+$application = new Zend_Application(
+    APPLICATION_ENV,
+    array(
+        "config"=>array(
+            APPLICATION_PATH . '/tests/config.ini',
+            APPLICATION_PATH . '/tests/tests.ini'
+        )
+    )
+);
+
+Zend_Registry::set('opus.disableDatabaseVersionCheck', true);
+
+// Bootstrapping application
+$application->bootstrap('Backend');
+
+$update = new Opus_Update_Plugin_DatabaseCharset();
+
+$update->run();

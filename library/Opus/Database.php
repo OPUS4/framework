@@ -47,6 +47,16 @@ class Opus_Database
     const UPDATE_SCRIPTS_PATH = '/db/schema';
 
     /**
+     * Default character set for database.
+     */
+    const DEFAULT_CHARACTER_SET = 'utf8mb4';
+
+    /**
+     * Default collation for database.
+     */
+    const DEFAULT_COLLATE = 'utf8mb4_unicode_ci';
+
+    /**
      * @var Zend_Config
      */
     private $_config;
@@ -99,7 +109,9 @@ class Opus_Database
     public function create()
     {
         $dbName = $this->getName();
-        $sql = "CREATE SCHEMA IF NOT EXISTS ${dbName} DEFAULT CHARACTER SET = utf8 DEFAULT COLLATE = utf8_general_ci;";
+        $sql = "CREATE SCHEMA IF NOT EXISTS ${dbName}" .
+            ' DEFAULT CHARACTER SET = ' . self::DEFAULT_CHARACTER_SET .
+            ' DEFAULT COLLATE = ' . self::DEFAULT_COLLATE;
         $this->execWithoutDbName($sql);
     }
 
@@ -169,7 +181,11 @@ class Opus_Database
         $host = $this->getHost();
         $port  = $this->getPort();
 
-        $connStr = "mysql:host=$host;port=$port;default-character-set=utf8;default-collate=utf8_general_ci";
+        $defaultCharacterSet = self::DEFAULT_CHARACTER_SET;
+
+        $connStr = "mysql:host=$host;port=$port" .
+            ";default-character-set=$defaultCharacterSet" .
+            ';default-collate=' . self::DEFAULT_COLLATE;
 
         if (!is_null($dbName) && strlen(trim($dbName)) > 0) {
             $connStr .= ";dbname=$dbName";
@@ -178,7 +194,7 @@ class Opus_Database
         $pdo = new PDO($connStr, $dbUser, $dbPwd);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         // TODO unit test for character encoding?
-        $pdo->exec('SET CHARACTER SET `utf8`');
+        $pdo->exec("SET CHARACTER SET `$defaultCharacterSet`");
 
         return $pdo;
     }

@@ -3,6 +3,8 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 SET @OLD_AUTOCOMMIT=@@AUTOCOMMIT, AUTOCOMMIT=0;
 
+SET default_storage_engine = InnoDB;
+
 -- -----------------------------------------------------
 -- Table to store schema versioning information
 -- -----------------------------------------------------
@@ -12,7 +14,6 @@ CREATE TABLE `schema_version` (
   `revision` VARCHAR(20) ,
   `author` VARCHAR(100)
 )
-  ENGINE = InnoDB
   COMMENT = 'Holds revision information from subversion properties.';
 -- -----------------------------------------------------
 -- Insert revision information
@@ -53,8 +54,8 @@ CREATE  TABLE IF NOT EXISTS `documents` (
   `volume` VARCHAR(255) NULL COMMENT 'Volume.',
   `belongs_to_bibliography` BOOLEAN NOT NULL DEFAULT 0 COMMENT 'States, if document will be part of the bibliography? (1=yes, 0=no).' ,
   `embargo_date` VARCHAR(50) NULL COMMENT 'Embargo date for document files',
-  PRIMARY KEY (`id`) )
-  ENGINE = InnoDB
+  PRIMARY KEY (`id`)
+)
   COMMENT = 'Document related data (monolingual, unreproducible colums).';
 
 
@@ -73,8 +74,8 @@ CREATE  TABLE IF NOT EXISTS `document_identifiers` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for identifiers  related to the document.';
 
 -- -----------------------------------------------------
@@ -99,8 +100,8 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for file related data.';
 
 
@@ -117,8 +118,8 @@ CREATE  TABLE IF NOT EXISTS `file_hashvalues` (
   FOREIGN KEY (`file_id` )
   REFERENCES `document_files` (`id` )
     ON DELETE CASCADE
-    ON UPDATE NO ACTION)
-  ENGINE = InnoDB
+    ON UPDATE NO ACTION
+)
   COMMENT = 'Table for hash values.';
 
 
@@ -138,8 +139,8 @@ CREATE  TABLE IF NOT EXISTS `document_subjects` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for subject heading related data.';
 
 -- -----------------------------------------------------
@@ -152,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `document_series` (
   `visible` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'visibility state (defaults to visible)',
   `sort_order` INTEGER NOT NULL DEFAULT 0 COMMENT 'position in sorted order',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB;
+);
 
 
 -- -----------------------------------------------------
@@ -168,7 +169,7 @@ CREATE TABLE IF NOT EXISTS `link_documents_series` (
   KEY (`series_id`),
   CONSTRAINT `link_documents_series_ibfk_2` FOREIGN KEY (`series_id`) REFERENCES `document_series` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `link_documents_series_ibfk_1` FOREIGN KEY (`document_id`) REFERENCES `documents` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB;
+);
 
 
 -- -----------------------------------------------------
@@ -186,8 +187,8 @@ CREATE  TABLE IF NOT EXISTS `document_title_abstracts` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table with title and abstract related data.';
 
 
@@ -206,8 +207,8 @@ CREATE  TABLE IF NOT EXISTS `persons` (
   `identifier_gnd` VARCHAR(50) NULL COMMENT 'gnd id' ,
   `identifier_misc` VARCHAR(50) NULL COMMENT 'misc id' ,
   PRIMARY KEY (`id`) ,
-  INDEX `last_name` (`last_name` ASC) )
-  ENGINE = InnoDB
+  INDEX `last_name` (`last_name` ASC)
+)
   COMMENT = 'Person related data.';
 
 
@@ -232,8 +233,8 @@ CREATE  TABLE IF NOT EXISTS `link_persons_documents` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Relation table (documents, persons).';
 
 
@@ -254,8 +255,8 @@ CREATE  TABLE IF NOT EXISTS `document_patents` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for patent related data.';
 
 
@@ -273,8 +274,8 @@ CREATE  TABLE IF NOT EXISTS `document_statistics` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for statistic related data.';
 
 -- -----------------------------------------------------
@@ -291,8 +292,8 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for notes to documents.';
 
 -- -----------------------------------------------------
@@ -314,7 +315,7 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   CONSTRAINT `fk_document_enrichment_enrichmentkeys`
   FOREIGN KEY (`key_name` )
   REFERENCES `enrichmentkeys` (`name` )
-)ENGINE = InnoDB
+)
   COMMENT = 'Key-value table for database scheme enhancements.';
 
 -- -----------------------------------------------------
@@ -323,7 +324,7 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
 CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
   `name` VARCHAR(255) NOT NULL COMMENT 'The enrichment key.' ,
   PRIMARY KEY (`name`)
-) ENGINE = InnoDB
+)
   COMMENT = 'Key table for database scheme enhancements.';
 
 
@@ -344,8 +345,8 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
   `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
   `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).' ,
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99).' ,
-  PRIMARY KEY (`id`) )
-  ENGINE = InnoDB
+  PRIMARY KEY (`id`)
+)
   COMMENT = 'Table for licence related data.';
 
 
@@ -360,8 +361,8 @@ CREATE  TABLE IF NOT EXISTS `accounts` (
   `first_name` VARCHAR(255) NOT NULL COMMENT 'First name of person.',
   `last_name` VARCHAR(255) NOT NULL COMMENT 'Last name of person.',
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC) )
-  ENGINE = InnoDB
+  UNIQUE INDEX `UNIQUE_LOGIN` (`login` ASC)
+)
   COMMENT = 'Table for system user accounts.';
 
 
@@ -374,8 +375,8 @@ CREATE TABLE IF NOT EXISTS `ipranges` (
   `endingip` INT UNSIGNED NOT NULL COMMENT 'IP address the range end with. Use MYSQL function INET_ATON and INET_NTOA.' ,
   `name` VARCHAR(255) COMMENT 'Name of the range f.e. university or administration.',
   PRIMARY KEY (`id`) ,
-  UNIQUE INDEX `UNIQUE_IP_RANGE` (startingip, endingip) )
-  ENGINE = InnoDB
+  UNIQUE INDEX `UNIQUE_IP_RANGE` (startingip, endingip)
+)
   COMMENT = 'Table for ranges of ip addresses.';
 
 -- -----------------------------------------------------
@@ -384,8 +385,8 @@ CREATE TABLE IF NOT EXISTS `ipranges` (
 CREATE  TABLE IF NOT EXISTS `user_roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` VARCHAR(255) NOT NULL UNIQUE,
-  PRIMARY KEY (`id`) )
-  ENGINE = InnoDB
+  PRIMARY KEY (`id`)
+)
   COMMENT = 'Table for managing user roles (i.e. groups of users).';
 
 -- -----------------------------------------------------
@@ -407,7 +408,7 @@ CREATE TABLE IF NOT EXISTS `access_documents` (
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE
-) ENGINE = InnoDB
+)
   COMMENT =  'Contains access rights for (given groups) to (documents).';
 
 -- -----------------------------------------------------
@@ -429,7 +430,7 @@ CREATE TABLE IF NOT EXISTS `access_files` (
   REFERENCES `document_files` (`id` )
     ON DELETE CASCADE
     ON UPDATE CASCADE
-) ENGINE = InnoDB
+)
   COMMENT =  'Contains access rights for (given groups) to (files).';
 
 -- -----------------------------------------------------
@@ -446,7 +447,7 @@ CREATE TABLE IF NOT EXISTS `access_modules` (
     ON DELETE CASCADE
     ON UPDATE CASCADE,
   INDEX `fk_access_modules_module` (`module_name` ASC)
-) ENGINE = InnoDB
+)
   COMMENT =  'Contains access rights for (user groups) to (modules).';
 
 -- -----------------------------------------------------
@@ -467,8 +468,8 @@ CREATE  TABLE IF NOT EXISTS `link_accounts_roles` (
   FOREIGN KEY (`role_id` )
   REFERENCES `user_roles` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Relation table (user_roles, accounts).';
 
 -- -----------------------------------------------------
@@ -489,8 +490,8 @@ CREATE  TABLE IF NOT EXISTS `link_ipranges_roles` (
   FOREIGN KEY (`iprange_id` )
   REFERENCES `ipranges` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Relation table (user_roles, ipranges).';
 
 
@@ -512,8 +513,8 @@ CREATE  TABLE IF NOT EXISTS `link_documents_licences` (
   FOREIGN KEY (`licence_id` )
   REFERENCES `document_licences` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Relation table (documents, document_licences).';
 
 
@@ -533,8 +534,8 @@ CREATE  TABLE IF NOT EXISTS `document_references` (
   FOREIGN KEY (`document_id` )
   REFERENCES `documents` (`id` )
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Table for identifiers referencing to related documents.';
 
 
@@ -553,8 +554,7 @@ CREATE  TABLE IF NOT EXISTS `languages` (
   `comment` varchar(150) DEFAULT NULL COMMENT 'Comment relating to one or more of the columns',
   `active` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Is the language visible? (1=yes, 0=no).' ,
   PRIMARY KEY (`id`)
-)
-  ENGINE=InnoDB;
+);
 
 
 -- -----------------------------------------------------
@@ -573,7 +573,6 @@ CREATE TABLE IF NOT EXISTS `dnb_institutes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY (`name`, `department`)
 )
-  ENGINE = InnoDB
   COMMENT = 'Table for thesisPublishers or thesisGrantors.';
 
 -- -----------------------------------------------------
@@ -595,8 +594,8 @@ CREATE TABLE IF NOT EXISTS `link_documents_dnb_institutes` (
   FOREIGN KEY (`dnb_institute_id`)
   REFERENCES `dnb_institutes` (`id`)
     ON DELETE CASCADE
-    ON UPDATE CASCADE)
-  ENGINE = InnoDB
+    ON UPDATE CASCADE
+)
   COMMENT = 'Relation table (documents, dnb_institutes).';
 
 -- -----------------------------------------------------
@@ -609,7 +608,6 @@ CREATE TABLE IF NOT EXISTS `document_xml_cache` (
   `xml_data` MEDIUMTEXT,
   PRIMARY KEY (`document_id`, `xml_version`)
 )
-  ENGINE = InnoDB
   COMMENT = 'Caches XML for Opus_Document objects.';
 
 -- -----------------------------------------
@@ -626,7 +624,6 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   PRIMARY KEY (`id`),
   INDEX `job_sha1_ids` (`sha1_id` ASC)
 )
-  ENGINE = InnoDB
   COMMENT = 'Table for schedule jobs.';
 
 --
@@ -658,8 +655,6 @@ CREATE TABLE IF NOT EXISTS `collections` (
     CONSTRAINT `collections_ibfk_1` FOREIGN KEY (`role_id`) REFERENCES `collections_roles` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
     CONSTRAINT `collections_ibfk_2` FOREIGN KEY (`parent_id`) REFERENCES `collections` (`id`)
 )
-    ENGINE=InnoDB
-    DEFAULT CHARSET=utf8
     AUTO_INCREMENT=15985;
 
 -- --------------------------------------------------------
@@ -683,8 +678,6 @@ CREATE TABLE IF NOT EXISTS `collections_roles` (
     UNIQUE INDEX `UNIQUE_NAME` (`name` ASC) ,
     UNIQUE INDEX `UNIQUE_OAI_NAME` (`oai_name` ASC)
 )
-    ENGINE = InnoDB
-    DEFAULT CHARSET=utf8
     COMMENT = 'Administration table for the individual collection trees.'
     AUTO_INCREMENT=17;
 
@@ -703,9 +696,6 @@ CREATE TABLE IF NOT EXISTS collections_enrichments (
     INDEX(collection_id, key_name),
     CONSTRAINT `collections_enrichments_ibfk_1` FOREIGN KEY (`collection_id`) REFERENCES `collections` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 )
-    ENGINE = InnoDB
-    CHARACTER SET = 'utf8'
-    COLLATE = 'utf8_general_ci'
     AUTO_INCREMENT=1;
 
 -- --------------------------------------------------------
@@ -727,7 +717,7 @@ CREATE TABLE IF NOT EXISTS `link_documents_collections` (
     CONSTRAINT `link_documents_collections_ibfk_3` FOREIGN KEY (`role_id`) REFERENCES `collections_roles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT `link_documents_collections_ibfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`)
 )
-    ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=20;
+    AUTO_INCREMENT=20;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
