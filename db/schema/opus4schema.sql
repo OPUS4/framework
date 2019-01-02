@@ -94,7 +94,7 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `path_name` TEXT NOT NULL COMMENT 'File and path name.' ,
-  `label` TEXT NULL COMMENT 'Display text of the file.' ,
+  `label` TEXT NULL COMMENT 'Display name of the file.' ,
   `comment` TEXT NULL COMMENT 'Comment for a file.',
   `mime_type` VARCHAR(255) NULL COMMENT 'Mime type of the file.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the file.' ,
@@ -758,6 +758,14 @@ CREATE TABLE IF NOT EXISTS `link_documents_collections` (
     CONSTRAINT `link_documents_collections_ibfk_4` FOREIGN KEY (`role_id`, `collection_id`) REFERENCES `collections` (`role_id`, `id`) ON DELETE CASCADE ON UPDATE CASCADE
 )
     ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=20;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Übersetzungen
+--
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

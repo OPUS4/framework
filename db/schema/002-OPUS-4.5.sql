@@ -52,7 +52,7 @@ ALTER TABLE `document_licences`
     MODIFY `active` TINYINT NOT NULL DEFAULT 1 COMMENT 'Flag: can authors choose this licence (0=no, 1=yes)?',
     MODIFY `language` VARCHAR(3) NULL COMMENT 'Language of the licence.',
     MODIFY `mime_type` VARCHAR(30) NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".',
-    MODIFY `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed (0=no, 1=yes).',
+    MODIFY `pod_allowed` TINYINT(1) NOT NULL DEFAULT 0 COMMENT 'Flag: is print on demand allowed (1=yes, 0=no).',
     MODIFY `sort_order` TINYINT NOT NULL DEFAULT 0 COMMENT 'Sort order (00 to 99).';
 
 ALTER TABLE `accounts`
