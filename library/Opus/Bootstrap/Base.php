@@ -222,7 +222,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
             if (!is_dir($path)) {
                 throw new Exception('Directory for logging does not exist');
             } else {
-                throw new Exception('Failed to open logging file:' . $logfilePath);
+                throw new Exception("Failed to open logging file: $logfilePath");
             }
         }
 
@@ -262,12 +262,11 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
         $logger->addFilter($priorityFilter);
 
         if ($logLevelNotConfigured) {
-            $logger->warn('Log level not configured, using default \'' . $logLevelName . '\'.');
+            $logger->warn("Log level not configured, using default '$logLevelName'.");
         }
 
         if ($invalidLogLevel) {
-            $logger->err('Invalid log level \'' . $logLevelName .
-                    '\' configured.');
+            $logger->err("Invalid log level '$logLevelName' configured.");
         }
 
         Zend_Registry::set('Zend_Log', $logger);
