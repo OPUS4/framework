@@ -84,7 +84,7 @@ CREATE  TABLE IF NOT EXISTS `document_files` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
   `path_name` TEXT NOT NULL COMMENT 'File and path name.' ,
-  `label` TEXT NOT NULL COMMENT 'Display text of the file.' ,
+  `label` TEXT NOT NULL COMMENT 'Display name of the file.' ,
   `comment` TEXT NULL COMMENT 'Comment for a file.',
   `mime_type` VARCHAR(255) NOT NULL COMMENT 'Mime type of the file.' ,
   `language` VARCHAR(3) NULL COMMENT 'Language of the file.' ,
@@ -342,7 +342,7 @@ CREATE  TABLE IF NOT EXISTS `document_licences` (
   `link_sign` MEDIUMTEXT NULL COMMENT 'URI of the licence contract form.' ,
   `mime_type` VARCHAR(30) NOT NULL COMMENT 'Mime type of the licence text linked in \"link_licence\".' ,
   `name_long` VARCHAR(255) NOT NULL COMMENT 'Full name of the licence as displayed to users.' ,
-  `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed. (1=yes, 0=yes).' ,
+  `pod_allowed` TINYINT(1) NOT NULL COMMENT 'Flag: is print on demand allowed. (1=yes, 0=no).' ,
   `sort_order` TINYINT NOT NULL COMMENT 'Sort order (00 to 99).' ,
   PRIMARY KEY (`id`) )
   ENGINE = InnoDB
