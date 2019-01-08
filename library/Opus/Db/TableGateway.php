@@ -87,6 +87,9 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * Insert given array into table and ignore duplicate entries.  (Silently
      * skipping insert, if unique constraint has been violated.)
      *
+     * If an update occurs instead of an insert the lastInserId() function normally does not return the ID of the
+     * modified row.
+     *
      * @param array $data
      * @return void
      */
@@ -105,13 +108,22 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
             $update .= " $quotedKey=VALUES($quotedKey),";
         }
 
-        $update = rtrim($update, ',');
+        // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
+        $primaryKey = $this->_primary;
+
+        if (!is_null($primaryKey) and !is_array($primaryKey)) {
+            // no support for composite keys
+            $update .= " $primaryKey=LAST_INSERT_ID($primaryKey)";
+        } else {
+            $update = rtrim($update, ',');
+        }
 
         $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
                 ' (' . implode(', ', $q_keys) . ') ' .
                 ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
         $adapter->query($insert);
+
         return;
     }
 
