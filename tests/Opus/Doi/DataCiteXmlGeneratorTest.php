@@ -139,4 +139,88 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $this->assertEquals($path, $stylesheetPath);
     }
+
+    public function testXmlValidWithMultipleDDC()
+    {
+        $document = new Opus_Document();
+        $this->addRequiredPropsToDoc($document);
+
+        $role = new Opus_CollectionRole();
+        $role->setName('ddc');
+        $role->setOaiName('ddc');
+        $root = $role->addRootCollection();
+
+        $col1 = new Opus_Collection();
+        $col1->setName('Mathematics');
+        $root->addLastChild($col1);
+
+        $col2 = new Opus_Collection();
+        $col2->setName('Biology');
+        $root->addLastChild($col2);
+
+        $role->store();
+
+        $document->addCollection($col1);
+        $document->addCollection($col2);
+
+        $document = new Opus_Document($document->store());
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $output = $generator->getXml($document);
+
+        $this->assertNotEmpty($output);
+
+        $xpath = $this->prepareXpathFromResultString($output);
+
+        $result = $xpath->query('//ns:subjects');
+        $this->assertEquals(1, $result->length);
+
+        $result = $xpath->query('//ns:subject');
+        $this->assertEquals(2, $result->length);
+
+        $result = $xpath->query('//ns:subject[text()="Mathematics"]');
+        $this->assertEquals(1, $result->length);
+
+        $result = $xpath->query('//ns:subject[text()="Biology"]');
+        $this->assertEquals(1, $result->length);
+    }
+
+    public function testXmlValidWithMultipleIssn()
+    {
+        $document = new Opus_Document();
+        $this->addRequiredPropsToDoc($document);
+
+        $issn = new Opus_Identifier();
+        $issn->setValue('123');
+
+        $document->addIdentifierIssn($issn);
+
+        $issn2 = new Opus_Identifier();
+        $issn2->setValue('321');
+
+        $document->addIdentifierIssn($issn2);
+
+        $document = new Opus_Document($document->store());
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $output = $generator->getXml($document);
+
+        $this->assertNotEmpty($output);
+
+        $xpath = $this->prepareXpathFromResultString($output);
+
+        $result = $xpath->query('//ns:relatedIdentifiers');
+        $this->assertEquals(1, $result->length);
+
+        $result = $xpath->query('//ns:relatedIdentifier');
+        $this->assertEquals(2, $result->length);
+
+        $result = $xpath->query('//ns:relatedIdentifier[text()="123"]');
+        $this->assertEquals(1, $result->length);
+
+        $result = $xpath->query('//ns:relatedIdentifier[text()="321"]');
+        $this->assertEquals(1, $result->length);
+    }
 }

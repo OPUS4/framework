@@ -102,7 +102,11 @@
 
             <!-- nachfolgend kommen die optionalen Elemente -->
 
-            <xsl:apply-templates select="Collection"/>
+            <xsl:if test="Collection[@RoleName='ddc' and @Visible=1]">
+                <xsl:element name="subjects">
+                    <xsl:apply-templates select="Collection[@RoleName='ddc' and @Visible=1]" />
+                </xsl:element>
+            </xsl:if>
 
             <xsl:if test="PersonEditor">
                 <xsl:element name="contributors">
@@ -447,21 +451,21 @@
 
     <xsl:template match="Collection">
         <xsl:if test="@RoleName= 'ddc'">
-            <xsl:element name="subjects">
-                <xsl:element name="subject">
-                    <xsl:attribute name="xml:lang">
-                        <xsl:text>de</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="schemeURI">
-                        <xsl:text>https://dewey.info/</xsl:text>
-                    </xsl:attribute>
-                    <xsl:attribute name="subjectScheme">
-                        <xsl:text>dewey</xsl:text>
-                    </xsl:attribute>
+            <xsl:element name="subject">
+                <xsl:attribute name="xml:lang">
+                    <xsl:text>de</xsl:text>
+                </xsl:attribute>
+                <xsl:attribute name="schemeURI">
+                    <xsl:text>https://dewey.info/</xsl:text>
+                </xsl:attribute>
+                <xsl:attribute name="subjectScheme">
+                    <xsl:text>dewey</xsl:text>
+                </xsl:attribute>
+                <xsl:if test="@Number">
                     <xsl:value-of select="@Number"/>
                     <xsl:text> </xsl:text>
-                    <xsl:value-of select="@Name"/>
-                </xsl:element>
+                </xsl:if>
+                <xsl:value-of select="@Name"/>
             </xsl:element>
         </xsl:if>
     </xsl:template>

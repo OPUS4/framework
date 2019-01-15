@@ -144,12 +144,14 @@ class Opus_Doi_DataCiteXmlGenerator
         // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
         $authorOk = false;
         $authors = $doc->getPersonAuthor();
+
         foreach ($authors as $author) {
             if ($author->getLastName() != '' or $author->getFirstName() != '') {
                 $authorOk = true;
                 break;
             }
         }
+
         if (!$authorOk) {
             if ($doc->getCreatingCorporation() == '') {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
@@ -160,20 +162,24 @@ class Opus_Doi_DataCiteXmlGenerator
         // mind. ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
         $titles = $doc->getTitleMain();
+
         foreach ($titles as $title) {
             if ($title->getValue() != '') {
                 $titleOk = true;
                 break;
             }
         }
+
         if (!$titleOk) {
             $titles = $doc->getTitleSub();
+
             foreach ($titles as $title) {
                 if ($title->getValue() != '') {
                     $titleOk = true;
                     break;
                 }
             }
+
             if (!$titleOk) {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element title');
                 return false;
@@ -207,8 +213,7 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         if ($reset) {
             libxml_clear_errors();
-        }
-        else {
+        } else {
             foreach (libxml_get_errors() as $error) {
                 $log->err("libxml error: {$error->message}");
             }
