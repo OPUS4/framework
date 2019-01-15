@@ -125,7 +125,11 @@
                 </xsl:element>
             </xsl:if>
 
-            <xsl:apply-templates select="Identifier[@Type='issn']"/>
+            <xsl:if test="Identifier[@Type='issn']">
+                <xsl:element name="relatedIdentifiers">
+                    <xsl:apply-templates select="Identifier[@Type='issn']"/>
+                </xsl:element>
+            </xsl:if>
 
             <xsl:if test="File/@FileSize or @PageNumber">
                 <xsl:element name="sizes">
@@ -174,16 +178,14 @@
     </xsl:template>
 
     <xsl:template match="Identifier[@Type='issn']">
-        <xsl:element name="relatedIdentifiers">
-            <xsl:element name="relatedIdentifier">
-                <xsl:attribute name="relatedIdentifierType">
-                    <xsl:text>ISSN</xsl:text>
-                </xsl:attribute>
-                <xsl:attribute name="relationType">
-                    <xsl:text>IsPartOf</xsl:text>
-                </xsl:attribute>
-                <xsl:value-of select="@Value"/>
-            </xsl:element>
+        <xsl:element name="relatedIdentifier">
+            <xsl:attribute name="relatedIdentifierType">
+                <xsl:text>ISSN</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="relationType">
+                <xsl:text>IsPartOf</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="@Value"/>
         </xsl:element>
     </xsl:template>
 
