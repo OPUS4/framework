@@ -189,4 +189,30 @@ class Opus_Language extends Opus_Model_AbstractDb
     {
        return $this->getRefName();
     }
+
+    /**
+     * Returns language code for internal language identifier.
+     * @param $language string Internal language identifier (e.g. 'deu')
+     * @param null $part string Field to use for language code
+     * @return string language code
+     */
+    public static function getLanguageCode($language, $part = null)
+    {
+        $result = Opus_Language::getPropertiesByPart2T($language);
+
+        if (empty($result)) {
+            return $language;
+        }
+
+        $code = null;
+
+        if (!is_null($part) && isset($result[$part])) {
+            $code = $result[$part];
+        }
+        else {
+            $code = $result['part2_b'];
+        }
+
+        return empty($code) ? $language : $code;
+    }
 }

@@ -29,7 +29,7 @@
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 class Opus_LanguageTest extends TestCase
@@ -311,5 +311,46 @@ class Opus_LanguageTest extends TestCase
         $this->assertEquals('L', $lang->getType());
         $this->assertEquals('German', $lang->getRefName());
         $this->assertEquals(1, $lang->getActive());
+    }
+
+    public function testGetLanguageCode()
+    {
+        $lang = new Opus_Language();
+
+        $lang->updateFromArray([
+            'Comment' => 'Deutsche Sprache',
+            'Part2B' => 'ger',
+            'Part2T' => 'deu',
+            'Part1' => 'de',
+            'Scope' => 'I',
+            'Type' => 'L',
+            'RefName' => 'German',
+            'Active' => 1
+        ]);
+
+        $lang->store();
+
+        $this->assertEquals('ger', Opus_Language::getLanguageCode('ger'));
+        $this->assertEquals('ger', Opus_Language::getLanguageCode('deu'));
+    }
+
+    public function testGetLanguageCodeFromPart1()
+    {
+        $lang = new Opus_Language();
+
+        $lang->updateFromArray([
+            'Comment' => 'Deutsche Sprache',
+            'Part2B' => 'ger',
+            'Part2T' => 'deu',
+            'Part1' => 'de',
+            'Scope' => 'I',
+            'Type' => 'L',
+            'RefName' => 'German',
+            'Active' => 1
+        ]);
+
+        $lang->store();
+
+        $this->assertEquals('de', Opus_Language::getLanguageCode('deu', 'part1'));
     }
 }
