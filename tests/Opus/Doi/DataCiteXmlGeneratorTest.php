@@ -34,6 +34,37 @@
 class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 {
 
+    public function setUp()
+    {
+        parent::setUp();
+
+        $lang = new Opus_Language();
+        $lang->updateFromArray([
+            'Comment' => 'Deutsche Sprache',
+            'Part2B' => 'ger',
+            'Part2T' => 'deu',
+            'Part1' => 'de',
+            'Scope' => 'I',
+            'Type' => 'L',
+            'RefName' => 'German',
+            'Active' => 1
+        ]);
+        $lang->store();
+
+        $lang = new Opus_Language();
+        $lang->updateFromArray([
+            'Comment' => 'English language',
+            'Part2B' => 'eng',
+            'Part2T' => 'eng',
+            'Part1' => 'en',
+            'Scope' => 'I',
+            'Type' => 'L',
+            'RefName' => 'English',
+            'Active' => 1
+        ]);
+        $lang->store();
+    }
+
     public function testGenerateMissingFields()
     {
         $doc = new Opus_Document();
@@ -93,6 +124,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $title->setValue('Document without meaningful title');
         $title->setLanguage('deu');
         $doc->addTitleMain($title);
+
+        $doc->setLanguage('deu');
 
         $doc->store();
     }
@@ -221,6 +254,21 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->assertEquals(1, $result->length);
 
         $result = $xpath->query('//ns:relatedIdentifier[text()="321"]');
+        $this->assertEquals(1, $result->length);
+    }
+
+    public function testLanguageElement()
+    {
+        $document = new Opus_Document();
+        $this->addRequiredPropsToDoc($document);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+
+        $output = $generator->getXml($document);
+
+        $xpath = $this->prepareXpathFromResultString($output);
+
+        $result = $xpath->query('//ns:language[text()="de"]');
         $this->assertEquals(1, $result->length);
     }
 }
