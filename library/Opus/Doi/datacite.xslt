@@ -30,15 +30,15 @@
  * @author      Friederike Gerland
  * @author      Carina Winter
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- *
  */
 -->
 
 <xsl:stylesheet version="1.0"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                xmlns:php="http://php.net/xsl"
                 xmlns="http://datacite.org/schema/kernel-4">
 
     <xsl:output method="xml" indent="yes" encoding="utf-8"/>
@@ -209,36 +209,18 @@
 
     <xsl:template match="TitleMain">
         <xsl:element name="title">
-            <xsl:choose>
-                <xsl:when test="@Language='deu'">
-                    <xsl:attribute name="xml:lang">
-                        <xsl:text>de</xsl:text>
-                    </xsl:attribute>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:attribute name="xml:lang">
-                        <xsl:text>en</xsl:text><!-- en als Defaultsprache eintragen -->
-                    </xsl:attribute>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:attribute name="xml:lang">
+                <xsl:value-of select="php:functionString('Opus_Language::getLanguageCode', @Language, 'part1')" />
+            </xsl:attribute>
             <xsl:value-of select="@Value"/>
         </xsl:element>
     </xsl:template>
 
     <xsl:template match="TitleSub">
         <xsl:element name="title">
-            <xsl:choose>
-                <xsl:when test="@Language='deu'">
-                    <xsl:attribute name="xml:lang">
-                        <xsl:text>de</xsl:text>
-                    </xsl:attribute>
-                </xsl:when>
-                <xsl:otherwise>
-                    <xsl:attribute name="xml:lang">
-                        <xsl:text>en</xsl:text>
-                    </xsl:attribute>
-                </xsl:otherwise>
-            </xsl:choose>
+            <xsl:attribute name="xml:lang">
+                <xsl:value-of select="php:functionString('Opus_Language::getLanguageCode', @Language, 'part1')" />
+            </xsl:attribute>
             <xsl:attribute name="titleType">
                 <xsl:text>Subtitle</xsl:text>
             </xsl:attribute>
@@ -248,24 +230,13 @@
 
     <xsl:template match="TitleAbstract">
         <xsl:element name="description">
-            <xsl:if test="@Language='deu'">
-                <xsl:attribute name="xml:lang">
-                    <xsl:text>de</xsl:text>
-                </xsl:attribute>
-                <xsl:attribute name="descriptionType">
-                    <xsl:text>Abstract</xsl:text>
-                </xsl:attribute>
-                <xsl:value-of select="@Value"/>
-            </xsl:if>
-            <xsl:if test="@Language='eng'">
-                <xsl:attribute name="xml:lang">
-                    <xsl:text>en</xsl:text>
-                </xsl:attribute>
-                <xsl:attribute name="descriptionType">
-                    <xsl:text>Abstract</xsl:text>
-                </xsl:attribute>
-                <xsl:value-of select="@Value"/>
-            </xsl:if>
+            <xsl:attribute name="xml:lang">
+                <xsl:value-of select="php:functionString('Opus_Language::getLanguageCode', @Language, 'part1')" />
+            </xsl:attribute>
+            <xsl:attribute name="descriptionType">
+                <xsl:text>Abstract</xsl:text>
+            </xsl:attribute>
+            <xsl:value-of select="@Value"/>
         </xsl:element>
     </xsl:template>
 
@@ -373,12 +344,7 @@
 
     <xsl:template match="@Language">
         <xsl:element name="language">
-            <xsl:if test=".='deu'">
-                <xsl:text>de</xsl:text>
-            </xsl:if>
-            <xsl:if test=".='eng'">
-                <xsl:text>en</xsl:text>
-            </xsl:if>
+            <xsl:value-of select="php:functionString('Opus_Language::getLanguageCode', ., 'part1')" />
         </xsl:element>
     </xsl:template>
 

@@ -88,6 +88,7 @@ class Opus_Doi_DataCiteXmlGenerator
         }
 
         $proc = new XSLTProcessor();
+        $proc->registerPHPFunctions('Opus_Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
         if (!$this->checkRequiredFields($doc, $log)) {
@@ -118,6 +119,8 @@ class Opus_Doi_DataCiteXmlGenerator
             $log->err($message);
             throw new Opus_Doi_DataCiteXmlGenerationException($message);
         }
+
+        $output = $result->saveXML();
 
         // Validierung des erzeugten DataCite-XML findet bereits hier statt, da ein invalides XML
         // beim späteren Registrierungsversuch einen HTTP Fehler 400 auslöst
@@ -216,6 +219,7 @@ class Opus_Doi_DataCiteXmlGenerator
         } else {
             foreach (libxml_get_errors() as $error) {
                 $log->err("libxml error: {$error->message}");
+                var_dump($error->message);
             }
         }
         libxml_use_internal_errors($reset);
