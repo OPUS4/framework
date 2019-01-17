@@ -7,7 +7,7 @@ START TRANSACTION;
 CREATE TABLE IF NOT EXISTS `translationkeys` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.',
   `key` VARCHAR(100) NOT NULL COMMENT 'Key for translation.',
-  `module` VARCHAR(50) NULL COMMENT 'Name of source module.',
+  `module` VARCHAR(50) DEFAULT NULL COMMENT 'Name of source module.',
   PRIMARY KEY (`id`),
   UNIQUE KEY (`key`, `module`)
 )
