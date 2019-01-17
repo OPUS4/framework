@@ -28,7 +28,7 @@
  * @category    Framework
  * @package     Opus_Translate
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -37,6 +37,8 @@
  *
  * This class is used to read translations from database for Zend_Translate. Database access should only be necessary
  * if the cache for the translations has been cleared.
+ *
+ * TODO add mode where all modules are loaded in one step to reduce database overhead?
  */
 class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
 {
@@ -54,7 +56,20 @@ class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
     {
         $database = new Opus_Translate_Dao();
 
-        return $database->getTranslationsByLocale();
+        $module = null;
+
+        if (!is_array($data) and $data !== 'default') {
+            $module = $data;
+        }
+
+        $data = $database->getTranslationsByLocale($module);
+
+        if (!empty($data)) {
+            return $data;
+        } else {
+            // return array for locale with no translation keys
+            return [$locale => []];
+        }
     }
 
     /**

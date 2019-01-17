@@ -197,6 +197,8 @@ class Opus_Translate_Dao
 
         if (!is_null($module)) {
             $select->where('keys.module = ?', $module);
+        } else {
+            $select->where('keys.module = \'\''); // TODO 'null' not working - Why?
         }
 
         $rows = $table->getAdapter()->fetchAll($select);

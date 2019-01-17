@@ -33,8 +33,24 @@
 class Opus_Translate_DatabaseAdapterTest extends TestCase
 {
 
+    private $cache;
+
+    public function setUp()
+    {
+        parent::setUp();
+        $this->cache = Zend_Translate::getCache();
+    }
+
+    public function tearDown()
+    {
+        Zend_Translate::setCache($this->cache);
+        parent::tearDown();
+    }
+
     public function testUsingAdapter()
     {
+        Zend_Translate::clearCache();
+
         $database = new Opus_Translate_Dao();
 
         $database->setTranslation('admin', [
@@ -44,7 +60,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
 
@@ -73,7 +89,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
 
@@ -91,7 +107,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         // create new translation object will not update cache
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
 
@@ -104,7 +120,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
 
@@ -115,7 +131,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
     // check behaviour with cache
     public function testUsingAdapterWithoutCache()
     {
-        Zend_Translate::removeCache();
+        Zend_Translate::clearCache();
 
         $database = new Opus_Translate_Dao();
 
@@ -126,9 +142,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
+
+        $translate->removeCache();
 
         $this->assertFalse($translate->hasCache());
 
@@ -150,7 +168,7 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         // create new Zend_Translate object so translation will be read again
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
-            'content' => 'database',
+            'content' => 'default',
             'locale' => 'en'
         ]);
 
@@ -158,8 +176,75 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $this->assertEquals('Editiert', $translate->translate('admin', 'de'));
     }
 
-    public function testClearCacheForJustOneModule()
+    public function testLoadTranslationsForModule()
     {
         $this->markTestIncomplete('not implemented yet');
+    }
+
+    public function testClearCacheForJustOneModule()
+    {
+        Zend_Translate::clearCache();
+
+        $database = new Opus_Translate_Dao();
+
+        $database->setTranslation('admin_title', [
+            'en' => 'Administration',
+            'de' => 'Verwaltung'
+        ], 'admin');
+
+        $database->setTranslation('home_title', [
+            'en' => 'Mainpage',
+            'de' => 'Hauptseite'
+        ], 'home');
+
+        $translate = new Zend_Translate([
+            'adapter' => 'Opus_Translate_DatabaseAdapter',
+            'content' => 'admin',
+            'locale' => 'en'
+        ]);
+
+        // $translate->addTranslation(['content' => 'home']);
+        $translate->addTranslation('home');
+
+        $this->assertTrue($translate->isTranslated('admin_title'));
+        $this->assertEquals('Administration', $translate->translate('admin_title'));
+        $this->assertEquals('Verwaltung', $translate->translate('admin_title', 'de'));
+
+        $this->assertTrue($translate->isTranslated('home_title'));
+        $this->assertEquals('Mainpage', $translate->translate('home_title'));
+        $this->assertEquals('Hauptseite', $translate->translate('home_title', 'de'));
+
+        $database->setTranslation('admin_title', [
+            'en' => 'Settings',
+            'de' => 'Einstellungen'
+        ], 'admin');
+
+        $database->setTranslation('home_title', [
+            'en' => 'Home',
+            'de' => 'Start'
+        ], 'home');
+
+        $translate->clearCache();
+
+        Zend_Translate::clearCache();
+
+        $translate = new Zend_Translate([
+            'adapter' => 'Opus_Translate_DatabaseAdapter',
+            'content' => 'admin',
+            'locale' => 'en',
+        ]);
+
+        $translate->clearCache();
+
+        // $translate->addTranslation(['content' => 'home']);
+        $translate->addTranslation('home');
+
+        $this->assertTrue($translate->isTranslated('admin_title'));
+        $this->assertEquals('Administration', $translate->translate('admin_title'));
+        $this->assertEquals('Verwaltung', $translate->translate('admin_title', 'de'));
+
+        $this->assertTrue($translate->isTranslated('home_title'));
+        $this->assertEquals('Home', $translate->translate('home_title'));
+        $this->assertEquals('Start', $translate->translate('home_title', 'de'));
     }
 }
