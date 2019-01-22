@@ -67,6 +67,7 @@
  *
  * TODO define allowed types (const?)
  * TODO define allowed scopes
+ * TODO disable caching
  */
 class Opus_Language extends Opus_Model_AbstractDb
 {
@@ -77,6 +78,12 @@ class Opus_Language extends Opus_Model_AbstractDb
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_Languages';
+
+    /**
+     * Cache used languages to reduce database queries.
+     * @var null|array
+     */
+    private static $usedLanguages;
 
     /**
      * Initialize model with fields.
@@ -238,6 +245,10 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getUsedLanguages()
     {
+        if (!is_null(self::$usedLanguages)) {
+            return self::$usedLanguages;
+        }
+
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $database = $table->getAdapter();
 
@@ -261,6 +272,16 @@ class Opus_Language extends Opus_Model_AbstractDb
             }
         }
 
-        return array_unique($languages);
+        self::$usedLanguages = array_unique($languages);
+
+        return self::$usedLanguages;
+    }
+
+    /**
+     * Removes cached values.
+     */
+    public static function clearCache()
+    {
+        self::$usedLanguages = null;
     }
 }
