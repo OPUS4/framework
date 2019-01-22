@@ -215,4 +215,52 @@ class Opus_Language extends Opus_Model_AbstractDb
 
         return empty($code) ? $language : $code;
     }
+
+    /**
+     * Checks if a language is being used in database.
+     *
+     * Language values are used in multiple tables:
+     * - document_licences
+     * - documents
+     * - document_files
+     * - document_subjects
+     * - document_title_abstracts
+     *
+     */
+    public function isUsed()
+    {
+        $languages = Opus_Language::getUsedLanguages();
+        return in_array($this->getPart2T(), $languages);
+    }
+
+    /**
+     * Returns all languages used in database.
+     */
+    public static function getUsedLanguages()
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $database = $table->getAdapter();
+
+        $tables = [
+            'documents',
+            'document_title_abstracts',
+            'document_licences',
+            'document_subjects',
+            'document_files'
+        ];
+
+        $languages = [];
+
+        // get languages for documents
+        foreach ($tables as $table) {
+            $select = $database->select()->distinct()->from($table, ['language'])->where('language is not null');
+            $rows = $database->fetchCol($select);
+
+            if ($rows !== false) {
+                $languages = array_merge($languages, $rows);
+            }
+        }
+
+        return array_unique($languages);
+    }
 }
