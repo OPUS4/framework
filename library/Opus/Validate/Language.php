@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_Language extends Zend_Validate_Abstract {
+class Opus_Validate_Language extends Zend_Validate_Abstract
+{
     /**
      * Error message key.
      *
@@ -50,9 +51,9 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_LANGUAGE => "'%value%' is not a valid language shortcut."
-    );
+    ];
 
     /**
      * Validate the given value. Looks for the language translation list
@@ -74,7 +75,7 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
             $translationList = $registry->get('Available_Languages');
         } else {
             $locale = new Zend_Locale();
-            $translationList = $locale->getLanguageTranslationList();
+            $translationList = $locale->getTranslationList('language');
         }
 
         foreach ($value as $val) {
@@ -93,5 +94,4 @@ class Opus_Validate_Language extends Zend_Validate_Abstract {
 
         return true;
     }
-
 }
