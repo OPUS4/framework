@@ -96,8 +96,10 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
      */
     public function getPrefix()
     {
-        if (!isset($this->config->doi->prefix) or $this->config->doi->prefix == '') {
-            throw new Opus_Doi_Generator_DoiGeneratorException('configuration setting doi.prefix is missing - DOI cannot be generated');
+        if (!isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
+            throw new Opus_Doi_Generator_DoiGeneratorException(
+                'configuration setting doi.prefix is missing - DOI cannot be generated'
+            );
         }
 
         // Schrägstrich als Trennzeichen, wenn Präfix nicht bereits einen Schrägstrich als Suffix besitzt
