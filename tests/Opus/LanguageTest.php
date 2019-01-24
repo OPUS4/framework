@@ -353,4 +353,148 @@ class Opus_LanguageTest extends TestCase
 
         $this->assertEquals('de', Opus_Language::getLanguageCode('deu', 'part1'));
     }
+
+    public function testGetUsedLanguages()
+    {
+        $document = new Opus_Document();
+        $document->setLanguage('deu');
+        $title = $document->addTitleMain();
+        $title->setValue('Main Title');
+        $title->setLanguage('eng');
+        $document->store();
+
+        $document = new Opus_Document();
+        $document->setLanguage('eng');
+        $document->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(2, $languages);
+        $this->assertEquals(['deu', 'eng'], $languages);
+    }
+
+    public function testGetUsedLanguagesIncludesLicences()
+    {
+        $languages = Opus_Language::getUsedLanguages();
+        $this->assertEmpty($languages);
+
+        $licence = new Opus_Licence();
+        $licence->setName('TL');
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://www.example.org');
+        $licence->setLanguage('fra');
+        $licence->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(1, $languages);
+        $this->assertEquals(['fra'], $languages);
+    }
+
+    public function testGetUsedLanguagesIncludesFiles()
+    {
+        $languages = Opus_Language::getUsedLanguages();
+        $this->assertEmpty($languages);
+
+        $document = new Opus_Document();
+
+        $file = new Opus_File();
+        $file->setLanguage('spa');
+        $file->setPathName('test.txt');
+        $document->addFile($file);
+        $document->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(1, $languages);
+        $this->assertEquals(['spa'], $languages);
+    }
+
+    public function testGetUsedLanguagesIncludesSubjects()
+    {
+        $languages = Opus_Language::getUsedLanguages();
+        $this->assertEmpty($languages);
+
+        $document = new Opus_Document();
+        $subject = $document->addSubject();
+        $subject->setLanguage('rus');
+        $subject->setValue('Keyword');
+        $subject->setType('SWD');
+        $document->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(1, $languages);
+        $this->assertEquals(['rus'], $languages);
+    }
+
+    public function testGetUsedLanguagesWithoutDuplicates()
+    {
+        $document = new Opus_Document();
+        $document->setLanguage('fra');
+        $document->store();
+
+        $document = new Opus_Document();
+        $document->setLanguage('fra');
+        $document->store();
+
+        $licence = new Opus_Licence();
+        $licence->setName('TL');
+        $licence->setNameLong('Test Licence');
+        $licence->setLinkLicence('http://www.example.org');
+        $licence->setLanguage('fra');
+        $licence->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(1, $languages);
+        $this->assertEquals(['fra'], $languages);
+    }
+
+    public function testGetUsedLanguagesWithoutNull()
+    {
+        $document = new Opus_Document();
+        $document->setLanguage('fra');
+        $document->store();
+
+        $document = new Opus_Document();
+        $document->store();
+
+        $languages = Opus_Language::getUsedLanguages();
+
+        $this->assertInternalType('array', $languages);
+        $this->assertCount(1, $languages);
+        $this->assertEquals(['fra'], $languages);
+    }
+
+    public function testIsUsed()
+    {
+        $lang = new Opus_Language();
+
+        $lang->updateFromArray([
+            'Comment' => 'Deutsche Sprache',
+            'Part2B' => 'ger',
+            'Part2T' => 'deu',
+            'Part1' => 'de',
+            'Scope' => 'I',
+            'Type' => 'L',
+            'RefName' => 'German',
+            'Active' => 1
+        ]);
+
+        $lang->store();
+
+        $this->assertFalse($lang->isUsed());
+
+        $document = new Opus_Document();
+        $document->setLanguage('deu');
+        $document->store();
+
+        $this->assertTrue($lang->isUsed());
+    }
 }
