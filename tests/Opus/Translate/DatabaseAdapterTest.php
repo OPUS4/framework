@@ -178,10 +178,36 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
     public function testLoadTranslationsForModule()
     {
-        $this->markTestIncomplete('not implemented yet');
+        Zend_Translate::clearCache();
+
+        $database = new Opus_Translate_Dao();
+
+        $database->setTranslation('admin_title', [
+            'en' => 'Administration',
+            'de' => 'Verwaltung'
+        ], 'admin');
+
+        $database->setTranslation('home_title', [
+            'en' => 'Mainpage',
+            'de' => 'Hauptseite'
+        ], 'home');
+
+        $translate = new Zend_Translate([
+            'adapter' => 'Opus_Translate_DatabaseAdapter',
+            'content' => 'admin',
+            'locale' => 'en'
+        ]);
+
+        $this->assertTrue($translate->isTranslated('admin_title'));
+        $this->assertFalse($translate->isTranslated('home_title'));
+
+        $translate->addTranslation('home');
+
+        $this->assertTrue($translate->isTranslated('admin_title'));
+        $this->assertTrue($translate->isTranslated('home_title'));
     }
 
-    public function testClearCacheForJustOneModule()
+    public function testReloadCacheForJustOneModule()
     {
         Zend_Translate::clearCache();
 
@@ -224,20 +250,13 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
             'de' => 'Start'
         ], 'home');
 
-        $translate->clearCache();
-
-        Zend_Translate::clearCache();
-
         $translate = new Zend_Translate([
             'adapter' => 'Opus_Translate_DatabaseAdapter',
             'content' => 'admin',
-            'locale' => 'en',
+            'locale' => 'en'
         ]);
 
-        $translate->clearCache();
-
-        // $translate->addTranslation(['content' => 'home']);
-        $translate->addTranslation('home');
+        $translate->addTranslation(['content' => 'home', 'reload' => 'true']);
 
         $this->assertTrue($translate->isTranslated('admin_title'));
         $this->assertEquals('Administration', $translate->translate('admin_title'));
