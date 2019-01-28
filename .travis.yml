@@ -1,0 +1,11 @@
+language: php
+php:
+  - 7.0
+services:
+  - mysql
+before_script: composer install
+script: 
+  - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
+  - php db/createdb.php
+  - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
+  - phpunit --configuration ./tests/phpunit.xml
