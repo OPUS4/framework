@@ -10,4 +10,9 @@ script:
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
+  - mkdir solr
+  - cd solr
+  - wget http://archive.apache.org/dist/lucene/solr/5.5.5/solr-5.5.5.tgz
+  - tar xfz solr-5.5.5.tgz
+  - solr-5.5.5/bin/solr start  
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
