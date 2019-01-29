@@ -2,10 +2,8 @@ dist: xenial
 language: php
 php:
   - 7.0
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+jdk:
+  - openjdk8
 services:
   - mysql
 before_script: composer install
