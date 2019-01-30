@@ -15,8 +15,8 @@ script:
   - tar xfz solr-7.6.0.tgz
   - cd solr-7.6.0
   - ./bin/solr start
-  - ./bin/solr create -c solr
-  - cd server/solr/solr
+  - ./bin/solr create -c opus4
+  - cd server/solr/opus4
   - git clone https://github.com/OPUS4/opus4-search
   - cd conf
   - rm -f managed-schema schema.xml solrconfig.xml
