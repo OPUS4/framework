@@ -2,8 +2,6 @@ dist: xenial
 language: php
 php:
   - 7.0
-jdk:
-  - openjdk8
 services:
   - mysql
 before_script: composer install
@@ -13,12 +11,11 @@ script:
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - wget http://archive.apache.org/dist/lucene/solr/5.5.5/solr-5.5.5.tgz
-  - tar xfz solr-5.5.5.tgz
-  - cd solr-5.5.5
+  - wget https://archive.apache.org/dist/lucene/solr/7.6.0/solr-7.6.0.tgz
+  - tar xfz solr-7.6.0.tgz
+  - cd solr-7.6.0
   - ./bin/solr start
   - ./bin/solr create -c solr
-  - ls server/*
   - cd server/solr/solr
   - git clone https://github.com/OPUS4/opus4-search
   - cd conf
