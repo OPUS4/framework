@@ -376,6 +376,7 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesLicences()
     {
+        Opus_Language::clearCache();
         $languages = Opus_Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
@@ -386,6 +387,7 @@ class Opus_LanguageTest extends TestCase
         $licence->setLanguage('fra');
         $licence->store();
 
+        Opus_Language::clearCache();
         $languages = Opus_Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
@@ -395,6 +397,7 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesFiles()
     {
+        Opus_Language::clearCache();
         $languages = Opus_Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
@@ -406,6 +409,8 @@ class Opus_LanguageTest extends TestCase
         $document->addFile($file);
         $document->store();
 
+        Opus_Language::clearCache();
+
         $languages = Opus_Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
@@ -415,6 +420,7 @@ class Opus_LanguageTest extends TestCase
 
     public function testGetUsedLanguagesIncludesSubjects()
     {
+        Opus_Language::clearCache();
         $languages = Opus_Language::getUsedLanguages();
         $this->assertEmpty($languages);
 
@@ -424,6 +430,8 @@ class Opus_LanguageTest extends TestCase
         $subject->setValue('Keyword');
         $subject->setType('SWD');
         $document->store();
+
+        Opus_Language::clearCache();
 
         $languages = Opus_Language::getUsedLanguages();
 
@@ -449,6 +457,8 @@ class Opus_LanguageTest extends TestCase
         $licence->setLanguage('fra');
         $licence->store();
 
+        Opus_Language::clearCache();
+
         $languages = Opus_Language::getUsedLanguages();
 
         $this->assertInternalType('array', $languages);
@@ -464,6 +474,8 @@ class Opus_LanguageTest extends TestCase
 
         $document = new Opus_Document();
         $document->store();
+
+        Opus_Language::clearCache();
 
         $languages = Opus_Language::getUsedLanguages();
 
@@ -490,6 +502,8 @@ class Opus_LanguageTest extends TestCase
         $lang->store();
 
         $this->assertFalse($lang->isUsed());
+
+        Opus_Language::clearCache();
 
         $document = new Opus_Document();
         $document->setLanguage('deu');
