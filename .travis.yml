@@ -22,7 +22,7 @@ script:
   - rm -f managed-schema schema.xml solrconfig.xml
   - ln -s ../opus4-search/schema.xml
   - ln -s ../opus4-search/solrconfig.xml
-  - cd ../../../
+  - cd ../../../../
   - ./bin/solr restart  
   - cd ..
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
