@@ -12,7 +12,7 @@ script:
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
   - wget https://archive.apache.org/dist/lucene/solr/7.6.0/solr-7.6.0.tgz
-  - tar xfz solr-7.6.6.tgz
+  - tar xfz solr-7.6.0.tgz
   - cd solr-7.6.0
   - ./bin/solr start
   - ./bin/solr create -c opus4
