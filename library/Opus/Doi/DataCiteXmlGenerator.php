@@ -219,7 +219,6 @@ class Opus_Doi_DataCiteXmlGenerator
         } else {
             foreach (libxml_get_errors() as $error) {
                 $log->err("libxml error: {$error->message}");
-                var_dump($error->message);
             }
         }
         libxml_use_internal_errors($reset);
