@@ -291,11 +291,22 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertNull($result);
     }
 
-    public function testVerifyWithVerifiedDoiWithReverification()
+    public function testVerifyWithVerifiedDoiWithReverificationReachableHost()
+    {
+        $this->verifyWithVerifiedDoiWithReverification('example.org', '80');
+    }
+
+    public function testVerifyWithVerifiedDoiWithReverificationUneachableHost()
+    {
+        $this->verifyWithVerifiedDoiWithReverification('example.org', '54321');
+    }
+
+    public function verifyWithVerifiedDoiWithReverification($hostname, $port)
     {
         Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
             'url' => 'http://www.example.org'
         ]));
+
         $this->adaptDoiConfiguration([
             'prefix' => '10.5072/',
             'localPrefix' => 'OPUS4',
@@ -303,10 +314,11 @@ class Opus_Doi_DoiManagerTest extends TestCase
                 'datacite' => [
                     'username' => 'test',
                     'password' => 'secret',
-                    'serviceUrl' => 'http://localhost'
+                    'serviceUrl' => "http://$hostname:$port"
                 ]
             ]
         ]);
+
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'verified');
         $doiManager = new Opus_Doi_DoiManager();
         $result = $doiManager->verify($docId, true);
@@ -314,8 +326,24 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $this->assertNotNull($result);
         $this->assertEquals('doi', $result->getType());
         $this->assertEquals('10.5072/OPUS4-' . $docId, $result->getValue());
-        // Status-Downgrade prüfen
-        $this->assertEquals('registered', $result->getStatus());
+
+        $fp = null;
+        try {
+            $fp = fsockopen($hostname, $port, $errno, $errstr, 5);
+        }
+        catch (\Exception $e) {
+            $fp = false;
+        }
+
+        if (!$fp) {
+            // wenn keine Netzwerkverbindung zu DataCite hergestellt werden kann,
+            // dann wird der DOI-Registrierungsstatus des Dokuments nicht angetastet
+            $this->assertEquals('verified', $result->getStatus());
+        }
+        else {
+            // Status-Downgrade muss erfolgt sein: prüfe, ob das der Fall ist
+            $this->assertEquals('registered', $result->getStatus());
+        }
     }
 
     public function testVerifyWithRegisteredDoiAndMissingConfig()
