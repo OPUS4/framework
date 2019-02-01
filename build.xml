@@ -170,9 +170,8 @@
         <mkdir dir="${basedir}/download" />
         <get src="https://archive.apache.org/dist/lucene/solr/${solrVersion}/solr-${solrVersion}.tgz"
              dest="${basedir}/download/solr-${solrVersion}.tgz"
-             skipexisting="true"
-             verbose="true" />
-        <untar src="${basedir}/download/solr-${solrVersion}.tgz" dest="${basedir}/solr" compression="gzip"/>
+             skipexisting="true" />
+        <untar src="${basedir}/download/solr-${solrVersion}.tgz" dest="${basedir}" compression="gzip"/>
     </target>
 
 </project>
