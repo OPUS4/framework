@@ -14,6 +14,10 @@ cache:
     - $HOME/download
 before_script: composer install
 script:
+  - pwd
+  - cd "$HOME"
+  - pwd
+  - find . -name '*xml'
   - wget 'https://download.java.net/java/early_access/jdk8/b03/BCL/jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
   - tar xfz jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
   - ./jre1.8.0_202/bin/java -version
@@ -45,7 +49,6 @@ script:
   - ./bin/solr create -c opus4
   - cd server/solr/opus4/conf
   - rm -f managed-schema schema.xml solrconfig.xml
-  - find "$HOME/vendor/opus4-repo" -name "*xml"
   - ln -s "$HOME/vendor/opus4-repo/search/schema-5.xml" schema.xml
   - ln -s "$HOME/vendor/opus4-repo/search/solrconfig-5.xml" solrconfig.xml
   - cat schema.xml
