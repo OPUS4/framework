@@ -57,8 +57,8 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
         $logger->debug('Initializing database.');
 
         // use custom DB adapter
-        $config = new Zend_Config(array(
-            'db' => array(
+        $config = new Zend_Config([
+            'db' => [
                 'adapter' => 'Pdo_Mysqlutf8',
                 'params' => [
                     'adapterNamespace' => 'Opus_Db_Adapter'
