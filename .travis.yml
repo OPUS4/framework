@@ -51,4 +51,4 @@ script:
   - ./bin/solr restart
   - cd ..
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
-  - tail -200 solr-5.5.5/logs/solr.log
+  - tail -200 solr-5.5.5/server/logs/solr.log
