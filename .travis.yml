@@ -4,8 +4,15 @@ php:
   - 7.0
 services:
   - mysql
+addons:
+  apt:
+    packages:
+      - ant
+cache:
+  directories:
+    - $HOME/.composer/cache
 before_script: composer install
-script: 
+script:
   - mysql --version
   - java -version
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
@@ -25,6 +32,6 @@ script:
   - ln -s ../opus4-search/config/schema-5.xml schema.xml
   - ln -s ../opus4-search/config/solrconfig-5.xml solrconfig.xml
   - cd ../../../../
-  - ./bin/solr restart  
+  - ./bin/solr restart
   - cd ..
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
