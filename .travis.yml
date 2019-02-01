@@ -47,7 +47,8 @@ script:
   - rm -f managed-schema schema.xml solrconfig.xml
   - ln -s "$HOME/vendor/opus4-repo/search/schema-5.xml" schema.xml
   - ln -s "$HOME/vendor/opus4-repo/search/solrconfig-5.xml" solrconfig.xml
-  - ls -l .
+  - cat schema.xml
+  - cat solrconfig.xml
   - cd ../../../../
   - ./bin/solr restart
   - cd ..
