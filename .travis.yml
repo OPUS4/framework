@@ -20,8 +20,8 @@ script:
   - ./jre1.8.0_202/bin/java -version
   - java -version
   - CURR_DIR=`pwd`
-  - export JAVA_HOME="$CURR_DIR/jre1.8.0_202/"
-  - java -version
+  - export SOLR_JAVA_HOME="$CURR_DIR/jre1.8.0_202/"
+  - echo "SOLR_JAVA_HOME is set to $JAVA_HOME"
   - mysql --version
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
