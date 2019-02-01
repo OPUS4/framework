@@ -19,8 +19,8 @@ script:
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - ant download-solr -DsolrVersion=7.6.0
-  - cd solr-7.6.0
+  - ant download-solr -DsolrVersion=5.5.5
+  - cd solr-5.5.5
   - ./bin/solr start
   - ./bin/solr create -c opus4
   - cd server/solr/opus4/conf
