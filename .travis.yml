@@ -14,8 +14,15 @@ cache:
     - $HOME/download
 before_script: composer install
 script:
-  - mysql --version
+  - echo "install OpenJDK 1.8.0_202 EA"
+  - wget 'https://download.java.net/java/early_access/jdk8/b03/BCL/jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
+  - tar xfz jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+  - ./jre1.8.0_202/bin/java -version
   - java -version
+  - CURR_DIR=`pwd`
+  - export JAVA_HOME="$CURR_DIR/jre1.8.0_202/"
+  - java -version
+  - mysql --version
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
