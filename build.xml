@@ -171,7 +171,11 @@
         <get src="https://archive.apache.org/dist/lucene/solr/${solrVersion}/solr-${solrVersion}.tgz"
              dest="${basedir}/download/solr-${solrVersion}.tgz"
              skipexisting="true" />
-        <untar src="${basedir}/download/solr-${solrVersion}.tgz" dest="${basedir}" compression="gzip"/>
+        <exec executable="tar" dir="${basedir}/download">
+            <arg line="xfz" />
+            <arg line="solr-${solrVersion}.tgz" />
+            <arg line="-C ${basedir}" />
+        </exec>
     </target>
 
 </project>
