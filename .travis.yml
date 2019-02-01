@@ -11,6 +11,7 @@ addons:
 cache:
   directories:
     - $HOME/.composer/cache
+    - $HOME/download
 before_script: composer install
 script:
   - mysql --version
@@ -18,9 +19,8 @@ script:
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - wget https://archive.apache.org/dist/lucene/solr/7.6.0/solr-7.6.0.tgz
-  - tar xfz solr-7.6.0.tgz
-  - cd solr-7.6.0
+  - ant download-solr
+  - cd solr
   - ./bin/solr start
   - ./bin/solr create -c opus4
   - cd server/solr/opus4
