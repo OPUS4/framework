@@ -36,7 +36,6 @@ script:
   - sed -i -e "s!@searchengine.extract.host@!localhost!" tests/config.ini
   - sed -i -e "s!@searchengine.extract.port@!8983!" tests/config.ini
   - sed -i -e "s!@searchengine.extract.app@!/solr/opus4!" tests/config.ini
-  - cat tests/config.ini
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
   - ant download-solr -DsolrVersion=5.5.5
@@ -47,11 +46,7 @@ script:
   - rm -f managed-schema schema.xml solrconfig.xml
   - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/schema-5.xml" schema.xml
   - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/solrconfig-5.xml" solrconfig.xml
-  - echo "$TRAVIS_BUILD_DIR"
-  - cat schema.xml
-  - cat solrconfig.xml
   - cd ../../../../
   - ./bin/solr restart
   - cd ..
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
-  - tail -200 solr-5.5.5/server/logs/solr.log
