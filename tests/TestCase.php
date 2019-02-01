@@ -27,9 +27,9 @@
  *
  * @category    Tests
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -37,14 +37,16 @@
  *
  * @category Tests
  */
-class TestCase extends SimpleTestCase {
+class TestCase extends SimpleTestCase
+{
 
     /**
      * Empty all listed tables.
      *
      * @return void
      */
-    private function _clearTables() {
+    private function _clearTables()
+    {
         // This is needed to workaround the constraints on the parent_id column.
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
@@ -65,7 +67,8 @@ class TestCase extends SimpleTestCase {
      * @param string $tablename Name of the table to be cleared.
      * @return void
      */
-    protected function clearTable($tablename) {
+    protected function clearTable($tablename)
+    {
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $this->assertNotNull($adapter);
 
@@ -80,7 +83,8 @@ class TestCase extends SimpleTestCase {
      * Deletes folders in workspace/files in case a test didn't do proper cleanup.
      * @param null $directory
      */
-    protected function clearFiles($directory = null) {
+    protected function clearFiles($directory = null)
+    {
         if (is_null($directory)) {
             if (empty(APPLICATION_PATH)) {
                 return;
@@ -88,8 +92,7 @@ class TestCase extends SimpleTestCase {
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
             $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
-        }
-        else {
+        } else {
             $filesDir = $directory;
             $files = array_diff(scandir($filesDir), array('.', '..'));
         }
@@ -99,8 +102,7 @@ class TestCase extends SimpleTestCase {
 
             if (is_dir($path)) {
                 $this->clearFiles($path);
-            }
-            else {
+            } else {
                 unlink($path);
             }
         }
@@ -117,10 +119,10 @@ class TestCase extends SimpleTestCase {
      *
      * @return void
      */
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
 
         $this->_clearTables();
     }
-
 }

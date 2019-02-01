@@ -51,20 +51,20 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
      */
     protected function _initDatabase()
     {
-        $this->bootstrap(array('ZendCache', 'Logging','Configuration'));
+        $this->bootstrap(['ZendCache', 'Logging', 'Configuration']);
 
         $logger = $this->getResource('Logging');
         $logger->debug('Initializing database.');
 
         // use custom DB adapter
-        $config = new Zend_Config([
-            'db' => [
+        $config = new Zend_Config(array(
+            'db' => array(
                 'adapter' => 'Pdo_Mysqlutf8',
                 'params' => [
                     'adapterNamespace' => 'Opus_Db_Adapter'
                 ]
             ]
-        ],true);
+        ], true);
 
         // Include the above made configuration changes in the application configuration.
         $config->merge(Zend_Registry::get('Zend_Config'));
@@ -89,8 +89,8 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
         }
 
         // Check database version
-        if (! Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
-            ! Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+        if (!Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
+            !Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 

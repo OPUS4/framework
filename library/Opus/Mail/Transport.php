@@ -27,37 +27,44 @@
  * @category    Framework
  * @package     Opus_Mail
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2011, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2011-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
- * Override 
+ * Override
  *
  * @category    Framework
  * @package     Opus_Mail_Transport
  *
  */
-class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp {
+class Opus_Mail_Transport extends Zend_Mail_Transport_Smtp
+{
 
     /**
      * Create a new Zend_Mail_Transport instance.
      */
-    public function __construct($config = null) {
-        $smtp = 'localhost';
+    public function __construct($config = null)
+    {
+        $smtp = null;
+
         if (isset($config->smtp)) {
             $smtp = $config->smtp;
         }
 
+        if (is_null($smtp) || $smtp === 'localhost') {
+            $smtp = '127.0.0.1';
+        }
+
         $port = 25;
+
         if (isset($config->port)) {
             $port = $config->port;
         }
 
-        $logger = Zend_Registry::get('Zend_Log');
-        $logger->info("Opus_Mail_Transport: Using mail server {$smtp}:{$port}");
-        parent::__construct($smtp, array('port' => $port));
-    }
+        Zend_Registry::get('Zend_Log')->info("Opus_Mail_Transport: Using mail server {$smtp}:{$port}");
 
+        parent::__construct($smtp, ['port' => $port]);
+    }
 }

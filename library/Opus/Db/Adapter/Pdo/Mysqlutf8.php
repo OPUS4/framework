@@ -85,8 +85,8 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
 
         parent::_connect();
 
-        // set connection to utf8
-        $this->query('SET NAMES utf8');
+        // set connection to default character set ('utf8mb4')
+        $this->query('SET NAMES ' . Opus_Database::DEFAULT_CHARACTER_SET);
 
         // Enable "strict" mode on all transactional tables to avoid silent
         // truncation of inserted/updated data.  See ticket [OPUSVIER-2111].
