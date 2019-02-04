@@ -14,9 +14,28 @@ cache:
     - $HOME/download
 before_script: composer install
 script:
-  - mysql --version
+  - wget 'https://download.java.net/java/early_access/jdk8/b03/BCL/jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
+  - tar xfz jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
+  - ./jre1.8.0_202/bin/java -version
   - java -version
+  - CURR_DIR=`pwd`
+  - export SOLR_JAVA_HOME="$CURR_DIR/jre1.8.0_202/"
+  - echo "SOLR_JAVA_HOME is set to $SOLR_JAVA_HOME"
+  - mysql --version
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
+  - cp -p tests/config.ini.template tests/config.ini
+  - sed -i -e "s!@db.admin.name@!root!" tests/config.ini
+  - sed -i -e "s!@db.admin.password@!''!" tests/config.ini
+  - sed -i -e "s!@db.name@!opusdb!" tests/config.ini
+  - sed -i -e "s!@searchengine.default.host@!localhost!" tests/config.ini
+  - sed -i -e "s!@searchengine.default.port@!8983!" tests/config.ini
+  - sed -i -e "s!@searchengine.default.path@!/solr/opus4!" tests/config.ini
+  - sed -i -e "s!@searchengine.index.host@!localhost!" tests/config.ini
+  - sed -i -e "s!@searchengine.index.port@!8983!" tests/config.ini
+  - sed -i -e "s!@searchengine.index.app@!/solr/opus4!" tests/config.ini
+  - sed -i -e "s!@searchengine.extract.host@!localhost!" tests/config.ini
+  - sed -i -e "s!@searchengine.extract.port@!8983!" tests/config.ini
+  - sed -i -e "s!@searchengine.extract.app@!/solr/opus4!" tests/config.ini
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
   - ant download-solr -DsolrVersion=5.5.5
@@ -25,8 +44,8 @@ script:
   - ./bin/solr create -c opus4
   - cd server/solr/opus4/conf
   - rm -f managed-schema schema.xml solrconfig.xml
-  - ln -s $HOME/vendor/opus4-repo/search/schema-5.xml schema.xml
-  - ln -s $HOME/vendor/opus4-repo/search/solrconfig-5.xml solrconfig.xml
+  - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/schema-5.xml" schema.xml
+  - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/solrconfig-5.xml" solrconfig.xml
   - cd ../../../../
   - ./bin/solr restart
   - cd ..
