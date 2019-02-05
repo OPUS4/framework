@@ -9,8 +9,12 @@ services:
   - mysql
 addons:
   apt:
+    sources:
+      - mysql-5.7-trusty
     packages:
       - ant
+      - mysql-server
+      - mysql-client
 cache:
   directories:
     - $HOME/.composer/cache
