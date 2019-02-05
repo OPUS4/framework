@@ -201,7 +201,7 @@ CREATE  TABLE IF NOT EXISTS `persons` (
   `date_of_birth` VARCHAR(50) NULL COMMENT 'Date of birth.' ,
   `email` VARCHAR(100) NULL COMMENT 'E-mail address.' ,
   `first_name` VARCHAR(255) NULL COMMENT 'First name.' ,
-  `last_name` VARCHAR(255) NOT NULL COMMENT 'Last name.' ,
+  `last_name` VARCHAR(191) NOT NULL COMMENT 'Last name.' ,
   `place_of_birth` VARCHAR(255) NULL COMMENT 'Place of birth.' ,
   `identifier_orcid` VARCHAR(50) NULL COMMENT 'orc-id' ,
   `identifier_gnd` VARCHAR(50) NULL COMMENT 'gnd id' ,
@@ -665,8 +665,8 @@ CREATE TABLE IF NOT EXISTS `collections` (
 
 CREATE TABLE IF NOT EXISTS `collections_roles` (
     `id` INT(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
-    `name` VARCHAR(255) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
-    `oai_name` VARCHAR(255) NOT NULL COMMENT 'Shortname identifying role in oai context.' ,
+    `name` VARCHAR(191) NOT NULL COMMENT 'Name, label or type of the collection role, i.e. a specific classification or conference.' ,
+    `oai_name` VARCHAR(191) NOT NULL COMMENT 'Shortname identifying role in oai context.' ,
     `position` INT(11) UNSIGNED NOT NULL COMMENT 'Position of this collection tree (role) in the sorted list of collection roles for browsing and administration.' ,
     `visible` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Deleted collection trees are invisible. (1=visible, 0=invisible).' ,
     `visible_browsing_start`     TINYINT(1) UNSIGNED NOT NULL    COMMENT 'Show tree on browsing start page. (1=yes, 0=no).' ,
@@ -690,7 +690,7 @@ CREATE TABLE IF NOT EXISTS `collections_roles` (
 CREATE TABLE IF NOT EXISTS collections_enrichments (
     id            INT UNSIGNED NOT NULL,
     collection_id INT(10) unsigned NOT NULL,
-    key_name      VARCHAR(255),
+    key_name      VARCHAR(185),
     value         VARCHAR(255),
     PRIMARY KEY(id),
     INDEX(collection_id, key_name),
