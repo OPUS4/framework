@@ -19,13 +19,7 @@ before_install:
   - jdk_switcher use openjdk8
 before_script: composer install
 script:
-  - wget 'https://download.java.net/java/early_access/jdk8/b03/BCL/jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz'
-  - tar xfz jre-8u202-ea-bin-b03-linux-x64-07_nov_2018.tar.gz
-  - ./jre1.8.0_202/bin/java -version
   - java -version
-  - CURR_DIR=`pwd`
-  - export SOLR_JAVA_HOME="$CURR_DIR/jre1.8.0_202/"
-  - echo "SOLR_JAVA_HOME is set to $SOLR_JAVA_HOME"
   - mysql --version
   - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
   - cp -p tests/config.ini.template tests/config.ini
