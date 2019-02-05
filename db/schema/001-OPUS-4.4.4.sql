@@ -302,7 +302,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
 CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `key_name` VARCHAR(255) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
+  `key_name` VARCHAR(191) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
   `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichments_document` (`document_id` ASC) ,
@@ -322,7 +322,7 @@ CREATE  TABLE IF NOT EXISTS `document_enrichments` (
 -- Table `enrichmentkeys`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `enrichmentkeys` (
-  `name` VARCHAR(255) NOT NULL COMMENT 'The enrichment key.' ,
+  `name` VARCHAR(191) NOT NULL COMMENT 'The enrichment key.' ,
   PRIMARY KEY (`name`)
 )
   COMMENT = 'Key table for database scheme enhancements.';
@@ -562,8 +562,8 @@ CREATE  TABLE IF NOT EXISTS `languages` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dnb_institutes` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(255) NOT NULL,
-  `department` varchar(255) DEFAULT NULL,
+  `name` VARCHAR(100) NOT NULL,
+  `department` varchar(91) DEFAULT NULL,
   `address` MEDIUMTEXT ,
   `city` VARCHAR(255) NOT NULL ,
   `phone` VARCHAR(255) ,
