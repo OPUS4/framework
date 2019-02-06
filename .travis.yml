@@ -14,7 +14,7 @@ addons:
 cache:
   directories:
     - $HOME/.composer/cache
-    - $HOME/download
+    - $HOME/downloads
 before_install:
   - jdk_switcher use openjdk8
 before_script: composer install
@@ -37,9 +37,8 @@ script:
   - sed -i -e "s!@searchengine.extract.app@!/solr/opus4!" tests/config.ini
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - ant download-solr -DsolrVersion=5.5.5
-  - ls $HOME/download
-  - ll $HOME/download
+  - ant download-solr -DsolrVersion=5.5.5 -DdownloadDir=$HOME/downloads
+  - ls $HOME/downloads
   - cd solr-5.5.5
   - ./bin/solr start
   - ./bin/solr create -c opus4
