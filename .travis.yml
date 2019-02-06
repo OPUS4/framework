@@ -37,8 +37,9 @@ script:
   - sed -i -e "s!@searchengine.extract.app@!/solr/opus4!" tests/config.ini
   - php db/createdb.php
   - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
-  - ls $HOME/download
   - ant download-solr -DsolrVersion=5.5.5
+  - ls $HOME/download
+  - ll $HOME/download
   - cd solr-5.5.5
   - ./bin/solr start
   - ./bin/solr create -c opus4
