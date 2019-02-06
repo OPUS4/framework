@@ -302,7 +302,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
 CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `key_name` VARCHAR(191) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
+  `key_name` VARCHAR(180) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
   `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichments_document` (`document_id` ASC) ,
@@ -384,7 +384,7 @@ CREATE TABLE IF NOT EXISTS `ipranges` (
 -- -----------------------------------------------------
 CREATE  TABLE IF NOT EXISTS `user_roles` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` VARCHAR(255) NOT NULL UNIQUE,
+  `name` VARCHAR(100) NOT NULL UNIQUE,
   PRIMARY KEY (`id`)
 )
   COMMENT = 'Table for managing user roles (i.e. groups of users).';
@@ -438,7 +438,7 @@ CREATE TABLE IF NOT EXISTS `access_files` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `access_modules` (
   `role_id` INT UNSIGNED NOT NULL COMMENT 'Primary key and foreign key to: user_roles.id' ,
-  `module_name` VARCHAR(255) NOT NULL COMMENT 'Primary key and name of application module' ,
+  `module_name` VARCHAR(100) NOT NULL COMMENT 'Primary key and name of application module' ,
   PRIMARY KEY (`module_name`, `role_id` ) ,
   INDEX `fk_access_modules_role` (`role_id` ASC) ,
   CONSTRAINT `fk_access_modules_role`
