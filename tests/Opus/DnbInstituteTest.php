@@ -344,15 +344,15 @@ class Opus_DnbInstituteTest extends TestCase
         $this->assertTrue($institute->isUsed());
     }
 
-    public function testName255Chars()
+    public function testName191Chars()
     {
         $institute = new Opus_DnbInstitute();
 
-        $name = str_repeat('0123456789', 25);
+        $name = str_repeat('0123456789', 19);
 
-        $name .= '01234';
+        $name .= '0';
 
-        $this->assertTrue(strlen($name) === 255);
+        $this->assertTrue(strlen($name) === 191);
 
         $institute->updateFromArray([
             'Name' => $name,
@@ -374,11 +374,11 @@ class Opus_DnbInstituteTest extends TestCase
     {
         $institute = new Opus_DnbInstitute();
 
-        $name = str_repeat('0123456789', 25);
+        $name = str_repeat('0123456789', 19);
 
-        $name .= '01234A';
+        $name .= '0A';
 
-        $this->assertTrue(strlen($name) === 256);
+        $this->assertTrue(strlen($name) === 192);
 
         $institute->updateFromArray([
             'Name' => $name,
@@ -396,14 +396,14 @@ class Opus_DnbInstituteTest extends TestCase
     {
         $institute = new Opus_DnbInstitute();
 
-        $name = str_repeat('0123456789', 25);
-        $name .= '01234';
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
 
-        $department = str_repeat('0123456789', 25);
-        $department .= '01234';
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
 
-        $this->assertTrue(strlen($name) === 255);
-        $this->assertTrue(strlen($department) === 255);
+        $this->assertTrue(strlen($name) === 191);
+        $this->assertTrue(strlen($department) === 191);
 
         $institute->updateFromArray([
             'Name'       => $name,
@@ -419,28 +419,11 @@ class Opus_DnbInstituteTest extends TestCase
         $this->assertEquals($department, $institute->getDepartment());
 
         // try storing identical name and department
-        $name = str_repeat('0123456789', 25);
-        $name .= '01234';
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
 
-        $department = str_repeat('0123456789', 25);
-        $department .= '01234';
-
-        $institute2 = new Opus_DnbInstitute();
-
-        $institute2->updateFromArray([
-            'Name'       => $name,
-            'Department' => $department,
-            'City'       => 'Berlin'
-        ]);
-
-        $institute2Id = $institute2->store();
-
-        // try storing name and deparment that differ at last character
-        $name = str_repeat('0123456789', 25);
-        $name .= '0123A';
-
-        $department = str_repeat('0123456789', 25);
-        $department .= '0123B';
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
 
         $institute2 = new Opus_DnbInstitute();
 
@@ -461,14 +444,14 @@ class Opus_DnbInstituteTest extends TestCase
     {
         $institute = new Opus_DnbInstitute();
 
-        $name = str_repeat('0123456789', 25);
-        $name .= '01234';
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
 
-        $department = str_repeat('0123456789', 25);
-        $department .= '01234';
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
 
-        $this->assertTrue(strlen($name) === 255);
-        $this->assertTrue(strlen($department) === 255);
+        $this->assertTrue(strlen($name) === 191);
+        $this->assertTrue(strlen($department) === 191);
 
         $institute->updateFromArray([
             'Name'       => $name,
@@ -484,11 +467,11 @@ class Opus_DnbInstituteTest extends TestCase
         $this->assertEquals($department, $institute->getDepartment());
 
         // try storing name and department that differ at the very last character of key
-        $name = str_repeat('0123456789', 25);
-        $name .= '01234';
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
 
-        $department = str_repeat('0123456789', 25);
-        $department .= '0123B';
+        $department = str_repeat('0123456789', 19);
+        $department .= 'A';
 
         $institute2 = new Opus_DnbInstitute();
 
