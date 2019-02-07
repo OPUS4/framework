@@ -302,7 +302,7 @@ CREATE  TABLE IF NOT EXISTS `document_notes` (
 CREATE  TABLE IF NOT EXISTS `document_enrichments` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Primary key.' ,
   `document_id` INT UNSIGNED NOT NULL COMMENT 'Foreign key to: documents.documents_id.' ,
-  `key_name` VARCHAR(180) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
+  `key_name` VARCHAR(191) NOT NULL COMMENT 'Foreign key to: enrichmentkeys.name.' ,
   `value` MEDIUMTEXT NOT NULL COMMENT 'Value of the enrichment.' ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_document_enrichments_document` (`document_id` ASC) ,
@@ -690,7 +690,7 @@ CREATE TABLE IF NOT EXISTS `collections_roles` (
 CREATE TABLE IF NOT EXISTS collections_enrichments (
     id            INT UNSIGNED NOT NULL,
     collection_id INT(10) unsigned NOT NULL,
-    key_name      VARCHAR(185),
+    key_name      VARCHAR(191),
     value         VARCHAR(255),
     PRIMARY KEY(id),
     INDEX(collection_id, key_name),
