@@ -67,6 +67,7 @@
  *
  * TODO define allowed types (const?)
  * TODO define allowed scopes
+ * TODO disable caching
  */
 class Opus_Language extends Opus_Model_AbstractDb
 {
@@ -77,6 +78,12 @@ class Opus_Language extends Opus_Model_AbstractDb
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_Languages';
+
+    /**
+     * Cache used languages to reduce database queries.
+     * @var null|array
+     */
+    private static $usedLanguages;
 
     /**
      * Initialize model with fields.
@@ -188,5 +195,93 @@ class Opus_Language extends Opus_Model_AbstractDb
     public function getDisplayName()
     {
        return $this->getRefName();
+    }
+
+    /**
+     * Returns language code for internal language identifier.
+     * @param $language string Internal language identifier (e.g. 'deu')
+     * @param null $part string Field to use for language code
+     * @return string language code
+     */
+    public static function getLanguageCode($language, $part = null)
+    {
+        $result = Opus_Language::getPropertiesByPart2T($language);
+
+        if (empty($result)) {
+            return $language;
+        }
+
+        $code = null;
+
+        if (!is_null($part) && isset($result[$part])) {
+            $code = $result[$part];
+        }
+        else {
+            $code = $result['part2_b'];
+        }
+
+        return empty($code) ? $language : $code;
+    }
+
+    /**
+     * Checks if a language is being used in database.
+     *
+     * Language values are used in multiple tables:
+     * - document_licences
+     * - documents
+     * - document_files
+     * - document_subjects
+     * - document_title_abstracts
+     *
+     */
+    public function isUsed()
+    {
+        $languages = Opus_Language::getUsedLanguages();
+        return in_array($this->getPart2T(), $languages);
+    }
+
+    /**
+     * Returns all languages used in database.
+     */
+    public static function getUsedLanguages()
+    {
+        if (!is_null(self::$usedLanguages)) {
+            return self::$usedLanguages;
+        }
+
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $database = $table->getAdapter();
+
+        $tables = [
+            'documents',
+            'document_title_abstracts',
+            'document_licences',
+            'document_subjects',
+            'document_files'
+        ];
+
+        $languages = [];
+
+        // get languages for documents
+        foreach ($tables as $table) {
+            $select = $database->select()->distinct()->from($table, ['language'])->where('language is not null');
+            $rows = $database->fetchCol($select);
+
+            if ($rows !== false) {
+                $languages = array_merge($languages, $rows);
+            }
+        }
+
+        self::$usedLanguages = array_unique($languages);
+
+        return self::$usedLanguages;
+    }
+
+    /**
+     * Removes cached values.
+     */
+    public static function clearCache()
+    {
+        self::$usedLanguages = null;
     }
 }

@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -65,18 +65,17 @@ class Opus_DnbInstituteTest extends TestCase
         //load
         $loaded_institute = new Opus_DnbInstitute($id);
 
-        $this->assertEquals($name, $loaded_institute->getName(),
-                'Loaded other name, then stored.');
-        $this->assertEquals($address, $loaded_institute->getAddress(),
-                'Loaded other address, then stored.');
-        $this->assertEquals($city, $loaded_institute->getCity(),
-                'Loaded other city, then stored.');
-        $this->assertEquals($phone, $loaded_institute->getPhone(),
-                'Loaded other phone number, then stored.');
-        $this->assertEquals($dnb_contact_id, $loaded_institute->getDnbContactId(),
-                'Loaded other DNB contact ID, then stored.');
-        $this->assertEquals($is_grantor, $loaded_institute->getIsGrantor(),
-                'Loaded other information about grantor status, then stored.');
+        $this->assertEquals($name, $loaded_institute->getName(),'Loaded other name, then stored.');
+        $this->assertEquals($address, $loaded_institute->getAddress(),'Loaded other address, then stored.');
+        $this->assertEquals($city, $loaded_institute->getCity(),'Loaded other city, then stored.');
+        $this->assertEquals($phone, $loaded_institute->getPhone(),'Loaded other phone number, then stored.');
+        $this->assertEquals(
+            $dnb_contact_id, $loaded_institute->getDnbContactId(),'Loaded other DNB contact ID, then stored.'
+        );
+        $this->assertEquals(
+            $is_grantor, $loaded_institute->getIsGrantor(),
+            'Loaded other information about grantor status, then stored.'
+        );
     }
 
     /**
@@ -307,5 +306,41 @@ class Opus_DnbInstituteTest extends TestCase
         $this->assertEquals('123', $institute->getDnbContactId());
         $this->assertEquals(0, $institute->getIsGrantor());
         $this->assertEquals(1, $institute->getIsPublisher());
+    }
+
+    public function testIsUsed()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $institute->updateFromArray([
+            'Name' => 'Solutions',
+            'Department' => 'Big Solutions',
+            'Address' => 'Research Street',
+            'City' => 'Berlin',
+            'Phone' => '555-1234',
+            'DnbContactId' => '123',
+            'IsGrantor' => 0,
+            'IsPublisher' => 1
+        ]);
+
+        $institute->store();
+
+        $this->assertFalse($institute->isUsed());
+
+        $document = new Opus_Document();
+        $document->addThesisPublisher($institute);
+        $document->store();
+
+        $this->assertTrue($institute->isUsed());
+
+        $document->setThesisPublisher(null);
+        $document->store();
+
+        $this->assertFalse($institute->isUsed());
+
+        $document->setThesisGrantor($institute);
+        $document->store();
+
+        $this->assertTrue($institute->isUsed());
     }
 }
