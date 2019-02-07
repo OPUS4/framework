@@ -562,8 +562,8 @@ CREATE  TABLE IF NOT EXISTS `languages` (
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `dnb_institutes` (
   `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,
-  `name` VARCHAR(255) NOT NULL,
-  `department` varchar(255) DEFAULT NULL,
+  `name` VARCHAR(192) NOT NULL,
+  `department` varchar(192) DEFAULT NULL,
   `address` MEDIUMTEXT ,
   `city` VARCHAR(255) NOT NULL ,
   `phone` VARCHAR(255) ,
