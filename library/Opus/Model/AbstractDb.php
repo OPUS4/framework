@@ -1149,4 +1149,25 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         $logger = $registry->get('Zend_Log');
         $logger->info(__CLASS__ . ": $message");
     }
+
+    /**
+     * Returns maximal length for field.
+     * @param $name
+     */
+    public static function getFieldMaxLength($name)
+    {
+        $column = self::convertFieldnameToColumn($name);
+
+        $table = Opus_Db_TableGateway::getInstance(self::getTableGatewayClass());
+
+        $metadata = $table->info();
+
+        if (isset($metadata['metadata'][$column]['LENGTH'])) {
+            return $metadata['metadata'][$column]['LENGTH'];
+        } else {
+            $class = get_called_class();
+            Zend_Registry::get('Zend_Log')->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
+            return null;
+        }
+    }
 }
