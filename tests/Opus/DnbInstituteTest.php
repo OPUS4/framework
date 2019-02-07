@@ -343,4 +343,161 @@ class Opus_DnbInstituteTest extends TestCase
 
         $this->assertTrue($institute->isUsed());
     }
+
+    public function testName255Chars()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 25);
+
+        $name .= '01234';
+
+        $this->assertTrue(strlen($name) === 255);
+
+        $institute->updateFromArray([
+            'Name' => $name,
+            'City' => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+    }
+
+    /**
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage truncated
+     */
+    public function testNameTooLong()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 25);
+
+        $name .= '01234A';
+
+        $this->assertTrue(strlen($name) === 256);
+
+        $institute->updateFromArray([
+            'Name' => $name,
+            'City' => 'Berlin'
+        ]);
+
+        $institute->store();
+    }
+
+    /**
+     * @expectedException Opus_Model_DbConstrainViolationException
+     * @expectedExceptionMessage Duplicate entry
+     */
+    public function testNameAndDepartmentUnique()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 25);
+        $name .= '01234';
+
+        $department = str_repeat('0123456789', 25);
+        $department .= '01234';
+
+        $this->assertTrue(strlen($name) === 255);
+        $this->assertTrue(strlen($department) === 255);
+
+        $institute->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+        $this->assertEquals($department, $institute->getDepartment());
+
+        // try storing identical name and department
+        $name = str_repeat('0123456789', 25);
+        $name .= '01234';
+
+        $department = str_repeat('0123456789', 25);
+        $department .= '01234';
+
+        $institute2 = new Opus_DnbInstitute();
+
+        $institute2->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $institute2Id = $institute2->store();
+
+        // try storing name and deparment that differ at last character
+        $name = str_repeat('0123456789', 25);
+        $name .= '0123A';
+
+        $department = str_repeat('0123456789', 25);
+        $department .= '0123B';
+
+        $institute2 = new Opus_DnbInstitute();
+
+        $institute2->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $institute2->store();
+    }
+
+    /**
+     * We are trying to see if unique key is as long as both columns together or if differences beyond the length of
+     * the key are ignored.
+     */
+    public function testNameAndDepartmentUniqueCheckWithLastCharacter()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 25);
+        $name .= '01234';
+
+        $department = str_repeat('0123456789', 25);
+        $department .= '01234';
+
+        $this->assertTrue(strlen($name) === 255);
+        $this->assertTrue(strlen($department) === 255);
+
+        $institute->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+        $this->assertEquals($department, $institute->getDepartment());
+
+        // try storing name and department that differ at the very last character of key
+        $name = str_repeat('0123456789', 25);
+        $name .= '01234';
+
+        $department = str_repeat('0123456789', 25);
+        $department .= '0123B';
+
+        $institute2 = new Opus_DnbInstitute();
+
+        $institute2->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $institute2->store();
+    }
 }
