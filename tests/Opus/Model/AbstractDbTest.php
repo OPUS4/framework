@@ -1062,7 +1062,20 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
             $this->assertEquals($colname,   Opus_Model_AbstractDb::convertFieldnameToColumn($fieldname));
             $this->assertEquals($fieldname, Opus_Model_AbstractDb::convertColumnToFieldname($colname));
         }
-
     }
 
+    public function testGetFieldMaxLength()
+    {
+        $this->assertEquals(191, Opus_Person::getFieldMaxLength('LastName'));
+    }
+
+    public function testGetFieldMaxLengthUnknownField()
+    {
+       $this->assertNull(Opus_Person::getFieldMaxLength('LastName2'));
+    }
+
+    public function testGetFieldMaxLengthForNumeric()
+    {
+        $this->assertNull(Opus_Document::getFieldMaxLength('Id'));
+    }
 }
