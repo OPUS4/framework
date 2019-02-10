@@ -80,11 +80,15 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         $ek = new Opus_EnrichmentKey();
         $ek->setName('baz');
+        $ek->setType('type');
+        $ek->setOptions('options');
         $ek->store();
 
         $ek = new Opus_EnrichmentKey('baz');
         $this->assertNotNull($ek);
         $this->assertEquals('baz', $ek->getName());
+        $this->assertEquals('type', $ek->getType());
+        $this->assertEquals('options', $ek->getOptions());
         $this->assertEquals(3, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
@@ -139,7 +143,12 @@ class Opus_EnrichmentKeyTest extends TestCase
     {
         foreach (array('foo', 'bar') as $name) {
             $ek = new Opus_EnrichmentKey($name);
+            $ek->setType('type');
+            $ek->setOptions('options');
+
             $this->assertEquals($name, $ek->getName());
+            $this->assertEquals('type', $ek->getType());
+            $this->assertEquals('options', $ek->getOptions());
         }
     }
 
@@ -195,24 +204,32 @@ class Opus_EnrichmentKeyTest extends TestCase
         $key = new Opus_EnrichmentKey();
 
         $key->setName('mykey');
+        $key->setType('mytype');
+        $key->setOptions('myoptions');
 
         $data = $key->toArray();
 
         $this->assertEquals([
-            'Name' => 'mykey'
+            'Name' => 'mykey',
+            'Type' => 'mytype',
+            'Options' => 'myoptions',
         ], $data);
     }
 
     public function testFromArray()
     {
         $key = Opus_EnrichmentKey::fromArray([
-            'Name' => 'mykey'
+            'Name' => 'mykey',
+            'Type' => 'mytype',
+            'Options' => 'myoptions'
         ]);
 
         $this->assertNotNull($key);
         $this->assertInstanceOf('Opus_EnrichmentKey', $key);
 
         $this->assertEquals('mykey', $key->getName());
+        $this->assertEquals('mytype', $key->getType());
+        $this->assertEquals('myoptions', $key->getOptions());
     }
 
     public function testUpdateFromArray()
@@ -220,9 +237,13 @@ class Opus_EnrichmentKeyTest extends TestCase
         $key = new Opus_EnrichmentKey();
 
         $key->updateFromArray([
-            'Name' => 'mykey'
+            'Name' => 'mykey',
+            'Type' => 'mytype',
+            'Options' => 'myoptions'
         ]);
 
         $this->assertEquals('mykey', $key->getName());
+        $this->assertEquals('mytype', $key->getType());
+        $this->assertEquals('myoptions', $key->getOptions());
     }
 }
