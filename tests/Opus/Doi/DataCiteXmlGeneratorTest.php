@@ -139,4 +139,41 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $this->assertEquals($path, $stylesheetPath);
     }
+
+    public function testProtectedFileInformationNotHanded()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(1);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertNotContains('<size>', $result);
+        $this->assertNotContains('<format>', $result);
+    }
+
+    public function testNotProtectedFileInformationHanded()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(0);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertContains('<size>', $result);
+        $this->assertContains('<format>', $result);
+    }
+
 }
