@@ -140,28 +140,20 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->assertEquals($path, $stylesheetPath);
     }
 
-    public function testProtectedFileInformationNotHanded()
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     */
+    public function testFileInformationVisibility()
     {
+        // Test if both invisible files are hided
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 
         $file = New Opus_File();
-        $file->setVisibleInOai(1);
+        $file->setVisibleInOai(0);
         $file->setFileSize('0');
         $file->setMimeType('pdf');
         $doc->addFile($file);
-
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
-
-        $this->assertNotContains('<size>', $result);
-        $this->assertNotContains('<format>', $result);
-    }
-
-    public function testNotProtectedFileInformationHanded()
-    {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
 
         $file = New Opus_File();
         $file->setVisibleInOai(0);
@@ -172,8 +164,73 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $generator = new Opus_Doi_DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
 
-        $this->assertContains('<size>', $result);
-        $this->assertContains('<format>', $result);
-    }
+        $this->assertNotContains('<sizes><size>0 KB</size></sizes>', $result);
+        $this->assertNotContains('<formats><format>pdf</format></formats>', $result);
 
+        // Test if both visible files are shown
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(1);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(1);
+        $file2->setFileSize('0');
+        $file2->setMimeType('pdf');
+        $doc->addFile($file2);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertContains('<sizes><size>0 KB</size><size>0 KB</size></sizes>', $result);
+        $this->assertContains('<formats><format>pdf</format><format>pdf</format></formats>', $result);
+
+        // Test if visible file is shown and invisible file is hided
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(1);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(0);
+        $file2->setFileSize('0');
+        $file2->setMimeType('txt');
+        $doc->addFile($file2);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertContains('<sizes><size>0 KB</size></sizes>', $result);
+        $this->assertContains('<formats><format>pdf</format></formats>', $result);
+
+        // Test if if the order of visible and invisible files is not important
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(0);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(1);
+        $file2->setFileSize('0');
+        $file2->setMimeType('txt');
+        $doc->addFile($file2);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+
+        $this->assertContains('<sizes><size>0 KB</size></sizes>', $result);
+        $this->assertContains('<formats><format>txt</format></formats>', $result);
+    }
 }
