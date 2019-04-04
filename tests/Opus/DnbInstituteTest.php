@@ -227,6 +227,58 @@ class Opus_DnbInstituteTest extends TestCase
         );
     }
 
+    public function testModifyingIsGrantorDoesNotUpdateServerDateModified()
+    {
+        $institute = new Opus_DnbInstitute();
+        $institute->setName('Test')
+            ->setCity('Berlin')
+            ->setIsGrantor(1)
+            ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article')
+            ->setServerState('published')
+            ->setThesisGrantor($institute);
+
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+
+        $institute->setIsGrantor(0);
+        $institute->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified());
+    }
+
+    public function testModifyingIsPublisherDoesNotUpdateServerDateModified()
+    {
+        $institute = new Opus_DnbInstitute();
+        $institute->setName('Test')
+            ->setCity('Berlin')
+            ->setIsPublisher(1)
+            ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article')
+            ->setServerState('published')
+            ->setThesisPublisher($institute);
+
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+
+        $institute->setIsPublisher(0);
+        $institute->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified());
+    }
+
     public function testToArray()
     {
         $institute = new Opus_DnbInstitute();
