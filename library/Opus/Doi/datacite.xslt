@@ -247,7 +247,7 @@
                     <xsl:text>SeriesInformation</xsl:text>
                 </xsl:attribute>
                 <xsl:value-of select="../Series/@Title"/>
-                <xsl:text>, </xsl:text>
+                <xsl:text>; </xsl:text>
                 <xsl:value-of select="../Series/@Number"/>
             </xsl:element>
         </xsl:if>
