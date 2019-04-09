@@ -142,10 +142,10 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     /**
      * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if both invisible files are hided
      */
-    public function testFileInformationVisibility()
+    public function testTwoFileInformationInvisible()
     {
-        // Test if both invisible files are hided
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 
@@ -166,8 +166,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $this->assertNotContains('<sizes><size>0 KB</size></sizes>', $result);
         $this->assertNotContains('<formats><format>pdf</format></formats>', $result);
+    }
 
-        // Test if both visible files are shown
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if both visible files are shown
+     */
+    public function testTwoFileInformationVisible()
+    {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 
@@ -188,8 +194,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $this->assertContains('<sizes><size>0 KB</size><size>0 KB</size></sizes>', $result);
         $this->assertContains('<formats><format>pdf</format><format>pdf</format></formats>', $result);
+    }
 
-        // Test if visible file is shown and invisible file is hided
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if visible file is shown and invisible file is hided
+     */
+    public function testDifferentFileInformationVisibility()
+    {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 
@@ -210,8 +222,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $this->assertContains('<sizes><size>0 KB</size></sizes>', $result);
         $this->assertContains('<formats><format>pdf</format></formats>', $result);
+    }
 
-        // Test if if the order of visible and invisible files is not important
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if if the order of visible and invisible files is not important
+     */
+    public function testDifferentOrderFileInformationVisibility()
+    {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
 

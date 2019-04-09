@@ -102,7 +102,7 @@ class Opus_Doi_DataCiteXmlGenerator
         $filenodes = $modelXml->getElementsByTagName('File');
 
         // Iterating over DOMNodeList is only save for readonly-operations -> create separate list
-        $filenodesList = array();
+        $filenodesList = [];
         foreach ($filenodes as $filenode) {
             $filenodesList[] = $filenode;
         }
