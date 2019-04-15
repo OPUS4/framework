@@ -34,7 +34,7 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -224,6 +224,7 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected $_plugins = [
         'Opus_Document_Plugin_Index' => null,
         'Opus_Document_Plugin_XmlCache' => null,
+//        'Opus_Document_Plugin_SequenceNumber' => null,
         'Opus_Document_Plugin_IdentifierUrn' => null,
         'Opus_Document_Plugin_IdentifierDoi' => null
     ];
