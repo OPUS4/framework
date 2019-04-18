@@ -121,10 +121,12 @@ class Opus_Licence extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
-
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache' => null
+        ];
+    }
 
     /**
      * Initialize model with the following fields:

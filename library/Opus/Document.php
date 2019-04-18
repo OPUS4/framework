@@ -218,16 +218,16 @@ class Opus_Document extends Opus_Model_AbstractDb
      * in case of a cache miss. The cache rebuilding will issue a reindex
      * operation as a side effect. A subsequent call of the Index plugin issues
      * a second call of the reindex operation which is obsolete.)
-     *
-     * @var array
      */
-    protected $_plugins = [
-        'Opus_Document_Plugin_Index' => null,
-        'Opus_Document_Plugin_XmlCache' => null,
-//        'Opus_Document_Plugin_SequenceNumber' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null,
-        'Opus_Document_Plugin_IdentifierDoi' => null
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Document_Plugin_Index' => null,
+            'Opus_Document_Plugin_XmlCache' => null,
+            'Opus_Document_Plugin_IdentifierUrn' => null,
+            'Opus_Document_Plugin_IdentifierDoi' => null
+        ];
+    }
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
@@ -1157,12 +1157,12 @@ class Opus_Document extends Opus_Model_AbstractDb
      * deletePermanent removes a document from the database.
      */
     public function delete() {
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
 
-        $this->_callPluginMethod('postDelete', $this->getId());
+        $this->callPluginMethod('postDelete', $this->getId());
     }
 
     /**

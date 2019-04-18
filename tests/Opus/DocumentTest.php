@@ -2115,7 +2115,7 @@ class Opus_DocumentTest extends TestCase
         $retitle->setLanguage('deu');
 
         $redoc->setTitleMain($retitle);
-        
+
         try {
             $redoc->store();
         } catch (Opus_Model_Exception $ome) {

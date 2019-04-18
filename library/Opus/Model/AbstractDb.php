@@ -97,15 +97,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
     protected $_isNewRecord = true;
 
     /**
-     * Array mapping plugin class names to model plugins.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @var Array
-     */
-    protected $_plugins = [];
-
-    /**
      * Construct a new model instance and connect it a database table's row.
      * Pass an id to immediately fetch model data from the database. If not id is given
      * a new persistent intance gets created wich got its id set as soon as it is stored
@@ -173,7 +164,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         parent::__construct();
 
         // initialize plugins
-        $this->_loadPlugins();
+        $this->loadPlugins();
 
         $this->_fetchValues();
 
@@ -306,7 +297,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _preFetch()
     {
-        $this->_callPluginMethod('preFetch');
+        $this->callPluginMethod('preFetch');
     }
 
     /**
@@ -318,7 +309,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _preStore()
     {
-        $this->_callPluginMethod('preStore');
+        $this->callPluginMethod('preStore');
 
         // do not perfom storing actions when model is not modified and not new
         if ((false === $this->isNewRecord()) and (false === $this->isModified())) {
@@ -350,7 +341,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _postStore()
     {
-        $this->_callPluginMethod('postStore');
+        $this->callPluginMethod('postStore');
         $this->_isNewRecord = false;
     }
 
@@ -361,7 +352,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _postStoreInternalFields()
     {
-        $this->_callPluginMethod('postStoreInternal');
+        $this->callPluginMethod('postStoreInternal');
     }
 
     /**
@@ -372,7 +363,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     function _postStoreExternalFields()
     {
-        $this->_callPluginMethod('postStoreExternal');
+        $this->callPluginMethod('postStoreExternal');
     }
 
     /**
@@ -766,7 +757,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             return;
         }
 
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         // Start transaction
         $dbadapter = $this->getTableRow()->getTable()->getAdapter();
@@ -781,7 +772,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             throw new Opus_Model_Exception($msg);
         }
 
-        $this->_callPluginMethod('postDelete', $modelId);
+        $this->callPluginMethod('postDelete', $modelId);
     }
 
     /**
