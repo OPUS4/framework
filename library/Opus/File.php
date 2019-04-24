@@ -60,8 +60,8 @@ class Opus_File extends Opus_Model_Dependent_Abstract {
     public function getDefaultPlugins()
     {
         return [
-            'Opus_File_Plugin_DefaultAccess'            => null,
-            'Opus_Model_Plugin_InvalidateDocumentCache' => null
+            'Opus_File_Plugin_DefaultAccess',
+            'Opus_Model_Plugin_InvalidateDocumentCache'
         ];
     }
 

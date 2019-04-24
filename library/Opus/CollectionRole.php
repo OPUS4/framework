@@ -127,8 +127,8 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-            'Opus_CollectionRole_Plugin_DeleteTree' => null,
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_CollectionRole_Plugin_DeleteTree'
         ];
     }
 

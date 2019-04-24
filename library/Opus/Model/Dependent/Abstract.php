@@ -76,7 +76,7 @@ abstract class Opus_Model_Dependent_Abstract extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache' => null
+            'Opus_Model_Plugin_InvalidateDocumentCache'
         ];
     }
 

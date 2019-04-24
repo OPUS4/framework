@@ -3890,4 +3890,41 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('Antonplatz', $subjects[1]->getValue());
         $this->assertEquals('Checkpoint', $subjects[2]->getValue());
     }
+
+    public function testGetDefaultPlugins()
+    {
+        $document = new Opus_Document();
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_Index',
+            'Opus_Document_Plugin_XmlCache',
+            'Opus_Document_Plugin_IdentifierUrn',
+            'Opus_Document_Plugin_IdentifierDoi',
+        ], $document->getDefaultPlugins());
+
+        $document->setDefaultPlugins(null);
+    }
+
+    public function testGetDefaultPluginsConfigured()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'model' => [
+                'plugins' => [
+                    'document' => [
+                        'Opus_Document_Plugin_SequenceNumber'
+                    ]
+                ]
+            ]
+        ]));
+
+        $document = new Opus_Document();
+
+        $document->setDefaultPlugins(null);
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_SequenceNumber',
+        ], $document->getDefaultPlugins());
+
+        $this->assertTrue($document->hasPlugin('Opus_Document_Plugin_SequenceNumber'));
+    }
 }

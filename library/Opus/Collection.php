@@ -87,8 +87,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-            'Opus_Collection_Plugin_DeleteSubTree'      => null
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_Collection_Plugin_DeleteSubTree'
         ];
     }
 

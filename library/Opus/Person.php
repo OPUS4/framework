@@ -118,7 +118,7 @@ class Opus_Person extends Opus_Model_AbstractDb
     public function getDefaultPlugins()
     {
         return [
-            'Opus_Model_Plugin_InvalidateDocumentCache' => null
+            'Opus_Model_Plugin_InvalidateDocumentCache'
         ];
     }
 

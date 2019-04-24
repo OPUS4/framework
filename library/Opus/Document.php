@@ -202,6 +202,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
+    private static $defaultPlugins = null;
+
     /**
      * Plugins to load
      *
@@ -221,12 +223,28 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     public function getDefaultPlugins()
     {
-        return [
-            'Opus_Document_Plugin_Index' => null,
-            'Opus_Document_Plugin_XmlCache' => null,
-            'Opus_Document_Plugin_IdentifierUrn' => null,
-            'Opus_Document_Plugin_IdentifierDoi' => null
-        ];
+        if (is_null(self::$defaultPlugins)) {
+            $config = Zend_Registry::get('Zend_Config'); // use function
+
+            if (isset($config->model->plugins->document)) {
+                $plugins = $config->model->plugins->document;
+                self::$defaultPlugins = $plugins->toArray();
+            } else {
+                self::$defaultPlugins = [
+                    'Opus_Document_Plugin_Index',
+                    'Opus_Document_Plugin_XmlCache',
+                    'Opus_Document_Plugin_IdentifierUrn',
+                    'Opus_Document_Plugin_IdentifierDoi'
+                ];
+            }
+        }
+
+        return self::$defaultPlugins;
+    }
+
+    public function setDefaultPlugins($plugins)
+    {
+        self::$defaultPlugins = $plugins;
     }
 
     /**
