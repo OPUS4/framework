@@ -64,6 +64,14 @@ class Opus_DocumentTest extends TestCase
         parent::setUp();
     }
 
+    public function tearDown()
+    {
+        $document = new Opus_Document();
+        $document->setDefaultPlugins(null);
+
+        parent::tearDown();
+    }
+
     /**
      * Test if a Document instance can be serialized.
      *
@@ -3901,8 +3909,6 @@ class Opus_DocumentTest extends TestCase
             'Opus_Document_Plugin_IdentifierUrn',
             'Opus_Document_Plugin_IdentifierDoi',
         ], $document->getDefaultPlugins());
-
-        $document->setDefaultPlugins(null);
     }
 
     public function testGetDefaultPluginsConfigured()
