@@ -163,9 +163,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
 
         parent::__construct();
 
-        // initialize plugins
-        $this->loadPlugins();
-
         $this->_fetchValues();
 
         $this->_clearFieldsModifiedFlag();
