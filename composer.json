@@ -11,7 +11,8 @@
   "require": {
     "zendframework/zendframework1": "1.12.*",
     "solarium/solarium": "3.4.*",
-    "opus4-repo/opus4-doi": "4.6.2"
+    "opus4-repo/opus4-doi": "4.6.2",
+    "opus4-repo/opus4-common": "4.6.4.x-dev"
   },
   "autoload": {
     "psr-0": {

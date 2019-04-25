@@ -59,7 +59,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @var string
      */
     protected $_modelClass = '';
-    
+
     /**
      * FIXME:Bad design workaround for modification tracking.
      * The linked model is not hold by a native field, so there is no modification
@@ -74,13 +74,11 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @var array
      */
-    protected $_plugins = array(
-// Plugin Opus_Model_Plugin_InvalidateDocumentCache
-// must NOT be used in dependent link models!
-//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
+    public function getDefaultPlugins()
+    {
+        return null;
+    }
 
-    
     /**
      * Set the model that is linked to.
      *
@@ -116,7 +114,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     public function getModelClass() {
         return $this->_modelClass;
     }
-    
+
     /**
      * Get the linked model's foreign key.
      *
@@ -229,8 +227,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     public function toArray() {
         return array_merge($this->_model->toArray(), parent::toArray());
     }
-    
-    
+
+
    /**
     * Perform security resoure registration.
     *
@@ -245,7 +243,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
        $this->_isNewRecord = $isNewFlagBackup;
    }
 
-   
+
    /**
     * Return the primary key of the Link Model if it has been persisted.
     *
@@ -259,7 +257,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
            // its a new record, so return null
            return null;
        }
-       
+
        // its not a new record, so we can hand over to the parent method
        return parent::getId();
    }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -28,35 +27,29 @@
  * @category    Tests
  * @package     Opus_Document_Plugin
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
+class Opus_Document_Plugin_SequenceNumberTest extends TestCase
+{
 
-    protected function setUp() {
+    protected function setUp()
+    {
         parent::setUp();
         $config = Zend_Registry::get('Zend_Config');
         $config = new Zend_Config($config->toArray(), 1);
-        $config = $config->merge(new Zend_Config(array(
-            'sequence' => array(
+        $config = $config->merge(new Zend_Config([
+            'sequence' => [
                 'identifier_type' => 'serial',
-            ),
-        )));
+            ],
+        ]));
         Zend_Registry::set('Zend_Config', $config);
     }
 
-    public function testDisabledCachePlugin() {
-        $doc = new Opus_Document();
-
-        $this->setExpectedException('Opus_Model_Exception');
-        $doc->unregisterPlugin('Opus_Document_Plugin_SequenceNumber');
-        $this->fail('Plugin should stay disabled.');
-    }
-
-    public function testExceptionOnInvalidModel() {
-        $config = new Zend_Config(array());
+    public function testExceptionOnInvalidModel()
+    {
+        $config = new Zend_Config([]);
         Zend_Registry::set('Zend_Config', $config);
 
         $model = new Opus_Identifier;
@@ -66,8 +59,9 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
         $plugin->postStoreInternal($model);
     }
 
-    public function testDontGenerateIdIfConfigNotSet() {
-        $config = new Zend_Config(array());
+    public function testDontGenerateIdIfConfigNotSet()
+    {
+        $config = new Zend_Config([]);
         Zend_Registry::set('Zend_Config', $config);
 
         $model = new Opus_Document();
@@ -81,7 +75,8 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
                 'List of identifiers should be empty.');
     }
 
-    public function testDontGenerateIdOnUnpublishedDocument() {
+    public function testDontGenerateIdOnUnpublishedDocument()
+    {
         $model = new Opus_Document();
         $model->setServerState('unpublished');
 
@@ -96,7 +91,8 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
                 'List of identifiers should be empty.');
     }
 
-    public function testGenerateIdOnPublishedDocument() {
+    public function testGenerateIdOnPublishedDocument()
+    {
         $model = new Opus_Document();
         $model->setServerState('published');
 
@@ -115,7 +111,8 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
                 'The one-and-only identifiers should be bigger zero.');
     }
 
-    public function testGenerateIdOnlyOnceOnPublishedDocument() {
+    public function testGenerateIdOnlyOnceOnPublishedDocument()
+    {
         $model = new Opus_Document();
         $model->setServerState('published');
 
@@ -139,7 +136,8 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
                 'The one-and-only identifiers should not change.');
     }
 
-    public function testGenerateIdOnPublishedDocumentWithExistingSequence() {
+    public function testGenerateIdOnPublishedDocumentWithExistingSequence()
+    {
         $existing_model = new Opus_Document();
         $existing_model->setServerState('published');
         $existing_model->addIdentifier()
@@ -162,8 +160,7 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase {
         $this->assertEquals('serial', $identifiers[0]->getType(),
                 'The one-and-only identifier should be of type "serial".');
         $this->assertEquals(11, $identifiers[0]->getValue());
-        
+
         $existing_model->deletePermanent();
     }
-
 }

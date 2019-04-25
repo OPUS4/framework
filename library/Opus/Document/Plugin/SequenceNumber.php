@@ -26,25 +26,43 @@
  *
  * @category    Framework
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Plugin for generating sequence numbers on published documents.
  *
+ * Generates an identifier with a number counting up from the highest existing
+ * number in the database.
+ *
+ * Configuration:
+ * - "sequence.identifier_type" : Defines the type of identifier
+ *
+ * The identifier is only generated for published documents.
+ * If an identifier of that type already exists no new identifier is generated.
+ *
+ * If the identifier is deleted in the administration and the document stored a new
+ * one will be generated.
+ *
  * @category    Framework
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
+ *
+ * TODO The operation isn't atomic. What happens if number already exists?
+ *      Probably nothing the same number will be stored twice.
+ * TODO use function to get logger
+ * todo use funtion to get config object
  */
-class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract
+{
 
     /**
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    {
         $log = Zend_Registry::get('Zend_Log');
         $log->debug('Opus_Document_Plugin_SequenceNumber::postStore() with id ' . $model->getId());
 
@@ -67,34 +85,36 @@ class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract {
         }
         $sequence_type = trim($config->sequence->identifier_type);
 
-        $sequence_ids = array();
+        $sequence_ids = [];
+
         foreach ($model->getIdentifier() AS $id) {
             if ($id->getType() === $sequence_type) {
                 $sequence_ids[] = trim($id->getValue());
             }
         }
-        
+
         if (count($sequence_ids) > 0) {
             $message = "Sequence IDs for type '$sequence_type' already exists: "
                 . implode(",", $sequence_ids);
             $log->debug($message);
             return;
         }
-        
+
         // Create and initialize new sequence number...
-        $next_sequence_number = $this->_fetchNextSequenceNumber($sequence_type);
-        
+        $next_sequence_number = $this->fetchNextSequenceNumber($sequence_type);
+
         $model->addIdentifier()
             ->setType($sequence_type)
             ->setValue($next_sequence_number);
-        
+
         return;
     }
 
     /**
      * Small helper method to fetch next sequence number from database.
      */
-    protected function _fetchNextSequenceNumber($sequence_type) {
+    protected function fetchNextSequenceNumber($sequence_type)
+    {
         $id_table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentIdentifiers');
         $select = $id_table->select()->from($id_table, '')
                 ->columns(new Zend_Db_Expr('MAX(CAST(value AS SIGNED))'))
@@ -105,9 +125,7 @@ class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract {
         if (is_null($last_sequence_id) or $last_sequence_id <= 0) {
             return 1;
         }
-        
+
         return $last_sequence_id + 1;
     }
-    
 }
-
