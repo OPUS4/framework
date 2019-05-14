@@ -380,7 +380,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $file2 = New Opus_File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
-        $file2->setPathName('copied-foobar-nonzero.txt');
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 
@@ -417,7 +417,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $file2 = New Opus_File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
-        $file2->setPathName('copied-foobar-nonzero.txt');
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 
@@ -453,7 +453,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $file2 = New Opus_File();
         $file2->setVisibleInOai(0);
         $file2->setTempFile($filename2);
-        $file2->setPathName('copied-foobar-nonzero.txt');
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
         $doc->addFile($file2);
         $doc->store();
 

@@ -101,11 +101,13 @@ class Opus_Doi_DataCiteXmlGenerator
         $log->debug('OPUS-XML: ' . $modelXml->saveXML());
 
         $filenodes = $modelXml->getElementsByTagName('File');
+
         // Iterating over DOMNodeList is only save for readonly-operations -> create separate list
         $filenodesList = [];
         foreach ($filenodes as $filenode) {
             $filenodesList[] = $filenode;
         }
+
         // Remove filenodes which are invisible in oai (should not be in DataCite)
         foreach ($filenodesList as $filenode) {
             if ((false === $filenode->hasAttribute('VisibleInOai'))
@@ -123,7 +125,7 @@ class Opus_Doi_DataCiteXmlGenerator
             throw new Opus_Doi_DataCiteXmlGenerationException($message);
         }
 
-        $log->debug('DataCite-XML: '. $result->saveXML());
+        $log->debug('DataCite-XML: ' . $result->saveXML());
 
         $this->handleLibXmlErrors($log, true);
 
