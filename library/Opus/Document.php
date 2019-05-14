@@ -34,7 +34,7 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -202,6 +202,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
+    private static $defaultPlugins = null;
+
     /**
      * Plugins to load
      *
@@ -218,15 +220,32 @@ class Opus_Document extends Opus_Model_AbstractDb
      * in case of a cache miss. The cache rebuilding will issue a reindex
      * operation as a side effect. A subsequent call of the Index plugin issues
      * a second call of the reindex operation which is obsolete.)
-     *
-     * @var array
      */
-    protected $_plugins = [
-        'Opus_Document_Plugin_Index' => null,
-        'Opus_Document_Plugin_XmlCache' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null,
-        'Opus_Document_Plugin_IdentifierDoi' => null
-    ];
+    public function getDefaultPlugins()
+    {
+        if (is_null(self::$defaultPlugins)) {
+            $config = Zend_Registry::get('Zend_Config'); // use function
+
+            if (isset($config->model->plugins->document)) {
+                $plugins = $config->model->plugins->document;
+                self::$defaultPlugins = $plugins->toArray();
+            } else {
+                self::$defaultPlugins = [
+                    'Opus_Document_Plugin_Index',
+                    'Opus_Document_Plugin_XmlCache',
+                    'Opus_Document_Plugin_IdentifierUrn',
+                    'Opus_Document_Plugin_IdentifierDoi'
+                ];
+            }
+        }
+
+        return self::$defaultPlugins;
+    }
+
+    public function setDefaultPlugins($plugins)
+    {
+        self::$defaultPlugins = $plugins;
+    }
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
@@ -1156,12 +1175,12 @@ class Opus_Document extends Opus_Model_AbstractDb
      * deletePermanent removes a document from the database.
      */
     public function delete() {
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
 
-        $this->_callPluginMethod('postDelete', $this->getId());
+        $this->callPluginMethod('postDelete', $this->getId());
     }
 
     /**

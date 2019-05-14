@@ -1,0 +1,39 @@
+sudo: required
+dist: trusty
+language: php
+php:
+  - 7.0
+jdk:
+  - openjdk8
+services:
+  - mysql
+addons:
+  apt:
+    packages:
+      - ant
+cache:
+  directories:
+    - $HOME/.composer/cache
+    - $HOME/downloads
+before_install:
+  - jdk_switcher use openjdk8
+before_script: composer install
+script:
+  - java -version
+  - mysql --version
+  - mkdir -p tests/workspace/cache tests/workspace/files tests/workspace/log tests/workspace/tmp
+  - ant prepare-config -DdbAdminName=root
+  - php db/createdb.php
+  - mysql opusdb -u root --password='' -e 'SELECT * FROM schema_version'
+  - ant download-solr -DsolrVersion=5.5.5 -DdownloadDir=$HOME/downloads
+  - cd solr-5.5.5
+  - ./bin/solr start
+  - ./bin/solr create -c opus4
+  - cd server/solr/opus4/conf
+  - rm -f managed-schema schema.xml solrconfig.xml
+  - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/schema-5.xml" schema.xml
+  - ln -s "$TRAVIS_BUILD_DIR/vendor/opus4-repo/search/solrconfig-5.xml" solrconfig.xml
+  - cd ../../../../
+  - ./bin/solr restart
+  - cd ..
+  - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml

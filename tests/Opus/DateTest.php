@@ -834,7 +834,7 @@ class Opus_DateTest extends TestCase {
         $dateTimeUtc = $date->getDateTime('Z');
 
         $this->assertNotNull($dateTimeUtc);
-        $this->assertEquals(new DateTimeZone('Z'), $dateTimeUtc->getTimezone());
+        $this->assertEquals(new DateTimeZone('UTC'), $dateTimeUtc->getTimezone());
 
         $this->assertEquals($dateTime->getTimestamp(), $dateTimeUtc->getTimestamp());
         $this->assertEquals(1539986400,$dateTimeUtc->getTimestamp());
@@ -871,5 +871,46 @@ class Opus_DateTest extends TestCase {
         $expected = $dateTime->format('Y-m-d\TH:i');
 
         $this->assertStringStartsWith($expected, $now->__toString());
+    }
+
+    public function testUseUtcInsteadOfZ()
+    {
+        $date = new Opus_Date('2018-10-20T00:00:00+02:00');
+
+        $date->setTimezone('Z');
+
+        $dateTime = $date->getDateTime('Z');
+
+        $this->assertEquals(new DateTimeZone('UTC'), $dateTime->getTimezone());
+    }
+
+    public function testStoringDateWithTime() {
+        $date = new Opus_Date('2018-10-20T14:31:12+02:00');
+
+        $doc = new Opus_Document();
+
+        $doc->setPublishedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $dateLoaded = $doc->getPublishedDate();
+
+        $this->assertEquals(0, $date->compare($dateLoaded));
+        $this->assertEquals('2018-10-20T14:31:12+02:00', $dateLoaded->__toString());
+    }
+
+    public function testStoringDateWithTimezoneZ() {
+        $date = new Opus_Date('2018-10-20T14:31:12Z');
+
+        $doc = new Opus_Document();
+
+        $doc->setPublishedDate($date);
+
+        $doc = new Opus_Document($doc->store());
+
+        $dateLoaded = $doc->getPublishedDate();
+
+        $this->assertEquals(0, $date->compare($dateLoaded));
+        $this->assertEquals('2018-10-20T14:31:12Z', $dateLoaded->__toString());
     }
 }

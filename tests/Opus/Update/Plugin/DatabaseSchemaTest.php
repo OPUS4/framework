@@ -27,7 +27,7 @@
  * @category    Tests
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2017-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -43,5 +43,4 @@ class Opus_Update_Plugin_DatabaseSchemaTest extends TestCase
         $this->assertEquals(1, $plugin->mapVersion('1'));
         $this->assertEquals(4, $plugin->mapVersion('4'));
     }
-
 }

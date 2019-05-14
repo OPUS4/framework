@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -65,18 +65,17 @@ class Opus_DnbInstituteTest extends TestCase
         //load
         $loaded_institute = new Opus_DnbInstitute($id);
 
-        $this->assertEquals($name, $loaded_institute->getName(),
-                'Loaded other name, then stored.');
-        $this->assertEquals($address, $loaded_institute->getAddress(),
-                'Loaded other address, then stored.');
-        $this->assertEquals($city, $loaded_institute->getCity(),
-                'Loaded other city, then stored.');
-        $this->assertEquals($phone, $loaded_institute->getPhone(),
-                'Loaded other phone number, then stored.');
-        $this->assertEquals($dnb_contact_id, $loaded_institute->getDnbContactId(),
-                'Loaded other DNB contact ID, then stored.');
-        $this->assertEquals($is_grantor, $loaded_institute->getIsGrantor(),
-                'Loaded other information about grantor status, then stored.');
+        $this->assertEquals($name, $loaded_institute->getName(),'Loaded other name, then stored.');
+        $this->assertEquals($address, $loaded_institute->getAddress(),'Loaded other address, then stored.');
+        $this->assertEquals($city, $loaded_institute->getCity(),'Loaded other city, then stored.');
+        $this->assertEquals($phone, $loaded_institute->getPhone(),'Loaded other phone number, then stored.');
+        $this->assertEquals(
+            $dnb_contact_id, $loaded_institute->getDnbContactId(),'Loaded other DNB contact ID, then stored.'
+        );
+        $this->assertEquals(
+            $is_grantor, $loaded_institute->getIsGrantor(),
+            'Loaded other information about grantor status, then stored.'
+        );
     }
 
     /**
@@ -228,6 +227,58 @@ class Opus_DnbInstituteTest extends TestCase
         );
     }
 
+    public function testModifyingIsGrantorDoesNotUpdateServerDateModified()
+    {
+        $institute = new Opus_DnbInstitute();
+        $institute->setName('Test')
+            ->setCity('Berlin')
+            ->setIsGrantor(1)
+            ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article')
+            ->setServerState('published')
+            ->setThesisGrantor($institute);
+
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+
+        $institute->setIsGrantor(0);
+        $institute->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified());
+    }
+
+    public function testModifyingIsPublisherDoesNotUpdateServerDateModified()
+    {
+        $institute = new Opus_DnbInstitute();
+        $institute->setName('Test')
+            ->setCity('Berlin')
+            ->setIsPublisher(1)
+            ->store();
+
+        $doc = new Opus_Document();
+        $doc->setType('article')
+            ->setServerState('published')
+            ->setThesisPublisher($institute);
+
+        $docId = $doc->store();
+        $serverDateModified = $doc->getServerDateModified();
+
+        sleep(1);
+
+        $institute->setIsPublisher(0);
+        $institute->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals($serverDateModified, $doc->getServerDateModified());
+    }
+
     public function testToArray()
     {
         $institute = new Opus_DnbInstitute();
@@ -307,5 +358,181 @@ class Opus_DnbInstituteTest extends TestCase
         $this->assertEquals('123', $institute->getDnbContactId());
         $this->assertEquals(0, $institute->getIsGrantor());
         $this->assertEquals(1, $institute->getIsPublisher());
+    }
+
+    public function testIsUsed()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $institute->updateFromArray([
+            'Name' => 'Solutions',
+            'Department' => 'Big Solutions',
+            'Address' => 'Research Street',
+            'City' => 'Berlin',
+            'Phone' => '555-1234',
+            'DnbContactId' => '123',
+            'IsGrantor' => 0,
+            'IsPublisher' => 1
+        ]);
+
+        $institute->store();
+
+        $this->assertFalse($institute->isUsed());
+
+        $document = new Opus_Document();
+        $document->addThesisPublisher($institute);
+        $document->store();
+
+        $this->assertTrue($institute->isUsed());
+
+        $document->setThesisPublisher(null);
+        $document->store();
+
+        $this->assertFalse($institute->isUsed());
+
+        $document->setThesisGrantor($institute);
+        $document->store();
+
+        $this->assertTrue($institute->isUsed());
+    }
+
+    public function testName191Chars()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 19);
+
+        $name .= '0';
+
+        $this->assertTrue(strlen($name) === 191);
+
+        $institute->updateFromArray([
+            'Name' => $name,
+            'City' => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+    }
+
+    /**
+     * @expectedException Opus_Model_DbException
+     * @expectedExceptionMessage truncated
+     */
+    public function testNameTooLong()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 19);
+
+        $name .= '0A';
+
+        $this->assertTrue(strlen($name) === 192);
+
+        $institute->updateFromArray([
+            'Name' => $name,
+            'City' => 'Berlin'
+        ]);
+
+        $institute->store();
+    }
+
+    /**
+     * @expectedException Opus_Model_DbConstrainViolationException
+     * @expectedExceptionMessage Duplicate entry
+     */
+    public function testNameAndDepartmentUnique()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
+
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
+
+        $this->assertTrue(strlen($name) === 191);
+        $this->assertTrue(strlen($department) === 191);
+
+        $institute->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+        $this->assertEquals($department, $institute->getDepartment());
+
+        // try storing identical name and department
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
+
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
+
+        $institute2 = new Opus_DnbInstitute();
+
+        $institute2->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $institute2->store();
+    }
+
+    /**
+     * We are trying to see if unique key is as long as both columns together or if differences beyond the length of
+     * the key are ignored.
+     */
+    public function testNameAndDepartmentUniqueCheckWithLastCharacter()
+    {
+        $institute = new Opus_DnbInstitute();
+
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
+
+        $department = str_repeat('0123456789', 19);
+        $department .= '0';
+
+        $this->assertTrue(strlen($name) === 191);
+        $this->assertTrue(strlen($department) === 191);
+
+        $institute->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
+        $this->assertEquals($department, $institute->getDepartment());
+
+        // try storing name and department that differ at the very last character of key
+        $name = str_repeat('0123456789', 19);
+        $name .= '0';
+
+        $department = str_repeat('0123456789', 19);
+        $department .= 'A';
+
+        $institute2 = new Opus_DnbInstitute();
+
+        $institute2->updateFromArray([
+            'Name'       => $name,
+            'Department' => $department,
+            'City'       => 'Berlin'
+        ]);
+
+        $institute2->store();
     }
 }
