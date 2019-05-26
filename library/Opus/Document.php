@@ -113,7 +113,6 @@
  * @method void setServerDateDeleted(Opus_Date $date)
  * @method Opus_Date getServerDateDeleted()
  *
- * @method void setServerState(string $state)
  * @method string getServerState()
  *
  * @method void setType(string $type)
@@ -233,8 +232,6 @@ class Opus_Document extends Opus_Model_AbstractDb
                 self::$defaultPlugins = [
                     'Opus_Document_Plugin_Index',
                     'Opus_Document_Plugin_XmlCache',
-                    'Opus_Document_Plugin_IdentifierUrn',
-                    'Opus_Document_Plugin_IdentifierDoi'
                 ];
             }
         }
@@ -1166,6 +1163,19 @@ class Opus_Document extends Opus_Model_AbstractDb
             $this->setServerState($value);
         }
         $this->_primaryTableRow->server_state = $value;
+    }
+
+    public function setServerState($serverState) {
+        // DOI- und URN-Plugin brauchen grundsätzlich nur aufgerufen werden, wenn es tatsächlich eine Änderung
+        // des Attributs serverState gab, z.B. beim Freischalten eines Dokuments
+        // wenn das Dokument bereits freigeschaltet wurde, dann dürfen die beiden Plugins nicht aufgerufen
+        // werden, damit beim Speichern keine automatische DOI/URN-Generierung erfolgt
+        if (!($this->getServerState() === 'published' && $serverState === 'published')) {
+            $this->registerPlugin('Opus_Document_Plugin_IdentifierDoi');
+            $this->registerPlugin('Opus_Document_Plugin_IdentifierUrn');
+        }
+
+        parent::setServerState($serverState);
     }
 
     /**

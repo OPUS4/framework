@@ -34,9 +34,11 @@
  * @version     $Id$
  */
 
-class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
+class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
+{
 
-    public function testAutoGenerateUrn() {
+    public function testAutoGenerateUrn()
+    {
         $model = new Opus_Document();
         $model->setServerState('published');
         $model->store();
@@ -50,8 +52,10 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $plugin = new Opus_Document_Plugin_IdentifierUrn();
         $plugin->postStoreInternal($model);
 
-        $this->assertTrue($model->hasField('Identifier'),
-                'Model does not have field "Identifier"');
+        $this->assertTrue(
+            $model->hasField('Identifier'),
+            'Model does not have field "Identifier"'
+        );
         $urns = $model->getIdentifier();
 
         $this->assertNotNull($urns, 'IdentifierUrn is NULL');
@@ -70,7 +74,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
      * Regression test for OPUSVIER-2252 - don't assign URN if not "published"
      * Check both fields: Identifier and IdentifierUrn.
      */
-    public function testAutoGenerateUrnSkippedIfNotPublished() {
+    public function testAutoGenerateUrnSkippedIfNotPublished()
+    {
         $model = new Opus_Document();
         $model->setServerState('unpublished');
         $model->store();
@@ -78,15 +83,19 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $model->addFile()->setVisibleInOai(0);
         $model->addFile()->setVisibleInOai(1);
 
-        $this->assertTrue($model->hasField('IdentifierUrn'),
-                'Model does not have field "IdentifierUrn"');
+        $this->assertTrue(
+            $model->hasField('IdentifierUrn'),
+            'Model does not have field "IdentifierUrn"'
+        );
         $urns = $model->getIdentifierUrn();
 
         $this->assertNotNull($urns, 'IdentifierUrn is NULL');
         $this->assertEquals(0, count($urns));
 
-        $this->assertTrue($model->hasField('Identifier'),
-                'Model does not have field "Identifier"');
+        $this->assertTrue(
+            $model->hasField('Identifier'),
+            'Model does not have field "Identifier"'
+        );
         $identifiers = $model->getIdentifier();
 
         $this->assertNotNull($identifiers, 'Identifier is NULL');
@@ -96,7 +105,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
     /**
      * Regression test for OPUSVIER-2445 - don't assign URN if no visible file
      */
-    public function testAutoGenerateUrnSkippedIfPublishedAndNoVisibleFiles() {
+    public function testAutoGenerateUrnSkippedIfPublishedAndNoVisibleFiles()
+    {
         $model = new Opus_Document();
         $model->setServerState('published');
         $model->addFile()->setVisibleInOai(0);
@@ -111,7 +121,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
     /**
      * Test urnAlreadyPresent in isolation
      */
-    public function testUrnAlreadyPresent() {
+    public function testUrnAlreadyPresent()
+    {
         $plugin = new Opus_Document_Plugin_IdentifierUrn();
 
         $model = new Opus_Document();
@@ -133,7 +144,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
     /**
      * Test allowUrnOnThisDocument in isolation
      */
-    public function testAllowUrnOnThisDocument() {
+    public function testAllowUrnOnThisDocument()
+    {
         $plugin = new Opus_Document_Plugin_IdentifierUrn();
 
         $model = new Opus_Document();
@@ -148,4 +160,77 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase {
         $this->assertTrue($plugin->allowUrnOnThisDocument($model));
     }
 
+    /**
+     * ein bereits veröffentlichtes Dokument ohne URN soll beim erneuten Speichern keine URN erhalten
+     */
+    public function testOPUSVIER3994wPublishedDoc()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $visibleFile = new Opus_File();
+        $visibleFile->setPathName('visible_file.txt');
+        $visibleFile->setVisibleInOai(true);
+        $doc->addFile($visibleFile);
+        $doc->store();
+
+        $urnConfig = [
+            'autoCreate' => 1
+        ];
+        $this->adaptUrnConfiguration($urnConfig);
+
+        $doc = new Opus_Document($docId);
+        // provoziere einen Statusübergang von published nach published
+        $doc->setServerState('published');
+        $doc->store();
+        $this->assertEmpty($doc->getIdentifier());
+    }
+
+    /**
+     * ein noch nicht veröffentlichtes Dokument ohne URN soll beim erneuten Speichern eine URN erhalten
+     */
+    public function testOPUSVIER3994wUnpublishedDoc()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+
+        $visibleFile = new Opus_File();
+        $visibleFile->setPathName('visible_file.txt');
+        $visibleFile->setVisibleInOai(true);
+
+        $doc->addFile($visibleFile);
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $urnConfig = [
+            'autoCreate' => 1,
+            'nss' => 'nss',
+            'nid' => 'nid'
+        ];
+        $this->adaptUrnConfiguration($urnConfig);
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->store();
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $urn = $doc->getIdentifier()[0];
+        $this->assertEquals('urn', $urn->getType());
+        $urnPrefix = 'urn:nid:nss-' . $docId;
+        $this->assertTrue(substr($urn->getValue(), 0, strlen($urnPrefix)) === $urnPrefix);
+    }
+
+    private function adaptUrnConfiguration($urnConfig)
+    {
+        Zend_Registry::set(
+            'Zend_Config',
+            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['urn' => $urnConfig]))
+        );
+    }
 }
