@@ -1175,7 +1175,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $this->registerPlugin('Opus_Document_Plugin_IdentifierUrn');
         }
 
-        parent::setServerState($serverState);
+        return parent::setServerState($serverState);
     }
 
     /**
