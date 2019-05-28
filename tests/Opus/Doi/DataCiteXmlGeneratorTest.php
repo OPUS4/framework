@@ -34,8 +34,8 @@
 class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 {
 
-    protected $src_path = '';
-    protected $dest_path = '';
+    protected $srcPath = '';
+    protected $destPath = '';
     protected $path = '';
 
     public function setUp()
@@ -71,16 +71,16 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $config = Zend_Registry::get('Zend_Config');
         $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
-        $this->src_path = $this->path . DIRECTORY_SEPARATOR . 'src';
-        mkdir($this->src_path, 0777, true);
+        $this->srcPath = $this->path . DIRECTORY_SEPARATOR . 'src';
+        mkdir($this->srcPath, 0777, true);
 
-        $this->dest_path = $this->path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
-        mkdir($this->dest_path, 0777, true);
-        mkdir($this->dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
+        $this->destPath = $this->path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
+        mkdir($this->destPath, 0777, true);
+        mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
         Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
             new Zend_Config([
-                'workspacePath' => $this->dest_path,
+                'workspacePath' => $this->destPath,
                 'checksum' => [
                     'maxVerificationSize' => 1,
                 ],
@@ -320,10 +320,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->addFile($file);
 
         $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $xml = $generator->getXml($doc);
 
-        $this->assertNotContains('<sizes><size>0 KB</size></sizes>', $result);
-        $this->assertNotContains('<formats><format>pdf</format></formats>', $result);
+        $xpath = $this->prepareXpathFromResultString($xml);
+        $sizesXpath = $xpath->query('//ns:size');
+        $formatsXpath = $xpath->query('//ns:format');
+
+        $this->assertEquals(0, $sizesXpath->length);
+        $this->assertEquals(0, $formatsXpath->length);
     }
 
     /**
@@ -334,7 +338,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      */
     private function createTestFile()
     {
-        $filename_nonzero = $this->src_path . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
+        $filename_nonzero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
         $fh = fopen($filename_nonzero, 'w');
 
         if ($fh == false) {
@@ -379,13 +383,22 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
 
         $size = intval(round($file->getFileSize() / 1024));
         $size2 = intval(round($file2->getFileSize() / 1024));
 
-        $this->assertContains("<sizes><size>$size KB</size><size>$size2 KB</size></sizes>", $result);
-        $this->assertContains('<formats><format>text/plain</format><format>text/plain</format></formats>', $result);
+        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath1->length);
+        $this->assertEquals(1, $sizesXpath2->length);
+        $this->assertEquals(1, $formatXpath1->length);
+        $this->assertEquals(1, $formatXpath2->length);
     }
 
     /**
@@ -393,43 +406,6 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      * Test if visible file is shown and invisible file is hided
      */
     public function testMixedFileInformationVisibility()
-    {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
-
-        $filename = $this->createTestFile();
-
-        $file = New Opus_File();
-        $file->setVisibleInOai(0);
-        $file->setTempFile($filename);
-        $file->setPathName('copied-foobar-nonzero.txt');
-        $doc->addFile($file);
-        $doc->store();
-
-        $filename2 = $this->createTestFile();
-
-        $file2 = New Opus_File();
-        $file2->setVisibleInOai(1);
-        $file2->setTempFile($filename2);
-        $file2->setPathName('copied-foobar-nonzero_2.txt');
-        $doc->addFile($file2);
-        $doc->store();
-
-        $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
-
-        $size2 = intval(round($file2->getFileSize() / 1024));
-
-        // The first file is not visible. So the the size for this file is not shown in the sizes-tag.
-        $this->assertContains("<sizes><size>$size2 KB</size></sizes>", $result);
-        $this->assertContains('<formats><format>text/plain</format></formats>', $result);
-    }
-
-    /**
-     * The DataCite-XML should not contain files, which are invisible in oai
-     * Test if if the order of visible and invisible files is not important
-     */
-    public function testDifferentOrderFileInformationVisibility()
     {
         $doc = new Opus_Document();
         $this->addRequiredPropsToDoc($doc);
@@ -453,11 +429,67 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->store();
 
         $generator = new Opus_Doi_DataCiteXmlGenerator();
-        $result = $generator->getXml($doc);
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
 
         $size = intval(round($file->getFileSize() / 1024));
+        $size2 = intval(round($file2->getFileSize() / 1024));
 
-        $this->assertContains("<sizes><size>$size KB</size></sizes>", $result);
-        $this->assertContains('<formats><format>text/plain</format></formats>', $result);
+        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath1->length);
+        $this->assertEquals(0, $sizesXpath2->length);
+        $this->assertEquals(1, $formatXpath1->length);
+        $this->assertEquals(0, $formatXpath2->length);
+    }
+
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if if the order of visible and invisible files is not important
+     */
+    public function testDifferentOrderFileInformationVisibility()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $filename = $this->createTestFile();
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(0);
+        $file->setTempFile($filename);
+        $file->setPathName('copied-foobar-nonzero.txt');
+        $doc->addFile($file);
+        $doc->store();
+
+        $filename2 = $this->createTestFile();
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(1);
+        $file2->setTempFile($filename2);
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
+        $doc->addFile($file2);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
+
+        $size = intval(round($file->getFileSize() / 1024));
+        $size2 = intval(round($file2->getFileSize() / 1024));
+
+        $sizesXpath1 = $xpath->query("//ns:size[2][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[1][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath2->length);
+        $this->assertEquals(0, $sizesXpath1->length);
+        $this->assertEquals(1, $formatXpath2->length);
+        $this->assertEquals(0, $formatXpath1->length);
     }
 }
