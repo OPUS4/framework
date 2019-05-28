@@ -36,6 +36,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     protected $src_path = '';
     protected $dest_path = '';
+    protected $path = '';
 
     public function setUp()
     {
@@ -68,12 +69,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $lang->store();
 
         $config = Zend_Registry::get('Zend_Config');
-        $path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
+        $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
 
-        $this->src_path = $path . DIRECTORY_SEPARATOR . 'src';
+        $this->src_path = $this->path . DIRECTORY_SEPARATOR . 'src';
         mkdir($this->src_path, 0777, true);
 
-        $this->dest_path = $path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
+        $this->dest_path = $this->path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
         mkdir($this->dest_path, 0777, true);
         mkdir($this->dest_path . DIRECTORY_SEPARATOR . 'files', 0777, true);
 
@@ -91,8 +92,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
     public function tearDown()
     {
 
-        Opus_Util_File::deleteDirectory($this->src_path);
-        Opus_Util_File::deleteDirectory($this->dest_path);
+        Opus_Util_File::deleteDirectory($this->path);
 
         parent::tearDown();
     }
