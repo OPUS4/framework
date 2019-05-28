@@ -319,12 +319,6 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $file->setMimeType('pdf');
         $doc->addFile($file);
 
-        $file = New Opus_File();
-        $file->setVisibleInOai(0);
-        $file->setFileSize('0');
-        $file->setMimeType('pdf');
-        $doc->addFile($file);
-
         $generator = new Opus_Doi_DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
 
@@ -426,6 +420,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $size2 = intval(round($file2->getFileSize() / 1024));
 
+        // The first file is not visible. So the the size for this file is not shown in the sizes-tag.
         $this->assertContains("<sizes><size>$size2 KB</size></sizes>", $result);
         $this->assertContains('<formats><format>text/plain</format></formats>', $result);
     }
