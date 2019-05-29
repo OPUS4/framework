@@ -34,6 +34,10 @@
 class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 {
 
+    protected $srcPath = '';
+    protected $destPath = '';
+    protected $path = '';
+
     public function setUp()
     {
         parent::setUp();
@@ -63,6 +67,34 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
             'Active' => 1
         ]);
         $lang->store();
+
+        $config = Zend_Registry::get('Zend_Config');
+        $this->path = $config->workspacePath . DIRECTORY_SEPARATOR . uniqid();
+
+        $this->srcPath = $this->path . DIRECTORY_SEPARATOR . 'src';
+        mkdir($this->srcPath, 0777, true);
+
+        $this->destPath = $this->path . DIRECTORY_SEPARATOR . 'dest' . DIRECTORY_SEPARATOR;
+        mkdir($this->destPath, 0777, true);
+        mkdir($this->destPath . DIRECTORY_SEPARATOR . 'files', 0777, true);
+
+        Zend_Registry::set('Zend_Config', Zend_Registry::get('Zend_Config')->merge(
+            new Zend_Config([
+                'workspacePath' => $this->destPath,
+                'checksum' => [
+                    'maxVerificationSize' => 1,
+                ],
+            ])
+        ));
+
+    }
+
+    public function tearDown()
+    {
+
+        Opus_Util_File::deleteDirectory($this->path);
+
+        parent::tearDown();
     }
 
     public function testGenerateMissingFields()
@@ -270,5 +302,194 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $result = $xpath->query('//ns:language[text()="de"]');
         $this->assertEquals(1, $result->length);
+    }
+
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if both invisible files are hided
+     */
+    public function testFileInformationInvisible()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(0);
+        $file->setFileSize('0');
+        $file->setMimeType('pdf');
+        $doc->addFile($file);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
+        $sizesXpath = $xpath->query('//ns:size');
+        $formatsXpath = $xpath->query('//ns:format');
+
+        $this->assertEquals(0, $sizesXpath->length);
+        $this->assertEquals(0, $formatsXpath->length);
+    }
+
+    /**
+     * Creates a txt-file with random size.
+     *
+     * @return string path of file
+     * @throws Zend_Exception
+     */
+    private function createTestFile()
+    {
+        $filename_nonzero = $this->srcPath . DIRECTORY_SEPARATOR . 'foobar-nonzero.txt';
+        $fh = fopen($filename_nonzero, 'w');
+
+        if ($fh == false) {
+            $this->fail("Unable to write file $filename_nonzero.");
+        }
+
+        $rand = rand(1000, 100000);
+        for ($i = 0; $i < $rand; $i++) {
+            fwrite($fh, ".");
+        }
+
+        fclose($fh);
+
+        return $filename_nonzero;
+    }
+
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if both visible files are shown
+     */
+    public function testFileInformationVisible()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $filename = $this->createTestFile();
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(1);
+        $file->setTempFile($filename);
+        $file->setPathName('copied-foobar-nonzero.txt');
+        $doc->addFile($file);
+        $doc->store();
+
+        $filename2 = $this->createTestFile();
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(1);
+        $file2->setTempFile($filename2);
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
+        $doc->addFile($file2);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
+
+        $size = intval(round($file->getFileSize() / 1024));
+        $size2 = intval(round($file2->getFileSize() / 1024));
+
+        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath1->length);
+        $this->assertEquals(1, $sizesXpath2->length);
+        $this->assertEquals(1, $formatXpath1->length);
+        $this->assertEquals(1, $formatXpath2->length);
+    }
+
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if visible file is shown and invisible file is hided
+     */
+    public function testMixedFileInformationVisibility()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $filename = $this->createTestFile();
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(1);
+        $file->setTempFile($filename);
+        $file->setPathName('copied-foobar-nonzero.txt');
+        $doc->addFile($file);
+        $doc->store();
+
+        $filename2 = $this->createTestFile();
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(0);
+        $file2->setTempFile($filename2);
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
+        $doc->addFile($file2);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
+
+        $size = intval(round($file->getFileSize() / 1024));
+        $size2 = intval(round($file2->getFileSize() / 1024));
+
+        $sizesXpath1 = $xpath->query("//ns:size[1][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[2][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath1->length);
+        $this->assertEquals(0, $sizesXpath2->length);
+        $this->assertEquals(1, $formatXpath1->length);
+        $this->assertEquals(0, $formatXpath2->length);
+    }
+
+    /**
+     * The DataCite-XML should not contain files, which are invisible in oai
+     * Test if if the order of visible and invisible files is not important
+     */
+    public function testDifferentOrderFileInformationVisibility()
+    {
+        $doc = new Opus_Document();
+        $this->addRequiredPropsToDoc($doc);
+
+        $filename = $this->createTestFile();
+
+        $file = New Opus_File();
+        $file->setVisibleInOai(0);
+        $file->setTempFile($filename);
+        $file->setPathName('copied-foobar-nonzero.txt');
+        $doc->addFile($file);
+        $doc->store();
+
+        $filename2 = $this->createTestFile();
+
+        $file2 = New Opus_File();
+        $file2->setVisibleInOai(1);
+        $file2->setTempFile($filename2);
+        $file2->setPathName('copied-foobar-nonzero_2.txt');
+        $doc->addFile($file2);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $xml = $generator->getXml($doc);
+
+        $xpath = $this->prepareXpathFromResultString($xml);
+
+        $size = intval(round($file->getFileSize() / 1024));
+        $size2 = intval(round($file2->getFileSize() / 1024));
+
+        $sizesXpath1 = $xpath->query("//ns:size[2][text()=\"$size KB\"]");
+        $sizesXpath2 = $xpath->query("//ns:size[1][text()=\"$size2 KB\"]");
+        $formatXpath1 = $xpath->query("//ns:format[2][text()=\"text/plain\"]");
+        $formatXpath2 = $xpath->query("//ns:format[1][text()=\"text/plain\"]");
+
+        $this->assertEquals(1, $sizesXpath2->length);
+        $this->assertEquals(0, $sizesXpath1->length);
+        $this->assertEquals(1, $formatXpath2->length);
+        $this->assertEquals(0, $formatXpath1->length);
     }
 }
