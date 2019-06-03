@@ -2096,12 +2096,9 @@ class Opus_DocumentTest extends TestCase
         $doc = new Opus_Document();
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
         $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_SequenceNumber'), 'Opus_Document_Plugin_SequenceNumber is registered');
-
-        // die beiden nachfolgenden Plugins werden nur noch selektiv in Opus_Document beim Änderung von serverState
-        // registriert
-        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
-        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
     }
 
     /**
@@ -3909,7 +3906,9 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertEquals([
             'Opus_Document_Plugin_Index',
-            'Opus_Document_Plugin_XmlCache'
+            'Opus_Document_Plugin_XmlCache',
+            'Opus_Document_Plugin_IdentifierUrn',
+            'Opus_Document_Plugin_IdentifierDoi'
         ], $document->getDefaultPlugins());
     }
 
