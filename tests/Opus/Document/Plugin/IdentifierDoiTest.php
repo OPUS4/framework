@@ -360,9 +360,13 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->adaptDoiConfiguration($doiConfig);
 
         $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
         // provoziere einen Statusübergang von published nach published
         $doc->setServerState('published');
         $doc->store();
+
+        $doc = new Opus_Document($docId);
         $this->assertEmpty($doc->getIdentifier());
     }
 
@@ -388,6 +392,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->adaptDoiConfiguration($doiConfig);
 
         $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
         $doc->setServerState('published');
         $doc->store();
         $this->assertNotEmpty($doc->getIdentifier());
@@ -419,6 +425,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->adaptDoiConfiguration($doiConfig);
 
         $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
         $doc->setServerState('published');
         $doc->setServerState('unpublished');
         $doc->store();
@@ -427,6 +435,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->assertEmpty($doc->getIdentifier());
 
         $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('2');
         $doc->setServerState('unpublished');
         $doc->setServerState('published');
         $doc->store();

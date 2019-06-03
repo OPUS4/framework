@@ -1200,19 +1200,12 @@ class Opus_Document extends Opus_Model_AbstractDb
         if (is_null($this->oldServerState) && !$this->serverStateChanged) {
             // erste Änderung des Wertes von serverState
             $this->oldServerState = $this->getServerState();
-            $this->serverStateChanged = true;
         }
-        else {
-            // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
-            // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
-            // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
-            if ($serverState !== $this->oldServerState) {
-                $this->serverStateChanged = true;
-            }
-            else {
-                $this->serverStateChanged = false;
-            }
-        }
+
+        // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
+        // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
+        // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
+        $this->serverStateChanged = ($serverState !== $this->oldServerState);
 
         return parent::setServerState($serverState);
     }
