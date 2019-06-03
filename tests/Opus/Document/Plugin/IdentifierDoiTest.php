@@ -396,4 +396,74 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->assertEquals('doi', $doi->getType());
         $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
     }
+
+    /**
+     * mehrfacher Aufruf der setServerState-Methode mit unterschiedlichen Werten
+     */
+    public function testOPUSVIER3994multipleSetter()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $doiConfig = [
+            'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'registerAtPublish' => 0,
+            'autoCreate' => 1
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // es sollte keine DOI erzeugt worden sein, weil sich der serverState effektiv nicht geändert hat
+        $this->assertEmpty($doc->getIdentifier());
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $doc->store();
+
+        // es sollte eine DOI erzeugt worden sein, weil sich der serverState effektiv geändert hat
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $doi = $doc->getIdentifier()[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
+    }
+
+    /**
+     * ein neu gespeichertes Dokument bekommt beim Veröffentlichen eine DOI, sofern autoCreate aktiviert
+     */
+    public function testOPUSVIER3994publishedDocGetsDOI()
+    {
+        $doiConfig = [
+            'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'registerAtPublish' => 0,
+            'autoCreate' => 1
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
+
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $doi = $doc->getIdentifier()[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
+    }
 }

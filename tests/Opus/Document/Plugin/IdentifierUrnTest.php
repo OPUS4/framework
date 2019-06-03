@@ -172,10 +172,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $doc = new Opus_Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
-        $visibleFile = new Opus_File();
-        $visibleFile->setPathName('visible_file.txt');
-        $visibleFile->setVisibleInOai(true);
-        $doc->addFile($visibleFile);
+        $this->addFileToDoc($doc);
         $doc->store();
 
         $urnConfig = [
@@ -196,13 +193,8 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
     public function testOPUSVIER3994wUnpublishedDoc()
     {
         $doc = new Opus_Document();
+        $this->addFileToDoc($doc);
         $doc->setServerState('unpublished');
-
-        $visibleFile = new Opus_File();
-        $visibleFile->setPathName('visible_file.txt');
-        $visibleFile->setVisibleInOai(true);
-
-        $doc->addFile($visibleFile);
         $docId = $doc->store();
 
         $doc = new Opus_Document($docId);
@@ -226,11 +218,90 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $this->assertTrue(substr($urn->getValue(), 0, strlen($urnPrefix)) === $urnPrefix);
     }
 
+    /**
+     * mehrfacher Aufruf der setServerState-Methode mit unterschiedlichen Werten
+     */
+    public function testOPUSVIER3994multipleSetter()
+    {
+        $doc = new Opus_Document();
+        $this->addFileToDoc($doc);
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $urnConfig = [
+            'autoCreate' => 1,
+            'nss' => 'nss',
+            'nid' => 'nid'
+        ];
+        $this->adaptUrnConfiguration($urnConfig);
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // es sollte keine URN erzeugt worden sein, weil sich der serverState effektiv nicht geändert hat
+        $this->assertEmpty($doc->getIdentifier());
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $doc->store();
+
+        // es sollte eine URN erzeugt worden sein, weil sich der serverState effektiv geändert hat
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $urn = $doc->getIdentifier()[0];
+        $this->assertEquals('urn', $urn->getType());
+        $urnPrefix = 'urn:nid:nss-' . $docId;
+        $this->assertTrue(substr($urn->getValue(), 0, strlen($urnPrefix)) === $urnPrefix);
+    }
+
+    /**
+     * ein neu gespeichertes Dokument bekommt beim Veröffentlichen eine URN, sofern autoCreate aktiviert
+     */
+    public function testOPUSVIER3994publishedDocGetsURN()
+    {
+        $urnConfig = [
+            'autoCreate' => 1,
+            'nss' => 'nss',
+            'nid' => 'nid'
+        ];
+        $this->adaptUrnConfiguration($urnConfig);
+
+        $doc = new Opus_Document();
+        $this->addFileToDoc($doc);
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $urn = $doc->getIdentifier()[0];
+        $this->assertEquals('urn', $urn->getType());
+        $urnPrefix = 'urn:nid:nss-' . $docId;
+        $this->assertTrue(substr($urn->getValue(), 0, strlen($urnPrefix)) === $urnPrefix);
+    }
+
     private function adaptUrnConfiguration($urnConfig)
     {
         Zend_Registry::set(
             'Zend_Config',
             Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['urn' => $urnConfig]))
         );
+    }
+
+    private function addFileToDoc(Opus_Document $doc)
+    {
+        $visibleFile = new Opus_File();
+        $visibleFile->setPathName('visible_file.txt');
+        $visibleFile->setVisibleInOai(true);
+
+        $doc->addFile($visibleFile);
     }
 }

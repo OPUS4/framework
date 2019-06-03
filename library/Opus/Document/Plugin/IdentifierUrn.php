@@ -40,7 +40,7 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract 
+class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
 {
 
     /**

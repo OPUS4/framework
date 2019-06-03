@@ -201,6 +201,22 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
+    /**
+     * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
+     * die das Interface \Opus\Model\Plugin\ServerStateChangeListener implementieren, ausgeführt.
+     *
+     * @var bool
+     */
+    private $serverStateChanged = false;
+
+    /**
+     * sofern der Wert von serverState geändert wurde, wird in dieser
+     * Variable der in der Datenbank abgespeicherte Wert als Referenz gehalten
+     *
+     * @var string
+     */
+    private $oldServerState = null;
+
     private static $defaultPlugins = null;
 
     /**
@@ -232,6 +248,8 @@ class Opus_Document extends Opus_Model_AbstractDb
                 self::$defaultPlugins = [
                     'Opus_Document_Plugin_Index',
                     'Opus_Document_Plugin_XmlCache',
+                    'Opus_Document_Plugin_IdentifierUrn',
+                    'Opus_Document_Plugin_IdentifierDoi'
                 ];
             }
         }
@@ -1157,7 +1175,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @param string $value Server state of document.
      * @return void
      */
-    protected  function _storeServerState($value) {
+    protected function _storeServerState($value) {
         if (true === empty($value)) {
             $value = 'unpublished';
             $this->setServerState($value);
@@ -1165,14 +1183,35 @@ class Opus_Document extends Opus_Model_AbstractDb
         $this->_primaryTableRow->server_state = $value;
     }
 
-    public function setServerState($serverState) {
-        // DOI- und URN-Plugin brauchen grundsätzlich nur aufgerufen werden, wenn es tatsächlich eine Änderung
-        // des Attributs serverState gab, z.B. beim Freischalten eines Dokuments
-        // wenn das Dokument bereits freigeschaltet wurde, dann dürfen die beiden Plugins nicht aufgerufen
-        // werden, damit beim Speichern keine automatische DOI/URN-Generierung erfolgt
-        if (!($this->getServerState() === 'published' && $serverState === 'published')) {
-            $this->registerPlugin('Opus_Document_Plugin_IdentifierDoi');
-            $this->registerPlugin('Opus_Document_Plugin_IdentifierUrn');
+    /**
+     * Wenn das Dokument noch nicht in der DB gespeichert wurde, liefert der erste
+     * Aufruf von getServerState() den Wert null. In diesem Fall liegt immer eine
+     * Änderung des Wertes von serverState vor. Der zuletzt gesetzte Wert von serverState
+     * "gewinnt". Andernfalls wird der Wert von getServerState beim ersten Aufruf
+     * als Referenz gespeichert. Bei jeder Änderung von serverState wird der neue
+     * Wert mit dem gespeicherten Referenz verglichen, um festzustellen, ob es eine
+     * Änderung von serverState gegeben hat.
+     *
+     * @param $serverState
+     * @return mixed
+     */
+    public function setServerState($serverState)
+    {
+        if (is_null($this->oldServerState) && !$this->serverStateChanged) {
+            // erste Änderung des Wertes von serverState
+            $this->oldServerState = $this->getServerState();
+            $this->serverStateChanged = true;
+        }
+        else {
+            // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
+            // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
+            // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
+            if ($serverState !== $this->oldServerState) {
+                $this->serverStateChanged = true;
+            }
+            else {
+                $this->serverStateChanged = false;
+            }
         }
 
         return parent::setServerState($serverState);
@@ -1593,5 +1632,9 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         return $document;
+    }
+
+    public function getServerStateChanged() {
+        return $this->serverStateChanged;
     }
 }

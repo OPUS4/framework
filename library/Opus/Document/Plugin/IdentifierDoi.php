@@ -35,7 +35,8 @@
  * Plugin for generating identifiers of type DOI.
  *
  */
-class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
+{
 
     // was muss hier alles ausgewertet werden:
     // automatische Generierung einer DOI für das vorliegende Dokument, wenn
