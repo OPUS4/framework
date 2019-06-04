@@ -65,9 +65,11 @@ class Opus_Doi_DataCiteXmlGenerator
      * Metadatenbeschreibung des Dokuments bei der DOI-Registrierung akzeptiert wird.
      *
      * @param $doc Opus_Document
+     * @param $allowInvalidXml bool wenn true, dann erfolgt bei der XML-Generierung keine Prüfung auf Validität, z.B.
+     *                              erwartete Pflichtfelder
      * @return string XML for DataCite registration
      */
-    public function getXml($doc)
+    public function getXml($doc, $allowInvalidXml = false)
     {
         // DataCite-XML wird mittels XSLT aus OPUS-XML erzeugt
         $xslt = new DOMDocument();
@@ -79,9 +81,8 @@ class Opus_Doi_DataCiteXmlGenerator
         }
 
         $log = Zend_Registry::get('Zend_Log'); // TODO use LoggingTrait
-        $doiLog = $this->getDoiLog();
 
-        if (!$success) {
+        if (! $success) {
             $message = "could not find XSLT file $xsltPath";
             $log->err($message);
             throw new Opus_Doi_DataCiteXmlGenerationException($message);
@@ -91,7 +92,7 @@ class Opus_Doi_DataCiteXmlGenerator
         $proc->registerPHPFunctions('Opus_Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
-        if (!$this->checkRequiredFields($doc, $log)) {
+        if (! $allowInvalidXml && ! $this->checkRequiredFields($doc, $log)) {
             throw new Opus_Doi_DataCiteXmlGenerationException(
                 'required fields are missing in document ' . $doc->getId() . ' - check log for details'
             );
@@ -100,25 +101,12 @@ class Opus_Doi_DataCiteXmlGenerator
         $modelXml = $this->getModelXml($doc);
         $log->debug('OPUS-XML: ' . $modelXml->saveXML());
 
-        $filenodes = $modelXml->getElementsByTagName('File');
-
-        // Iterating over DOMNodeList is only save for readonly-operations -> create separate list
-        $filenodesList = [];
-        foreach ($filenodes as $filenode) {
-            $filenodesList[] = $filenode;
-        }
-
-        // Remove filenodes which are invisible in oai (should not be in DataCite)
-        foreach ($filenodesList as $filenode) {
-            if ((false === $filenode->hasAttribute('VisibleInOai'))
-                or ('1' !== $filenode->getAttribute('VisibleInOai'))) {
-                $filenode->parentNode->removeChild($filenode);
-            }
-        }
+        $this->removeNodesOfInvisibleFiles($modelXml);
 
         $this->handleLibXmlErrors($log, true);
+
         $result = $proc->transformToDoc($modelXml);
-        if (!$result) {
+        if (! $result) {
             $message = 'errors occurred in XSLT transformation of document ' . $doc->getId();
             $log->err($message);
             $this->handleLibXmlErrors($log);
@@ -129,23 +117,23 @@ class Opus_Doi_DataCiteXmlGenerator
 
         $this->handleLibXmlErrors($log, true);
 
-        $xsdPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'metadata.xsd';
-        if (!file_exists($xsdPath)) {
-            $message = 'could not load schema file from ' . $xsdPath;
-            $log->err($message);
-            throw new Opus_Doi_DataCiteXmlGenerationException($message);
-        }
-
-        $output = $result->saveXML();
-
         // Validierung des erzeugten DataCite-XML findet bereits hier statt, da ein invalides XML
         // beim späteren Registrierungsversuch einen HTTP Fehler 400 auslöst
-        $validationResult = $result->schemaValidate($xsdPath);
-        if (!$validationResult) {
-            $message = 'generated DataCite XML for document ' . $doc->getId() . ' is NOT valid';
-            $log->err($message);
-            $this->handleLibXmlErrors($log);
-            throw new Opus_Doi_DataCiteXmlGenerationException($message);
+        if (! $allowInvalidXml) {
+            $xsdPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'metadata.xsd';
+            if (! file_exists($xsdPath)) {
+                $message = 'could not load schema file from ' . $xsdPath;
+                $log->err($message);
+                throw new Opus_Doi_DataCiteXmlGenerationException($message);
+            }
+
+            $validationResult = $result->schemaValidate($xsdPath);
+            if (! $validationResult) {
+                $message = 'generated DataCite XML for document ' . $doc->getId() . ' is NOT valid';
+                $log->err($message);
+                $this->handleLibXmlErrors($log);
+                throw new Opus_Doi_DataCiteXmlGenerationException($message);
+            }
         }
 
         return $result->saveXML();
@@ -171,7 +159,7 @@ class Opus_Doi_DataCiteXmlGenerator
             }
         }
 
-        if (!$authorOk) {
+        if (! $authorOk) {
             if ($doc->getCreatingCorporation() == '') {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
                 return false;
@@ -189,7 +177,7 @@ class Opus_Doi_DataCiteXmlGenerator
             }
         }
 
-        if (!$titleOk) {
+        if (! $titleOk) {
             $titles = $doc->getTitleSub();
 
             foreach ($titles as $title) {
@@ -199,7 +187,7 @@ class Opus_Doi_DataCiteXmlGenerator
                 }
             }
 
-            if (!$titleOk) {
+            if (! $titleOk) {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element title');
                 return false;
             }
@@ -211,7 +199,7 @@ class Opus_Doi_DataCiteXmlGenerator
         if ($doc->getPublisherName() != '') {
             $publisherOk = true;
         }
-        if (!$publisherOk) {
+        if (! $publisherOk) {
             $thesisPublishers = $doc->getThesisPublisher();
             foreach ($thesisPublishers as $thesisPublisher) {
                 if ($thesisPublisher->getName() != '') {
@@ -219,7 +207,7 @@ class Opus_Doi_DataCiteXmlGenerator
                     break;
                 }
             }
-            if (!$publisherOk) {
+            if (! $publisherOk) {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
                 return false;
             }
@@ -263,7 +251,7 @@ class Opus_Doi_DataCiteXmlGenerator
         if (isset($config->datacite->stylesheetPath)) {
             $stylesheetPath = $config->datacite->stylesheetPath;
 
-            if (!is_readable($stylesheetPath)) {
+            if (! is_readable($stylesheetPath)) {
                 Zend_Registry::get('Zend_Log')->warn('Configured DataCite XSLT file not found');
                 $stylesheetPath = null;
             }
@@ -275,5 +263,30 @@ class Opus_Doi_DataCiteXmlGenerator
         }
 
         return $stylesheetPath;
+    }
+
+    /**
+     * Entfernt alle File-Elemente aus dem übergebenen XML von Dateien, für die das Flag VisibleInOai nicht gesetzt ist.
+     * Die Metadaten solcher Dateien sollen im DataCite-XML nicht erscheinen.
+     *
+     * @param $modelXml
+     */
+    private function removeNodesOfInvisibleFiles($modelXml)
+    {
+        $filenodes = $modelXml->getElementsByTagName('File');
+
+        // Iterating over DOMNodeList is only save for readonly-operations -> create separate list
+        $filenodesList = [];
+        foreach ($filenodes as $filenode) {
+            $filenodesList[] = $filenode;
+        }
+
+        // Remove filenodes which are invisible in oai (should not be in DataCite)
+        foreach ($filenodesList as $filenode) {
+            if ((false === $filenode->hasAttribute('VisibleInOai'))
+                or ('1' !== $filenode->getAttribute('VisibleInOai'))) {
+                $filenode->parentNode->removeChild($filenode);
+            }
+        }
     }
 }
