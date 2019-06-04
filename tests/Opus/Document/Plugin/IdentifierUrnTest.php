@@ -175,10 +175,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $this->addFileToDoc($doc);
         $doc->store();
 
-        $urnConfig = [
-            'autoCreate' => 1
-        ];
-        $this->adaptUrnConfiguration($urnConfig);
+        $this->enableURNGeneration();
 
         $doc = new Opus_Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
@@ -204,12 +201,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $doc = new Opus_Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
-        $urnConfig = [
-            'autoCreate' => 1,
-            'nss' => 'nss',
-            'nid' => 'nid'
-        ];
-        $this->adaptUrnConfiguration($urnConfig);
+        $this->enableURNGeneration();
 
         $doc = new Opus_Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
@@ -237,12 +229,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $doc = new Opus_Document($docId);
         $this->assertEmpty($doc->getIdentifier());
 
-        $urnConfig = [
-            'autoCreate' => 1,
-            'nss' => 'nss',
-            'nid' => 'nid'
-        ];
-        $this->adaptUrnConfiguration($urnConfig);
+        $this->enableURNGeneration();
 
         $doc = new Opus_Document($docId);
         // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
@@ -275,12 +262,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
      */
     public function testOPUSVIER3994publishedDocGetsURN()
     {
-        $urnConfig = [
-            'autoCreate' => 1,
-            'nss' => 'nss',
-            'nid' => 'nid'
-        ];
-        $this->adaptUrnConfiguration($urnConfig);
+        $this->enableURNGeneration();
 
         $doc = new Opus_Document();
         $this->addFileToDoc($doc);
@@ -298,6 +280,31 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $this->assertTrue(substr($urn->getValue(), 0, strlen($urnPrefix)) === $urnPrefix);
     }
 
+    /**
+     * Keine URN-Generierung, wenn effektiv keine Änderung des ServerState erfolgt
+     */
+    public function testOPUSVIER3994withoutServerStateChanged()
+    {
+        $doc = new Opus_Document();
+        $this->addFileToDoc($doc);
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $this->enableURNGeneration();
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // prüfe, dass keine URN generiert wurde (weil sich der ServerState nicht verändert hat)
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+    }
+
     private function adaptUrnConfiguration($urnConfig)
     {
         Zend_Registry::set(
@@ -313,5 +320,18 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
         $visibleFile->setVisibleInOai(true);
 
         $doc->addFile($visibleFile);
+    }
+
+    /**
+     * Hilfsmethode um die URN-Generierung in der Konfiguration zu aktivieren.
+     */
+    private function enableURNGeneration()
+    {
+        $urnConfig = [
+            'autoCreate' => 1,
+            'nss' => 'nss',
+            'nid' => 'nid'
+        ];
+        $this->adaptUrnConfiguration($urnConfig);
     }
 }
