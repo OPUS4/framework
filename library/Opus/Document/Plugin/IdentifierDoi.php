@@ -35,7 +35,8 @@
  * Plugin for generating identifiers of type DOI.
  *
  */
-class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
+class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
+{
 
     // was muss hier alles ausgewertet werden:
     // automatische Generierung einer DOI für das vorliegende Dokument, wenn
@@ -49,31 +50,41 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract {
     // laut Spezifikation: jedes OPUS-Dokument kann maximal eine zugeordnete DOI haben
     // diese DOI ist entweder lokal oder extern
     // im Rahmen der automatischen DOI-Registrierung werden nur lokale DOIs betrachtet
-    public function postStoreInternal(Opus_Model_AbstractDb $model) {
-
+    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    {
         $log = Zend_Registry::get('Zend_Log');
 
         if (!($model instanceof Opus_Document)) {
-            $log->err('found unexpected model class ' . get_class($model));
+            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
             return;
         }
 
         $serverState = $model->getServerState();
         $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
-        if ($serverState == 'published') {
-            $this->handlePublishEvent($model, $log);
+        if ($serverState !== 'published') {
+            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
             return;
         }
 
-        if ($serverState == 'deleted') {
-            $this->handleDeleteEvent($model);
+        $this->handlePublishEvent($model, $log);
+    }
+
+    public function postDelete($modelId)
+    {
+        // check if database contains document with given id
+        $doc = null;
+        try {
+            $doc = new Opus_Document($modelId);
+        }
+        catch (Opus_Model_NotFoundException $e) {
+            // ignore silently and exit method since we do not need to perform any action
             return;
         }
 
-        $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for documents with server state ' . $serverState);
-
-        return;
+        if ($doc != null && $doc->getServerState() === 'deleted') {
+            $this->handleDeleteEvent($doc);
+        }
     }
 
     private function handleDeleteEvent($document) {
