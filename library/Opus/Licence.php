@@ -79,7 +79,8 @@
  * @method boolean getPodAllowed()
  *
  */
-class Opus_Licence extends Opus_Model_AbstractDb {
+class Opus_Licence extends Opus_Model_AbstractDb
+{
 
     /**
      * Specify then table gateway.
@@ -93,7 +94,8 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      *
      * @return array Array of Opus_Licence objects.
      */
-    public static function getAll() {
+    public static function getAll()
+    {
         return self::getAllFrom('Opus_Licence', 'Opus_Db_DocumentLicences', null, 'sort_order');
     }
 
@@ -107,8 +109,7 @@ class Opus_Licence extends Opus_Model_AbstractDb {
         $select = $licences->select()->where('name = ?', $name);
         $row = $licences->fetchRow($select);
 
-        if (isset($row))
-        {
+        if (isset($row)) {
             return new Opus_Licence($row);
         }
 
@@ -120,10 +121,12 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_plugins = array(
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    );
-
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Initialize model with the following fields:
@@ -143,7 +146,8 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $active = new Opus_Model_Field('Active');
         $active->setCheckbox(true);
 
@@ -201,8 +205,29 @@ class Opus_Licence extends Opus_Model_AbstractDb {
      *
      * @see library/Opus/Model/Opus_Model_Abstract#getDisplayName()
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
        return $this->getNameLong();
     }
 
+    /**
+     * Checks if licence is used by documents.
+     * @return bool true if licence is used, false if not
+     */
+    public function isUsed()
+    {
+        return ($this->getDocumentCount() > 0);
+    }
+
+    /**
+     * Determines number of documents using this licence.
+     * @return int Number of documents
+     * @throws Opus_DocumentFinder_Exception
+     */
+    public function getDocumentCount()
+    {
+        $finder = new Opus_DocumentFinder();
+        $finder->setDependentModel($this);
+        return count($finder->ids());
+    }
 }

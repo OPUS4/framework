@@ -30,9 +30,11 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
+
+use Opus\Model\PluginsTrait;
 
 /**
  * Abstract class for all domain models in the Opus framework that are connected
@@ -44,6 +46,8 @@
 
 abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus_Model_ModificationTracking
 {
+
+    use Opus\Model\PluginsTrait;
 
     /**
      * TODO: Change name of this array to somewhat more general.
@@ -91,15 +95,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * @var boolean  Defaults to true.
      */
     protected $_isNewRecord = true;
-
-    /**
-     * Array mapping plugin class names to model plugins.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @var Array
-     */
-    protected $_plugins = [];
 
     /**
      * Construct a new model instance and connect it a database table's row.
@@ -167,9 +162,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         }
 
         parent::__construct();
-
-        // initialize plugins
-        $this->_loadPlugins();
 
         $this->_fetchValues();
 
@@ -254,78 +246,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         return parent::addField($field);
     }
 
-     /**
-     * Instanciate and install plugins for this model.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @return void
-     */
-    protected function _loadPlugins()
-    {
-        foreach ($this->_plugins as $pluginname => $plugin) {
-            if (true === is_string($plugin)) {
-                $pluginname = $plugin;
-                $plugin = null;
-            }
-
-            if (null === $plugin) {
-                $plugin = new $pluginname;
-            }
-
-            $this->registerPlugin($plugin);
-        }
-    }
-
-    /**
-     * Register a pre- or post processing plugin.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @param Opus_Model_Plugin_Interface $plugin Plugin to register for this very model.
-     * @return void
-     */
-    public function registerPlugin(Opus_Model_Plugin_Interface $plugin)
-    {
-        $this->_plugins[get_class($plugin)] = $plugin;
-    }
-
-    /**
-     * Unregister a pre- or post processing plugin.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @param string|object $plugin Instance or class name to unregister plugin.
-     * @throw Opus_Model_Exception Thrown if specified plugin does not exist.
-     * @return void
-     */
-    public function unregisterPlugin($plugin)
-    {
-        $key = '';
-        if (true === is_string($plugin)) {
-            $key = $plugin;
-        }
-        if (true === is_object($plugin)) {
-            $key = get_class($plugin);
-        }
-        if (false === isset($this->_plugins[$key])) {
-            // don't throw exception, just write a warning
-            $this->getLogger()->warn('Cannot unregister specified plugin: ' . $key);
-        }
-        else {
-            unset($this->_plugins[$key]);
-        }
-    }
-
-    /**
-     * Return true if the given plugin was already registered; otherwise false.
-     * @param string $plugin class name of the plugin
-     */
-    public function hasPlugin($plugin)
-    {
-        return array_key_exists($plugin, $this->_plugins);
-    }
-
     /**
      * Fetch attribute values from the table row and set up all fields. If fields containing
      * dependent models or link models those got fetched too.
@@ -386,34 +306,6 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
     }
 
     /**
-     * Calls a specified plugin method in all available plugins.
-     *
-     * Copy-Paste from Qucosa-Code base.
-     *
-     * @param string $methodname Name of plugin method to call
-     * @param mixed  $parameter  Value that gets passed instead of the model instance.
-     */
-    protected function _callPluginMethod($methodname, $parameter = null)
-    {
-        try {
-            if (null === $parameter) {
-                $param = $this;
-            }
-            else {
-                $param = $parameter;
-            }
-            foreach ($this->_plugins as $name=>$plugin) {
-                $plugin->$methodname($param);
-            }
-        } catch (Exception $ex) {
-            throw new Opus_Model_Exception(
-                'Plugin ' . $name . ' failed in ' . $methodname
-                . ' with ' . $ex->getMessage()
-            );
-        }
-    }
-
-    /**
      * Trigger preFetch plugins.
      *
      * @return void
@@ -421,7 +313,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _preFetch()
     {
-        $this->_callPluginMethod('preFetch');
+        $this->callPluginMethod('preFetch');
     }
 
     /**
@@ -433,7 +325,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _preStore()
     {
-        $this->_callPluginMethod('preStore');
+        $this->callPluginMethod('preStore');
 
         // do not perfom storing actions when model is not modified and not new
         if ((false === $this->isNewRecord()) and (false === $this->isModified())) {
@@ -465,7 +357,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _postStore()
     {
-        $this->_callPluginMethod('postStore');
+        $this->callPluginMethod('postStore');
         $this->_isNewRecord = false;
     }
 
@@ -476,7 +368,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     protected function _postStoreInternalFields()
     {
-        $this->_callPluginMethod('postStoreInternal');
+        $this->callPluginMethod('postStoreInternal');
     }
 
     /**
@@ -487,7 +379,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      */
     function _postStoreExternalFields()
     {
-        $this->_callPluginMethod('postStoreExternal');
+        $this->callPluginMethod('postStoreExternal');
     }
 
     /**
@@ -881,7 +773,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             return;
         }
 
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         // Start transaction
         $dbadapter = $this->getTableRow()->getTable()->getAdapter();
@@ -896,7 +788,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             throw new Opus_Model_Exception($msg);
         }
 
-        $this->_callPluginMethod('postDelete', $modelId);
+        $this->callPluginMethod('postDelete', $modelId);
     }
 
     /**
@@ -1162,5 +1054,26 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
         $logger->info(__CLASS__ . ": $message");
+    }
+
+    /**
+     * Returns maximal length for field.
+     * @param $name
+     */
+    public static function getFieldMaxLength($name)
+    {
+        $column = self::convertFieldnameToColumn($name);
+
+        $table = Opus_Db_TableGateway::getInstance(self::getTableGatewayClass());
+
+        $metadata = $table->info();
+
+        if (isset($metadata['metadata'][$column]['LENGTH'])) {
+            return $metadata['metadata'][$column]['LENGTH'];
+        } else {
+            $class = get_called_class();
+            Zend_Registry::get('Zend_Log')->err("Call to $class::getFieldMaxLength for unknown field '$name'.");
+            return null;
+        }
     }
 }

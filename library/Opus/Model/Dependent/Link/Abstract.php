@@ -70,18 +70,16 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @var boolean
      */
-    protected $_isModified = false;
+    private $_isModified = false;
 
      /** Plugins to load
      *
      * @var array
      */
-    protected $_plugins = [
-// Plugin Opus_Model_Plugin_InvalidateDocumentCache
-// must NOT be used in dependent link models!
-//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
-
+    public function getDefaultPlugins()
+    {
+        return null;
+    }
 
     /**
      * Set the model that is linked to.
@@ -242,7 +240,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         return array_merge($this->_model->toArray(), parent::toArray());
     }
 
-
    /**
     * Perform security resoure registration.
     *
@@ -257,7 +254,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
 
        $this->_isNewRecord = $isNewFlagBackup;
    }
-
 
    /**
     * Return the primary key of the Link Model if it has been persisted.

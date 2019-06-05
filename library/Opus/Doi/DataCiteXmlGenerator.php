@@ -88,6 +88,7 @@ class Opus_Doi_DataCiteXmlGenerator
         }
 
         $proc = new XSLTProcessor();
+        $proc->registerPHPFunctions('Opus_Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
         if (!$this->checkRequiredFields($doc, $log)) {
@@ -99,6 +100,22 @@ class Opus_Doi_DataCiteXmlGenerator
         $modelXml = $this->getModelXml($doc);
         $log->debug('OPUS-XML: ' . $modelXml->saveXML());
 
+        $filenodes = $modelXml->getElementsByTagName('File');
+
+        // Iterating over DOMNodeList is only save for readonly-operations -> create separate list
+        $filenodesList = [];
+        foreach ($filenodes as $filenode) {
+            $filenodesList[] = $filenode;
+        }
+
+        // Remove filenodes which are invisible in oai (should not be in DataCite)
+        foreach ($filenodesList as $filenode) {
+            if ((false === $filenode->hasAttribute('VisibleInOai'))
+                or ('1' !== $filenode->getAttribute('VisibleInOai'))) {
+                $filenode->parentNode->removeChild($filenode);
+            }
+        }
+
         $this->handleLibXmlErrors($log, true);
         $result = $proc->transformToDoc($modelXml);
         if (!$result) {
@@ -108,7 +125,7 @@ class Opus_Doi_DataCiteXmlGenerator
             throw new Opus_Doi_DataCiteXmlGenerationException($message);
         }
 
-        $log->debug('DataCite-XML: '. $result->saveXML());
+        $log->debug('DataCite-XML: ' . $result->saveXML());
 
         $this->handleLibXmlErrors($log, true);
 
@@ -118,6 +135,8 @@ class Opus_Doi_DataCiteXmlGenerator
             $log->err($message);
             throw new Opus_Doi_DataCiteXmlGenerationException($message);
         }
+
+        $output = $result->saveXML();
 
         // Validierung des erzeugten DataCite-XML findet bereits hier statt, da ein invalides XML
         // beim späteren Registrierungsversuch einen HTTP Fehler 400 auslöst
@@ -144,12 +163,14 @@ class Opus_Doi_DataCiteXmlGenerator
         // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
         $authorOk = false;
         $authors = $doc->getPersonAuthor();
+
         foreach ($authors as $author) {
             if ($author->getLastName() != '' or $author->getFirstName() != '') {
                 $authorOk = true;
                 break;
             }
         }
+
         if (!$authorOk) {
             if ($doc->getCreatingCorporation() == '') {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
@@ -160,20 +181,24 @@ class Opus_Doi_DataCiteXmlGenerator
         // mind. ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
         $titles = $doc->getTitleMain();
+
         foreach ($titles as $title) {
             if ($title->getValue() != '') {
                 $titleOk = true;
                 break;
             }
         }
+
         if (!$titleOk) {
             $titles = $doc->getTitleSub();
+
             foreach ($titles as $title) {
                 if ($title->getValue() != '') {
                     $titleOk = true;
                     break;
                 }
             }
+
             if (!$titleOk) {
                 $doiLog->err('document ' . $doc->getId() . ' does not provide content for element title');
                 return false;
@@ -207,8 +232,7 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         if ($reset) {
             libxml_clear_errors();
-        }
-        else {
+        } else {
             foreach (libxml_get_errors() as $error) {
                 $log->err("libxml error: {$error->message}");
             }

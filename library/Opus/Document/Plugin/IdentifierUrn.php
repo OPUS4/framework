@@ -40,7 +40,7 @@
  * @package     Opus_Document_Plugin
  * @uses        Opus_Model_Plugin_Abstract
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract 
+class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
 {
 
     /**
@@ -49,17 +49,20 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract
      */
     public function postStoreInternal(Opus_Model_AbstractDb $model) 
     {
-        if(!($model instanceof Opus_Document))
-            return;
+        $log = Zend_Registry::get('Zend_Log');
 
-        if ($model->getServerState() !== 'published') {
+        if (!($model instanceof Opus_Document)) {
+            $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
             return;
         }
 
-        $config = Zend_Registry::get('Zend_Config');
-        $log = Zend_Registry::get('Zend_Log');
+        $serverState = $model->getServerState();
+        $log->debug(__CLASS__ . ' postStoreInternal for ' . $model->getDisplayName() . ' and target state ' . $serverState);
 
-        $log->debug('IdentifierUrn postStoreInternal for ' . $model->getDisplayName());
+        if ($serverState !== 'published') {
+            $log->debug(__CLASS__ . ' postStoreInternal: nothing to do for document with server state ' . $serverState);
+            return;
+        }
 
         // prüfe zuerst, ob das Dokument das Enrichment opus.urn.autoCreate besitzt
         // in diesem Fall bestimmt der Wert des Enrichments, ob eine URN beim Publish generiert wird
@@ -71,6 +74,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract
             $log->debug('found enrichment opus.urn.autoCreate with value ' . $enrichmentValue);
         }
 
+        $config = Zend_Registry::get('Zend_Config');
         if (is_null($generateUrn)) {
             // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
             $generateUrn = (isset($config->urn->autoCreate) && ($config->urn->autoCreate || $config->urn->autoCreate == '1'));

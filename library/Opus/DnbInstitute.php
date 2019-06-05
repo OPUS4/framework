@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -126,9 +126,12 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Initialize model with the following fields:
@@ -184,5 +187,22 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
     {
        $departmentName = $this->getDepartment();
        return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
+    }
+
+    /**
+     * Checks if DNB institute is used by any document.
+     */
+    public function isUsed()
+    {
+        $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
+        $database = $table->getAdapter();
+
+        $select = $database->select()
+            ->from('link_documents_dnb_institutes')
+            ->where('dnb_institute_id = ?', $this->getId());
+
+        $rows = $database->fetchOne($select);
+
+        return $rows !== false;
     }
 }
