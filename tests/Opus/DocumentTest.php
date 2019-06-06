@@ -3934,4 +3934,34 @@ class Opus_DocumentTest extends TestCase
 
         $this->assertTrue($document->hasPlugin('Opus_Document_Plugin_SequenceNumber'));
     }
+
+    public function testServerStateChanged()
+    {
+        $doc = new Opus_Document();
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
+    }
 }
