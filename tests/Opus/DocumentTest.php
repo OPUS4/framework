@@ -1918,6 +1918,12 @@ class Opus_DocumentTest extends TestCase
         $doc = new Opus_Document($doc->getId());
         $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
+        $person = $doc->getPerson(0);
+
+        $this->assertFalse($person->getModel()->isModified());
+        $this->assertFalse($person->isModified());
+        $this->assertFalse($doc->isModified());
+
         $persons = $doc->getPerson();
         $this->assertCount(1, $persons, 'testcase changed?');
 

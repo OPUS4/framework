@@ -287,6 +287,23 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     }
 
     /**
+     * Clears modification flag, but cannot set it to true.
+     *
+     * @param bool $modified
+     *
+     * @return mixed|void
+     *
+     * TODO Function should be renamed since it can actually only clear the modification flag.
+     */
+    public function setModified($modified = true)
+    {
+        if (!$modified) {
+            $this->_isModified = false;
+            parent::setModified($modified);
+        }
+    }
+
+    /**
      * This model is valid IFF both link model *and* linked model are valid.
      *
      * @return boolean

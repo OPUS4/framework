@@ -158,7 +158,7 @@ class Opus_Model_Dependent_Link_DocumentPerson extends Opus_Model_Dependent_Link
             ->addField($sortOrder)
             ->addField($allowEmailContact);
 
-        $this->_isModified = false;
+        $this->setModified(false);
     }
 
     /**
