@@ -196,6 +196,25 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
     }
 
     /**
+     * Set modified status.
+     *
+     * This function can really only be used to clear the modification status, because it does not make sense to set
+     * all fields to modified and this class does not have a separate isModified status.
+     *
+     * @param bool $modified
+     *
+     * @return mixed|void
+     *
+     * TODO throw exception or log warning if setModified is used with 'true'?
+     */
+    public function setModified($modified = true)
+    {
+        if (!$modified) {
+            $this->_clearFieldsModifiedFlag();
+        }
+    }
+
+    /**
      * Add an field to the model. If a field with the same name has already been added,
      * it will be replaced by the given field.
      *
@@ -915,14 +934,9 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
             // Ensure that _loadExternal is called only on external fields
             if (isset($this->_externalFields[$name])) {
                 $this->_loadExternal($name);
-                // Workaround for: unset($this->_pending[$name]);
-                $result = [];
-                foreach ($this->_pending as $fieldname) {
-                    if ($fieldname !== $name) {
-                        $result[] = $fieldname;
-                    }
+                if (($key = array_search($name, $this->_pending)) !== false) {
+                    unset($this->_pending[$key]);
                 }
-                $this->_pending = $result;
             }
         }
         return $this->_fields[$name];
