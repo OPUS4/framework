@@ -116,7 +116,8 @@ class Opus_RequireTest extends TestCase {
             'Opus_Search_Facet_Field',
             'Opus_Search_Result_Facet',
             'Opus_Search_Result_Match',
-            'Opus_Search_Filter_Simple'
+            'Opus_Search_Filter_Simple',
+            'Opus_Doi_DataCiteXmlGenerationException'
         ];
 
         foreach ($classes AS $class) {
