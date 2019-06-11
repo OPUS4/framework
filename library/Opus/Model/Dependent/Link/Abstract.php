@@ -27,9 +27,9 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,7 +38,9 @@
  * @category    Framework
  * @package     Opus_Model
  */
-abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_Abstract {
+abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_Abstract
+{
+
     /**
      * The model to link to.
      *
@@ -85,7 +87,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @param  Opus_Model_Abstract $model The new model to link to.
      * @return void
      */
-    public function setModel(Opus_Model_Abstract $model) {
+    public function setModel(Opus_Model_Abstract $model)
+    {
         if (($model instanceof $this->_modelClass) === false) {
             throw new Opus_Model_Exception(
                 get_class($this) . ' expects ' . $this->_modelClass . ' as a link target, ' .
@@ -102,7 +105,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return Opus_Model_Abstract The model that is linked to.
      */
-    public function getModel() {
+    public function getModel()
+    {
        return $this->_model;
     }
 
@@ -111,7 +115,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return string Class name of assignable models.
      */
-    public function getModelClass() {
+    public function getModelClass()
+    {
         return $this->_modelClass;
     }
 
@@ -120,7 +125,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return string Name of foreign key for linked model in link model.
      */
-    public function getModelKey() {
+    public function getModelKey()
+    {
         return $this->_modelKey;
     }
 
@@ -133,18 +139,17 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @param  array $arguments The arguments passed in the method call.
      * @return mixed
      */
-    public function __call($name, array $arguments) {
+    public function __call($name, array $arguments)
+    {
         $fieldname = substr($name, 3);
 
         // use own __call method if field is appended to the link model
         if (true === isset($this->_fields[$fieldname])) {
             return parent::__call($name, $arguments);
-        }
-        else {
+        } else {
             if (array_key_exists(0, $arguments) === true) {
                 return $this->_model->$name($arguments[0]);
-            }
-            else {
+            } else {
                 return $this->_model->$name();
             }
         }
@@ -157,7 +162,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @see    Opus_Model_Abstract::_internalFields
      * @return array    List of fields
      */
-    public function describe() {
+    public function describe()
+    {
         $result = parent::describe();
         if (null !== $this->_model) {
             $result = array_merge($this->_model->describe(), $result);
@@ -172,7 +178,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @see library/Opus/Model/Opus_Model_Abstract#describeAll()
      * @return array    List of fields
      */
-    public function describeAll() {
+    public function describeAll()
+    {
         return array_merge($this->_model->describeAll(), parent::describeAll());
     }
 
@@ -181,7 +188,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return array  List of fields
      */
-    public function describeUntunneled() {
+    public function describeUntunneled()
+    {
         return parent::describe();
     }
 
@@ -190,7 +198,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return string Model class name and identifier (e.g. Opus_Document#4711).
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
         return $this->_model->getDisplayName();
     }
 
@@ -202,7 +211,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      * @param bool   $ignorePending If a pending field's values should be fetched, or not.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name, $ignorePending = false) {
+    public function getField($name, $ignorePending = false)
+    {
         if (true === isset($this->_fields[$name])) {
             return parent::getField($name, $ignorePending); // TODO bug? parent function has only one parameter
         }
@@ -214,7 +224,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return mixed The primary key of the linked model.
      */
-    public function getLinkedModelId() {
+    public function getLinkedModelId()
+    {
         return $this->_model->getId();
     }
 
@@ -224,17 +235,18 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return array A (nested) array representation of the linked model.
      */
-    public function toArray() {
+    public function toArray()
+    {
         return array_merge($this->_model->toArray(), parent::toArray());
     }
-
 
    /**
     * Perform security resoure registration.
     *
     * @return void
     */
-   protected function _postStoreInternalFields() {
+   protected function _postStoreInternalFields()
+   {
        $isNewFlagBackup = $this->_isNewRecord;
        $this->_isNewRecord = false;
 
@@ -243,13 +255,13 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
        $this->_isNewRecord = $isNewFlagBackup;
    }
 
-
    /**
     * Return the primary key of the Link Model if it has been persisted.
     *
     * @return array|null Primary key or Null if the Linked Model has not been persisted.
     */
-   public function getId() {
+   public function getId()
+   {
        // The given id consists of the ids of the referenced linked models,
        // but there is no evidence that the LinkModel itself has been persisted yet.
        // We so have to validate, if the LinkModel is persistent or still transient.
@@ -269,9 +281,26 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return boolean
      */
-    public function isModified() {
-        return ($this->_isModified) or (parent::isModified())
-                or ($this->_model->isModified());
+    public function isModified()
+    {
+        return ($this->_isModified) or parent::isModified() or $this->_model->isModified();
+    }
+
+    /**
+     * Clears modification flag, but cannot set it to true.
+     *
+     * @param bool $modified
+     *
+     * @return mixed|void
+     *
+     * TODO Function should be renamed since it can actually only clear the modification flag.
+     */
+    public function setModified($modified = true)
+    {
+        if (!$modified) {
+            $this->_isModified = false;
+            parent::setModified($modified);
+        }
     }
 
     /**
@@ -279,7 +308,8 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @return boolean
      */
-    public function isValid() {
-        return ($this->_model->isValid()) && (parent::isValid());
+    public function isValid()
+    {
+        return $this->_model->isValid() && parent::isValid();
     }
 }

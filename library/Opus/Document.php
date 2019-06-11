@@ -113,7 +113,6 @@
  * @method void setServerDateDeleted(Opus_Date $date)
  * @method Opus_Date getServerDateDeleted()
  *
- * @method void setServerState(string $state)
  * @method string getServerState()
  *
  * @method void setType(string $type)
@@ -201,6 +200,22 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @var string Classname of Zend_DB_Table to use if not set in constructor.
      */
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
+
+    /**
+     * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
+     * die das Interface \Opus\Model\Plugin\ServerStateChangeListener implementieren, ausgeführt.
+     *
+     * @var bool
+     */
+    private $serverStateChanged = false;
+
+    /**
+     * sofern der Wert von serverState geändert wurde, wird in dieser
+     * Variable der in der Datenbank abgespeicherte Wert als Referenz gehalten
+     *
+     * @var string
+     */
+    private $oldServerState = null;
 
     private static $defaultPlugins = null;
 
@@ -1160,12 +1175,39 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @param string $value Server state of document.
      * @return void
      */
-    protected  function _storeServerState($value) {
+    protected function _storeServerState($value) {
         if (true === empty($value)) {
             $value = 'unpublished';
             $this->setServerState($value);
         }
         $this->_primaryTableRow->server_state = $value;
+    }
+
+    /**
+     * Wenn das Dokument noch nicht in der DB gespeichert wurde, liefert der erste
+     * Aufruf von getServerState() den Wert null. In diesem Fall liegt immer eine
+     * Änderung des Wertes von serverState vor. Der zuletzt gesetzte Wert von serverState
+     * "gewinnt". Andernfalls wird der Wert von getServerState beim ersten Aufruf
+     * als Referenz gespeichert. Bei jeder Änderung von serverState wird der neue
+     * Wert mit dem gespeicherten Referenz verglichen, um festzustellen, ob es eine
+     * Änderung von serverState gegeben hat.
+     *
+     * @param $serverState
+     * @return mixed
+     */
+    public function setServerState($serverState)
+    {
+        if (is_null($this->oldServerState) && !$this->serverStateChanged) {
+            // erste Änderung des Wertes von serverState
+            $this->oldServerState = $this->getServerState();
+        }
+
+        // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
+        // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
+        // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
+        $this->serverStateChanged = ($serverState !== $this->oldServerState);
+
+        return parent::setServerState($serverState);
     }
 
     /**
@@ -1583,5 +1625,9 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         return $document;
+    }
+
+    public function getServerStateChanged() {
+        return $this->serverStateChanged;
     }
 }
