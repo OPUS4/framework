@@ -27,7 +27,7 @@
  * @category    Tests
  * @package     Opus_Doi
  * @author      Sascha Szott <szott@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -84,14 +84,16 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
                 'checksum' => [
                     'maxVerificationSize' => 1,
                 ],
+                'doi' => [
+                    'prefix' => '10.2345',
+                    'localPrefix' => 'opustest'
+                ]
             ])
         ));
-
     }
 
     public function tearDown()
     {
-
         Opus_Util_File::deleteDirectory($this->path);
 
         parent::tearDown();
@@ -107,10 +109,233 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $generator->getXml($doc);
     }
 
+    public function testGenerateWithNonLocalDoi()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+
+        // lokale DOI verändern, so dass sie nicht mehr lokal ist
+        $doi = $doc->getIdentifierDoi()[0];
+        $doi->setValue('10.2345/nonlocal-' . $docId);
+        $doi->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $this->setExpectedException('Opus_Doi_DataCiteXmlGenerationException');
+        $generator->getXml($doc);
+
+        // DOI wieder lokal machen
+        $doi->setValue('10.2345/opustest-' . $docId);
+        $doi->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc);
+        $this->assertTrue(is_string($result) && $result !== '');
+
+        $result = $generator->getXml($doc, true, true);
+        $this->assertTrue(is_string($result) && $result !== '');
+    }
+
+    public function testGenerateInvalidXml()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        // DOI löschen, so dass das erzeugte DataCite-XML nicht mehr valide ist
+        $doc->setIdentifier([]);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->getXml($doc, true, true);
+        $this->assertTrue(is_string($result) && $result !== '');
+
+        $result = $generator->getXml($doc, true, false);
+        $this->assertTrue(is_string($result) && $result !== '');
+    }
+
+    public function testCheckRequiredFieldsLazyPositive()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, true);
+
+        $this->assertTrue(is_bool($result));
+        $this->assertTrue($result);
+    }
+
+    public function testCheckRequiredFieldsLazyMissingCreator()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        // Autorfeld löschen
+        $doc->setPerson([]);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, true);
+
+        $this->assertTrue(is_bool($result));
+        $this->assertFalse($result);
+    }
+
+    public function testCheckRequiredFieldsNonLazyPositive()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsNonLazyMissingFields()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        // Autorfeld löschen
+        $doc->setPerson([]);
+        // DOI löschen
+        $doc->setIdentifier([]);
+        // TitleMainLöschen
+        $doc->setTitleMain([]);
+        // Publisher löschen
+        $doc->setPublisherName('');
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => 'local_DOI_missing',
+            'creators' => 'creator_missing',
+            'titles' => 'title_missing',
+            'publisher' => 'publisher_missing',
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsNonLazyMissingCreator()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
+        // Autorfeld löschen
+        $doc->setPerson([]);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => 'creator_missing',
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsNonLazyTooManyLocalDOIs()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        // setze zwei lokale DOIs anstatt einer
+        $doc = new Opus_Document($docId);
+        $dois = $doc->getIdentifier();
+        $doi = new Opus_Identifier();
+        $doi->setType('doi');
+        $doi->setValue($dois[0]->getValue() . 'x');
+        $dois[] = $doi;
+        $doc->setIdentifier($dois);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => 'multiple_local_DOIs',
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
+    public function testCheckRequiredFieldsNonLazyTooManyPublishers()
+    {
+        $docId = $this->createDocWithRequiredFields();
+        // setze PublisherName und Thesis Publisher
+        $doc = new Opus_Document($docId);
+        $thesisPublisher = new Opus_DnbInstitute();
+        $thesisPublisher->setName('ThesisPublisher');
+        $thesisPublisher->setCity('Berlin');
+        $thesisPublisher->setIsPublisher(true);
+        $doc->setThesisPublisher($thesisPublisher);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => 'multiple_publishers',
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+
+        // PublisherName löschen -> sollte wieder gültig sein
+        $doc->setPublisherName('');
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => true,
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+
+        // zwei ThesisPublisher setzen -> sollte wieder ungültig sein
+        $thesisPublisher = new Opus_DnbInstitute();
+        $thesisPublisher->setName('OtherThesisPublisher');
+        $thesisPublisher->setCity('Konstanz');
+        $thesisPublisher->setIsPublisher(true);
+        $thesisPublishers = $doc->getThesisPublisher();
+        $thesisPublishers[] = $thesisPublisher;
+        $doc->setThesisPublisher($thesisPublishers);
+        $doc->store();
+
+        $generator = new Opus_Doi_DataCiteXmlGenerator();
+        $result = $generator->checkRequiredFields($doc, false);
+
+        $this->assertTrue(is_array($result));
+        $this->assertEquals([
+            'identifier' => true,
+            'creators' => true,
+            'titles' => true,
+            'publisher' => 'multiple_publishers',
+            'publicationYear' => true,
+            'resourceType' => true], $result);
+    }
+
     public function testGenerateRequiredFields()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
         $generator = new Opus_Doi_DataCiteXmlGenerator();
         $result = $generator->getXml($doc);
@@ -120,8 +345,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testServerDatePublishedForPublishedYear()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
         $serverDatePublished = $doc->getServerDatePublished();
 
@@ -134,11 +359,14 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $this->assertContains("<publicationYear>$year</publicationYear>", $result);
     }
 
-    private function addRequiredPropsToDoc($doc)
+    private function createDocWithRequiredFields()
     {
+        $doc = new Opus_Document();
+        $docId = $doc->store();
+
         $doi = new Opus_Identifier();
         $doi->setType('doi');
-        $doi->setValue('10.2345/opustest-' . $doc->getId());
+        $doi->setValue('10.2345/opustest-' . $docId);
         $doc->setIdentifier([$doi]);
 
         $doc->setCompletedYear(2008);
@@ -160,6 +388,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
         $doc->setLanguage('deu');
 
         $doc->store();
+
+        return $docId;
     }
 
     public function testGetStylesheetPath()
@@ -207,8 +437,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testXmlValidWithMultipleDDC()
     {
-        $document = new Opus_Document();
-        $this->addRequiredPropsToDoc($document);
+        $docId = $this->createDocWithRequiredFields();
+        $document = new Opus_Document($docId);
 
         $role = new Opus_CollectionRole();
         $role->setName('ddc');
@@ -253,8 +483,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testXmlValidWithMultipleIssn()
     {
-        $document = new Opus_Document();
-        $this->addRequiredPropsToDoc($document);
+        $docId = $this->createDocWithRequiredFields();
+        $document = new Opus_Document($docId);
 
         $issn = new Opus_Identifier();
         $issn->setValue('123');
@@ -291,8 +521,8 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
     public function testLanguageElement()
     {
-        $document = new Opus_Document();
-        $this->addRequiredPropsToDoc($document);
+        $docId = $this->createDocWithRequiredFields();
+        $document = new Opus_Document($docId);
 
         $generator = new Opus_Doi_DataCiteXmlGenerator();
 
@@ -310,10 +540,10 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      */
     public function testFileInformationInvisible()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
-        $file = New Opus_File();
+        $file = new Opus_File();
         $file->setVisibleInOai(0);
         $file->setFileSize('0');
         $file->setMimeType('pdf');
@@ -361,12 +591,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      */
     public function testFileInformationVisible()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = New Opus_File();
+        $file = new Opus_File();
         $file->setVisibleInOai(1);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -375,7 +605,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = New Opus_File();
+        $file2 = new Opus_File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
@@ -407,12 +637,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      */
     public function testMixedFileInformationVisibility()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = New Opus_File();
+        $file = new Opus_File();
         $file->setVisibleInOai(1);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -421,7 +651,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = New Opus_File();
+        $file2 = new Opus_File();
         $file2->setVisibleInOai(0);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
@@ -453,12 +683,12 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
      */
     public function testDifferentOrderFileInformationVisibility()
     {
-        $doc = new Opus_Document();
-        $this->addRequiredPropsToDoc($doc);
+        $docId = $this->createDocWithRequiredFields();
+        $doc = new Opus_Document($docId);
 
         $filename = $this->createTestFile();
 
-        $file = New Opus_File();
+        $file = new Opus_File();
         $file->setVisibleInOai(0);
         $file->setTempFile($filename);
         $file->setPathName('copied-foobar-nonzero.txt');
@@ -467,7 +697,7 @@ class Opus_Doi_DataCiteXmlGeneratorTest extends TestCase
 
         $filename2 = $this->createTestFile();
 
-        $file2 = New Opus_File();
+        $file2 = new Opus_File();
         $file2->setVisibleInOai(1);
         $file2->setTempFile($filename2);
         $file2->setPathName('copied-foobar-nonzero_2.txt');
