@@ -65,11 +65,13 @@ class Opus_Doi_DataCiteXmlGenerator
      * Metadatenbeschreibung des Dokuments bei der DOI-Registrierung akzeptiert wird.
      *
      * @param $doc Opus_Document
-     * @param $allowInvalidXml bool wenn true, dann erfolgt bei der XML-Generierung keine Prüfung auf Validität, z.B.
-     *                              erwartete Pflichtfelder
+     * @param $allowInvalidXml bool wenn true, dann erfolgt bei der XML-Generierung keine Prüfung des erzeugten Resultats
+     *                              auf Validität, z.B. erwartete Pflichtfelder
+     * @param $skipTestOfRequiredFields bool wenn true, dann wird der Pflichtfeld-Existenztest bei der XML-Generierung
+     *                                       übersprungen
      * @return string XML for DataCite registration
      */
-    public function getXml($doc, $allowInvalidXml = false)
+    public function getXml($doc, $allowInvalidXml = false, $skipTestOfRequiredFields = false)
     {
         // DataCite-XML wird mittels XSLT aus OPUS-XML erzeugt
         $xslt = new DOMDocument();
@@ -92,7 +94,7 @@ class Opus_Doi_DataCiteXmlGenerator
         $proc->registerPHPFunctions('Opus_Language::getLanguageCode');
         $proc->importStyleSheet($xslt);
 
-        if (! $allowInvalidXml && ! $this->checkRequiredFields($doc, $log)) {
+        if (! $skipTestOfRequiredFields && ! $allowInvalidXml && ! $this->checkRequiredFields($doc)) {
             throw new Opus_Doi_DataCiteXmlGenerationException(
                 'required fields are missing in document ' . $doc->getId() . ' - check log for details'
             );
@@ -109,16 +111,16 @@ class Opus_Doi_DataCiteXmlGenerator
         if (! $result) {
             $message = 'errors occurred in XSLT transformation of document ' . $doc->getId();
             $log->err($message);
-            $this->handleLibXmlErrors($log);
-            throw new Opus_Doi_DataCiteXmlGenerationException($message);
+            $xmlErrors = $this->handleLibXmlErrors($log);
+            throw new Opus_Doi_DataCiteXmlGenerationException($message, $xmlErrors);
         }
 
         $log->debug('DataCite-XML: ' . $result->saveXML());
 
         $this->handleLibXmlErrors($log, true);
 
-        // Validierung des erzeugten DataCite-XML findet bereits hier statt, da ein invalides XML
-        // beim späteren Registrierungsversuch einen HTTP Fehler 400 auslöst
+        // Validierung des erzeugten DataCite-XML findet bereits hier statt, da ein invalides XML beim späteren
+        // Registrierungsversuch einen HTTP Fehler 400 auslöst
         if (! $allowInvalidXml) {
             $xsdPath = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'metadata.xsd';
             if (! file_exists($xsdPath)) {
@@ -131,8 +133,8 @@ class Opus_Doi_DataCiteXmlGenerator
             if (! $validationResult) {
                 $message = 'generated DataCite XML for document ' . $doc->getId() . ' is NOT valid';
                 $log->err($message);
-                $this->handleLibXmlErrors($log);
-                throw new Opus_Doi_DataCiteXmlGenerationException($message);
+                $xmlErrors = $this->handleLibXmlErrors($log);
+                throw new Opus_Doi_DataCiteXmlGenerationException($message, $xmlErrors);
             }
         }
 
@@ -141,14 +143,145 @@ class Opus_Doi_DataCiteXmlGenerator
 
     /**
      * @param $doc Opus_Document
+     * @param $lazyChecking wenn true, dann wird die Prüfung beendet, sobald ein fehlendes Pflichtfeld
+     *                      festgestellt wurde; in diesem Modus gibt die Methode entweder true (alle
+     *                      Pflichtfelder vorhanden) oder false zurück
+     *                      wenn $lazyChecking auf false gesetzt, so wird ein Status-Array zurückgegeben,
+     *                      in dem für jedes Pflichtfeld die Existenz ausgewiesen ist
+     * @return boolean | array
      */
-    private function checkRequiredFields($doc)
+    public function checkRequiredFields($doc, $lazyChecking = true)
     {
         $doiLog = $this->getDoiLog();
+        $doiLog->info('checking required field of document ' . $doc->getId());
 
-        $doiLog->info('checking document ' . $doc->getId());
+        $status = [];
 
-        // mind. ein Autor mit einem nicht-leeren LastName oder FirstName oder CreatingCorporation darf nicht leer sein
+        $result = $this->checkExistenceOfLocalDoi($doc);
+        if (! empty($result)) {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element identifier');
+                return false;
+            }
+        }
+        $this->setStatusEntry($status, 'identifier', $result);
+
+        $result = $this->checkExistenceOfCreator($doc);
+        if (! empty($result)) {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creators');
+                return false;
+            }
+        }
+        $this->setStatusEntry($status, 'creators', $result);
+
+        $result = $this->checkExistenceOfTitle($doc);
+        if (! empty($result)) {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element titles');
+                return false;
+            }
+        }
+        $this->setStatusEntry($status, 'titles', $result);
+
+        $result = $this->checkExistenceOfPublisher($doc);
+        if (! empty($result)) {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
+                return false;
+            }
+        }
+        $this->setStatusEntry($status, 'publisher', $result);
+
+        $result = $this->checkExistenceOfPublicationYear($doc);
+        if (! empty($result)) {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publicationYear');
+                return false;
+            }
+        }
+        $this->setStatusEntry($status, 'publicationYear', $result);
+
+        // Dokumenttyp darf nicht leer sein
+        if ($doc->getType() == '') {
+            if ($lazyChecking) {
+                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element resourceType');
+                return false;
+            }
+            $this->setStatusEntry($status, 'resourceType', ['document_type_missing']);
+        }
+        else {
+            $this->setStatusEntry($status, 'resourceType');
+        }
+
+        if ($lazyChecking) {
+            // nur wenn $lazyChecking gesetzt ist, gibt die Methode einen booleschen Rückgabewert zurück
+            return true;
+        }
+        return $status;
+    }
+
+    /**
+     * Hilfsmethode für die Initialisierung des Status-Arrays.
+     *
+     * @param $key
+     * @param $result
+     */
+    private function setStatusEntry(&$status, $key, $result = null)
+    {
+        if (empty($result)) {
+            $status[$key] = true;
+        }
+        else {
+            $status[$key] = $result[0];
+        }
+    }
+
+    /**
+     * In dem übergebenen Dokument muss genau eine lokale DOI existieren.
+     *
+     * @param $doc das zu prüfende Dokument
+     * @return array gibt leeres Array zurück, wenn das übergebene Dokument genau eine lokale DOI besitzt;
+     *               andernfalls stehen im Array die gefundenen Fehler
+     */
+    private function checkExistenceOfLocalDoi($doc)
+    {
+        // existiert überhaupt eine DOI?
+        $dois = $doc->getIdentifierDoi();
+        if (empty($dois)) {
+            return ['local_DOI_missing'];
+        }
+
+        // ist unter den vorhandenen DOIs überhaupt eine lokale DOI
+        $localDois = [];
+        foreach ($dois as $doi) {
+            if ($doi->isLocalDoi()) {
+                $localDois[] = $doi;
+            }
+        }
+        if (empty($localDois)) {
+            return ['local_DOI_missing'];
+        }
+
+        // existiert genau eine lokale DOI
+        if (count($localDois) > 1) {
+            return ['multiple_local_DOIs'];
+        }
+
+        return [];
+    }
+
+    /**
+     * In dem übergebenen Dokument muss mindestens ein Autor mit einem nicht-leeren LastName oder FirstName
+     * oder eine nicht leere CreatingCorporation existieren.
+     *
+     * @param $doc das zu prüfende Dokument
+     *
+     * @return bool gibt leeres Array zurück, wenn Autor mit den o.g. Bedingungen existiert; andernfalls steht im
+     *              Array der gefundene Fehler
+     */
+    private function checkExistenceOfCreator($doc)
+    {
         $authorOk = false;
         $authors = $doc->getPersonAuthor();
 
@@ -161,12 +294,25 @@ class Opus_Doi_DataCiteXmlGenerator
 
         if (! $authorOk) {
             if ($doc->getCreatingCorporation() == '') {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element creatorName');
-                return false;
+                // Pflichtfeld creatorName kann nicht mit Inhalt belegt werden
+                return ['creator_missing'];
             }
         }
 
-        // mind. ein nicht-leerer TitleMain oder TitleSub
+        return [];
+    }
+
+    /**
+     * In dem übergebenen Dokument muss mindestens ein nicht leerer Titel existieren.
+     *
+     * @param $doc das zu prüfende Dokument
+     *
+     * @return bool gibt ein leeres Array zurück, wenn ein nicht leerer Titel gefunden wurde; andernfalls steht im
+     *              Array der gefundene Fehler
+     */
+    private function checkExistenceOfTitle($doc)
+    {
+        // mindestens ein nicht-leerer TitleMain oder TitleSub
         $titleOk = false;
         $titles = $doc->getTitleMain();
 
@@ -188,44 +334,82 @@ class Opus_Doi_DataCiteXmlGenerator
             }
 
             if (! $titleOk) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element title');
-                return false;
+                return ['title_missing'];
             }
         }
 
-        // PublisherName nicht leer oder mind. ein ThesisPublisher mit nicht-leerem Namen
-        // FIXME was passiert, wenn mehr als ein ThesisPublisher mit Dokument verknüpft ist?
+        return [];
+    }
+
+    /**
+     * In dem übergebenen Dokument muss genau ein Publisher existieren.
+     *
+     * @param $doc das zu prüfende Dokument
+     * @return bool gibt ein leeres Array zurück, wenn genau ein nicht leerer Titel gefunden wurde; andernfalls
+     *              steht im Array der gefundene Fehler
+     */
+    private function checkExistenceOfPublisher($doc)
+    {
         $publisherOk = false;
         if ($doc->getPublisherName() != '') {
             $publisherOk = true;
         }
-        if (! $publisherOk) {
-            $thesisPublishers = $doc->getThesisPublisher();
-            foreach ($thesisPublishers as $thesisPublisher) {
-                if ($thesisPublisher->getName() != '') {
-                    $publisherOk = true;
-                    break;
+
+        $thesisPublishers = $doc->getThesisPublisher();
+        foreach ($thesisPublishers as $thesisPublisher) {
+            if ($thesisPublisher->getName() != '') {
+                if ($publisherOk) {
+                    // mehr als einen nicht leeren Publisher gefunden
+                    return ['multiple_publishers'];
                 }
-            }
-            if (! $publisherOk) {
-                $doiLog->err('document ' . $doc->getId() . ' does not provide content for element publisher');
-                return false;
+
+                $publisherOk = true;
             }
         }
 
-        return true;
+        if (! $publisherOk) {
+            return ['publisher_missing'];
+        }
+
+        return [];
+    }
+
+    /**
+     * In dem übergebenen Dokument muss ein Publikationsjahr existieren.
+     *
+     * @param $doc das zu prüfende Dokument
+     *
+     * @return bool gibt ein leeres Array zurück, wenn ein Publikationsjahr gefunden wurde; andernfalls
+     *              steht im Array der gefundene Fehler
+     */
+    private function checkExistenceOfPublicationYear($doc)
+    {
+        $publicationDate = $doc->getServerDatePublished();
+        if (is_null($publicationDate)) {
+            return ['publication_date_missing'];
+        }
+
+        $publicationYear = $publicationDate->getYear();
+        if (is_null($publicationYear) || $publicationYear == 0) {
+            return ['publication_year_missing'];
+        }
+
+        return [];
     }
 
     private function handleLibXmlErrors($log, $reset = false)
     {
+        $result = [];
         if ($reset) {
             libxml_clear_errors();
         } else {
             foreach (libxml_get_errors() as $error) {
                 $log->err("libxml error: {$error->message}");
+                $result[] = $error->message;
             }
         }
         libxml_use_internal_errors($reset);
+        return $result;
     }
 
     private function getModelXml($doc)
