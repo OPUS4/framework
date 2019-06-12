@@ -92,6 +92,10 @@
  *
  * @method void setRootCollection(Opus_Collection $collection)
  * @method Opus_Collection getRootCollection()
+ *
+ * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
+ * @method boolean getHideEmptyCollections()
+ * 
  */
 class Opus_CollectionRole extends Opus_Model_AbstractDb
 {
@@ -189,6 +193,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
+
+        // Attribute to determine visibility of empty collections
+        $hideEmptyCollections = new Opus_Model_Field('HideEmptyCollections');
+        $hideEmptyCollections->setCheckbox(true);
+        $this->addField($hideEmptyCollections);
     }
 
     /**
