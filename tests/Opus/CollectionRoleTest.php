@@ -186,6 +186,9 @@ class Opus_CollectionRoleTest extends TestCase
         );
     }
 
+    /**
+     * @param $role Opus_CollectionRole
+     */
     protected function prepateCollectionRole($role)
     {
         $role->setPosition(3);
@@ -198,6 +201,7 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setIsClassification(0);
         $role->setAssignRoot(1);
         $role->setAssignLeavesOnly(0);
+        $role->setHideEmptyCollections(1);
     }
 
     /**
@@ -226,7 +230,8 @@ class Opus_CollectionRoleTest extends TestCase
             'IsClassification' => 0,
             'AssignRoot' => 1,
             'AssignLeavesOnly' => 0,
-            'RootCollection' => null
+            'RootCollection' => null,
+            'HideEmptyCollections' => 1
         ], $data);
     }
 
@@ -259,7 +264,8 @@ class Opus_CollectionRoleTest extends TestCase
             'IsClassification' => '0',
             'AssignRoot' => '1',
             'AssignLeavesOnly' => '0',
-            'RootCollection' => []
+            'RootCollection' => [],
+            'HideEmptyCollections' => 1
         ], $data);
     }
 
@@ -306,7 +312,8 @@ class Opus_CollectionRoleTest extends TestCase
             'RootCollection' => [
                 ['Id' => $col->getId(),'Name' => $col->getName()],
                 ['Id' => $col2->getId(),'Name' => $col2->getName()],
-            ]
+            ],
+            'HideEmptyCollections' => 1
         ], $data);
     }
 

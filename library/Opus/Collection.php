@@ -985,7 +985,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
-     * Returns documents of complete subtree.
+     * Returns number of published documents of complete subtree.
      *
      * @return int Number of subtree Entries.
      *
