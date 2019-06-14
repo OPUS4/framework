@@ -1084,4 +1084,36 @@ class Opus_CollectionRoleTest extends TestCase
         $role = new Opus_CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignLeavesOnly());
     }
+
+    /**
+     * Eine Änderung von hideEmptyCollections auf einer CollectionRole soll
+     * keine Auswirkungen auf den Wert von serverDateModified von mit der 
+     * CollectionRole verknüpften Dokumente haben.
+     * 
+     * @throws Opus_Model_Exception
+     */
+    public function testChangeOfHideEmptyCollectionsDoesNotAffectDocuments()
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName('Test');
+        $collRole->setOaiName('Test');
+        $collRole->setRootCollection(new Opus_Collection());
+        $collRoleId = $collRole->store();
+
+        $collRole = new Opus_CollectionRole($collRoleId);
+        $doc = new Opus_Document();
+        $doc->addCollection($collRole->getRootCollection());
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $serverDateModified = $doc->getServerDateModified();
+
+        $collRole->setHideEmptyCollections(1);
+        $collRole->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEquals($doc->getServerDateModified(), $serverDateModified);
+    }
+
 }
