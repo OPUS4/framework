@@ -1012,7 +1012,7 @@ class Opus_CollectionRoleTest extends TestCase
         $this->assertEquals(10, $result);
 
         $role2 = new Opus_CollectionRole();
-        $role2->setName('Test Col2');
+        $role2->setName('TestCol2');
         $role2->setOaiName('col2oai');
         $role2->setPosition(20);
         $role2->store();
@@ -1114,6 +1114,44 @@ class Opus_CollectionRoleTest extends TestCase
 
         $doc = new Opus_Document($docId);
         $this->assertEquals($doc->getServerDateModified(), $serverDateModified);
+    }
+
+    /**
+     * Validierung von gültigen CollectionRole Namen (OPUSVIER-4022)
+     */
+    public function testValidCollectionRoleName()
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName('abcABC012_3-4_5-6');
+        $collRole->setOaiName('foo');
+        $collRoleId = $collRole->store();
+
+        $this->assertTrue($collRoleId > 0);
+    }
+
+    /**
+     * Validierung von ungültigen CollectionRole Namen (OPUSVIER-4022)
+     */
+    public function testInvalidCollectionRoleName()
+    {
+        $invalidNames = ['a b ', 'a,b', 'ä', 'a:b', 'a;b'];
+
+        foreach ($invalidNames as $invalidName) {
+            $collRole = new Opus_CollectionRole();
+            $collRole->setName($invalidName);
+            $collRole->setOaiName('foo');
+
+            $exception = null;
+            try {
+                $collRole->store();
+            }
+            catch (Opus_Model_Exception $exception) {
+                // do nothing
+            }
+
+            // setExpectedException kann bei Schleife nicht angewendet werden; beendet Test nach erster Exception
+            $this->assertNotNull($exception);
+        }
     }
 
 }
