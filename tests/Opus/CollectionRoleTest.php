@@ -1130,11 +1130,11 @@ class Opus_CollectionRoleTest extends TestCase
     }
 
     /**
-     * Validierung von ungültigen CollectionRole Namen (OPUSVIER-4022)
+     * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
      */
     public function testInvalidCollectionRoleName()
     {
-        $invalidNames = ['a b ', 'a,b', 'ä', 'a:b', 'a;b'];
+        $invalidNames = ['a b ', 'a,b', 'ä', 'a:b', 'a;b', '_a', '-a', '0a', '0_1', '0-1'];
 
         foreach ($invalidNames as $invalidName) {
             $collRole = new Opus_CollectionRole();
