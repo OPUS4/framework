@@ -1087,9 +1087,9 @@ class Opus_CollectionRoleTest extends TestCase
 
     /**
      * Eine Änderung von hideEmptyCollections auf einer CollectionRole soll
-     * keine Auswirkungen auf den Wert von serverDateModified von mit der 
+     * keine Auswirkungen auf den Wert von serverDateModified von mit der
      * CollectionRole verknüpften Dokumente haben.
-     * 
+     *
      * @throws Opus_Model_Exception
      */
     public function testChangeOfHideEmptyCollectionsDoesNotAffectDocuments()
@@ -1129,29 +1129,34 @@ class Opus_CollectionRoleTest extends TestCase
         $this->assertTrue($collRoleId > 0);
     }
 
-    /**
-     * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
-     */
-    public function testInvalidCollectionRoleName()
+    public function invalidCollectionRoleNameDataProvider()
     {
-        $invalidNames = ['a b ', 'a,b', 'ä', 'a:b', 'a;b', '_a', '-a', '0a', '0_1', '0-1'];
-
-        foreach ($invalidNames as $invalidName) {
-            $collRole = new Opus_CollectionRole();
-            $collRole->setName($invalidName);
-            $collRole->setOaiName('foo');
-
-            $exception = null;
-            try {
-                $collRole->store();
-            }
-            catch (Opus_Model_Exception $exception) {
-                // do nothing
-            }
-
-            // setExpectedException kann bei Schleife nicht angewendet werden; beendet Test nach erster Exception
-            $this->assertNotNull($exception);
-        }
+        return [
+            ['a b '],
+            ['a,b'],
+            ['ä'],
+            ['a:b'],
+            ['a;b'],
+            ['_a'],
+            ['-a'],
+            ['0a'],
+            ['0_1'],
+            ['0-1']
+        ];
     }
 
+    /**
+     * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
+     *
+     * @dataProvider invalidCollectionRoleNameDataProvider
+     * @expectedException Opus_Model_Exception
+     * @expectedExceptionMessage invalid data
+     */
+    public function testInvalidCollectionRoleName($invalidName)
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName($invalidName);
+        $collRole->setOaiName('foo');
+        $collRole->store();
+    }
 }
