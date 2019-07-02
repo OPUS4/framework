@@ -56,7 +56,7 @@ class Opus_Validate_CollectionRoleName extends Zend_Validate_Abstract
             return false;
         }
 
-        // CollectionRole Name darf keine Leer- und Sonderzeichen enthalten
-        return preg_match('/^[a-zA-Z0-9\-\_]+$/', $value) === 1;
+        // CollectionRole Name darf keine Leer- und Sonderzeichen enthalten und muss mit einem Buchstaben beginnen
+        return preg_match('/^[a-zA-Z][a-zA-Z0-9\-\_]*$/', $value) === 1;
     }
 }
