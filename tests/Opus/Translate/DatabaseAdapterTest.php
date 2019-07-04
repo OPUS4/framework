@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus_Translate
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 class Opus_Translate_DatabaseAdapterTest extends TestCase

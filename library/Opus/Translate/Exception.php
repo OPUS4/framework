@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -25,23 +25,12 @@
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
- * @package     Opus_Translate
+ * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
-class Opus_Translate_DefaultAdapterTest extends TestCase
+
+class Opus_Translate_Exception extends Exception
 {
-
-    public function testLoadTranslationDataFromTmx()
-    {
-        $adapter = new Opus_Translate_DefaultAdapter();
-
-        $this->markTestIncomplete('not tested yet');
-    }
-
-    public function testLoadTranslationDataFromDatabase()
-    {
-        $this->markTestIncomplete('not tested yet');
-    }
 }

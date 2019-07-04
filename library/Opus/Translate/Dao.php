@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2018-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -41,6 +41,8 @@
  * TODO should implement an interface
  * TODO use custom Row and RowSet classes? Use ->save() function?
  * TODO is it necessary to support same key for multiple modules?
+ * TODO how to handle same key in default and module translations is not clear yet. What if a key needs to be edited in
+ *      the administration? How to decide which module is meant?
  */
 class Opus_Translate_Dao
 {
@@ -85,6 +87,10 @@ class Opus_Translate_Dao
      */
     public function setTranslation($key, $translation, $module = null)
     {
+        if (is_null($translation)) {
+            return $this->remove($key, $module);
+        }
+
         $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
 
         $database = $keysTable->getAdapter();
@@ -120,7 +126,7 @@ class Opus_Translate_Dao
      * @param      $key
      * @param null $locale
      */
-    public function getTranslation($key, $locale = null)
+    public function getTranslation($key, $locale = null, $module = null)
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
@@ -129,19 +135,34 @@ class Opus_Translate_Dao
             ->join(array('keys' => 'translationkeys'), 't.key_id = keys.id')
             ->where('keys.key = ?', $key);
 
+        if (! is_null($locale)) {
+            $select->where('t.locale = ?', $locale);
+        }
+
+        if (! is_null($module)) {
+            $select->where('keys.module = ?', $module);
+        }
+
         $rows = $table->getAdapter()->fetchAll($select);
 
         if (count($rows) > 0) {
             $result = [];
 
-            foreach ($rows as $row) {
-                $locale = $row['locale'];
-                $value = $row['value'];
+            if (is_null($locale)) {
+                foreach ($rows as $row) {
+                    $result[$row['locale']] = $row['value'];
+                }
+            } else  {
+                foreach ($rows as $row) {
+                    $result[] = $row['value'];
+                }
 
-                $result[$key][$locale] = $value;
+                if (count($result) === 1) {
+                    $result = $result[0];
+                }
             }
 
-            return $result[$key];
+            return $result;
         } else {
             return null;
         }
@@ -256,5 +277,38 @@ class Opus_Translate_Dao
     public function getAll()
     {
         return $this->getTranslations();
+    }
+
+    /**
+     * Renames translation key.
+     *
+     * @throws Opus_Translate_Exception
+     */
+    public function renameKey($key, $newKey, $module = null)
+    {
+        $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
+
+        $database = $keysTable->getAdapter();
+
+        $where = [];
+
+        $where[] = $database->quoteInto('`key` = ?', $key);
+
+        $where[] = $database->quoteInto('`module` = ?', $module);
+
+        $data = [
+            'key' => $newKey
+        ];
+
+        $database->beginTransaction();
+
+        try {
+            $keysTable->update($data, $where);
+        }
+        catch (Zend_Db_Statement_Exception $ndbse) {
+            throw new Opus_Translate_Exception($ndbse);
+        }
+
+        $database->commit();
     }
 }

@@ -143,12 +143,35 @@ class Opus_Translate_DaoTest extends TestCase
 
     public function testSetTranslationWithNullRemovesEntry()
     {
+        $dao = new Opus_Translate_Dao();
 
+        $data = [
+            'en' => 'test key one',
+            'de' => 'Testschlüssel 1'
+        ];
+
+        $dao->setTranslation('testkey1', $data);
+
+        $this->assertEquals($data, $dao->getTranslation('testkey1'));
+
+        $dao->setTranslation('testkey1', null);
+
+        $this->assertNull($dao->getTranslation('testkey1'));
     }
 
     public function testSetTranslationWithModule()
     {
+        $dao = new Opus_Translate_Dao();
 
+        $data = [
+            'en' => 'test key one',
+            'de' => 'Testschlüssel 1'
+        ];
+
+        $dao->setTranslation('testkey1', $data, 'module');
+
+        $this->assertEquals($data, $dao->getTranslation('testkey1'));
+        $this->assertEquals($data, $dao->getTranslations('module')['testkey1']);
     }
 
     public function testRemove()
@@ -229,9 +252,60 @@ class Opus_Translate_DaoTest extends TestCase
         ], $translation);
     }
 
+    public function testGetTranslationForUnknownKey()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $translation = $dao->getTranslation('unknownkey');
+
+        $this->assertNull($translation);
+    }
+
     public function testGetTranslationForLocale()
     {
+        $dao = new Opus_Translate_Dao();
 
+        $dao->setTranslation('testkey1', [
+            'de' => 'Testschlüssel 1',
+            'en' => 'test key one'
+        ]);
+
+        $this->assertEquals('Testschlüssel 1', $dao->getTranslation('testkey1', 'de'));
+        $this->assertEquals('test key one', $dao->getTranslation('testkey1', 'en'));
+    }
+
+    public function testGetTranslationForUnknownLocale()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $dao->setTranslation('testkey1', [
+            'de' => 'Testschlüssel 1',
+            'en' => 'test key one'
+        ]);
+
+        $this->assertNull($dao->getTranslation('testkey1', 'fr'));
+    }
+
+    /**
+     * TODO is this functionality needed?
+     */
+    public function testGetTranslationForKeyExistingInDefaultAndModule()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $dao->setTranslation('testkey1', [
+            'de' => 'Testschlüssel 1',
+            'en' => 'test key one'
+        ]);
+
+        $dao->setTranslation('testkey1', [
+            'de' => 'Moduletestschlüssel 1',
+            'en' => 'module test key one'
+        ], 'module');
+
+        $translation = $dao->getTranslation('testkey1');
+
+        $this->markTestIncomplete('not sure what result should look like, not sure this is needed');
     }
 
     public function testGetTranslations()
@@ -320,5 +394,116 @@ class Opus_Translate_DaoTest extends TestCase
                 'testkey1' => 'Testschlüssel 1'
             ]
         ], $all);
+    }
+
+    public function testRenameKey()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Testschlüssel 1',
+            'en' => 'test key one'
+        ];
+
+        $dao->setTranslation('testkey1', $data);
+
+        $translations = $dao->getTranslation('testkey1');
+
+        $this->assertEquals($data, $translations);
+
+        $dao->renameKey('testkey1', 'testkeyone');
+
+        $translations = $dao->getTranslation('testkeyone');
+
+        $this->assertEquals($data, $translations);
+
+        $translations = $dao->getTranslation('testkey1');
+
+        $this->assertNull($translations);
+    }
+
+    /**
+     * @expectedException Opus_Translate_Exception
+     * @expectedExceptionMessage Duplicate entry
+     */
+    public function testRenameKeyNewKeyAlreadyExists()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'testkey1' => [
+                'en' => 'test key one',
+                'de' => 'Testschlüssel 1'
+            ],
+            'testkey2' => [
+                'en' => 'test key two',
+                'de' => 'Testschlüssel 2'
+            ]
+        ];
+
+        $dao->addTranslations($data);
+
+        $this->assertEquals($data['testkey1'], $dao->getTranslation('testkey1'));
+        $this->assertEquals($data['testkey2'], $dao->getTranslation('testkey2'));
+
+        $dao->renameKey('testkey1', 'testkey2');
+    }
+
+    public function testRenameKeyInModuleOnly()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'en' => 'test key one',
+            'de' => 'Testschlüssel 1'
+        ];
+
+        $dao->setTranslation('testkey1', $data);
+        $dao->setTranslation('testkey1', $data, 'module');
+
+        $this->assertNotNull($dao->getTranslation('testkey1'));
+        $this->assertNotNull($dao->getTranslations('module'));
+        $this->assertArrayHasKey('testkey1', $dao->getTranslations('module'));
+
+        $dao->renameKey('testkey1', 'testkeyone', 'module');
+
+        $this->assertNotNull($dao->getTranslation('testkey1'));
+
+        $translations = $dao->getTranslations('module');
+
+        $this->assertCount(1, $translations);
+        $this->assertArrayHasKey('testkeyone', $translations);
+
+        $this->assertEquals('test key one', $dao->getTranslation('testkey1', 'en'));
+        $this->assertEquals('test key one', $dao->getTranslation('testkeyone', 'en'));
+    }
+
+    public function testRenameKeyDefaultOnly()
+    {
+        $dao = new Opus_Translate_Dao();
+
+        $data = [
+            'de' => 'Testschlüssel 1',
+            'en' => 'test key one'
+        ];
+
+        $data2 = [
+            'de' => 'Modulschlüssel',
+            'en' => 'module key'
+        ];
+
+        $dao->setTranslation('testkey1', $data);
+        $dao->setTranslation('testkey1', $data2, 'module');
+
+        $translations = $dao->getTranslation('testkey1');
+        $this->assertEquals($data2, $translations);
+
+        $dao->renameKey('testkey1', 'testkeyone');
+
+        $translations = $dao->getTranslation('testkeyone');
+        $this->assertEquals($data, $translations);
+
+        $translations = $dao->getTranslation('testkey1');
+        $this->assertEquals($data2, $translations);
     }
 }
