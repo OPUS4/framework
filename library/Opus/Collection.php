@@ -84,10 +84,13 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-        'Opus_Collection_Plugin_DeleteSubTree' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_Collection_Plugin_DeleteSubTree'
+        ];
+    }
 
     /**
      * The collections external fields, i.e. those not mapped directly to the
@@ -982,7 +985,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
-     * Returns documents of complete subtree.
+     * Returns number of published documents of complete subtree.
      *
      * @return int Number of subtree Entries.
      *

@@ -30,6 +30,6 @@ COMMENT = 'Stores custom translations.';
 -- Update database version
 
 TRUNCATE TABLE `schema_version`;
-INSERT INTO `schema_version` (`version`) VALUES (11);
+INSERT INTO `schema_version` (`version`) VALUES (13);
 
 COMMIT;

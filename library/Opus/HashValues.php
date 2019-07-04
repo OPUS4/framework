@@ -60,12 +60,10 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract
      *
      * @var array
      */
-    protected $_plugins = [
-// Plugin InvalidateDocumentCache should stay disabled here since this model is
-// not directly related to Opus_Document
-//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
-
+    public function getDefaultPlugins()
+    {
+        return null;
+    }
 
     /**
      * Initialize model with the following fields:

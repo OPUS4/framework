@@ -34,7 +34,7 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -113,7 +113,6 @@
  * @method void setServerDateDeleted(Opus_Date $date)
  * @method Opus_Date getServerDateDeleted()
  *
- * @method void setServerState(string $state)
  * @method string getServerState()
  *
  * @method void setType(string $type)
@@ -203,6 +202,24 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
     /**
+     * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
+     * die das Interface \Opus\Model\Plugin\ServerStateChangeListener implementieren, ausgeführt.
+     *
+     * @var bool
+     */
+    private $serverStateChanged = false;
+
+    /**
+     * sofern der Wert von serverState geändert wurde, wird in dieser
+     * Variable der in der Datenbank abgespeicherte Wert als Referenz gehalten
+     *
+     * @var string
+     */
+    private $oldServerState = null;
+
+    private static $defaultPlugins = null;
+
+    /**
      * Plugins to load
      *
      * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come
@@ -218,15 +235,32 @@ class Opus_Document extends Opus_Model_AbstractDb
      * in case of a cache miss. The cache rebuilding will issue a reindex
      * operation as a side effect. A subsequent call of the Index plugin issues
      * a second call of the reindex operation which is obsolete.)
-     *
-     * @var array
      */
-    protected $_plugins = [
-        'Opus_Document_Plugin_Index' => null,
-        'Opus_Document_Plugin_XmlCache' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null,
-        'Opus_Document_Plugin_IdentifierDoi' => null
-    ];
+    public function getDefaultPlugins()
+    {
+        if (is_null(self::$defaultPlugins)) {
+            $config = Zend_Registry::get('Zend_Config'); // use function
+
+            if (isset($config->model->plugins->document)) {
+                $plugins = $config->model->plugins->document;
+                self::$defaultPlugins = $plugins->toArray();
+            } else {
+                self::$defaultPlugins = [
+                    'Opus_Document_Plugin_Index',
+                    'Opus_Document_Plugin_XmlCache',
+                    'Opus_Document_Plugin_IdentifierUrn',
+                    'Opus_Document_Plugin_IdentifierDoi'
+                ];
+            }
+        }
+
+        return self::$defaultPlugins;
+    }
+
+    public function setDefaultPlugins($plugins)
+    {
+        self::$defaultPlugins = $plugins;
+    }
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
@@ -1141,12 +1175,39 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @param string $value Server state of document.
      * @return void
      */
-    protected  function _storeServerState($value) {
+    protected function _storeServerState($value) {
         if (true === empty($value)) {
             $value = 'unpublished';
             $this->setServerState($value);
         }
         $this->_primaryTableRow->server_state = $value;
+    }
+
+    /**
+     * Wenn das Dokument noch nicht in der DB gespeichert wurde, liefert der erste
+     * Aufruf von getServerState() den Wert null. In diesem Fall liegt immer eine
+     * Änderung des Wertes von serverState vor. Der zuletzt gesetzte Wert von serverState
+     * "gewinnt". Andernfalls wird der Wert von getServerState beim ersten Aufruf
+     * als Referenz gespeichert. Bei jeder Änderung von serverState wird der neue
+     * Wert mit dem gespeicherten Referenz verglichen, um festzustellen, ob es eine
+     * Änderung von serverState gegeben hat.
+     *
+     * @param $serverState
+     * @return mixed
+     */
+    public function setServerState($serverState)
+    {
+        if (is_null($this->oldServerState) && !$this->serverStateChanged) {
+            // erste Änderung des Wertes von serverState
+            $this->oldServerState = $this->getServerState();
+        }
+
+        // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
+        // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
+        // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
+        $this->serverStateChanged = ($serverState !== $this->oldServerState);
+
+        return parent::setServerState($serverState);
     }
 
     /**
@@ -1156,12 +1217,12 @@ class Opus_Document extends Opus_Model_AbstractDb
      * deletePermanent removes a document from the database.
      */
     public function delete() {
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
 
-        $this->_callPluginMethod('postDelete', $this->getId());
+        $this->callPluginMethod('postDelete', $this->getId());
     }
 
     /**
@@ -1564,5 +1625,9 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         return $document;
+    }
+
+    public function getServerStateChanged() {
+        return $this->serverStateChanged;
     }
 }

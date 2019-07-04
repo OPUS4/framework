@@ -24,57 +24,64 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @category    Tests
+ * @package     Opus_Enrichment
+ * @author      Sascha Szott <opus-development@saschaszott.de>
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Provide Opus Framework Version.
- *
- * @category    Framework
- * @package     Opus
- *
- */
-class Opus_Version
+class Opus_Enrichment_TextTypeTest extends TestCase
 {
 
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.6.4.1';
-
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '13';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
+    public function testSetOptionsFromString()
     {
-        return version_compare($version, self::VERSION);
+        $textType = new Opus_Enrichment_TextType();
+        $textType->setOptionsFromString("foo");
+
+        $this->assertNull($textType->getOptions());
+        $this->assertNull($textType->getOptionsAsString());
     }
 
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
+    public function testGetDescription()
     {
-        return self::SCHEMA_VERSION;
+        $textType = new Opus_Enrichment_TextType();
+        $this->assertEquals('admin_enrichmenttype_texttype_description', $textType->getDescription());
     }
+
+    public function testGetName()
+    {
+        $textType = new Opus_Enrichment_TextType();
+        $this->assertEquals('TextType', $textType->getName());
+    }
+
+    public function testGetAllEnrichmentTypesRaw()
+    {
+        $resultArr = Opus_Enrichment_TextType::getAllEnrichmentTypes(true);
+        $this->assertNotEmpty($resultArr);
+    }
+
+    public function testGetAllEnrichmentTypes()
+    {
+        $resultArr = Opus_Enrichment_TextType::getAllEnrichmentTypes();
+        $this->assertNotEmpty($resultArr);
+    }
+
+    public function testRobustnessOfSetOptions()
+    {
+        $textType = new Opus_Enrichment_TextType();
+
+        $textType->setOptions(null);
+
+        $textType->setOptions("");
+
+        $textType->setOptions("{foo}");
+
+        $textType->setOptions('{"foo":"bar"}');
+
+        $textType->setOptions(array("foo"));
+
+        $textType->setOptions(array("foo" => "bar"));
+    }
+
 }

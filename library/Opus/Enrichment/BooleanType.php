@@ -24,57 +24,33 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @category    Application
+ * @package     Opus_Enrichment
+ * @author      Sascha Szott <opus-development@saschaszott.de>
+ * @copyright   Copyright (c) 2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-/**
- * Provide Opus Framework Version.
- *
- * @category    Framework
- * @package     Opus
- *
- */
-class Opus_Version
+class Opus_Enrichment_BooleanType extends Opus_Enrichment_AbstractType
 {
 
-    /**
-     * Opus Framework version identification - see compareVersion()
-     */
-    const VERSION = '4.6.4.1';
-
-    /**
-     * Version of database schema.
-     */
-    const SCHEMA_VERSION = '13';
-
-    /**
-     * Compare the specified Opus Framework version string $version
-     * with the current Opus_Version::VERSION of the Zend Framework.
-     *
-     * @param  string  $version  A version string (e.g. "0.7.1").
-     * @return integer           -1 if the $version is older,
-     *                           0 if they are the same,
-     *                           and +1 if $version is newer.
-     *
-     */
-    public static function compareVersion($version)
+    public function getFormElementName()
     {
-        return version_compare($version, self::VERSION);
+        return 'Checkbox';
     }
 
-    /**
-     * Returns required database schema version.
-     * @return string
-     *
-     * TODO determine schema version from update scripts?
-     */
-    public static function getSchemaVersion()
+    public function getFormElement($value = null)
     {
-        return self::SCHEMA_VERSION;
+        $form = new Admin_Form_Document_Enrichment();
+        $options = array('required' => true); // FIXME überhaupt erforderlich?
+        $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
+        $element->removeDecorator('Label'); // kein Label anzeigen
+
+        if (!is_null($value)) {
+            $element->setValue($value);
+        }
+
+        return $element;
     }
+
 }

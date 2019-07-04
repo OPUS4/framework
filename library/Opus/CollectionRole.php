@@ -92,6 +92,10 @@
  *
  * @method void setRootCollection(Opus_Collection $collection)
  * @method Opus_Collection getRootCollection()
+ *
+ * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
+ * @method boolean getHideEmptyCollections()
+ * 
  */
 class Opus_CollectionRole extends Opus_Model_AbstractDb
 {
@@ -124,10 +128,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-        'Opus_CollectionRole_Plugin_DeleteTree' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_CollectionRole_Plugin_DeleteTree'
+        ];
+    }
 
     /**
      * Initialize model.
@@ -138,7 +145,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     {
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
+        $name->setMandatory(true)->setValidator(new Opus_Validate_CollectionRoleName());
         $this->addField($name);
 
         $oaiName = new Opus_Model_Field('OaiName');
@@ -186,6 +193,11 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
+
+        // Attribute to determine visibility of empty collections
+        $hideEmptyCollections = new Opus_Model_Field('HideEmptyCollections');
+        $hideEmptyCollections->setCheckbox(true);
+        $this->addField($hideEmptyCollections);
     }
 
     /**

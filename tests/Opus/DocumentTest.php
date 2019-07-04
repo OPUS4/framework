@@ -64,6 +64,14 @@ class Opus_DocumentTest extends TestCase
         parent::setUp();
     }
 
+    public function tearDown()
+    {
+        $document = new Opus_Document();
+        $document->setDefaultPlugins(null);
+
+        parent::tearDown();
+    }
+
     /**
      * Test if a Document instance can be serialized.
      *
@@ -1569,6 +1577,14 @@ class Opus_DocumentTest extends TestCase
         // Do something with authors: reverse
         $authors = $document->getPersonAuthor();
         $new_authors = array_reverse($authors);
+
+        $index = 1;
+
+        foreach ($authors as $author) {
+            $this->assertEquals($index, $author->getSortOrder());
+            $index++;
+        }
+
         $document->setPersonAuthor($new_authors);
         $document->store();
 
@@ -1644,7 +1660,7 @@ class Opus_DocumentTest extends TestCase
     private function _checkPersonAuthorSortOrderForDocument($document)
     {
         $authors = $document->getPersonAuthor();
-        $numbers = array();
+        $numbers = [];
         foreach ($authors AS $author) {
             $this->assertNotNull($author->getSortOrder());
             $numbers[] = $author->getSortOrder();
@@ -1861,10 +1877,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
         $this->assertTrue(count($doc->getPerson()) == 0, 'testcase changed?');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1876,10 +1892,10 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
@@ -1900,17 +1916,22 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
+
+        $person = $doc->getPerson(0);
+
+        $this->assertFalse($person->getModel()->isModified());
+        $this->assertFalse($person->isModified());
+        $this->assertFalse($doc->isModified());
 
         $persons = $doc->getPerson();
-        $this->assertTrue(count($persons) == 1, 'testcase changed?');
+        $this->assertCount(1, $persons, 'testcase changed?');
 
-        $this->assertEquals(false, $persons[0]->getModel()->isModified(), 'linked model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->getModel()->isModified(),'linked model has just been loaded and is not modified!');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $persons[0]->isModified(), 'link model has just been loaded and is not modified!');
+        $this->assertFalse($persons[0]->isModified(),'link model has just been loaded and should not be modified!');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getPerson!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getPerson!');
     }
 
     /**
@@ -1931,18 +1952,17 @@ class Opus_DocumentTest extends TestCase
         $doc->store();
 
         $doc = new Opus_Document($doc->getId());
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified');
 
-        $this->markTestIncomplete('Check: Is only SortOrder modified?');
-        $this->assertEquals(false, $doc->getField('Person')->isModified(), 'Field Person should not be modified');
+        $this->assertFalse($doc->getField('Person')->isModified(), 'Field Person should not be modified');
 
-        $this->assertEquals(false, $doc->isModified(), 'doc should not be modified after getField(Person)!');
+        $this->assertFalse($doc->isModified(), 'doc should not be modified after getField(Person)!');
     }
 
     /**
      * Regression test for OPUSVIER-2307: Test for modification tracking bug.
      */
-    public function testPlinkIsNotModified()
+    public function testPlinkIsModifiedAfterFixingSortOrder()
     {
         $doc = new Opus_Document();
 
@@ -1960,15 +1980,14 @@ class Opus_DocumentTest extends TestCase
             ->setValue(123)
             ->clearModified();
 
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified before');
+        $this->assertFalse($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified');
 
         $newField = new Opus_Model_Field('test');
         $newField->setSortFieldName('SortOrder');
-        $newField->setValue(array($plink));
+        $newField->setValue([$plink]);
 
-        $this->markTestIncomplete('Modification tracking bug with SortOrder field not fully fixed yet.');
-
-        $this->assertEquals(false, $plink->getField('SortOrder')->isModified(), 'plink->SortOrder should not be modified after');
+        $this->assertTrue($plink->isModified());
+        $this->assertTrue($plink->getField('SortOrder')->isModified(), 'plink->SortOrder should be modified');
     }
 
     public function testChangeTitleType()
@@ -2088,7 +2107,9 @@ class Opus_DocumentTest extends TestCase
         $doc = new Opus_Document();
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_Index'), 'Opus_Document_Plugin_Index is not registered');
         $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_XmlCache'), 'Opus_Document_Plugin_XmlCache is not registered');
-        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is not registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierUrn'), 'Opus_Document_Plugin_IdentifierUrn is registered');
+        $this->assertTrue($doc->hasPlugin('Opus_Document_Plugin_IdentifierDoi'), 'Opus_Document_Plugin_IdentifierDoi is registered');
+        $this->assertFalse($doc->hasPlugin('Opus_Document_Plugin_SequenceNumber'), 'Opus_Document_Plugin_SequenceNumber is registered');
     }
 
     /**
@@ -3888,5 +3909,70 @@ class Opus_DocumentTest extends TestCase
         $this->assertEquals('Berlin', $subjects[0]->getValue());
         $this->assertEquals('Antonplatz', $subjects[1]->getValue());
         $this->assertEquals('Checkpoint', $subjects[2]->getValue());
+    }
+
+    public function testGetDefaultPlugins()
+    {
+        $document = new Opus_Document();
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_Index',
+            'Opus_Document_Plugin_XmlCache',
+            'Opus_Document_Plugin_IdentifierUrn',
+            'Opus_Document_Plugin_IdentifierDoi'
+        ], $document->getDefaultPlugins());
+    }
+
+    public function testGetDefaultPluginsConfigured()
+    {
+        Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
+            'model' => [
+                'plugins' => [
+                    'document' => [
+                        'Opus_Document_Plugin_SequenceNumber'
+                    ]
+                ]
+            ]
+        ]));
+
+        $document = new Opus_Document();
+
+        $document->setDefaultPlugins(null);
+
+        $this->assertEquals([
+            'Opus_Document_Plugin_SequenceNumber',
+        ], $document->getDefaultPlugins());
+
+        $this->assertTrue($document->hasPlugin('Opus_Document_Plugin_SequenceNumber'));
+    }
+
+    public function testServerStateChanged()
+    {
+        $doc = new Opus_Document();
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $doc->setServerState('unpublished');
+        $this->assertFalse($doc->getServerStateChanged());
+
+        $doc->setServerState('published');
+        $this->assertTrue($doc->getServerStateChanged());
     }
 }

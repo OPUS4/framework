@@ -69,13 +69,6 @@ class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Ab
      */
     protected $_displayAttributeName = 'Name';
 
-     /** Plugins to load
-     *
-     * @var array
-     */
-    protected $_plugins = array();
-
-    
     /**
      * Initialize model with the following values:
      * - Role
@@ -100,7 +93,7 @@ class Opus_Model_Dependent_Link_IprangeRole extends Opus_Model_Dependent_Link_Ab
         $this->_primaryTableRow->role_id = $this->_model->store();
         // only store if something has changed
         // this avoids duplicate entries
-        if ($this->getId() !== $this->_primaryTableRow->role_id) {            
+        if ($this->getId() !== $this->_primaryTableRow->role_id) {
             parent::store();
         }
     }

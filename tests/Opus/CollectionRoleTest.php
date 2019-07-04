@@ -28,7 +28,7 @@
  * @package     Opus_Collection
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -186,6 +186,9 @@ class Opus_CollectionRoleTest extends TestCase
         );
     }
 
+    /**
+     * @param $role Opus_CollectionRole
+     */
     protected function prepateCollectionRole($role)
     {
         $role->setPosition(3);
@@ -198,6 +201,7 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setIsClassification(0);
         $role->setAssignRoot(1);
         $role->setAssignLeavesOnly(0);
+        $role->setHideEmptyCollections(1);
     }
 
     /**
@@ -226,7 +230,8 @@ class Opus_CollectionRoleTest extends TestCase
             'IsClassification' => 0,
             'AssignRoot' => 1,
             'AssignLeavesOnly' => 0,
-            'RootCollection' => null
+            'RootCollection' => null,
+            'HideEmptyCollections' => 1
         ], $data);
     }
 
@@ -259,7 +264,8 @@ class Opus_CollectionRoleTest extends TestCase
             'IsClassification' => '0',
             'AssignRoot' => '1',
             'AssignLeavesOnly' => '0',
-            'RootCollection' => []
+            'RootCollection' => [],
+            'HideEmptyCollections' => 1
         ], $data);
     }
 
@@ -306,7 +312,8 @@ class Opus_CollectionRoleTest extends TestCase
             'RootCollection' => [
                 ['Id' => $col->getId(),'Name' => $col->getName()],
                 ['Id' => $col2->getId(),'Name' => $col2->getName()],
-            ]
+            ],
+            'HideEmptyCollections' => 1
         ], $data);
     }
 
@@ -1005,7 +1012,7 @@ class Opus_CollectionRoleTest extends TestCase
         $this->assertEquals(10, $result);
 
         $role2 = new Opus_CollectionRole();
-        $role2->setName('Test Col2');
+        $role2->setName('TestCol2');
         $role2->setOaiName('col2oai');
         $role2->setPosition(20);
         $role2->store();
@@ -1076,5 +1083,80 @@ class Opus_CollectionRoleTest extends TestCase
 
         $role = new Opus_CollectionRole($roleId);
         $this->assertEquals(0, $role->getAssignLeavesOnly());
+    }
+
+    /**
+     * Eine Änderung von hideEmptyCollections auf einer CollectionRole soll
+     * keine Auswirkungen auf den Wert von serverDateModified von mit der
+     * CollectionRole verknüpften Dokumente haben.
+     *
+     * @throws Opus_Model_Exception
+     */
+    public function testChangeOfHideEmptyCollectionsDoesNotAffectDocuments()
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName('Test');
+        $collRole->setOaiName('Test');
+        $collRole->setRootCollection(new Opus_Collection());
+        $collRoleId = $collRole->store();
+
+        $collRole = new Opus_CollectionRole($collRoleId);
+        $doc = new Opus_Document();
+        $doc->addCollection($collRole->getRootCollection());
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $serverDateModified = $doc->getServerDateModified();
+
+        $collRole->setHideEmptyCollections(1);
+        $collRole->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEquals($doc->getServerDateModified(), $serverDateModified);
+    }
+
+    /**
+     * Validierung von gültigen CollectionRole Namen (OPUSVIER-4022)
+     */
+    public function testValidCollectionRoleName()
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName('abcABC012_3-4_5-6');
+        $collRole->setOaiName('foo');
+        $collRoleId = $collRole->store();
+
+        $this->assertTrue($collRoleId > 0);
+    }
+
+    public function invalidCollectionRoleNameDataProvider()
+    {
+        return [
+            ['a b '],
+            ['a,b'],
+            ['ä'],
+            ['a:b'],
+            ['a;b'],
+            ['_a'],
+            ['-a'],
+            ['0a'],
+            ['0_1'],
+            ['0-1']
+        ];
+    }
+
+    /**
+     * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
+     *
+     * @dataProvider invalidCollectionRoleNameDataProvider
+     * @expectedException Opus_Model_Exception
+     * @expectedExceptionMessage invalid data
+     */
+    public function testInvalidCollectionRoleName($invalidName)
+    {
+        $collRole = new Opus_CollectionRole();
+        $collRole->setName($invalidName);
+        $collRole->setOaiName('foo');
+        $collRole->store();
     }
 }
