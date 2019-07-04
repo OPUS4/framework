@@ -35,8 +35,6 @@ class Opus_Translate_DefaultAdapterTest extends TestCase
 
     public function testLoadTranslationDataFromTmx()
     {
-        $adapter = new Opus_Translate_DefaultAdapter();
-
         $this->markTestIncomplete('not tested yet');
     }
 
