@@ -31,9 +31,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
+class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
+{
 
-    public function testGenerateWithMissingConfig() {
+    public function testGenerateWithMissingConfig()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $doc->store();
@@ -48,15 +50,15 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         }
 
         $this->assertTrue($exception instanceof Opus_Doi_Generator_DoiGeneratorException);
-
     }
 
-    public function testGenerateWithPartialConfig() {
+    public function testGenerateWithPartialConfig()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $doc->store();
 
-        $this->adaptDoiConfiguration(array('prefix' => ''));
+        $this->adaptDoiConfiguration(['prefix' => '']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $exception = null;
@@ -70,61 +72,67 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         $this->assertTrue($exception instanceof Opus_Doi_Generator_DoiGeneratorException);
     }
 
-    public function testGenerateWithPrefixConfig() {
+    public function testGenerateWithPrefixConfig()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $docId = $doc->store();
 
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $doi = $generator->generate($doc);
         $this->assertEquals('12.3456/' . $docId, $doi);
     }
 
-    public function testGenerateWithPrefixConfigAlt() {
+    public function testGenerateWithPrefixConfigAlt()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $docId = $doc->store();
 
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $doi = $generator->generate($doc);
         $this->assertEquals('12.3456/' . $docId, $doi);
     }
 
-    public function testGenerateWithCompleteConfig() {
+    public function testGenerateWithCompleteConfig()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $docId = $doc->store();
 
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $doi = $generator->generate($doc);
         $this->assertEquals('12.3456/opustest-' . $docId, $doi);
     }
 
-    public function testGenerateWithCompleteConfigAlt() {
+    public function testGenerateWithCompleteConfigAlt()
+    {
         // create minimal test document to provide document ID
         $doc = new Opus_Document();
         $docId = $doc->store();
 
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest-'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $doi = $generator->generate($doc);
         $this->assertEquals('12.3456/opustest-' . $docId, $doi);
     }
 
-    public function testIsLocalWithMissingConfig() {
+    public function testIsLocalWithMissingConfig()
+    {
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertFalse($generator->isLocal('doiValue'));
     }
 
-    public function testIsLocalWithPartialConfigNegative() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456'));
+    public function testIsLocalWithPartialConfigNegative()
+    {
+        $this->adaptDoiConfiguration(['prefix' => '12.3456']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertFalse($generator->isLocal('doiValue'));
@@ -132,15 +140,17 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         $this->assertFalse($generator->isLocal('12.3456'));
     }
 
-    public function testIsLocalWithPartialConfigPositive() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456'));
+    public function testIsLocalWithPartialConfigPositive()
+    {
+        $this->adaptDoiConfiguration(['prefix' => '12.3456']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertTrue($generator->isLocal('12.3456/'));
     }
 
-    public function testIsLocalWithPartialAltConfigNegative() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/'));
+    public function testIsLocalWithPartialAltConfigNegative()
+    {
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertFalse($generator->isLocal('doiValue'));
@@ -148,15 +158,17 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         $this->assertFalse($generator->isLocal('12.3456'));
     }
 
-    public function testIsLocalWithPartialAltConfigPositive() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/'));
+    public function testIsLocalWithPartialAltConfigPositive()
+    {
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertTrue($generator->isLocal('12.3456/'));
     }
 
-    public function testIsLocalWithCompleteConfigNegative() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest'));
+    public function testIsLocalWithCompleteConfigNegative()
+    {
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertFalse($generator->isLocal('doiValue'));
@@ -169,7 +181,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
      */
     public function testIsLocalWithEmptyLocalPrefix()
     {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456', 'localPrefix' => ''));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456', 'localPrefix' => '']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
 
@@ -177,7 +189,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
     }
 
     public function testIsLocalWithCompleteConfigPositive() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertTrue($generator->isLocal('12.3456/opustest-'));
@@ -186,7 +198,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
     }
 
     public function testIsLocalWithCompleteAltConfigNegative() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest-'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertFalse($generator->isLocal('doiValue'));
@@ -195,7 +207,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
     }
 
     public function testIsLocalWithCompleteAltConfigPositive() {
-        $this->adaptDoiConfiguration(array('prefix' => '12.3456/', 'localPrefix' => 'opustest-'));
+        $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
         $this->assertTrue($generator->isLocal('12.3456/opustest-'));
@@ -203,8 +215,32 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase {
         $this->assertTrue($generator->isLocal('12.3456/opustest-789'));
     }
 
-    private function adaptDoiConfiguration($doiConfig) {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
+    /**
+     * @expectedException Opus_Doi_Generator_DoiGeneratorException
+     */
+    public function testGetPrefixNoConfiguration()
+    {
+        $generator = new Opus_Doi_Generator_DefaultGenerator();
+
+        $generator->getPrefix();
+    }
+
+    /**
+     * @expectedException Opus_Doi_Generator_DoiGeneratorException
+     */
+    public function testGetPrefixEmptyConfiguration()
+    {
+        $this->adaptDoiConfiguration(['prefix' => ' ', 'localPrefix' => ' ']);
+
+        $generator = new Opus_Doi_Generator_DefaultGenerator();
+
+        $generator->getPrefix();
+    }
+
+    private function adaptDoiConfiguration($doiConfig)
+    {
+        Zend_Registry::set(
+            'Zend_Config', Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]))
+        );
     }
 }

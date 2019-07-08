@@ -28,9 +28,9 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Felix Ostrowski <ostrowski@hbz-nrw.de>
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -47,7 +47,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @var array  Defaults to array().
      */
-    private static $instances = array();
+    private static $instances = [];
 
     /**
      * Delivers the singleton instances.
@@ -56,7 +56,8 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return Opus_Db_TableGateway
      */
-    final public static function getInstance($class) {
+    final public static function getInstance($class)
+    {
         if (!isset(self::$instances[$class])) {
             $object = new $class();
             self::$instances[$class] = $object;
@@ -69,14 +70,16 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return array
      */
-    final public static function getAllInstances() {
+    final public static function getAllInstances()
+    {
         return self::$instances;
     }
 
     /**
      * Clear database instances.
      */
-    final public static function clearInstances() {
+    final public static function clearInstances()
+    {
         self::$instances = array();
     }
 
@@ -84,25 +87,43 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * Insert given array into table and ignore duplicate entries.  (Silently
      * skipping insert, if unique constraint has been violated.)
      *
+     * If an update occurs instead of an insert the lastInserId() function normally does not return the ID of the
+     * modified row.
+     *
      * @param array $data
      * @return void
      */
-    public function insertIgnoreDuplicate($data) {
+    public function insertIgnoreDuplicate($data)
+    {
         $adapter = $this->getAdapter();
 
-        $q_keys = array();
-        $q_values = array();
+        $q_keys = [];
+        $q_values = [];
+        $update = '';
+
         foreach ($data AS $key => $value) {
-            $q_keys[] = $adapter->quoteIdentifier($key);
+            $quotedKey = $adapter->quoteIdentifier($key);
+            $q_keys[] = $quotedKey;
             $q_values[] = $adapter->quote($value);
+            $update .= " $quotedKey=VALUES($quotedKey),";
         }
 
+        // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
+        $primaryKey = $this->_primary;
+
+        if (!is_null($primaryKey) and !is_array($primaryKey)) {
+            // no support for composite keys
+            $update .= " $primaryKey=LAST_INSERT_ID($primaryKey)";
+        } else {
+            $update = rtrim($update, ',');
+        }
 
         $insert = 'INSERT INTO ' . $adapter->quoteTableAs($this->_name) .
                 ' (' . implode(', ', $q_keys) . ') ' .
-                ' VALUES (' . implode(', ', $q_values) . ') ON DUPLICATE KEY UPDATE role_id = role_id';
+                ' VALUES (' . implode(', ', $q_values) . ") ON DUPLICATE KEY UPDATE $update";
 
         $adapter->query($insert);
+
         return;
     }
 
@@ -113,10 +134,12 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      * @param array $data
      * @return void
      */
-    public function deleteWhereArray($data) {
+    public function deleteWhereArray($data)
+    {
         $adapter = $this->getAdapter();
 
-        $q_clauses = array();
+        $q_clauses = [];
+
         foreach ($data AS $key => $value) {
             $q_key = $adapter->quoteIdentifier($key);
             $q_value = $adapter->quote($value);
@@ -143,7 +166,8 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return void
      */
-    final private function __clone() {
+    final private function __clone()
+    {
     }
 
     /**
@@ -151,6 +175,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      *
      * @return void
      */
-    final private function __sleep() {
+    final private function __sleep()
+    {
     }
 }

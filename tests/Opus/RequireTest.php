@@ -117,6 +117,8 @@ class Opus_RequireTest extends TestCase {
             'Opus_Search_Result_Facet',
             'Opus_Search_Result_Match',
             'Opus_Search_Filter_Simple',
+            'Opus_Translate_DatabaseAdapter',
+            'Opus_Translate_DefaultAdapter',
             'Opus_Doi_DataCiteXmlGenerationException'
         ];
 

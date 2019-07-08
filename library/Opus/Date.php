@@ -53,6 +53,7 @@
  *
  *
  * TODO remove Field objects
+ * TODO extend Opus_Date with functions to provide string appropriate for Locale
  *
  * @method void setYear(integer $year)
  * @method integer getYear()
