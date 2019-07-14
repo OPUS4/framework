@@ -41,6 +41,13 @@
  *
  * @method void setName(string $string)
  * @method string getName()
+ *
+ * @method void setType(string $type)
+ * @method string getType()
+ *
+ * @method void setOptions(string $options)
+ * @method string getOptions()
+ *
  */
 class Opus_EnrichmentKey extends Opus_Model_AbstractDb
 {
@@ -62,8 +69,9 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     /**
      * Retrieve all Opus_EnrichmentKeys instances from the database. If $reload
      * is set to false, we reuse the list of all enrichment keys if we previously
-     * loaded it from the databse.
+     * loaded it from the database.
      *
+     * @param bool $reload if true, reload enrichment keys from database
      * @return array Array of Opus_EnrichmentKeys objects.
      */
     public static function getAll($reload = true)
@@ -79,6 +87,8 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     /**
      * Initialize model with the following fields:
      * - Name
+     * - Type
+     * - Options
      *
      * @return void
      */
@@ -94,7 +104,6 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
 
         $field = new Opus_Model_Field('Options');
         $this->addField($field);
-
     }
 
     /**
@@ -128,11 +137,12 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getName();
+        return $this->getName();
     }
 
     /**
-     * Retrieve all Opus_EnrichmentKeys referenced by document from the database.
+     * Retrieve all Opus_EnrichmentKeys which are referenced by at 
+     * least one document from the database.
      *
      * @return array Array of Opus_EnrichmentKeys objects.
      */
@@ -140,7 +150,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
         $db = $table->getAdapter();
-        $select = $db->select()->from(array('document_enrichments'));
+        $select = $db->select()->from('document_enrichments');
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
         return $db->fetchCol($select);
@@ -186,5 +196,39 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         }
         $typeObj->setOptions($this->getOptions());
         return $typeObj;
+    }
+
+    /**
+     * Ändert den Namen des vorliegenden EnrichmentKey in allen Dokumenten, die
+     * Enrichments mit diesem Namen verwenden.
+     *
+     * Achtung: diese Methode ändert *nicht* den Namen des EnrichmentKeys in der
+     * Tabelle enrichmentkeys.
+     *
+     * @param string $newName neuer Name des EnrichmentKey
+     */
+    public function rename($newName)
+    {
+        $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
+        $db = $table->getAdapter();
+        $renameEnrichmentKeyQuery = ' UPDATE document_enrichments '
+            . ' SET key_name = ?'
+            . ' WHERE key_name = ?;';
+        $db->query($renameEnrichmentKeyQuery, [$newName, $this->getName()]);
+    }
+
+    /**
+     * Löscht alle Enrichments aus den Dokumenten, die den Namen des vorliegenden
+     * EnrichmentKey verwenden.
+     *
+     * Achtung: diese Methode löscht *nicht* den EnrichmentKey aus der Tabelle
+     * enrichmentkeys.
+     */
+    public function deleteFromDocuments()
+    {
+        $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
+        $db = $table->getAdapter();
+        $deleteEnrichmentKeyQuery = ' DELETE FROM document_enrichments WHERE key_name = ?;';
+        $db->query($deleteEnrichmentKeyQuery, $this->getName());
     }
 }

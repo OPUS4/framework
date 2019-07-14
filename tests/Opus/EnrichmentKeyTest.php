@@ -130,11 +130,14 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
 
+    /**
+     * Bereits in Verwendung befindliche EnrichmentKeys dürfen trotzdem gelöscht werden.
+     */
     public function testDeleteReferencedEnrichmentKey()
     {
         $this->setExpectedException('Opus_Model_Exception');
         $this->referencedEnrichmentKey->delete();
-        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));;
+        $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));;
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
 
@@ -160,9 +163,11 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->assertEquals('baz', $this->unreferencedEnrichmentKey->getName());
     }
 
+    /**
+     * Der Name eines bereits in Verwendung befindlichen EnrichmentKeys darf geändert werden.
+     */
     public function testUpdateReferencedEnrichmentKey() {
         $this->referencedEnrichmentKey->setName('baz');
-        $this->setExpectedException('Opus_Model_Exception');
         $this->referencedEnrichmentKey->store();
     }
 
@@ -245,5 +250,26 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->assertEquals('mykey', $key->getName());
         $this->assertEquals('mytype', $key->getType());
         $this->assertEquals('myoptions', $key->getOptions());
+    }
+
+    public function testRenameEnrichmentKey()
+    {
+        $this->referencedEnrichmentKey->rename('baz');
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $this->assertCount(1, $enrichments);
+        $this->assertEquals('baz', $enrichments[0]->getKeyName());
+
+        $this->assertNull($doc->getEnrichmentValue('bar'));
+        $this->assertEquals('value', $doc->getEnrichmentValue('baz'));
+    }
+
+    public function testDeleteFromDocuments()
+    {
+        $this->referencedEnrichmentKey->deleteFromDocuments();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $this->assertEmpty($doc->getEnrichment());
     }
 }
