@@ -97,7 +97,7 @@
  * @method boolean getHideEmptyCollections()
  *
  * @method void setLanguage(string $language)
- * @method string getLanguage() 
+ * @method string getLanguage()
  */
 class Opus_CollectionRole extends Opus_Model_AbstractDb
 {
