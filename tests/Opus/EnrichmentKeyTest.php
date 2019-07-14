@@ -135,7 +135,6 @@ class Opus_EnrichmentKeyTest extends TestCase
      */
     public function testDeleteReferencedEnrichmentKey()
     {
-        $this->setExpectedException('Opus_Model_Exception');
         $this->referencedEnrichmentKey->delete();
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));;
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
