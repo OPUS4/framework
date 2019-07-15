@@ -85,7 +85,7 @@ class Opus_Translate_Dao
      * @param $key
      * @param $translation
      */
-    public function setTranslation($key, $translation, $module = null)
+    public function setTranslation($key, $translation, $module = 'default')
     {
         if (is_null($translation)) {
             return $this->remove($key, $module);
@@ -218,8 +218,6 @@ class Opus_Translate_Dao
 
         if (!is_null($module)) {
             $select->where('keys.module = ?', $module);
-        } else {
-            $select->where('keys.module = \'\''); // TODO 'null' not working - Why?
         }
 
         $rows = $table->getAdapter()->fetchAll($select);
@@ -241,7 +239,7 @@ class Opus_Translate_Dao
      * Adds translations to the database.
      * @param $translations
      */
-    public function addTranslations($translations, $module = null)
+    public function addTranslations($translations, $module = 'default')
     {
         $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
 
@@ -284,7 +282,7 @@ class Opus_Translate_Dao
      *
      * @throws Opus_Translate_Exception
      */
-    public function renameKey($key, $newKey, $module = null)
+    public function renameKey($key, $newKey, $module = 'default')
     {
         $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
 
