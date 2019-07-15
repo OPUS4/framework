@@ -376,7 +376,7 @@ class Opus_Translate_DaoTest extends TestCase
             'en' => 'Module'
         ];
 
-        $dao->setTranslation('modulekey', $dataModule);
+        $dao->setTranslation('modulekey', $dataModule, 'admin');
 
         $all = $dao->getTranslationsByLocale();
 
