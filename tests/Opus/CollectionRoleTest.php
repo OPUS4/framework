@@ -202,6 +202,7 @@ class Opus_CollectionRoleTest extends TestCase
         $role->setAssignRoot(1);
         $role->setAssignLeavesOnly(0);
         $role->setHideEmptyCollections(1);
+        $role->setLanguage('en');
     }
 
     /**
@@ -231,7 +232,8 @@ class Opus_CollectionRoleTest extends TestCase
             'AssignRoot' => 1,
             'AssignLeavesOnly' => 0,
             'RootCollection' => null,
-            'HideEmptyCollections' => 1
+            'HideEmptyCollections' => 1,
+            'Language' => 'en'
         ], $data);
     }
 
@@ -265,7 +267,8 @@ class Opus_CollectionRoleTest extends TestCase
             'AssignRoot' => '1',
             'AssignLeavesOnly' => '0',
             'RootCollection' => [],
-            'HideEmptyCollections' => 1
+            'HideEmptyCollections' => 1,
+            'Language' => 'en'
         ], $data);
     }
 
@@ -291,7 +294,7 @@ class Opus_CollectionRoleTest extends TestCase
         $root->store();
 
         // FIXME: We have to reload model to get correct results!
-        $role = new Opus_CollectionRole( $role->getId() );
+        $role = new Opus_CollectionRole($role->getId());
 
         $data = $role->toArray();
 
@@ -313,7 +316,8 @@ class Opus_CollectionRoleTest extends TestCase
                 ['Id' => $col->getId(),'Name' => $col->getName()],
                 ['Id' => $col2->getId(),'Name' => $col2->getName()],
             ],
-            'HideEmptyCollections' => 1
+            'HideEmptyCollections' => 1,
+            'Language' => 'en'
         ], $data);
     }
 

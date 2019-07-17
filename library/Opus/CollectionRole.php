@@ -95,7 +95,9 @@
  *
  * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
  * @method boolean getHideEmptyCollections()
- * 
+ *
+ * @method void setLanguage(string $language)
+ * @method string getLanguage()
  */
 class Opus_CollectionRole extends Opus_Model_AbstractDb
 {
@@ -198,6 +200,9 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $hideEmptyCollections = new Opus_Model_Field('HideEmptyCollections');
         $hideEmptyCollections->setCheckbox(true);
         $this->addField($hideEmptyCollections);
+
+        $language = new Opus_Model_Field('Language');
+        $this->addField($language);
     }
 
     /**
