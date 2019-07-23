@@ -355,6 +355,7 @@ class Opus_DateTest extends TestCase {
             '2011-12-12T23:59:59+0000'  => 'Z',
             '2011-12-12T23:59:59+00:00' => 'Z',
             '2011-12-12T23:59:59EST'    => '-05:00',
+            '2011-12-12T23:59:59+02:00' => '+02:00'
         );
         foreach ($timeZoneStrings AS $timeString => $timeZone) {
             $date = new Opus_Date($timeString);
