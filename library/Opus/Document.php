@@ -1453,7 +1453,8 @@ class Opus_Document extends Opus_Model_AbstractDb
         $embargoDate->setHour(23);
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
-        $embargoDate->setTimezone('Z');
+        $embargoDate->setTimezone($now->getTimezone());
+
         return ($embargoDate->compare($now) == -1);
     }
 
