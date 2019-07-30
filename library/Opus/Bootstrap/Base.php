@@ -28,7 +28,7 @@
  * @package     Opus_Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -101,6 +101,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
      * @return void
      *
      * TODO put into configuration file (custom DB adapter)
+     * TODO this make configuration modifiable (as a side effect)
      */
     protected function _initDatabase()
     {
@@ -164,6 +165,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
                 throw new Exception('Database schema is too old. Please update database.');
             }
         }
+
+        return $db;
     }
 
     /**
