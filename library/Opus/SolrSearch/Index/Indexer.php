@@ -262,7 +262,10 @@ class Opus_SolrSearch_Index_Indexer {
         $modelXml = $caching_xml_model->getDomDocument();
 
         // extract fulltext from file and append it to the generated xml.
-        $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
+        if (isset($config->search->indexFiles)
+            && filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+            $this->attachFulltextToXml($modelXml, $doc->getFile(), $doc->getId());
+        }
 
         // Set up XSLT stylesheet
         $xslt = new DomDocument;
