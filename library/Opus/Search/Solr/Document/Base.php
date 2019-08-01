@@ -54,8 +54,13 @@ abstract class Opus_Search_Solr_Document_Base {
 
 		$modelXml = $caching_xml_model->getDomDocument();
 
+		$config = Opus_Config::get();
+
 		// extract fulltext from file and append it to the generated xml.
-		$this->attachFulltextToXml( $modelXml, $opusDoc->getFile(), $opusDoc->getId() );
+        if (isset($config->search->indexFiles)
+            && filter_var($config->search->indexFiles, FILTER_VALIDATE_BOOLEAN)) {
+            $this->attachFulltextToXml($modelXml, $opusDoc->getFile(), $opusDoc->getId());
+        }
 
 		return $modelXml;
 	}
