@@ -36,4 +36,5 @@ script:
   - cd ../../../../
   - ./bin/solr restart
   - cd ..
+  - composer cs-check
   - ./vendor/bin/phpunit --configuration ./tests/phpunit.xml
