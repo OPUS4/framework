@@ -31,17 +31,19 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_RegistrationException extends Opus_Doi_DoiException {
+class Opus_Doi_RegistrationException extends Opus_Doi_DoiException
+{
 
     // DOI, die registriert bzw. geprüft werden sollte und die zum Fehler beim Aufruf der DataCite-API führte
     private $doi;
 
-    public function getDoi() {
+    public function getDoi()
+    {
         return $this->doi;
     }
 
-    public function setDoi($doi) {
+    public function setDoi($doi)
+    {
         $this->doi = $doi;
     }
-
 }

@@ -21,8 +21,8 @@
  * OPUS is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details. You should have received a copy of the GNU General Public License 
- * along with OPUS; if not, write to the Free Software Foundation, Inc., 51 
+ * details. You should have received a copy of the GNU General Public License
+ * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * @category    Framework
@@ -43,9 +43,11 @@
  * @see http://en.wikipedia.org/wiki/UUID
  * @return string A UUID, made up of 32 hex digits and 4 hyphens.
  */
-class Opus_Identifier_UUID {
+class Opus_Identifier_UUID
+{
 
-    public static function generate() {
+    public static function generate()
+    {
         $urand = @fopen('/dev/urandom', 'rb');
         $prBits = false;
         if (is_resource($urand)) {
@@ -56,8 +58,7 @@ class Opus_Identifier_UUID {
             if ($fp !== false) {
                 $prBits .= @fread($fp, 16);
                 @fclose($fp);
-            }
-            else {
+            } else {
                 // If /dev/urandom isn't available (eg: in non-unix systems), use mt_rand().
                 $prBits = "";
                 for ($cnt = 0; $cnt < 16; $cnt ++) {
@@ -90,8 +91,12 @@ class Opus_Identifier_UUID {
         $clockSeqHiAndReserved = $clockSeqHiAndReserved | 0x8000;
 
         return sprintf(
-            '%08s-%04s-%04x-%04x-%012s', $timeLow, $timeMid, $timeHiAndVersion, $clockSeqHiAndReserved, $node
+            '%08s-%04s-%04x-%04x-%012s',
+            $timeLow,
+            $timeMid,
+            $timeHiAndVersion,
+            $clockSeqHiAndReserved,
+            $node
         );
     }
-
 }

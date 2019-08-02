@@ -38,17 +38,19 @@
  * @package     Opus
  * @uses        Opus_Model_Abstract
  */
-class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
+class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract
+{
 
     private $_logger;
 
     /**
      * Post-store hook will be called right after the document has been stored
      * to the database.
-     * 
+     *
      * @see {Opus_Model_Plugin_Interface::postStore}
      */
-    public function postStore(Opus_Model_AbstractDb $model) {
+    public function postStore(Opus_Model_AbstractDb $model)
+    {
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
             $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');
@@ -62,7 +64,7 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
 
         $config = Zend_Registry::get('Zend_Config');
 
-        if (!is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
+        if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access
@@ -83,17 +85,17 @@ class Opus_File_Plugin_DefaultAccess extends Opus_Model_Plugin_Abstract {
         }
     }
 
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         $this->_logger = $logger;
     }
 
-    public function getLogger() {
+    public function getLogger()
+    {
         if (is_null($this->_logger)) {
             $this->_logger = Zend_Registry::get('Zend_Log');
         }
 
         return $this->_logger;
     }
-
 }
-

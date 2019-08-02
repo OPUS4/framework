@@ -36,7 +36,8 @@
 /**
  * Thrown if a file is not found.
  */
-class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception {
+class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception
+{
 
     /**
      * Filename that was not found.
@@ -48,11 +49,11 @@ class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception {
      * Constructs exception for file not found.
      * @param string $filename Name of file not found
      */
-    public function __construct($filename = null, $message = null) {
-        if (!empty($message)) {
+    public function __construct($filename = null, $message = null)
+    {
+        if (! empty($message)) {
             parent::__construct($message);
-        }
-        else {
+        } else {
             parent::__construct('File ' . $filename . ' does not exist!');
         }
         $this->filename = $filename;
@@ -62,9 +63,8 @@ class Opus_Storage_FileNotFoundException extends Opus_Storage_Exception {
      * Getter for filename property.
      * @return string Name of file that was not found
      */
-    public function getFilename() {
+    public function getFilename()
+    {
         return $this->filename;
     }
-
 }
-

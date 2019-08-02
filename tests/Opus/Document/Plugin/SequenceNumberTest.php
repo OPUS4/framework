@@ -71,8 +71,11 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
-        $this->assertEquals(0, count($identifiers),
-                'List of identifiers should be empty.');
+        $this->assertEquals(
+            0,
+            count($identifiers),
+            'List of identifiers should be empty.'
+        );
     }
 
     public function testDontGenerateIdOnUnpublishedDocument()
@@ -80,15 +83,21 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $model = new Opus_Document();
         $model->setServerState('unpublished');
 
-        $this->assertEquals(0, count($model->getIdentifier()),
-                'List of identifiers should be empty *before* test.');
+        $this->assertEquals(
+            0,
+            count($model->getIdentifier()),
+            'List of identifiers should be empty *before* test.'
+        );
 
         $plugin = new Opus_Document_Plugin_SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
-        $this->assertEquals(0, count($identifiers),
-                'List of identifiers should be empty.');
+        $this->assertEquals(
+            0,
+            count($identifiers),
+            'List of identifiers should be empty.'
+        );
     }
 
     public function testGenerateIdOnPublishedDocument()
@@ -96,19 +105,30 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $model = new Opus_Document();
         $model->setServerState('published');
 
-        $this->assertEquals(0, count($model->getIdentifier()),
-                'List of identifiers should be empty *before* test.');
+        $this->assertEquals(
+            0,
+            count($model->getIdentifier()),
+            'List of identifiers should be empty *before* test.'
+        );
 
         $plugin = new Opus_Document_Plugin_SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
-        $this->assertEquals(1, count($identifiers),
-                'List of identifiers should contain new identifier.');
-        $this->assertEquals('serial', $identifiers[0]->getType(),
-                'The one-and-only identifiers should be of type "serial".');
-        $this->assertTrue($identifiers[0]->getValue() > 0,
-                'The one-and-only identifiers should be bigger zero.');
+        $this->assertEquals(
+            1,
+            count($identifiers),
+            'List of identifiers should contain new identifier.'
+        );
+        $this->assertEquals(
+            'serial',
+            $identifiers[0]->getType(),
+            'The one-and-only identifiers should be of type "serial".'
+        );
+        $this->assertTrue(
+            $identifiers[0]->getValue() > 0,
+            'The one-and-only identifiers should be bigger zero.'
+        );
     }
 
     public function testGenerateIdOnlyOnceOnPublishedDocument()
@@ -116,8 +136,11 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $model = new Opus_Document();
         $model->setServerState('published');
 
-        $this->assertEquals(0, count($model->getIdentifier()),
-                'List of identifiers should be empty *before* test.');
+        $this->assertEquals(
+            0,
+            count($model->getIdentifier()),
+            'List of identifiers should be empty *before* test.'
+        );
 
         $plugin = new Opus_Document_Plugin_SequenceNumber();
 
@@ -130,10 +153,16 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
-        $this->assertEquals(1, count($identifiers),
-                'List of identifiers should contain only one new identifier.');
-        $this->assertEquals($id_first_run, $identifiers[0]->getValue(),
-                'The one-and-only identifiers should not change.');
+        $this->assertEquals(
+            1,
+            count($identifiers),
+            'List of identifiers should contain only one new identifier.'
+        );
+        $this->assertEquals(
+            $id_first_run,
+            $identifiers[0]->getValue(),
+            'The one-and-only identifiers should not change.'
+        );
     }
 
     public function testGenerateIdOnPublishedDocumentWithExistingSequence()
@@ -148,17 +177,26 @@ class Opus_Document_Plugin_SequenceNumberTest extends TestCase
         $model = new Opus_Document();
         $model->setServerState('published');
 
-        $this->assertEquals(0, count($model->getIdentifier()),
-                'List of identifiers should be empty *before* test.');
+        $this->assertEquals(
+            0,
+            count($model->getIdentifier()),
+            'List of identifiers should be empty *before* test.'
+        );
 
         $plugin = new Opus_Document_Plugin_SequenceNumber();
         $plugin->postStoreInternal($model);
 
         $identifiers = $model->getIdentifier();
-        $this->assertEquals(1, count($identifiers),
-                'List of identifiers should contain new identifier.');
-        $this->assertEquals('serial', $identifiers[0]->getType(),
-                'The one-and-only identifier should be of type "serial".');
+        $this->assertEquals(
+            1,
+            count($identifiers),
+            'List of identifiers should contain new identifier.'
+        );
+        $this->assertEquals(
+            'serial',
+            $identifiers[0]->getType(),
+            'The one-and-only identifier should be of type "serial".'
+        );
         $this->assertEquals(11, $identifiers[0]->getValue());
 
         $existing_model->deletePermanent();

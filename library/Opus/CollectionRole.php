@@ -293,7 +293,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $range = $db->quoteInto("position >= ?", $to);
         $posShift = ' + 1 ';
 
-        if (!$this->isNewRecord()) {
+        if (! $this->isNewRecord()) {
             $posQuery = 'SELECT position FROM collections_roles WHERE id = ?';
             $pos = $db->fetchOne($posQuery, $this->getId());
 
@@ -438,7 +438,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         //   $class   = get_called_class();
         // FIXME: Add Model_AbstractDb::createObjects(...) when using PHP 5.3
 
-        foreach ($array AS $element) {
+        foreach ($array as $element) {
             $c = new Opus_CollectionRole($element);
             $results[] = $c;
         }
@@ -676,7 +676,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $root = $collections->getRootNode($this->getId());
 
-        if (!isset($root)) {
+        if (! isset($root)) {
             return;
         }
 
@@ -692,7 +692,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      */
     public function _storeRootCollection($collection)
     {
-        if (!isset($collection)) {
+        if (! isset($collection)) {
             return;
         }
 
@@ -720,7 +720,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             $collection = parent::addRootCollection();
         }
 
-        if ($collection->isNewRecord() and !$this->isNewRecord()) {
+        if ($collection->isNewRecord() and ! $this->isNewRecord()) {
             $collection->setPositionKey('Root');
             $collection->setRoleId($this->getId());
         }

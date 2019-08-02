@@ -44,8 +44,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
         $exception = null;
         try {
             $generator->generate($doc);
-        }
-        catch (Opus_Doi_Generator_DoiGeneratorException $e) {
+        } catch (Opus_Doi_Generator_DoiGeneratorException $e) {
             $exception = $e;
         }
 
@@ -64,8 +63,7 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
         $exception = null;
         try {
             $generator->generate($doc);
-        }
-        catch (Opus_Doi_Generator_DoiGeneratorException $e) {
+        } catch (Opus_Doi_Generator_DoiGeneratorException $e) {
             $exception = $e;
         }
 
@@ -188,7 +186,8 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
         $this->assertTrue($generator->isLocal('12.3456/104'));
     }
 
-    public function testIsLocalWithCompleteConfigPositive() {
+    public function testIsLocalWithCompleteConfigPositive()
+    {
         $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
@@ -197,7 +196,8 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
         $this->assertTrue($generator->isLocal('12.3456/opustest-789'));
     }
 
-    public function testIsLocalWithCompleteAltConfigNegative() {
+    public function testIsLocalWithCompleteAltConfigNegative()
+    {
         $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
@@ -206,7 +206,8 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
         $this->assertFalse($generator->isLocal('12.3456/opustest'));
     }
 
-    public function testIsLocalWithCompleteAltConfigPositive() {
+    public function testIsLocalWithCompleteAltConfigPositive()
+    {
         $this->adaptDoiConfiguration(['prefix' => '12.3456/', 'localPrefix' => 'opustest-']);
 
         $generator = new Opus_Doi_Generator_DefaultGenerator();
@@ -240,7 +241,8 @@ class Opus_Doi_Generator_DefaultGeneratorTest extends TestCase
     private function adaptDoiConfiguration($doiConfig)
     {
         Zend_Registry::set(
-            'Zend_Config', Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]))
+            'Zend_Config',
+            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]))
         );
     }
 }

@@ -43,28 +43,29 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_Realm implements Opus_Security_IRealm {
+class Opus_Security_Realm implements Opus_Security_IRealm
+{
 
     /**
      * The current user roles (merged userRoles and ipaddressRoles).
      *
      * @var array
      */
-    protected $_roles = array('guest');
+    protected $_roles = ['guest'];
 
     /**
      * The current user roles (based on the user name).
      *
      * @var array
      */
-    protected $_userRoles = array();
+    protected $_userRoles = [];
 
     /**
      * Thre current ip address
      *
      * @var string
      */
-    protected $_ipaddressRoles = array();
+    protected $_ipaddressRoles = [];
 
     /**
      * Set the current username.
@@ -73,9 +74,10 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return Opus_Security_Realm Fluent interface.
      */
-    public function setUser($username) {
+    public function setUser($username)
+    {
         // reset "old" credentials
-        $this->_userRoles = array();
+        $this->_userRoles = [];
         $this->_setRoles();
 
         $this->_userRoles = self::_getUsernameRoles($username);
@@ -90,9 +92,10 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @throws Opus_Security_Exception Thrown if the supplied ip address is not a valid ip address.
      * @return Opus_Security_Realm Fluent interface.
      */
-    public function setIp($ipaddress) {
+    public function setIp($ipaddress)
+    {
         // reset "old" credentials
-        $this->_ipaddressRoles = array();
+        $this->_ipaddressRoles = [];
         $this->_setRoles();
 
         $this->_ipaddressRoles = self::_getIpaddressRoles($ipaddress);
@@ -106,14 +109,15 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return Opus_Security_Realm Fluent interface.
      */
-    private function _setRoles() {
+    private function _setRoles()
+    {
         $this->_roles = array_merge($this->_userRoles, $this->_ipaddressRoles);
         $this->_roles[] = 'guest';
 
         $this->_roles = array_unique($this->_roles);
         return $this;
     }
-    
+
     /**
      * Get the roles that are assigned to the specified username.
      *
@@ -121,9 +125,10 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @throws Opus_Security_Exception Thrown if the supplied identity could not be found.
      * @return array Array of assigned roles or an empty array.
      */
-    private static function _getUsernameRoles($username) {
+    private static function _getUsernameRoles($username)
+    {
         if (true === is_null($username) || true === empty($username)) {
-            return array();
+            return [];
         }
 
         $accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
@@ -131,7 +136,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         if (null === $account) {
             $logger = Zend_Registry::get('Zend_Log');
             $message = "An user with the given name: $username could not be found.";
-            if (!is_null($logger)) {
+            if (! is_null($logger)) {
                 $logger->err($message);
             }
             throw new Opus_Security_Exception($message);
@@ -139,10 +144,10 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $roles = $db->fetchCol(
-                                $db->select()
-                                ->from(array('r' => 'user_roles'), array('r.name'))
-                                ->join(array('l' => 'link_accounts_roles'), 'l.role_id = r.id', '')
-                                ->join(array('a' => 'accounts'), 'l.account_id = a.id', '')
+            $db->select()
+                                ->from(['r' => 'user_roles'], ['r.name'])
+                                ->join(['l' => 'link_accounts_roles'], 'l.role_id = r.id', '')
+                                ->join(['a' => 'accounts'], 'l.account_id = a.id', '')
                                 ->where('login = ?', $username)
                                 ->distinct()
         );
@@ -157,21 +162,22 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @throws Opus_Security_Exception Thrown if the supplied ip is not valid.
      * @return array Array of assigned roles or an empty array.
      */
-    private static function _getIpaddressRoles($ipaddress) {
+    private static function _getIpaddressRoles($ipaddress)
+    {
         if (true === is_null($ipaddress) || true === empty($ipaddress)) {
-            return array();
+            return [];
         }
 
-        if (!self::validateIpAddress($ipaddress)) {
+        if (! self::validateIpAddress($ipaddress)) {
             throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $roles = $db->fetchCol(
-                                $db->select()
-                                ->from(array('r' => 'user_roles'), array('r.name'))
-                                ->join(array('l' => 'link_ipranges_roles'), 'l.role_id = r.id', '')
-                                ->join(array('i' => 'ipranges'), 'l.iprange_id = i.id', '')
+            $db->select()
+                                ->from(['r' => 'user_roles'], ['r.name'])
+                                ->join(['l' => 'link_ipranges_roles'], 'l.role_id = r.id', '')
+                                ->join(['i' => 'ipranges'], 'l.iprange_id = i.id', '')
                                 ->where('i.startingip <= ?', sprintf("%u", ip2long($ipaddress)))
                                 ->where('i.endingip >= ?', sprintf("%u", ip2long($ipaddress)))
                                 ->distinct()
@@ -183,8 +189,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
     /**
      * Returns all module resources to which the current user and ip address
      * has access.
-     * 
-     * @param $username     name of the account to get resources for. 
+     *
+     * @param $username     name of the account to get resources for.
      *                      Defaults to currently logged in user
      * @param $ipaddress    IP address to get resources for.
      *                      Defaults to current remote address if available.
@@ -192,10 +198,11 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *                      user can not be determined
      * @return array        array of module resource names
      */
-    
-    public static function getAllowedModuleResources($username = null, $ipaddress = null) {
-        $resources = array();
-        if (!is_null($ipaddress) && !self::validateIpAddress($ipaddress)) {
+
+    public static function getAllowedModuleResources($username = null, $ipaddress = null)
+    {
+        $resources = [];
+        if (! is_null($ipaddress) && ! self::validateIpAddress($ipaddress)) {
             throw new Opus_Security_Exception('Your IP address could not be validated.');
         }
 
@@ -204,17 +211,17 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         } else {
             $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
             $select = $db->select();
-            $select->from(array('am' => 'access_modules'), array('am.module_name'))
-                    ->joinLeft(array('r' => 'user_roles'), 'r.id = am.role_id')
+            $select->from(['am' => 'access_modules'], ['am.module_name'])
+                    ->joinLeft(['r' => 'user_roles'], 'r.id = am.role_id')
                     ->distinct();
-            if (!is_null($username)) {
-                $select->joinLeft(array('la' => 'link_accounts_roles'), 'la.role_id = r.id', '')
-                        ->joinLeft(array('a' => 'accounts'), 'la.account_id = a.id', '')
+            if (! is_null($username)) {
+                $select->joinLeft(['la' => 'link_accounts_roles'], 'la.role_id = r.id', '')
+                        ->joinLeft(['a' => 'accounts'], 'la.account_id = a.id', '')
                         ->where('login = ?', $username);
             }
-            if (!is_null($ipaddress)) {
-                $select->joinLeft(array('li' => 'link_ipranges_roles'), 'li.role_id = r.id', '')
-                        ->joinLeft(array('i' => 'ipranges'), 'li.iprange_id = i.id', '');
+            if (! is_null($ipaddress)) {
+                $select->joinLeft(['li' => 'link_ipranges_roles'], 'li.role_id = r.id', '')
+                        ->joinLeft(['i' => 'ipranges'], 'li.iprange_id = i.id', '');
                 $select->orWhere('i.startingip <= ? AND i.endingip >= ?', sprintf("%u", ip2long($ipaddress)), sprintf("%u", ip2long($ipaddress)));
             }
             $resources = $db->fetchCol($select);
@@ -224,11 +231,12 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
 
     /**
      * checks if the string provided is a valid ip address
-     * 
+     *
      * @param string ipaddress ip address to validate.
      * @return boolean Returns true if validation succeeded
      */
-    private static function validateIpAddress($ipaddress) {
+    private static function validateIpAddress($ipaddress)
+    {
         $regex = '/^(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
                 . '(25[0-5]|2[0-4][0-9]|[01]?[0-9]?[0-9])\.'
@@ -242,7 +250,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @param string $document_id ID of the document to check
      * @return boolean  Returns true only if access is granted.
      */
-    public function checkDocument($document_id = null) {
+    public function checkDocument($document_id = null)
+    {
         if ($this->skipSecurityChecks()) {
             return true;
         }
@@ -253,9 +262,9 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $results = $db->fetchAll(
-                                $db->select()
-                                ->from(array('ad' => 'access_documents'), array('document_id'))
-                                ->join(array('r' => 'user_roles'), 'ad.role_id = r.id', '')
+            $db->select()
+                                ->from(['ad' => 'access_documents'], ['document_id'])
+                                ->join(['r' => 'user_roles'], 'ad.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('ad.document_id = ?', $document_id)
         );
@@ -268,7 +277,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @param string $file_id ID of the file to check
      * @return boolean  Returns true only if access is granted.
      */
-    public function checkFile($file_id = null) {
+    public function checkFile($file_id = null)
+    {
         if ($this->skipSecurityChecks()) {
             return true;
         }
@@ -279,9 +289,9 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $results = $db->fetchAll(
-                                $db->select()
-                                ->from(array('af' => 'access_files'), array('file_id'))
-                                ->join(array('r' => 'user_roles'), 'af.role_id = r.id', '')
+            $db->select()
+                                ->from(['af' => 'access_files'], ['file_id'])
+                                ->join(['r' => 'user_roles'], 'af.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('af.file_id = ?', $file_id)
         );
@@ -294,7 +304,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * @param string $module_name Name of the module to check
      * @return boolean  Returns true only if access is granted.
      */
-    public function checkModule($module_name = null) {
+    public function checkModule($module_name = null)
+    {
         if ($this->skipSecurityChecks()) {
             return true;
         }
@@ -305,9 +316,9 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
 
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $results = $db->fetchAll(
-                                $db->select()
-                                ->from(array('am' => 'access_modules'), array('module_name'))
-                                ->join(array('r' => 'user_roles'), 'am.role_id = r.id', '')
+            $db->select()
+                                ->from(['am' => 'access_modules'], ['module_name'])
+                                ->join(['r' => 'user_roles'], 'am.role_id = r.id', '')
                                 ->where('r.name IN (?)', $this->_roles)
                                 ->where('am.module_name = ?', $module_name)
         );
@@ -326,8 +337,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
         $db = Opus_Db_TableGateway::getInstance('Opus_Db_UserRoles')->getAdapter();
         $results = $db->fetchAll(
             $db->select()
-                ->from(array('am' => 'access_modules'), array('module_name'))
-                ->join(array('r' => 'user_roles'), 'am.role_id = r.id', '')
+                ->from(['am' => 'access_modules'], ['module_name'])
+                ->join(['r' => 'user_roles'], 'am.role_id = r.id', '')
                 ->where('r.name IN (?)', $roles)
                 ->where('am.module_name = ?', $module_name)
         );
@@ -339,7 +350,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return boolean
      */
-    public function skipSecurityChecks() {
+    public function skipSecurityChecks()
+    {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
         if (isset($conf) and $conf->security === '0') {
@@ -357,7 +369,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * Returns the names of the roles for current user and ip address range.
      * @return array of strings - Names of roles
      */
-    public function getRoles() {
+    public function getRoles()
+    {
         return $this->_roles;
     }
 
@@ -367,7 +380,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @deprecated
      */
-    public function check($privilege, $documentServerState = null, $fileId = null) {
+    public function check($privilege, $documentServerState = null, $fileId = null)
+    {
         return $this->skipSecurityChecks();
     }
 
@@ -387,7 +401,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return Opus_Security_Realm
      */
-    final public static function getInstance() {
+    final public static function getInstance()
+    {
         if (null === self::$instance) {
             $class = get_called_class();
             self::$instance = new $class;
@@ -399,7 +414,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      * Disallow construction.
      *
      */
-    final private function __construct() {
+    final private function __construct()
+    {
     }
 
     /**
@@ -407,7 +423,8 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return void
      */
-    final private function __clone() {
+    final private function __clone()
+    {
     }
 
     /**
@@ -415,7 +432,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm {
      *
      * @return void
      */
-    final private function __sleep() {
+    final private function __sleep()
+    {
     }
-
 }

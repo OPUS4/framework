@@ -84,8 +84,7 @@ class Opus_SeriesTest extends TestCase
         try {
             $d->store();
             $this->fail("Expecting exception.");
-        }
-        catch (Opus_Model_Exception $ome) {
+        } catch (Opus_Model_Exception $ome) {
             // Nothing.
         }
 
@@ -621,7 +620,7 @@ class Opus_SeriesTest extends TestCase
         $this->assertTrue($s->isNumberAvailable('bar'));
 
         $d = new Opus_Document($d->getId());
-        $d->setSeries(array());
+        $d->setSeries([]);
         $d->store();
 
         $this->assertTrue($s->isNumberAvailable('foo'));
@@ -745,7 +744,7 @@ class Opus_SeriesTest extends TestCase
 
         $serverDateModified = $document->getServerDateModified();
         sleep(1);
-        $series->setSortOrder($series->getSortOrder()+1);
+        $series->setSortOrder($series->getSortOrder() + 1);
         $series->store();
 
         $docReloaded = new Opus_Document($docId);

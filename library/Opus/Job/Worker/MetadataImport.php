@@ -36,7 +36,8 @@
 /**
  * Worker for importing metadata
  */
-class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
+class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract
+{
 
     const LABEL = 'opus-metadata-import';
 
@@ -44,7 +45,8 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
      * Constructs worker.
      * @param Zend_Log $logger
      */
-    public function __construct($logger = null) {
+    public function __construct($logger = null)
+    {
         $this->setLogger($logger);
     }
 
@@ -53,7 +55,8 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
      *
      * @return string Message label.
      */
-    public function getActivationLabel() {
+    public function getActivationLabel()
+    {
         return self::LABEL;
     }
 
@@ -64,7 +67,8 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
      * @param Opus_Job $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Opus_Job $job) {
+    public function work(Opus_Job $job)
+    {
 
         if ($job->getLabel() != $this->getActivationLabel()) {
             throw new Opus_Job_Worker_InvalidJobException($job->getLabel() . " is not a suitable job for this worker.");
@@ -72,16 +76,15 @@ class Opus_Job_Worker_MetadataImport extends Opus_Job_Worker_Abstract {
 
         $data = $job->getData();
 
-        if (!(is_object($data) && isset($data->xml) && !is_null($data->xml))) {
+        if (! (is_object($data) && isset($data->xml) && ! is_null($data->xml))) {
              throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
         }
-	
+
         if (null !== $this->_logger) {
             $this->_logger->debug("Importing Metadata:\n" . $data->xml);
         }
-	
-	$importer = new Opus_Util_MetadataImport($data->xml);
-	$importer->run();
-    }
 
+        $importer = new Opus_Util_MetadataImport($data->xml);
+        $importer->run();
+    }
 }

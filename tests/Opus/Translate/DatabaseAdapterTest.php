@@ -54,10 +54,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $database = new Opus_Translate_Dao();
 
         $database->setTranslation(
-            'admin', [
+            'admin',
+            [
             'en' => 'Administration',
             'de' => 'Verwaltung'
-        ]
+            ]
         );
 
         $translate = new Zend_Translate(
@@ -86,10 +87,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $database = new Opus_Translate_Dao();
 
         $database->setTranslation(
-            'admin', [
+            'admin',
+            [
             'en' => 'Administration',
             'de' => 'Verwaltung'
-        ]
+            ]
         );
 
         Zend_Translate::clearCache(); // clear cache between test runs
@@ -109,10 +111,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         // update database entry
         $database->setTranslation(
-            'admin', [
+            'admin',
+            [
             'en' => 'Edited',
             'de' => 'Editiert'
-        ]
+            ]
         );
 
         // create new translation object will not update cache
@@ -151,10 +154,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
         $database = new Opus_Translate_Dao();
 
         $database->setTranslation(
-            'admin', [
+            'admin',
+            [
             'en' => 'Administration',
             'de' => 'Verwaltung'
-        ]
+            ]
         );
 
         $translate = new Zend_Translate(
@@ -176,10 +180,11 @@ class Opus_Translate_DatabaseAdapterTest extends TestCase
 
         // update database entry
         $database->setTranslation(
-            'admin', [
+            'admin',
+            [
             'en' => 'Edited',
             'de' => 'Editiert'
-        ]
+            ]
         );
 
         // check translations in old Zend_Translate object that has already loaded from database

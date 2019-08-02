@@ -59,7 +59,8 @@ class Opus_Permission
             'access_modules',
             ['role_id']
         )->where(
-            'module_name = ?', $permission
+            'module_name = ?',
+            $permission
         );
 
         $select = $adapter->select()->from(
@@ -77,7 +78,7 @@ class Opus_Permission
 
         $accounts = [];
 
-        foreach($accountIds as $id) {
+        foreach ($accountIds as $id) {
             $accounts[] = new Opus_Account($id);
         }
 

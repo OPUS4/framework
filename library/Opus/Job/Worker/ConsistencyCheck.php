@@ -37,13 +37,15 @@
  * Worker class for checking consistency between documents in database and Solr index.
  *
  */
-class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
+class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract
+{
 
     const LABEL = 'opus-consistency-check';
-    
+
     private $logfilePath = null;
 
-    public function __construct() {        
+    public function __construct()
+    {
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->workspacePath) && trim($config->workspacePath) != '') {
             $this->logfilePath = $config->workspacePath . DIRECTORY_SEPARATOR . 'log' . DIRECTORY_SEPARATOR . 'opus_consistency-check.log';
@@ -56,7 +58,8 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
      *
      * @return string Message label.
      */
-    public function getActivationLabel() {
+    public function getActivationLabel()
+    {
         return self::LABEL;
     }
 
@@ -73,7 +76,8 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
      * @param Opus_Job $job Job description and attached data.
      * @return void
      */
-    public function work(Opus_Job $job) {
+    public function work(Opus_Job $job)
+    {
 
         // make sure we have the right job
         if ($job->getLabel() != $this->getActivationLabel()) {
@@ -84,15 +88,16 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
         if (file_exists($lockFile)) {
             unlink($lockFile);
         }
-        
+
         touch($lockFile);
         $consistencyChecker = new Opus_Util_ConsistencyCheck($this->_logger);
         $consistencyChecker->run();
         unlink($lockFile);
     }
 
-    public function setLogger($logger = null) {
-        if (!is_null($this->logfilePath)) {
+    public function setLogger($logger = null)
+    {
+        if (! is_null($this->logfilePath)) {
             $logfile = @fopen($this->logfilePath, 'w', false);
             $writer = new Zend_Log_Writer_Stream($logfile);
 
@@ -100,9 +105,8 @@ class Opus_Job_Worker_ConsistencyCheck extends Opus_Job_Worker_Abstract {
             $formatter = new Zend_Log_Formatter_Simple($format);
             $writer->setFormatter($formatter);
 
-            parent::setLogger(new Zend_Log($writer));            
-        }
-        else {
+            parent::setLogger(new Zend_Log($writer));
+        } else {
             parent::setLogger(null);
         }
     }

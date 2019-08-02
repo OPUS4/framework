@@ -33,7 +33,8 @@
  *
  * TODO Test für das rekursive Speichern von Children
  */
-class Opus_CollectionTest extends TestCase {
+class Opus_CollectionTest extends TestCase
+{
 
     /**
      * @var Opus_CollectionRole
@@ -50,7 +51,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * SetUp method.  Inherits database cleanup from parent.
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         $this->_role_name = "role-name-" . rand();
@@ -68,7 +70,8 @@ class Opus_CollectionTest extends TestCase {
         $this->role_fixture->store();
     }
 
-    protected function tearDown() {
+    protected function tearDown()
+    {
         if (is_object($this->role_fixture)) {
             $this->role_fixture->delete();
         }
@@ -78,7 +81,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test constructor.
      */
-    public function testConstructorForExistingCollection() {
+    public function testConstructorForExistingCollection()
+    {
 
         $this->assertNotNull($this->object->getId(), 'Collection storing failed: should have an Id.');
         $this->assertNotNull($this->object->getRoleId(), 'Collection storing failed: should have an RoleId.');
@@ -95,7 +99,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test if delete really deletes.
      */
-    public function testDeleteNoChildren() {
+    public function testDeleteNoChildren()
+    {
         $collection_id = $this->object->getId();
         $this->object->delete();
 
@@ -106,7 +111,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test if we can retrieve stored themes from the database.
      */
-    public function testGetTheme() {
+    public function testGetTheme()
+    {
         $this->object->setTheme('test-theme');
         $this->object->store();
 
@@ -120,7 +126,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test if virtual field "GetOaiName" contains the value of "OaiSubset".
      */
-    public function testGetOaiName() {
+    public function testGetOaiName()
+    {
         $this->object->setOaiSubset("subset");
         $this->assertEquals('subset', $this->object->getOaiSubset());
 
@@ -134,7 +141,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test if "store()" returns primary key of current object.
      */
-    public function testStoreReturnsId() {
+    public function testStoreReturnsId()
+    {
         $collection_id = $this->object->store();
         $this->assertNotNull($collection_id);
 
@@ -144,7 +152,8 @@ class Opus_CollectionTest extends TestCase {
 
     /**
      */
-    public function testGetChildren() {
+    public function testGetChildren()
+    {
         $root = $this->object;
 
         $this->assertTrue(is_array($root->getChildren()));
@@ -172,7 +181,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(2, count($root->getChildren()), 'Root collection should have two children.');
     }
 
-    public function testGetDefaultThemeIfSetDefaultTheme() {
+    public function testGetDefaultThemeIfSetDefaultTheme()
+    {
         $default_theme = Zend_Registry::get('Zend_Config')->theme;
         $this->assertFalse(empty($default_theme), 'Could not get theme from config');
 
@@ -183,7 +193,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($default_theme, $collection->getTheme(), 'Expect default theme if non set');
     }
 
-    public function testGetDefaultThemeIfSetNullTheme() {
+    public function testGetDefaultThemeIfSetNullTheme()
+    {
         $this->object->setTheme(null);
         $this->object->store();
 
@@ -194,7 +205,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($default_theme, $collection->getTheme(), 'Expect default theme if non set');
     }
 
-    public function testGetDocumentIds() {
+    public function testGetDocumentIds()
+    {
         $docIds = $this->object->getDocumentIds();
         $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
 
@@ -206,12 +218,13 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue(count($docIds) == 1, 'Expected one element in array');
     }
 
-    public function testGetDocumentIdsMaxElements() {
+    public function testGetDocumentIdsMaxElements()
+    {
         $docIds = $this->object->getDocumentIds();
         $this->assertTrue(count($docIds) == 0, 'Expected empty id array');
 
         $max = 4;
-        $storedIds = array();
+        $storedIds = [];
         for ($i = 0; $i < $max; $i++) {
             $d = new Opus_Document();
             $d->addCollection($this->object);
@@ -222,7 +235,7 @@ class Opus_CollectionTest extends TestCase {
 
         // Add some published documents.
         $max = 4;
-        $storedPublishedIds = array();
+        $storedPublishedIds = [];
         for ($i = 0; $i < $max; $i++) {
             $d = new Opus_Document();
             $d->addCollection($this->object);
@@ -251,7 +264,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($storedPublishedIds, $publishedIds);
     }
 
-    public function testGetDisplayName() {
+    public function testGetDisplayName()
+    {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -265,7 +279,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('thirteen', $collection->getDisplayName('frontdoor'));
     }
 
-    public function testGetDisplayFrontdoor() {
+    public function testGetDisplayFrontdoor()
+    {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -282,10 +297,10 @@ class Opus_CollectionTest extends TestCase {
 
         $collection = new Opus_Collection($this->object->getId());
         $this->assertEquals('thirteen fooblablub', $collection->getDisplayFrontdoor());
-
     }
 
-    public function testGetDisplayNameForBrowsingContextWithoutArg() {
+    public function testGetDisplayNameForBrowsingContextWithoutArg()
+    {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->store();
 
@@ -297,7 +312,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext());
     }
 
-    public function testGetDisplayNameForBrowsingContextWithArg() {
+    public function testGetDisplayNameForBrowsingContextWithArg()
+    {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->store();
 
@@ -309,7 +325,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('fooblablub', $collection->getDisplayNameForBrowsingContext($this->role_fixture));
     }
 
-    public function testGetNumberAndNameIsIndependentOfDiplayBrowsingName() {
+    public function testGetNumberAndNameIsIndependentOfDiplayBrowsingName()
+    {
         $this->role_fixture->setDisplayBrowsing('Name');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -322,7 +339,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
-    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNumber() {
+    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNumber()
+    {
         $this->role_fixture->setDisplayBrowsing('Number');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -335,7 +353,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
-    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNameNumber() {
+    public function testGetNumberAndNameIsIndependetOfDisplayBrowsingNameNumber()
+    {
         $this->role_fixture->setDisplayBrowsing('Name,Number');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -348,7 +367,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('number name', $collection->getNumberAndName());
     }
 
-    public function testGetNumberAndNameWithDelimiterArg() {
+    public function testGetNumberAndNameWithDelimiterArg()
+    {
         $this->role_fixture->setDisplayBrowsing('Number');
         $this->role_fixture->setDisplayFrontdoor('Number');
         $this->role_fixture->store();
@@ -361,7 +381,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('number - name', $collection->getNumberAndName(' - '));
     }
 
-    public function testGetNumSubTreeEntries() {
+    public function testGetNumSubTreeEntries()
+    {
         $this->object->setVisible(1);
         $this->object->store();
 
@@ -442,7 +463,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(0, $colC->getNumSubtreeEntries()); // parent invisible
     }
 
-    public function testDeleteCollectionFromDocumentDoesNotDeleteCollection() {
+    public function testDeleteCollectionFromDocumentDoesNotDeleteCollection()
+    {
         $this->object->setVisible(1);
         $collectionId = $this->object->store();
 
@@ -454,13 +476,14 @@ class Opus_CollectionTest extends TestCase {
         $c = $d->getCollection();
         $this->assertEquals(1, count($c));
 
-        $d->setCollection(array());
+        $d->setCollection([]);
         $d->store();
 
         $collection = new Opus_Collection($collectionId);
     }
 
-    public function testGettingIdOfParentNode() {
+    public function testGettingIdOfParentNode()
+    {
         $this->object->setVisible(1);
         $collectionId = $this->object->store();
 
@@ -470,7 +493,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($collectionId, $child->getParentNodeId());
     }
 
-    public function testDeleteNonRootCollectionWithChild() {
+    public function testDeleteNonRootCollectionWithChild()
+    {
         $root = $this->object;
 
         $child = $root->addLastChild();
@@ -492,7 +516,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals(0, count($root->getChildren()), 'Root collection should have no child.');
     }
 
-    public function testGetDisplayNameWithIncompatibleRole() {
+    public function testGetDisplayNameWithIncompatibleRole()
+    {
         $collRole = new Opus_CollectionRole();
         $collRole->setDisplayBrowsing('Number');
         $collRole->setDisplayFrontdoor('Number');
@@ -519,7 +544,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($e instanceof InvalidArgumentException);
     }
 
-    public function testGetVisibleChildren() {
+    public function testGetVisibleChildren()
+    {
         $this->object->store();
 
         // add two children: one of them (the first child) is invisible
@@ -545,7 +571,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($coll1->getId(), $children[1]->getId());
     }
 
-    public function testHasVisibleChildren() {
+    public function testHasVisibleChildren()
+    {
         $this->object->store();
 
         $this->assertFalse($this->object->hasVisibleChildren());
@@ -573,7 +600,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-1687
      */
-    public function testInvalidateDocumentCache() {
+    public function testInvalidateDocumentCache()
+    {
 
         $d = new Opus_Document();
         $d->addCollection($this->object);
@@ -589,7 +617,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-2935
      */
-    public function testInvalidateDocumentCacheOnDelete() {
+    public function testInvalidateDocumentCacheOnDelete()
+    {
 
         $d = new Opus_Document();
         $d->addCollection($this->object);
@@ -614,7 +643,8 @@ class Opus_CollectionTest extends TestCase {
      *
      * Hook only gets called if object has been stored (persisted) in database.
      */
-    public function testPreDeletePluginHookGetsCalled() {
+    public function testPreDeletePluginHookGetsCalled()
+    {
 
         $pluginMock = new Opus_Model_Plugin_Mock();
 
@@ -634,7 +664,8 @@ class Opus_CollectionTest extends TestCase {
         );
     }
 
-    public function testPreDeletePluginHookGetsCalledOnlyForStoredObject() {
+    public function testPreDeletePluginHookGetsCalledOnlyForStoredObject()
+    {
 
         $pluginMock = new Opus_Model_Plugin_Mock();
 
@@ -653,7 +684,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-3145
      */
-    public function testStoreCollection() {
+    public function testStoreCollection()
+    {
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName('Test');
         $collectionRole->setOaiName('Test');
@@ -667,9 +699,10 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-3114
      */
-    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields() {
+    public function testDocumentServerDateModifiedNotUpdatedWithConfiguredFields()
+    {
 
-        $fields = array('Theme','OaiSubset');
+        $fields = ['Theme','OaiSubset'];
 
         $doc = new Opus_Document();
         $doc->setType("article")
@@ -695,7 +728,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals((string) $serverDateModified, (string) $docReloaded->getServerDateModified(), 'Expected no difference in server date modified.');
     }
 
-    public function testGetSetVisiblePublish() {
+    public function testGetSetVisiblePublish()
+    {
         $collection = $this->role_fixture->getRootCollection();
         $collection->setVisiblePublish(1);
         $cId = $collection->store();
@@ -705,13 +739,13 @@ class Opus_CollectionTest extends TestCase {
         $cId = $collection->store();
         $collection = new Opus_Collection($cId);
         $this->assertEquals(0, $collection->getVisiblePublish());
-
     }
 
     /**
      * Regression Test for OPUSVIER-2726
      */
-    public function testMoveBeforePrevSibling() {
+    public function testMoveBeforePrevSibling()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -751,7 +785,8 @@ class Opus_CollectionTest extends TestCase {
     /**
     * Regression Test for OPUSVIER-2726
     */
-    public function testMoveAfterNextSibling() {
+    public function testMoveAfterNextSibling()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -778,7 +813,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testNestedSet() {
+    public function testNestedSet()
+    {
         $this->setUpFixtureForMoveTests();
 
         $this->validateNestedSet();
@@ -801,61 +837,62 @@ class Opus_CollectionTest extends TestCase {
      *  14,1,test7    ,"Testeintrag 7",NULL,26,27,1,0,1
      */
 
-    protected function setUpFixtureForMoveTests() {
+    protected function setUpFixtureForMoveTests()
+    {
         $root = $this->object;
 
-        $children = array();
+        $children = [];
         $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag');
-        $children[count($children) -1]->setNumber('test');
-
-        $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 2');
-        $children[count($children) -1]->setNumber('test2');
+        $children[count($children) - 1]->setName('Testeintrag');
+        $children[count($children) - 1]->setNumber('test');
 
         $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 3');
-        $children[count($children) -1]->setNumber('test3');
-
-        $children[] = $children[count($children) -1]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 3.1');
-        $children[count($children) -1]->setNumber('test3.1');
-
-        $children[] = $children[count($children) -2]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 3.2');
-        $children[count($children) -1]->setNumber('test3.2');
-
-        $children[] = $children[count($children) -1]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 3.2.1');
-        $children[count($children) -1]->setNumber('test3.2.1');
+        $children[count($children) - 1]->setName('Testeintrag 2');
+        $children[count($children) - 1]->setNumber('test2');
 
         $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 4');
-        $children[count($children) -1]->setNumber('test4');
+        $children[count($children) - 1]->setName('Testeintrag 3');
+        $children[count($children) - 1]->setNumber('test3');
 
-        $children[] = $children[count($children) -1]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 4.1');
-        $children[count($children) -1]->setNumber('test4.1');
+        $children[] = $children[count($children) - 1]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 3.1');
+        $children[count($children) - 1]->setNumber('test3.1');
 
-        $children[] = $children[count($children) -2]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 4.2');
-        $children[count($children) -1]->setNumber('test4.2');
+        $children[] = $children[count($children) - 2]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 3.2');
+        $children[count($children) - 1]->setNumber('test3.2');
 
-        $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 5');
-        $children[count($children) -1]->setNumber('test5');
-
-        $children[] = $children[count($children) -1]->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 5.1');
-        $children[count($children) -1]->setNumber('test5.1');
+        $children[] = $children[count($children) - 1]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 3.2.1');
+        $children[count($children) - 1]->setNumber('test3.2.1');
 
         $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 6');
-        $children[count($children) -1]->setNumber('test6');
+        $children[count($children) - 1]->setName('Testeintrag 4');
+        $children[count($children) - 1]->setNumber('test4');
+
+        $children[] = $children[count($children) - 1]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 4.1');
+        $children[count($children) - 1]->setNumber('test4.1');
+
+        $children[] = $children[count($children) - 2]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 4.2');
+        $children[count($children) - 1]->setNumber('test4.2');
 
         $children[] = $root->addLastChild();
-        $children[count($children) -1]->setName('Testeintrag 7');
-        $children[count($children) -1]->setNumber('test7');
+        $children[count($children) - 1]->setName('Testeintrag 5');
+        $children[count($children) - 1]->setNumber('test5');
+
+        $children[] = $children[count($children) - 1]->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 5.1');
+        $children[count($children) - 1]->setNumber('test5.1');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 6');
+        $children[count($children) - 1]->setNumber('test6');
+
+        $children[] = $root->addLastChild();
+        $children[count($children) - 1]->setName('Testeintrag 7');
+        $children[count($children) - 1]->setNumber('test7');
 
         $root->store();
     }
@@ -863,7 +900,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test für OPUSVIER-3308.
      */
-    public function testHasVisiblePublishChildren() {
+    public function testHasVisiblePublishChildren()
+    {
         $this->object->store();
 
         $this->assertFalse($this->object->hasVisiblePublishChildren());
@@ -900,7 +938,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($this->object->hasChildren());
     }
 
-    public function testHasVisiblePublishChildrenFalseIfNotVisible() {
+    public function testHasVisiblePublishChildrenFalseIfNotVisible()
+    {
         $this->object->store();
 
         $this->assertFalse($this->object->hasVisiblePublishChildren());
@@ -920,7 +959,8 @@ class Opus_CollectionTest extends TestCase {
     /**
      * Test für OPUSVIER-3308.
      */
-    public function testGetVisiblePublishChildren() {
+    public function testGetVisiblePublishChildren()
+    {
         $this->object->store();
 
         // add two children: one of them (the first child) is invisible
@@ -962,7 +1002,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals($coll1->getId(), $children[3]->getId());
     }
 
-    public function testMoveToPositionUp() {
+    public function testMoveToPositionUp()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -1000,7 +1041,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testMoveToPositionDown() {
+    public function testMoveToPositionDown()
+    {
         $this->setUpFixtureForMoveTests();
 
         $collection = new Opus_Collection(4);
@@ -1022,7 +1064,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testMoveToStart() {
+    public function testMoveToStart()
+    {
         $this->setUpFixtureForMoveTests();
 
         $collection = new Opus_Collection(11);
@@ -1043,7 +1086,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testMoveToEnd() {
+    public function testMoveToEnd()
+    {
         $this->setUpFixtureForMoveTests();
 
         $collection = new Opus_Collection(8);
@@ -1064,7 +1108,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testSortChildrenByName() {
+    public function testSortChildrenByName()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -1096,7 +1141,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testSortChildrenByNumber() {
+    public function testSortChildrenByNumber()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -1128,7 +1174,8 @@ class Opus_CollectionTest extends TestCase {
         $this->validateNestedSet();
     }
 
-    public function testSortChildrenBySpecifiedOrder() {
+    public function testSortChildrenBySpecifiedOrder()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -1136,7 +1183,7 @@ class Opus_CollectionTest extends TestCase {
 
         $this->assertCount(7, $children);
 
-        $root->applySortOrderOfChildren(array(4, 11, 3, 14, 2, 8, 13));
+        $root->applySortOrderOfChildren([4, 11, 3, 14, 2, 8, 13]);
 
         $root = new Opus_Collection(1);
         $children = $root->getChildren();
@@ -1158,7 +1205,8 @@ class Opus_CollectionTest extends TestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage is no child of
      */
-    public function testSortChildrenBySpecifiedOrderBadId() {
+    public function testSortChildrenBySpecifiedOrderBadId()
+    {
         $this->setUpFixtureForMoveTests();
 
         $root = new Opus_Collection(1);
@@ -1166,13 +1214,14 @@ class Opus_CollectionTest extends TestCase {
 
         $this->assertCount(7, $children);
 
-        $root->applySortOrderOfChildren(array(4, 11, 3, 16, 2, 8, 13));
+        $root->applySortOrderOfChildren([4, 11, 3, 16, 2, 8, 13]);
     }
 
     /**
      * Verifies that the NestedSet structure is still valid.
      */
-    protected function validateNestedSet() {
+    protected function validateNestedSet()
+    {
         $table = new Opus_Db_Collections();
 
         $select = $table->select()->where('role_id = ?', 1)->order('left_id ASC');
@@ -1189,7 +1238,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertTrue($validator->validate(1));
     }
 
-    public function testDeletedCollectionRemovedFromDocument() {
+    public function testDeletedCollectionRemovedFromDocument()
+    {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
@@ -1218,7 +1268,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertCount(0, $documents);
     }
 
-    public function testHandlingOfNullValues() {
+    public function testHandlingOfNullValues()
+    {
         $collection = $this->object;
 
         $collection->setNumber(null);
@@ -1232,7 +1283,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertNull($collection->getOaiSubset());
     }
 
-    public function testGetDisplayNameForRootCollection() {
+    public function testGetDisplayNameForRootCollection()
+    {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
@@ -1249,7 +1301,8 @@ class Opus_CollectionTest extends TestCase {
         $this->assertEquals('', $root->getDisplayName());
     }
 
-    public function testGetDisplayNameForRootCollectionWithNameSet() {
+    public function testGetDisplayNameForRootCollectionWithNameSet()
+    {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');

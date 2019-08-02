@@ -40,7 +40,8 @@
  *
  */
 
-class Opus_Db_Collections extends Opus_Db_NestedSet {
+class Opus_Db_Collections extends Opus_Db_NestedSet
+{
 
     /**
      * Table name of the nested set table.
@@ -88,18 +89,18 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Role' => array(
+    protected $_referenceMap = [
+            'Role' => [
                             'columns' => 'role_id',
                             'refTableClass' => 'Opus_Db_CollectionsRoles',
                             'refColumns' => 'id',
-            ),
-            'Parent' => array(
+            ],
+            'Parent' => [
                             'columns' => 'parent_id',
                             'refTableClass' => 'Opus_Db_Collections',
                             'refColumns' => 'id',
-            ),
-    );
+            ],
+    ];
 
 
     /**
@@ -108,9 +109,9 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array(
+    protected $_dependentTables = [
             'Opus_Db_Collections',
-    );
+    ];
 
     /**
      * Returns if node is visible.
@@ -134,5 +135,4 @@ class Opus_Db_Collections extends Opus_Db_NestedSet {
 
         return $rows->count() === 0;
     }
-
 }

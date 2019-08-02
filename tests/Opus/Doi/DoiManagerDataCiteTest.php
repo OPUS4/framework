@@ -44,7 +44,8 @@ class Opus_Doi_DoiManagerDataCiteTest extends TestCase
     /**
      * TODO determine 'skipping' based on configuration (environment)
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->markTestSkipped(
             'kann nur für manuellen Test verwendet werden, da DataCite-Testumgebung erforderlich' .
@@ -200,13 +201,15 @@ class Opus_Doi_DoiManagerDataCiteTest extends TestCase
         $this->assertEquals('verified', $doi->getStatus());
 
         $doiManager->updateLandingPageUrlOfDoi(
-            '10.5072/OPUS4-' . $docId, 'http://localhost/opus5/frontdoor/index/index/' . $docId
+            '10.5072/OPUS4-' . $docId,
+            'http://localhost/opus5/frontdoor/index/index/' . $docId
         );
 
         $doi = $doiManager->verify($docId);
         $this->assertEquals('registered', $doi->getStatus());
 
-        Zend_Registry::set('Zend_Config',
+        Zend_Registry::set(
+            'Zend_Config',
             $config->merge(
                 new Zend_Config(['url' => 'http://localhost/opus5'])
             )

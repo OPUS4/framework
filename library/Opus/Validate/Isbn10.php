@@ -59,10 +59,10 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_CHECK_DIGIT => "The check digit of '%value%' is not valid",
         self::MSG_FORM => "'%value%' is malformed"
-    );
+    ];
 
     /**
      * Validate the given ISBN-10 string.
@@ -97,7 +97,7 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract
         $isbn_parts = preg_split('/(-|\s)/', $value);
 
         // Separate digits for checkdigit calculation
-        $digits = array();
+        $digits = [];
         for ($i = 0; $i < count($isbn_parts); $i++) {
             foreach (str_split($isbn_parts[$i]) as $digit) {
                 $digits[] = $digit;
@@ -138,5 +138,4 @@ class Opus_Validate_Isbn10 extends Zend_Validate_Abstract
         }
         return "$z[10]";
     }
-
 }

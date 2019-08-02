@@ -98,18 +98,18 @@ class Opus_Util_ConsoleColors
     {
         $colored = '';
 
-        if (!is_null($color)) {
+        if (! is_null($color)) {
             if (isset(self::FOREGROUND[$color])) {
                 $colored .= "\033[" . self::FOREGROUND[$color] . 'm';
-            } else if (preg_match('/[0-9];[0-9]{2}/', $color)) {
+            } elseif (preg_match('/[0-9];[0-9]{2}/', $color)) {
                 $colored .= "\033[{$color}m";
             }
         }
 
-        if (!is_null($background)) {
+        if (! is_null($background)) {
             if (isset(self::BACKGROUND[$background])) {
                 $colored .= "\033[" . self::BACKGROUND[$background] . 'm';
-            } else if (preg_match('/[0-9]{2}/', $color)) {
+            } elseif (preg_match('/[0-9]{2}/', $color)) {
                 $colored .= "\033[{$background}m";
             }
         }
@@ -153,7 +153,7 @@ class Opus_Util_ConsoleColors
      */
     public function __call($name, $arguments)
     {
-        $color = preg_replace_callback('/([A-Z])/', function($match) {
+        $color = preg_replace_callback('/([A-Z])/', function ($match) {
             return '_' . strtolower($match[1]);
         }, $name);
 

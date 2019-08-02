@@ -66,7 +66,7 @@ class Opus_Translate_DaoTest extends TestCase
     {
         $dao = new Opus_Translate_Dao();
 
-        $data =[
+        $data = [
             'testkey1' => [
                 'de' => 'Testschlüssel 1',
                 'en' => 'test key one'
@@ -92,7 +92,7 @@ class Opus_Translate_DaoTest extends TestCase
             'de' => 'Verwaltung',
             'en' => 'Administration'
         ]);
-        $dao->setTranslation( 'testkey1', [
+        $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
             'en' => 'test key one'
         ]);
@@ -114,7 +114,7 @@ class Opus_Translate_DaoTest extends TestCase
             'de' => 'Verwaltung',
             'en' => 'Administration'
         ]);
-        $dao->setTranslation( 'testkey1', [
+        $dao->setTranslation('testkey1', [
             'de' => 'Testschlüssel 1',
             'en' => 'test key one'
         ]);

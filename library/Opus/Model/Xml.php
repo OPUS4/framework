@@ -39,7 +39,8 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Xml {
+class Opus_Model_Xml
+{
 
     /**
      * Holds current configuration.
@@ -67,7 +68,8 @@ class Opus_Model_Xml {
      * Do some initial stuff like setting of a XML version and an empty
      * configuration.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->_strategy = new Opus_Model_Xml_Version1;
         $this->_config = new Opus_Model_Xml_Conf;
         $this->_strategy->setup($this->_config);
@@ -79,7 +81,8 @@ class Opus_Model_Xml {
      * @param Opus_Model_Xml_Strategy $strategy Version of Xml to process
      * @return Opus_Model_Xml fluent interface.
      */
-    public function setStrategy(Opus_Model_Xml_Strategy $strategy) {
+    public function setStrategy(Opus_Model_Xml_Strategy $strategy)
+    {
         $this->_strategy = $strategy;
         $this->_strategy->setup($this->_config);
         return $this;
@@ -92,7 +95,8 @@ class Opus_Model_Xml {
      * @param Opus_Model_Xml_Cache $cache
      * @return Opus_Model_Xml fluent interface.
      */
-    public function setXmlCache(Opus_Model_Xml_Cache $cache) {
+    public function setXmlCache(Opus_Model_Xml_Cache $cache)
+    {
         $this->_cache = $cache;
         return $this;
     }
@@ -102,7 +106,8 @@ class Opus_Model_Xml {
      *
      * @return Opus_Model_Xml fluent interface.
      */
-    public function removeCache() {
+    public function removeCache()
+    {
         $this->_cache = null;
         return $this;
     }
@@ -113,7 +118,8 @@ class Opus_Model_Xml {
      *
      * @return Opus_Model_Xml_Cache ...
      */
-    public function getXmlCache() {
+    public function getXmlCache()
+    {
         return $this->_cache;
     }
 
@@ -123,7 +129,8 @@ class Opus_Model_Xml {
      * @param string $uri Base URI.
      * @return Opus_Model_Xml Fluent interface
      */
-    public function setXlinkBaseUri($uri) {
+    public function setXlinkBaseUri($uri)
+    {
         $this->_config->baseUri = $uri;
         return $this;
     }
@@ -136,7 +143,8 @@ class Opus_Model_Xml {
      *
      * TODO seems unused in OPUS
      */
-    public function setXlinkResolver(Opus_Uri_Resolver $resolver) {
+    public function setXlinkResolver(Opus_Uri_Resolver $resolver)
+    {
         $this->_config->xlinkResolver = $resolver;
         return $this;
     }
@@ -153,7 +161,8 @@ class Opus_Model_Xml {
      * @param array $map Map of class names to resource names.
      * @return Opus_Model_Xml Fluent interface
      */
-    public function setResourceNameMap(array $map) {
+    public function setResourceNameMap(array $map)
+    {
         $this->_config->resourceNameMap = $map;
         return $this;
     }
@@ -164,7 +173,8 @@ class Opus_Model_Xml {
      * @param array Field list
      * @return Opus_Model_Xml Fluent interface
      */
-    public function exclude(array $fields) {
+    public function exclude(array $fields)
+    {
         $this->_config->excludeFields = $fields;
         return $this;
     }
@@ -174,7 +184,8 @@ class Opus_Model_Xml {
      *
      * @return Opus_Model_Xml Fluent interface
      */
-    public function excludeEmptyFields() {
+    public function excludeEmptyFields()
+    {
         $this->_config->excludeEmpty = true;
         return $this;
     }
@@ -185,7 +196,8 @@ class Opus_Model_Xml {
      * @param string $xml XML string representing a model.
      * @return Opus_Model_Xml Fluent interface.
      */
-    public function setXml($xml) {
+    public function setXml($xml)
+    {
         $this->_strategy->setXml($xml);
         return $this;
     }
@@ -196,7 +208,8 @@ class Opus_Model_Xml {
      * @param DOMDocument $dom DomDocument representing a model.
      * @return Opus_Model_Xml Fluent interface.
      */
-    public function setDomDocument(DOMDocument $dom) {
+    public function setDomDocument(DOMDocument $dom)
+    {
         $this->_strategy->setDomDocument($dom);
         return $this;
     }
@@ -207,7 +220,8 @@ class Opus_Model_Xml {
      * @param Opus_Model_Abstract $model Model to serialize.
      * @return Opus_Model_Xml Fluent interface.
      */
-    public function setModel($model) {
+    public function setModel($model)
+    {
         $this->_config->model = $model;
         return $this;
     }
@@ -218,7 +232,8 @@ class Opus_Model_Xml {
      *
      * @return Opus_Model_Abstract Deserialised or previously set Model.
      */
-    public function getModel() {
+    public function getModel()
+    {
         return $this->_strategy->getModel();
     }
 
@@ -227,12 +242,13 @@ class Opus_Model_Xml {
      * DOM representation of it.
      * @return DOMDocument DOM representation of the current Model.
      */
-    public function getDomDocument() {
+    public function getDomDocument()
+    {
         $model = $this->_config->model;
         $logger = Zend_Registry::get('Zend_Log');
 
         $result = $this->getDomDocumentFromXmlCache();
-        if (!is_null($result)) {
+        if (! is_null($result)) {
             return $result;
         }
 
@@ -258,7 +274,8 @@ class Opus_Model_Xml {
      *
      * @return DOMDocument DOM representation of the current Model.
      */
-    private function getDomDocumentFromXmlCache() {
+    private function getDomDocumentFromXmlCache()
+    {
         $model = $this->_config->model;
         $logger = Zend_Registry::get('Zend_Log');
 
@@ -281,8 +298,7 @@ class Opus_Model_Xml {
         $logger->debug(__METHOD__ . ' cache hit for ' . get_class($model) . '#' . $model->getId());
         try {
             return $this->_cache->get($model->getId(), (int) $this->_strategy->getVersion());
-        }
-        catch (Opus_Model_Exception $e) {
+        } catch (Opus_Model_Exception $e) {
             $logger->warn(
                 __METHOD__ . " Access to XML cache failed on " . get_class($model) . '#' . $model->getId()
                 . ".  Trying to recover."
@@ -298,7 +314,8 @@ class Opus_Model_Xml {
      * @param string $xml String of xml structure.
      * @return void
      */
-    public function updateFromXml($xml) {
+    public function updateFromXml($xml)
+    {
         $this->_strategy->updateFromXml($xml);
     }
 
@@ -307,8 +324,8 @@ class Opus_Model_Xml {
      *
      * @return integer
      */
-    public function getStrategyVersion() {
+    public function getStrategyVersion()
+    {
         return $this->_strategy->getVersion();
     }
 }
-

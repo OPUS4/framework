@@ -39,13 +39,14 @@
  * Opus documents.
  */
 
-interface Opus_Search_Extracting {
-	/**
-	 * Extracts provided file of document.
-	 *
-	 * @param Opus_File $file
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Extracting fluent interface
-	 */
-	public function extractDocumentFile( Opus_File $file, Opus_Document $document = null );
+interface Opus_Search_Extracting
+{
+    /**
+     * Extracts provided file of document.
+     *
+     * @param Opus_File $file
+     * @param Opus_Document $document
+     * @return Opus_Search_Extracting fluent interface
+     */
+    public function extractDocumentFile(Opus_File $file, Opus_Document $document = null);
 }

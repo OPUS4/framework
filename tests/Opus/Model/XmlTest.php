@@ -40,16 +40,17 @@
  *
  * @group XmlTest
  */
-class Opus_Model_XmlTest extends TestCase {
+class Opus_Model_XmlTest extends TestCase
+{
 
     /**
      * Initial test for Opus_Model_Xml. Needed for code coverage
      *
      * @return void
      */
-    public function testInitiateXml() {
+    public function testInitiateXml()
+    {
         $xml = new Opus_Model_Xml;
         $this->assertNotNull($xml, 'Initiate test for Opus_Model_Xml.');
     }
-
 }

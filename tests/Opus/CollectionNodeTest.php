@@ -42,7 +42,8 @@
  * @group       CollectionTests
  *
  */
-class Opus_CollectionNodeTest extends TestCase {
+class Opus_CollectionNodeTest extends TestCase
+{
 
     /**
      * @var Opus_CollectionRole
@@ -57,7 +58,8 @@ class Opus_CollectionNodeTest extends TestCase {
     protected $fixture;
 
 
-    public function setUp() {
+    public function setUp()
+    {
         $this->markTestSkipped("deprecated");
 
         parent::setUp();
@@ -77,20 +79,22 @@ class Opus_CollectionNodeTest extends TestCase {
         $role_id = $this->role_fixture->getId();
     }
 
-    public function testNodeConstructor() {
+    public function testNodeConstructor()
+    {
         $this->assertFalse(is_null($this->fixture->getId()), 'CollectionNode storing failed: should have an Id.');
         $this->assertFalse(is_null($this->fixture->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
 
         // Check, if we can create the object for this Id.
         $node_id = $this->fixture->getId();
-        $node = new Opus_CollectionNode( $node_id );
+        $node = new Opus_CollectionNode($node_id);
 
         $this->assertFalse(is_null($node), 'CollectionNode construction failed: collection is null.');
         $this->assertFalse(is_null($node->getId()), 'CollectionNode storing failed: should have an Id.');
         $this->assertFalse(is_null($node->getRoleId()), 'CollectionNode storing failed: should have an RoleId.');
     }
 
-    public function testNodeDelete() {
+    public function testNodeDelete()
+    {
         // $this->assertTrue(false, 'CollectionNode deletion failed: unit test not implemented.');
     }
 }

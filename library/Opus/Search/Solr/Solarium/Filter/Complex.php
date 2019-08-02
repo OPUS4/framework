@@ -33,116 +33,122 @@
  */
 
 
-class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Complex {
+class Opus_Search_Solr_Solarium_Filter_Complex extends Opus_Search_Filter_Complex
+{
 
-	/**
-	 * @var \Solarium\Client
-	 */
-	protected $client = null;
+    /**
+     * @var \Solarium\Client
+     */
+    protected $client = null;
 
-	public function __construct( \Solarium\Client $client ) {
-		$this->client = $client;
-	}
+    public function __construct(\Solarium\Client $client)
+    {
+        $this->client = $client;
+    }
 
-	/**
-	 * Delivers glue for concatenating terms according to given filter's
-	 * combination of particular result sets.
-	 *
-	 * @param Opus_Search_Filter_Complex $complex
-	 * @return string
-	 */
-	protected static function glue( Opus_Search_Filter_Complex $complex ) {
-		return $complex->isRequestingUnion() ? ' OR ' : ' AND ';
-	}
+    /**
+     * Delivers glue for concatenating terms according to given filter's
+     * combination of particular result sets.
+     *
+     * @param Opus_Search_Filter_Complex $complex
+     * @return string
+     */
+    protected static function glue(Opus_Search_Filter_Complex $complex)
+    {
+        return $complex->isRequestingUnion() ? ' OR ' : ' AND ';
+    }
 
-	/**
-	 * Compiles simple condition to proper Solr query term.
-	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @param Opus_Search_Filter_Simple $simple
-	 * @return string
-	 */
-	protected static function _compileSimple( \Solarium\Core\Query\Query $query, Opus_Search_Filter_Simple $simple ) {
-		// validate desired type of comparison
-		switch ( $simple->getComparator() ) {
-			case Opus_Search_Filter_Simple::COMPARE_EQUALITY :
-				$negated = false;
-				break;
-			case Opus_Search_Filter_Simple::COMPARE_INEQUALITY :
-				$negated = true;
-				break;
-			default :
-				// TODO implement additional types of comparison
-				throw new InvalidArgumentException( 'comparison not supported by Solr adapter' );
-		}
+    /**
+     * Compiles simple condition to proper Solr query term.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query
+     * @param Opus_Search_Filter_Simple $simple
+     * @return string
+     */
+    protected static function _compileSimple(\Solarium\Core\Query\Query $query, Opus_Search_Filter_Simple $simple)
+    {
+        // validate desired type of comparison
+        switch ($simple->getComparator()) {
+            case Opus_Search_Filter_Simple::COMPARE_EQUALITY:
+                $negated = false;
+                break;
+            case Opus_Search_Filter_Simple::COMPARE_INEQUALITY:
+                $negated = true;
+                break;
+            default:
+                // TODO implement additional types of comparison
+                throw new InvalidArgumentException('comparison not supported by Solr adapter');
+        }
 
-		// handle range checks
-		if ( $simple->isRangeValue() ) {
-			list( $lower, $upper ) = $simple->getRangeValue();
+        // handle range checks
+        if ($simple->isRangeValue()) {
+            list( $lower, $upper ) = $simple->getRangeValue();
 
-			return $query->getHelper()->rangeQuery( $simple->getName(), $lower, $upper );
-		}
+            return $query->getHelper()->rangeQuery($simple->getName(), $lower, $upper);
+        }
 
-		// handle checks for (not) matching phrases
-		// (resulting term might be complex in case of testing multiple values)
-		$values = $simple->getValues();
-		if ( !count( $values ) ) {
-			throw new InvalidArgumentException( 'missing values on field ' . $simple->getName() );
-		} else {
-			$name = $simple->getName();
-			if ( $name === '*' && ( count( $values ) !== 1 || $values[0] !== '*' ) ) {
-				// special case: simple term requests to match any field
-				$name = '';
-			} else {
-				$name = $name . ':';
-			}
+        // handle checks for (not) matching phrases
+        // (resulting term might be complex in case of testing multiple values)
+        $values = $simple->getValues();
+        if (! count($values)) {
+            throw new InvalidArgumentException('missing values on field ' . $simple->getName());
+        } else {
+            $name = $simple->getName();
+            if ($name === '*' && ( count($values) !== 1 || $values[0] !== '*' )) {
+                // special case: simple term requests to match any field
+                $name = '';
+            } else {
+                $name = $name . ':';
+            }
 
-			if ( $negated ) {
-				$name = '-' . $name;
-			}
+            if ($negated) {
+                $name = '-' . $name;
+            }
 
-			$values = array_map( function( $value ) use ( $name, $query ) {
-				return $name . Opus_Search_Solr_Filter_Helper::escapePhrase( $value );
-			}, $values );
+            $values = array_map(function ($value) use ($name, $query) {
+                return $name . Opus_Search_Solr_Filter_Helper::escapePhrase($value);
+            }, $values);
 
-			if ( count( $values ) === 1 ) {
-				return $values[0];
-			}
+            if (count($values) === 1) {
+                return $values[0];
+            }
 
-			return '(' . implode( $negated ? ' AND ' : ' OR ', $values ) . ')';
-		}
-	}
+            return '(' . implode($negated ? ' AND ' : ' OR ', $values) . ')';
+        }
+    }
 
-	/**
-	 * Compiles provided set of subordinated conditions into complex Solr query
-	 * term.
-	 *
-	 * @param \Solarium\QueryType\Select\Query\Query $query
-	 * @param Opus_Search_Filtering[] $conditions
-	 * @param string $glue
-	 * @return string
-	 */
-	protected static function _compile( \Solarium\Core\Query\Query $query, $conditions, $glue ) {
-		$compiled = array();
+    /**
+     * Compiles provided set of subordinated conditions into complex Solr query
+     * term.
+     *
+     * @param \Solarium\QueryType\Select\Query\Query $query
+     * @param Opus_Search_Filtering[] $conditions
+     * @param string $glue
+     * @return string
+     */
+    protected static function _compile(\Solarium\Core\Query\Query $query, $conditions, $glue)
+    {
+        $compiled = [];
 
-		foreach ( $conditions as $condition ) {
-			if ( $condition instanceof Opus_Search_Filter_Complex ) {
-				$term = static::_compile( $query, $condition->getConditions(), static::glue( $condition ) );
-				$term = "($term)";
-				if ( $condition->isGloballyNegated() ) {
-					$term = '-' . $term;
-				}
+        foreach ($conditions as $condition) {
+            if ($condition instanceof Opus_Search_Filter_Complex) {
+                $term = static::_compile($query, $condition->getConditions(), static::glue($condition));
+                $term = "($term)";
+                if ($condition->isGloballyNegated()) {
+                    $term = '-' . $term;
+                }
 
-				$compiled[] = $term;
-			} else if ( $condition instanceof Opus_Search_Filter_Simple ) {
-				$compiled[] = static::_compileSimple( $query, $condition );
-			}
-		}
+                $compiled[] = $term;
+            } elseif ($condition instanceof Opus_Search_Filter_Simple) {
+                $compiled[] = static::_compileSimple($query, $condition);
+            }
+        }
 
-		return implode( $glue, $compiled );
-	}
+        return implode($glue, $compiled);
+    }
 
-	public function compile( $query ) {
-		return static::_compile( $query, $this->getConditions(), static::glue( $this ) );
-	}
+    public function compile($query)
+    {
+        return static::_compile($query, $this->getConditions(), static::glue($this));
+    }
 }

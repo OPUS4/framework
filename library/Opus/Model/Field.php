@@ -156,7 +156,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
      *
      * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
      */
-    protected $_pendingDeletes = array();
+    protected $_pendingDeletes = [];
 
 
     /**
@@ -297,7 +297,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
                 // weak comparison for objects
                 // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
                 // TODO: Why weak comparisons? They are tricky in PHP.
-            } else if ($value == $this->_value) {
+            } elseif ($value == $this->_value) {
                 return $this;
             }
         } else {
@@ -309,9 +309,9 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
 
         if (true === is_array($value) and 1 === count($value)) {
             $value = array_pop($value);
-        } else if (true === is_array($value) and 0 === count($value)) {
+        } elseif (true === is_array($value) and 0 === count($value)) {
             $value = null;
-        } else if (is_bool($value)) {
+        } elseif (is_bool($value)) {
             // make sure 'false' is not converted to '' (empty string), but 0 for database
             $value = (int)$value;
         }
@@ -334,7 +334,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
             // arrayfy value
             $values = $value;
             if (false === $arrayCondition) {
-                $values = array($value);
+                $values = [$value];
             }
 
             // try to cast non-object values to model instance if valueModelClass is set
@@ -377,11 +377,11 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
         }
 
         $sortField = $this->_sortFieldName;
-        if (!is_string($sortField)) {
+        if (! is_string($sortField)) {
             return;
         }
 
-        $values = is_array($values) ? $values : array($values);
+        $values = is_array($values) ? $values : [$values];
 
         foreach ($values as $valueNew) {
             $field = $valueNew->getField($sortField);
@@ -405,10 +405,10 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
         // arrayfy field value for iteration
         $fvals = $this->_value;
         if (false === is_array($fvals)) {
-            $fvals = array($fvals);
+            $fvals = [$fvals];
         }
 
-        $nids = array();
+        $nids = [];
         if (false === is_null($this->_valueModelClass)) {
             foreach ($values as $val) {
                 if (false === $val instanceof Opus_Model_Dependent_Abstract
@@ -420,7 +420,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
         }
 
         // collect removal candidates
-        $removees = array();
+        $removees = [];
         foreach ($fvals as $victim) {
             if ($victim instanceof Opus_Model_Dependent_Abstract) {
                 $vid = $victim->getId();
@@ -489,14 +489,14 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
     private function _deleteDependentModels(array $removees = null)
     {
         if (null === $removees) {
-            $removees = is_array($this->_value) ? $this->_value : array($this->_value);
+            $removees = is_array($this->_value) ? $this->_value : [$this->_value];
         }
 
         foreach ($removees as $submodel) {
             if ($submodel instanceof Opus_Model_Dependent_Abstract) {
                 $token = $submodel->delete();
                 $objhash = spl_object_hash($submodel);
-                $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
+                $this->_pendingDeletes[$objhash] = ['model' => $submodel, 'token' => $token];
             }
         }
     }
@@ -540,7 +540,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
             } catch (Exception $ex) {
                 throw new Opus_Model_Exception(
                     "Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})",
-                    null, $ex
+                    null,
+                    $ex
                 );
             }
         }
@@ -563,7 +564,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
         $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
 
         // Caller requested a specific array index
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             if (true === is_array($this->_value)) {
                 if (true === isset($this->_value[$index])) {
                     return $this->_value[$index];
@@ -588,15 +589,15 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
      */
     private function _wrapValueInArrayIfRequired($value)
     {
-        if (is_array($value) or !$this->hasMultipleValues()) {
-           return $value;
+        if (is_array($value) or ! $this->hasMultipleValues()) {
+            return $value;
         }
 
         if (is_null($value)) {
-           return array();
+            return [];
         }
 
-        return array($value);
+        return [$value];
     }
 
     /**
@@ -650,14 +651,14 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
             $sortField = $this->_sortFieldName;
 
             $sortValueMax = 0;
-            foreach ($this->_value AS $valueOld) {
+            foreach ($this->_value as $valueOld) {
                 $sortValue = $valueOld->getField($sortField)->getValue();
                 if ($sortValue > $sortValueMax) {
                     $sortValueMax = $sortValue;
                 }
             }
 
-            $this->_fixSortOrder($value, $sortValueMax+1);
+            $this->_fixSortOrder($value, $sortValueMax + 1);
         }
 
         // Add the value to the array
@@ -836,9 +837,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
             if (true === $this->_value->isModified()) {
                 $this->_modified = true;
             }
-        }
-        else if (is_array($this->_value)) {
-            foreach ($this->_value AS $value) {
+        } elseif (is_array($this->_value)) {
+            foreach ($this->_value as $value) {
                 if ($value instanceof Opus_Model_ModificationTracking) {
                     if (true === $value->isModified()) {
                         $this->_modified = true;
@@ -868,9 +868,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
     {
         if ($this->_value instanceof Opus_Model_ModificationTracking) {
             $this->_value->setModified(false);
-        }
-        else if (is_array($this->_value)) {
-            foreach ($this->_value AS $value) {
+        } elseif (is_array($this->_value)) {
+            foreach ($this->_value as $value) {
                 if ($value instanceof Opus_Model_ModificationTracking) {
                     $value->setModified(false);
                 }
@@ -915,4 +914,3 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking
         return $this->_checkbox;
     }
 }
-

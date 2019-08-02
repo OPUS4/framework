@@ -94,7 +94,6 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
 
         $field = new Opus_Model_Field('Options');
         $this->addField($field);
-
     }
 
     /**
@@ -128,7 +127,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getName();
+        return $this->getName();
     }
 
     /**
@@ -140,7 +139,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
         $db = $table->getAdapter();
-        $select = $db->select()->from(array('document_enrichments'));
+        $select = $db->select()->from(['document_enrichments']);
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
         return $db->fetchCol($select);

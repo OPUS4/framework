@@ -38,6 +38,7 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_ServerDateModified extends Opus_Validate_Date {
+class Opus_Validate_ServerDateModified extends Opus_Validate_Date
+{
 
 }

@@ -69,5 +69,4 @@ class Opus_Model_CheckFieldOrderDummyClass extends Opus_Model_AbstractDb
         }
         return "baz"; // target has been fetched
     }
-
 }

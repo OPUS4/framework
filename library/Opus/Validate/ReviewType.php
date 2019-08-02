@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_ReviewType extends Opus_Validate_AbstractEnum {
+class Opus_Validate_ReviewType extends Opus_Validate_AbstractEnum
+{
     /**
      * Error message key.
      *
@@ -50,14 +51,14 @@ class Opus_Validate_ReviewType extends Opus_Validate_AbstractEnum {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_REVIEWTYPE => "'%value%' is not a valid review type"
-    );
+    ];
 
     /**
      * Define valid enum values.
      *
      * @var array
      */
-    protected $_valid_enums = array('peer','editorial','open');
+    protected $_valid_enums = ['peer','editorial','open'];
 }

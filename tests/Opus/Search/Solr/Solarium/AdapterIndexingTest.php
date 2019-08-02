@@ -33,242 +33,265 @@
  */
 
 
-class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCase {
+class Opus_Search_Solr_Solarium_AdapterIndexingTest extends DocumentBasedTestCase
+{
 
-	public function testService() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
-	}
+    public function testService()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
+        $this->assertInstanceOf('Opus_Search_Solr_Solarium_Adapter', $service);
+    }
 
-	/**
-	 * @expectedException Opus_Search_Exception
-	 */
-	public function testDisfunctServiceFails() {
-		// need to drop deprecated configuration options for interfering with
-		// intention of this test regarding revised configuration structure, only
-		$this->dropDeprecatedConfiguration();
+    /**
+     * @expectedException Opus_Search_Exception
+     */
+    public function testDisfunctServiceFails()
+    {
+        // need to drop deprecated configuration options for interfering with
+        // intention of this test regarding revised configuration structure, only
+        $this->dropDeprecatedConfiguration();
 
-		Opus_Search_Service::selectIndexingService( 'disfunct' );
-	}
+        Opus_Search_Service::selectIndexingService('disfunct');
+    }
 
-	public function testRemoveAllDocuments() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
-		$service->removeAllDocumentsFromIndex();
-	}
+    public function testRemoveAllDocuments()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
+        $service->removeAllDocumentsFromIndex();
+    }
 
-	public function testIndexingArticleWithoutFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithoutFiles()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingBookWithoutFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingBookWithoutFiles()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'book' );
+        $doc = $this->createDocument('book');
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithPublicFile() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithPublicFile()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", true );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", true);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithPublicFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithPublicFiles()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", true );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", true );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", true);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", true);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithHiddenFile() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithHiddenFile()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithHiddenFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithHiddenFiles()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testIndexingArticleWithMixedFiles() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingArticleWithMixedFiles()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$this->addFileToDocument( $doc, "test.pdf", "PDF Document", false );
-		$this->addFileToDocument( $doc, "test.ps", "PS Document", true );
-		$this->addFileToDocument( $doc, "test.html", "HTML Document", true );
-		$this->addFileToDocument( $doc, "test.odt", "ODT Document", false );
+        $this->addFileToDocument($doc, "test.pdf", "PDF Document", false);
+        $this->addFileToDocument($doc, "test.ps", "PS Document", true);
+        $this->addFileToDocument($doc, "test.html", "HTML Document", true);
+        $this->addFileToDocument($doc, "test.odt", "ODT Document", false);
 
-		$service->addDocumentsToIndex( $doc );
-	}
+        $service->addDocumentsToIndex($doc);
+    }
 
-	public function testRemovingIndexedArticle() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingIndexedArticle()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingIndexedArticleById() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingIndexedArticleById()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testRemovingIndexedArticleTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingIndexedArticleTwiceFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingIndexedArticleByIdTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingIndexedArticleByIdTwiceFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testMixedRemovingIndexedArticleTwiceFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testMixedRemovingIndexedArticleTwiceFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndex( $doc );
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndex($doc);
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testMixedRemovingIndexedArticleTwiceFailsAgain() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testMixedRemovingIndexedArticleTwiceFailsAgain()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
+        $service->addDocumentsToIndex($doc);
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingNonIndexedArticleFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingNonIndexedArticleFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->removeDocumentsFromIndex( $doc );
-	}
+        $service->removeDocumentsFromIndex($doc);
+    }
 
-	public function testRemovingNonIndexedArticleByIdFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingNonIndexedArticleByIdFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->removeDocumentsFromIndexById( $doc->getId() );
-	}
+        $service->removeDocumentsFromIndexById($doc->getId());
+    }
 
-	public function testIndexingMultipleDocument() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testIndexingMultipleDocument()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testRemovingMultipleIndexedDocuments() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testRemovingMultipleIndexedDocuments()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFails() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testMultiplyRemovingMultipleIndexedDocumentsFails()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+    }
 
-	public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testMultiplyRemovingMultipleIndexedDocumentsFailsAgain()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$docA = $this->createDocument( 'article' );
-		$docB = $this->createDocument( 'book' );
-		$docC = $this->createDocument( 'monograph' );
-		$docD = $this->createDocument( 'report' );
+        $docA = $this->createDocument('article');
+        $docB = $this->createDocument('book');
+        $docC = $this->createDocument('monograph');
+        $docD = $this->createDocument('report');
 
-		$service->addDocumentsToIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA, $docB, $docC, $docD ) );
-		$service->removeDocumentsFromIndex( array( $docA ) );
-	}
+        $service->addDocumentsToIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA, $docB, $docC, $docD ]);
+        $service->removeDocumentsFromIndex([ $docA ]);
+    }
 
-	/**
-	 * @expectedException Opus_Search_Exception
-	 */
-	public function testIndexingArticleOnDisfunctServiceFails() {
-		// need to drop deprecated configuration options for interfering with
-		// intention of this test regarding revised configuration structure, only
-		$this->dropDeprecatedConfiguration();
+    /**
+     * @expectedException Opus_Search_Exception
+     */
+    public function testIndexingArticleOnDisfunctServiceFails()
+    {
+        // need to drop deprecated configuration options for interfering with
+        // intention of this test regarding revised configuration structure, only
+        $this->dropDeprecatedConfiguration();
 
-		$service = Opus_Search_Service::selectIndexingService( 'disfunct', 'solr' );
+        $service = Opus_Search_Service::selectIndexingService('disfunct', 'solr');
 
-		$doc = $this->createDocument( 'article' );
+        $doc = $this->createDocument('article');
 
-		$service->addDocumentsToIndex( $doc );
-	}
-
+        $service->addDocumentsToIndex($doc);
+    }
 }

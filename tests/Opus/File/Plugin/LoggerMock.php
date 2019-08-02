@@ -24,21 +24,30 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus_Validate
- * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @category    Tests
+ * @package     Opus_File
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-/**
- * Validator for ServerDatePublished field.
- *
- * @category    Framework
- * @package     Opus_Validate
- */
-class Opus_Validate_ServerDatePublished extends Opus_Validate_Date
+class Opus_File_Plugin_LoggerMock
 {
 
+    private $_messages = [];
+
+    public function err($message)
+    {
+        $this->_messages[] = $message;
+    }
+
+    public function clear()
+    {
+        $this->_messages = [];
+    }
+
+    public function getMessages()
+    {
+        return $this->_messages;
+    }
 }

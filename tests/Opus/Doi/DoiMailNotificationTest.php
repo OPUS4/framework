@@ -119,8 +119,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
                 'notificationEmail' => ['doe@localhost']
-            ]
-        );
+            ]);
         $notification = $this->doiMailNotification;
         $notification->sendRegistrationEmail();
     }
@@ -134,8 +133,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
                 'notificationEmail' => ['doe@localhost']
-            ]
-        );
+            ]);
 
         $docId = $this->createTestDocWithDoi('10.2345/opustest-999');
 
@@ -153,15 +151,17 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         $this->adaptDoiConfiguration([
                 'notificationEmailEnabled' => true,
                 'notificationEmail' => ['doe@localhost']
-            ]
-        );
+            ]);
 
         $doc1Id = $this->createTestDocWithDoi('10.2345/opustest-888');
         $doc2Id = $this->createTestDocWithDoi('10.2345/opustest-999');
 
         $notification = $this->doiMailNotification;
         $notification->addNotification(
-            '888', $this->getDoi($doc1Id), "http://localhost/opus4/$doc1Id", 'error'
+            '888',
+            $this->getDoi($doc1Id),
+            "http://localhost/opus4/$doc1Id",
+            'error'
         );
         $notification->addNotification('999', $this->getDoi($doc2Id), "http://localhost/opus4/$doc2Id");
         $notification->sendRegistrationEmail();

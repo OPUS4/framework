@@ -39,7 +39,8 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
+class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface
+{
 
     /**
      * Holds the login name.
@@ -70,8 +71,9 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
      * @throws Zend_Auth_Adapter_Exception If given credentials are invalid.
      * @return Opus_Security_AuthAdapter Fluent interface.
      */
-    public function setCredentials($login, $password) {
-       if ((is_string($login) === false) or (is_string($password) === false)) {
+    public function setCredentials($login, $password)
+    {
+        if ((is_string($login) === false) or (is_string($password) === false)) {
             throw new Zend_Auth_Adapter_Exception('Credentials are not strings.');
         }
         if (empty($login) === true) {
@@ -91,32 +93,42 @@ class Opus_Security_AuthAdapter implements Zend_Auth_Adapter_Interface {
      * @throws Zend_Auth_Adapter_Exception If authentication cannot be performed.
      * @return Zend_Auth_Result
      */
-    public function authenticate() {
+    public function authenticate()
+    {
 
         // Try to get the account information
         try {
             $account = new Opus_Account(null, null, $this->_login);
         } catch (Exception $ex) {
-            return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND, $this->_login,
-                array('auth_error_invalid_credentials'));
+            return new Zend_Auth_Result(
+                Zend_Auth_Result::FAILURE_IDENTITY_NOT_FOUND,
+                $this->_login,
+                ['auth_error_invalid_credentials']
+            );
         }
 
         // Check if password is correcct, but for old hashes.  Neede for
         // migrating md5-hashed passwords to SHA1-hashes.
         if ($account->isPasswordCorrectOldHash($this->_password) === true) {
-           Zend_Registry::get('Zend_Log')->warn('Migrating old password-hash for user: ' . $this->_login);
-           $account->setPassword($this->_password)->store();
-           $account = new Opus_Account(null, null, $this->_login);
+            Zend_Registry::get('Zend_Log')->warn('Migrating old password-hash for user: ' . $this->_login);
+            $account->setPassword($this->_password)->store();
+            $account = new Opus_Account(null, null, $this->_login);
         }
 
         // Check the password
         $pass = $account->isPasswordCorrect($this->_password);
         if ($pass === true) {
-            return new Zend_Auth_Result(Zend_Auth_Result::SUCCESS, $this->_login,
-                array('auth_login_success'));
+            return new Zend_Auth_Result(
+                Zend_Auth_Result::SUCCESS,
+                $this->_login,
+                ['auth_login_success']
+            );
         }
 
-        return new Zend_Auth_Result(Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID, $this->_login,
-            array('auth_error_invalid_credentials'));
-     }
+        return new Zend_Auth_Result(
+            Zend_Auth_Result::FAILURE_CREDENTIAL_INVALID,
+            $this->_login,
+            ['auth_error_invalid_credentials']
+        );
+    }
 }

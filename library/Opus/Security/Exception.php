@@ -39,6 +39,7 @@
  * @package     Opus_Security
  *
  */
-class Opus_Security_Exception extends Exception {
-    
+class Opus_Security_Exception extends Exception
+{
+
 }

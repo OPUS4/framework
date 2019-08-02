@@ -27,7 +27,7 @@
  * @category    Framework
  * @package     Opus
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2017, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 abstract class Opus_Update_Plugin_Abstract
@@ -55,7 +55,8 @@ abstract class Opus_Update_Plugin_Abstract
      * Set logger for this class.
      * @param Zend_Log $logger
      */
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         $this->_logger = $logger;
     }
 
@@ -63,7 +64,8 @@ abstract class Opus_Update_Plugin_Abstract
      * Returns logger for this class.
      * @return Zend_Log
      */
-    public function getLogger() {
+    public function getLogger()
+    {
         if (is_null($this->_logger)) {
             $this->_logger = Zend_Registry::get('Zend_Log');
         }
@@ -75,7 +77,8 @@ abstract class Opus_Update_Plugin_Abstract
      * Sets configuration.
      * @param $config Zend_Config
      */
-    public function setConfig(Zend_Config $config) {
+    public function setConfig(Zend_Config $config)
+    {
         $this->_config = $config;
     }
 
@@ -84,7 +87,8 @@ abstract class Opus_Update_Plugin_Abstract
      * @return Zend_Config
      * @throws Zend_Exception
      */
-    public function getConfig() {
+    public function getConfig()
+    {
         if (is_null($this->_config)) {
             $this->_config = Zend_Registry::get('Zend_Config');
         }
@@ -101,13 +105,12 @@ abstract class Opus_Update_Plugin_Abstract
     {
         $logger = $this->getLogger();
 
-        if (!is_null($logger))
-        {
+        if (! is_null($logger)) {
             $logger->info($message);
         }
 
         // TODO make output optional (quiet option)?
-        if (!$this->getQuietMode()) {
+        if (! $this->getQuietMode()) {
             echo $message . PHP_EOL;
         }
     }

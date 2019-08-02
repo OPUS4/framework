@@ -40,7 +40,8 @@
  *
  */
 
-class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway {
+class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -55,11 +56,11 @@ class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
+    protected $_referenceMap = [
+            'Documents' => [
                 'columns' => 'document_id',
                 'refTableClass' => 'Opus_Db_Documents',
-                'refColumns' => array('document_id', 'year', 'month', 'type'),
-                ),
-            );
+                'refColumns' => ['document_id', 'year', 'month', 'type'],
+                ],
+            ];
 }

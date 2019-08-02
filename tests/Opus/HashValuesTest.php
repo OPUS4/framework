@@ -34,7 +34,8 @@
  * @version     $Id$
  */
 
-class Opus_HashValuesTest extends TestCase {
+class Opus_HashValuesTest extends TestCase
+{
     /**
      * @var    Opus_HashValues
      * @access protected
@@ -69,8 +70,7 @@ class Opus_HashValuesTest extends TestCase {
     {
         // Remove the following lines when you implement this test.
         $this->markTestIncomplete(
-          'This test has not been implemented yet.'
+            'This test has not been implemented yet.'
         );
     }
 }
-

@@ -43,13 +43,14 @@
  * search query string complying with query syntax of particular search engine.
  */
 
-abstract class Opus_Search_Filter_Base implements Opus_Search_Filtering {
+abstract class Opus_Search_Filter_Base implements Opus_Search_Filtering
+{
 
-	/**
-	 * Compiles filter description to term for use with search engine adapter.
-	 *
-	 * @param mixed $context adapter-specific reference on context the compiled term will be queried in
-	 * @return string|null compiled term for use in given context, null if context has been prepared internally already
-	 */
-	abstract public function compile( $context );
+    /**
+     * Compiles filter description to term for use with search engine adapter.
+     *
+     * @param mixed $context adapter-specific reference on context the compiled term will be queried in
+     * @return string|null compiled term for use in given context, null if context has been prepared internally already
+     */
+    abstract public function compile($context);
 }

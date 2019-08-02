@@ -39,38 +39,44 @@
  *
  * @category    Tests
  * @package     Opus_Validate
- * 
+ *
  * @group       IsbnTest
  *
  */
-class Opus_Validate_IsbnTest extends TestCase {
+class Opus_Validate_IsbnTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('978-3-86680-192-9'),
-            array('978-5-7931-8163-1'),
-            array('978-979-3182-63-6'),
-            array('978 3 86680 192 9'),
-            array('978 5 7931 8163 1'),
-            array('978 979 3182 63 6'),
-            array('3-86680-192-0'),
-            array('3-937602-69-0'),
-            array('3 86680 192 0'),
-            array('3 937602 69 0'),
-            array('9789793182636'),
-            array('3866801920')
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['978-3-86680-192-9'],
+            ['978-5-7931-8163-1'],
+            ['978-979-3182-63-6'],
+            ['978 3 86680 192 9'],
+            ['978 5 7931 8163 1'],
+            ['978 979 3182 63 6'],
+            ['3-86680-192-0'],
+            ['3-937602-69-0'],
+            ['3 86680 192 0'],
+            ['3 937602 69 0'],
+            ['9789793182636'],
+            ['3866801920']
+        ];
     }
 
     /**
@@ -78,19 +84,20 @@ class Opus_Validate_IsbnTest extends TestCase {
      *
      * @return array Array of invalid arguments and a message.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null, 'Null value not rejected'),
-            array('',   'Empty string not rejected'),
-            array(4711, 'Integer not rejected'),
-            array(true, 'Boolean not rejected'),
-            array('4711-0815',          'Malformed string not rejected.'),
-            array('980-3-86680-192-9',  'Wrong prefix not rejected.'),
-            array('978-3-86680-192-5', 'Wrong check digit not rejected.'),
-            array('978 3 86680-192-9', 'Mixed separators not rejected.'),
-            array('3-86680-192-5',      'Wrong check digit not rejected.'),
-            array('3 86680 192-0',      'Mixed separators not rejected.')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null, 'Null value not rejected'],
+            ['',   'Empty string not rejected'],
+            [4711, 'Integer not rejected'],
+            [true, 'Boolean not rejected'],
+            ['4711-0815',          'Malformed string not rejected.'],
+            ['980-3-86680-192-9',  'Wrong prefix not rejected.'],
+            ['978-3-86680-192-5', 'Wrong check digit not rejected.'],
+            ['978 3 86680-192-9', 'Mixed separators not rejected.'],
+            ['3-86680-192-5',      'Wrong check digit not rejected.'],
+            ['3 86680 192-0',      'Mixed separators not rejected.']
+        ];
     }
 
 
@@ -102,17 +109,18 @@ class Opus_Validate_IsbnTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_Isbn();
         $result = $validator->isValid($arg);
-        
+
         $codes = $validator->getErrors();
         $msgs  = $validator->getMessages();
         $err   = '';
         foreach ($codes as $code) {
             $err .= '(' . $msgs[$code] . ') ';
         }
-        
+
         $this->assertTrue($result, $arg . ' should pass validation but validator says: ' . $err);
     }
 
@@ -125,9 +133,9 @@ class Opus_Validate_IsbnTest extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg, $msg) {
+    public function testInvalidArguments($arg, $msg)
+    {
         $validator = new Opus_Validate_Isbn();
         $this->assertFalse($validator->isValid($arg), $msg);
     }
-
 }

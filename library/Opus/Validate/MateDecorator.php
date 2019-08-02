@@ -40,21 +40,23 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_MateDecorator extends Opus_Validate_AbstractMate {
-    
+class Opus_Validate_MateDecorator extends Opus_Validate_AbstractMate
+{
+
     /**
      * Validator object that is decorated.
      *
      * @var Zend_Validate_Interface
      */
     protected $_decorated = null;
-    
+
     /**
      * Create decoration for given validator.
      *
      * @param Zend_Validate_Interface $validator Validator to be decorated.
      */
-    public function __construct(Zend_Validate_Interface $validator) {
+    public function __construct(Zend_Validate_Interface $validator)
+    {
         $this->_decorated = $validator;
     }
 
@@ -64,18 +66,19 @@ class Opus_Validate_MateDecorator extends Opus_Validate_AbstractMate {
      * @param Zend_Validate_Interface $validator Validator to be decorated.
      * @return Opus_Validate_MateDecorator Decorater instance.
      */
-    public static function decorate(Zend_Validate_Interface $validator) {
+    public static function decorate(Zend_Validate_Interface $validator)
+    {
         return new Opus_Validate_MateDecorator($validator);
     }
-    
+
     /**
-     * Call the decorated validator. This method is called by Opus_Validate_AbstractMate::isValid(). 
+     * Call the decorated validator. This method is called by Opus_Validate_AbstractMate::isValid().
      *
      * @param mixed $value Value to validate.
      * @return boolean Whatever the decorated validators isValid() method returns.
      */
-    protected function _isValid($value) {
+    protected function _isValid($value)
+    {
         return $this->_decorated->isValid($value);
     }
-    
 }

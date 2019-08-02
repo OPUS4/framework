@@ -108,7 +108,8 @@ class Opus_Doi_UserRecipientProviderTest extends TestCase
         $this->assertCount(0, $recipients);
     }
 
-    public function testGetRecipientsNone() {
+    public function testGetRecipientsNone()
+    {
         $provider = new Opus_Doi_UserRecipientProvider();
 
         $recipients = $provider->getRecipients();

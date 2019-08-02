@@ -41,14 +41,15 @@
  * @package Opus_Model
  *
  */
-class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
+class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb
+{
 
     /**
      * Array of field names for wich _loadExternal has been called.
      *
      * @var array Array of field names.
      */
-    public $loadExternalHasBeenCalledOn = array();
+    public $loadExternalHasBeenCalledOn = [];
 
 
     /**
@@ -63,25 +64,26 @@ class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
      *
      * @var array
      */
-    protected $_externalFields = array(
-        'ExternalModel' => array(
+    protected $_externalFields = [
+        'ExternalModel' => [
             'model' => 'Opus_Model_ModelAbstractDbMock',
             'through' => 'Opus_Model_LinkToAbstractMock',
             'options' => '',
-            'fetch' => 'eager'),
-        'LazyExternalModel' => array(
+            'fetch' => 'eager'],
+        'LazyExternalModel' => [
             'model' => 'Opus_Model_ModelAbstract',
             'through' => '',
             'options' => '',
-            'fetch' => 'lazy')
-    );
+            'fetch' => 'lazy']
+    ];
 
     /**
      * Initialize model with the a single field "ExternalModel".
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $this->addField(new Opus_Model_Field('ExternalModel'));
         $this->addField(new Opus_Model_Field('LazyExternalModel'));
     }
@@ -93,7 +95,8 @@ class Opus_Model_ModelDefiningExternalField extends Opus_Model_AbstractDb {
      * @see    library/Opus/Model/Opus_Model_Abstract#_loadExternal()
      * @return void
      */
-    protected function _loadExternal($fieldname) {
+    protected function _loadExternal($fieldname)
+    {
         $this->loadExternalHasBeenCalledOn[] = $fieldname;
     }
 }

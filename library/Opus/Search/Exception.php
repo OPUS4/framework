@@ -39,17 +39,20 @@
  * TODO code duplication in extending classes
  */
 
-class Opus_Search_Exception extends Exception {
-	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
-		parent::__construct( $message, $code, $previous );
-	}
+class Opus_Search_Exception extends Exception
+{
+    public function __construct($message = "", $code = 0, Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 
-	public function __toString() {
-		$previousMessage = '';
-		if ( !is_null( $this->getPrevious() ) ) {
-			$previousMessage = $this->getPrevious()->getMessage();
-		}
+    public function __toString()
+    {
+        $previousMessage = '';
+        if (! is_null($this->getPrevious())) {
+            $previousMessage = $this->getPrevious()->getMessage();
+        }
 
-		return 'unknown error while trying to search: ' . $previousMessage;
-	}
+        return 'unknown error while trying to search: ' . $previousMessage;
+    }
 }

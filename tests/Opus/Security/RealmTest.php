@@ -184,17 +184,20 @@ class Opus_Security_RealmTest extends TestCase
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('user');
         $realm->setIp('');
-        $this->assertTrue($realm->checkModule('admin'),
-                'Expect successful admin-access by user.');
+        $this->assertTrue(
+            $realm->checkModule('admin'),
+            'Expect successful admin-access by user.'
+        );
 
         // Try to set invalid IP address
         try {
             $realm->setUser('userbla');
             $this->fail('Expecting. security exception.');
-        }
-        catch (Opus_Security_Exception $e) {
-            $this->assertFalse($realm->checkModule('admin'),
-                'Expect denied admin-access after failed setUser().');
+        } catch (Opus_Security_Exception $e) {
+            $this->assertFalse(
+                $realm->checkModule('admin'),
+                'Expect denied admin-access after failed setUser().'
+            );
         }
     }
 
@@ -228,17 +231,20 @@ class Opus_Security_RealmTest extends TestCase
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('');
         $realm->setIp('127.0.0.22');
-        $this->assertTrue($realm->checkModule('oai'),
-                'Expect successful oai-access by IP.');
+        $this->assertTrue(
+            $realm->checkModule('oai'),
+            'Expect successful oai-access by IP.'
+        );
 
         // Try to set invalid IP address
         try {
             $realm->setIp('12.7.0.0.1');
             $this->fail('Expecting. security exception.');
-        }
-        catch (Opus_Security_Exception $e) {
-            $this->assertFalse($realm->checkModule('oai'),
-                'Expect denied oai-access after failed setIp().');
+        } catch (Opus_Security_Exception $e) {
+            $this->assertFalse(
+                $realm->checkModule('oai'),
+                'Expect denied oai-access after failed setIp().'
+            );
         }
     }
 
@@ -253,15 +259,23 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModule('admin'),
-                'Expect successful admin-access by user.');
-        $this->assertFalse($realm->checkModule('oai'),
-                'Expect failed oai-access by user.');
+        $this->assertTrue(
+            $realm->checkModule('admin'),
+            'Expect successful admin-access by user.'
+        );
+        $this->assertFalse(
+            $realm->checkModule('oai'),
+            'Expect failed oai-access by user.'
+        );
 
-        $this->assertFalse($realm->checkModule('foobar'),
-                'Expect failed foobar-access by user.');
-        $this->assertFalse($realm->checkModule(''),
-                'Expect failed empty module.');
+        $this->assertFalse(
+            $realm->checkModule('foobar'),
+            'Expect failed foobar-access by user.'
+        );
+        $this->assertFalse(
+            $realm->checkModule(''),
+            'Expect failed empty module.'
+        );
     }
 
     public function testStaticCheckModuleForUser()
@@ -281,15 +295,23 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('');
         $realm->setIp('127.0.0.22');
 
-        $this->assertFalse($realm->checkModule('admin'),
-                'Expect failed admin-access by IP.');
-        $this->assertTrue($realm->checkModule('oai'),
-                'Expect successful oai-access by IP.');
+        $this->assertFalse(
+            $realm->checkModule('admin'),
+            'Expect failed admin-access by IP.'
+        );
+        $this->assertTrue(
+            $realm->checkModule('oai'),
+            'Expect successful oai-access by IP.'
+        );
 
-        $this->assertFalse($realm->checkModule('foobar'),
-                'Expect failed foobar-access by IP.');
-        $this->assertFalse($realm->checkModule(''),
-                'Expect failed empty module.');
+        $this->assertFalse(
+            $realm->checkModule('foobar'),
+            'Expect failed foobar-access by IP.'
+        );
+        $this->assertFalse(
+            $realm->checkModule(''),
+            'Expect failed empty module.'
+        );
     }
 
     public function testcheckModuleForUserAndIp()
@@ -301,15 +323,23 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('user');
         $realm->setIp('127.0.0.22');
 
-        $this->assertTrue($realm->checkModule('admin'),
-                'Expect successful admin-access by user-ip.');
-        $this->assertTrue($realm->checkModule('oai'),
-                'Expect successful oai-access by user-ip.');
+        $this->assertTrue(
+            $realm->checkModule('admin'),
+            'Expect successful admin-access by user-ip.'
+        );
+        $this->assertTrue(
+            $realm->checkModule('oai'),
+            'Expect successful oai-access by user-ip.'
+        );
 
-        $this->assertFalse($realm->checkModule('foobar'),
-                'Expect failed foobar-access by user.');
-        $this->assertFalse($realm->checkModule(''),
-                'Expect failed empty module.');
+        $this->assertFalse(
+            $realm->checkModule('foobar'),
+            'Expect failed foobar-access by user.'
+        );
+        $this->assertFalse(
+            $realm->checkModule(''),
+            'Expect failed empty module.'
+        );
     }
 
     public function testcheckModuleForDisabledSecurity()
@@ -327,15 +357,23 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModule('admin'),
-                'Expect successful admin-access by admin.');
-        $this->assertTrue($realm->checkModule('oai'),
-                'Expect successful oai-access by admin.');
+        $this->assertTrue(
+            $realm->checkModule('admin'),
+            'Expect successful admin-access by admin.'
+        );
+        $this->assertTrue(
+            $realm->checkModule('oai'),
+            'Expect successful oai-access by admin.'
+        );
 
-        $this->assertTrue($realm->checkModule('foobar'),
-                'Expect successful foobar-access by admin.');
-        $this->assertTrue($realm->checkModule(''),
-                'Expect successful empty module.');
+        $this->assertTrue(
+            $realm->checkModule('foobar'),
+            'Expect successful foobar-access by admin.'
+        );
+        $this->assertTrue(
+            $realm->checkModule(''),
+            'Expect successful empty module.'
+        );
     }
 
     public function testcheckModuleForAdmin()
@@ -346,15 +384,23 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('admin');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkModule('admin'),
-                'Expect successful admin-access by admin.');
-        $this->assertTrue($realm->checkModule('oai'),
-                'Expect successful oai-access by admin.');
+        $this->assertTrue(
+            $realm->checkModule('admin'),
+            'Expect successful admin-access by admin.'
+        );
+        $this->assertTrue(
+            $realm->checkModule('oai'),
+            'Expect successful oai-access by admin.'
+        );
 
-        $this->assertTrue($realm->checkModule('foobar'),
-                'Expect successful foobar-access by admin.');
-        $this->assertTrue($realm->checkModule(''),
-                'Expect successful empty module.');
+        $this->assertTrue(
+            $realm->checkModule('foobar'),
+            'Expect successful foobar-access by admin.'
+        );
+        $this->assertTrue(
+            $realm->checkModule(''),
+            'Expect successful empty module.'
+        );
     }
 
     /**
@@ -369,17 +415,27 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertFalse($realm->checkDocument(),
-                'Expect failed document check by user for missing document-id.');
-        $this->assertFalse($realm->checkDocument(''),
-                'Expect failed document check by user for empty document-id.');
-        $this->assertFalse($realm->checkDocument(null),
-                'Expect failed document check by user for NULL document-id.');
+        $this->assertFalse(
+            $realm->checkDocument(),
+            'Expect failed document check by user for missing document-id.'
+        );
+        $this->assertFalse(
+            $realm->checkDocument(''),
+            'Expect failed document check by user for empty document-id.'
+        );
+        $this->assertFalse(
+            $realm->checkDocument(null),
+            'Expect failed document check by user for NULL document-id.'
+        );
 
-        $this->assertTrue($realm->checkDocument($docId),
-                'Expect successfull document check by user for valid document-id.');
-        $this->assertFalse($realm->checkDocument(100),
-                'Expect failed document check by user for unknown document-id.');
+        $this->assertTrue(
+            $realm->checkDocument($docId),
+            'Expect successfull document check by user for valid document-id.'
+        );
+        $this->assertFalse(
+            $realm->checkDocument(100),
+            'Expect failed document check by user for unknown document-id.'
+        );
     }
 
     public function testCheckDocumentForAdmin()
@@ -391,10 +447,14 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('admin');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkDocument($docId),
-                'Expect successfull document check by user for valid document-id.');
-        $this->assertTrue($realm->checkDocument(100),
-                'Expect successful document check by admin for unknown document-id.');
+        $this->assertTrue(
+            $realm->checkDocument($docId),
+            'Expect successfull document check by user for valid document-id.'
+        );
+        $this->assertTrue(
+            $realm->checkDocument(100),
+            'Expect successful document check by admin for unknown document-id.'
+        );
     }
 
     /**
@@ -409,17 +469,27 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('user');
         $realm->setIp('');
 
-        $this->assertFalse($realm->checkFile(),
-                'Expect failed file check by user for missing file-id.');
-        $this->assertFalse($realm->checkFile(''),
-                'Expect failed file check by user for empty file-id.');
-        $this->assertFalse($realm->checkFile(null),
-                'Expect failed file check by user for NULL file-id.');
+        $this->assertFalse(
+            $realm->checkFile(),
+            'Expect failed file check by user for missing file-id.'
+        );
+        $this->assertFalse(
+            $realm->checkFile(''),
+            'Expect failed file check by user for empty file-id.'
+        );
+        $this->assertFalse(
+            $realm->checkFile(null),
+            'Expect failed file check by user for NULL file-id.'
+        );
 
-        $this->assertTrue($realm->checkFile($fileId),
-                'Expect failed file ckeck by user for unknown file-id.');
-        $this->assertFalse($realm->checkFile(100),
-                'Expect failed file ckeck by user for unknown file-id.');
+        $this->assertTrue(
+            $realm->checkFile($fileId),
+            'Expect failed file ckeck by user for unknown file-id.'
+        );
+        $this->assertFalse(
+            $realm->checkFile(100),
+            'Expect failed file ckeck by user for unknown file-id.'
+        );
     }
 
     public function testCheckFileForAdmin()
@@ -431,10 +501,14 @@ class Opus_Security_RealmTest extends TestCase
         $realm->setUser('admin');
         $realm->setIp('');
 
-        $this->assertTrue($realm->checkFile($fileId),
-                'Expect successful file ckeck by user for valid file-id.');
-        $this->assertTrue($realm->checkFile(100),
-                'Expect successful file ckeck by user for unknown file-id.');
+        $this->assertTrue(
+            $realm->checkFile($fileId),
+            'Expect successful file ckeck by user for valid file-id.'
+        );
+        $this->assertTrue(
+            $realm->checkFile(100),
+            'Expect successful file ckeck by user for unknown file-id.'
+        );
     }
 
     public function testGetRolesForUnknown()
@@ -499,7 +573,8 @@ class Opus_Security_RealmTest extends TestCase
         try {
             Opus_Security_Realm::getAllowedModuleResources();
             $this->fail("Expected Opus_Security_Exception");
-        } catch(Opus_Security_Exception $ose) {}
+        } catch (Opus_Security_Exception $ose) {
+        }
 
         $bogusResources = Opus_Security_Realm::getAllowedModuleResources('fritz');
         $this->assertEquals([], $bogusResources, 'Expected no resources allowed for invalid username');
@@ -521,7 +596,7 @@ class Opus_Security_RealmTest extends TestCase
         $realm = Opus_Security_Realm::getInstance();
         $realm->setUser('user');
         $realm->setIp('127.0.0.1');
-        foreach($resources as $resource) {
+        foreach ($resources as $resource) {
             $this->assertTrue($realm->checkModule($resource), "Expected access allowed to resource '$resource'");
         }
         $this->assertFalse($realm->checkModule('foobar'), "Expected access denied to resource 'foobar'");

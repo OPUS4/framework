@@ -39,36 +39,42 @@
  *
  * @category    Tests
  * @package     Opus_Validate
- * 
+ *
  * @group       Isbn10Test
  *
  */
-class Opus_Validate_Isbn10Test extends TestCase {
+class Opus_Validate_Isbn10Test extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('123456789X'),
-            array('1-23456-789-X'),
-            array('3-86680-192-0'),
-            array('0-9752298-0-X'),
-            array('0-8044-2957-X'),
-            array('3-937602-69-0'),
-            array('3 86680 192 0'),
-            array('3 937602 69 0'),
-            array('3866801920'),
-            array('3937602690')
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['123456789X'],
+            ['1-23456-789-X'],
+            ['3-86680-192-0'],
+            ['0-9752298-0-X'],
+            ['0-8044-2957-X'],
+            ['3-937602-69-0'],
+            ['3 86680 192 0'],
+            ['3 937602 69 0'],
+            ['3866801920'],
+            ['3937602690']
+        ];
     }
 
     /**
@@ -76,19 +82,20 @@ class Opus_Validate_Isbn10Test extends TestCase {
      *
      * @return array Array of invalid arguments and a message.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null, 'Null value not rejected'),
-            array('',   'Empty string not rejected'),
-            array(4711, 'Integer not rejected'),
-            array(true, 'Boolean not rejected'),
-            array('4711-0815',          'Malformed string not rejected.'),
-            array('978-3-86680-192-9',  'ISBN-13 not rejected.'),
-            array('3-86680-192-5',      'Wrong check digit not rejected.'),
-            array('3 86680 192-0',      'Mixed separators not rejected.'),
-            array('X866801920',      'Malformed string not rejected.'),
-            array('3 937602 6930', 'Malformed string not rejected.')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null, 'Null value not rejected'],
+            ['',   'Empty string not rejected'],
+            [4711, 'Integer not rejected'],
+            [true, 'Boolean not rejected'],
+            ['4711-0815',          'Malformed string not rejected.'],
+            ['978-3-86680-192-9',  'ISBN-13 not rejected.'],
+            ['3-86680-192-5',      'Wrong check digit not rejected.'],
+            ['3 86680 192-0',      'Mixed separators not rejected.'],
+            ['X866801920',      'Malformed string not rejected.'],
+            ['3 937602 6930', 'Malformed string not rejected.']
+        ];
     }
 
 
@@ -100,17 +107,18 @@ class Opus_Validate_Isbn10Test extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_Isbn10();
         $result = $validator->isValid($arg);
-        
+
         $codes = $validator->getErrors();
         $msgs  = $validator->getMessages();
         $err   = '';
         foreach ($codes as $code) {
             $err .= '(' . $msgs[$code] . ') ';
         }
-        
+
         $this->assertTrue($result, $arg . ' should pass validation but validator says: ' . $err);
     }
 
@@ -123,9 +131,9 @@ class Opus_Validate_Isbn10Test extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg, $msg) {
+    public function testInvalidArguments($arg, $msg)
+    {
         $validator = new Opus_Validate_Isbn10();
         $this->assertFalse($validator->isValid($arg), $msg);
     }
-
 }

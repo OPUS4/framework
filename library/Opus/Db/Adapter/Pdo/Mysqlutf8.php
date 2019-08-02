@@ -60,7 +60,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
     protected function _connect()
     {
         // if we already have a PDO object, no need to re-connect.
-        if ( is_null($this->_connection) === false ) {
+        if (is_null($this->_connection) === false) {
             return;
         }
 
@@ -70,13 +70,13 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
             $logger->debug("Mysqlutf8: created new adapter");
 
             $backtrace = debug_backtrace(false);
-            foreach ($backtrace AS $row) {
-                $file     = array_key_exists('file', $row)     ? $row['file']     : '_no_file_)';
-                $line     = array_key_exists('line', $row)     ? $row['line']     : '0';
+            foreach ($backtrace as $row) {
+                $file     = array_key_exists('file', $row) ? $row['file'] : '_no_file_)';
+                $line     = array_key_exists('line', $row) ? $row['line'] : '0';
                 $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
 
                 $optional = '';
-                if ($row['function'] == 'query' && !is_null($row['args'][0])) {
+                if ($row['function'] == 'query' && ! is_null($row['args'][0])) {
                     $optional = "(" . $row['args'][0] . ")";
                 }
 

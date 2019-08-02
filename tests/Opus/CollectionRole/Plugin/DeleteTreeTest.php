@@ -34,11 +34,13 @@
  */
 
 /**
- * 
+ *
  */
-class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase {
-    
-    public function testPreDelete() {
+class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase
+{
+
+    public function testPreDelete()
+    {
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName('testRole');
         $collectionRole->setOaiName('testRole');
@@ -60,26 +62,28 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase {
 
         $xmlCache = new Opus_Model_Xml_Cache();
         $this->assertTrue($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry for document.');
-        
+
         $plugin = new Opus_CollectionRole_Plugin_DeleteTree();
-        
+
         sleep(1);
-        
+
         $plugin->preDelete($collectionRole);
-        
+
         $this->assertFalse($xmlCache->hasCacheEntry($docId, 1), 'Expected cache entry removed for document.');
 
         $d = new Opus_Document($docId);
         $serverDateModifiedAfter = $d->getServerDateModified();
         $this->assertTrue(
             $serverDateModifiedAfter->getUnixTimestamp() > $serverDateModifiedBeforeDelete->getUnixTimestamp(),
-            'Expected document server_date_modfied to be changed after deletion of collection');
+            'Expected document server_date_modfied to be changed after deletion of collection'
+        );
     }
 
     /**
      * Testet, daß die richtigen Collections gelöscht werden und auch nur verknüpfte Dokumente modifiziert werden.
      */
-    public function testDeletingOfCollectionRoleUsesCorrectIdForRootCollection() {
+    public function testDeletingOfCollectionRoleUsesCorrectIdForRootCollection()
+    {
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName('ColRole1Name');
         $collectionRole->setOaiName('ColRole1OaiName');
@@ -120,8 +124,10 @@ class Opus_CollectionRole_Plugin_DeleteTreeTest extends TestCase {
         // make sure document ServerDateModified wasn't changed
         $doc = new Opus_Document($docId);
 
-        $this->assertEquals($serverDateModified, $doc->getServerDateModified()->getUnixTimestamp(),
-            "ServerDateModified of unassigned document was changed.");
+        $this->assertEquals(
+            $serverDateModified,
+            $doc->getServerDateModified()->getUnixTimestamp(),
+            "ServerDateModified of unassigned document was changed."
+        );
     }
-
 }

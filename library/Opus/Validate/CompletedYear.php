@@ -38,5 +38,6 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_CompletedYear extends Opus_Validate_Year  {
+class Opus_Validate_CompletedYear extends Opus_Validate_Year
+{
 }

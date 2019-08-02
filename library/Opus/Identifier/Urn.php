@@ -41,7 +41,8 @@
  * @category Framework
  * @package Opus_Identifier
  */
-class Opus_Identifier_Urn {
+class Opus_Identifier_Urn
+{
 
     /**
      * The URN prefix
@@ -84,20 +85,19 @@ class Opus_Identifier_Urn {
      * @param string $nss  Namespace specific string.
      * @throws InvalidArgumentException Thrown if nid or nss does not follow RFS 2141.
      */
-    public function __construct($nid, $nss) {
+    public function __construct($nid, $nss)
+    {
         $nidRegex = '/^[a-zA-Z0-9][a-zA-z0-9\-]+$/';
         if (preg_match($nidRegex, $nid) !== 0) {
-            $this->_nid =  $nid;
-        }
-        else {
+            $this->_nid = $nid;
+        } else {
             throw new InvalidArgumentException('Used invalid namespace identifier. See RFC 2141.');
         }
 
         $nssRegex = '/^[a-zA-z0-9\(\)\+,\-\.:=@;\$_!\*\'%\/\?#]+$/';
         if (preg_match($nssRegex, $nss) !== 0) {
             $this->_nss = $nss;
-        }
-        else {
+        } else {
             throw new InvalidArgumentException('Used invalid namespace specific string. See RFC 2141.');
         }
 
@@ -112,15 +112,15 @@ class Opus_Identifier_Urn {
      * @throws InvalidArgumentException Thrown if the document identifier is not a number.
      * @return string The URN.
      */
-    public function getUrn($documentId) {
+    public function getUrn($documentId)
+    {
         // regexp pattern for valid document id
         $idPattern = '/^[1-9][0-9]*$/';
 
         // Check if document identifier is valid.
-        if ( preg_match($idPattern, $documentId) === 0 ) {
+        if (preg_match($idPattern, $documentId) === 0) {
             throw new InvalidArgumentException('Used invalid arguments for document id.');
-        }
-        else {
+        } else {
             // calculate matching check digit
             $checkDigit = self::getCheckDigit($documentId);
 
@@ -137,16 +137,16 @@ class Opus_Identifier_Urn {
      * @return integer Check digit.
      */
 
-    public function getCheckDigit($documentId) {
+    public function getCheckDigit($documentId)
+    {
 
         // regexp pattern for valid document id
         $idPattern = '/^[1-9][0-9]*$/';
 
         // Check if document identifier is valid.
-        if ( preg_match($idPattern, $documentId) === 0 ) {
+        if (preg_match($idPattern, $documentId) === 0) {
             throw new InvalidArgumentException('Used invalid arguments for document id.');
-        }
-        else {
+        } else {
             // compose urn with document id
             $nbn = $this->_namespace . $documentId;
 
@@ -174,7 +174,7 @@ class Opus_Identifier_Urn {
             $lastDigit = $nbnNumbersArray[$nbnNumbersLength];
 
             // calculate quotient, round down
-            $quotient = floor($sum/$lastDigit);
+            $quotient = floor($sum / $lastDigit);
 
             // convert to string
             $quotient = (string) $quotient;
@@ -182,7 +182,7 @@ class Opus_Identifier_Urn {
             // identify last digit, which is the check digit
             // TODO: (Thoralf)  Not supported by every PHP
             // $check_digit = ($quotient{mb_strlen($quotient)-1});
-            $checkDigit = ($quotient{strlen($quotient)-1});
+            $checkDigit = ($quotient{strlen($quotient) - 1});
 
             // return check digit
             return $checkDigit;
@@ -196,7 +196,8 @@ class Opus_Identifier_Urn {
      * @param string $urn A partial URN with the checkdigit missing.
      * @return string The given URN with all characters replaced by numbers.
      */
-    private function replaceUrnChars($urn) {
+    private function replaceUrnChars($urn)
+    {
         // However, the preg_replace function calls itself on the result of a previos run. In order to get
         // the replacement right, characters and numbers in the arrays below have got a specific order to make
         // it work. Be careful when changing those numbers! Tests may help ;)
@@ -205,18 +206,18 @@ class Opus_Identifier_Urn {
         $nbn = strtolower($urn);
 
         // array of characters to match
-        $searchPattern = array(
+        $searchPattern = [
             '/9/', '/8/', '/7/', '/6/', '/5/', '/4/', '/3/', '/2/', '/1/', '/0/', '/a/', '/b/',
             '/c/', '/d/', '/e/', '/f/', '/g/', '/h/', '/i/', '/j/', '/k/', '/l/', '/m/', '/n/', '/o/', '/p/', '/q/',
             '/r/', '/s/', '/t/', '/u/', '/v/', '/w/', '/x/', '/y/', '/z/', '/-/', '/:/'
-        );
+        ];
 
         // array of corresponding replacements, '9' will be temporarily replaced with placeholder '_' to prevent
         // replacement of '41' with '52'
-        $replacements = array(
+        $replacements = [
             '_', 9, 8, 7, 6, 5, 4, 3, 2, 1, 18, 14, 19, 15, 16, 21, 22, 23, 24, 25, 42, 26, 27, 13, 28, 29, 31, 12, 32,
             33, 11, 34, 35, 36, 37, 38, 39, 17
-        );
+        ];
 
         // replace matching pattern in given nbn with corresponding replacement
         $nbnNumbers = preg_replace($searchPattern, $replacements, $nbn);
@@ -226,5 +227,4 @@ class Opus_Identifier_Urn {
 
         return $nbnNumbers;
     }
-
 }

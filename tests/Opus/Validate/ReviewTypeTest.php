@@ -41,25 +41,31 @@
  * @package     Opus_Validate
  *
  */
-class Opus_Validate_ReviewTypeTest extends TestCase {
+class Opus_Validate_ReviewTypeTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('peer'),
-            array('editorial'),
-            array('open')
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['peer'],
+            ['editorial'],
+            ['open']
+        ];
     }
 
     /**
@@ -67,14 +73,15 @@ class Opus_Validate_ReviewTypeTest extends TestCase {
      *
      * @return array Array of invalid arguments.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null),
-            array(''),
-            array(4711),
-            array(true),
-            array('not_a_valid_type')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null],
+            [''],
+            [4711],
+            [true],
+            ['not_a_valid_type']
+        ];
     }
 
 
@@ -86,7 +93,8 @@ class Opus_Validate_ReviewTypeTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_ReviewType();
         $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
@@ -99,9 +107,9 @@ class Opus_Validate_ReviewTypeTest extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg) {
+    public function testInvalidArguments($arg)
+    {
         $validator = new Opus_Validate_ReviewType();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
-
 }
