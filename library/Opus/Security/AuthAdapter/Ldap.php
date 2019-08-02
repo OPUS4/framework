@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Security
  */
-class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
+class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter
+{
 
     /**
      * Performs an authentication attempt
@@ -46,35 +47,35 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
      * @throws Zend_Auth_Adapter_Exception If authentication cannot be performed.
      * @return Zend_Auth_Result
      */
-    public function authenticate() {
-        
+    public function authenticate()
+    {
+
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
-        
+
         $log_path = $config->ldap->log_path;
         $admins = explode(',', $config->ldap->admin_accounts);
 
         $options = $config->ldap->toArray();
-        
+
         unset($options['log_path']);
         unset($options['admin_accounts']);
-        
+
         try {
-        	// first check local DB with parent class
-        	$result = parent::authenticate();
+            // first check local DB with parent class
+            $result = parent::authenticate();
             $user = new Zend_Session_Namespace('loggedin');
             $user->usernumber = $this->_login;
-         }
-        catch (Exception $e) {
-        	throw $e;
+        } catch (Exception $e) {
+            throw $e;
         }
         if ($result->isValid() !== true) {
             try {
-            	$auth = Zend_Auth::getInstance();
-            	
+                $auth = Zend_Auth::getInstance();
+
                 $adapter = new Zend_Auth_Adapter_Ldap($options, $this->_login, $this->_password);
-        
+
                 $result = $auth->authenticate($adapter);
-                        
+
                 // log the result if a log path has been defined in config.ini
                 if ($log_path) {
                     $messages = $result->getMessages();
@@ -91,101 +92,98 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
                         }
                     }
                 }
-            
+
                 // if authentication was successfull and user is not already in OPUS DB
                 // register user as publisher to OPUS database
                 try {
                     $account = new Opus_Account(null, null, $this->_login);
                 } catch (Exception $ex) {
                     if ($result->isValid() === true) {
-     	                $user = new Zend_Session_Namespace('loggedin');
-    	                $user->usernumber = $this->_login;
-            	        $account= new Opus_Account();
-    		            $account->setLogin($this->_login);
-    		            $account->setPassword($this->_password);
-    		            $account->store();
-        		        $roles = Opus_Role::getAll();
-            		    // look for the publisher role in OPUS DB
-            		    foreach ($roles as $role) {
-            			    if ($role->getDisplayName() === 'publisher') {
-        	    			    $publisherId = $role->getId();
-        		    	    }
-        		    	    if ($role->getDisplayName() === 'administrator') {
-        	    			    $adminId = $role->getId();
-        		    	    }
-        		        }
-    	    	        if ($publisherId > 0) {
-    	    	            $accessRole = new Opus_Role($publisherId);
-    	    	        }
-        		        else {
-        			        // if there is no publisher role in DB, create it
-        			        $accessRole = new Opus_Role();
-        		            $accessRole->setName('publisher');
-            		        // the publisher role needs publish access!
-            		        $privilege = new Opus_Privilege();
+                        $user = new Zend_Session_Namespace('loggedin');
+                        $user->usernumber = $this->_login;
+                        $account = new Opus_Account();
+                        $account->setLogin($this->_login);
+                        $account->setPassword($this->_password);
+                        $account->store();
+                        $roles = Opus_Role::getAll();
+                        // look for the publisher role in OPUS DB
+                        foreach ($roles as $role) {
+                            if ($role->getDisplayName() === 'publisher') {
+                                $publisherId = $role->getId();
+                            }
+                            if ($role->getDisplayName() === 'administrator') {
+                                $adminId = $role->getId();
+                            }
+                        }
+                        if ($publisherId > 0) {
+                            $accessRole = new Opus_Role($publisherId);
+                        } else {
+                            // if there is no publisher role in DB, create it
+                            $accessRole = new Opus_Role();
+                            $accessRole->setName('publisher');
+                            // the publisher role needs publish access!
+                            $privilege = new Opus_Privilege();
                             $privilege->setPrivilege('publish');
                             $accessRole->addPrivilege($privilege);
-    	    	            $accessRole->store();
-        		        }
-    	    	        if ($adminId > 0) {
-    	    	            $adminRole = new Opus_Role($adminId);
-    	    	        }
-        		        else {
-        			        // if there is no publisher role in DB, create it
-        			        $adminRole = new Opus_Role();
-        		            $adminRole->setName('administrator');
-            		        // the publisher role needs publish access!
-            		        $adminprivilege = new Opus_Privilege();
+                            $accessRole->store();
+                        }
+                        if ($adminId > 0) {
+                            $adminRole = new Opus_Role($adminId);
+                        } else {
+                            // if there is no publisher role in DB, create it
+                            $adminRole = new Opus_Role();
+                            $adminRole->setName('administrator');
+                            // the publisher role needs publish access!
+                            $adminprivilege = new Opus_Privilege();
                             $adminprivilege->setPrivilege('administrate');
                             $adminRole->addPrivilege($adminprivilege);
-    	    	            $adminRole->store();
-        		        }
-        		        if (in_array($this->_login, $admins) === true) {
-        		        	$account->addRole($adminRole);
-        		        }
-        		        else {
-    		                $account->addRole($accessRole);
-        		        }
-    		            $account->store();
+                            $adminRole->store();
+                        }
+                        if (in_array($this->_login, $admins) === true) {
+                            $account->addRole($adminRole);
+                        } else {
+                            $account->addRole($accessRole);
+                        }
+                        $account->store();
                     }
-    		    }
-            }
-            catch (Zend_Auth_Adapter_Exception $e) {
-            	throw $e;
+                }
+            } catch (Zend_Auth_Adapter_Exception $e) {
+                throw $e;
             }
         }
-        
+
         return $result;
     }
-    
+
     /**
      * gets userdata from LDAP
-     * 
+     *
      * @return array data of currently logged in user
      */
-     public static function getUserdata() {
-     	// get usernumber from session
-     	// if session has not been defined return false
-     	$user = new Zend_Session_Namespace('loggedin');
-    	if (isset($user->usernumber) === false) {
-    		return false;
-    	}
-     	
-     	$return = array();
+    public static function getUserdata()
+    {
+        // get usernumber from session
+        // if session has not been defined return false
+        $user = new Zend_Session_Namespace('loggedin');
+        if (isset($user->usernumber) === false) {
+            return false;
+        }
+
+        $return = [];
 
         $config = new Zend_Config_Ini('../application/configs/config.ini', 'production');
-        
+
         $log_path = $config->ldap->log_path;
         $multiOptions = $config->ldap->toArray();
         $mappingSettings = $config->ldapmappings->toArray();
-                
+
         unset($multiOptions['log_path']);
         unset($multiOptions['admin_accounts']);
 
         $ldap = new Zend_Ldap();
 
         foreach ($multiOptions as $name => $options) {
-        	$mappingFirstName = $mappingSettings[$name]['firstName'];
+            $mappingFirstName = $mappingSettings[$name]['firstName'];
             $mappingLastName = $mappingSettings[$name]['lastName'];
             $mappingEMail = $mappingSettings[$name]['EMail'];
             $permanentId = $mappingSettings[$name]['personId'];
@@ -193,48 +191,42 @@ class Opus_Security_AuthAdapter_Ldap extends Opus_Security_AuthAdapter {
             $ldap->setOptions($options);
             try {
                 $ldap->bind();
-        
+
                 $ldapsearch = $ldap->search('(uid='.$user->usernumber.')', 'dc=tub,dc=tu-harburg,dc=de', Zend_Ldap::SEARCH_SCOPE_ONE);
-        
+
                 if ($ldapsearch->count() > 0) {
                     $searchresult = $ldapsearch->getFirst();
 
                     if (is_array($searchresult[$mappingFirstName]) === true) {
                         $return['firstName'] = $searchresult[$mappingFirstName][0];
-                    }
-                    else {
-                    	$return['firstName'] = $searchresult[$mappingFirstName];
+                    } else {
+                        $return['firstName'] = $searchresult[$mappingFirstName];
                     }
                     if (is_array($searchresult[$mappingLastName]) === true) {
                         $return['lastName'] = $searchresult[$mappingLastName][0];
-                    }
-                    else {
-                    	$return['lastName'] = $searchresult[$mappingLastName];
+                    } else {
+                        $return['lastName'] = $searchresult[$mappingLastName];
                     }
                     if (is_array($searchresult[$mappingEMail]) === true) {
                         $return['email'] = $searchresult[$mappingEMail][0];
-                    }
-                    else {
-                    	$return['email'] = $searchresult[$mappingEMail];
+                    } else {
+                        $return['email'] = $searchresult[$mappingEMail];
                     }
                     if (is_array($searchresult[$permanentId]) === true) {
                         $return['personId'] = $searchresult[$permanentId][0];
-                    }
-                    else {
-                    	$return['personId'] = $searchresult[$permanentId];
+                    } else {
+                        $return['personId'] = $searchresult[$permanentId];
                     }
                     return $return;
                 }
-            }
-            catch (Zend_Ldap_Exception $zle) {
+            } catch (Zend_Ldap_Exception $zle) {
                 echo '  ' . $zle->getMessage() . "\n";
                 if ($zle->getCode() === Zend_Ldap_Exception::LDAP_X_DOMAIN_MISMATCH) {
                     continue;
                 }
             }
         }
-        
-        return $return;
-     }
 
+        return $return;
+    }
 }

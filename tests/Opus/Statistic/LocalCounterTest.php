@@ -41,7 +41,8 @@
  *
  * @group LocalCounterTest
  */
-class Opus_Statistic_LocalCounterTest extends TestCase {
+class Opus_Statistic_LocalCounterTest extends TestCase
+{
 
     /**
      * Document to count on :)
@@ -56,7 +57,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
 
         $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
@@ -77,7 +79,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    public function tearDown()
+    {
         parent::tearDown();
 
         $path = Zend_Registry::get('temp_dir') . '~localstat.xml';
@@ -89,7 +92,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
      *
      * @return void
      */
-    public function testGetInstance() {
+    public function testGetInstance()
+    {
         $lc = Opus_Statistic_LocalCounter::getInstance();
         $this->assertNotNull($lc, 'Expected instance');
         $this->assertInstanceOf('Opus_Statistic_LocalCounter', $lc, 'Expected object of type Opus_Statistic_LocalCounter.');
@@ -100,7 +104,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
      *
      * @return void
      */
-    public function testCountSingleClick() {
+    public function testCountSingleClick()
+    {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
         $docId = $this->_document->getId();
@@ -122,7 +127,8 @@ class Opus_Statistic_LocalCounterTest extends TestCase {
         }
     }
 
-    public function testCountSingleFrontdoorClick() {
+    public function testCountSingleFrontdoorClick()
+    {
         //$this->markTestIncomplete('Test and CUT still under development.');
 
         $docId = $this->_document->getId();

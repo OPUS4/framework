@@ -37,14 +37,17 @@
 /**
  * First implementation of Opus XML representation.
  */
-class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
+class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
+{
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->_version = '1.0';
         parent::__construct();
     }
 
-    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field) {
+    public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field)
+    {
         $fieldName = $field->getName();
         $fieldValues = $this->getFieldValues($field);
 
@@ -53,13 +56,13 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         $rootNode->setAttribute($fieldName, $fieldValues);
     }
 
-    protected function createFieldElement(DOMDocument $dom, $fieldName, $value) {
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
+    {
         $childNode = $dom->createElement($fieldName);
         if ($value instanceof Opus_Model_AbstractDb) {
             if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
                 $modelId = $value->getLinkedModelId();
-            }
-            else {
+            } else {
                 $modelId = $value->getId();
             }
             // Ignore compound keys.
@@ -70,13 +73,13 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         return $childNode;
     }
 
-    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model) {
+    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model)
+    {
         $childNode = $dom->createElement(get_class($model));
 
         if ($model instanceof Opus_Model_AbstractDb) {
             $childNode->setAttribute('Id', $model->getId());
-        }
-        else if ($model instanceof Opus_Model_Filter and
+        } elseif ($model instanceof Opus_Model_Filter and
             $model->getModel() instanceof Opus_Model_AbstractDb) {
             $childNode->setAttribute('Id', $model->getId());
         }
@@ -91,7 +94,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * @param  DOMElement           $element The DomElement holding the field names and values.
      * @return Opus_Model_Abstract  $model   The populated model.
      */
-    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _populateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $fieldList = $model->describe();
 
         // Internal fields exist as attributes
@@ -101,12 +105,10 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             // multi-value internal fields should hold values concatenated because they have only one field in database
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
-
                 $callname = 'set' . $field->name;
                 if ($field->value === '') {
                     $model->$callname(null);
-                }
-                else {
+                } else {
                     $model->$callname($field->value);
                 }
             }
@@ -117,8 +119,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $fieldName = $externalField->nodeName;
             if (in_array($fieldName, $fieldList) === false) {
                 throw new Opus_Model_Exception('Field ' . $fieldName . ' not defined');
-            }
-            else {
+            } else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
             }
 
@@ -128,7 +129,6 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $model->$callname($submodel);
         }
         return $model;
-
     }
 
     /**
@@ -138,7 +138,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * @param DOMElement          $element Element with new data.
      * @return Opus_Model_Abstract
      */
-    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element) {
+    protected function _updateModelFromXml(Opus_Model_Abstract $model, DOMElement $element)
+    {
         $config = $this->getConfig();
         // When xlink:href given use resolver to obtain model
         $ref = $element->attributes->getNamedItem('href');
@@ -152,18 +153,16 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
         foreach ($element->attributes as $field) {
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
-
                 $callname = 'set' . $field->name;
                 if ($field->value === '') {
                     $model->$callname(null);
-                }
-                else {
+                } else {
                     $model->$callname($field->value);
                 }
             }
         }
 
-        $externalFields = array();
+        $externalFields = [];
         // collect all external field names
         foreach ($element->childNodes as $externalField) {
             $fieldName = $externalField->nodeName;
@@ -180,7 +179,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $field = $model->getField($fieldName);
             $fieldValue = $field->getValue();
 
-            $subModels = array();
+            $subModels = [];
 
             $domElements = $element->getElementsByTagName($fieldName);
 
@@ -188,8 +187,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             foreach ($domElements as $domElement) {
                 if (false === is_array($fieldValue)) {
                     $submodel = $fieldValue;
-                }
-                else {
+                } else {
                     $submodel = $fieldValue[$i];
                 }
                 $subModels[] = $this->_updateModelFromXml($submodel, $domElement);
@@ -199,8 +197,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $callName = 'set' . $fieldName;
             if (1 === count($subModels)) {
                 $model->$callName($subModels[0]);
-            }
-            else {
+            } else {
                 $model->$callName($subModels);
             }
         }
@@ -212,7 +209,8 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#updateFromXml()
      */
-    public function updateFromXml($xml) {
+    public function updateFromXml($xml)
+    {
         $this->setXml($xml);
         $config = $this->getConfig();
         $modelElement = $config->dom->getElementsByTagName(get_class($config->model))->item(0);
@@ -220,5 +218,4 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract {
             $this->_updateModelFromXml($config->model, $modelElement);
         }
     }
-
 }

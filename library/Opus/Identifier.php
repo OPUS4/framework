@@ -171,7 +171,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $docIds = $finder->ids();
         // remove $docId of current document from $docIds
 
-        if (!is_null($docId)) {
+        if (! is_null($docId)) {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
@@ -194,8 +194,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         try {
             $this->checkUrnCollision($this->getValue(), $docId);
             return true;
-        }
-        catch (Opus_Identifier_UrnAlreadyExistsException $e) {
+        } catch (Opus_Identifier_UrnAlreadyExistsException $e) {
             // ignore exception
         }
         return false;
@@ -211,7 +210,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
      */
     public function checkDoiCollision()
     {
-        if (!$this->isLocalDoi()) {
+        if (! $this->isLocalDoi()) {
             return false;
         }
 
@@ -243,7 +242,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $finder->setIdentifierTypeValue('doi', $this->getValue());
         $docIds = $finder->ids();
         // remove $docId from $docIds
-        if (!is_null($docId)) {
+        if (! is_null($docId)) {
             if (($key = array_search($docId, $docIds)) !== false) {
                 unset($docIds[$key]);
             }
@@ -251,8 +250,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
 
         try {
             $this->checkIdCollision('doi', $docIds);
-        }
-        catch (Exception $e) {
+        } catch (Exception $e) {
             return false;
         }
         return true;
@@ -278,8 +276,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
         $generator = null;
         try {
             $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();
-        }
-        catch (Opus_Doi_DoiException $e) {
+        } catch (Opus_Doi_DoiException $e) {
             // ignore exception
         }
 
@@ -319,7 +316,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
                 $exception = new Opus_Model_Exception($errorMsg);
         }
 
-        if ($this->isNewRecord() and !empty($docIds)) {
+        if ($this->isNewRecord() and ! empty($docIds)) {
             throw $exception;
         }
 
@@ -327,7 +324,7 @@ class Opus_Identifier extends Opus_Model_Dependent_Abstract
             throw $exception;
         }
 
-        if (count($docIds) == 1 and !is_null($this->getParentId()) and !in_array($this->getParentId(), $docIds)) {
+        if (count($docIds) == 1 and ! is_null($this->getParentId()) and ! in_array($this->getParentId(), $docIds)) {
             throw $exception;
         }
     }

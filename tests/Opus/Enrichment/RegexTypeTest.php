@@ -105,7 +105,7 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
     {
         $regexType = new Opus_Enrichment_RegexType();
         $props = $regexType->getOptionProperties();
-        $this->assertEquals(array('regex'), $props);
+        $this->assertEquals(['regex'], $props);
     }
 
     public function testGetFormElementName()
@@ -113,5 +113,4 @@ class Opus_Enrichment_RegexTypeTest extends TestCase
         $regexType = new Opus_Enrichment_RegexType();
         $this->assertEquals('Text', $regexType->getFormElementName());
     }
-
 }

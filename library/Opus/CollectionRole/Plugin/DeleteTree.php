@@ -37,13 +37,15 @@
 /**
  * Plugin for deleting collections of CollectionRole und updating documents.
  */
-class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCollection {
+class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCollection
+{
 
     /**
      * Updates documents and deletes collections of CollectionRole.
      * @param Opus_Model_AbstractDb $model
      */
-    public function preDelete(Opus_Model_AbstractDb $model) {
+    public function preDelete(Opus_Model_AbstractDb $model)
+    {
         if ($model->isNewRecord()) {
             return;
         }
@@ -51,7 +53,7 @@ class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCo
         // Update documents, incl. ServerDateModified
         if ($model instanceof Opus_CollectionRole) {
             $rootCollection = $model->getRootCollection();
-            if (!is_null($rootCollection)) {
+            if (! is_null($rootCollection)) {
                 $this->updateDocuments($rootCollection);
             }
         }
@@ -60,5 +62,4 @@ class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCo
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $collections->deleteTree($model->getId());
     }
-
 }

@@ -37,5 +37,4 @@ class Opus_Enrichment_TextareaType extends Opus_Enrichment_AbstractType
     {
         return 'Textarea';
     }
-
 }

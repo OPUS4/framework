@@ -54,7 +54,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
     {
         $log = Zend_Registry::get('Zend_Log');
 
-        if (!($model instanceof Opus_Document)) {
+        if (! ($model instanceof Opus_Document)) {
             $log->err(__CLASS__ . ' found unexpected model class ' . get_class($model));
             return;
         }
@@ -76,8 +76,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
         $doc = null;
         try {
             $doc = new Opus_Document($modelId);
-        }
-        catch (Opus_Model_NotFoundException $e) {
+        } catch (Opus_Model_NotFoundException $e) {
             // ignore silently and exit method since we do not need to perform any action
             return;
         }
@@ -87,18 +86,20 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
         }
     }
 
-    private function handleDeleteEvent($document) {
+    private function handleDeleteEvent($document)
+    {
         // Metadatensatz für DOI auf den Status "inactive" setzen
         $doiManager = new Opus_Doi_DoiManager();
         $doiManager->deleteMetadataForDoi($document);
     }
 
-    private function handlePublishEvent($document, $log) {
+    private function handlePublishEvent($document, $log)
+    {
         // prüfe zuerst, ob das Dokument das Enrichment opus.doi.autoCreate besitzt
         // in diesem Fall wird nun eine DOI gemäß der Konfigurationseinstellungen generiert
         $generateDoi = null;
         $enrichment = $document->getEnrichment('opus.doi.autoCreate');
-        if (!is_null($enrichment)) {
+        if (! is_null($enrichment)) {
             $enrichmentValue = $enrichment->getValue();
             $generateDoi = ($enrichmentValue == 'true');
             $log->debug('found enrichment opus.doi.autoCreate with value ' . $enrichmentValue);
@@ -112,16 +113,14 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
         }
 
         // prüfe, ob bereits eine DOI mit dem Dokument verknüpft ist
-        if (!empty($document->getIdentifierDoi())) {
+        if (! empty($document->getIdentifierDoi())) {
             $log->debug('could not assign more than one DOI to document ' . $document->getId());
-        }
-        else {
+        } else {
             // $generateDoi kann hier nicht mehr null sein: aktueller Wert entscheidet, ob neue DOI generiert wird
             if ($generateDoi) {
                 try {
                     $this->addDoi($document, $log);
-                }
-                catch (Exception $e) {
+                } catch (Exception $e) {
                     $log->err('could not generate local DOI for document ' . $document->getId() . ' - abort DOI registration procedure');
                     return;
                 }
@@ -138,13 +137,13 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
      *
      * @param $model Opus_Document zu dem die DOI hinzugefügt werden soll
      */
-    private function addDoi($model, $log) {
+    private function addDoi($model, $log)
+    {
 
         try {
             $doiManager = new Opus_Doi_DoiManager();
             $doiValue = $doiManager->generateNewDoi($model);
-        }
-        catch (Opus_Doi_DoiException $e) {
+        } catch (Opus_Doi_DoiException $e) {
             $message = 'could not generate DOI value for document ' . $model->getId() . ': ' . $e->getMessage();
             $log->err($message);
             throw new Exception($message);
@@ -156,7 +155,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
 
         $identifiers = $model->getIdentifier();
         if (is_null($identifiers)) {
-            $identifiers = array();
+            $identifiers = [];
         }
         $identifiers[] = $doi;
         $model->setIdentifier($identifiers);
@@ -169,10 +168,11 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
      *
      * @param $model
      */
-    private function registerDoi($model, $log, $config) {
+    private function registerDoi($model, $log, $config)
+    {
 
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
-        if (!isset($config->doi->registerAtPublish) || !($config->doi->registerAtPublish || $config->doi->registerAtPublish == '1')) {
+        if (! isset($config->doi->registerAtPublish) || ! ($config->doi->registerAtPublish || $config->doi->registerAtPublish == '1')) {
             $log->debug('registration of DOIs at publish time is disabled in configuration');
             return;
         }
@@ -186,13 +186,10 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
             if (is_null($registeredDoi)) {
                 $log->err('could not apply DOI registration on document ' . $model->getId());
             }
-        }
-        catch (Opus_Doi_RegistrationException $e) {
+        } catch (Opus_Doi_RegistrationException $e) {
             $log->err('unexpected error in registration of DOI ' . $e->getDoi() . ' of document ' . $model->getId() . ': ' . $e->getMessage());
-        }
-        catch (Opus_Doi_DoiException $e) {
+        } catch (Opus_Doi_DoiException $e) {
             $log->err('unexpected error in DOI-registration of document ' . $model->getId() . ': ' . $e->getMessage());
         }
-
     }
 }

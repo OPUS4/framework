@@ -67,7 +67,7 @@ class Opus_Validate_Language extends Zend_Validate_Abstract
     public function isValid($value)
     {
         if (false === is_array($value)) {
-            $value = array($value);
+            $value = [$value];
         }
 
         $registry = Zend_Registry::getInstance();

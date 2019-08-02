@@ -38,7 +38,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_Boolean extends Zend_Validate_Abstract {
+class Opus_Validate_Boolean extends Zend_Validate_Abstract
+{
 
     /**
      * Error message key for invalid type.
@@ -51,9 +52,9 @@ class Opus_Validate_Boolean extends Zend_Validate_Abstract {
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_TYPE => "'%value%' is not of type boolean",
-    );
+    ];
 
     /**
      * Validate the given boolean value.
@@ -72,5 +73,4 @@ class Opus_Validate_Boolean extends Zend_Validate_Abstract {
 
         return true;
     }
-
 }

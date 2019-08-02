@@ -58,7 +58,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      */
     final public static function getInstance($class)
     {
-        if (!isset(self::$instances[$class])) {
+        if (! isset(self::$instances[$class])) {
             $object = new $class();
             self::$instances[$class] = $object;
         }
@@ -80,7 +80,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
      */
     final public static function clearInstances()
     {
-        self::$instances = array();
+        self::$instances = [];
     }
 
     /**
@@ -101,7 +101,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         $q_values = [];
         $update = '';
 
-        foreach ($data AS $key => $value) {
+        foreach ($data as $key => $value) {
             $quotedKey = $adapter->quoteIdentifier($key);
             $q_keys[] = $quotedKey;
             $q_values[] = $adapter->quote($value);
@@ -111,7 +111,7 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
         // if an update is performed instead of an insert this is necessary for lastInsertId() to provide a value
         $primaryKey = $this->_primary;
 
-        if (!is_null($primaryKey) and !is_array($primaryKey)) {
+        if (! is_null($primaryKey) and ! is_array($primaryKey)) {
             // no support for composite keys
             $update .= " $primaryKey=LAST_INSERT_ID($primaryKey)";
         } else {
@@ -140,10 +140,10 @@ abstract class Opus_Db_TableGateway extends Zend_Db_Table_Abstract
 
         $q_clauses = [];
 
-        foreach ($data AS $key => $value) {
+        foreach ($data as $key => $value) {
             $q_key = $adapter->quoteIdentifier($key);
             $q_value = $adapter->quote($value);
-            if(is_array($value)) {
+            if (is_array($value)) {
                 $q_clauses[] = $q_key . ' IN (' . $q_value .')';
             } else {
                 $q_clauses[] = $q_key . " = " . $q_value;

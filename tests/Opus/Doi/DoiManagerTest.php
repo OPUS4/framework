@@ -215,8 +215,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
 
         $this->adaptDoiConfiguration([
             'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4']
-        );
+            'localPrefix' => 'OPUS4']);
 
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-');
         $doiManager = new Opus_Doi_DoiManager();
@@ -330,17 +329,15 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $fp = null;
         try {
             $fp = fsockopen($hostname, $port, $errno, $errstr, 5);
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $fp = false;
         }
 
-        if (!$fp) {
+        if (! $fp) {
             // wenn keine Netzwerkverbindung zu DataCite hergestellt werden kann,
             // dann wird der DOI-Registrierungsstatus des Dokuments nicht angetastet
             $this->assertEquals('verified', $result->getStatus());
-        }
-        else {
+        } else {
             // Status-Downgrade muss erfolgt sein: prüfe, ob das der Fall ist
             $this->assertEquals('registered', $result->getStatus());
         }
@@ -350,8 +347,7 @@ class Opus_Doi_DoiManagerTest extends TestCase
     {
         $this->adaptDoiConfiguration([
             'prefix' => '10.5072/',
-            'localPrefix' => 'OPUS4']
-        );
+            'localPrefix' => 'OPUS4']);
 
         $docId = $this->createTestDocWithDoi('10.5072/OPUS4-', 'registered');
         $doiManager = new Opus_Doi_DoiManager();
@@ -685,10 +681,10 @@ class Opus_Doi_DoiManagerTest extends TestCase
         $doi = new Opus_Identifier();
         $doi->setType('doi');
         $doi->setValue($doiPrefix . $docId);
-        if (!is_null($status)) {
+        if (! is_null($status)) {
             $doi->setStatus($status);
         }
-        if (!is_null($registrationTs)) {
+        if (! is_null($registrationTs)) {
             $doi->setRegistrationTs($registrationTs);
         }
         $doc->setIdentifier([$doi]);

@@ -33,28 +33,32 @@
  * @version     $Id$
  */
 
-class Opus_Util_MetadataImportXmlValidation {
+class Opus_Util_MetadataImportXmlValidation
+{
 
     private $xml;
 
 
-    public function __construct($xml = null) {
-	$this->xml = $xml;
+    public function __construct($xml = null)
+    {
+        $this->xml = $xml;
     }
 
 
-    public function checkValidXml() {
+    public function checkValidXml()
+    {
         // Enable user error handling while validating input file
         libxml_clear_errors();
         libxml_use_internal_errors(true);
 
-        if (!$this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
+        if (! $this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
             throw new Opus_Util_MetadataImportInvalidXmlException(self::getErrorMessage());
         }
     }
-    
 
-    static function getErrorMessage() {
+
+    static function getErrorMessage()
+    {
         $errorMsg = '';
         foreach (libxml_get_errors() as $error) {
             $errorMsg .= "\non line $error->line ";
@@ -74,6 +78,4 @@ class Opus_Util_MetadataImportXmlValidation {
         libxml_clear_errors();
         return $errorMsg;
     }
-
 }
-

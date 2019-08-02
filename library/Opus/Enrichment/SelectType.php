@@ -59,10 +59,10 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
     public function getFormElement($value = null)
     {
         $form = new Admin_Form_Document_Enrichment();
-        $options = array('required' => true);
+        $options = ['required' => true];
         $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
 
-        if (!is_null($this->values)) {
+        if (! is_null($this->values)) {
             $element->setMultiOptions($this->values);
             $validator = new Zend_Validate_InArray(array_keys($this->values));
             $validator->setMessage('admin_validate_error_select_inarray');
@@ -72,7 +72,7 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
         // wenn es sich um ein Select-Element handelt, dann steht in $value
         // der Index des ausgewählten Eintrags (Zählung beginnt bei 0)
         // der ausgewählte Wert muss aus dem Index abgeleitet werden wenn
-        if (!is_null($value)) {
+        if (! is_null($value)) {
             $value = array_search($value, $this->values);
             $element->setValue($value);
         }
@@ -86,12 +86,11 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
     public function getOptionsAsString()
     {
         $result = null;
-        if (!is_null($this->values)) {
+        if (! is_null($this->values)) {
             foreach ($this->values as $value) {
                 if (is_null($result)) {
                     $result = "";
-                }
-                else {
+                } else {
                     $result .= "\n";
                 }
                 $result .= $value;
@@ -113,7 +112,7 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
         while ($line !== false) {
             if (trim($line) !== '') {
                 if ($this->values == null) {
-                    $this->values = array();
+                    $this->values = [];
                 }
                 $this->values[] = $line;
             }
@@ -123,6 +122,6 @@ class Opus_Enrichment_SelectType extends Opus_Enrichment_AbstractType
 
     public function getOptionProperties()
     {
-        return array('values');
+        return ['values'];
     }
 }

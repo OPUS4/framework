@@ -39,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Privileges extends Opus_Db_TableGateway {
+class Opus_Db_Privileges extends Opus_Db_TableGateway
+{
     /**
      * Table schema name.
      *
@@ -53,15 +54,15 @@ class Opus_Db_Privileges extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Roles' => array(
+    protected $_referenceMap = [
+            'Roles' => [
                 'columns' => 'role_id',
                 'refTableClass' => 'Opus_Db_UserRoles',
                 'refColumns' => 'id',
-                ),
-            'DocumentFiles' => array(
+                ],
+            'DocumentFiles' => [
                 'columns' => 'file_id',
                 'refTableClass' => 'Opus_Db_DocumentFiles',
-                'refColumns' => 'id',)
-            );
+                'refColumns' => 'id',]
+            ];
 }

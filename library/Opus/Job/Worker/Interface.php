@@ -26,14 +26,15 @@
  * @package     Opus_Job
  * @subpackage  Worker
  */
-interface Opus_Job_Worker_Interface {
+interface Opus_Job_Worker_Interface
+{
     /**
      * Return message label that is used to trigger worker process.
      *
      * @return string Message label.
      */
     public function getActivationLabel();
-    
+
     /**
      * Perfom work.
      *
@@ -41,7 +42,7 @@ interface Opus_Job_Worker_Interface {
      * @return array Array of Jobs to be newly created.
      */
     public function work(Opus_Job $job);
-    
+
     /**
      * Set logging facility.
      *
@@ -49,6 +50,4 @@ interface Opus_Job_Worker_Interface {
      * @return void
      */
     public function setLogger($logger);
-    
 }
-

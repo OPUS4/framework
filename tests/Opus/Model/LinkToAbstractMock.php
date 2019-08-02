@@ -38,7 +38,8 @@
  * @category    Tests
  * @package     Opus_Model
  */
-class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract
+{
 
 
     /**
@@ -53,7 +54,8 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
      * of values has to be prevented.
      *
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -62,10 +64,11 @@ class Opus_Model_LinkToAbstractMock extends Opus_Model_Dependent_Link_Abstract {
      * @return void
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    protected function _init() {
-    }
-    
-    public function delete() {
+    protected function _init()
+    {
     }
 
+    public function delete()
+    {
+    }
 }

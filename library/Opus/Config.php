@@ -38,12 +38,12 @@
 class Opus_Config
 {
 
-	/**
-	 * @return Zend_Config
-	 * @throws Zend_Exception
-	 */
-	public static function get()
+    /**
+     * @return Zend_Config
+     * @throws Zend_Exception
+     */
+    public static function get()
     {
-		return Zend_Registry::get( 'Zend_Config' );
-	}
+        return Zend_Registry::get('Zend_Config');
+    }
 }

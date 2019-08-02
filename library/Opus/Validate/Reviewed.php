@@ -38,6 +38,7 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-class Opus_Validate_Reviewed extends Opus_Validate_ReviewType {
-    
+class Opus_Validate_Reviewed extends Opus_Validate_ReviewType
+{
+
 }

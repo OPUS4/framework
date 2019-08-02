@@ -40,7 +40,8 @@
  * Worker class for indexing Opus documents.
  *
  */
-class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
+class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface
+{
 
     const LABEL = 'opus-index-document';
 
@@ -61,7 +62,8 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
     /**
      * @param mixed $logger (Optional)
      */
-    public function __construct($logger = null) {
+    public function __construct($logger = null)
+    {
         $this->setLogger($logger);
     }
 
@@ -70,7 +72,8 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      *
      * @return string Message label.
      */
-    public function getActivationLabel() {
+    public function getActivationLabel()
+    {
         return self::LABEL;
     }
 
@@ -81,10 +84,11 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      * @return void
      * @throws InvalidArgumentException
      */
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         if (null === $logger) {
             $this->_logger = new Zend_Log(new Zend_Log_Writer_Null());
-        } else if ($logger instanceof Zend_Log) {
+        } elseif ($logger instanceof Zend_Log) {
             $this->_logger = $logger;
         } else {
             throw new InvalidArgumentException('Zend_Log instance expected.');
@@ -96,8 +100,9 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      *
      * @return void
      */
-    public function setIndex() {
-        throw new RuntimeException( 'Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!' );
+    public function setIndex()
+    {
+        throw new RuntimeException('Indexing service cannot be set programmatically anymore! Use runtime configuration defining solr service named "jobRunner" instead!');
     }
 
     /**
@@ -108,7 +113,8 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
      * @return void
      * @throws Opus_Job_Worker_InvalidJobException
      */
-    public function work(Opus_Job $job) {
+    public function work(Opus_Job $job)
+    {
 
         // make sure we have the right job
         if ($job->getLabel() != $this->getActivationLabel()) {
@@ -118,11 +124,12 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
         $this->_job = $job;
         $data = $job->getData();
 
-        if (!(is_object($data)
+        if (! (is_object($data)
                 && isset($data->documentId)
                 && isset($data->task)
-                ))
+                )) {
             throw new Opus_Job_Worker_InvalidJobException("Incomplete or missing data.");
+        }
 
         if (null !== $this->_logger) {
             $this->_logger->info('Indexing document with ID: ' . $data->documentId . '.');
@@ -130,17 +137,15 @@ class Opus_Job_Worker_IndexOpusDocument implements Opus_Job_Worker_Interface {
 
         // create index document or remove index, depending on task
         if ($data->task === 'index') {
-	        $document = new Opus_Document($data->documentId);
+            $document = new Opus_Document($data->documentId);
 
-	        Opus_Search_Service::selectIndexingService( 'jobRunner' )
-		        ->addDocumentsToIndex($document);
-        } else if ($data->task === 'remove') {
-            Opus_Search_Service::selectIndexingService( 'jobRunner' )
-	            ->removeDocumentsFromIndexById($data->documentId);
+            Opus_Search_Service::selectIndexingService('jobRunner')
+                ->addDocumentsToIndex($document);
+        } elseif ($data->task === 'remove') {
+            Opus_Search_Service::selectIndexingService('jobRunner')
+                ->removeDocumentsFromIndexById($data->documentId);
         } else {
             throw new Opus_Job_Worker_InvalidJobException("unknown task '{$data->task}'.");
         }
     }
-
 }
-

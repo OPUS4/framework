@@ -36,7 +36,8 @@
 /**
  * Interface for classes providing security implementation.
  */
-interface Opus_Security_IRealm {
+interface Opus_Security_IRealm
+{
 
     /**
      * Set the current username.
@@ -96,7 +97,9 @@ interface Opus_Security_IRealm {
      *
      * @deprecated
      */
-    public function check($privilege, $documentServerState = null,
-            $fileId = null);
+    public function check(
+        $privilege,
+        $documentServerState = null,
+        $fileId = null
+    );
 }
-

@@ -66,7 +66,7 @@ class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract
         $log = Zend_Registry::get('Zend_Log');
         $log->debug('Opus_Document_Plugin_SequenceNumber::postStore() with id ' . $model->getId());
 
-        if (!($model instanceof Opus_Document)) {
+        if (! ($model instanceof Opus_Document)) {
             $message = 'Model is not an Opus_Document. Aborting...';
             $log->err($message);
             throw new Opus_Document_Exception($message);
@@ -79,7 +79,7 @@ class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract
         }
 
         $config = Zend_Registry::get('Zend_Config');
-        if(!isset($config, $config->sequence->identifier_type)) {
+        if (! isset($config, $config->sequence->identifier_type)) {
             $log->debug('Sequence auto creation is not configured. skipping...');
             return;
         }
@@ -87,7 +87,7 @@ class Opus_Document_Plugin_SequenceNumber extends Opus_Model_Plugin_Abstract
 
         $sequence_ids = [];
 
-        foreach ($model->getIdentifier() AS $id) {
+        foreach ($model->getIdentifier() as $id) {
             if ($id->getType() === $sequence_type) {
                 $sequence_ids[] = trim($id->getValue());
             }

@@ -88,7 +88,8 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
         $this->addField($value);
     }
 
-    public function getEnrichmentKey() {
+    public function getEnrichmentKey()
+    {
         $keyName = $this->getField('KeyName')->getValue();
         if (is_null($keyName) || $keyName === '') {
             return null;
@@ -96,5 +97,4 @@ class Opus_Enrichment extends Opus_Model_Dependent_Abstract
 
         return Opus_EnrichmentKey::fetchByName($keyName);
     }
-
 }

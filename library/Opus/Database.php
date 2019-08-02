@@ -125,7 +125,7 @@ class Opus_Database
         // if targetVersion is specified or no complete schema file is present
         $scripts = $this->getUpdateScripts(null, $targetVersion);
 
-        foreach($scripts as $script) {
+        foreach ($scripts as $script) {
             $this->import($script);
         }
     }
@@ -137,7 +137,7 @@ class Opus_Database
      */
     public function import($path)
     {
-        if (!is_readable($path)) {
+        if (! is_readable($path)) {
             throw new Exception('Path not readable');
         }
 
@@ -164,7 +164,8 @@ class Opus_Database
      * Loads and executes SQL file.
      * @param $path Path to SQL file
      */
-    public function execScript($path) {
+    public function execScript($path)
+    {
         $sql = file_get_contents($path);
         return $this->exec($sql);
     }
@@ -174,7 +175,8 @@ class Opus_Database
      * @param null $dbName string
      * @return PDO
      */
-    public function getPdo($dbName = null) {
+    public function getPdo($dbName = null)
+    {
         $dbUser = $this->getUsername();
         $dbPwd = $this->getPassword();
 
@@ -187,7 +189,7 @@ class Opus_Database
             ";default-character-set=$defaultCharacterSet" .
             ';default-collate=' . self::DEFAULT_COLLATE;
 
-        if (!is_null($dbName) && strlen(trim($dbName)) > 0) {
+        if (! is_null($dbName) && strlen(trim($dbName)) > 0) {
             $connStr .= ";dbname=$dbName";
         }
 
@@ -245,7 +247,7 @@ class Opus_Database
 
             $statement = $pdo->query($sql);
 
-            while($statement->nextRowset()) {
+            while ($statement->nextRowset()) {
                 // iterate through results until finished or exception thrown
             }
         } catch (PDOException $pdoex) {
@@ -304,7 +306,7 @@ class Opus_Database
 
         $sqlFiles = [];
 
-        foreach($files as $file) {
+        foreach ($files as $file) {
             $filename = $file->getBasename();
             if (strrchr($filename, '.') == '.sql' && (is_null($pattern) || preg_match($pattern, $filename))) {
                 $sqlFiles[] = $file->getPathname();
@@ -337,7 +339,7 @@ class Opus_Database
     {
         $path = $this->getBasePath() . self::SCHEMA_PATH;
 
-        if (!is_file($path)) {
+        if (! is_file($path)) {
             throw new Exception('could not find schema file');
         }
 
@@ -389,7 +391,7 @@ class Opus_Database
             if (isset($result['version'])) {
                 $version = $result['version'];
             }
-        } catch(PDOException $pdoex) {
+        } catch (PDOException $pdoex) {
             // TODO logging
         }
 
@@ -432,16 +434,16 @@ class Opus_Database
 
         $files = $this->getSqlFiles($scriptsPath, '/^\d{3}-.*/');
 
-        if (!is_null($version)) {
-            $files = array_filter($files, function($value) use ($version) {
+        if (! is_null($version)) {
+            $files = array_filter($files, function ($value) use ($version) {
                 $basename = basename($value);
                 $number = substr($basename, 0, 3);
                 return ($number > $version);
             });
         }
 
-        if (!is_null($targetVersion)) {
-            $files = array_filter($files, function($value) use ($targetVersion) {
+        if (! is_null($targetVersion)) {
+            $files = array_filter($files, function ($value) use ($targetVersion) {
                 $basename = basename($value);
                 $number = substr($basename, 0, 3);
                 return ($number <= $targetVersion);

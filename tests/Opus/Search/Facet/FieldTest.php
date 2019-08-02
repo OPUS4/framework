@@ -31,15 +31,18 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Facet_FieldTest extends SimpleTestCase {
+class Opus_Search_Facet_FieldTest extends SimpleTestCase
+{
 
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $field = new Opus_Search_Facet_Field('author_facet');
 
         $this->assertEquals('author_facet', $field->getName());
     }
 
-    public function testCreate() {
+    public function testCreate()
+    {
         $field = Opus_Search_Facet_Field::create('author_facet');
 
         $this->assertEquals('author_facet', $field->getName());
@@ -49,7 +52,8 @@ class Opus_Search_Facet_FieldTest extends SimpleTestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage invalid facet field name
      */
-    public function testConstructInvalidFieldname() {
+    public function testConstructInvalidFieldname()
+    {
         $field = new Opus_Search_Facet_Field(100);
     }
 
@@ -57,11 +61,13 @@ class Opus_Search_Facet_FieldTest extends SimpleTestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage invalid facet field name
      */
-    public function testConstructInvalidFieldnameEmpty() {
+    public function testConstructInvalidFieldnameEmpty()
+    {
         $field = new Opus_Search_Facet_Field(' ');
     }
 
-    public function testSetLimit() {
+    public function testSetLimit()
+    {
         $field = Opus_Search_Facet_Field::create('author_facet');
 
         $field->setLimit('10000');
@@ -73,13 +79,15 @@ class Opus_Search_Facet_FieldTest extends SimpleTestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage invalid limit value
      */
-    public function testSetLimitInvalid() {
+    public function testSetLimitInvalid()
+    {
         $field = Opus_Search_Facet_Field::create('author_facet');
 
         $field->setLimit('all');
     }
 
-    public function testSetMinCount() {
+    public function testSetMinCount()
+    {
         $field = Opus_Search_Facet_Field::create('author_facet');
 
         $field->setMinCount(2);
@@ -95,10 +103,10 @@ class Opus_Search_Facet_FieldTest extends SimpleTestCase {
      * @expectedException InvalidArgumentException
      * @expectedExceptionMessage invalid minCount value
      */
-    public function testSetMinCountInvalidArgument() {
+    public function testSetMinCountInvalidArgument()
+    {
         $field = Opus_Search_Facet_Field::create('author_facet');
 
         $field->setMinCount('all');
     }
-
 }

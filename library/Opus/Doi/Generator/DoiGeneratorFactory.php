@@ -38,7 +38,7 @@ class Opus_Doi_Generator_DoiGeneratorFactory
         $config = Zend_Registry::get('Zend_Config');
 
         // versuche die Generierungsklasse für DOIs zu instanziieren
-        if (!isset($config->doi->generatorClass)) {
+        if (! isset($config->doi->generatorClass)) {
             // Fehler: Name der Generierungsklasse für DOIs wurde nicht in Konfiguration definiert
             throw new Opus_Doi_DoiException('mandatory configuration key doi.generatorClass is missing - check your configuration');
         }
@@ -52,7 +52,7 @@ class Opus_Doi_Generator_DoiGeneratorFactory
 
         $classExists = Opus_Util_ClassLoaderHelper::classExists($generatorClassName);
 
-        if (!$classExists) {
+        if (! $classExists) {
             // Generierungsklasse für DOIs kann nicht gefunden oder geladen werden
             throw new Opus_Doi_DoiException('DOI generator class ' . $generatorClassName . ' does not exist or is not instantiable - check configuration');
         }

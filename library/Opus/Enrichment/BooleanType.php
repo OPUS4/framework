@@ -42,15 +42,14 @@ class Opus_Enrichment_BooleanType extends Opus_Enrichment_AbstractType
     public function getFormElement($value = null)
     {
         $form = new Admin_Form_Document_Enrichment();
-        $options = array('required' => true); // FIXME überhaupt erforderlich?
+        $options = ['required' => true]; // FIXME überhaupt erforderlich?
         $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
         $element->removeDecorator('Label'); // kein Label anzeigen
 
-        if (!is_null($value)) {
+        if (! is_null($value)) {
             $element->setValue($value);
         }
 
         return $element;
     }
-
 }

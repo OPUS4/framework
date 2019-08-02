@@ -34,17 +34,20 @@
  * @version     $Id$
  */
 
-class Opus_SolrSearch_SearcherTest extends TestCase {
+class Opus_SolrSearch_SearcherTest extends TestCase
+{
 
-    public function tearDown() {
+    public function tearDown()
+    {
         $this->clearFiles();
 
         parent::tearDown();
     }
 
-    public function testLatestDocumentsQuery() {
+    public function testLatestDocumentsQuery()
+    {
         $rows = 5;
-        $ids = array();
+        $ids = [];
         for ($i = 0; $i < $rows; $i++) {
             $document = new Opus_Document();
             $document->setServerState('published');
@@ -66,7 +69,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(-1, $i);
     }
 
-    public function testIndexFieldServerDateModifiedIsPresent() {
+    public function testIndexFieldServerDateModifiedIsPresent()
+    {
         $doc = new Opus_Document();
         $doc->setServerState('published');
         $doc->store();
@@ -85,7 +89,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals($serverDateModified, $result[0]->getServerDateModified()->getUnixTimestamp());
     }
 
-    public function testIndexFieldServerDateModifiedIsCorrectAfterModification() {
+    public function testIndexFieldServerDateModifiedIsCorrectAfterModification()
+    {
         $doc = new Opus_Document();
         $doc->setLanguage('deu');
         $doc->setServerState('published');
@@ -114,7 +119,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
     /**
      * Das Reindexing wird erst durch die Aktualisierung des Caches getriggert.
      */
-    public function testReindexingIsTriggeredInCaseOfDependentModelChanges() {
+    public function testReindexingIsTriggeredInCaseOfDependentModelChanges()
+    {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
@@ -200,7 +206,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified3->compare($serverDateModified4) == -1);
     }
 
-    public function testServerDateModifiedIsUpdatedForDependentModelChanges() {
+    public function testServerDateModifiedIsUpdatedForDependentModelChanges()
+    {
         $role = new Opus_CollectionRole();
         $role->setName('foobar-name');
         $role->setOaiName('foobar-oainame');
@@ -270,10 +277,11 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertTrue($serverDateModified4 == $serverDateModified5, 'Document and its dependet models were not changed: server_date_modified should not change');
     }
 
-    private function searchDocumentsAssignedToCollection($collId = null) {
+    private function searchDocumentsAssignedToCollection($collId = null)
+    {
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
         $query->setCatchAll('*:*');
-        if (!is_null($collId)) {
+        if (! is_null($collId)) {
             $query->addFilterQuery('collection_ids', $collId);
         }
         $searcher = new Opus_SolrSearch_Searcher();
@@ -281,7 +289,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         return $results->getResults();
     }
 
-    public function testFulltextFieldsForValidPDFFulltext() {
+    public function testFulltextFieldsForValidPDFFulltext()
+    {
         $fileName = 'test.pdf';
         $id = $this->createDocWithFulltext($fileName);
 
@@ -301,7 +310,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(0, count($failure));
     }
 
-    public function testFulltextFieldsForInvalidPDFFulltext() {
+    public function testFulltextFieldsForInvalidPDFFulltext()
+    {
         $fileName = 'test-invalid.pdf';
         $id = $this->createDocWithFulltext($fileName);
 
@@ -324,7 +334,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
     /**
      * TODO fix cleanup
      */
-    public function testFulltextFieldsForValidAndInvalidPDFFulltexts() {
+    public function testFulltextFieldsForValidAndInvalidPDFFulltexts()
+    {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test-invalid.pdf';
         $id = $this->createDocWithFulltext($fileName1, $fileName2);
@@ -348,7 +359,8 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->removeFiles($id, $fileName1, $fileName2);
     }
 
-    public function testFulltextFieldsForTwoValidDFFulltexts() {
+    public function testFulltextFieldsForTwoValidDFFulltexts()
+    {
         $fileName1 = 'test.pdf';
         $fileName2 = 'test.txt';
         $id = $this->createDocWithFulltext($fileName1, $fileName2);
@@ -368,22 +380,21 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(0, count($failure));
         $this->assertEquals($valueFile1, $success[0]);
         $this->assertEquals($valueFile2, $success[1]);
-
     }
 
-    public function testGetDefaultRows() {
+    public function testGetDefaultRows()
+    {
         $rows = Opus_SolrSearch_Query::getDefaultRows();
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config->searchengine->solr->numberOfDefaultSearchResults)) {
             $this->assertTrue($rows == $config->searchengine->solr->numberOfDefaultSearchResults);
-        }
-        else {
+        } else {
             $this->assertTrue($rows == Opus_SolrSearch_Query::DEFAULT_ROWS);
         }
-
     }
 
-    private function createDocWithFulltext($fulltext1, $fulltext2 = null) {
+    private function createDocWithFulltext($fulltext1, $fulltext2 = null)
+    {
         $doc = new Opus_Document();
         $doc->setServerState('published');
 
@@ -397,7 +408,7 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $file->setVisibleInFrontdoor('1');
         $doc->store();
 
-        if (!is_null($fulltext2)) {
+        if (! is_null($fulltext2)) {
             $doc = new Opus_Document($doc->getId());
             $file = $doc->addFile();
             $file->setTempFile($fulltextDir . $fulltext2);
@@ -410,17 +421,19 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         return $doc->getId();
     }
 
-    private function removeFiles($docId, $fulltext1, $fulltext2 = null) {
+    private function removeFiles($docId, $fulltext1, $fulltext2 = null)
+    {
         $config = Zend_Registry::get('Zend_Config');
         $path = $config->workspacePath . DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR . $docId;
         unlink($path . DIRECTORY_SEPARATOR . $fulltext1);
-        if (!is_null($fulltext2)) {
+        if (! is_null($fulltext2)) {
             unlink($path . DIRECTORY_SEPARATOR . $fulltext2);
         }
         rmdir($path);
     }
 
-    private function getSearchResultForFulltextTests() {
+    private function getSearchResultForFulltextTests()
+    {
         $query = new Opus_SolrSearch_Query(Opus_SolrSearch_Query::SIMPLE);
         $query->setCatchAll('*:*');
         $searcher = new Opus_SolrSearch_Searcher();
@@ -428,6 +441,4 @@ class Opus_SolrSearch_SearcherTest extends TestCase {
         $this->assertEquals(1, count($results));
         return $results[0];
     }
-
 }
-

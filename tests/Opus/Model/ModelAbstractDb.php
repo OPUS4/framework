@@ -41,7 +41,8 @@
  * @category Tests
  * @package Opus_Model
  */
-class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
+class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb
+{
 
     public $postStoreHasBeenCalled = false;
 
@@ -53,7 +54,8 @@ class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
     protected static $_tableGatewayClass = 'Opus_Model_AbstractTableProvider';
 
 
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = array()) {
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null, array $plugins = [])
+    {
         foreach ($plugins as $plugin) {
             $this->registerPlugin($plugin);
         }
@@ -65,15 +67,17 @@ class Opus_Model_ModelAbstractDb extends Opus_Model_AbstractDb {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $this->_validatorPrefix[] = 'Opus_Model_ValidateTest';
         $this->_filterPrefix[] = 'Opus_Model_FilterTest';
 
         $value = new Opus_Model_Field('Value');
         $this->addField($value);
     }
-    
-    public function _postStore() {
+
+    public function _postStore()
+    {
         parent::_postStore();
         $this->postStoreHasBeenCalled = true;
     }

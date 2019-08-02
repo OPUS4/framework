@@ -102,7 +102,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
 
         $this->assertNull($selectType->getOptions());
 
-        $selectType->setValues(array("1", "2", "3"));
+        $selectType->setValues(["1", "2", "3"]);
         $json = $selectType->getOptions();
 
         $this->assertEquals('{"values":["1","2","3"]}', $json);
@@ -112,7 +112,7 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
     {
         $selectType = new Opus_Enrichment_SelectType();
         $props = $selectType->getOptionProperties();
-        $this->assertEquals(array('values'), $props);
+        $this->assertEquals(['values'], $props);
     }
 
     public function testGetFormElementName()
@@ -120,5 +120,4 @@ class Opus_Enrichment_SelectTypeTest extends TestCase
         $selectType = new Opus_Enrichment_SelectType();
         $this->assertEquals('Select', $selectType->getFormElementName());
     }
-
 }

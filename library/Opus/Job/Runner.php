@@ -36,7 +36,8 @@
  * @category    Framework
  * @package     Opus_Job
  */
-class Opus_Job_Runner {
+class Opus_Job_Runner
+{
 
     /**
      * Associative array of registered workers. Maps messsage lable
@@ -44,7 +45,7 @@ class Opus_Job_Runner {
      *
      * @var array
      */
-    protected $_workers = array();
+    protected $_workers = [];
 
     /**
      * Pause in seconds before the next worker is run.
@@ -73,7 +74,8 @@ class Opus_Job_Runner {
      * @param Opus_Job_Worker_Interface $worker Worker instance to register.
      * @return void
      */
-    public function registerWorker(Opus_Job_Worker_Interface $worker) {
+    public function registerWorker(Opus_Job_Worker_Interface $worker)
+    {
         $this->_workers[$worker->getActivationLabel()] = $worker;
     }
 
@@ -83,7 +85,8 @@ class Opus_Job_Runner {
      * @param Zend_Log $log Logger.
      * @return Opus_Job_Runner Fluent interface.
      */
-    public function setLogger(Zend_Log $logger) {
+    public function setLogger(Zend_Log $logger)
+    {
         $this->_logger = $logger;
     }
 
@@ -93,7 +96,8 @@ class Opus_Job_Runner {
      * @param int $seconds Pause in seconds before the next worker runs.
      * @return void
      */
-    public function setDelay($seconds) {
+    public function setDelay($seconds)
+    {
         $this->_delay = (int) $seconds;
         if (null !== $this->_logger) {
             $this->_logger->info('Set worker delay to ' . $seconds . 's');
@@ -106,7 +110,8 @@ class Opus_Job_Runner {
      * @param int $limit Limit for jobs.
      * @return void
      */
-    public function setLimit($limit = null) {
+    public function setLimit($limit = null)
+    {
         if ((null !== $limit) and (true === is_int($limit))) {
             $this->_logger->info('Set job limit to ' . $limit . ' jobs / run.');
             $this->_limit = $limit;
@@ -119,23 +124,27 @@ class Opus_Job_Runner {
      *
      * @return void
      */
-    public function run() {
+    public function run()
+    {
         $jobs = Opus_Job::getByLabels(array_keys($this->_workers), $this->_limit, Opus_Job::STATE_UNDEFINED);
-    
-        if (null !== $this->_logger)
+
+        if (null !== $this->_logger) {
             $this->_logger->info('Found ' . count($jobs). ' job(s)');
+        }
 
         $runJobs = 0;
         foreach ($jobs as $job) {
             if (true === $this->consume($job)) {
                 $runJobs++;
             } else {
-                if (null !== $this->_logger)
+                if (null !== $this->_logger) {
                     $this->_logger->warn('Job with ID ' . $job->getId(). ' failed.');
+                }
             }
         }
-        if (null !== $this->_logger)
+        if (null !== $this->_logger) {
             $this->_logger->info('Processed ' . $runJobs. ' job(s).');
+        }
     }
 
     /**
@@ -144,7 +153,8 @@ class Opus_Job_Runner {
      * @param Opus_Job $job Job description model.
      * @return boolean Returns true if a job is consumend false if not
      */
-    protected function consume(Opus_Job $job) {
+    protected function consume(Opus_Job $job)
+    {
         $label = $job->getLabel();
 
         if ($job->getState() !== null) {
@@ -171,11 +181,11 @@ class Opus_Job_Runner {
                     $msg = get_class($worker) . ': ' . $ex->getMessage();
                     $this->_logger->err($msg);
                 }
-                $job->setErrors(json_encode(array(
+                $job->setErrors(json_encode([
                    'exception'  => get_class($ex),
                    'message'  => $ex->getMessage(),
                    'trace' => $ex->getTraceAsString()
-                )));
+                ]));
                 $job->setState(Opus_Job::STATE_FAILED);
                 $job->store();
                 return false;
@@ -184,6 +194,4 @@ class Opus_Job_Runner {
         }
         return false;
     }
-
 }
-

@@ -57,6 +57,4 @@ class Opus_Update_Plugin_AbstractTest extends TestCase
         $this->expectOutputString('');
         $this->_stub->log('Test output.');
     }
-
-
 }

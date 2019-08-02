@@ -31,9 +31,11 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Search_Result_BaseTest extends SimpleTestCase {
+class Opus_Search_Result_BaseTest extends SimpleTestCase
+{
 
-    public function testAddFacetYearInverted() {
+    public function testAddFacetYearInverted()
+    {
         $model = new Opus_Search_Result_Base();
 
         $model->addFacet('year_inverted', '65212:2013', 3);
@@ -50,7 +52,8 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals(3, $value->getCount());
     }
 
-    public function testAddFacetYear() {
+    public function testAddFacetYear()
+    {
         $model = new Opus_Search_Result_Base();
 
         $model->addFacet('year', '2013', 7);
@@ -67,7 +70,8 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals(7, $value->getCount());
     }
 
-    public function testAddMultipleFacetValues() {
+    public function testAddMultipleFacetValues()
+    {
         $model = new Opus_Search_Result_Base();
 
         $model->addFacet('author', 'John', 3);
@@ -89,5 +93,4 @@ class Opus_Search_Result_BaseTest extends SimpleTestCase {
         $this->assertEquals('Jane', $jane->getText());
         $this->assertEquals(5, $jane->getCount());
     }
-
 }

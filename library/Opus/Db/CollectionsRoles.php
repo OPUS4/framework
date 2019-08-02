@@ -40,7 +40,8 @@
  *
  */
 
-class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
+class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway
+{
 
     /**
      * Table name of the roles table.
@@ -55,7 +56,7 @@ class Opus_Db_CollectionsRoles extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array(
+    protected $_dependentTables = [
             'Opus_Db_Collections',
-    );
+    ];
 }

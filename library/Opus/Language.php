@@ -169,7 +169,6 @@ class Opus_Language extends Opus_Model_AbstractDb
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $rows = $table->fetchAll($table->select()->where('part2_t = ?', $code))->toArray();
         return isset($rows[0]) ? $rows[0] : null;
-
     }
 
     /**
@@ -179,9 +178,9 @@ class Opus_Language extends Opus_Model_AbstractDb
     public static function getPart2tForPart1($locale)
     {
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
-        $select = $table->select()->from(array($table->info('name')), array('part2_t'))->where('part1 = ?', $locale);
+        $select = $table->select()->from([$table->info('name')], ['part2_t'])->where('part1 = ?', $locale);
         $rows = $table->fetchRow($select);
-        if (!is_null($rows) && isset($rows['part2_t'])) {
+        if (! is_null($rows) && isset($rows['part2_t'])) {
             return $rows['part2_t'];
         }
         return null;
@@ -194,7 +193,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getRefName();
+        return $this->getRefName();
     }
 
     /**
@@ -213,10 +212,9 @@ class Opus_Language extends Opus_Model_AbstractDb
 
         $code = null;
 
-        if (!is_null($part) && isset($result[$part])) {
+        if (! is_null($part) && isset($result[$part])) {
             $code = $result[$part];
-        }
-        else {
+        } else {
             $code = $result['part2_b'];
         }
 
@@ -245,7 +243,7 @@ class Opus_Language extends Opus_Model_AbstractDb
      */
     public static function getUsedLanguages()
     {
-        if (!is_null(self::$usedLanguages)) {
+        if (! is_null(self::$usedLanguages)) {
             return self::$usedLanguages;
         }
 

@@ -207,7 +207,7 @@ class Opus_Licence extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getNameLong();
+        return $this->getNameLong();
     }
 
     /**

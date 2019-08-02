@@ -41,7 +41,7 @@ class Opus_DatabaseTest extends TestCase
         $files = $database->getSqlFiles(APPLICATION_PATH . '/db/schema');
 
         $this->assertGreaterThan(4, $files);
-        $this->assertContains( APPLICATION_PATH . '/db/schema/001-OPUS-4.4.4.sql', $files);
+        $this->assertContains(APPLICATION_PATH . '/db/schema/001-OPUS-4.4.4.sql', $files);
     }
 
     public function testGetUpdateScripts()
@@ -112,7 +112,7 @@ class Opus_DatabaseTest extends TestCase
 
         $lastNumber = 0;
 
-        foreach($scripts as $script) {
+        foreach ($scripts as $script) {
             $number = substr(basename($script), 0, 3);
             $this->assertLessThanOrEqual(2, $number);
             $this->assertGreaterThan($lastNumber, $number);
@@ -139,7 +139,8 @@ class Opus_DatabaseTest extends TestCase
      * @expectedException PDOException
      * @expectedExceptionMessage schema_ver' doesn't exist
      */
-    public function testPdoExecErrorReportingFirstStatement() {
+    public function testPdoExecErrorReportingFirstStatement()
+    {
         $database = new Opus_Database();
 
         $pdo = $database->getPdo($database->getName());
@@ -152,7 +153,8 @@ class Opus_DatabaseTest extends TestCase
     /**
      * Error in second statement does not produce exception.
      */
-    public function testPdoExecErrorReportingSecondStatement() {
+    public function testPdoExecErrorReportingSecondStatement()
+    {
         $database = new Opus_Database();
 
         $pdo = $database->getPdo($database->getName());
@@ -174,7 +176,8 @@ class Opus_DatabaseTest extends TestCase
      * @expectedException PDOException
      * @expectedExceptionMessage schema_ver' doesn't exist
      */
-    public function testPdoQueryErrorReporting() {
+    public function testPdoQueryErrorReporting()
+    {
         $database = new Opus_Database();
 
         $pdo = $database->getPdo($database->getName());
@@ -188,7 +191,8 @@ class Opus_DatabaseTest extends TestCase
         $statement->nextRowset();
     }
 
-    public function testPdoQueryErrorReportingExecutionAfterError() {
+    public function testPdoQueryErrorReportingExecutionAfterError()
+    {
         $database = new Opus_Database();
 
         $pdo = $database->getPdo($database->getName());
@@ -204,7 +208,7 @@ class Opus_DatabaseTest extends TestCase
             $statement->nextRowset();
 
             $this->fail('Should have thrown exception.');
-        } catch(PDOException $pdoex) {
+        } catch (PDOException $pdoex) {
         }
 
         $this->assertFalse($statement->nextRowset());

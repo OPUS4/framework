@@ -154,7 +154,7 @@ class Opus_Doi_DoiMailNotification
     {
         $result = $doi->getValue() . ' ';
         $result .= $frontdoorUrl . ' ' . $doi->getStatus();
-        if (!is_null($errorMessage)) {
+        if (! is_null($errorMessage)) {
             $result .= ' Fehlermeldung: ' . $errorMessage;
         }
         $result .= "\r\n";
@@ -169,7 +169,7 @@ class Opus_Doi_DoiMailNotification
      */
     private function prepareMail($mode)
     {
-        if (!$this->isEnabled() || empty($this->notifications)) {
+        if (! $this->isEnabled() || empty($this->notifications)) {
             // E-Mail-Versand ist nicht aktiviert / konfiguriert bzw. es gibt keinen Inhalt für den Bericht
             return;
         }
@@ -185,8 +185,7 @@ class Opus_Doi_DoiMailNotification
             $frontdoorUrl = $notification['frontdoorUrl'];
             $subject .= ' von DOI ' . $doi->getValue() . ' für Dokument mit ID ' . $docId;
             $message = $this->buildMessageLine($doi, $frontdoorUrl, $errorMessage);
-        }
-        else {
+        } else {
             // Versand einer gebündelten E-Mail-Benachrichtigung für mehrere DOIs
             $message = '';
             foreach ($this->notifications as $notification) {
@@ -238,10 +237,10 @@ class Opus_Doi_DoiMailNotification
                 $this->getRecipients(),
                 $replyTo,
                 $replyToName,
-                $returnPath);
+                $returnPath
+            );
             $this->log->info('successful sending of DOI notification email with subject ' . $subject);
-        }
-        catch (Opus_Mail_Exception $e) {
+        } catch (Opus_Mail_Exception $e) {
             $this->log->err('could not send DOI notification email with subject ' . $subject . ': ' . $e->getMessage());
         }
     }
@@ -303,7 +302,7 @@ class Opus_Doi_DoiMailNotification
         if (isset($this->config->url)) {
             $result .= $this->config->url;
             // check if $result ends with '/' otherwise add one
-            if (!(substr($result, -strlen($result)) === '/')) {
+            if (! (substr($result, -strlen($result)) === '/')) {
                 $result .= '/';
             }
         }

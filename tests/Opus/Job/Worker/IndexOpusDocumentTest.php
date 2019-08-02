@@ -31,12 +31,14 @@
  * @version     $Id$
  */
 
-class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
+class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase
+{
 
     /**
      * Tests working on job.
      */
-    public function testWork() {
+    public function testWork()
+    {
 
         $document = new Opus_Document();
         $document->setServerState('published');
@@ -45,14 +47,12 @@ class Opus_Job_Worker_IndexOpusDocumentTest extends TestCase {
 
         $job = new Opus_Job();
         $job->setLabel('opus-index-document');
-        $job->setData(array(
+        $job->setData([
             'documentId' => $documentId,
-            'task' => 'index'));
+            'task' => 'index']);
 
         $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
 
         $indexWorker->work($job);
-
     }
-
 }

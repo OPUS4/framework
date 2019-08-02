@@ -33,5 +33,6 @@
  */
 
 
-interface Opus_Search_Filtering {
+interface Opus_Search_Filtering
+{
 }

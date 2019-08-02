@@ -56,7 +56,7 @@ class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
 
         $translations = $database->getTranslationsByLocale();
 
-        if (!empty($translations)) {
+        if (! empty($translations)) {
             return $translations;
         } else {
             // return array for locale with no translation keys

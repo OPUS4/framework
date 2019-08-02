@@ -32,7 +32,8 @@
  * @version     $Id$
  */
 
-class Opus_Util_MetadataImportInvalidXmlException extends Exception {
+class Opus_Util_MetadataImportInvalidXmlException extends Exception
+{
 
-    
+
 }

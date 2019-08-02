@@ -30,7 +30,6 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_AccessModules extends Opus_Db_TableGateway {
+class Opus_Db_AccessModules extends Opus_Db_TableGateway
+{
 
     /**
      * Table schema name.
@@ -55,14 +55,14 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway {
      * @param  int $role_id
      * @return array
      */
-    public function listByRoleId($role_id) {
+    public function listByRoleId($role_id)
+    {
         $adapter = $this->getAdapter();
         $select = $adapter->select()
-                        ->from($this->_name, array('module_name'))
+                        ->from($this->_name, ['module_name'])
                         ->where('role_id = ?', $role_id)
                         ->order('module_name');
 
         return $adapter->fetchCol($select);
     }
-
 }

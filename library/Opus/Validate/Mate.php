@@ -34,20 +34,21 @@
 
 /**
  * Defines an validator interface for opus specific validators.
- * 
- * To classes implementing this interface, "mate" validators can be added. All 
- * added mates then form a validator "circle of friends". If one of those validators 
- * says its given value to be valid, it calls decideAllValid() and all the others will 
+ *
+ * To classes implementing this interface, "mate" validators can be added. All
+ * added mates then form a validator "circle of friends". If one of those validators
+ * says its given value to be valid, it calls decideAllValid() and all the others will
  * adopt this decision by returning true everytime isValid() gets on a value.
- * 
+ *
  * This behavior is used to form groups of mandatory fields in Zend_Form objects,
- * where the whole group is valid even if some of its fields are empty. 
+ * where the whole group is valid even if some of its fields are empty.
  *
  * @category    Framework
  * @package     Opus_Validate
  */
-interface Opus_Validate_Mate {
-    
+interface Opus_Validate_Mate
+{
+
     /**
      * Add another validator to the list of mates.
      *
@@ -58,16 +59,15 @@ interface Opus_Validate_Mate {
 
     /**
      * Inform all mates that the common validation result.
-     * 
+     *
      * @return void
      */
     public function decideAllValid();
-    
+
     /**
      * Tell a specific validator to decide for validity.
      *
      * @return void
      */
     public function decideValid();
-    
 }

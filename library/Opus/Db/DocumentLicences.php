@@ -40,7 +40,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_DocumentLicences extends Opus_Db_TableGateway {
+class Opus_Db_DocumentLicences extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -55,5 +56,5 @@ class Opus_Db_DocumentLicences extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array('Opus_Db_LinkDocumentsLicences');
+    protected $_dependentTables = ['Opus_Db_LinkDocumentsLicences'];
 }

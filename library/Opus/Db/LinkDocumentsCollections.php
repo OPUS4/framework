@@ -39,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
+class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
+{
     /**
      * DB table name.
      *
@@ -52,7 +53,7 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('document_id', 'collection_id');
+    protected $_primary = ['document_id', 'collection_id'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -60,21 +61,21 @@ class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Documents' => array(
+    protected $_referenceMap = [
+            'Documents' => [
                             'columns' => 'document_id',
                             'refTableClass' => 'Opus_Db_Documents',
                             'refColumns' => 'id',
-            ),
-            'Collections' => array(
+            ],
+            'Collections' => [
                             'columns' => 'collection_id',
                             'refTableClass' => 'Opus_Db_Collections',
                             'refColumns' => 'id'
-            ),
-            'CollectionRoles' => array(
+            ],
+            'CollectionRoles' => [
                             'columns' => 'role_id',
                             'refTableClass' => 'Opus_Db_CollectionsRoles',
                             'refColumns' => 'id'
-            ),
-    );
+            ],
+    ];
 }

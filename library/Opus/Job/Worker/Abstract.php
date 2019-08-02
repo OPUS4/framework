@@ -27,15 +27,15 @@
  * @category    Framework
  * @package     Opus_Job
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Abstract base class for Opus job worker classes.
  */
-abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
+abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface
+{
 
     /**
      * Hold current logger instance.
@@ -50,15 +50,14 @@ abstract class Opus_Job_Worker_Abstract implements Opus_Job_Worker_Interface {
      * @param Zend_Log $logger Logger instance.
      * @return void
      */
-    public function setLogger($logger) {
+    public function setLogger($logger)
+    {
         if (null === $logger) {
             $this->_logger = new Zend_Log(new Zend_Log_Writer_Null());
-        } else if ($logger instanceof Zend_Log) {
+        } elseif ($logger instanceof Zend_Log) {
             $this->_logger = $logger;
         } else {
             throw new InvalidArgumentException('Zend_Log instance expected.');
         }
     }
-
 }
-

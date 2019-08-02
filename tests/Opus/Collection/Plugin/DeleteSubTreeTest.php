@@ -34,11 +34,13 @@
  */
 
 /**
- * 
+ *
  */
-class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase {
+class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase
+{
 
-    public function testPreDelete() {
+    public function testPreDelete()
+    {
 
         $collectionRole = new Opus_CollectionRole();
         $collectionRole->setName('testRole');
@@ -80,7 +82,7 @@ class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase {
         $plugin = new Opus_Collection_Plugin_DeleteSubTree();
 
         sleep(1);
-        
+
         $plugin->preDelete($collection);
 
         $childrenAfter = $collectionReloaded->getChildren();
@@ -90,25 +92,21 @@ class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase {
             new Opus_Collection($collectionId);
             $this->fail('expected collection to be deleted');
         } catch (Opus_Model_NotFoundException $e) {
-            
         }
         try {
             new Opus_Collection($childCollectionId);
             $this->fail('expected collection to be deleted');
         } catch (Opus_Model_NotFoundException $e) {
-            
         }
         try {
             new Opus_Collection($child2CollectionId);
             $this->fail('expected collection to be deleted');
         } catch (Opus_Model_NotFoundException $e) {
-            
         }
         try {
             new Opus_Collection($grandChildCollectionId);
             $this->fail('expected collection to be deleted');
         } catch (Opus_Model_NotFoundException $e) {
-            
         }
 
         $doc1Reloaded = new Opus_Document($docId1);
@@ -120,5 +118,4 @@ class Opus_Collection_Plugin_DeleteSubTreeTest extends TestCase {
         $doc3Reloaded = new Opus_Document($docId3);
         $this->assertTrue($doc3Reloaded->getServerDateModified()->getUnixTimestamp() > $doc3ServerDateModified->getUnixTimestamp(), 'Expected document server_date_modfied to be changed after deletion of collection');
     }
-
 }

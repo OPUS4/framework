@@ -209,8 +209,7 @@ class Opus_Doi_DataCiteXmlGenerator
                 return false;
             }
             $this->setStatusEntry($status, 'resourceType', ['document_type_missing']);
-        }
-        else {
+        } else {
             $this->setStatusEntry($status, 'resourceType');
         }
 
@@ -231,8 +230,7 @@ class Opus_Doi_DataCiteXmlGenerator
     {
         if (empty($result)) {
             $status[$key] = true;
-        }
-        else {
+        } else {
             $status[$key] = $result[0];
         }
     }

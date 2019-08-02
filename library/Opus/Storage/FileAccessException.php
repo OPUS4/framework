@@ -36,6 +36,6 @@
 /**
  * Thrown if a file cannot be accessed, e.g because of permission problems.
  */
-class Opus_Storage_FileAccessException extends Opus_Storage_Exception {
+class Opus_Storage_FileAccessException extends Opus_Storage_Exception
+{
 }
-

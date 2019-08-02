@@ -33,5 +33,6 @@
  * @version     $Id$
  */
 
-class Opus_Model_DbTruncateException extends Opus_Model_DbException {
+class Opus_Model_DbTruncateException extends Opus_Model_DbException
+{
 }

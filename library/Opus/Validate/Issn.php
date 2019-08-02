@@ -53,10 +53,10 @@ class Opus_Validate_Issn extends Zend_Validate_Abstract
      *
      * @var array
      */
-    protected $_messageTemplates = array(
+    protected $_messageTemplates = [
         self::MSG_CHECK_DIGIT => "The check digit of '%value%' is not valid.",
         self::MSG_FORM => "'%value%' is malformed."
-    );
+    ];
 
     /**
      * Verify the input, for formal criteria of an issn.
@@ -104,15 +104,12 @@ class Opus_Validate_Issn extends Zend_Validate_Abstract
         $check = (8 * $z[0] + 7 * $z[1] + 6 * $z[2] + 5 * $z[3] + 4 * $z[5] + 3 * $z[6] + 2 * $z[7]);
         if ($check % 11 === 0) {
             $checkdigit = 0;
-        }
-        elseif (11 - ($check % 11) == 10) {
+        } elseif (11 - ($check % 11) == 10) {
             $checkdigit = 'X';
-        }
-        else {
+        } else {
             $checkdigit = 11 - ($check % 11);
         }
 
         return "$checkdigit";
     }
-
 }

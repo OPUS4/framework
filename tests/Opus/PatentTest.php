@@ -78,7 +78,7 @@ class Opus_PatentTest extends TestCase
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
-        $this->assertEquals( 'New gadget.', $patent->getApplication());
+        $this->assertEquals('New gadget.', $patent->getApplication());
         $this->assertEquals('487', $patent->getNumber());
         $this->assertEquals('2017-08-27', $patent->getDateGranted()->__toString());
     }
@@ -100,7 +100,7 @@ class Opus_PatentTest extends TestCase
 
         $this->assertEquals(2015, $patent->getYearApplied());
         $this->assertEquals('Spain', $patent->getCountries());
-        $this->assertEquals( 'New gadget.', $patent->getApplication());
+        $this->assertEquals('New gadget.', $patent->getApplication());
         $this->assertEquals('487', $patent->getNumber());
         $this->assertEquals('2017-08-27', $patent->getDateGranted()->__toString());
     }

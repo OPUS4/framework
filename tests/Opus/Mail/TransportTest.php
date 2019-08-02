@@ -40,24 +40,31 @@
  *
  * @group    MailSendMailTest
  */
-class Opus_Mail_TransportTest extends TestCase {
+class Opus_Mail_TransportTest extends TestCase
+{
 
     /**
      * No cleanup needed.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
 
-    public function testConstructorWoConfig() {
+    public function testConstructorWoConfig()
+    {
         $transport = new Opus_Mail_Transport();
     }
 
-    public function testConstructorWithConfig() {
-        $config = new Zend_Config(array(
+    public function testConstructorWithConfig()
+    {
+        $config = new Zend_Config([
                 'smtp' => 'foobar',
                 'port' => 25252,
-        ));
+        ]);
 
         $transport = new Opus_Mail_Transport($config);
     }

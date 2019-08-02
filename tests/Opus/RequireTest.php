@@ -41,7 +41,8 @@
  * @group RequireTest
  *
  */
-class Opus_RequireTest extends TestCase {
+class Opus_RequireTest extends TestCase
+{
 
     /**
      * Overwrite standard setUp method, no database connection needed.  Will
@@ -49,7 +50,8 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
     }
 
     /**
@@ -57,7 +59,8 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    public function tearDown()
+    {
     }
 
     /**
@@ -67,12 +70,13 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function testRequire() {
+    public function testRequire()
+    {
         $cmd = 'find ' . APPLICATION_PATH . '/library/Opus/ -type f -iname "*php"';
-        $classFiles = array();
+        $classFiles = [];
         exec($cmd, $classFiles);
 
-        foreach ($classFiles AS $file) {
+        foreach ($classFiles as $file) {
             require_once($file);
         }
     }
@@ -85,7 +89,8 @@ class Opus_RequireTest extends TestCase {
      * Class files must be loaded (required_once) before the classes can be used.
      * @depends testRequire
      */
-    public function testInstanciateTest() {
+    public function testInstanciateTest()
+    {
         $cmd = 'find ' . APPLICATION_PATH
             . '/library/Opus/ -type f -iname "*php" -print0 |xargs -r0 grep -hE "class[[:space:]]+Opus_" |cut -d" " -f 2 |grep Opus_';
         $classes = [];
@@ -122,15 +127,14 @@ class Opus_RequireTest extends TestCase {
             'Opus_Doi_DataCiteXmlGenerationException'
         ];
 
-        foreach ($classes AS $class) {
+        foreach ($classes as $class) {
             if (in_array($class, $blacklist)) {
-               continue;
+                continue;
             }
             try {
-               $object = new $class();
-            }
-            catch (Exception $e) {
-               $this->fail("Loading class $class failed: " . $e->getMessage());
+                $object = new $class();
+            } catch (Exception $e) {
+                $this->fail("Loading class $class failed: " . $e->getMessage());
             }
         }
     }

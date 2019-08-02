@@ -31,23 +31,25 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_ClassLoaderHelper {
+class Opus_Util_ClassLoaderHelper
+{
 
-    public static function classExists($className) {
+    public static function classExists($className)
+    {
         // Anpassung des Zend-Autoloaders erforderlich, damit keine PHP Warning erzeugt wird, wenn Generator-Klasse
         // nicht existiert: PHPUnit erzeugt sonst aus PHP Warning (wenn Klasse nicht gefunden wird) eine Exception, weil
         // in Konfiguration convertWarningsToExceptions="true gesetzt -> das führt zu verändertem Exception-Verhalten
         $autoloader = Zend_Loader_Autoloader::getInstance();
-        
+
         // Default-Wert für späteres Zurücksetzen speichern
         $suppressNotFoundWarnings = $autoloader->suppressNotFoundWarnings();
-        
+
         $autoloader->suppressNotFoundWarnings(true);
         $classExists = class_exists($className);
-        
+
         // Wiederherstellen des Default-Wertes
         $autoloader->suppressNotFoundWarnings($suppressNotFoundWarnings);
-        
+
         return $classExists;
     }
 }

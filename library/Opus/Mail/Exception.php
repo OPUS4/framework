@@ -38,6 +38,7 @@
  * @category    Framework
  * @package     Opus_Mail
  */
-class Opus_Mail_Exception extends Exception {
+class Opus_Mail_Exception extends Exception
+{
 
 }

@@ -107,7 +107,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function getModel()
     {
-       return $this->_model;
+        return $this->_model;
     }
 
     /**
@@ -245,34 +245,34 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
     *
     * @return void
     */
-   protected function _postStoreInternalFields()
-   {
-       $isNewFlagBackup = $this->_isNewRecord;
-       $this->_isNewRecord = false;
+    protected function _postStoreInternalFields()
+    {
+        $isNewFlagBackup = $this->_isNewRecord;
+        $this->_isNewRecord = false;
 
-       parent::_postStoreInternalFields();
+        parent::_postStoreInternalFields();
 
-       $this->_isNewRecord = $isNewFlagBackup;
-   }
+        $this->_isNewRecord = $isNewFlagBackup;
+    }
 
    /**
     * Return the primary key of the Link Model if it has been persisted.
     *
     * @return array|null Primary key or Null if the Linked Model has not been persisted.
     */
-   public function getId()
-   {
-       // The given id consists of the ids of the referenced linked models,
-       // but there is no evidence that the LinkModel itself has been persisted yet.
-       // We so have to validate, if the LinkModel is persistent or still transient.
-       if (true === $this->isNewRecord()) {
-           // its a new record, so return null
-           return null;
-       }
+    public function getId()
+    {
+        // The given id consists of the ids of the referenced linked models,
+        // but there is no evidence that the LinkModel itself has been persisted yet.
+        // We so have to validate, if the LinkModel is persistent or still transient.
+        if (true === $this->isNewRecord()) {
+            // its a new record, so return null
+            return null;
+        }
 
-       // its not a new record, so we can hand over to the parent method
-       return parent::getId();
-   }
+        // its not a new record, so we can hand over to the parent method
+        return parent::getId();
+    }
 
 
     /**
@@ -297,7 +297,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function setModified($modified = true)
     {
-        if (!$modified) {
+        if (! $modified) {
             $this->_isModified = false;
             parent::setModified($modified);
         }
