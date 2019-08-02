@@ -371,7 +371,7 @@ abstract class Opus_Model_AbstractDb extends Opus_Model_Abstract implements Opus
      * @return void
      * @throw Opus_Model_Exception Throws whenever an error occurs
      */
-    function _postStoreExternalFields()
+    protected function _postStoreExternalFields()
     {
         $this->callPluginMethod('postStoreExternal');
     }

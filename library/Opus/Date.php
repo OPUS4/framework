@@ -340,7 +340,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      * Creates Opus_Date object set to the time of creation.
      * @return Opus_Date
      */
-    static function getNow()
+    public static function getNow()
     {
         $date = new Opus_Date();
         $date->setNow();

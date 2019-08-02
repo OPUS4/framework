@@ -27,11 +27,9 @@
  * @category    Tests
  * @package     Opus_File
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
-
 
 /**
  * Test cases for class Opus_File_Plugin_DefaultAccessTest.
@@ -61,7 +59,7 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
     {
         $plugin = new Opus_File_Plugin_DefaultAccess();
 
-        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+        $logger = new Opus_File_Plugin_LoggerMock();
 
         $plugin->setLogger($logger);
         $plugin->postStore(new Opus_Document());
@@ -77,7 +75,7 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
         $guestRole = Opus_UserRole::fetchByName('guest');
         $list_before = $guestRole->listAccessFiles();
 
-        $oldFile = new Opus_File_Plugin_DefaultAccessTest_FileMock(false); // alte Datei
+        $oldFile = new Opus_File_Plugin_FileMock(false); // alte Datei
         $object = new Opus_File_Plugin_DefaultAccess();
         $object->postStore($oldFile);
 
@@ -100,10 +98,10 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
         $guestRole->delete();
 
         $object = new Opus_File_Plugin_DefaultAccess();
-        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+        $logger = new Opus_File_Plugin_LoggerMock();
         $object->setLogger($logger);
 
-        $file = new Opus_File_Plugin_DefaultAccessTest_FileMock(true); // neue Datei
+        $file = new Opus_File_Plugin_FileMock(true); // neue Datei
         $object->postStore($file);
 
         $messages = $logger->getMessages();
@@ -127,10 +125,10 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
         $guestRole->delete();
 
         $object = new Opus_File_Plugin_DefaultAccess();
-        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+        $logger = new Opus_File_Plugin_LoggerMock();
         $object->setLogger($logger);
 
-        $file = new Opus_File_Plugin_DefaultAccessTest_FileMock(true); // neue Datei
+        $file = new Opus_File_Plugin_FileMock(true); // neue Datei
         $object->postStore($file);
 
         $messages = $logger->getMessages();
@@ -204,59 +202,10 @@ class Opus_File_Plugin_DefaultAccessTest extends TestCase
     {
         $plugin = new Opus_File_Plugin_DefaultAccess();
 
-        $logger = new Opus_File_Plugin_DefaultAccessTest_LoggerMock();
+        $logger = new Opus_File_Plugin_LoggerMock();
 
         $plugin->setLogger($logger);
 
         $this->assertEquals($logger, $plugin->getLogger());
-    }
-}
-
-class Opus_File_Plugin_DefaultAccessTest_LoggerMock
-{
-
-    private $_messages = [];
-
-    public function err($message)
-    {
-        $this->_messages[] = $message;
-    }
-
-    public function clear()
-    {
-        $this->_messages = [];
-    }
-
-    public function getMessages()
-    {
-        return $this->_messages;
-    }
-}
-
-class Opus_File_Plugin_DefaultAccessTest_FileMock extends Opus_File
-{
-
-    private $_newRecord;
-
-    private $_fileId;
-
-    public function __construct($newRecord = false)
-    {
-        $this->_newRecord = $newRecord;
-    }
-
-    public function isNewRecord()
-    {
-        return $this->_newRecord;
-    }
-
-    public function getId()
-    {
-        $this->_fileId;
-    }
-
-    public function setId($fileId)
-    {
-        $this->_fileId = $fileId;
     }
 }

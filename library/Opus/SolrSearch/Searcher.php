@@ -73,6 +73,7 @@ class Opus_SolrSearch_Searcher
                 case Opus_SolrSearch_Query::LATEST_DOCS:
                     $request
                         ->addSorting($query->getSortField(), $query->getSortOrder());
+                    break;
 
                 case Opus_SolrSearch_Query::DOC_ID:
                     if ($query->isReturnIdsOnly()) {

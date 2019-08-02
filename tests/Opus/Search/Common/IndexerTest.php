@@ -139,7 +139,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
     /**
      * @expectedException Opus_Search_InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Host()
+    public function testMissingConfigParamSearchEngineIndexHost()
     {
         $this->markTestSkipped('not supported in Opus_Search API due to passing configuration to 3rd-party library for processing');
 
@@ -159,7 +159,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
     /**
      * @expectedException Opus_Search_InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Port()
+    public function testMissingConfigParamSearchEngineIndexPort()
     {
         $this->markTestSkipped('not supported in Opus_Search API due to passing configuration to 3rd-party library for processing');
 
@@ -179,7 +179,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
     /**
      * @expectedException Opus_Search_InvalidConfigurationException
      */
-    public function testMissingConfigParamSearchEngine_Index_Path()
+    public function testMissingConfigParamSearchEngineIndexPath()
     {
         $this->markTestSkipped('not supported in Opus_Search API due to passing configuration to 3rd-party library for processing');
 

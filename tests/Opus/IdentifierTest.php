@@ -30,7 +30,7 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Sascha Szott <szott@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -61,7 +61,7 @@ class Opus_IdentifierTest extends TestCase
         $this->assertContains($docId, $finder->ids());
     }
 
-    function testCreateDocumentWithUrn()
+    public function testCreateDocumentWithUrn()
     {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -79,7 +79,7 @@ class Opus_IdentifierTest extends TestCase
     /**
      * Regression test for OPUSVIER-2289
      */
-    function testFailDoubleUrnForSameDocument()
+    public function testFailDoubleUrnForSameDocument()
     {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -97,7 +97,7 @@ class Opus_IdentifierTest extends TestCase
     /**
      * Regression test for OPUSVIER-2289
      */
-    function testCreateUrnCollisionViaDocument()
+    public function testCreateUrnCollisionViaDocument()
     {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -117,7 +117,7 @@ class Opus_IdentifierTest extends TestCase
     /**
      * Regression test for OPUSVIER-2289
      */
-    function testCreateUrnCollisionViaUsingIdentifier()
+    public function testCreateUrnCollisionViaUsingIdentifier()
     {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);
@@ -143,7 +143,7 @@ class Opus_IdentifierTest extends TestCase
     /**
      * Regression test for OPUSVIER-2292 / OPUSVIER-2289
      */
-    function testCreateUrnCollisionUsingAddIdentifierUrn()
+    public function testCreateUrnCollisionUsingAddIdentifierUrn()
     {
         $testUrn = 'nbn:de:kobv:test123';
         $document = $this->createDocumentWithIdentifierUrn($testUrn);

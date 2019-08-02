@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -25,56 +24,37 @@
  * along with OPUS; if not, write to the Free Software Foundation, Inc., 51
  * Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * @category    Framework
- * @package     Opus
- * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
+ * @category    Tests
+ * @package     Opus_File
+ * @author      Thoralf Klein <thoralf.klein@zib.de>
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Util_MetadataImportXmlValidation
+class Opus_File_Plugin_FileMock extends Opus_File
 {
 
-    private $xml;
+    private $_newRecord;
 
+    private $_fileId;
 
-    public function __construct($xml = null)
+    public function __construct($newRecord = false)
     {
-        $this->xml = $xml;
+        $this->_newRecord = $newRecord;
     }
 
-
-    public function checkValidXml()
+    public function isNewRecord()
     {
-        // Enable user error handling while validating input file
-        libxml_clear_errors();
-        libxml_use_internal_errors(true);
-
-        if (! $this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
-            throw new Opus_Util_MetadataImportInvalidXmlException(self::getErrorMessage());
-        }
+        return $this->_newRecord;
     }
 
-
-    public static function getErrorMessage()
+    public function getId()
     {
-        $errorMsg = '';
-        foreach (libxml_get_errors() as $error) {
-            $errorMsg .= "\non line $error->line ";
-            switch ($error->level) {
-                case LIBXML_ERR_WARNING:
-                    $errorMsg .= "(Warning $error->code): ";
-                    break;
-                case LIBXML_ERR_ERROR:
-                    $errorMsg .= "(Error $error->code): ";
-                    break;
-                case LIBXML_ERR_FATAL:
-                    $errorMsg .= "(Fatal Error $error->code): ";
-                    break;
-            }
-            $errorMsg .= trim($error->message);
-        }
-        libxml_clear_errors();
-        return $errorMsg;
+        $this->_fileId;
+    }
+
+    public function setId($fileId)
+    {
+        $this->_fileId = $fileId;
     }
 }

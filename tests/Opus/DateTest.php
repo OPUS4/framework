@@ -204,7 +204,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testIfParsingOfIsoDateSwapsDayAndMonth()
+    public function testIfParsingOfIsoDateSwapsDayAndMonth()
     {
         $locale = new Zend_Locale("en");
         Zend_Registry::set('Zend_Locale', $locale);
@@ -219,7 +219,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testSetNow()
+    public function testSetNow()
     {
         $date = new Opus_Date();
         $date->setNow();
@@ -235,7 +235,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testSetNowToStringIsValid()
+    public function testSetNowToStringIsValid()
     {
         $date = new Opus_Date();
         $date->setNow();
@@ -256,7 +256,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testFromStringToStringIsInvariant()
+    public function testFromStringToStringIsInvariant()
     {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04T22:36:53Z');
@@ -277,7 +277,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testFromDateOnlyStringToStringIsInvariant()
+    public function testFromDateOnlyStringToStringIsInvariant()
     {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04');
@@ -294,7 +294,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testFromStringToStringKeepsTimeZone()
+    public function testFromStringToStringKeepsTimeZone()
     {
         $date = new Opus_Date();
         $date->setFromString('2010-06-04T22:36:53+2:3');
@@ -336,7 +336,7 @@ class Opus_DateTest extends TestCase
      *
      * @return void
      */
-    function testSetFromStringErrorHandling()
+    public function testSetFromStringErrorHandling()
     {
 
         $invalidStrings = [
@@ -362,7 +362,7 @@ class Opus_DateTest extends TestCase
     /**
      * @return void
      */
-    function testSetTimezone()
+    public function testSetTimezone()
     {
         $timeZoneStrings = [
             '2011-12-12'                => null,
@@ -384,7 +384,7 @@ class Opus_DateTest extends TestCase
     /**
      * TODO Test may fail because to much time passed between setNow and Zend_Date construction.
      */
-    function testZendDateOutput()
+    public function testZendDateOutput()
     {
         $date = new Opus_Date();
         $date->setNow();
@@ -393,7 +393,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals($date->__toString(), $dateZend->__toString());
     }
 
-    function testGetUnixTimestamp()
+    public function testGetUnixTimestamp()
     {
         $date = new Opus_Date();
         $date->setNow();
@@ -409,7 +409,7 @@ class Opus_DateTest extends TestCase
     /**
      * This might not make sense, but is the old behaviour.
      */
-    function testGetUnixTimestampForCustomDate()
+    public function testGetUnixTimestampForCustomDate()
     {
         $date = new Opus_Date('2012-10-17');
 
@@ -421,7 +421,7 @@ class Opus_DateTest extends TestCase
         );
     }
 
-    function testUpdateFromArray()
+    public function testUpdateFromArray()
     {
         $date = new Opus_Date();
 
@@ -441,7 +441,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals('+01:00', $date->getTimezone());
     }
 
-    function testUpdateFromArrayWithStrings()
+    public function testUpdateFromArrayWithStrings()
     {
         $date = new Opus_Date();
 
@@ -461,7 +461,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals('+01:00', $date->getTimezone());
     }
 
-    function testUpdateFromArrayWithoutTime()
+    public function testUpdateFromArrayWithoutTime()
     {
         $date = new Opus_Date();
 
@@ -478,7 +478,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals('2018-05-11 00:00:00', date_format($dateTime, 'Y-m-d H:i:s'));
     }
 
-    function testUpdateFromArrayResetsOtherFields()
+    public function testUpdateFromArrayResetsOtherFields()
     {
         $date = new Opus_Date();
 
@@ -511,7 +511,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1354320000, $date->getUnixTimestamp());
     }
 
-    function testUpdateFromArraySimple()
+    public function testUpdateFromArraySimple()
     {
         $date = new Opus_Date();
 
@@ -524,7 +524,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1354320000, $date->getUnixTimestamp());
     }
 
-    function testUpdateFromArraySimpleLongForm()
+    public function testUpdateFromArraySimpleLongForm()
     {
         $date = new Opus_Date();
 
@@ -537,7 +537,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1275691013, $date->getUnixTimestamp());
     }
 
-    function testUpdateFromArraySimpleUnixTimestamp()
+    public function testUpdateFromArraySimpleUnixTimestamp()
     {
         $date = new Opus_Date();
 
@@ -551,7 +551,7 @@ class Opus_DateTest extends TestCase
     /**
      * UnixTimestamp is read-only and will not be set from array.
      */
-    function testUpdateFromArrayWithUnixTimestamp()
+    public function testUpdateFromArrayWithUnixTimestamp()
     {
         $date = new Opus_Date();
 
@@ -569,7 +569,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1525651200, $date->getUnixTimestamp());
     }
 
-    function testUpdateUnixTimestamp()
+    public function testUpdateUnixTimestamp()
     {
         $date = new Opus_Date('2018-10-14');
 
@@ -584,7 +584,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals('1507939200', $date->getUnixTimestamp());
     }
 
-    function testCompareSame()
+    public function testCompareSame()
     {
         $dateStr = '2018-10-14';
 
@@ -594,7 +594,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(0, $date->compare(new Opus_Date($dateStr)));
     }
 
-    function testCompareSameWithTime()
+    public function testCompareSameWithTime()
     {
         $dateStr = '2018-10-14T15:31:12Z';
         $date = new Opus_Date($dateStr);
@@ -603,7 +603,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(0, $date->compare(new Opus_Date($dateStr)));
     }
 
-    function testCompareSameWithTimezone()
+    public function testCompareSameWithTimezone()
     {
         $dateStr = '2018-10-14T15:31:12Z';
         $dateStr2 = '2018-10-14T17:31:12+02:00';
@@ -617,7 +617,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(0, $date->compare(new Opus_Date($dateStr2)));
     }
 
-    function testCompareLess()
+    public function testCompareLess()
     {
         $date = new Opus_Date('2018-10-14');
         $date2 = new Opus_Date('2018-10-15');
@@ -625,7 +625,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(-1, $date->compare($date2));
     }
 
-    function testCompareLessWithTime()
+    public function testCompareLessWithTime()
     {
         $date = new Opus_Date('2018-10-14T09:34:11Z');
         $date2 = new Opus_Date('2018-10-14T09:34:12Z');
@@ -633,7 +633,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(-1, $date->compare($date2));
     }
 
-    function testCompareLessWithTimezone()
+    public function testCompareLessWithTimezone()
     {
         $date = new Opus_Date('2018-10-14T10:34:11+02:00');
         $date2 = new Opus_Date('2018-10-14T09:34:11Z');
@@ -641,7 +641,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(-1, $date->compare($date2));
     }
 
-    function testCompareLarger()
+    public function testCompareLarger()
     {
         $date = new Opus_Date('2018-10-14');
         $date2 = new Opus_Date('2018-10-15');
@@ -649,7 +649,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1, $date2->compare($date));
     }
 
-    function testCompareLargerWithTime()
+    public function testCompareLargerWithTime()
     {
         $date = new Opus_Date('2018-10-14T00:00:10Z');
         $date2 = new Opus_Date('2018-10-14T00:00:11Z');
@@ -657,7 +657,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1, $date2->compare($date));
     }
 
-    function testCompareLargerWithTimezone()
+    public function testCompareLargerWithTimezone()
     {
         $date = new Opus_Date('2018-10-14T00:00:10+02:00');
         $date2 = new Opus_Date('2018-10-13T23:00:11Z');
@@ -665,7 +665,7 @@ class Opus_DateTest extends TestCase
         $this->assertEquals(1, $date2->compare($date));
     }
 
-    function testCreateWithTimezone()
+    public function testCreateWithTimezone()
     {
         $date = new Opus_Date('2018-10-14T00:00:10+02:00');
 
@@ -685,14 +685,14 @@ class Opus_DateTest extends TestCase
      * Not supporting names for timezone probably makes sense in the long run. The meaning of "+02:00" will never
      * change, however the timezone for Europe/Berlin can depend on social, political and other influences.
      */
-    function testCreateWithTimezoneNameNotSupported()
+    public function testCreateWithTimezoneNameNotSupported()
     {
         $date = new Opus_Date('2018-10-14T00:00:10Europe/Berlin');
 
         $this->assertFalse($date->isValid());
     }
 
-    function testCompareWithNull()
+    public function testCompareWithNull()
     {
         $date = new Opus_Date('2018-10-14');
 
@@ -703,14 +703,14 @@ class Opus_DateTest extends TestCase
      * @expectedException Opus_Model_Exception
      * @expectedExceptionMessage Cannot compare Zend_Config with Opus_Date object.
      */
-    function testCompareWithOtherObjectType()
+    public function testCompareWithOtherObjectType()
     {
         $date = new Opus_Date('2018-10-14');
 
         $date->compare(new Zend_Config([]));
     }
 
-    function testToArrayWithTimestamp()
+    public function testToArrayWithTimestamp()
     {
         $date = new Opus_Date();
 
@@ -728,7 +728,7 @@ class Opus_DateTest extends TestCase
         ], $date->toArray());
     }
 
-    function testToArray()
+    public function testToArray()
     {
         $date = new Opus_Date();
 
@@ -748,7 +748,7 @@ class Opus_DateTest extends TestCase
         ], $date->toArray());
     }
 
-    function testGetDateTimeForEmptyDate()
+    public function testGetDateTimeForEmptyDate()
     {
         $date = new Opus_Date();
 
@@ -756,7 +756,7 @@ class Opus_DateTest extends TestCase
         $this->assertNull($date->getDateTime());
     }
 
-    function testSetUnixTimestampWithLocalTimestamp()
+    public function testSetUnixTimestampWithLocalTimestamp()
     {
         $timestamp = strtotime('2018-10-15');
 

@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Model_Xml
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2014, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
@@ -318,7 +317,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         }
     }
 
-    abstract function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field);
+    abstract public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field);
 
     public function getFieldValues($field)
     {
