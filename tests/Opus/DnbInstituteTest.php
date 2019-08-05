@@ -442,7 +442,7 @@ class Opus_DnbInstituteTest extends TestCase
 
         $instituteId = $institute->store();
 
-        $institute = new Opus_Institute($instituteId);
+        $institute = new Opus_DnbInstitute($instituteId);
 
         $this->assertEquals($name, $institute->getName());
     }
