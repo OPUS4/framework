@@ -4044,7 +4044,8 @@ class Opus_DocumentTest extends TestCase
         $doc = new Opus_Document($docId);
         $patents = $doc->getPatent();
 
-        $this->assertEquals('0123456789', $patents->getNumber());
+        // old, longer value '0123456789' does not get stored, because it is not modified (anymore)
+        $this->assertEquals('012345678', $patents[0]->getNumber());
     }
 
     /**
