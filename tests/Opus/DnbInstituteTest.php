@@ -440,7 +440,11 @@ class Opus_DnbInstituteTest extends TestCase
             'City' => 'Berlin'
         ]);
 
-        $institute->store();
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
     }
 
     /**

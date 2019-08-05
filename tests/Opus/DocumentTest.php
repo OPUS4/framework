@@ -3986,4 +3986,101 @@ class Opus_DocumentTest extends TestCase
         $doc->setServerState('published');
         $this->assertTrue($doc->getServerStateChanged());
     }
+
+    /**
+     * This test threw the following exception.
+     *
+     * "Opus_Model_DbException : Opus_Document:  Opus_Document: Database column 'edition' has been truncated by
+     * 1 characters!"
+     *
+     * This is caused by the truncate check after saving an object. The function deletePermanent calls delete first.
+     * Delete is a status change, so it is an update operation for the database. After an update the truncate check
+     * verifies that all the values have been stored completelly. The framework only stores changed values. The check
+     * verifies all values. The old longer value has not been changed and therefore is not stored when delete is called.
+     * The database contains the shorter value so the truncation check fails.
+     */
+    public function testNoTruncateExceptionDeletingDocumentUsingOutOfDateObject()
+    {
+        $doc = new Opus_Document();
+        $doc->setEdition('0123456789');
+        $docId = $doc->store();
+
+        $newObj = new Opus_Document($docId);
+        $newObj->setEdition('012345678');
+        $newObj->store();
+
+        $doc->deletePermanent();
+    }
+
+    /**
+     * Old truncation check code caused this test to fail with an exception.
+     *
+     * "Opus_Model_DbException : Opus_Patent:  Opus_Patent: Database column 'number' has been truncated by
+     * 1 characters!"
+     *
+     * The reason is that the delete function a save triggers, because it is actually a status change. After the saving
+     * a truncate check is performed, because the Number field in the original patent Object has not been changed, it
+     * is not saved. The database however contains a short entry by now. The truncate check always compared all values
+     * and so this lead to the exception, because the value in the model was longer than the one in the database.
+     */
+    public function testNoTruncateExceptionDeletingDocumentWithPatentUsingOutOfDateObject()
+    {
+        $doc = new Opus_Document();
+        $patent = new Opus_Patent();
+        $patent->setNumber('0123456789');
+        $patent->setCountries('Germany');
+        $patent->setApplication('Application');
+        $doc->addPatent($patent);
+        $docId = $doc->store();
+
+        $newObj = new Opus_Document($docId);
+        $patents = $newObj->getPatent();
+        $patents[0]->setNumber('012345678');
+        $newObj->store();
+
+        $patent->setCountries('France');
+        $doc->delete();
+
+        $doc = new Opus_Document($docId);
+        $patents = $doc->getPatent();
+
+        // old, longer value '0123456789' does not get stored, because it is not modified (anymore)
+        $this->assertEquals('012345678', $patents[0]->getNumber());
+    }
+
+    /**
+     * @expectedException  Opus_Model_DbException
+     * @expectedExceptionMessage Data too long
+     */
+    public function testTruncateExceptionForTooLongValue()
+    {
+        $doc = new Opus_Document();
+        $patent = new Opus_Patent();
+        $value = str_repeat('0123456789', 25);
+        $patent->setNumber($value);
+        $patent->setCountries('Germany');
+        $patent->setApplication('Application');
+        $doc->addPatent($patent);
+        $doc->store();
+
+        $patent->setNumber(str_repeat('0123456789', 26));
+        $doc->deletePermanent();
+    }
+
+    public function testDeleteSavesChanges()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $doc->setEdition('1st');
+        $docId = $doc->store();
+
+        $doc->setEdition('2nd');
+
+        $doc->delete();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertEquals('deleted', $doc->getServerState());
+        $this->assertEquals('2nd', $doc->getEdition());
+    }
 }
