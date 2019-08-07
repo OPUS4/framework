@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -33,7 +32,6 @@
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @copyright   Copyright (c) 2008-2011, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -354,7 +352,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm
     {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
-        if (isset($conf) and $conf->security === '0') {
+        if (isset($conf) && (! filter_var($conf->security, FILTER_VALIDATE_BOOLEAN))) {
             return true;
         }
 
