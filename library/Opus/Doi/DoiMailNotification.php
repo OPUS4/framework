@@ -85,8 +85,8 @@ class Opus_Doi_DoiMailNotification
         if (is_null($this->enabled)) {
             // check if email notifications for DOI events are enabled in general
             if (isset($this->config->doi->notificationEmailEnabled)
-                && ($this->config->doi->notificationEmailEnabled || $this->config->doi->notificationEmailEnabled == '1')
-                && count($this->getRecipients()) > 0
+                && filter_var($this->config->doi->notificationEmailEnabled, FILTER_VALIDATE_BOOLEAN)
+                && (count($this->getRecipients()) > 0)
             ) {
                 $this->enabled = true;
             } else {
