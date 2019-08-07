@@ -294,7 +294,7 @@ class Opus_SolrSearch_Index_Indexer
         $solrXmlDocument->preserveWhiteSpace = false;
         $solrXmlDocument->loadXML($proc->transformToXML($modelXml));
 
-        if (isset($config->log->prepare->xml) && $config->log->prepare->xml) {
+        if (isset($config->log->prepare->xml) && filter_var($config->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
             $modelXml->formatOutput = true;
             $this->log->debug("input xml\n" . $modelXml->saveXML());
             $solrXmlDocument->formatOutput = true;
