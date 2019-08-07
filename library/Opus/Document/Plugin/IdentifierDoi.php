@@ -172,7 +172,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
     {
 
         // prüfe ob Konfigurationseinstellung eine Registrierung vorgibt
-        if (! isset($config->doi->registerAtPublish) || ! ($config->doi->registerAtPublish || $config->doi->registerAtPublish == '1')) {
+        if (! isset($config->doi->registerAtPublish) || ! (filter_var($config->doi->registerAtPublish,FILTER_VALIDATE_BOOLEAN))) {
             $log->debug('registration of DOIs at publish time is disabled in configuration');
             return;
         }
