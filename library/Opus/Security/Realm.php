@@ -352,7 +352,7 @@ class Opus_Security_Realm implements Opus_Security_IRealm
     {
         // Check if security is switched off
         $conf = Zend_Registry::get('Zend_Config');
-        if (isset($conf) && (! filter_var($conf->security, FILTER_VALIDATE_BOOLEAN))) {
+        if (isset($conf, $conf->security) && (! filter_var($conf->security, FILTER_VALIDATE_BOOLEAN))) {
             return true;
         }
 
