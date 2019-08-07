@@ -109,7 +109,7 @@ class Opus_Document_Plugin_IdentifierDoi extends Opus_Model_Plugin_Abstract impl
 
         if (is_null($generateDoi)) {
             // Enrichment opus.doi.autoCreate wurde nicht gefunden - verwende Standardwert für die DOI-Erzeugung aus Konfiguration
-            $generateDoi = (isset($config->doi->autoCreate) && ($config->doi->autoCreate || $config->doi->autoCreate == '1'));
+            $generateDoi = (isset($config->doi->autoCreate) && filter_var($config->doi->autoCreate, FILTER_VALIDATE_BOOLEAN));
         }
 
         // prüfe, ob bereits eine DOI mit dem Dokument verknüpft ist
