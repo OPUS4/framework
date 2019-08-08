@@ -1,5 +1,4 @@
 <?php
-
 /**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
@@ -30,7 +29,6 @@
  * @author      Edouard Simon edouard.simon@zib.de
  * @copyright   Copyright (c) 2010-2012, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 class Opus_Document_Plugin_IndexTest extends TestCase
 {
@@ -39,12 +37,11 @@ class Opus_Document_Plugin_IndexTest extends TestCase
     {
         parent::setUp();
         $config = Zend_Registry::get('Zend_Config');
-        $config->merge(new Zend_Config(['runjobs' => ['asynchronous' => true]]));
+        $config->merge(new Zend_Config(['runjobs' => ['asynchronous' => '1']]));
     }
 
     public function testCreateIndexJob()
     {
-
         $indexJobsBefore = Opus_Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
 
@@ -71,8 +68,7 @@ class Opus_Document_Plugin_IndexTest extends TestCase
 
     public function testDoNotCreateIndexJobIfAsyncDisabled()
     {
-
-        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
+        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = ''; // false
 
         $indexJobsBefore = Opus_Job::getByLabels(['opus-index-document']);
         $jobCountBefore = count($indexJobsBefore);
@@ -91,7 +87,6 @@ class Opus_Document_Plugin_IndexTest extends TestCase
 
     public function testCreateRemoveIndexJob()
     {
-
         $removeIndexJobsBefore = Opus_Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
 
@@ -120,8 +115,7 @@ class Opus_Document_Plugin_IndexTest extends TestCase
 
     public function testDoNotCreateRemoveIndexJobIfAsyncDisabled()
     {
-
-        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = 0;
+        Zend_Registry::get('Zend_Config')->runjobs->asynchronous = ''; // false
 
         $removeIndexJobsBefore = Opus_Job::getByLabels(['opus-remove-index-document']);
         $jobCountBefore = count($removeIndexJobsBefore);
