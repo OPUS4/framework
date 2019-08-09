@@ -28,7 +28,6 @@
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -108,7 +107,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract
 
         $log = Opus_Log::get();
 
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' .'Adding remove-index job for document ' . $documentId . '.');
 
             $job = new Opus_Job();
@@ -149,7 +148,7 @@ class Opus_Document_Plugin_Index extends Opus_Model_Plugin_Abstract
         $log = Opus_Log::get();
 
         // create job if asynchronous is set
-        if (isset($this->config->runjobs->asynchronous) && $this->config->runjobs->asynchronous) {
+        if (isset($this->config->runjobs->asynchronous) && filter_var($this->config->runjobs->asynchronous, FILTER_VALIDATE_BOOLEAN)) {
             $log->debug(__METHOD__ . ': ' . 'Adding index job for document ' . $documentId . '.');
 
             $job = new Opus_Job();

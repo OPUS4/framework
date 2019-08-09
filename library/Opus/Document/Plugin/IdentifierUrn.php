@@ -77,7 +77,7 @@ class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract impl
         $config = Zend_Registry::get('Zend_Config');
         if (is_null($generateUrn)) {
             // Enrichment opus.urn.autoCreate wurde nicht gefunden - verwende Standardwert für die URN-Erzeugung aus Konfiguration
-            $generateUrn = (isset($config->urn->autoCreate) && ($config->urn->autoCreate || $config->urn->autoCreate == '1'));
+            $generateUrn = (isset($config->urn->autoCreate) && filter_var($config->urn->autoCreate, FILTER_VALIDATE_BOOLEAN));
         }
 
         if (! $generateUrn) {

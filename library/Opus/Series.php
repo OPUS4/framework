@@ -127,7 +127,7 @@ class Opus_Series extends Opus_Model_AbstractDb
     {
         $config = Zend_Registry::get('Zend_Config');
 
-        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1') {
+        if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
         } else {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
@@ -145,7 +145,7 @@ class Opus_Series extends Opus_Model_AbstractDb
     {
         $config = Zend_Registry::get('Zend_Config');
 
-        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1') {
+        if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAll();
         } else {
             $all = self::getAllFrom(
