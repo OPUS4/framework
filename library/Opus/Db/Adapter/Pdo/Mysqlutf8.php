@@ -65,7 +65,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
         }
 
         $config = Zend_Registry::get('Zend_Config');
-        if (isset($config, $config->db->debug) && filter_var($config->db->debug, FILTER_VALIDATE_BOOLEAN)) {
+        if (isset($config->db->debug) && filter_var($config->db->debug, FILTER_VALIDATE_BOOLEAN)) {
             $logger = Zend_Registry::get('Zend_Log');
             $logger->debug("Mysqlutf8: created new adapter");
 
