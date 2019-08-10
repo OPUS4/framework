@@ -81,8 +81,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 0
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -99,8 +99,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => false
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -117,8 +117,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument('false');
@@ -135,8 +135,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -153,8 +153,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => true
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -171,8 +171,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 0
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument('true');
@@ -212,8 +212,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
@@ -256,7 +256,7 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -288,7 +288,7 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_MissingGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
@@ -305,8 +305,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
-            'registerAtPublish' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
+            'registerAtPublish' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -329,8 +329,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 0,
-            'registerAtPublish' => 1,
+            'autoCreate' => self::CONFIG_VALUE_FALSE,
+            'registerAtPublish' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -482,8 +482,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
     }

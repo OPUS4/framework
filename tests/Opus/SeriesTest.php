@@ -343,7 +343,7 @@ class Opus_SeriesTest extends TestCase
     public function testGetAllSortedByTitle()
     {
         Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
-            'series' => ['sortByTitle' => '1']
+            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
         ]));
 
         $series = new Opus_Series();
@@ -428,7 +428,7 @@ class Opus_SeriesTest extends TestCase
     public function testGetAllSortedBySortKeyOverriddenToSortByTitle()
     {
         Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
-            'series' => ['sortByTitle' => '1']
+            'series' => ['sortByTitle' => self::CONFIG_VALUE_TRUE]
         ]));
 
         $testValues = [3, 1, 2, 5, 4, 0];
