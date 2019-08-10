@@ -328,7 +328,7 @@ class Opus_Document_Plugin_IdentifierUrnTest extends TestCase
     private function enableURNGeneration()
     {
         $urnConfig = [
-            'autoCreate' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
             'nss' => 'nss',
             'nid' => 'nid'
         ];

@@ -256,7 +256,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
     public function testPrepareAndOutputXML()
     {
         $this->adjustConfiguration([
-                                        'log' => [ 'prepare' => [ 'xml' => true ] ]
+                                        'log' => [ 'prepare' => [ 'xml' => self::CONFIG_VALUE_TRUE ] ]
                                     ]);
 
         $this->_addOneDocumentToIndex();
@@ -805,7 +805,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
     public function testIndexIsUpdatedSynchronouslyInSyncMode()
     {
         $this->adjustConfiguration([
-            'runjobs' => [ 'asynchronous' => 0 ]
+            'runjobs' => [ 'asynchronous' => self::CONFIG_VALUE_FALSE ]
         ]);
 
         $this->performDocumentExistsInIndexChecks();
@@ -816,7 +816,7 @@ class Opus_Search_Common_IndexerTest extends TestCase
         $this->markTestSkipped('Asynchronous index update is the expected behaviour in asynchronous mode so far.');
 
         $this->adjustConfiguration([
-            'runjobs' => [ 'asynchronous' => 1 ]
+            'runjobs' => [ 'asynchronous' => self::CONFIG_VALUE_TRUE ]
         ]);
 
         $this->performDocumentExistsInIndexChecks();

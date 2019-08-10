@@ -59,7 +59,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig1()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => false,
+            'notificationEmailEnabled' => self::CONFIG_VALUE_FALSE,
             'notificationEmail' => ['doe@localhost']
         ]);
         $notification = $this->doiMailNotification;
@@ -69,7 +69,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig2()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => '0',
+            'notificationEmailEnabled' => self::CONFIG_VALUE_FALSE,
             'notificationEmail' => ['doe@localhost']
         ]);
         $notification = $this->doiMailNotification;
@@ -79,7 +79,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig3()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => true,
+            'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
             'notificationEmail' => ['doe@localhost']
         ]);
         $notification = $this->doiMailNotification;
@@ -89,7 +89,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig4()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => '1',
+            'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
             'notificationEmail' => ['doe@localhost']
         ]);
         $notification = $this->doiMailNotification;
@@ -99,7 +99,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig5()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => true
+            'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE
         ]);
         $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
@@ -108,7 +108,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testConstructPartialConfig6()
     {
         $this->adaptDoiConfiguration([
-            'notificationEmailEnabled' => '1'
+            'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE
         ]);
         $notification = $this->doiMailNotification;
         $this->assertFalse($notification->isEnabled());
@@ -117,7 +117,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
     public function testSendMailEmpty()
     {
         $this->adaptDoiConfiguration([
-                'notificationEmailEnabled' => true,
+                'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => ['doe@localhost']
             ]);
         $notification = $this->doiMailNotification;
@@ -131,7 +131,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         ]));
 
         $this->adaptDoiConfiguration([
-                'notificationEmailEnabled' => true,
+                'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => ['doe@localhost']
             ]);
 
@@ -149,7 +149,7 @@ class Opus_Doi_DoiMailNotificationTest extends TestCase
         ]));
 
         $this->adaptDoiConfiguration([
-                'notificationEmailEnabled' => true,
+                'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => ['doe@localhost']
             ]);
 
