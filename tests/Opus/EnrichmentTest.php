@@ -213,15 +213,19 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
-    public function testUpdateEnrichmentInvalidKey()
+    public function testUpdateEnrichmentUnknownKey()
     {
         $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
         $enrichment = $enrichments[0];
-        $enrichment->setKeyName('invalid');
-
-        $this->setExpectedException('Opus_Model_Exception');
+        $enrichment->setKeyName('unknown');
+        $enrichment->setValue('bar');
         $doc->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichment = $doc->getEnrichment()[0];
+        $this->assertEquals('unknown', $enrichment->getKeyName());
+        $this->assertEquals('bar', $enrichment->getValue());
     }
 
     public function testUpdateEnrichmentSetDuplicateValue()
