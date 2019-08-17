@@ -141,7 +141,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     }
 
     /**
-     * Retrieve all Opus_EnrichmentKeys which are referenced by at 
+     * Retrieve all Opus_EnrichmentKeys which are referenced by at
      * least one document from the database.
      *
      * @return array Array of Opus_EnrichmentKeys objects.
