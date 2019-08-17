@@ -116,15 +116,14 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEquals($doc->getEnrichment(1)->toArray(), $expectedEnrichment);
     }
 
-    public function testStoreEnrichmentWithInvalidKey()
+    public function testStoreEnrichmentWithUnknownKey()
     {
-        $this->_doc->addEnrichment()->setKeyName('invalid')->setValue('foo');
-        $this->setExpectedException('Opus_Model_Exception');
+        $this->_doc->addEnrichment()->setKeyName('unknown')->setValue('foo');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
-        $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->assertKeysAndValues($doc->getEnrichment(), ['valid'], ['value']);
+        $this->assertEquals(2, count($doc->getEnrichment()));
+        $this->assertKeysAndValues($doc->getEnrichment(), ['valid', 'unknown'], ['value', 'foo']);
     }
 
     public function testStoreEnrichmentWithoutValue()
