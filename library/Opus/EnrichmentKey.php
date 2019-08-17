@@ -243,5 +243,4 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         $this->rename($this->getName(), $oldName);
         parent::store();
     }
-
 }
