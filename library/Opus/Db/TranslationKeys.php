@@ -37,5 +37,4 @@ class Opus_Db_TranslationKeys extends Opus_Db_TableGateway
     protected $_name = 'translationkeys';
 
     protected $_primary = 'id';
-
 }

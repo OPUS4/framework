@@ -28,24 +28,25 @@
  * @package     Opus_Model
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2014, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
  * Base class for plugins that need to update documents associated with collection tree.
- * 
+ *
  */
-abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Abstract {
+abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Abstract
+{
 
     /**
-     * make sure documents related to Collection[Role|]s in subtree are updated 
+     * make sure documents related to Collection[Role|]s in subtree are updated
      * (XML-Cache and server_date_published)
      *
      * @param Opus_Collection Starting point for recursive update to documents
      */
-    protected function updateDocuments($model) {
+    protected function updateDocuments($model)
+    {
         if (is_null($model) || is_null($model->getId())) {
             // TODO explain why this is right
             return;
@@ -67,5 +68,4 @@ abstract class Opus_Model_Plugin_AbstractCollection extends Opus_Model_Plugin_Ab
         $date->setNow();
         Opus_Document::setServerDateModifiedByIds($date, $documentFinder->ids());
     }
-
 }

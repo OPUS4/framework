@@ -35,7 +35,8 @@
 /**
  * Utility class for common methods handling files and directories.
  */
-class Opus_Util_File {
+class Opus_Util_File
+{
 
     /**
      * Remove a directory and its entries recursivly.
@@ -43,7 +44,8 @@ class Opus_Util_File {
      * @param string $dir Directory to delete.
      * @return bool Result of rmdir() call.
      */
-    public static function deleteDirectory($dir) {
+    public static function deleteDirectory($dir)
+    {
         if (false === file_exists($dir)) {
             return true;
         }
@@ -68,7 +70,8 @@ class Opus_Util_File {
      * @param string $path Path with or without directory separator.
      * @return string Path with directory separator.
      */
-    public static function addDirectorySeparator($path) {
+    public static function addDirectorySeparator($path)
+    {
         if (false === empty($path)) {
             rtrim($path); // remove trailing whitespaces
 
@@ -81,6 +84,4 @@ class Opus_Util_File {
 
         return $path;
     }
-
 }
-

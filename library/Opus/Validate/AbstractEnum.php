@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Validate
  * @author      Ralf Claussnitzer <ralf.claussnitzer@slub-dresden.de>
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -40,7 +39,8 @@
  * @category    Framework
  * @package     Opus_Validate
  */
-abstract class Opus_Validate_AbstractEnum extends Zend_Validate_Abstract {
+abstract class Opus_Validate_AbstractEnum extends Zend_Validate_Abstract
+{
 
     /**
      * Validate the given value.
@@ -59,5 +59,4 @@ abstract class Opus_Validate_AbstractEnum extends Zend_Validate_Abstract {
 
         return true;
     }
-
 }

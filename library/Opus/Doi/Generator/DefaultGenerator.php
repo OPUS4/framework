@@ -78,8 +78,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
     {
         try {
             $prefix = $this->getPrefix();
-        }
-        catch (Opus_Doi_Generator_DoiGeneratorException $odgd) {
+        } catch (Opus_Doi_Generator_DoiGeneratorException $odgd) {
             // if no local prefix is configured, no DOI is local
             return false;
         }
@@ -96,7 +95,7 @@ class Opus_Doi_Generator_DefaultGenerator implements Opus_Doi_Generator_DoiGener
      */
     public function getPrefix()
     {
-        if (!isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
+        if (! isset($this->config->doi->prefix) or strlen(trim($this->config->doi->prefix)) === 0) {
             throw new Opus_Doi_Generator_DoiGeneratorException(
                 'configuration setting doi.prefix is missing - DOI cannot be generated'
             );

@@ -43,32 +43,38 @@
  *
  * @group       UrnTest
  */
-class Opus_Identifier_UrnTest extends TestCase {
+class Opus_Identifier_UrnTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Test data provider
      *
      * @return array Array containing document identifier, URN and check digit pairs.
      */
-    public function provider() {
-        return array(
-        array('8765' , 'urn:nbn:de:swb:14-opus-8765' , '0'),
-        array('1913' , 'urn:nbn:de:swb:14-opus-1913' , '1'),
-        array('6543' , 'urn:nbn:de:swb:14-opus-6543' , '2'),
-        array('1234' , 'urn:nbn:de:swb:14-opus-1234' , '3'),
-        array('7000' , 'urn:nbn:de:swb:14-opus-7000' , '4'),
-        array('4567' , 'urn:nbn:de:swb:14-opus-4567' , '5'),
-        array('4028' , 'urn:nbn:de:swb:14-opus-4028' , '6'),
-        array('3456' , 'urn:nbn:de:swb:14-opus-3456' , '7'),
-        array('4711' , 'urn:nbn:de:swb:14-opus-4711' , '8'),
-        array('2345' , 'urn:nbn:de:swb:14-opus-2345' , '9'),
-        );
+    public function provider()
+    {
+        return [
+        ['8765' , 'urn:nbn:de:swb:14-opus-8765' , '0'],
+        ['1913' , 'urn:nbn:de:swb:14-opus-1913' , '1'],
+        ['6543' , 'urn:nbn:de:swb:14-opus-6543' , '2'],
+        ['1234' , 'urn:nbn:de:swb:14-opus-1234' , '3'],
+        ['7000' , 'urn:nbn:de:swb:14-opus-7000' , '4'],
+        ['4567' , 'urn:nbn:de:swb:14-opus-4567' , '5'],
+        ['4028' , 'urn:nbn:de:swb:14-opus-4028' , '6'],
+        ['3456' , 'urn:nbn:de:swb:14-opus-3456' , '7'],
+        ['4711' , 'urn:nbn:de:swb:14-opus-4711' , '8'],
+        ['2345' , 'urn:nbn:de:swb:14-opus-2345' , '9'],
+        ];
     }
 
     /**
@@ -76,29 +82,30 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @return array Array containing invalid namespace identifier pairs.
      */
-    public function badProvider() {
-        return array(
+    public function badProvider()
+    {
+        return [
             // test invalid nids
             // containing unallowed characters.
-            array('ERROR!', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            ['ERROR!', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'],
             // beginning with a hyphen.
-            array('-abc', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            ['-abc', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'],
             // being to short.
-            array('a', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            ['a', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'],
             // empty string
-            array('', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            ['', 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'],
             // null object
-            array(null, 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'),
+            [null, 'de:swb:14-opus', 'Used invalid namespace identifier. See RFC 2141.'],
             //test invalid nss
             // containing spaces
-            array('nbn', 'a b', 'Used invalid namespace specific string. See RFC 2141.'),
+            ['nbn', 'a b', 'Used invalid namespace specific string. See RFC 2141.'],
             // containing german umlauts.
-            array('nbn', 'bäh', 'Used invalid namespace specific string. See RFC 2141.'),
+            ['nbn', 'bäh', 'Used invalid namespace specific string. See RFC 2141.'],
             // empty string
-            array('nbn', '', 'Used invalid namespace specific string. See RFC 2141.'),
+            ['nbn', '', 'Used invalid namespace specific string. See RFC 2141.'],
             // null object.
-            array('nbn', null, 'Used invalid namespace specific string. See RFC 2141.'),
-        );
+            ['nbn', null, 'Used invalid namespace specific string. See RFC 2141.'],
+        ];
     }
 
     /**
@@ -106,10 +113,11 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @return array Array containing invalid document identifier.
      */
-    public function badIdProvider() {
-        return array(
-        array('!ERROR!', 'Used invalid arguments for document id.'),
-        );
+    public function badIdProvider()
+    {
+        return [
+        ['!ERROR!', 'Used invalid arguments for document id.'],
+        ];
     }
 
     /**
@@ -122,7 +130,8 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider provider
      */
-    public function testUrn($document_id, $urn, $checkdigit) {
+    public function testUrn($document_id, $urn, $checkdigit)
+    {
         $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
         $this->assertEquals($urn . $checkdigit, $generated, 'Generated URN is not valid.');
@@ -138,7 +147,8 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider provider
      */
-    public function testCheckDigit($document_id, $urn, $checkdigit) {
+    public function testCheckDigit($document_id, $urn, $checkdigit)
+    {
         $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);
         $this->assertEquals($checkdigit, $generated, 'Generated check digit is not valid.');
@@ -155,7 +165,8 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider badProvider
      */
-    public function testInitializeWithInvalidValues($nid, $nss, $msg) {
+    public function testInitializeWithInvalidValues($nid, $nss, $msg)
+    {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Opus_Identifier_Urn($nid, $nss);
     }
@@ -169,7 +180,8 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider badIdProvider
      */
-    public function testCallUrnGeneratorWithInvalidValue($document_id, $msg) {
+    public function testCallUrnGeneratorWithInvalidValue($document_id, $msg)
+    {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getUrn($document_id);
@@ -184,7 +196,8 @@ class Opus_Identifier_UrnTest extends TestCase {
      *
      * @dataProvider badIdProvider
      */
-    public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg) {
+    public function testCallCheckDigitGeneratorWithInvalidValue($document_id, $msg)
+    {
         $this->setExpectedException('InvalidArgumentException', $msg);
         $identifier = new Opus_Identifier_Urn('nbn', 'de:swb:14-opus');
         $generated = $identifier->getCheckDigit($document_id);

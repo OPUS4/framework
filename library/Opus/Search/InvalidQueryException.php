@@ -40,17 +40,20 @@
  * TODO überlappungen zu anderen Exceptions
  */
 
-class Opus_Search_InvalidQueryException extends Opus_Search_Exception {
-	public function __construct( $message = "", $code = 0, Exception $previous = null ) {
-		parent::__construct( $message, $code, $previous );
-	}
+class Opus_Search_InvalidQueryException extends Opus_Search_Exception
+{
+    public function __construct($message = "", $code = 0, Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 
-	public function __toString() {
-		$previousMessage = '';
-		if ( !is_null( $this->getPrevious() ) ) {
-			$previousMessage = $this->getPrevious()->getMessage();
-		}
+    public function __toString()
+    {
+        $previousMessage = '';
+        if (! is_null($this->getPrevious())) {
+            $previousMessage = $this->getPrevious()->getMessage();
+        }
 
-		return 'given search query is invalid: ' . $previousMessage;
-	}
+        return 'given search query is invalid: ' . $previousMessage;
+    }
 }

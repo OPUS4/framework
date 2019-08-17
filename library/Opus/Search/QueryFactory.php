@@ -40,48 +40,51 @@
  * TODO nicht ganz klar
  */
 
-class Opus_Search_QueryFactory {
+class Opus_Search_QueryFactory
+{
 
-	/**
-	 * Creates query on provided adapter initially searching all documents.
-	 *
-	 * @param Opus_Search_Searching $adapter
-	 * @return Opus_Search_Query
-	 */
-	public static function selectAllDocuments( Opus_Search_Searching $adapter ) {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( '*' )->addValue( '*' );
+    /**
+     * Creates query on provided adapter initially searching all documents.
+     *
+     * @param Opus_Search_Searching $adapter
+     * @return Opus_Search_Query
+     */
+    public static function selectAllDocuments(Opus_Search_Searching $adapter)
+    {
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('*')->addValue('*');
 
-		return $adapter->createQuery()->setSubFilter( "alldocs", $filter );
-	}
+        return $adapter->createQuery()->setSubFilter("alldocs", $filter);
+    }
 
-	/**
-	 * Creates query on provided adapter initially searching given document.
-	 *
-	 * @param Opus_Search_Searching $adapter
-	 * @param Opus_Document $document
-	 * @return Opus_Search_Query
-	 */
-	public static function selectDocument( Opus_Search_Searching $adapter, Opus_Document $document ) {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( 'id' )->addValue( $document->getId() );
+    /**
+     * Creates query on provided adapter initially searching given document.
+     *
+     * @param Opus_Search_Searching $adapter
+     * @param Opus_Document $document
+     * @return Opus_Search_Query
+     */
+    public static function selectDocument(Opus_Search_Searching $adapter, Opus_Document $document)
+    {
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('id')->addValue($document->getId());
 
-		return $adapter->createQuery()->setFilter( $filter );
-	}
+        return $adapter->createQuery()->setFilter($filter);
+    }
 
-	/**
-	 * Creates query on provided adapter initially searching document by given
-	 * ID.
-	 *
-	 * @param Opus_Search_Searching $adapter
-	 * @param int $documentId
-	 * @return Opus_Search_Query
-	 */
-	public static function selectDocumentById( Opus_Search_Searching $adapter, $documentId ) {
-		$filter = $adapter->createFilter();
-		$filter->createSimpleEqualityFilter( 'id' )->addValue( $documentId );
+    /**
+     * Creates query on provided adapter initially searching document by given
+     * ID.
+     *
+     * @param Opus_Search_Searching $adapter
+     * @param int $documentId
+     * @return Opus_Search_Query
+     */
+    public static function selectDocumentById(Opus_Search_Searching $adapter, $documentId)
+    {
+        $filter = $adapter->createFilter();
+        $filter->createSimpleEqualityFilter('id')->addValue($documentId);
 
-		return $adapter->createQuery()->setFilter( $filter );
-	}
-
+        return $adapter->createQuery()->setFilter($filter);
+    }
 }

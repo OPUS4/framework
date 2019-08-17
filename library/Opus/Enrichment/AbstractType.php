@@ -54,10 +54,10 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
         // Standardverhalten Text-Element, das nicht leer sein darf
 
         $form = new Admin_Form_Document_Enrichment();
-        $options = array('required' => true, 'size' => 60); // FIXME required wenn checkbox?
+        $options = ['required' => true, 'size' => 60]; // FIXME required wenn checkbox?
         $element = $form->createElement($this->getFormElementName(), Admin_Form_Document_Enrichment::ELEMENT_VALUE, $options);
 
-        if (!is_null($value)) {
+        if (! is_null($value)) {
             $element->setValue($value);
         }
 
@@ -74,8 +74,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
     {
         if (is_array($options)) {
             $optionsArray = $options;
-        }
-        else {
+        } else {
             if (is_null($options) || $options === '') {
                 return;
             }
@@ -92,8 +91,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
             $setMethod = 'set' . ucfirst($key);
             if (method_exists($this, $setMethod)) {
                 $this->$setMethod($value);
-            }
-            else {
+            } else {
                 $log = Opus_Log::get();
                 $log->err('method ' . $setMethod . ' does not exist on enrichment type ' . get_class($this));
             }
@@ -114,7 +112,7 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
             $attributeValue = $this->$methodName();
             if ($attributeValue != null) {
                 if (is_null($options)) {
-                    $options = array();
+                    $options = [];
                 }
                 $options[$optionProperty] = $attributeValue;
             }
@@ -137,8 +135,8 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
      */
     public static function getAllEnrichmentTypes($rawNames = false)
     {
-        $files = array_diff(scandir(__DIR__), array('.', '..', 'AbstractType.php', 'TypeInterface.php'));
-        $result = array();
+        $files = array_diff(scandir(__DIR__), ['.', '..', 'AbstractType.php', 'TypeInterface.php']);
+        $result = [];
 
         if ($files === false) {
             return $result;
@@ -151,11 +149,10 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
                 $interfaces = class_implements($className);
                 if (in_array('Opus_Enrichment_TypeInterface', $interfaces)) {
                     $type = new $className();
-                    if (!$rawNames) {
+                    if (! $rawNames) {
                         $typeName = $type->getName();
                         $result[$typeName] = $typeName;
-                    }
-                    else {
+                    } else {
                         $result[] = $className;
                     }
                 }
@@ -177,7 +174,6 @@ class Opus_Enrichment_AbstractType implements Opus_Enrichment_TypeInterface
 
     public function getOptionProperties()
     {
-        return array();
+        return [];
     }
-
 }

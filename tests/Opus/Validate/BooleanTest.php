@@ -39,28 +39,34 @@
  *
  * @category    Tests
  * @package     Opus_Validate
- * 
+ *
  * @group       BooleanTest
- * 
+ *
  */
-class Opus_Validate_BooleanTest extends TestCase {
+class Opus_Validate_BooleanTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array(true),
-            array(false)
-        );
+    public function validDataProvider()
+    {
+        return [
+            [true],
+            [false]
+        ];
     }
 
     /**
@@ -68,12 +74,13 @@ class Opus_Validate_BooleanTest extends TestCase {
      *
      * @return array Array of invalid arguments and a message.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null, 'Null value not rejected'),
-            array('',   'Empty string not rejected'),
-            array(4711, 'Integer not rejected')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null, 'Null value not rejected'],
+            ['',   'Empty string not rejected'],
+            [4711, 'Integer not rejected']
+        ];
     }
 
 
@@ -85,17 +92,18 @@ class Opus_Validate_BooleanTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_Boolean();
         $result = $validator->isValid($arg);
-        
+
         $codes = $validator->getErrors();
         $msgs  = $validator->getMessages();
         $err   = '';
         foreach ($codes as $code) {
             $err .= '(' . $msgs[$code] . ') ';
         }
-        
+
         $this->assertTrue($result, $arg . ' should pass validation but validator says: ' . $err);
     }
 
@@ -108,9 +116,9 @@ class Opus_Validate_BooleanTest extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg, $msg) {
+    public function testInvalidArguments($arg, $msg)
+    {
         $validator = new Opus_Validate_Boolean();
         $this->assertFalse($validator->isValid($arg), $msg);
     }
-
 }

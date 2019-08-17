@@ -39,24 +39,24 @@
  * @category Tests
  *
  */
-class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract {
+class Opus_Model_ModelWithHiddenField extends Opus_Model_Abstract
+{
 
     /**
      * Fields to be not reported by describe().
      *
      * @var array
      */
-    protected $_internalFields = array('HiddenField');
+    protected $_internalFields = ['HiddenField'];
 
     /**
      * Initialize model with the both an visible and a hidden field.
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $this->addField(new Opus_Model_Field('VisibleField'))
             ->addField(new Opus_Model_Field('HiddenField'));
     }
-
-
 }

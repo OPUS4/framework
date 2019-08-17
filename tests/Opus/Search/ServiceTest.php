@@ -33,41 +33,45 @@
  */
 
 
-class Opus_Search_ServiceTest extends TestCase {
+class Opus_Search_ServiceTest extends TestCase
+{
 
-	public function testProvidesIndexService() {
-		$service = Opus_Search_Service::selectIndexingService( null, 'solr' );
+    public function testProvidesIndexService()
+    {
+        $service = Opus_Search_Service::selectIndexingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus_Search_Indexing', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus_Search_Indexing', $service);
+        $this->assertInstanceOf('Opus_Search_Solr_Solarium_Adapter', $service);
+    }
 
-	public function testProvidesExtractService() {
-		$service = Opus_Search_Service::selectExtractingService( null, 'solr' );
+    public function testProvidesExtractService()
+    {
+        $service = Opus_Search_Service::selectExtractingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus_Search_Extracting', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus_Search_Extracting', $service);
+        $this->assertInstanceOf('Opus_Search_Solr_Solarium_Adapter', $service);
+    }
 
-	public function testProvidesSearchService() {
-		$service = Opus_Search_Service::selectSearchingService( null, 'solr' );
+    public function testProvidesSearchService()
+    {
+        $service = Opus_Search_Service::selectSearchingService(null, 'solr');
 
-		$this->assertInstanceOf( 'Opus_Search_Searching', $service );
-		$this->assertInstanceOf( 'Opus_Search_Solr_Solarium_Adapter', $service );
-	}
+        $this->assertInstanceOf('Opus_Search_Searching', $service);
+        $this->assertInstanceOf('Opus_Search_Solr_Solarium_Adapter', $service);
+    }
 
-	public function testCachingService() {
-		$searchA = Opus_Search_Service::selectSearchingService( null, 'solr' );
-		$searchB = Opus_Search_Service::selectSearchingService( null, 'solr' );
+    public function testCachingService()
+    {
+        $searchA = Opus_Search_Service::selectSearchingService(null, 'solr');
+        $searchB = Opus_Search_Service::selectSearchingService(null, 'solr');
 
-		$this->assertTrue( $searchA === $searchB );
+        $this->assertTrue($searchA === $searchB);
 
-		Opus_Search_Service::dropCached();
+        Opus_Search_Service::dropCached();
 
-		$searchC = Opus_Search_Service::selectSearchingService( null, 'solr' );
+        $searchC = Opus_Search_Service::selectSearchingService(null, 'solr');
 
-		$this->assertTrue( $searchA === $searchB );
-		$this->assertTrue( $searchA !== $searchC );
-	}
-
+        $this->assertTrue($searchA === $searchB);
+        $this->assertTrue($searchA !== $searchC);
+    }
 }

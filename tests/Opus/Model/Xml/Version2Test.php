@@ -47,8 +47,12 @@ class Opus_Model_Xml_Version2Test extends TestCase
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     public function testGetVersion()
     {
@@ -176,7 +180,8 @@ class Opus_Model_Xml_Version2Test extends TestCase
         $xmlData2 = $dom2->saveXML();
 
         $this->assertEquals(
-            $xmlData, $xmlData2,
+            $xmlData,
+            $xmlData2,
             'Setting a model and setting of a serialized model produced not the same.'
         );
     }

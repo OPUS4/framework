@@ -40,7 +40,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway {
+class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway
+{
     /**
      * DB table name.
      *
@@ -53,7 +54,7 @@ class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway {
      *
      * @var string
      */
-    protected $_primary = array('iprange_id', 'role_id');
+    protected $_primary = ['iprange_id', 'role_id'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate
@@ -61,16 +62,16 @@ class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-        'Ipranges' => array(
+    protected $_referenceMap = [
+        'Ipranges' => [
             'columns' => 'iprange_id',
             'refTableClass' => 'Opus_Db_Ipranges',
             'refColumns' => 'id',
-        ),
-        'Roles' => array(
+        ],
+        'Roles' => [
             'columns' => 'role_id',
             'refTableClass' => 'Opus_Db_UserRoles',
             'refColumns' => 'id'
-        )
-    );
+        ]
+    ];
 }

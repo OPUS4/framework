@@ -39,7 +39,8 @@
  * @category Tests
  * @package Opus_Model
  */
-class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstract
+{
 
     /**
      * Set the protected model class attribute for testing.
@@ -47,7 +48,8 @@ class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstra
      * @param string $modelClass
      * @return void
      */
-    public function setModelClass($modelClass) {
+    public function setModelClass($modelClass)
+    {
         $this->_modelClass = $modelClass;
     }
 
@@ -55,7 +57,8 @@ class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstra
      * Intentionally empty to mask behaviour.
      *
      */
-    public function __construct() {
+    public function __construct()
+    {
     }
 
     /**
@@ -63,7 +66,7 @@ class Opus_Model_ModelDependentLinkMock extends Opus_Model_Dependent_Link_Abstra
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
     }
-
 }

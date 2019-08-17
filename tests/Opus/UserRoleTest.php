@@ -79,7 +79,7 @@ class Opus_UserRoleTest extends TestCase
         $ur = Opus_UserRole::fetchByName('unit-test');
         $display_name = $ur->getDisplayName();
         $this->assertTrue(is_string($display_name), 'DisplayName is not a string');
-        $this->assertTrue(strlen($display_name)>0, 'DisplayName is an empty string');
+        $this->assertTrue(strlen($display_name) > 0, 'DisplayName is an empty string');
     }
 
     public function testListAccessDocuments()
@@ -124,8 +124,8 @@ class Opus_UserRoleTest extends TestCase
         try {
             $ur->appendAccessDocument(1)->store();
             $this->fail('Expecting exception on non-existent document.');
+        } catch (Zend_Db_Statement_Exception $e) {
         }
-        catch (Zend_Db_Statement_Exception $e) {}
 
         $d = new Opus_Document();
         $docId = $d->store();

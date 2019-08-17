@@ -34,12 +34,12 @@
 class Opus_Util_SqlFile
 {
 
-    public function getStatements($path) {
+    public function getStatements($path)
+    {
         $content = file_get_contents($path);
 
         $statements = preg_split('/;|\n/', $content);
 
         return $statements;
     }
-
 }

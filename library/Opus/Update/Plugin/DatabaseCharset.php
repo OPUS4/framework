@@ -76,7 +76,8 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
         $database->execWithoutDbName(
             'ALTER DATABASE `' . $database->getName() . '`'
             . ' character set = ' . Opus_Database::DEFAULT_CHARACTER_SET
-            . ' collate = ' . Opus_Database::DEFAULT_COLLATE);
+            . ' collate = ' . Opus_Database::DEFAULT_COLLATE
+        );
 
         // remove VARCHAR foreign key before converting character set
         $pdo->query(
@@ -85,7 +86,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
         $tables = $this->getAllTables();
 
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $this->convertTable($table);
         }
 
@@ -134,7 +135,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
         $result = $pdo->query("SHOW FULL COLUMNS FROM `$table`")->fetchAll();
 
-        if (!$result) {
+        if (! $result) {
             $this->log("Could not retrieve column info for table '$table'.");
             return false;
         }
@@ -145,7 +146,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
                 $charset = strtolower($charset);
 
-                if (!in_array($charset, ['utf8', 'utf8mb4'])) {
+                if (! in_array($charset, ['utf8', 'utf8mb4'])) {
                     $this->log("Table '$table' Column '$column' is using '$charset'. Skip conversion for table.");
                     return false;
                 }
@@ -154,7 +155,7 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
 
         $details = $pdo->query("SHOW TABLE STATUS LIKE '$table'")->fetch();
 
-        if (!$details) {
+        if (! $details) {
             $this->log("Could not retrieve info for table '$table'. Skip conversion.");
             return false;
         }

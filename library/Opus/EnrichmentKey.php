@@ -150,7 +150,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
         $db = $table->getAdapter();
-        $select = $db->select()->from('document_enrichments');
+        $select = $db->select()->from(['document_enrichments']);
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
         return $db->fetchCol($select);

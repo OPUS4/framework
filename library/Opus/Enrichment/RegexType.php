@@ -49,11 +49,11 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
     {
         $element = parent::getFormElement();
 
-        $validator = new Zend_Validate_Regex(array('pattern' => '/' . $this->regex . '/'));
+        $validator = new Zend_Validate_Regex(['pattern' => '/' . $this->regex . '/']);
         $validator->setMessage('admin_validate_error_regex_pattern');
         $element->addValidator($validator);
 
-        if (!is_null($value)) {
+        if (! is_null($value)) {
             $element->setValue($value);
         }
 
@@ -83,8 +83,7 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
             $error = error_get_last();
             $log = Opus_Log::get();
             $log->warn('given type option regex ' . $string . ' is not valid: ' . $error);
-        }
-        else {
+        } else {
             $this->regex = $string;
         }
 
@@ -94,7 +93,6 @@ class Opus_Enrichment_RegexType extends Opus_Enrichment_AbstractType
 
     public function getOptionProperties()
     {
-        return array('regex');
+        return ['regex'];
     }
-
 }

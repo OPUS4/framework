@@ -35,7 +35,8 @@
  * @package     Opus
  * @subpackage  Model
  */
-interface Opus_Model_Plugin_Interface {
+interface Opus_Model_Plugin_Interface
+{
 
     /**
      * Gets called just before a store() is performed.
@@ -60,7 +61,7 @@ interface Opus_Model_Plugin_Interface {
      * @return void
      */
     public function postStore(Opus_Model_AbstractDb $model);
-    
+
     /**
      * Gets called just after a _storeInternalFields() is performed.
      *
@@ -98,5 +99,4 @@ interface Opus_Model_Plugin_Interface {
      * @return void
      */
     public function postDelete($modelId);
-
 }

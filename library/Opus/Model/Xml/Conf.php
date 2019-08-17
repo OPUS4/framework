@@ -37,7 +37,8 @@
 /**
  * Simple configuration object.
  */
-class Opus_Model_Xml_Conf {
+class Opus_Model_Xml_Conf
+{
 
     /**
      * Holds the current model either directly set or deserialized from XML.
@@ -58,7 +59,7 @@ class Opus_Model_Xml_Conf {
      *
      * @var array
      */
-    public $excludeFields = array();
+    public $excludeFields = [];
 
     /**
      * True, if empty fields get excluded from serialization.
@@ -86,6 +87,5 @@ class Opus_Model_Xml_Conf {
      *
      * @var array
      */
-    public $resourceNameMap = array();
-
+    public $resourceNameMap = [];
 }

@@ -32,40 +32,43 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  * @version     $Id$
  */
-class Opus_Search_Solr_Filter_Helper {
-	public static function escapePhrase( $term ) {
-		$term = trim( $term );
+class Opus_Search_Solr_Filter_Helper
+{
+    public static function escapePhrase($term)
+    {
+        $term = trim($term);
 
-		// add one " to the end of $query if it contains an odd number of "
-		if ( substr_count( $term, '"' ) % 2 == 1 ) {
-			$term .= '"';
-		}
+        // add one " to the end of $query if it contains an odd number of "
+        if (substr_count($term, '"') % 2 == 1) {
+            $term .= '"';
+        }
 
-		// escape special characters (currently ignore " \* \?) outside of ""
-		$insidePhrase = false;
-		$result       = '';
+        // escape special characters (currently ignore " \* \?) outside of ""
+        $insidePhrase = false;
+        $result       = '';
 
-		foreach ( explode( '"', $term ) as $phrase ) {
-			if ( $insidePhrase ) {
-				$result .= '"' . $phrase . '"';
-			} else {
-				$phrase = static::lowercaseLiterals( $phrase );
-				$result .= preg_replace( '/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/', '\\\$1', $phrase );
-			}
+        foreach (explode('"', $term) as $phrase) {
+            if ($insidePhrase) {
+                $result .= '"' . $phrase . '"';
+            } else {
+                $phrase = static::lowercaseLiterals($phrase);
+                $result .= preg_replace('/(\s+|\+|-|&&|\|\||!|\(|\)|\{|}|\[|]|\^|~|:|\\\|\/)/', '\\\$1', $phrase);
+            }
 
-			$insidePhrase = !$insidePhrase;
-		}
+            $insidePhrase = ! $insidePhrase;
+        }
 
-		return $result;
-	}
+        return $result;
+    }
 
-	protected static function lowercaseLiterals( $query ) {
-		// check if $query is a wildcard query
-		if ( strpos( $query, '*' ) === false && strpos( $query, '?' ) === false ) {
-			return $query;
-		}
+    protected static function lowercaseLiterals($query)
+    {
+        // check if $query is a wildcard query
+        if (strpos($query, '*') === false && strpos($query, '?') === false) {
+            return $query;
+        }
 
-		// lowercase query
-		return strtolower( $query );
-	}
+        // lowercase query
+        return strtolower($query);
+    }
 }

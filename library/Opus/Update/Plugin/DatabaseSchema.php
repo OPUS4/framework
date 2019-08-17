@@ -75,7 +75,7 @@ class Opus_Update_Plugin_DatabaseSchema extends Opus_Update_Plugin_Abstract
     {
         if (is_null($version)) {
             return 1;
-        } else if ($version === '4.5') {
+        } elseif ($version === '4.5') {
             return 2;
         }
 

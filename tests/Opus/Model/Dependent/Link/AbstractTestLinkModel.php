@@ -38,15 +38,16 @@
  * @category    Tests
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Dependent_Link_Abstract {
+class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Dependent_Link_Abstract
+{
 
 
     /**
      * Clear out constructor code for this mockup.
      *
      */
-    public function __construct() {
-
+    public function __construct()
+    {
     }
 
     /**
@@ -55,7 +56,8 @@ class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Depende
      * @return void
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    protected function _init() {
+    protected function _init()
+    {
     }
 
     /**
@@ -64,8 +66,8 @@ class Opus_Model_Dependent_Link_AbstractTestLinkModel extends Opus_Model_Depende
      * @param string $modelClass
      * @return void
      */
-    public function setModelClass($modelClass) {
+    public function setModelClass($modelClass)
+    {
         $this->_modelClass = $modelClass;
     }
-
 }

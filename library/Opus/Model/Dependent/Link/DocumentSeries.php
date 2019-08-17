@@ -123,7 +123,7 @@ class Opus_Model_Dependent_Link_DocumentSeries extends Opus_Model_Dependent_Link
                 ' WHERE series_id = ' . $this->_primaryTableRow->series_id .
                 ' AND document_id != ' . $this->_primaryTableRow->document_id
             );
-            if (!is_null($max[0])) {
+            if (! is_null($max[0])) {
                 $docSortOrderValue = intval($max[0]) + 1;
             } else {
                 $docSortOrderValue = 0;

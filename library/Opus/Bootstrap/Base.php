@@ -28,7 +28,7 @@
  * @package     Opus_Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -101,6 +101,7 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
      * @return void
      *
      * TODO put into configuration file (custom DB adapter)
+     * TODO this make configuration modifiable (as a side effect)
      */
     protected function _initDatabase()
     {
@@ -141,8 +142,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
         }
 
         // Check database version
-        if (!Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
-            !Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+        if (! Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
+            ! Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 
@@ -164,6 +165,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
                 throw new Exception('Database schema is too old. Please update database.');
             }
         }
+
+        return $db;
     }
 
     /**
@@ -206,8 +209,8 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
             $logFilename = $config->log->filename;
         } else {
             $logFilename = 'opus.log';
-            if (!array_key_exists('SERVER_PROTOCOL', $_SERVER) and
-                !array_key_exists('REQUEST_METHOD', $_SERVER)) {
+            if (! array_key_exists('SERVER_PROTOCOL', $_SERVER) and
+                ! array_key_exists('REQUEST_METHOD', $_SERVER)) {
                 $logFilename = "opus-console.log";
             }
         }
@@ -216,10 +219,10 @@ class Opus_Bootstrap_Base extends Zend_Application_Bootstrap_Bootstrap
 
         $logfile = @fopen($logfilePath, 'a', false);
 
-        if ( $logfile === false ) {
+        if ($logfile === false) {
             $path = dirname($logfilePath);
 
-            if (!is_dir($path)) {
+            if (! is_dir($path)) {
                 throw new Exception('Directory for logging does not exist');
             } else {
                 throw new Exception("Failed to open logging file: $logfilePath");

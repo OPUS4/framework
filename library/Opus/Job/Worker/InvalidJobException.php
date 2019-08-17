@@ -42,4 +42,3 @@ class Opus_Job_Worker_InvalidJobException extends Exception
 {
 
 }
-

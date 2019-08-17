@@ -50,7 +50,8 @@ class Opus_TitleAbstract extends Opus_Title
 
     const TYPE_ABSTRACT = 'abstract';
 
-    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null) {
+    public function __construct($id = null, Zend_Db_Table_Abstract $tableGatewayModel = null)
+    {
         parent::__construct($id, $tableGatewayModel);
 
         $this->setType(self::TYPE_ABSTRACT); // setting in _init() does not work
@@ -76,7 +77,7 @@ class Opus_TitleAbstract extends Opus_Title
 
     public function updateFromArray($data)
     {
-        if (!array_key_exists('Type', $data)) {
+        if (! array_key_exists('Type', $data)) {
             $data['Type'] = self::TYPE_ABSTRACT;
         }
 

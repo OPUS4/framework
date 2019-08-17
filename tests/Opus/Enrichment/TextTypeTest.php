@@ -79,9 +79,8 @@ class Opus_Enrichment_TextTypeTest extends TestCase
 
         $textType->setOptions('{"foo":"bar"}');
 
-        $textType->setOptions(array("foo"));
+        $textType->setOptions(["foo"]);
 
-        $textType->setOptions(array("foo" => "bar"));
+        $textType->setOptions(["foo" => "bar"]);
     }
-
 }

@@ -38,12 +38,12 @@
  * @category    Framework
  * @package     Opus_Db
  */
-class Opus_Db_Jobs extends Opus_Db_TableGateway {
+class Opus_Db_Jobs extends Opus_Db_TableGateway
+{
     /**
      * Table schema name.
      *
      * @var string
      */
     protected $_name = 'jobs';
-    
 }

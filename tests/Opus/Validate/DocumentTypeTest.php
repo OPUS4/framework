@@ -41,27 +41,33 @@
  * @package     Opus_Validate
  *
  */
-class Opus_Validate_DocumentTypeTest extends TestCase {
+class Opus_Validate_DocumentTypeTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Data provider for valid arguments.
      *
      * @return array Array of invalid arguments.
      */
-    public function validDataProvider() {
-        return array(
-            array('article'),
-            array('book section'),
-            array('monograph'),
-            array('report'),
-            array('doctoral thesis')
-        );
+    public function validDataProvider()
+    {
+        return [
+            ['article'],
+            ['book section'],
+            ['monograph'],
+            ['report'],
+            ['doctoral thesis']
+        ];
     }
 
     /**
@@ -69,14 +75,15 @@ class Opus_Validate_DocumentTypeTest extends TestCase {
      *
      * @return array Array of invalid arguments.
      */
-    public function invalidDataProvider() {
-        return array(
-            array(null),
-            array(''),
-            array(4711),
-            array(true),
-            array('not_a_valid_type')
-        );
+    public function invalidDataProvider()
+    {
+        return [
+            [null],
+            [''],
+            [4711],
+            [true],
+            ['not_a_valid_type']
+        ];
     }
 
 
@@ -88,7 +95,8 @@ class Opus_Validate_DocumentTypeTest extends TestCase {
      *
      * @dataProvider validDataProvider
      */
-    public function testValidArguments($arg) {
+    public function testValidArguments($arg)
+    {
         $validator = new Opus_Validate_DocumentType();
         $this->assertTrue($validator->isValid($arg), $arg . ' should pass validation.');
     }
@@ -101,9 +109,9 @@ class Opus_Validate_DocumentTypeTest extends TestCase {
      *
      * @dataProvider invalidDataProvider
      */
-    public function testInvalidArguments($arg) {
+    public function testInvalidArguments($arg)
+    {
         $validator = new Opus_Validate_DocumentType();
         $this->assertFalse($validator->isValid($arg), 'Value should not pass validation.');
     }
-
 }

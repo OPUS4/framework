@@ -35,5 +35,4 @@ class Opus_Db_Translations extends Opus_Db_TableGateway
 {
 
     protected $_name = 'translations';
-
 }

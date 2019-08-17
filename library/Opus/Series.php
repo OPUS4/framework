@@ -127,7 +127,7 @@ class Opus_Series extends Opus_Model_AbstractDb
     {
         $config = Zend_Registry::get('Zend_Config');
 
-        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
+        if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass, null, 'title');
         } else {
             $all = self::getAllFrom('Opus_Series', self::$_tableGatewayClass);
@@ -145,11 +145,14 @@ class Opus_Series extends Opus_Model_AbstractDb
     {
         $config = Zend_Registry::get('Zend_Config');
 
-        if (isset($config->series->sortByTitle) && $config->series->sortByTitle == '1' ) {
+        if (isset($config->series->sortByTitle) && filter_var($config->series->sortByTitle, FILTER_VALIDATE_BOOLEAN)) {
             $all = self::getAll();
         } else {
             $all = self::getAllFrom(
-                'Opus_Series', self::$_tableGatewayClass, null, 'sort_order'
+                'Opus_Series',
+                self::$_tableGatewayClass,
+                null,
+                'sort_order'
             );
         }
 
@@ -211,7 +214,7 @@ class Opus_Series extends Opus_Model_AbstractDb
         $adapter = Zend_Db_Table::getDefaultAdapter();
         $documentId = $adapter->fetchCol(
             'SELECT document_ID FROM link_documents_series WHERE series_id = ? AND number = ?',
-            array($this->getId(), $number)
+            [$this->getId(), $number]
         );
 
         return (count($documentId) == 1) ? $documentId[0] : null;
@@ -230,7 +233,7 @@ class Opus_Series extends Opus_Model_AbstractDb
         $count = $db->fetchOne(
             'SELECT COUNT(*) AS rows_count FROM link_documents_series ' .
             'WHERE series_id = ? AND number = ?',
-            array($this->getId(), $number)
+            [$this->getId(), $number]
         );
         return $count === '0';
     }

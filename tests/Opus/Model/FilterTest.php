@@ -41,7 +41,8 @@
  *
  * @group FilterTest
  */
-class Opus_Model_FilterTest extends TestCase {
+class Opus_Model_FilterTest extends TestCase
+{
 
     /**
      * Holds model that gets filtered.
@@ -57,7 +58,8 @@ class Opus_Model_FilterTest extends TestCase {
      */
     protected $filter = null;
 
-    public function setUp() {
+    public function setUp()
+    {
         if (false === class_exists('Opus_Model_FilterTest_Mock', false)) {
             $clazz =
             'class Opus_Model_FilterTest_Mock extends Opus_Model_Abstract {
@@ -82,18 +84,22 @@ class Opus_Model_FilterTest extends TestCase {
     /**
      * Overwrite parent methods.
      */
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
     /**
      * Test if filter without blacklist returnes all fields.
      *
      * @return void
      */
-    public function testFilterWithoutBlacklistReturnsAllFields() {
+    public function testFilterWithoutBlacklistReturnsAllFields()
+    {
         $this->assertEquals(
             array_values($this->filter->describe()),
             array_values($this->model->describe()),
-            'Filter fieldlist result differs from model fieldlist.');
+            'Filter fieldlist result differs from model fieldlist.'
+        );
     }
 
     /**
@@ -101,11 +107,15 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testFilterWithBlacklistReturnsAllAllowedFields() {
-        $blacklist = array('Field2');
+    public function testFilterWithBlacklistReturnsAllAllowedFields()
+    {
+        $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
-        $this->assertNotContains('Field2', $this->filter->describe(),
-            'Filter fieldlist contains fields from blacklist.');
+        $this->assertNotContains(
+            'Field2',
+            $this->filter->describe(),
+            'Filter fieldlist contains fields from blacklist.'
+        );
     }
 
     /**
@@ -113,7 +123,8 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveNotBlacklistedField() {
+    public function testRetrieveNotBlacklistedField()
+    {
         $field = $this->filter->getField('Field1');
         $this->assertNotNull($field, 'Field should be retrievable.');
     }
@@ -124,11 +135,15 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveAllFieldsInDefinedSortOrder() {
-        $fieldlist = array('Field2', 'Field3', 'Field1');
+    public function testRetrieveAllFieldsInDefinedSortOrder()
+    {
+        $fieldlist = ['Field2', 'Field3', 'Field1'];
         $this->filter->setSortOrder($fieldlist);
-        $this->assertEquals($this->filter->describe(), $fieldlist,
-            'Filter fieldlist result differs from sort order.');
+        $this->assertEquals(
+            $this->filter->describe(),
+            $fieldlist,
+            'Filter fieldlist result differs from sort order.'
+        );
     }
 
     /**
@@ -137,13 +152,19 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testSortOrderDefinitionCanContainUnknownField() {
-        $this->filter->setSortOrder(array('Field2', 'Field1', 'FooField'));
-        $this->assertNotContains('FooField', $this->filter->describe(),
-            'Undefined field is listed.');
-        $this->assertEquals($this->filter->describe(),
-            array('Field2', 'Field1', 'Field3'),
-            'Filter fieldlist result differs from sort order.');
+    public function testSortOrderDefinitionCanContainUnknownField()
+    {
+        $this->filter->setSortOrder(['Field2', 'Field1', 'FooField']);
+        $this->assertNotContains(
+            'FooField',
+            $this->filter->describe(),
+            'Undefined field is listed.'
+        );
+        $this->assertEquals(
+            $this->filter->describe(),
+            ['Field2', 'Field1', 'Field3'],
+            'Filter fieldlist result differs from sort order.'
+        );
     }
 
     /**
@@ -151,8 +172,9 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveBlacklistedFieldThrowsException() {
-        $blacklist = array('Field2');
+    public function testRetrieveBlacklistedFieldThrowsException()
+    {
+        $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -164,7 +186,8 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testAddCallToNotBlacklistedFieldNotThrowsAnException() {
+    public function testAddCallToNotBlacklistedFieldNotThrowsAnException()
+    {
         try {
             $this->filter->addField3('fsdfd');
         } catch (Exception $ex) {
@@ -177,8 +200,9 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testAddToBlacklistedFieldThrowsException() {
-        $blacklist = array('Field2');
+    public function testAddToBlacklistedFieldThrowsException()
+    {
+        $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -191,7 +215,8 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testGetCallToNotBlacklistedFieldNotThrowsAnException() {
+    public function testGetCallToNotBlacklistedFieldNotThrowsAnException()
+    {
         try {
             $this->filter->getField1();
         } catch (Exception $ex) {
@@ -204,8 +229,9 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testGetToBlacklistedFieldThrowsException() {
-        $blacklist = array('Field2');
+    public function testGetToBlacklistedFieldThrowsException()
+    {
+        $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -217,7 +243,8 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testSetCallToNotBlacklistedFieldNotThrowsAnException() {
+    public function testSetCallToNotBlacklistedFieldNotThrowsAnException()
+    {
         try {
             $this->filter->setField1('value');
         } catch (Exception $ex) {
@@ -230,8 +257,9 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testSetToBlacklistedFieldThrowsException() {
-        $blacklist = array('Field2');
+    public function testSetToBlacklistedFieldThrowsException()
+    {
+        $blacklist = ['Field2'];
         $this->filter->setBlacklist($blacklist);
 
         $this->setExpectedException('Opus_Model_Exception');
@@ -243,16 +271,17 @@ class Opus_Model_FilterTest extends TestCase {
      *
      * @return void
      */
-    public function testToArrayReturnesFilteredResult() {
-        $blacklist = array('Field2');
+    public function testToArrayReturnesFilteredResult()
+    {
+        $blacklist = ['Field2'];
         $this->filter
             ->setBlacklist($blacklist)
-            ->setSortOrder(array('Field3', 'Field2', 'Field1'));
+            ->setSortOrder(['Field3', 'Field2', 'Field1']);
 
         $this->assertEquals(
-            array('Field3' => array(), 'Field1' => NULL),
+            ['Field3' => [], 'Field1' => null],
             $this->filter->toArray(),
-            'Filter result is wrong for toArray().');
+            'Filter result is wrong for toArray().'
+        );
     }
-
 }

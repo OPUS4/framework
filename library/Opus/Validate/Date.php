@@ -39,14 +39,15 @@
  * @package     Opus_Validate
  */
 
-class Opus_Validate_Date extends Zend_Validate_Date {
+class Opus_Validate_Date extends Zend_Validate_Date
+{
 
     /**
      * Set necessary locale information for validating.
      *
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(Zend_Date::DATE_MEDIUM, 'de');
     }
-
 }

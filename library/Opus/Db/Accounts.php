@@ -39,7 +39,8 @@
  * @package     Opus_Db
  *
  */
-class Opus_Db_Accounts extends Opus_Db_TableGateway {
+class Opus_Db_Accounts extends Opus_Db_TableGateway
+{
     /**
      * Table schema name.
      *
@@ -52,7 +53,7 @@ class Opus_Db_Accounts extends Opus_Db_TableGateway {
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = array(
+    protected $_dependentTables = [
             'Opus_Db_LinkAccountsRoles',
-            );
+            ];
 }

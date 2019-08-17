@@ -65,15 +65,18 @@ class Opus_DnbInstituteTest extends TestCase
         //load
         $loaded_institute = new Opus_DnbInstitute($id);
 
-        $this->assertEquals($name, $loaded_institute->getName(),'Loaded other name, then stored.');
-        $this->assertEquals($address, $loaded_institute->getAddress(),'Loaded other address, then stored.');
-        $this->assertEquals($city, $loaded_institute->getCity(),'Loaded other city, then stored.');
-        $this->assertEquals($phone, $loaded_institute->getPhone(),'Loaded other phone number, then stored.');
+        $this->assertEquals($name, $loaded_institute->getName(), 'Loaded other name, then stored.');
+        $this->assertEquals($address, $loaded_institute->getAddress(), 'Loaded other address, then stored.');
+        $this->assertEquals($city, $loaded_institute->getCity(), 'Loaded other city, then stored.');
+        $this->assertEquals($phone, $loaded_institute->getPhone(), 'Loaded other phone number, then stored.');
         $this->assertEquals(
-            $dnb_contact_id, $loaded_institute->getDnbContactId(),'Loaded other DNB contact ID, then stored.'
+            $dnb_contact_id,
+            $loaded_institute->getDnbContactId(),
+            'Loaded other DNB contact ID, then stored.'
         );
         $this->assertEquals(
-            $is_grantor, $loaded_institute->getIsGrantor(),
+            $is_grantor,
+            $loaded_institute->getIsGrantor(),
             'Loaded other information about grantor status, then stored.'
         );
     }
@@ -208,7 +211,7 @@ class Opus_DnbInstituteTest extends TestCase
 
         sleep(1);
 
-        foreach($fields as $fieldName) {
+        foreach ($fields as $fieldName) {
             $oldValue = $dnb_institute->{'get' . $fieldName}();
             $dnb_institute->{'set' . $fieldName}(1);
             $this->assertNotEquals(
@@ -437,7 +440,11 @@ class Opus_DnbInstituteTest extends TestCase
             'City' => 'Berlin'
         ]);
 
-        $institute->store();
+        $instituteId = $institute->store();
+
+        $institute = new Opus_DnbInstitute($instituteId);
+
+        $this->assertEquals($name, $institute->getName());
     }
 
     /**

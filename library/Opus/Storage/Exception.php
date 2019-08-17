@@ -38,6 +38,6 @@
 /**
  * General exception for Opus_Storage classes (e.g. Opus_Storage_File).
  */
-class Opus_Storage_Exception extends Exception {
+class Opus_Storage_Exception extends Exception
+{
 }
-

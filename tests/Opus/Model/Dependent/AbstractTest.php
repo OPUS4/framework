@@ -29,9 +29,8 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -42,7 +41,8 @@
  *
  * @group DependentAbstractTest
  */
-class Opus_Model_Dependent_AbstractTest extends TestCase {
+class Opus_Model_Dependent_AbstractTest extends TestCase
+{
 
     /**
      * Class instance under test.
@@ -79,7 +79,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         if (false === class_exists('Opus_Model_Dependent_AbstractTest_MockTableGateway', false)) {
             eval('
                 class Opus_Model_Dependent_AbstractTest_MockTableGateway
@@ -107,20 +108,27 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
             ');
         }
 
-        $config = array('dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser');
+        $config = ['dbname' => 'exampledb', 'password' => 'nopass', 'username' => 'nouser'];
 
-        $this->_mockAdapter = $this->getMock('Zend_Db_Adapter_Abstract',
-            array('_connect', '_beginTransaction', '_commit', '_rollback',
+        $this->_mockAdapter = $this->getMock(
+            'Zend_Db_Adapter_Abstract',
+            ['_connect', '_beginTransaction', '_commit', '_rollback',
                 'listTables', 'describeTable', 'closeConnection', 'prepare', 'lastInsertId',
-                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'),
-            array($config));
+                'setFetchMode', 'limit', 'supportsParameters', 'isConnected', 'getServerVersion'],
+            [$config]
+        );
 
-        $this->_mockTableGateway = $this->getMock('Opus_Model_Dependent_AbstractTest_MockTableGateway',
-            array('createRow'), array(array(Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter)));
+        $this->_mockTableGateway = $this->getMock(
+            'Opus_Model_Dependent_AbstractTest_MockTableGateway',
+            ['createRow'],
+            [[Zend_Db_Table_Abstract::ADAPTER => $this->_mockAdapter]]
+        );
 
-        $this->_mockTableRow = $this->getMock('Zend_Db_Table_Row',
-            array('delete'),
-            array(array('table' => $this->_mockTableGateway)));
+        $this->_mockTableRow = $this->getMock(
+            'Zend_Db_Table_Row',
+            ['delete'],
+            [['table' => $this->_mockTableGateway]]
+        );
         $this->_mockTableRow->expects($this->any())
             ->method('delete')
             ->will($this->returnValue(1));
@@ -129,27 +137,34 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
             ->method('createRow')
             ->will($this->returnValue($this->_mockTableRow));
 
-        $this->_cut = $this->getMock('Opus_Model_Dependent_Abstract',
-            array('_init', 'getId'), array(null, $this->_mockTableGateway));
+        $this->_cut = $this->getMock(
+            'Opus_Model_Dependent_Abstract',
+            ['_init', 'getId'],
+            [null, $this->_mockTableGateway]
+        );
         $this->_cut->expects($this->any())->method('getId')->will($this->returnValue(4711));
         // unregister plugin to avoid side effects using mock object
         // plugin relies on table gateway class which is not available
         try {
             $this->_cut->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {}
+        } catch (Opus_Model_Exception $ome) {
+        }
     }
 
     /**
      * Overwrite parent methods.
      */
-    public function tearDown() {}
+    public function tearDown()
+    {
+    }
 
     /**
      * Test if no row is actually deleted on delete() call.
      *
      * @return void
      */
-    public function testDeleteCallDoesNotDeleteRow() {
+    public function testDeleteCallDoesNotDeleteRow()
+    {
         $this->_mockTableRow->expects($this->never())->method('delete');
         $this->_cut->delete();
     }
@@ -159,7 +174,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDeleteCallReturnsToken() {
+    public function testDeleteCallReturnsToken()
+    {
         $token = $this->_cut->delete();
         $this->assertNotNull($token, 'No deletion token returned.');
     }
@@ -169,7 +185,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testInvalidDeletionTokenThrowsException() {
+    public function testInvalidDeletionTokenThrowsException()
+    {
         $this->setExpectedException('Opus_Model_Exception');
         $this->_cut->delete();
         $this->_cut->doDelete('foo');
@@ -180,7 +197,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testMissingDeletionTokenThrowsException() {
+    public function testMissingDeletionTokenThrowsException()
+    {
         $this->setExpectedException('Opus_Model_Exception');
         $this->_cut->doDelete(null);
     }
@@ -191,7 +209,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDoDeleteAcceptsValidDeletionToken() {
+    public function testDoDeleteAcceptsValidDeletionToken()
+    {
         try {
             $token = $this->_cut->delete();
             $this->_cut->doDelete($token);
@@ -205,7 +224,8 @@ class Opus_Model_Dependent_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDoDeleteRemovesParentRow() {
+    public function testDoDeleteRemovesParentRow()
+    {
         $this->_mockTableRow->expects($this->once())->method('delete');
         $token = $this->_cut->delete();
         $this->_cut->doDelete($token);

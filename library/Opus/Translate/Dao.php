@@ -85,7 +85,7 @@ class Opus_Translate_Dao
      * @param $key
      * @param $translation
      */
-    public function setTranslation($key, $translation, $module = null)
+    public function setTranslation($key, $translation, $module = 'default')
     {
         if (is_null($translation)) {
             return $this->remove($key, $module);
@@ -106,7 +106,7 @@ class Opus_Translate_Dao
 
         $translationsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
-        foreach($translation as $language => $value) {
+        foreach ($translation as $language => $value) {
             $translationsTable->insertIgnoreDuplicate([
                 'key_id' => $keyId,
                 'locale' => $language,
@@ -131,8 +131,8 @@ class Opus_Translate_Dao
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
         $select = $table->getAdapter()->select()
-            ->from(array('t' => 'translations'), array('locale', 'value'))
-            ->join(array('keys' => 'translationkeys'), 't.key_id = keys.id')
+            ->from(['t' => 'translations'], ['locale', 'value'])
+            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id')
             ->where('keys.key = ?', $key);
 
         if (! is_null($locale)) {
@@ -152,7 +152,7 @@ class Opus_Translate_Dao
                 foreach ($rows as $row) {
                     $result[$row['locale']] = $row['value'];
                 }
-            } else  {
+            } else {
                 foreach ($rows as $row) {
                     $result[] = $row['value'];
                 }
@@ -174,7 +174,6 @@ class Opus_Translate_Dao
      */
     public function findTranslation($needle)
     {
-
     }
 
     /**
@@ -186,10 +185,10 @@ class Opus_Translate_Dao
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
         $select = $table->getAdapter()->select()
-            ->from(array('t' => 'translations'), array('keys.key', 'locale', 'value'))
-            ->join(array('keys' => 'translationkeys'), 't.key_id = keys.id');
+            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
+            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
 
-        if (!is_null($module)) {
+        if (! is_null($module)) {
             $select->where('keys.module = ?', $module);
         }
 
@@ -197,7 +196,7 @@ class Opus_Translate_Dao
 
         $result = [];
 
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $key = $row['key'];
             $locale = $row['locale'];
             $value = $row['value'];
@@ -213,20 +212,18 @@ class Opus_Translate_Dao
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_Translations');
 
         $select = $table->getAdapter()->select()
-            ->from(array('t' => 'translations'), array('keys.key', 'locale', 'value'))
-            ->join(array('keys' => 'translationkeys'), 't.key_id = keys.id');
+            ->from(['t' => 'translations'], ['keys.key', 'locale', 'value'])
+            ->join(['keys' => 'translationkeys'], 't.key_id = keys.id');
 
-        if (!is_null($module)) {
+        if (! is_null($module)) {
             $select->where('keys.module = ?', $module);
-        } else {
-            $select->where('keys.module = \'\''); // TODO 'null' not working - Why?
         }
 
         $rows = $table->getAdapter()->fetchAll($select);
 
         $result = [];
 
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $key = $row['key'];
             $locale = $row['locale'];
             $value = $row['value'];
@@ -241,7 +238,7 @@ class Opus_Translate_Dao
      * Adds translations to the database.
      * @param $translations
      */
-    public function addTranslations($translations, $module = null)
+    public function addTranslations($translations, $module = 'default')
     {
         $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
 
@@ -284,7 +281,7 @@ class Opus_Translate_Dao
      *
      * @throws Opus_Translate_Exception
      */
-    public function renameKey($key, $newKey, $module = null)
+    public function renameKey($key, $newKey, $module = 'default')
     {
         $keysTable = Opus_Db_TableGateway::getInstance('Opus_Db_TranslationKeys');
 
@@ -304,8 +301,7 @@ class Opus_Translate_Dao
 
         try {
             $keysTable->update($data, $where);
-        }
-        catch (Zend_Db_Statement_Exception $ndbse) {
+        } catch (Zend_Db_Statement_Exception $ndbse) {
             throw new Opus_Translate_Exception($ndbse);
         }
 

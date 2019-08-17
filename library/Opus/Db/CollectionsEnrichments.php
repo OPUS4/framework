@@ -40,7 +40,8 @@
  *
  */
 
-class Opus_Db_CollectionsEnrichments extends Opus_Db_TableGateway {
+class Opus_Db_CollectionsEnrichments extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the collections enrichments table.
@@ -55,11 +56,11 @@ class Opus_Db_CollectionsEnrichments extends Opus_Db_TableGateway {
      *
      * @var array $_referenceMap
      */
-    protected $_referenceMap = array(
-            'Collections' => array(
+    protected $_referenceMap = [
+            'Collections' => [
                 'columns' => 'collection_id',
                 'refTableClass' => 'Opus_Db_Collections',
                 'refColumns' => 'id',
-                ),
-            );
+                ],
+            ];
 }

@@ -33,59 +33,62 @@
  * @version     $Id$
  */
 
-class Opus_Search_Solr_Document_Xslt extends Opus_Search_Solr_Document_Base {
+class Opus_Search_Solr_Document_Xslt extends Opus_Search_Solr_Document_Base
+{
 
-	/**
-	 * @var XSLTProcessor
-	 */
-	protected $processor;
+    /**
+     * @var XSLTProcessor
+     */
+    protected $processor;
 
 
-	public function __construct( Zend_Config $options ) {
-		parent::__construct( $options );
+    public function __construct(Zend_Config $options)
+    {
+        parent::__construct($options);
 
-		try {
-			$xslt = new DomDocument;
-			$xslt->load( $options->xsltfile );
+        try {
+            $xslt = new DomDocument;
+            $xslt->load($options->xsltfile);
 
-			$this->processor = new XSLTProcessor;
-			$this->processor->importStyleSheet( $xslt );
-		} catch ( Exception $e ) {
-			throw new InvalidArgumentException( 'invalid XSLT file for deriving Solr documents', 0, $e );
-		}
-	}
+            $this->processor = new XSLTProcessor;
+            $this->processor->importStyleSheet($xslt);
+        } catch (Exception $e) {
+            throw new InvalidArgumentException('invalid XSLT file for deriving Solr documents', 0, $e);
+        }
+    }
 
-	/**
-	 * Derives Solr-compatible description in XML format of provided Opus
-	 * document.
-	 *
-	 * @note Parameter $solrDoc must be prepared with reference on instance of
-	 *       DOMDocument. It is returned on return.
-	 *
-	 * @example
-	 *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
-	 *
-	 * @param Opus_Document $opusDoc
-	 * @param DOMDocument $solrDoc
-	 * @return DOMDocument
-	 */
-	public function toSolrDocument( Opus_Document $opusDoc, $solrDoc ) {
-		if ( !( $solrDoc instanceof DOMDocument ) ) {
-			throw new InvalidArgumentException( 'provided Solr document must be instance of DOMDocument' );
-		}
+    /**
+     * Derives Solr-compatible description in XML format of provided Opus
+     * document.
+     *
+     * @note Parameter $solrDoc must be prepared with reference on instance of
+     *       DOMDocument. It is returned on return.
+     *
+     * @example
+     *     $solrXmlDoc = $doc->toSolrDocument( $opusDoc, new DOMDocument() );
+     *
+     * @param Opus_Document $opusDoc
+     * @param DOMDocument $solrDoc
+     * @return DOMDocument
+     */
+    public function toSolrDocument(Opus_Document $opusDoc, $solrDoc)
+    {
+        if (! ( $solrDoc instanceof DOMDocument )) {
+            throw new InvalidArgumentException('provided Solr document must be instance of DOMDocument');
+        }
 
-		$modelXml = $this->getModelXml( $opusDoc );
+        $modelXml = $this->getModelXml($opusDoc);
 
-		$solrDoc->preserveWhiteSpace = false;
-		$solrDoc->loadXML( $this->processor->transformToXML( $modelXml ) );
+        $solrDoc->preserveWhiteSpace = false;
+        $solrDoc->loadXML($this->processor->transformToXML($modelXml));
 
-		if ( Opus_Config::get()->log->prepare->xml ) {
-			$modelXml->formatOutput = true;
-			Opus_Log::get()->debug( "input xml\n" . $modelXml->saveXML() );
-			$solrDoc->formatOutput = true;
-			Opus_Log::get()->debug( "transformed solr xml\n" . $solrDoc->saveXML() );
-		}
+        if (filter_var(Opus_Config::get()->log->prepare->xml, FILTER_VALIDATE_BOOLEAN)) {
+            $modelXml->formatOutput = true;
+            Opus_Log::get()->debug("input xml\n" . $modelXml->saveXML());
+            $solrDoc->formatOutput = true;
+            Opus_Log::get()->debug("transformed solr xml\n" . $solrDoc->saveXML());
+        }
 
-		return $solrDoc;
-	}
+        return $solrDoc;
+    }
 }

@@ -35,7 +35,8 @@
 /**
  * General interface for Opus XML representations.
  */
-interface Opus_Model_Xml_Strategy {
+interface Opus_Model_Xml_Strategy
+{
 
     /**
      * If a model has been set this method generates and returnes
@@ -94,5 +95,4 @@ interface Opus_Model_Xml_Strategy {
      * @return void
      */
     public function updateFromXml($xml);
-
 }

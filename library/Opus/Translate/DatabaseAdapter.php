@@ -37,8 +37,6 @@
  *
  * This class is used to read translations from database for Zend_Translate. Database access should only be necessary
  * if the cache for the translations has been cleared.
- *
- * TODO add mode where all modules are loaded in one step to reduce database overhead?
  */
 class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
 {
@@ -52,20 +50,14 @@ class Opus_Translate_DatabaseAdapter extends Zend_Translate_Adapter
      *
      * @return array
      */
-    protected function _loadTranslationData($data, $locale, array $options = array())
+    protected function _loadTranslationData($data, $locale, array $options = [])
     {
         $database = new Opus_Translate_Dao();
 
-        $module = null;
+        $translations = $database->getTranslationsByLocale();
 
-        if (!is_array($data) and $data !== 'default') {
-            $module = $data;
-        }
-
-        $data = $database->getTranslationsByLocale($module);
-
-        if (!empty($data)) {
-            return $data;
+        if (! empty($translations)) {
+            return $translations;
         } else {
             // return array for locale with no translation keys
             return [$locale => []];

@@ -41,201 +41,218 @@
  * actually used search engine.
  */
 
-abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base {
+abstract class Opus_Search_Filter_Complex extends Opus_Search_Filter_Base
+{
 
-	protected $negated = false;
+    protected $negated = false;
 
-	protected $union = false;
+    protected $union = false;
 
-	/**
-	 * Lists conditions of current filter.
-	 *
-	 * @var Opus_Search_Filtering[]
-	 */
-	protected $conditions = array();
+    /**
+     * Lists conditions of current filter.
+     *
+     * @var Opus_Search_Filtering[]
+     */
+    protected $conditions = [];
 
 
 
-	/**
-	 * Adds provided condition to current filter.
-	 *
-	 * @param Opus_Search_Filtering $filter
-	 * @return $this
-	 */
-	public function addFilter( Opus_Search_Filtering $filter ) {
-		$this->conditions[] = $filter;
+    /**
+     * Adds provided condition to current filter.
+     *
+     * @param Opus_Search_Filtering $filter
+     * @return $this
+     */
+    public function addFilter(Opus_Search_Filtering $filter)
+    {
+        $this->conditions[] = $filter;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	public function createComplexFilter() {
-		return new static();
-	}
+    public function createComplexFilter()
+    {
+        return new static();
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleFilter( $fieldName, $operator, $addImplicitly = true ) {
-		$simple = new Opus_Search_Filter_Simple( $fieldName, $operator );
+    /**
+     * Creates (and adds) another simple filter term.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param mixed $operator one out of Opus_Search_Filter_Simple::COMPARE_* constants
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleFilter($fieldName, $operator, $addImplicitly = true)
+    {
+        $simple = new Opus_Search_Filter_Simple($fieldName, $operator);
 
-		if ( $addImplicitly ) {
-			$this->addFilter( $simple );
-		}
+        if ($addImplicitly) {
+            $this->addFilter($simple);
+        }
 
-		return $simple;
-	}
+        return $simple;
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for equality on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleEqualityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_EQUALITY, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for equality on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleEqualityFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_EQUALITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for inequality on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleInequalityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_INEQUALITY, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for inequality on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleInequalityFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_INEQUALITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for similarity on
-	 * given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleSimilarityFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_SIMILARITY, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for similarity on
+     * given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleSimilarityFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_SIMILARITY, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for upper exclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleLessFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_LESS, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for upper exclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleLessFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_LESS, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for upper inclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleLessOrEqualFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for upper inclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleLessOrEqualFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_LESS_OR_EQUAL, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for lower exclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleGreaterFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for lower exclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleGreaterFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER, $addImplicitly);
+    }
 
-	/**
-	 * Creates (and adds) another simple filter term testing for lower inclusive
-	 * limit on given field.
-	 *
-	 * @param string $fieldName name of field simple filter applies on
-	 * @param bool $addImplicitly true for adding simple term to current complex term implicitly
-	 * @return Opus_Search_Filter_Simple
-	 */
-	public function createSimpleGreaterOrEqualFilter( $fieldName, $addImplicitly = true ) {
-		return $this->createSimpleFilter( $fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly );
-	}
+    /**
+     * Creates (and adds) another simple filter term testing for lower inclusive
+     * limit on given field.
+     *
+     * @param string $fieldName name of field simple filter applies on
+     * @param bool $addImplicitly true for adding simple term to current complex term implicitly
+     * @return Opus_Search_Filter_Simple
+     */
+    public function createSimpleGreaterOrEqualFilter($fieldName, $addImplicitly = true)
+    {
+        return $this->createSimpleFilter($fieldName, Opus_Search_Filter_Simple::COMPARE_GREATER_OR_EQUAL, $addImplicitly);
+    }
 
-	/**
-	 * Requests filter describing documents matching all contained conditions.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyAll() {
-		$this->negated = false;
-		$this->union   = false;
+    /**
+     * Requests filter describing documents matching all contained conditions.
+     *
+     * @return $this
+     */
+    public function setSatisfyAll()
+    {
+        $this->negated = false;
+        $this->union   = false;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Requests filter describing documents matching any contained condition.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyAny() {
-		$this->negated = false;
-		$this->union   = true;
+    /**
+     * Requests filter describing documents matching any contained condition.
+     *
+     * @return $this
+     */
+    public function setSatisfyAny()
+    {
+        $this->negated = false;
+        $this->union   = true;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Requests filter describing documents not matching any of the contained
-	 * conditions.
-	 *
-	 * @return $this
-	 */
-	public function setSatisfyNone() {
-		$this->negated = true;
-		$this->union   = true;
+    /**
+     * Requests filter describing documents not matching any of the contained
+     * conditions.
+     *
+     * @return $this
+     */
+    public function setSatisfyNone()
+    {
+        $this->negated = true;
+        $this->union   = true;
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Indicates if filter is describing union of sets matching conditions.
-	 *
-	 * @note This is false if filter is describing intersection of those sets.
-	 *
-	 * @return bool
-	 */
-	public function isRequestingUnion() {
-		return !!$this->union;
-	}
+    /**
+     * Indicates if filter is describing union of sets matching conditions.
+     *
+     * @note This is false if filter is describing intersection of those sets.
+     *
+     * @return bool
+     */
+    public function isRequestingUnion()
+    {
+        return ! ! $this->union;
+    }
 
-	/**
-	 * Indicates if filter is describing complementary set of intersection or
-	 * union of sets matching conditions.
-	 *
-	 * @return bool
-	 */
-	public function isGloballyNegated() {
-		return !!$this->negated;
-	}
+    /**
+     * Indicates if filter is describing complementary set of intersection or
+     * union of sets matching conditions.
+     *
+     * @return bool
+     */
+    public function isGloballyNegated()
+    {
+        return ! ! $this->negated;
+    }
 
-	/**
-	 * @return Opus_Search_Filtering[]
-	 */
-	public function getConditions() {
-		return $this->conditions;
-	}
+    /**
+     * @return Opus_Search_Filtering[]
+     */
+    public function getConditions()
+    {
+        return $this->conditions;
+    }
 }

@@ -28,24 +28,26 @@
  * @category    Tests
  * @package     Opus_Util
  * @author      Gunar Maiwald <maiwald@zib.de>
- * @copyright   Copyright (c) 2008-2013, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
-class Opus_Util_MetadataImportTest extends TestCase {
+class Opus_Util_MetadataImportTest extends TestCase
+{
 
     private $documentImported;
     private $filename;
     private $xml;
     private $xmlDir;
 
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->documentImported = false;
         $this->xmlDir = dirname(dirname(dirname(__FILE__))) . '/import/';
     }
 
-    public function tearDown() {
+    public function tearDown()
+    {
         if ($this->documentImported) {
             $ids = Opus_Document::getAllIds();
             $last_id = array_pop($ids);
@@ -55,19 +57,22 @@ class Opus_Util_MetadataImportTest extends TestCase {
         parent::tearDown();
     }
 
-    public function testInvalidXmlExceptionWhenNotWellFormed() {
+    public function testInvalidXmlExceptionWhenNotWellFormed()
+    {
         $importer = new Opus_Util_MetadataImport('This ist no XML');
         $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
         $importer->run();
     }
 
-    public function testInvalidXmlExceptionWhenNotWellFormedWithFile() {
+    public function testInvalidXmlExceptionWhenNotWellFormedWithFile()
+    {
         $importer = new Opus_Util_MetadataImport($this->xmlDir . 'test_import_badformed.xml', true);
         $this->setExpectedException('Opus_Util_MetadataImportInvalidXmlException');
         $importer->run();
     }
 
-    public function testInvalidXmlException() {
+    public function testInvalidXmlException()
+    {
         $this->filename = 'test_import_schemainvalid.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -76,7 +81,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importer->run();
     }
 
-    public function testNoMetadataImportException() {
+    public function testNoMetadataImportException()
+    {
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -94,7 +100,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->documentImported = true;
     }
 
-    public function testSkippedDocumentsException() {
+    public function testSkippedDocumentsException()
+    {
         $this->filename = 'test_import_invalid_collectionid.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -106,7 +113,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
     /**
      * Test for document update
      */
-    public function testUpdateDocument() {
+    public function testUpdateDocument()
+    {
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -137,7 +145,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-3211
      */
-    public function testUpdateKeepField() {
+    public function testUpdateKeepField()
+    {
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -162,7 +171,7 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $this->loadInputFile();
 
         $importer = new Opus_Util_MetadataImport($this->xml);
-        $importer->keepFieldsOnUpdate(array('TitleAbstract'));
+        $importer->keepFieldsOnUpdate(['TitleAbstract']);
         $importer->run();
 
         $updatedDoc = new Opus_Document(1);
@@ -174,7 +183,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
     /**
      * Regression Test for OPUSVIER-3204
      */
-    public function testSkippedDocumentsExceptionOnUpdateDoesNotDestroyExistingDocument() {
+    public function testSkippedDocumentsExceptionOnUpdateDoesNotDestroyExistingDocument()
+    {
         $this->filename = 'test_import_minimal.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -207,11 +217,15 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $updatedDoc = new Opus_Document(1);
         $titleMain = $updatedDoc->getTitleMain();
         $this->assertNotEmpty($titleMain, 'Existing Document was corrupted on failed update attempt.');
-        $this->assertEquals('La Vie un Rose', $titleMain[0]->getValue(),
-            "Failed update recovery failed. TitleMain was modified.");
+        $this->assertEquals(
+            'La Vie un Rose',
+            $titleMain[0]->getValue(),
+            "Failed update recovery failed. TitleMain was modified."
+        );
     }
 
-    private function loadInputFile() {
+    private function loadInputFile()
+    {
         $doc = new DOMDocument();
         $doc->load($this->xmlDir . $this->filename);
         $this->xml = $doc->saveXML();
@@ -221,7 +235,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
      * Testet ob true/false und 0/1 als Wert für allowEmailContact akzeptiert wird.
      * Regressiontest für OPUSVIER-2570.
      */
-    public function testGetAllowEmailContact() {
+    public function testGetAllowEmailContact()
+    {
         $this->filename = 'test_import_regression2570.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -253,7 +268,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
     /**
      * Regressiontest OPUSVIER-3323
      */
-    public function testSupportPersonOther() {
+    public function testSupportPersonOther()
+    {
         $this->filename = 'test_import_regression2570.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -271,7 +287,8 @@ class Opus_Util_MetadataImportTest extends TestCase {
      * Testet ob true/false und 0/1 als Wert für BelongsToBibliography akzeptiert wird.
      * Regressiontest für OPUSVIER-2570 und OPUSVIER-3323.
      */
-    public function testBelongsToBibliography() {
+    public function testBelongsToBibliography()
+    {
         $this->filename = 'test_import_regression2570.xml';
         $this->loadInputFile();
         $importer = new Opus_Util_MetadataImport($this->xml);
@@ -290,7 +307,4 @@ class Opus_Util_MetadataImportTest extends TestCase {
         $importedDoc = new Opus_Document(4);
         $this->assertEquals(0, $importedDoc->getField('BelongsToBibliography')->getValue()); // "0"
     }
-
-
-
 }

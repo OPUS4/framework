@@ -45,7 +45,7 @@ class Opus_Doi_ConfigRecipientProviderTest extends TestCase
 
         Zend_Registry::get('Zend_Config')->merge(new Zend_Config([
             'doi' => [
-                'notificationEmailEnabled' => true,
+                'notificationEmailEnabled' => self::CONFIG_VALUE_TRUE,
                 'notificationEmail' => [
                     'doe@localhost',
                     'jane@localhost'

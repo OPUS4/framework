@@ -34,19 +34,20 @@
  */
 
 /**
- * 
+ *
  */
-class Opus_Collection_Plugin_DeleteSubTree extends Opus_Model_Plugin_AbstractCollection {
+class Opus_Collection_Plugin_DeleteSubTree extends Opus_Model_Plugin_AbstractCollection
+{
 
-    public function preDelete(Opus_Model_AbstractDb $model) {
+    public function preDelete(Opus_Model_AbstractDb $model)
+    {
         if ($model->isNewRecord()) {
             return;
         }
-        
+
         $this->updateDocuments($model);
-        
+
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $collections->deleteSubTree($model->getId());
     }
-
 }
