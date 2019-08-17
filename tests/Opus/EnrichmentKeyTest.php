@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -34,9 +34,6 @@
 
 /**
  * Test cases for class Opus_EnrichmentKeyTest .
- *
- * @package Opus
- * @category Tests
  *
  */
 class Opus_EnrichmentKeyTest extends TestCase
