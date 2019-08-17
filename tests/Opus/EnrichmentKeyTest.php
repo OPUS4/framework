@@ -122,20 +122,28 @@ class Opus_EnrichmentKeyTest extends TestCase
     /* DELETE */
     public function testDeleteEnrichmentKey()
     {
+        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
+        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
         $this->unreferencedEnrichmentKey->delete();
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+
+        // obwohl der EnrichmentKey gelöscht wurde, wird er noch in Dokumenten verwendet
+        $referencedEnrichmentKeys = Opus_EnrichmentKey::getAllReferenced();
+        $this->assertEquals(1, count($referencedEnrichmentKeys));
+        $this->assertEquals($this->referencedEnrichmentKey->getName(), $referencedEnrichmentKeys[0]);
     }
 
     /**
      * Bereits in Verwendung befindliche EnrichmentKeys dürfen trotzdem gelöscht werden.
+     * Aus dem registrierten EnrichmentKey wird dann ein unregistrierter EK, der dennoch
+     * in Dokumenten verwendet wird.
      */
     public function testDeleteReferencedEnrichmentKey()
     {
-        $this->setExpectedException('Opus_Model_Exception');
-        $this->referencedEnrichmentKey->delete();
         $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
-        ;
+        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->referencedEnrichmentKey->delete();
+        $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
         $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
     }
 
@@ -163,12 +171,19 @@ class Opus_EnrichmentKeyTest extends TestCase
 
     /**
      * Der Name eines bereits in Verwendung befindlichen EnrichmentKeys darf geändert werden.
+     * Es wird dann der Name des EnrichmentKeys in allen Dokumenten angepasst, die den
+     * EnrichmentKey verwenden.
      */
     public function testUpdateReferencedEnrichmentKey()
     {
-        $this->referencedEnrichmentKey->setName('baz');
-        $this->setExpectedException('Opus_Model_Exception');
+        $newName = 'testUpdateReferencedEnrichmentKey';
+        $this->assertNotEquals('testUpdateReferencedEnrichmentKey', $this->referencedEnrichmentKey->getName());
+        $this->referencedEnrichmentKey->setName($newName);
         $this->referencedEnrichmentKey->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichment = $doc->getEnrichment()[0];
+        $this->assertEquals($newName, $enrichment->getKeyName());
     }
 
     /* METHODS */

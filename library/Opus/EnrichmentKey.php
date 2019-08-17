@@ -150,7 +150,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentEnrichments');
         $db = $table->getAdapter();
-        $select = $db->select()->from(['document_enrichments']);
+        $select = $db->select()->from('document_enrichments');
         $select->reset('columns');
         $select->columns("key_name")->distinct(true);
         return $db->fetchCol($select);
@@ -206,15 +206,20 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
      * Tabelle enrichmentkeys.
      *
      * @param string $newName neuer Name des EnrichmentKey
+     * @param string | null $oldName ursprünglicher Name des EnrichmentKey, wenn null, dann
+     *                      wird der aktuelle Name des EnrichmentKey verwendet
      */
-    public function rename($newName)
+    public function rename($newName, $oldName = null)
     {
+        if (is_null($oldName)) {
+            $oldName = $this->getName();
+        }
         $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
         $db = $table->getAdapter();
         $renameEnrichmentKeyQuery = ' UPDATE document_enrichments '
             . ' SET key_name = ?'
             . ' WHERE key_name = ?;';
-        $db->query($renameEnrichmentKeyQuery, [$newName, $this->getName()]);
+        $db->query($renameEnrichmentKeyQuery, [$newName, $oldName]);
     }
 
     /**
@@ -231,4 +236,12 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         $deleteEnrichmentKeyQuery = ' DELETE FROM document_enrichments WHERE key_name = ?;';
         $db->query($deleteEnrichmentKeyQuery, $this->getName());
     }
+
+    public function store()
+    {
+        $oldName = $this->getTableRow()->__get('name');
+        $this->rename($this->getName(), $oldName);
+        parent::store();
+    }
+
 }
