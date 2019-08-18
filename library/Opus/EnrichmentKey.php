@@ -214,6 +214,10 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         if (is_null($oldName)) {
             $oldName = $this->getName();
         }
+        if ($oldName === $newName) {
+            // keine Umbenennung erforderlich
+            return;
+        }
         $table = Opus_Db_TableGateway::getInstance(Opus_Enrichment::getTableGatewayClass());
         $db = $table->getAdapter();
         $renameEnrichmentKeyQuery = ' UPDATE document_enrichments '
