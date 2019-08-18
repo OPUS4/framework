@@ -241,10 +241,37 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
         $db->query($deleteEnrichmentKeyQuery, $this->getName());
     }
 
+    /**
+     * Beim Speichern eines bestehenden EnrichmentKeys wird im Falle einer Namensänderung
+     * der Name des EnrichmentKeys in allen Enrichments, die den EnrichmentKey referenzieren,
+     * aktualisiert (kaskadierende Namensänderung).
+     *
+     * @return mixed|void
+     * @throws Opus_Model_Exception
+     * @throws Zend_Db_Table_Row_Exception
+     */
     public function store()
     {
         $oldName = $this->getTableRow()->__get('name');
         $this->rename($this->getName(), $oldName);
         parent::store();
+    }
+
+    /**
+     * Das Löschen eines EnrichmentKeys kaskadiert standardmäßig auf alle Enrichments, die
+     * den EnrichmentKey referenzieren, d.h. die entsprechenden Enrichments werden aus den
+     * Dokumenten gelöscht.
+     *
+     * Ist der Parameter $cascade auf false gesetzt, so erfolgt keine kaskadierende Löschoperation.
+     *
+     * @param bool $cascade wenn false, dann kaskadiert die Löschoperation nicht
+     * @throws Opus_Model_Exception
+     */
+    public function delete($cascade = true)
+    {
+        if ($cascade) {
+            $this->deleteFromDocuments();
+        }
+        parent::delete();
     }
 }
