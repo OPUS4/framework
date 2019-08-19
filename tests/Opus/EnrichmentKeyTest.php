@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -34,9 +34,6 @@
 
 /**
  * Test cases for class Opus_EnrichmentKeyTest .
- *
- * @package Opus
- * @category Tests
  *
  */
 class Opus_EnrichmentKeyTest extends TestCase
@@ -123,20 +120,51 @@ class Opus_EnrichmentKeyTest extends TestCase
     }
 
     /* DELETE */
-    public function testDeleteEnrichmentKey()
+    public function testDeleteUnreferencedEnrichmentKey()
     {
+        $this->assertCount(2, Opus_EnrichmentKey::getAll());
+        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+
         $this->unreferencedEnrichmentKey->delete();
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAll()));
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+
+        $this->assertCount(1, Opus_EnrichmentKey::getAll());
+        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
     }
 
+    /**
+     * Bereits in Verwendung befindliche EnrichmentKeys dürfen trotzdem gelöscht werden.
+     * Die Löschoperation kaskadiert auf die Enrichments in den Dokumenten, die den zu
+     * löschenden EnrichmentKey verwenden. Solche Enrichments werden entfernt.
+     */
     public function testDeleteReferencedEnrichmentKey()
     {
-        $this->setExpectedException('Opus_Model_Exception');
-        $this->referencedEnrichmentKey->delete();
-        $this->assertEquals(2, count(Opus_EnrichmentKey::getAll()));
-        ;
-        $this->assertEquals(1, count(Opus_EnrichmentKey::getAllReferenced()));
+        $this->assertCount(2, Opus_EnrichmentKey::getAll());
+        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+
+        $this->referencedEnrichmentKey->delete(); // mit Kaskadierung
+
+        $this->assertCount(1, Opus_EnrichmentKey::getAll());
+        $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
+    }
+
+    /**
+     * Bereits in Verwendung befindliche EnrichmentKeys dürfen trotzdem gelöscht werden.
+     * Beim Löschen des EnrichmentKeys soll die Operation *nicht* auf die Enrichments in
+     * den Dokumenten, die den zu löschenden EnrichmentKey verwenden, kaskadieren.
+     */
+    public function testDeleteReferencedEnrichmentKeyWithoutCascading()
+    {
+        $this->assertCount(2, Opus_EnrichmentKey::getAll());
+        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
+
+        $this->referencedEnrichmentKey->delete(false);
+
+        $this->assertCount(1, Opus_EnrichmentKey::getAll());
+
+        // obwohl der EnrichmentKey gelöscht wurde, wird er noch in Dokumenten verwendet
+        $referencedEnrichmentKeys = Opus_EnrichmentKey::getAllReferenced();
+        $this->assertCount(1, $referencedEnrichmentKeys);
+        $this->assertEquals($this->referencedEnrichmentKey->getName(), $referencedEnrichmentKeys[0]);
     }
 
     /* READ */
@@ -156,16 +184,30 @@ class Opus_EnrichmentKeyTest extends TestCase
     /* UPDATE */
     public function testUpdateUnreferencedEnrichmentKey()
     {
-        $this->unreferencedEnrichmentKey->setName('baz');
+        $newName = 'baz';
+        $this->assertNotEquals($newName, $this->unreferencedEnrichmentKey->getName());
+        $this->unreferencedEnrichmentKey->setName($newName);
         $this->unreferencedEnrichmentKey->store();
-        $this->assertEquals('baz', $this->unreferencedEnrichmentKey->getName());
+        $this->assertEquals($newName, $this->unreferencedEnrichmentKey->getName());
     }
 
+    /**
+     * Der Name eines bereits in Verwendung befindlichen EnrichmentKeys darf geändert werden.
+     * Es wird dann der Name des EnrichmentKeys in allen Dokumenten angepasst, die den
+     * EnrichmentKey verwenden (kaskadierende Operation).
+     */
     public function testUpdateReferencedEnrichmentKey()
     {
-        $this->referencedEnrichmentKey->setName('baz');
-        $this->setExpectedException('Opus_Model_Exception');
+        $newName = 'baz';
+        $this->assertNotEquals($newName, $this->referencedEnrichmentKey->getName());
+        $this->referencedEnrichmentKey->setName($newName);
         $this->referencedEnrichmentKey->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichment = $doc->getEnrichment()[0];
+        $this->assertEquals($newName, $enrichment->getKeyName());
+
+        $this->assertCount(1, Opus_EnrichmentKey::getAllReferenced());
     }
 
     /* METHODS */
@@ -247,5 +289,30 @@ class Opus_EnrichmentKeyTest extends TestCase
         $this->assertEquals('mykey', $key->getName());
         $this->assertEquals('mytype', $key->getType());
         $this->assertEquals('myoptions', $key->getOptions());
+    }
+
+    public function testRenameEnrichmentKey()
+    {
+        $this->referencedEnrichmentKey->rename('baz');
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichments = $doc->getEnrichment();
+        $this->assertCount(1, $enrichments);
+        $this->assertEquals('baz', $enrichments[0]->getKeyName());
+
+        $this->assertNull($doc->getEnrichmentValue('bar'));
+        $this->assertEquals('value', $doc->getEnrichmentValue('baz'));
+    }
+
+    public function testDeleteFromDocuments()
+    {
+        $this->referencedEnrichmentKey->deleteFromDocuments();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $this->assertEmpty($doc->getEnrichment());
+
+        // prüfe, dass der EnrichmentKey selbst immer noch vorhanden ist
+        $this->assertCount(2, Opus_EnrichmentKey::getAll());
+        $this->assertCount(0, Opus_EnrichmentKey::getAllReferenced());
     }
 }

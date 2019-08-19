@@ -79,22 +79,11 @@ class Opus_Update_Plugin_DatabaseCharset extends Opus_Update_Plugin_Abstract
             . ' collate = ' . Opus_Database::DEFAULT_COLLATE
         );
 
-        // remove VARCHAR foreign key before converting character set
-        $pdo->query(
-            'ALTER TABLE document_enrichments DROP FOREIGN KEY fk_document_enrichment_enrichmentkeys'
-        );
-
         $tables = $this->getAllTables();
 
         foreach ($tables as $table) {
             $this->convertTable($table);
         }
-
-        // add back VARCHAR foreign key after converting character set
-        $pdo->query(
-            'ALTER TABLE document_enrichments ADD CONSTRAINT `fk_document_enrichment_enrichmentkeys`'
-            . ' FOREIGN KEY (`key_name`) REFERENCES `enrichmentkeys` (`name`)'
-        );
 
         $pdo->commit();
 
