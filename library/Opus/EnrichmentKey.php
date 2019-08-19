@@ -254,7 +254,7 @@ class Opus_EnrichmentKey extends Opus_Model_AbstractDb
     {
         $oldName = $this->getTableRow()->__get('name');
         $this->rename($this->getName(), $oldName);
-        parent::store();
+        return parent::store();
     }
 
     /**
