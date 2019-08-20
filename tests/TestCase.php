@@ -125,4 +125,20 @@ class TestCase extends SimpleTestCase
 
         $this->_clearTables();
     }
+
+    protected function prepareXpathFromResultString($resultString)
+    {
+        $domDocument = new DOMDocument();
+        $domDocument->loadXML($resultString);
+
+        $xpath = new DOMXPath($domDocument);
+
+        $namespace = $domDocument->documentElement->namespaceURI;
+
+        if (!is_null($namespace)) {
+            $xpath->registerNamespace('ns', $namespace);
+        }
+
+        return $xpath;
+    }
 }

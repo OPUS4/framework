@@ -3922,7 +3922,6 @@ class Opus_DocumentTest extends TestCase
         $document = new Opus_Document();
 
         $this->assertEquals([
-            'Opus_Document_Plugin_Index',
             'Opus_Document_Plugin_XmlCache',
             'Opus_Document_Plugin_IdentifierUrn',
             'Opus_Document_Plugin_IdentifierDoi'

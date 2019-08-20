@@ -235,19 +235,14 @@ class Opus_Model_Dependent_AbstractTest extends TestCase
      */
     public function testInvalidateDocumentCacheEnabled()
     {
+        $document = new Opus_Document();
 
-        $reflectedClass = new ReflectionClass('Opus_Document');
-        $property = $reflectedClass->getProperty('_plugins');
-        $props = $reflectedClass->getDefaultProperties();
-        $docPlugins = @$props['_plugins'] ?: [];
-        if (array_key_exists('Opus_Document_Plugin_XmlCache', $docPlugins)) {
-            $reflectedClass = new ReflectionClass('Opus_Model_Dependent_Abstract');
-            $props = $reflectedClass->getDefaultProperties();
-            $modelPlugins = @$props['_plugins'] ?: [];
-            $this->assertTrue(array_key_exists(
-                'Opus_Model_Plugin_InvalidateDocumentCache',
-                $modelPlugins
-            ), 'Expected plugin Opus_Model_Plugin_InvalidateDocumentCache');
+        $cachingEnabled = $document->hasPlugin('Opus_Document_Plugin_XmlCache');
+
+        if ($cachingEnabled) {
+            $subject = new Opus_Subject(); // inherits from Opus_Model_Dependent_Abstract
+
+            $this->assertTrue($subject->hasPlugin('Opus_Model_Plugin_InvalidateDocumentCache'));
         }
     }
 }

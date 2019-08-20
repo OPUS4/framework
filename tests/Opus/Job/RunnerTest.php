@@ -55,6 +55,7 @@ class Opus_Job_RunnerTest extends TestCase
 
     public function testRunIndexWorkerWithInvalidJob()
     {
+        $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
         $document = new Opus_Document();
         $document->setServerState('published');
@@ -83,6 +84,7 @@ class Opus_Job_RunnerTest extends TestCase
 
     public function testRunIndexWorkerWithValidJob()
     {
+        $this->markTestSkipped('Search related and needs to be moved to opus-search');
 
         $document = new Opus_Document();
         $document->setServerState('published');
