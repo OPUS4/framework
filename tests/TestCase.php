@@ -135,7 +135,7 @@ class TestCase extends SimpleTestCase
 
         $namespace = $domDocument->documentElement->namespaceURI;
 
-        if (!is_null($namespace)) {
+        if (! is_null($namespace)) {
             $xpath->registerNamespace('ns', $namespace);
         }
 
