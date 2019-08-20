@@ -1209,7 +1209,7 @@ class Opus_CollectionRoleTest extends TestCase
      * Validierung von ungültigen Namen für CollectionRoles (OPUSVIER-4022)
      *
      * @dataProvider invalidCollectionRoleNameDataProvider
-     * @expectedException Opus_Model_Exception
+     * @expectedException Opus\Model\Exception
      * @expectedExceptionMessage invalid data
      */
     public function testInvalidCollectionRoleName($invalidName)
