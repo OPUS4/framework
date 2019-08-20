@@ -124,19 +124,6 @@ class Opus_Database
      */
     public function importSchema($targetVersion = null)
     {
-        if (is_null($targetVersion)) {
-            $schemaFile = $this->getSchemaFile();
-
-            if (! is_null($schemaFile)) {
-            // if present use single schema file
-                $this->import($schemaFile);
-
-                return;
-            } else {
-                // TODO some meaningfull output
-            }
-        }
-
         // if targetVersion is specified or no complete schema file is present
         $scripts = $this->getUpdateScripts(null, $targetVersion);
 
@@ -373,6 +360,20 @@ class Opus_Database
         }
 
         return $this->_config;
+    }
+
+    /**
+     * Returns logger.
+     * @return mixed|Zend_Log
+     * @throws Zend_Exception
+     */
+    public function getLogger()
+    {
+        if (is_null($this->_logger)) {
+            $this->_logger = Zend_Registry::get('Zend_Log');
+        }
+
+        return $this->_logger;
     }
 
     /**
