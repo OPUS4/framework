@@ -91,10 +91,10 @@ class TestCase extends SimpleTestCase
             }
             $filesDir = APPLICATION_PATH . DIRECTORY_SEPARATOR . 'tests' . DIRECTORY_SEPARATOR . 'workspace'
                 . DIRECTORY_SEPARATOR . 'files';
-            $files = array_diff(scandir($filesDir), array('.', '..', '.gitignore'));
+            $files = array_diff(scandir($filesDir), ['.', '..', '.gitignore']);
         } else {
             $filesDir = $directory;
-            $files = array_diff(scandir($filesDir), array('.', '..'));
+            $files = array_diff(scandir($filesDir), ['.', '..']);
         }
 
         foreach ($files as $file) {
@@ -107,7 +107,7 @@ class TestCase extends SimpleTestCase
             }
         }
 
-        if (!is_null($directory)) {
+        if (! is_null($directory)) {
             rmdir($directory);
         }
 

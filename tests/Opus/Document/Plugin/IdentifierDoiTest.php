@@ -46,8 +46,10 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
 
     private function adaptDoiConfiguration($doiConfig)
     {
-        Zend_Registry::set('Zend_Config',
-            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(array('doi' => $doiConfig))));
+        Zend_Registry::set(
+            'Zend_Config',
+            Zend_Registry::get('Zend_Config')->merge(new Zend_Config(['doi' => $doiConfig]))
+        );
     }
 
     private function createMinimalDocument($enrichmentValue = null)
@@ -55,14 +57,14 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $model = new Opus_Document();
         $model->setServerState('published');
 
-        if (!is_null($enrichmentValue)) {
+        if (! is_null($enrichmentValue)) {
             $this->setupEnrichmentKey();
 
             $enrichment = new Opus_Enrichment();
             $enrichment->setKeyName(self::ENRICHMENT_KEY_NAME);
             $enrichment->setValue($enrichmentValue);
 
-            $enrichments = array();
+            $enrichments = [];
             $enrichments[] = $enrichment;
             $model->setEnrichment($enrichments);
         }
@@ -80,8 +82,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 0
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -98,8 +100,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => false
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -116,8 +118,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument('false');
@@ -134,8 +136,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -152,8 +154,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => true
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument();
@@ -170,8 +172,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 0
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_FALSE
         ];
         $this->adaptDoiConfiguration($doiConfig);
         $docId = $this->createMinimalDocument('true');
@@ -211,8 +213,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'registerAtPublish' => 0,
-            'autoCreate' => 1
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
@@ -255,7 +257,7 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -277,7 +279,7 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
         $this->assertCount(1, $dois);
         $doi = $dois[0];
         $this->assertEquals('doi', $doi->getType());
-        $this->assertEquals('10.000/opustest-' . $docId , $doi->getValue());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
         $this->assertEquals('registered', $doi->getStatus());
     }
 
@@ -287,7 +289,7 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_MissingGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
         ];
         $this->adaptDoiConfiguration($doiConfig);
 
@@ -304,8 +306,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 1,
-            'registerAtPublish' => 1,
+            'autoCreate' => self::CONFIG_VALUE_TRUE,
+            'registerAtPublish' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -328,8 +330,8 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
             'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
             'prefix' => '10.000/',
             'localPrefix' => 'opustest',
-            'autoCreate' => 0,
-            'registerAtPublish' => 1,
+            'autoCreate' => self::CONFIG_VALUE_FALSE,
+            'registerAtPublish' => self::CONFIG_VALUE_TRUE,
             'doi.registration.datacite.serviceUrl' => 'localhost'
         ];
         $this->adaptDoiConfiguration($doiConfig);
@@ -338,5 +340,152 @@ class Opus_Document_Plugin_IdentifierDoiTest extends TestCase
 
         $doc = new Opus_Document($docId);
         $this->assertEmpty($doc->getIdentifier());
+    }
+
+    /**
+     * ein bereits veröffentlichtes Dokument ohne DOI soll beim erneuten Speichern keine DOI erhalten
+     */
+    public function testOPUSVIER3994wPublishedDoc()
+    {
+        $docId = $this->createMinimalDocument();
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $this->enableDOIGeneration();
+
+        $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
+        // provoziere einen Statusübergang von published nach published
+        $doc->setServerState('published');
+        $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+    }
+
+    /**
+     * ein noch nicht veröffentlichtes Dokument ohne DOI soll beim erneuten Speichern eine DOI erhalten
+     */
+    public function testOPUSVIER3994wUnpublishedDoc()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $this->enableDOIGeneration();
+
+        $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
+        $doc->setServerState('published');
+        $doc->store();
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $doi = $doc->getIdentifier()[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
+    }
+
+    /**
+     * mehrfacher Aufruf der setServerState-Methode mit unterschiedlichen Werten
+     */
+    public function testOPUSVIER3994multipleSetter()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $this->enableDOIGeneration();
+
+        $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('1');
+        $doc->setServerState('published');
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // es sollte keine DOI erzeugt worden sein, weil sich der serverState effektiv nicht geändert hat
+        $this->assertEmpty($doc->getIdentifier());
+
+        $doc = new Opus_Document($docId);
+        // Änderung eines Wertes, damit store-Methode tatsächlich aufgerufen wird
+        $doc->setPageFirst('2');
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $doc->store();
+
+        // es sollte eine DOI erzeugt worden sein, weil sich der serverState effektiv geändert hat
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $doi = $doc->getIdentifier()[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
+    }
+
+    /**
+     * ein neu gespeichertes Dokument bekommt beim Veröffentlichen eine DOI, sofern autoCreate aktiviert
+     */
+    public function testOPUSVIER3994publishedDocGetsDOI()
+    {
+        $this->enableDOIGeneration();
+
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $doc->setServerState('published');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+
+        $this->assertNotEmpty($doc->getIdentifier());
+
+        $doi = $doc->getIdentifier()[0];
+        $this->assertEquals('doi', $doi->getType());
+        $this->assertEquals('10.000/opustest-' . $docId, $doi->getValue());
+    }
+
+    /**
+     * Keine DOI-Generierung, wenn effektiv keine Änderung des ServerState erfolgt
+     */
+    public function testOPUSVIER3994withoutServerStateChanged()
+    {
+        $doc = new Opus_Document();
+        $doc->setServerState('unpublished');
+        $docId = $doc->store();
+
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+
+        $this->enableDOIGeneration();
+
+        $doc = new Opus_Document($docId);
+        $doc->setServerState('published');
+        $doc->setServerState('unpublished');
+        $doc->store();
+
+        // prüfe, dass keine DOI generiert wurde (weil sich der ServerState nicht verändert hat)
+        $doc = new Opus_Document($docId);
+        $this->assertEmpty($doc->getIdentifier());
+    }
+
+    /**
+     * Hilfsmethode um die DOI-Generierung in der Konfiguration zu aktivieren.
+     */
+    private function enableDOIGeneration()
+    {
+        $doiConfig = [
+            'generatorClass' => 'Opus_Doi_Generator_DefaultGenerator',
+            'prefix' => '10.000/',
+            'localPrefix' => 'opustest',
+            'registerAtPublish' => self::CONFIG_VALUE_FALSE,
+            'autoCreate' => self::CONFIG_VALUE_TRUE
+        ];
+        $this->adaptDoiConfiguration($doiConfig);
     }
 }

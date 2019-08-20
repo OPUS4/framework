@@ -41,7 +41,6 @@
  */
 class Opus_Db_Privileges extends Opus_Db_TableGateway
 {
-
     /**
      * Table schema name.
      *

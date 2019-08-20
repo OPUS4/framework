@@ -40,13 +40,14 @@
  * @category    Framework
  * @package     Opus_Statistic
  */
-class Opus_Statistic_LocalCounter  {
+class Opus_Statistic_LocalCounter
+{
 
     /**
      * Holds instance of the class
      * @var Statistic_LocalCounter
      */
-    private static $localCounter = NULL;
+    private static $localCounter = null;
 
     /**
      * double click interval for fulltext in sec
@@ -60,7 +61,7 @@ class Opus_Statistic_LocalCounter  {
      */
     private $doubleClickIntervalHtml = 10;
 
-    private $spiderList = array(
+    private $spiderList = [
         'Alexandria prototype project',
         'Arachmo',
         'Brutus/AET',
@@ -97,17 +98,19 @@ class Opus_Statistic_LocalCounter  {
         'WebZIP',
         'Wget',
         'Xenu Link Sleuth'
-    );
+    ];
 
-    private function __construct() {
+    private function __construct()
+    {
     }
 
     /**
      *
      * @return Opus_Statistic_LocalCounter
      */
-    public static function getInstance() {
-        if (self::$localCounter == NULL) {
+    public static function getInstance()
+    {
+        if (self::$localCounter == null) {
             self::$localCounter = new Opus_Statistic_LocalCounter();
         }
         return self::$localCounter;
@@ -119,29 +122,33 @@ class Opus_Statistic_LocalCounter  {
      * @param $userAgent $_SERVER['user_agent'] string
      * @return bool is spieder?
      */
-    private function checkSpider($userAgent) {
-        $userAgent =strtolower($userAgent);
+    private function checkSpider($userAgent)
+    {
+        $userAgent = strtolower($userAgent);
 
         foreach ($this->spiderList as $spider) {
-            if (stristr($userAgent, $spider) != FALSE || stristr($userAgent, str_replace(' ', '+', $spider)) != FALSE) {
+            if (stristr($userAgent, $spider) != false || stristr($userAgent, str_replace(' ', '+', $spider)) != false) {
                 return true;
             }
         }
         return false;
     }
 
-    private function isRedirectStatusOk($redirectStatus) {
+    private function isRedirectStatusOk($redirectStatus)
+    {
         return $redirectStatus == 200 || $redirectStatus == 304;
     }
 
 
-public function countFrontdoor($documentId) {
-    $this->count($documentId, -1, 'frontdoor');
-}
+    public function countFrontdoor($documentId)
+    {
+        $this->count($documentId, -1, 'frontdoor');
+    }
 
-public function countFiles($documentId, $fileId) {
-    $this->count($documentId, $fileId, 'files');
-}
+    public function countFiles($documentId, $fileId)
+    {
+        $this->count($documentId, $fileId, 'files');
+    }
 
     /**
      *
@@ -154,7 +161,8 @@ public function countFiles($documentId, $fileId) {
 
      * @return int new counter value for given doc_id - month -year triple or FALSE if double click or spider
      */
- public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null) {
+    public function count($documentId, $fileId, $type, $ip = null, $userAgent = null, $redirectStatus = null)
+    {
         if ($type != 'frontdoor' && $type != 'files') {
             //print('type not defined');
             return 0;
@@ -179,7 +187,7 @@ public function countFiles($documentId, $fileId) {
 
         $time = time();
         //determine whether it was a double click or not
-        if ($this->isRedirectStatusOk($redirectStatus) == false){
+        if ($this->isRedirectStatusOk($redirectStatus) == false) {
         //    print('wrong redirect status');
             return 0;
         }
@@ -216,13 +224,13 @@ public function countFiles($documentId, $fileId) {
             }
 
             $value++;
-            $data = array (
+            $data = [
                 'document_id' => $documentId,
                 'year' => $year,
                 'month' => $month,
                 'count' => $value,
                 'type' => $type,
-            );
+            ];
 
             //TODO direct $ods->insert() possible??
 
@@ -245,7 +253,7 @@ public function countFiles($documentId, $fileId) {
             print ($e->getMessage());
             return 0;
         }
-        return 0;
+              return 0;
     }
 
     /**
@@ -256,7 +264,8 @@ public function countFiles($documentId, $fileId) {
      * @param $fileId id of document_files table
      * @return bool is it a double click
      */
-    public function logClick($documentId, $fileId, $time) {
+    public function logClick($documentId, $fileId, $time)
+    {
         $ip = '';
         if (array_key_exists('REMOTE_ADDR', $_SERVER)) {
             $ip = $_SERVER['REMOTE_ADDR'];
@@ -271,7 +280,7 @@ public function countFiles($documentId, $fileId) {
         $filetype = 'pdf';
 
         $dom = new DOMDocument();
-        if (file_exists($tempDir . '~localstat.xml') === FALSE) {
+        if (file_exists($tempDir . '~localstat.xml') === false) {
             $xmlAccess = $dom->createElement('access');
             $dom->appendChild($xmlAccess);
         } else {
@@ -327,11 +336,10 @@ public function countFiles($documentId, $fileId) {
         if ($fileIdTime == null || $time - $fileIdTime > max($this->doubleClickIntervalHtml, $this->doubleClickIntervalPdf)) {
             /*no lastAccess set (new entry for this id) or lastAccess too far away
              -> create entry with actual time -> return no double click*/
-
-        } else if ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype == 'html') || ($fileId == -1))) {
+        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalHtml) && (($filetype == 'html') || ($fileId == -1))) {
             //html file double click
             $doubleClick = true;
-        } else if ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype == 'pdf') && ($fileId != -1)) {
+        } elseif ((($time - $fileIdTime) <= $this->doubleClickIntervalPdf) && ($filetype == 'pdf') && ($fileId != -1)) {
             //pdf file double click
             $doubleClick = true;
         }
@@ -346,7 +354,8 @@ public function countFiles($documentId, $fileId) {
         return $doubleClick;
     }
 
-    public function readMonths($documentId, $datatype = 'files', $year = null) {
+    public function readMonths($documentId, $datatype = 'files', $year = null)
+    {
         if ($year == null) {
             //set current year
             $year = date('Y', time());
@@ -362,7 +371,7 @@ public function countFiles($documentId, $fileId) {
             ->order('month');
 
         $queryResult = $ods->fetchAll($select);
-        $result = array();
+        $result = [];
         foreach ($queryResult as $row) {
             $result[$row->month] = $row->count;
         }
@@ -375,15 +384,16 @@ public function countFiles($documentId, $fileId) {
         return $result;
     }
 
-    public function readYears($documentId, $datatype = 'files') {
+    public function readYears($documentId, $datatype = 'files')
+    {
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
         $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
 
         $select = $ods->select()
-            ->from(array('stat' => 'document_statistics'), array('count' => 'SUM(stat.count)'))
-            ->from(array('stat2' => 'document_statistics'), array('year' => 'stat2.year'))
+            ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
+            ->from(['stat2' => 'document_statistics'], ['year' => 'stat2.year'])
             ->where('stat.type = ?', $datatype)
             ->where('stat.document_id = ?', $documentId)
             ->where('stat.document_id = stat2.document_id')
@@ -394,25 +404,26 @@ public function countFiles($documentId, $fileId) {
             ->order('stat2.year');
 
         $queryResult = $ods->fetchAll($select);
-        $result = array();
+        $result = [];
         foreach ($queryResult as $row) {
             $result[$row->year] = $row->count;
         }
 
         if (isset($result) === false) {
-            $result = array(date('Y') => 0);
+            $result = [date('Y') => 0];
         }
         return $result;
     }
 
-    public function readTotal($documentId, $datatype = 'files') {
+    public function readTotal($documentId, $datatype = 'files')
+    {
         if ($datatype != 'files' && $datatype != 'frontdoor') {
             $datatype = 'files';
         }
         $ods = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentStatistics');
 
         $select = $ods->select()
-            ->from(array('stat' => 'document_statistics'), array('count' => 'SUM(stat.count)'))
+            ->from(['stat' => 'document_statistics'], ['count' => 'SUM(stat.count)'])
             ->where('stat.type = ?', $datatype)
             ->where('stat.document_id = ?', $documentId);
 

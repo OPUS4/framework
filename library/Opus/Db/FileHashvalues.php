@@ -42,7 +42,6 @@
  */
 class Opus_Db_FileHashvalues extends Opus_Db_TableGateway
 {
-
     /**
      * Contains table name
      *

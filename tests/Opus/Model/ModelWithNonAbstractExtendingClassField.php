@@ -50,20 +50,20 @@ class Opus_Model_ModelWithNonAbstractExtendingClassField extends Opus_Model_Abst
      *
      * @var array
      */
-    protected $_externalFields = array(
-            'Dummy' => array(
+    protected $_externalFields = [
+            'Dummy' => [
                 'model' => 'Opus_Model_Dummy',
                 'table' => null,
-            ),
-        );
+            ],
+        ];
 
     /**
      * Add Dummy field
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $this->addField(new Opus_Model_Field('Dummy'));
     }
-
 }

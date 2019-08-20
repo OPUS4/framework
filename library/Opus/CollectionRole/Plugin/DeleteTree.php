@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -51,7 +51,7 @@ class Opus_CollectionRole_Plugin_DeleteTree extends Opus_Model_Plugin_AbstractCo
         // Update documents, incl. ServerDateModified
         if ($model instanceof Opus_CollectionRole) {
             $rootCollection = $model->getRootCollection();
-            if (!is_null($rootCollection)) {
+            if (! is_null($rootCollection)) {
                 $this->updateDocuments($rootCollection);
             }
         }

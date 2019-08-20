@@ -152,8 +152,7 @@ class Opus_LanguageTest extends TestCase
 
         try {
             $lang->store();
-        }
-        catch (Opus_Model_DbException $omde) {
+        } catch (Opus_Model_DbException $omde) {
             $this->assertContains('Data truncated for column \'scope\'', $omde->getMessage());
         }
 
@@ -202,8 +201,7 @@ class Opus_LanguageTest extends TestCase
 
         try {
             $lang->store();
-        }
-        catch (Opus_Model_DbException $omde) {
+        } catch (Opus_Model_DbException $omde) {
             $this->assertContains('Data truncated for column \'type\'', $omde->getMessage());
         }
 

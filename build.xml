@@ -8,6 +8,23 @@
     <property name="codingstandard" location="${basedir}/vendor/opus4-repo/codesniffer/ruleset.xml" />
     <property name="bindir" value="${basedir}/vendor/bin" />
     <property name="solrVersion" value="7.6.0" />
+    <property name="downloadDir" value="${basedir}/downloads" />
+
+    <!-- Properties for configuration files (tests/config.ini) used for testing. -->
+    <property name="dbName" value="opusdb" />
+    <property name="dbUserName" value="opus4admin" />
+    <property name="dbUserPassword" value="" />
+    <property name="dbAdminName" value="opus4" />
+    <property name="dbAdminPassword" value="" />
+    <property name="solrDefaultHost" value="localhost" />
+    <property name="solrDefaultPort" value="8983" />
+    <property name="solrDefaultPath" value="/solr/opus4" />
+    <property name="solrIndexHost" value="localhost" />
+    <property name="solrIndexPort" value="8983" />
+    <property name="solrIndexPath" value="/solr/opus4" />
+    <property name="solrExtractHost" value="localhost" />
+    <property name="solrExtractPort" value="8983" />
+    <property name="solrExtractPath" value="/solr/opus4" />
 
     <target name="analyse-code" depends="phpcs,phpmd,phpcpd,phploc" />
 
@@ -45,7 +62,22 @@
     <target name="prepare-config">
         <copy file="${basedir}/tests/config.ini.template" toFile="${basedir}/tests/config.ini" filtering="true"
                 overwrite="true">
-            <filterset filtersFile="${configfile}" />
+            <filterset>
+                <filter token="db.user.name" value="${dbUserName}" />
+                <filter token="db.user.password" value="${dbUserPassword}" />
+                <filter token="db.admin.name" value="${dbAdminName}" />
+                <filter token="db.admin.password" value="${dbAdminPassword}" />
+                <filter token="db.name" value="${dbName}" />
+                <filter token="searchengine.default.host" value="${solrDefaultHost}" />
+                <filter token="searchengine.default.port" value="${solrDefaultPort}" />
+                <filter token="searchengine.default.path" value="${solrDefaultPath}" />
+                <filter token="searchengine.index.host" value="${solrIndexHost}" />
+                <filter token="searchengine.index.port" value="${solrIndexPort}" />
+                <filter token="searchengine.index.app" value="${solrIndexPath}" />
+                <filter token="searchengine.extract.host" value="${solrExtractHost}" />
+                <filter token="searchengine.extract.port" value="${solrExtractPort}" />
+                <filter token="searchengine.extract.app" value="${solrExtractPath}" />
+            </filterset>
         </copy>
     </target>
 
@@ -167,11 +199,11 @@
     </target>
 
     <target name="download-solr">
-        <mkdir dir="${basedir}/download" />
+        <mkdir dir="${downloadDir}" />
         <get src="https://archive.apache.org/dist/lucene/solr/${solrVersion}/solr-${solrVersion}.tgz"
-             dest="${basedir}/download/solr-${solrVersion}.tgz"
+             dest="${downloadDir}/solr-${solrVersion}.tgz"
              skipexisting="true" />
-        <exec executable="tar" dir="${basedir}/download">
+        <exec executable="tar" dir="${downloadDir}">
             <arg line="xfz" />
             <arg line="solr-${solrVersion}.tgz" />
             <arg line="-C ${basedir}" />

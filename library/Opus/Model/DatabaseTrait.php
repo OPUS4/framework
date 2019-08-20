@@ -90,8 +90,7 @@ trait Opus_Model_DatabaseTrait
 
         if ($id === null) {
             $this->_primaryTableRow = $tableGatewayModel->createRow();
-        }
-        else if ($id instanceof Zend_Db_Table_Row) {
+        } elseif ($id instanceof Zend_Db_Table_Row) {
             if ($id->getTableClass() !== $gatewayClass) {
                 throw new Opus\Model\Exception(
                     'Mistyped table row passed. Expected row from ' .
@@ -100,9 +99,7 @@ trait Opus_Model_DatabaseTrait
             }
             $this->_primaryTableRow = $id;
             $this->_isNewRecord = false;
-        }
-        else {
-
+        } else {
             $idTupel = is_array($id) ? $id : [$id];
             $idString = is_array($id) ? "(".implode(",", $id).")" : $id;
 
@@ -123,7 +120,7 @@ trait Opus_Model_DatabaseTrait
         }
 
         // Paranoid programming, sorry!  Check if proper row has been created.
-        if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
+        if (! $this->_primaryTableRow instanceof Zend_Db_Table_Row) {
             throw new Opus\Model\Exception("Invalid row object for class " . get_class($this));
         }
     }
@@ -149,8 +146,8 @@ trait Opus_Model_DatabaseTrait
         $tableGatewayClass = null,
         array $ids = null,
         $orderBy = null
-    )
-    {
+    ) {
+
         // As we are in static context, we have no chance to retrieve
         // those class names.
         if ((is_null($modelClassName) === true) or (is_null($tableGatewayClass) === true)) {
@@ -166,8 +163,7 @@ trait Opus_Model_DatabaseTrait
         $rows = [];
         if (is_null($ids) === true) {
             $rows = $table->fetchAll(null, $orderBy);
-        }
-        else if (empty($ids) === false) {
+        } elseif (empty($ids) === false) {
             $rowset = $table->find($ids);
             if (false === is_null($orderBy)) {
                 // Sort manually, since find() does not support order by clause.
@@ -177,8 +173,7 @@ trait Opus_Model_DatabaseTrait
                     $rows[] = $row;
                 }
                 array_multisort($vals, SORT_ASC, $rows);
-            }
-            else {
+            } else {
                 $rows = $rowset;
             }
         }
@@ -199,7 +194,7 @@ trait Opus_Model_DatabaseTrait
      */
     protected function getTableRow()
     {
-        if (!$this->_primaryTableRow instanceof Zend_Db_Table_Row) {
+        if (! $this->_primaryTableRow instanceof Zend_Db_Table_Row) {
             throw new Opus\Model\Exception(
                 "Invalid row object for class " . get_class($this) . " -- got class "
                 . get_class($this->_primaryTableRow)
@@ -233,23 +228,20 @@ trait Opus_Model_DatabaseTrait
                     $this->_pending[] = $fieldname;
                     // Go to next field
                     continue;
-                }
-                else {
+                } else {
                     // Immediately load external field if fetching mode is set to 'eager'
                     // Load the model instance from the database and
                     // take the resulting object as value for the field
                     $this->_loadExternal($fieldname);
                 }
-            }
-            else {
+            } else {
                 // Field is not external an gets handled by simply reading
                 // its value from the table row
                 // Check if the fetch mechanism for the field is overwritten in model.
                 $callname = '_fetch' . $fieldname;
                 if (method_exists($this, $callname) === true) {
                     $field->setValue($this->$callname());
-                }
-                else {
+                } else {
                     $colname = self::convertFieldnameToColumn($fieldname);
                     $fieldval = $this->_primaryTableRow->$colname;
                     // explicitly set null if the field represents a model
@@ -272,7 +264,8 @@ trait Opus_Model_DatabaseTrait
      *
      * @return void
      */
-    public function __wakeup() {
+    public function __wakeup()
+    {
         if (false === is_null($this->_primaryTableRow)) {
             $tableclass = $this->_primaryTableRow->getTableClass();
             $table = Opus_Db_TableGateway::getInstance($tableclass);
@@ -295,7 +288,8 @@ trait Opus_Model_DatabaseTrait
      *
      * @return string Table gateway class name.
      */
-    public static function getTableGatewayClass() {
+    public static function getTableGatewayClass()
+    {
         return static::$_tableGatewayClass;
     }
 }

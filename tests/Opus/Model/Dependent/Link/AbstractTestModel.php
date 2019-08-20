@@ -38,7 +38,8 @@
  * @category    Tests
  * @package     Opus_Model
  */
-class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
+class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract
+{
 
     private $mockValid = true;
 
@@ -48,7 +49,8 @@ class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
      * @return void
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    protected function _init() {
+    protected function _init()
+    {
     }
 
     /**
@@ -57,7 +59,8 @@ class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
      * @param string $displayName Mock display name.
      * @return void
      */
-    public function setDisplayName($displayName) {
+    public function setDisplayName($displayName)
+    {
         $this->_mockDisplayName = $displayName;
     }
 
@@ -66,16 +69,18 @@ class Opus_Model_Dependent_Link_AbstractTestModel extends Opus_Model_Abstract {
      *
      * @return string Mock display name.
      */
-    public function getDisplayName() {
+    public function getDisplayName()
+    {
         return $this->_mockDisplayName;
     }
 
-    public function isValid() {
+    public function isValid()
+    {
         return $this->mockValid;
     }
 
-    public function setValid($valid) {
+    public function setValid($valid)
+    {
         $this->mockValid = $valid;
     }
-
 }

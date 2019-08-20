@@ -34,7 +34,7 @@
  * @author      Simone Finkbeiner <simone.finkbeiner@ub.uni-stuttgart.de>
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2014-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2014-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -113,7 +113,6 @@
  * @method void setServerDateDeleted(Opus_Date $date)
  * @method Opus_Date getServerDateDeleted()
  *
- * @method void setServerState(string $state)
  * @method string getServerState()
  *
  * @method void setType(string $type)
@@ -203,6 +202,24 @@ class Opus_Document extends Opus_Model_AbstractDb
     protected static $_tableGatewayClass = 'Opus_Db_Documents';
 
     /**
+     * Zeigt an, ob der Wert von serverState verändert wurde. Nur in diesem Fall werden Plugins,
+     * die das Interface \Opus\Model\Plugin\ServerStateChangeListener implementieren, ausgeführt.
+     *
+     * @var bool
+     */
+    private $serverStateChanged = false;
+
+    /**
+     * sofern der Wert von serverState geändert wurde, wird in dieser
+     * Variable der in der Datenbank abgespeicherte Wert als Referenz gehalten
+     *
+     * @var string
+     */
+    private $oldServerState = null;
+
+    private static $defaultPlugins = null;
+
+    /**
      * Plugins to load
      *
      * WARN: order of plugins is NOT(!) arbitrary, e.g., Index plugin must come
@@ -218,14 +235,31 @@ class Opus_Document extends Opus_Model_AbstractDb
      * in case of a cache miss. The cache rebuilding will issue a reindex
      * operation as a side effect. A subsequent call of the Index plugin issues
      * a second call of the reindex operation which is obsolete.)
-     *
-     * @var array
      */
-    protected $_plugins = [
-        'Opus_Document_Plugin_XmlCache' => null,
-        'Opus_Document_Plugin_IdentifierUrn' => null,
-        'Opus_Document_Plugin_IdentifierDoi' => null
-    ];
+    public function getDefaultPlugins()
+    {
+        if (is_null(self::$defaultPlugins)) {
+            $config = Zend_Registry::get('Zend_Config'); // use function
+
+            if (isset($config->model->plugins->document)) {
+                $plugins = $config->model->plugins->document;
+                self::$defaultPlugins = $plugins->toArray();
+            } else {
+                self::$defaultPlugins = [
+                    'Opus_Document_Plugin_XmlCache',
+                    'Opus_Document_Plugin_IdentifierUrn',
+                    'Opus_Document_Plugin_IdentifierDoi'
+                ];
+            }
+        }
+
+        return self::$defaultPlugins;
+    }
+
+    public function setDefaultPlugins($plugins)
+    {
+        self::$defaultPlugins = $plugins;
+    }
 
     /**
      * The documents external fields, i.e. those not mapped directly to the
@@ -538,7 +572,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $this->addField($field);
         }
 
-        foreach (array_keys($this->_externalFields) AS $fieldname) {
+        foreach (array_keys($this->_externalFields) as $fieldname) {
             $field = new Opus_Model_Field($fieldname);
             $field->setMultiplicity('*');
             $this->addField($field);
@@ -551,7 +585,6 @@ class Opus_Document extends Opus_Model_AbstractDb
             'ServerDateCreated',
             'ServerDateModified', 'ServerDatePublished', 'ServerDateDeleted', 'EmbargoDate'
         ];
-
         foreach ($dateFields as $fieldName) {
             $this->getField($fieldName)
                     ->setValueModelClass('Opus_Date');
@@ -585,25 +618,24 @@ class Opus_Document extends Opus_Model_AbstractDb
         // Add the server (publication) state as a field
         $this->getField('ServerState')
                 ->setDefault([
-                        'unpublished' => 'unpublished',
-                        'published' => 'published',
-                        'deleted' => 'deleted',
-                        'restricted' => 'restricted',
-                        'audited' => 'audited',
-                        'inprogress' => 'inprogress'
-                    ])
+                    'unpublished' => 'unpublished',
+                    'published' => 'published',
+                    'deleted' => 'deleted',
+                    'restricted' => 'restricted',
+                    'audited' => 'audited',
+                    'inprogress' => 'inprogress'
+                ])
                 ->setSelection(true);
 
         // Add the allowed values for publication_state column
         $this->getField('PublicationState')
-                ->setDefault(
-                    [
+                ->setDefault([
                     'draft' => 'draft',
                     'accepted' => 'accepted',
                     'submitted' => 'submitted',
                     'published' => 'published',
-                    'updated'=> 'updated']
-                )
+                    'updated' => 'updated'
+                ])
                 ->setSelection(true);
 
         // Initialize available publishers
@@ -626,8 +658,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         if ($this->_fields['Language']->getValue() !== null) {
             if ($this->_fields['Language']->hasMultipleValues()) {
                 $result = implode(',', $this->_fields['Language']->getValue());
-            }
-            else {
+            } else {
                 $result = $this->_fields['Language']->getValue();
             }
         }
@@ -913,7 +944,7 @@ class Opus_Document extends Opus_Model_AbstractDb
                 ->where('TRIM(server_date_published) != \'\'');
         $timestamp = $table->fetchRow($select)->toArray();
 
-        if (!isset($timestamp['min_date'])) {
+        if (! isset($timestamp['min_date'])) {
             return null;
         }
 
@@ -953,8 +984,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         try {
             if (true === is_null($from)) {
                 $from = new Zend_Date(self::getEarliestPublicationDate());
-            }
-            else {
+            } else {
                 $from = new Zend_Date($from);
             }
         } catch (Exception $e) {
@@ -963,8 +993,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         try {
             if (true === is_null($until)) {
                 $until = new Zend_Date;
-            }
-            else {
+            } else {
                 $until = new Zend_Date($until);
             }
         } catch (Exception $e) {
@@ -974,8 +1003,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         $searchRange = null;
         if (true === $from->equals($until)) {
             $searchRange = 'LIKE "' . $from->toString('yyyy-MM-dd') . '%"';
-        }
-        else {
+        } else {
             // TODO FIXME
             //
             // For some strange reason a between does not include the
@@ -1028,7 +1056,7 @@ class Opus_Document extends Opus_Model_AbstractDb
             $table->update(['server_date_modified' => "$date"], $where);
         } catch (Exception $e) {
             $logger = Zend_Registry::get('Zend_Log');
-            if (!is_null($logger)) {
+            if (! is_null($logger)) {
                 $logger->err(__METHOD__ . ' ' . $e);
             }
         }
@@ -1068,7 +1096,7 @@ class Opus_Document extends Opus_Model_AbstractDb
 
         Opus_Collection::unlinkCollectionsByDocumentId($this->getId());
 
-        foreach ($collections AS $collection) {
+        foreach ($collections as $collection) {
             if ($collection->isNewRecord()) {
                 $collection->store();
             }
@@ -1087,7 +1115,7 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     protected function _storeIdentifierUrn($identifiers)
     {
-        if (!is_array($identifiers)) {
+        if (! is_array($identifiers)) {
             $identifiers = [$identifiers];
         }
 
@@ -1101,7 +1129,7 @@ class Opus_Document extends Opus_Model_AbstractDb
                 $nid = $config->urn->nid;
                 $nss = $config->urn->nss;
 
-                if (!empty($nid) && !empty($nss)) {
+                if (! empty($nid) && ! empty($nss)) {
                     $urn = new Opus_Identifier_Urn($nid, $nss);
                     $urnValue = $urn->getUrn($this->getId());
                     $urnModel = new Opus_Identifier();
@@ -1123,11 +1151,10 @@ class Opus_Document extends Opus_Model_AbstractDb
         foreach ($identifiers as $identifier) {
             if ($identifier instanceof Opus_Identifier) {
                 $tmp = $identifier->getValue();
-                if (!empty($tmp)) {
+                if (! empty($tmp)) {
                     return false;
                 }
-            }
-            else if (!empty($identifier)) {
+            } elseif (! empty($identifier)) {
                 return false;
             }
         }
@@ -1161,13 +1188,40 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @param string $value Server state of document.
      * @return void
      */
-    protected  function _storeServerState($value)
+    protected function _storeServerState($value)
     {
         if (true === empty($value)) {
             $value = 'unpublished';
             $this->setServerState($value);
         }
         $this->_primaryTableRow->server_state = $value;
+    }
+
+    /**
+     * Wenn das Dokument noch nicht in der DB gespeichert wurde, liefert der erste
+     * Aufruf von getServerState() den Wert null. In diesem Fall liegt immer eine
+     * Änderung des Wertes von serverState vor. Der zuletzt gesetzte Wert von serverState
+     * "gewinnt". Andernfalls wird der Wert von getServerState beim ersten Aufruf
+     * als Referenz gespeichert. Bei jeder Änderung von serverState wird der neue
+     * Wert mit dem gespeicherten Referenz verglichen, um festzustellen, ob es eine
+     * Änderung von serverState gegeben hat.
+     *
+     * @param $serverState
+     * @return mixed
+     */
+    public function setServerState($serverState)
+    {
+        if (is_null($this->oldServerState) && ! $this->serverStateChanged) {
+            // erste Änderung des Wertes von serverState
+            $this->oldServerState = $this->getServerState();
+        }
+
+        // Wert wurde bereits durch einen vorhergehenden Methodenaufruf geändert
+        // um festzustellen, ob es eine Änderung gab, erfolgt der Vergleich des
+        // übergebenen Wert mit dem zuvor zwischengespeicherten Referenzwert
+        $this->serverStateChanged = ($serverState !== $this->oldServerState);
+
+        return parent::setServerState($serverState);
     }
 
     /**
@@ -1178,12 +1232,12 @@ class Opus_Document extends Opus_Model_AbstractDb
      */
     public function delete()
     {
-        $this->_callPluginMethod('preDelete');
+        $this->callPluginMethod('preDelete');
 
         $this->setServerState('deleted');
         $this->store();
 
-        $this->_callPluginMethod('postDelete', $this->getId());
+        $this->callPluginMethod('postDelete', $this->getId());
     }
 
     /**
@@ -1204,8 +1258,7 @@ class Opus_Document extends Opus_Model_AbstractDb
         foreach ($files as $file) {
             try {
                 $file->doDelete($file->delete());
-            }
-            catch (Opus_Storage_FileNotFoundException $osfnfe) {
+            } catch (Opus_Storage_FileNotFoundException $osfnfe) {
                 // if the file was not found (permant delete still succeeds)
                 $this->log($osfnfe->getMessage());
             }
@@ -1251,34 +1304,26 @@ class Opus_Document extends Opus_Model_AbstractDb
     {
         $docLanguage = $this->getLanguage();
 
-        if (is_null($language))
-        {
+        if (is_null($language)) {
             $language = $docLanguage;
         }
 
-        if (count($titles) > 0)
-        {
-            if (!is_null($language))
-            {
+        if (count($titles) > 0) {
+            if (! is_null($language)) {
                 $titleInDocLang = null;
 
-                foreach ($titles as $title)
-                {
+                foreach ($titles as $title) {
                     $titleLanguage = $title->getLanguage();
 
-                    if ($language === $titleLanguage)
-                    {
+                    if ($language === $titleLanguage) {
                         return $title;
-                    }
-                    else if ($docLanguage == $titleLanguage)
-                    {
+                    } elseif ($docLanguage == $titleLanguage) {
                         $titleInDocLang = $title;
                     }
                 }
 
                 // if available return title in document language
-                if (!is_null($titleInDocLang))
-                {
+                if (! is_null($titleInDocLang)) {
                     return $titleInDocLang;
                 }
             }
@@ -1299,20 +1344,20 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @return Opus_File[]
      */
-    public function getFile($param = null) {
+    public function getFile($param = null)
+    {
         if (is_null($param)) {
             $files = parent::getFile();
             usort($files, [$this, 'compareFiles']);
             return $files;
-        }
-        else {
+        } else {
             // return Opus_File-Object
             return parent::getFile($param);
         }
-
     }
 
-    public function compareFiles($a, $b) {
+    public function compareFiles($a, $b)
+    {
         if ($a->getSortOrder() == $b->getSortOrder()) {
             return ($a->getId() < $b->getId()) ? -1 : 1;
         }
@@ -1324,7 +1369,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @return mixed Anything else then null will cancel the storage process.
      */
-    protected function _preStore() {
+    protected function _preStore()
+    {
         $result = parent::_preStore();
 
         $date = new Opus_Date();
@@ -1353,7 +1399,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @deprecated
      */
-    public static function fetchDocumentTypes() {
+    public static function fetchDocumentTypes()
+    {
         $finder = new Opus_DocumentFinder();
         $finder->setServerState('published');
         return $finder->groupedTypes();
@@ -1366,7 +1413,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * TODO rename function to log(
      */
-    protected function logger($message) {
+    protected function logger($message)
+    {
         $registry = Zend_Registry::getInstance();
         $logger = $registry->get('Zend_Log');
         $logger->info($this->getDisplayName() . ": $message");
@@ -1380,8 +1428,9 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @throws Opus_Document_Exception If a given field does no exist.
      */
-    public function deleteFields($fieldnames) {
-        foreach ($fieldnames AS $fieldname) {
+    public function deleteFields($fieldnames)
+    {
+        foreach ($fieldnames as $fieldname) {
             $field = $this->_getField($fieldname);
             if (is_null($field)) {
                 throw new Opus_Document_Exception("Cannot delete field $fieldname: Does not exist?");
@@ -1403,7 +1452,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      * @param Opus_Date $now
      * @return bool true - if embargo date has passed; false - if not
      */
-    public function hasEmbargoPassed($now = null) {
+    public function hasEmbargoPassed($now = null)
+    {
         $embargoDate = $this->getEmbargoDate();
 
         if (is_null($embargoDate)) {
@@ -1417,7 +1467,8 @@ class Opus_Document extends Opus_Model_AbstractDb
         $embargoDate->setHour(23);
         $embargoDate->setMinute(59);
         $embargoDate->setSecond(59);
-        $embargoDate->setTimezone('Z');
+        $embargoDate->setTimezone($now->getTimezone());
+
         return ($embargoDate->compare($now) == -1);
     }
 
@@ -1430,8 +1481,7 @@ class Opus_Document extends Opus_Model_AbstractDb
     {
         $files = $this->getFile();
 
-        $files = array_filter($files, function ($file)
-        {
+        $files = array_filter($files, function ($file) {
             return $file->getVisibleInFrontdoor() === '1';
         });
 
@@ -1453,19 +1503,16 @@ class Opus_Document extends Opus_Model_AbstractDb
         $docId = $this->getId();
 
         // can only be open access if it has been stored
-        if (is_null($docId))
-        {
+        if (is_null($docId)) {
             return false;
         }
 
         $role = Opus_CollectionRole::fetchByName('open_access');
         $collection = $role->getCollectionByOaiSubset('open_access');
 
-        if (!is_null($collection))
-        {
+        if (! is_null($collection)) {
             return $collection->holdsDocumentById($this->getId());
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -1512,16 +1559,15 @@ class Opus_Document extends Opus_Model_AbstractDb
     {
         $enrichment = $this->getEnrichment($key);
 
-        if (!is_null($enrichment)) {
+        if (! is_null($enrichment)) {
             if (is_array($enrichment)) {
-                return array_map(function($value) {
+                return array_map(function ($value) {
                     return $value->getValue();
                 }, $enrichment);
             } else {
                 return $enrichment->getValue();
             }
-        }
-        else {
+        } else {
             $enrichmentKey = Opus_EnrichmentKey::fetchByName($key);
 
             if (is_null($enrichmentKey)) {
@@ -1543,7 +1589,8 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @deprecated not implemented yet
      */
-    public function storeAsNew() {
+    public function storeAsNew()
+    {
         $this->resetDatabaseEntry();
 
         foreach ($this->_fields as $field) {
@@ -1578,10 +1625,11 @@ class Opus_Document extends Opus_Model_AbstractDb
      *
      * @deprecated not implemented yet
      */
-    public function getCopy() {
+    public function getCopy()
+    {
         $document = new Opus_Document();
 
-        foreach($this->_fields as $fieldName => $field) {
+        foreach ($this->_fields as $fieldName => $field) {
             $document->getField($fieldName)->setValue($field->getValue());
             // TODO handle simple values
             // TODO handle complex values -> create new objects
@@ -1589,5 +1637,10 @@ class Opus_Document extends Opus_Model_AbstractDb
         }
 
         return $document;
+    }
+
+    public function getServerStateChanged()
+    {
+        return $this->serverStateChanged;
     }
 }

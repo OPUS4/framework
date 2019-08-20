@@ -38,6 +38,7 @@
  * @category    Framework
  * @package     Opus_Document
  */
-class Opus_Document_Exception extends Exception {
+class Opus_Document_Exception extends Exception
+{
 
 }

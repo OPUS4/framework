@@ -124,17 +124,16 @@ class Opus_Doi_DoiManager
             $docId = $doc;
             try {
                 $doc = new Opus_Document($docId);
-            }
-            catch (Opus_Model_NotFoundException $e) {
+            } catch (Opus_Model_NotFoundException $e) {
                 $message = 'could not find document with ID ' . $docId . ' in database';
                 $this->defaultLog->err($message);
                 throw new Opus_Doi_DoiException($message);
             }
         }
 
-        if (is_null($doc) || !($doc instanceof Opus_Document)) {
+        if (is_null($doc) || ! ($doc instanceof Opus_Document)) {
             $message = 'unexpected document class';
-            if (!is_null($doc)) {
+            if (! is_null($doc)) {
                 $message .= ' ' . get_class($doc);
             }
             $this->defaultLog->err($message);
@@ -152,7 +151,7 @@ class Opus_Doi_DoiManager
         }
 
         // prüfe, dass die lokale DOI nicht bereits registriert wurde
-        if (!is_null($localDoi->getStatus())) {
+        if (! is_null($localDoi->getStatus())) {
             $message = 'document ' . $doc->getId() .
                 ' does not provide a local unregistered DOI: abort DOI registration process';
             $this->doiLog->info($message);
@@ -161,7 +160,7 @@ class Opus_Doi_DoiManager
         }
 
         // nun müssen wir noch prüfen, ob die lokale DOI tatsächlich nur genau einmal in der Instanz vorkommt
-        if (!$this->checkDoiUniqueness($localDoi)) {
+        if (! $this->checkDoiUniqueness($localDoi)) {
             $message = 'document ' . $doc->getId() .
                 ' does not provide a unique local DOI: abort DOI registration process';
             $this->doiLog->err($message);
@@ -173,8 +172,7 @@ class Opus_Doi_DoiManager
 
         try {
             $xmlStr = $xmlGen->getXml($doc);
-        }
-        catch (Opus_Doi_DataCiteXmlGenerationException $e) {
+        } catch (Opus_Doi_DataCiteXmlGenerationException $e) {
             $message = 'could not generate DataCite-XML for DOI registration of document ' . $doc->getId() . ': ' .
                 $e->getMessage();
             $this->doiLog->err($message);
@@ -191,8 +189,7 @@ class Opus_Doi_DoiManager
         try {
             $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
             $client->registerDoi($localDoi->getValue(), $xmlStr, $this->getLandingPageUrlOfDoc($doc));
-        }
-        catch (\Opus\Doi\ClientException $e) {
+        } catch (\Opus\Doi\ClientException $e) {
             $message = 'an error occurred while registering DOI ' . $localDoi->getValue() . ' for document ' .
                 $doc->getId() . ': ' . $e->getMessage();
             $this->doiLog->err($message);
@@ -288,7 +285,7 @@ class Opus_Doi_DoiManager
         $doiValue = $doiToBeChecked->getValue();
         $this->defaultLog->debug('check DOI ' . $doiValue);
 
-        if (!isset($this->config->doi->prefix)) {
+        if (! isset($this->config->doi->prefix)) {
             $message = 'configuration setting doi.prefix is not set - DOI registration cannot be applied';
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
@@ -335,7 +332,7 @@ class Opus_Doi_DoiManager
 
         $docFinder = new Opus_DocumentFinder();
         $docFinder->setIdentifierTypeExists('doi');
-        if (!is_null($filterServerState)) {
+        if (! is_null($filterServerState)) {
             $docFinder->setServerState($filterServerState);
         }
 
@@ -355,8 +352,7 @@ class Opus_Doi_DoiManager
         foreach ($ids as $id) {
             try {
                 $doc = new Opus_Document($id);
-            }
-            catch (Opus_Model_NotFoundException $e) {
+            } catch (Opus_Model_NotFoundException $e) {
                 $this->defaultLog->err('could not find document ' . $id . ' in database');
                 continue;
             }
@@ -366,7 +362,7 @@ class Opus_Doi_DoiManager
             // Registrierung der DOI durchführen, sofern es eine lokale DOI gibt, die noch nicht registriert wurde
             try {
                 $registeredDoi = $this->register($doc, true);
-                if (!is_null($registeredDoi)) {
+                if (! is_null($registeredDoi)) {
                     $numOfSuccessfulRegistrations++;
                     $status->addDocWithDoiStatus($id, $registeredDoi->getValue());
 
@@ -374,8 +370,7 @@ class Opus_Doi_DoiManager
                         $notification->addNotification($id, $registeredDoi, $landingPageUrl);
                     }
                 }
-            }
-            catch (Opus_Doi_RegistrationException $e) {
+            } catch (Opus_Doi_RegistrationException $e) {
                 $message = 'an error occurred in registration of DOI ' . $e->getDoi()->getValue() .
                     ' of document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
@@ -384,8 +379,7 @@ class Opus_Doi_DoiManager
                 if ($notification->isEnabled()) {
                     $notification->addNotification($id, $e->getDoi(), $landingPageUrl, $message);
                 }
-            }
-            catch (Opus_Doi_DoiException $e) {
+            } catch (Opus_Doi_DoiException $e) {
                 $message = 'an error occurred in DOI registration for document ' . $id . ': ' . $e->getMessage();
                 $this->defaultLog->err($message);
                 $this->doiLog->err($message);
@@ -439,8 +433,7 @@ class Opus_Doi_DoiManager
     {
         try {
             $doc = new Opus_Document($docId);
-        }
-        catch (Opus_Model_NotFoundException $e) {
+        } catch (Opus_Model_NotFoundException $e) {
             $message = 'could not find document with ID ' . $docId . ' in database';
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
@@ -475,7 +468,7 @@ class Opus_Doi_DoiManager
             return null;
         }
 
-        if (!$allowReverification && $doi->getStatus() == 'verified') {
+        if (! $allowReverification && $doi->getStatus() == 'verified') {
             // erneute Prüfung von bereits geprüften DOIs ist nicht gewünscht
             $message = 'document ' . $docId . ' provides already verified DOI ' . $doi->getValue() .
                 ' but DOI reverification is disabled';
@@ -484,8 +477,7 @@ class Opus_Doi_DoiManager
             return null;
         }
 
-        if (is_null($beforeDate) || (!is_null($beforeDate) && $doi->getRegistrationTs() <= $beforeDate)) {
-
+        if (is_null($beforeDate) || (! is_null($beforeDate) && $doi->getRegistrationTs() <= $beforeDate)) {
             // prüfe, ob DOI $doi bei DataCite erfolgreich registriert ist und setze dann DOI-Status auf "verified"
             try {
                 $client = new \Opus\Doi\Client($this->config, $this->defaultLog);
@@ -499,11 +491,10 @@ class Opus_Doi_DoiManager
                         $doi->setStatus('verified');
                         $doc->store();
                     }
-                    if (!is_null($managerStatus)) {
+                    if (! is_null($managerStatus)) {
                         $managerStatus->addDocWithDoiStatus($docId, $doi->getValue());
                     }
-                }
-                else {
+                } else {
                     $message = 'verification of DOI ' . $doi->getValue() . ' in document ' . $docId . ' failed';
                     $this->doiLog->err($message);
                     $this->defaultLog->err($message);
@@ -512,18 +503,17 @@ class Opus_Doi_DoiManager
                         $doi->setStatus('registered');
                         $doc->store();
                     }
-                    if (!is_null($managerStatus)) {
+                    if (! is_null($managerStatus)) {
                         $managerStatus->addDocWithDoiStatus($docId, $doi->getValue(), true);
                     }
                 }
                 return $doi;
-            }
-            catch (Exception $e) {
+            } catch (Exception $e) {
                 $message = 'could not get registration status of DOI ' . $doi->getValue() . ' in document ' .
                     $docId . ': ' . $e->getMessage();
                 $this->doiLog->err($message);
                 $this->defaultLog->err($message);
-                if (!is_null($managerStatus)) {
+                if (! is_null($managerStatus)) {
                     $managerStatus->addDocWithDoiStatus($docId, $message, true);
                 }
                 return $doi;
@@ -571,12 +561,9 @@ class Opus_Doi_DoiManager
                 if ($doi->getStatus() == 'verified') {
                     // erfolgreiche Prüfung der DOI durchgeführt: Erfolg per E-Mail melden
                     $notification->addNotification($id, $doi, $landingPageUrl);
-                }
-                else {
+                } else {
                     // fehlgeschlagene Prüfung der DOI: Fehler per E-Mail melden
-                    $notification->addNotification(
-                        $id, $doi, $landingPageUrl, 'DOI-Prüfung war nicht erfolgreich'
-                    );
+                    $notification->addNotification($id, $doi, $landingPageUrl, 'DOI-Prüfung war nicht erfolgreich');
                 }
             }
         }
@@ -612,7 +599,7 @@ class Opus_Doi_DoiManager
             $firstDoi = $dois[0];
 
             // handelt es sich um eine lokale DOI?
-            if (!$this->isLocalDoi($firstDoi->getValue())) {
+            if (! $this->isLocalDoi($firstDoi->getValue())) {
                 continue;
             }
 
@@ -642,8 +629,7 @@ class Opus_Doi_DoiManager
         $generator = null;
         try {
             $generator = Opus_Doi_Generator_DoiGeneratorFactory::create();
-        }
-        catch (Opus_Doi_DoiException $e) {
+        } catch (Opus_Doi_DoiException $e) {
             $this->defaultLog->err($e->getMessage());
             $this->doiLog->err($e->getMessage());
             throw $e;
@@ -653,15 +639,14 @@ class Opus_Doi_DoiManager
             $docId = $doc;
             try {
                 $doc = new Opus_Document($docId);
-            }
-            catch (Opus_Model_NotFoundException $e) {
+            } catch (Opus_Model_NotFoundException $e) {
                 $message = 'could not find document ' . $docId . ' in database';
                 $this->defaultLog->err($message);
                 throw new Opus_Doi_DoiException($message);
             }
         }
 
-        if (is_null($doc) || !($doc instanceof Opus_Document)) {
+        if (is_null($doc) || ! ($doc instanceof Opus_Document)) {
             $message = 'unexpected document class';
             $this->defaultLog->err($message);
             throw new Opus_Doi_DoiException($message);
@@ -669,8 +654,7 @@ class Opus_Doi_DoiManager
 
         try {
             $doiValue = $generator->generate($doc);
-        }
-        catch (Opus_Doi_Generator_DoiGeneratorException $e) {
+        } catch (Opus_Doi_Generator_DoiGeneratorException $e) {
             $message = 'could not generate DOI using generator class: ' . $e->getMessage();
             $this->defaultLog->err($message);
             $this->doiLog->err($message);
@@ -697,7 +681,7 @@ class Opus_Doi_DoiManager
 
         // wenn mehrere DOIs vorhanden, so wird nur die erste DOI betrachtet
         $doi = $dois[0];
-        if (!$doi->isLocalDoi()) {
+        if (! $doi->isLocalDoi()) {
             // keine Behandlung von nicht-lokale DOIs erforderlich
             $this->defaultLog->debug(
                 'document ' . $doc->getId() . ' does not provide a local DOI - deregistration of DOI is not required'
@@ -720,8 +704,7 @@ class Opus_Doi_DoiManager
             $this->defaultLog->debug($message);
             $this->doiLog->info($message);
             // TODO sollte der Status der lokalen DOI auf "inactive" o.ä. gesetzt werden
-        }
-        catch (\Opus\Doi\ClientException $e) {
+        } catch (\Opus\Doi\ClientException $e) {
             $message = 'an error occurred while deregistering DOI ' . $doi->getValue() . ' of document ' .
                 $doc->getId() . ': ' . $e->getMessage();
             $this->doiLog->err($message);
@@ -735,8 +718,7 @@ class Opus_Doi_DoiManager
         try {
             $client = new \Opus\Doi\Client($this->config);
             $client->updateUrlForDoi($doiValue, $landingPageURL);
-        }
-        catch (\Opus\Doi\ClientException $e) {
+        } catch (\Opus\Doi\ClientException $e) {
             $message = 'could not update landing page URL of DOI ' . $doiValue . ' to ' . $landingPageURL;
             $this->doiLog->err($message);
             $this->defaultLog->err($message);
@@ -755,8 +737,7 @@ class Opus_Doi_DoiManager
                 }
 
                 $this->landingPageBaseUrl = rtrim($baseUrl, '/') . '/';
-            }
-            else {
+            } else {
                 // TODO is this too harsh? recover how?
                 throw new Opus_Doi_DoiException(
                     'No URL for repository configured. Cannot generate landing page URL.'
@@ -804,7 +785,7 @@ class Opus_Doi_DoiManager
 
         $path = $config->workspacePath . '/log/doi/';
 
-        if (!is_dir($path)) {
+        if (! is_dir($path)) {
             // TODO optimize? wait for exception?
             // create path
             mkdir($path);
@@ -817,7 +798,7 @@ class Opus_Doi_DoiManager
         $index = 2;
         $filename = "$basename.xml";
 
-        while(file_exists($path . $filename)) {
+        while (file_exists($path . $filename)) {
             $filename = "$basename-$index.xml";
             $index++;
         }

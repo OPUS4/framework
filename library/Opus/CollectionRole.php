@@ -92,6 +92,12 @@
  *
  * @method void setRootCollection(Opus_Collection $collection)
  * @method Opus_Collection getRootCollection()
+ *
+ * @method void setHideEmptyCollections(boolean $hideEmptyCollections)
+ * @method boolean getHideEmptyCollections()
+ *
+ * @method void setLanguage(string $language)
+ * @method string getLanguage()
  */
 class Opus_CollectionRole extends Opus_Model_AbstractDb
 {
@@ -124,10 +130,13 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-        'Opus_CollectionRole_Plugin_DeleteTree' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_CollectionRole_Plugin_DeleteTree'
+        ];
+    }
 
     /**
      * Initialize model.
@@ -138,7 +147,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     {
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true)->setValidator(new Zend_Validate_NotEmpty());
+        $name->setMandatory(true)->setValidator(new Opus_Validate_CollectionRoleName());
         $this->addField($name);
 
         $oaiName = new Opus_Model_Field('OaiName');
@@ -186,6 +195,14 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         // Virtual attributes, which depend on other tables.
         $rootCollection = new Opus_Model_Field('RootCollection');
         $this->addField($rootCollection);
+
+        // Attribute to determine visibility of empty collections
+        $hideEmptyCollections = new Opus_Model_Field('HideEmptyCollections');
+        $hideEmptyCollections->setCheckbox(true);
+        $this->addField($hideEmptyCollections);
+
+        $language = new Opus_Model_Field('Language');
+        $this->addField($language);
     }
 
     /**
@@ -276,7 +293,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $range = $db->quoteInto("position >= ?", $to);
         $posShift = ' + 1 ';
 
-        if (!$this->isNewRecord()) {
+        if (! $this->isNewRecord()) {
             $posQuery = 'SELECT position FROM collections_roles WHERE id = ?';
             $pos = $db->fetchOne($posQuery, $this->getId());
 
@@ -421,7 +438,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         //   $class   = get_called_class();
         // FIXME: Add Model_AbstractDb::createObjects(...) when using PHP 5.3
 
-        foreach ($array AS $element) {
+        foreach ($array as $element) {
             $c = new Opus_CollectionRole($element);
             $results[] = $c;
         }
@@ -659,7 +676,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
         $collections = Opus_Db_TableGateway::getInstance('Opus_Db_Collections');
         $root = $collections->getRootNode($this->getId());
 
-        if (!isset($root)) {
+        if (! isset($root)) {
             return;
         }
 
@@ -675,7 +692,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
      */
     public function _storeRootCollection($collection)
     {
-        if (!isset($collection)) {
+        if (! isset($collection)) {
             return;
         }
 
@@ -703,7 +720,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
             $collection = parent::addRootCollection();
         }
 
-        if ($collection->isNewRecord() and !$this->isNewRecord()) {
+        if ($collection->isNewRecord() and ! $this->isNewRecord()) {
             $collection->setPositionKey('Root');
             $collection->setRoleId($this->getId());
         }

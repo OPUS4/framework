@@ -84,10 +84,13 @@ class Opus_Collection extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-        'Opus_Collection_Plugin_DeleteSubTree' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache',
+            'Opus_Collection_Plugin_DeleteSubTree'
+        ];
+    }
 
     /**
      * The collections external fields, i.e. those not mapped directly to the
@@ -226,7 +229,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
                         ->where('collection_id = ?', $this->getId());
         $row = $table->fetchRow($select);
 
-        if (!is_null($row)) {
+        if (! is_null($row)) {
             $theme = $row->value;
         }
 
@@ -287,8 +290,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             return;
         }
 
-        assert(!is_null($this->getId()));
-        assert(!is_null($this->getRoleId()));
+        assert(! is_null($this->getId()));
+        assert(! is_null($this->getRoleId()));
 
         $table = Opus_Db_TableGateway::getInstance('Opus_Db_LinkDocumentsCollections');
 
@@ -316,7 +319,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         // FIXME: Don't use internal knowledge of foreign models/tables.
         $select = $table->select()
                         ->from('link_documents_collections AS ldc', 'document_id')
-                        ->from('documents AS d', array())
+                        ->from('documents AS d', [])
                         ->where('ldc.document_id = d.id')
                         ->where('ldc.collection_id = ?', $this->getId())
                         ->where("d.server_state = 'published'")
@@ -338,10 +341,10 @@ class Opus_Collection extends Opus_Model_AbstractDb
     {
         $displayName = $this->getDisplayName('frontdoor');
         $parentId = $this->getParentNodeId();
-        if (!empty($parentId)) {
+        if (! empty($parentId)) {
             $parent = new Opus_Collection($parentId);
             $parentDisplayName = $parent->getDisplayFrontdoor(); // implicitly calls $parent->_fetchDisplayFrontdoor()
-            if (!empty($parentDisplayName)) {
+            if (! empty($parentDisplayName)) {
                 $displayName = $parentDisplayName . ' / ' . $displayName;
             }
         }
@@ -391,7 +394,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _fetchRoleDisplayFrontdoor()
     {
         $role = $this->getRole();
-        if (!is_null($role)) {
+        if (! is_null($role)) {
             return $role->getDisplayFrontdoor();
         }
     }
@@ -404,7 +407,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _fetchRoleVisibleFrontdoor()
     {
         $role = $this->getRole();
-        if (!is_null($role)) {
+        if (! is_null($role)) {
             if ($role->getVisible() == 1 and $role->getVisibleFrontdoor() == 1) {
                 return 'true';
             }
@@ -420,7 +423,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     protected function _fetchRoleName()
     {
         $role = $this->getRole();
-        if (!is_null($role)) {
+        if (! is_null($role)) {
             return $role->getDisplayName();
         }
     }
@@ -432,7 +435,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public function getDisplayName($context = 'browsing', $role = null)
     {
-        if (!is_null($role) && (!$role instanceof Opus_CollectionRole || $role->getId() != $this->getRoleId())) {
+        if (! is_null($role) && (! $role instanceof Opus_CollectionRole || $role->getId() != $this->getRoleId())) {
             throw new InvalidArgumentException('given Collection Role is not compatible');
         }
 
@@ -449,8 +452,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
                     $display .= $field->getValue() . ' ';
                 }
             }
-        }
-        else {
+        } else {
             $display = $this->getName();
         }
 
@@ -522,7 +524,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             throw new Exception("linkDocument() only on stored records.");
         }
 
-        if (!$this->holdsDocumentById($documentId)) {
+        if (! $this->holdsDocumentById($documentId)) {
             $this->linkDocumentById($documentId);
         }
     }
@@ -647,7 +649,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     public function toXml(array $excludeFields = null, $strategy = null)
     {
         // TODO: comment why these fields should always be excluded.
-        $alwaysExclude = array('Theme');
+        $alwaysExclude = ['Theme'];
         if (is_null($excludeFields) === true) {
             $excludeFields = $alwaysExclude;
         } else {
@@ -667,11 +669,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public static function fetchCollectionsByRoleNumber($roleId, $number)
     {
-        if (!isset($number)) {
+        if (! isset($number)) {
             throw new Exception("Parameter 'number' is required.");
         }
 
-        if (!isset($roleId)) {
+        if (! isset($roleId)) {
             throw new Exception("Parameter 'role_id' is required.");
         }
 
@@ -694,11 +696,11 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public static function fetchCollectionsByRoleName($roleId, $name)
     {
-        if (!isset($name)) {
+        if (! isset($name)) {
             throw new Exception("Parameter 'name' is required.");
         }
 
-        if (!isset($roleId)) {
+        if (! isset($roleId)) {
             throw new Exception("Parameter 'role_id' is required.");
         }
 
@@ -720,9 +722,9 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public static function fetchCollectionsByRoleId($roleId)
     {
-       if (!isset($roleId)) {
+        if (! isset($roleId)) {
             throw new Exception("Parameter 'role_id' is required.");
-       }
+        }
 
         $table = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->where('role_id = ?', $roleId);
@@ -741,7 +743,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
      */
     public static function fetchCollectionIdsByDocumentId($documentId)
     {
-        if (!isset($documentId)) {
+        if (! isset($documentId)) {
             return [];
         }
 
@@ -776,7 +778,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         //   $class   = get_called_class();
         //   echo "class: $class\n";
 
-        foreach ($array AS $element) {
+        foreach ($array as $element) {
             $c = new Opus_Collection($element);
             $results[] = $c;
         }
@@ -876,7 +878,6 @@ class Opus_Collection extends Opus_Model_AbstractDb
         }
 
         if ($this->isNewRecord()) {
-
             $nestedSets = $this->_primaryTableRow->getTable();
 
             // Insert new node into the tree.  The position is specified by
@@ -972,7 +973,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             throw new Exception("Expecting array-value argument!");
         }
 
-        foreach ($collections AS $collection) {
+        foreach ($collections as $collection) {
             if ($collection->isNewRecord()) {
                 $collection->setRoleId($this->getRoleId());
                 $collection->setPositionId($this->getId());
@@ -982,7 +983,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
     }
 
     /**
-     * Returns documents of complete subtree.
+     * Returns number of published documents of complete subtree.
      *
      * @return int Number of subtree Entries.
      *
@@ -1001,7 +1002,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
         $db = $this->_primaryTableRow->getTable()->getAdapter();
         $select = $db->select()
                         ->from('link_documents_collections AS ldc', 'count(distinct ldc.document_id)')
-                        ->from('documents AS d', array())
+                        ->from('documents AS d', [])
                         ->where("ldc.document_id = d.id")
                         ->where("d.server_state = ?", 'published')
                         ->where("ldc.collection_id IN ($subselect)");
@@ -1099,7 +1100,7 @@ class Opus_Collection extends Opus_Model_AbstractDb
             return;
         }
 
-        return !$this->_primaryTableRow->getTable()->isLeaf(
+        return ! $this->_primaryTableRow->getTable()->isLeaf(
             $this->_primaryTableRow->toArray()
         );
     }
@@ -1204,7 +1205,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         if ($reverse === false) {
             usort(
-                $children, function ($nodeOne, $nodeTwo) {
+                $children,
+                function ($nodeOne, $nodeTwo) {
                     if ($nodeOne['name'] == $nodeTwo['name']) {
                         return 0;
                     }
@@ -1213,7 +1215,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             );
         } else {
             usort(
-                $children, function ($nodeOne, $nodeTwo) {
+                $children,
+                function ($nodeOne, $nodeTwo) {
                     if ($nodeOne['name'] == $nodeTwo['name']) {
                         return 0;
                     }
@@ -1240,7 +1243,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
 
         if ($reverse === false) {
             usort(
-                $children, function ($nodeOne, $nodeTwo) {
+                $children,
+                function ($nodeOne, $nodeTwo) {
                     if ($nodeOne['number'] == $nodeTwo['number']) {
                         return 0;
                     }
@@ -1249,7 +1253,8 @@ class Opus_Collection extends Opus_Model_AbstractDb
             );
         } else {
             usort(
-                $children, function ($nodeOne, $nodeTwo) {
+                $children,
+                function ($nodeOne, $nodeTwo) {
                     if ($nodeOne['number'] == $nodeTwo['number']) {
                         return 0;
                     }

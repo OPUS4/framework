@@ -111,7 +111,7 @@ class Opus_Account extends Opus_Model_AbstractDb
                  throw new Opus\Model\Exception('Login and id of an account are specified, specify either id or login.');
             }
             $id = Opus_Account::fetchAccountRowByLogin($login);
-            if (!isset($id)) {
+            if (! isset($id)) {
                 throw new Opus_Security_Exception('An account with the login name ' . $login . ' cannot be found.');
             }
         }
@@ -249,12 +249,12 @@ class Opus_Account extends Opus_Model_AbstractDb
      * @param string $password The new password to set.
      * @return Opus_Account Fluent interface.
      */
-     public function setPassword($password)
-     {
+    public function setPassword($password)
+    {
         $password = $this->_convertToScalar($password);
         $this->getField('Password')->setValue(sha1($password));
         return $this;
-     }
+    }
 
     /**
      * The field "Password" only contains hashed passwords.  This method sets
@@ -290,7 +290,7 @@ class Opus_Account extends Opus_Model_AbstractDb
     {
         if (true === is_array($value) and 1 === count($value)) {
             $value = array_pop($value);
-        } else if (true === is_array($value) and 0 === count($value)) {
+        } elseif (true === is_array($value) and 0 === count($value)) {
             $value = null;
         }
 
@@ -319,7 +319,7 @@ class Opus_Account extends Opus_Model_AbstractDb
     public function isPasswordCorrectOldHash($password)
     {
         if ($this->getPassword() === md5($password)) {
-           return true;
+            return true;
         }
 
         return false;
@@ -332,7 +332,7 @@ class Opus_Account extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getLogin();
+        return $this->getLogin();
     }
 
     public function getFullName()
@@ -341,7 +341,7 @@ class Opus_Account extends Opus_Model_AbstractDb
 
         $lastName = $this->getLastName();
 
-        if (strlen($name) > 0 and strlen($lastName ) > 0) {
+        if (strlen($name) > 0 and strlen($lastName) > 0) {
             $name .= ' ';
         }
 

@@ -39,6 +39,7 @@
  * @package     Opus_Db
  *
  */
+
 class Opus_Db_DocumentReferences extends Opus_Db_TableGateway
 {
 

@@ -75,7 +75,6 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
 
         // fields exist as child elements
         foreach ($element->childNodes as $fieldNode) {
-
             // skip non-element nodes
             if (XML_ELEMENT_NODE !== $fieldNode->nodeType) {
                 continue;
@@ -88,8 +87,7 @@ class Opus_Model_Xml_Version2 extends Opus_Model_Xml_VersionAbstract
                 throw new Opus\Model\Exception(
                     'Field ' . $fieldName . ' not defined. Model class: ' . get_class($model)
                 );
-            }
-            else {
+            } else {
                 $fieldObj = $model->getField($fieldName);
                 $modelclass = $fieldObj->getValueModelClass();
                 // determine accessor function

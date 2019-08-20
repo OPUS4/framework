@@ -42,7 +42,6 @@
  */
 class Opus_Db_DocumentTitleAbstracts extends Opus_Db_TableGateway
 {
-
     /**
      * Real database name of the documents table.
      *

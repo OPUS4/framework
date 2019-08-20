@@ -240,7 +240,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
         $prevRow = $this->fetchRow($select);
 
-        if(is_null($prevRow)) {
+        if (is_null($prevRow)) {
             throw new Opus_Model_DbException('No previous sibling found for collection id '.$id);
         }
 
@@ -275,7 +275,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
         $nextRow = $this->fetchRow($select);
 
-        if(is_null($nextRow)) {
+        if (is_null($nextRow)) {
             throw new Opus_Model_DbException("No next sibling found for collection id $id");
         }
 
@@ -347,8 +347,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
         if (is_null($position) || $position > $siblingCount) {
             $position = $siblingCount;
-        }
-        else if ($position < 0) {
+        } elseif ($position < 0) {
             $position = 0;
         }
 
@@ -376,8 +375,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
             // close gap
             $queries = array_merge($queries, $this->createGapQueries($tree, $right + 1, -$width));
-        }
-        else {
+        } else {
             $newLeft = ( int )$nextSibling->{$this->_left};
 
             if ($newLeft === $left) {
@@ -404,7 +402,6 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
 
             // close gap in previous position
             $queries = array_merge($queries, $this->createGapQueries($tree, $left, -$width));
-
         }
 
         $this->executeQueries($queries);
@@ -460,8 +457,7 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
             foreach ($queries as $query) {
                 $this->_db->query($query);
             }
-        }
-        catch(Exception $e) {
+        } catch (Exception $e) {
             $this->_db->rollBack();
             throw $e;
         }
@@ -617,7 +613,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @return array
      */
-    public function insertFirstChild($id) {
+    public function insertFirstChild($id)
+    {
         $row = $this->getNodeById($id);
 //        $right = (int) $row->{$this->_right};
         $left = (int) $row->{$this->_left};
@@ -650,7 +647,8 @@ abstract class Opus_Db_NestedSet extends Zend_Db_Table_Abstract
      *
      * @return array
      */
-    public function insertLastChild($id) {
+    public function insertLastChild($id)
+    {
         $row = $this->getNodeById($id);
         $right = (int) $row->{$this->_right};
 //        $left = (int) $row->{$this->_left};

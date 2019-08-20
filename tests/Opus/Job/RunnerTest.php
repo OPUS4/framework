@@ -27,9 +27,8 @@
  * @category    Tests
  * @package     Opus_Job
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
- * @copyright   Copyright (c) 2009, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -53,5 +52,59 @@ class Opus_Job_RunnerTest extends TestCase
         $runner = new Opus_Job_Runner();
         $this->assertNotNull($runner, 'Simple initializing of Opus_Job_Runner failed.');
     }
-}
 
+    public function testRunIndexWorkerWithInvalidJob()
+    {
+
+        $document = new Opus_Document();
+        $document->setServerState('published');
+        $documentId = $document->store();
+
+
+        $job = new Opus_Job();
+        $job->setLabel('opus-index-document');
+        $job->setData([
+            'documentId' => $documentId,
+            'task' => 'get-me-a-coffee']);
+        $jobId = $job->store();
+
+        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+
+        $runner = new Opus_Job_Runner();
+        $runner->registerWorker($indexWorker);
+        $runner->run();
+
+        $job = new Opus_Job($jobId);
+        $this->assertEquals(Opus_Job::STATE_FAILED, $job->getState());
+        $error = $job->getErrors();
+        $this->assertNotEquals('', $error, 'Expected error message from job.');
+//        $job->delete();
+    }
+
+    public function testRunIndexWorkerWithValidJob()
+    {
+
+        $document = new Opus_Document();
+        $document->setServerState('published');
+        $documentId = $document->store();
+
+
+        $job = new Opus_Job();
+        $job->setLabel('opus-index-document');
+        $job->setData([
+            'documentId' => $documentId,
+            'task' => 'index']);
+        $jobId = $job->store();
+
+        $indexWorker = new Opus_Job_Worker_IndexOpusDocument;
+
+        $runner = new Opus_Job_Runner();
+        $runner->registerWorker($indexWorker);
+        $runner->run();
+        $this->setExpectedException('Opus_Model_NotFoundException');
+        $job = new Opus_Job($jobId);
+        if ($job instanceof Opus_Job) {
+            $job->delete();
+        }
+    }
+}

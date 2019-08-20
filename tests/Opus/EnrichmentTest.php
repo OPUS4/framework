@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * This file is part of OPUS. The software OPUS has been originally developed
  * at the University of Stuttgart with funding from the German Research Net,
  * the Federal Department of Higher Education and Research and the Ministry
@@ -28,15 +28,13 @@
  * @package     Opus
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
 /**
  * Test cases for Opus_Enrichment.
  *
- * @package Opus
- * @category Tests
  * @group EnrichmentTests
  */
 class Opus_EnrichmentTest extends TestCase
@@ -118,15 +116,14 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEquals($doc->getEnrichment(1)->toArray(), $expectedEnrichment);
     }
 
-    public function testStoreEnrichmentWithInvalidKey()
+    public function testStoreEnrichmentWithUnknownKey()
     {
-        $this->_doc->addEnrichment()->setKeyName('invalid')->setValue('foo');
-        $this->setExpectedException('Opus\Model\Exception');
+        $this->_doc->addEnrichment()->setKeyName('unknown')->setValue('foo');
         $this->_doc->store();
 
         $doc = new Opus_Document($this->_doc->getId());
-        $this->assertEquals(1, count($doc->getEnrichment()));
-        $this->assertKeysAndValues($doc->getEnrichment(), ['valid'], ['value']);
+        $this->assertEquals(2, count($doc->getEnrichment()));
+        $this->assertKeysAndValues($doc->getEnrichment(), ['valid', 'unknown'], ['value', 'foo']);
     }
 
     public function testStoreEnrichmentWithoutValue()
@@ -216,15 +213,19 @@ class Opus_EnrichmentTest extends TestCase
         $this->assertEquals($newval, $enrichment->getValue(), 'Loaded other value, then stored.');
     }
 
-    public function testUpdateEnrichmentInvalidKey()
+    public function testUpdateEnrichmentUnknownKey()
     {
         $doc = new Opus_Document($this->_doc->getId());
         $enrichments = $doc->getEnrichment();
         $enrichment = $enrichments[0];
-        $enrichment->setKeyName('invalid');
-
-        $this->setExpectedException('Opus\Model\Exception');
+        $enrichment->setKeyName('unknown');
+        $enrichment->setValue('bar');
         $doc->store();
+
+        $doc = new Opus_Document($this->_doc->getId());
+        $enrichment = $doc->getEnrichment()[0];
+        $this->assertEquals('unknown', $enrichment->getKeyName());
+        $this->assertEquals('bar', $enrichment->getValue());
     }
 
     public function testUpdateEnrichmentSetDuplicateValue()

@@ -27,7 +27,8 @@
  * @category    Framework
  * @package     Opus_Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -75,12 +76,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      *
      * @var array
      */
-    protected $_plugins = [
-// Plugin Opus_Model_Plugin_InvalidateDocumentCache
-// must NOT be used in dependent link models!
-//        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
-
+    public function getDefaultPlugins()
+    {
+        return null;
+    }
 
     /**
      * Set the model that is linked to.
@@ -108,7 +107,7 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function getModel()
     {
-       return $this->_model;
+        return $this->_model;
     }
 
     /**
@@ -147,12 +146,10 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         // use own __call method if field is appended to the link model
         if (true === isset($this->_fields[$fieldname])) {
             return parent::__call($name, $arguments);
-        }
-        else {
+        } else {
             if (array_key_exists(0, $arguments) === true) {
                 return $this->_model->$name($arguments[0]);
-            }
-            else {
+            } else {
                 return $this->_model->$name();
             }
         }
@@ -243,41 +240,39 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
         return array_merge($this->_model->toArray(), parent::toArray());
     }
 
+    /**
+     * Perform security resoure registration.
+     *
+     * @return void
+     */
+    protected function _postStoreInternalFields()
+    {
+        $isNewFlagBackup = $this->_isNewRecord;
+        $this->_isNewRecord = false;
 
-   /**
-    * Perform security resoure registration.
-    *
-    * @return void
-    */
-   protected function _postStoreInternalFields()
-   {
-       $isNewFlagBackup = $this->_isNewRecord;
-       $this->_isNewRecord = false;
+        parent::_postStoreInternalFields();
 
-       parent::_postStoreInternalFields();
-
-       $this->_isNewRecord = $isNewFlagBackup;
-   }
-
+        $this->_isNewRecord = $isNewFlagBackup;
+    }
 
    /**
     * Return the primary key of the Link Model if it has been persisted.
     *
     * @return array|null Primary key or Null if the Linked Model has not been persisted.
     */
-   public function getId()
-   {
-       // The given id consists of the ids of the referenced linked models,
-       // but there is no evidence that the LinkModel itself has been persisted yet.
-       // We so have to validate, if the LinkModel is persistent or still transient.
-       if (true === $this->isNewRecord()) {
-           // its a new record, so return null
-           return null;
-       }
+    public function getId()
+    {
+        // The given id consists of the ids of the referenced linked models,
+        // but there is no evidence that the LinkModel itself has been persisted yet.
+        // We so have to validate, if the LinkModel is persistent or still transient.
+        if (true === $this->isNewRecord()) {
+            // its a new record, so return null
+            return null;
+        }
 
-       // its not a new record, so we can hand over to the parent method
-       return parent::getId();
-   }
+        // its not a new record, so we can hand over to the parent method
+        return parent::getId();
+    }
 
 
     /**
@@ -288,8 +283,24 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function isModified()
     {
-        return ($this->_isModified) or (parent::isModified())
-                or ($this->_model->isModified());
+        return ($this->_isModified) or parent::isModified() or $this->_model->isModified();
+    }
+
+    /**
+     * Clears modification flag, but cannot set it to true.
+     *
+     * @param bool $modified
+     *
+     * @return mixed|void
+     *
+     * TODO Function should be renamed since it can actually only clear the modification flag.
+     */
+    public function setModified($modified = true)
+    {
+        if (! $modified) {
+            $this->_isModified = false;
+            parent::setModified($modified);
+        }
     }
 
     /**
@@ -299,6 +310,6 @@ abstract class Opus_Model_Dependent_Link_Abstract extends Opus_Model_Dependent_A
      */
     public function isValid()
     {
-        return ($this->_model->isValid()) && (parent::isValid());
+        return $this->_model->isValid() && parent::isValid();
     }
 }

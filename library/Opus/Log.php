@@ -47,30 +47,32 @@
  *
  * TODO static factory sinnvoll?
  */
-class Opus_Log {
+class Opus_Log
+{
 
-	/**
-	 * @var Zend_Log
-	 */
-	protected static $cachedReference;
+    /**
+     * @var Zend_Log
+     */
+    protected static $cachedReference;
 
-	/**
-	 * @return Opus_Log
-	 * @throws Zend_Exception
-	 */
-	public static function get() {
-		if ( !self::$cachedReference ) {
-			self::$cachedReference = Zend_Registry::get( 'Zend_Log' );
-		}
+    /**
+     * @return Opus_Log
+     * @throws Zend_Exception
+     */
+    public static function get()
+    {
+        if (! self::$cachedReference) {
+            self::$cachedReference = Zend_Registry::get('Zend_Log');
+        }
 
-		return self::$cachedReference;
-	}
+        return self::$cachedReference;
+    }
 
-	/**
-	 * Drops any cached reference on logging facility to use.
-	 */
-	public static function drop() {
-		self::$cachedReference = null;
-	}
-
+    /**
+     * Drops any cached reference on logging facility to use.
+     */
+    public static function drop()
+    {
+        self::$cachedReference = null;
+    }
 }

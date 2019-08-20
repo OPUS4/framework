@@ -28,7 +28,7 @@
  * @package     Framework
  * @author      Edouard Simon (edouard.simon@zib.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -41,55 +41,61 @@ class Opus_Model_Plugin_Mock extends Opus\Model\Plugin\AbstractPlugin
     /**
      * Array containing names of methods that have been called
      */
-    public $calledHooks = array();
+    public $calledHooks = [];
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::preStore}
      */
-    public function preStore(Opus\Model\ModelInterface $model) {
+    public function preStore(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::preFetch}
      */
-    public function preFetch(Opus\Model\ModelInterface $model) {
+    public function preFetch(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus\Model\ModelInterface $model) {
+    public function postStore(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::postStoreInternal}
      */
-    public function postStoreInternal(Opus\Model\ModelInterface $model) {
+    public function postStoreInternal(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::postStoreExternal}
      */
-    public function postStoreExternal(Opus\Model\ModelInterface $model) {
+    public function postStoreExternal(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::preDelete}
      */
-    public function preDelete(Opus\Model\ModelInterface $model) {
+    public function preDelete(Opus\Model\ModelInterface $model)
+    {
         $this->calledHooks[] = __METHOD__;
     }
 
     /**
      * @see {Opus\Model\Plugin\PluginInterface::postDelete}
      */
-    public function postDelete($modelId) {
+    public function postDelete($modelId)
+    {
         $this->calledHooks[] = __METHOD__;
     }
-
 }

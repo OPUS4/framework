@@ -59,23 +59,23 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
     protected function _connect()
     {
         // if we already have a PDO object, no need to re-connect.
-        if ( is_null($this->_connection) === false ) {
+        if (is_null($this->_connection) === false) {
             return;
         }
 
         $config = Zend_Registry::get('Zend_Config');
-        if (isset($config, $config->db->debug) && $config->db->debug) {
+        if (isset($config->db->debug) && filter_var($config->db->debug, FILTER_VALIDATE_BOOLEAN)) {
             $logger = Zend_Registry::get('Zend_Log');
             $logger->debug("Mysqlutf8: created new adapter");
 
             $backtrace = debug_backtrace(false);
-            foreach ($backtrace AS $row) {
-                $file     = array_key_exists('file', $row)     ? $row['file']     : '_no_file_)';
-                $line     = array_key_exists('line', $row)     ? $row['line']     : '0';
+            foreach ($backtrace as $row) {
+                $file     = array_key_exists('file', $row) ? $row['file'] : '_no_file_)';
+                $line     = array_key_exists('line', $row) ? $row['line'] : '0';
                 $function = array_key_exists('function', $row) ? $row['function'] : '_no_function_';
 
                 $optional = '';
-                if ($row['function'] == 'query' && !is_null($row['args'][0])) {
+                if ($row['function'] == 'query' && ! is_null($row['args'][0])) {
                     $optional = "(" . $row['args'][0] . ")";
                 }
 
@@ -90,7 +90,7 @@ class Opus_Db_Adapter_Pdo_Mysqlutf8 extends Zend_Db_Adapter_Pdo_Mysql
 
         // Enable "strict" mode on all transactional tables to avoid silent
         // truncation of inserted/updated data.  See ticket [OPUSVIER-2111].
-        // $this->query("SET sql_mode = 'STRICT_TRANS_TABLES'");
+        $this->query("SET sql_mode = 'STRICT_TRANS_TABLES'");
     }
 
     /**

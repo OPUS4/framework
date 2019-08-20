@@ -40,8 +40,8 @@
  * @package     Opus_Db
  *
  */
- class Opus_Db_DocumentNotes extends Opus_Db_TableGateway
- {
+class Opus_Db_DocumentNotes extends Opus_Db_TableGateway
+{
 
     /**
      * Real database name of the documents table.
@@ -57,10 +57,10 @@
      * @var array $_referenceMap
      */
     protected $_referenceMap = [
-        'Documents' => [
-            'columns' => 'document_id',
-            'refTableClass' => 'Opus_Db_Documents',
-            'refColumns' => 'id'
-        ]
+      'Documents' => [
+          'columns' => 'document_id',
+          'refTableClass' => 'Opus_Db_Documents',
+          'refColumns' => 'id'
+      ]
     ];
 }

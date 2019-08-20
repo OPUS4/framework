@@ -45,8 +45,8 @@ class Opus_Model_UnixTimestampField extends Opus_Model_DateField
      */
     public function getValue($index = null)
     {
-        $timestamp =  $this->parent->getTimestamp();
-        if (!is_null($timestamp) and $timestamp > 0) {
+        $timestamp = $this->parent->getTimestamp();
+        if (! is_null($timestamp) and $timestamp > 0) {
             return $timestamp;
         } else {
             return null;
@@ -63,5 +63,7 @@ class Opus_Model_UnixTimestampField extends Opus_Model_DateField
      * @param $value
      * @return Opus_Model_Field|void
      */
-    public function setValue($value) {}
+    public function setValue($value)
+    {
+    }
 }

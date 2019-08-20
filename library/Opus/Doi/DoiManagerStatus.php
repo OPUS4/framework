@@ -34,7 +34,7 @@
 class Opus_Doi_DoiManagerStatus
 {
 
-    private $docsWithDoiStatus = array();
+    private $docsWithDoiStatus = [];
 
     public function isNoDocsToProcess()
     {

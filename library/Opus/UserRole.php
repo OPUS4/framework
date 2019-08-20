@@ -116,7 +116,6 @@ class Opus_UserRole extends Opus_Model_AbstractDb
     public function getDisplayName()
     {
         return $this->getName();
-
     }
 
     /**
@@ -188,7 +187,6 @@ class Opus_UserRole extends Opus_Model_AbstractDb
             'append', 'document_id', $documentId,
         ];
         return $this;
-
     }
 
     /**
@@ -301,7 +299,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
         ];
         $roleId = $this->getId();
 
-        foreach ($this->_pendingAccessResources AS $entry) {
+        foreach ($this->_pendingAccessResources as $entry) {
             $action        = $entry[0];
             $resourceName = $entry[1];
             $resourceId   = $entry[2];
@@ -314,7 +312,7 @@ class Opus_UserRole extends Opus_Model_AbstractDb
 
             if ($action == 'append') {
                 $table->insertIgnoreDuplicate($data);
-            } else if ($action == 'remove') {
+            } elseif ($action == 'remove') {
                 $table->deleteWhereArray($data);
             }
         }

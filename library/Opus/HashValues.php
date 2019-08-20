@@ -63,7 +63,10 @@ class Opus_HashValues extends Opus_Model_Dependent_Abstract
      *
      * @var array
      */
-    protected $_plugins = [];
+    public function getDefaultPlugins()
+    {
+        return null;
+    }
 
     /**
      * Initialize model with the following fields:

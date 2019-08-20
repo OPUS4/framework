@@ -41,7 +41,8 @@
  *
  * @group       AccountTest
  */
-class Opus_Security_AccountTest extends TestCase {
+class Opus_Security_AccountTest extends TestCase
+{
 
     /**
      * Table adapter to accounts table.
@@ -55,17 +56,19 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         parent::setUp();
         $this->_accounts = Opus_Db_TableGateway::getInstance('Opus_Db_Accounts');
-        }
+    }
 
     /**
      * Test if the table is initially empty.
      *
      * @return void
      */
-    public function testTableIsInitiallyEmpty() {
+    public function testTableIsInitiallyEmpty()
+    {
         $rowset = $this->_accounts->fetchAll();
         $this->assertEquals(0, $rowset->count(), 'Accounts table is not empty no test begin.');
     }
@@ -76,7 +79,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testCreate() {
+    public function testCreate()
+    {
         $account = new Opus_Account;
     }
 
@@ -85,7 +89,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testSetCredentials() {
+    public function testSetCredentials()
+    {
         $account = new Opus_Account;
         $account->setLogin('bob')
             ->setPassword('secret');
@@ -97,7 +102,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testLoginNameIsSetAfterCreation() {
+    public function testLoginNameIsSetAfterCreation()
+    {
         $account = new Opus_Account;
         $account->setLogin('bob');
         $this->assertEquals('bob', $account->getLogin(), 'Login returned is not correct.');
@@ -109,7 +115,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testRecordExistsAfterCreation() {
+    public function testRecordExistsAfterCreation()
+    {
         $account = new Opus_Account;
         $account->setLogin('bob');
         $account->setPassword('testpwd');
@@ -123,7 +130,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testCreatingAccountsWithSameLoginThrowsException() {
+    public function testCreatingAccountsWithSameLoginThrowsException()
+    {
         $account1 = new Opus_Account;
         $account1->setLogin('bob');
         $account1->setPassword('testpwd');
@@ -142,18 +150,20 @@ class Opus_Security_AccountTest extends TestCase {
       *
       * @return void
       */
-     public function testCreateAndStoreWithoutLoginThrowsException() {
-         $account = new Opus_Account;
-         $this->setExpectedException('Opus_Security_Exception');
-         $account->store();
-     }
+    public function testCreateAndStoreWithoutLoginThrowsException()
+    {
+        $account = new Opus_Account;
+        $this->setExpectedException('Opus_Security_Exception');
+        $account->store();
+    }
 
     /**
      * Ensure that the stored password is SHA1 hashed.
      *
      * @return void
      */
-    public function testPasswordIsSha1Hashed() {
+    public function testPasswordIsSha1Hashed()
+    {
         $account = new Opus_Account;
         $account->setLogin('bob')
             ->setPassword('secret');
@@ -165,7 +175,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testFindCreatedAccount() {
+    public function testFindCreatedAccount()
+    {
         $account1 = new Opus_Account;
         $account1->setLogin('bob')->setPassword('bobbob')->store();
         $account2 = new Opus_Account(null, null, 'bob');
@@ -179,7 +190,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testChangeLoginNameToAlreadyExistingNameThrowsException() {
+    public function testChangeLoginNameToAlreadyExistingNameThrowsException()
+    {
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
 
@@ -195,7 +207,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testNonAlphaNumericLoginsGetRejected() {
+    public function testNonAlphaNumericLoginsGetRejected()
+    {
         $dave = new Opus_Account;
         $this->setExpectedException('Opus_Security_Exception');
         $dave->setLogin('#~$??!');
@@ -206,7 +219,8 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveAccountByLoginName() {
+    public function testRetrieveAccountByLoginName()
+    {
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
 
@@ -219,12 +233,12 @@ class Opus_Security_AccountTest extends TestCase {
      *
      * @return void
      */
-    public function testRetrieveAccountByWrongLoginNameThrowsException() {
+    public function testRetrieveAccountByWrongLoginNameThrowsException()
+    {
         $bob = new Opus_Account;
         $bob->setLogin('bob')->setPassword('secret')->store();
 
         $this->setExpectedException('Opus_Security_Exception');
         $result = new Opus_Account(null, null, 'bobby');
     }
-
 }

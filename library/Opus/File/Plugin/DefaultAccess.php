@@ -48,7 +48,8 @@ class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
      *
      * @see {Opus\Model\Plugin\PluginInterface::postStore}
      */
-    public function postStore(Opus\Model\ModelInterface $model) {
+    public function postStore(Opus\Model\ModelInterface $model)
+    {
         // only index Opus_File instances
         if (false === ($model instanceof Opus_File)) {
             $this->getLogger()->err(__METHOD__ . '#1 argument must be instance of Opus_File');
@@ -62,7 +63,7 @@ class Opus_File_Plugin_DefaultAccess extends Opus\Model\Plugin\AbstractPlugin
 
         $config = Zend_Registry::get('Zend_Config');
 
-        if (!is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
+        if (! is_null($config) && isset($config->securityPolicy->files->defaultAccessRole)) {
             $roleName = $config->securityPolicy->files->defaultAccessRole;
 
             // Empty name -> don't set any role for access

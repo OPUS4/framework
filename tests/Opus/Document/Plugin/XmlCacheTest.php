@@ -42,7 +42,8 @@
  * @package     Opus_Document
  * @subpackage  Plugin
  */
-class Opus_Document_Plugin_XmlCacheTest extends TestCase {
+class Opus_Document_Plugin_XmlCacheTest extends TestCase
+{
 
     /**
      * Holds an instance of Opus_Db_DocumentXmlCache.
@@ -56,15 +57,16 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
 
         parent::setUp();
 
         $this->_cacheTable = Opus_Db_TableGateway::getInstance('Opus_Db_DocumentXmlCache');
-
     }
 
-    public function testDisabledCachePlugin() {
+    public function testDisabledCachePlugin()
+    {
         $this->markTestSkipped('Cache is re-enabled');
         $doc = new Opus_Document();
 
@@ -78,7 +80,8 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
      *
      * @return void
      */
-    public function testCacheEntriesCreatedAfterDocumentIsStored() {
+    public function testCacheEntriesCreatedAfterDocumentIsStored()
+    {
         $doc = new Opus_Document();
         $doc->setType('test');
         $doc->setServerState('unpublished');
@@ -102,7 +105,8 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
      *
      * @return void
      */
-    public function testCacheEntriesAreDeletedAfterDocumentDelete() {
+    public function testCacheEntriesAreDeletedAfterDocumentDelete()
+    {
         $doc = new Opus_Document();
         $doc->setType('test');
         $doc->setServerState('unpublished');
@@ -119,8 +123,5 @@ class Opus_Document_Plugin_XmlCacheTest extends TestCase {
 
 //        $this->assertEquals(0, $afterDelete - $beforeDelete, 'Expecting same cache entry count.');
         $this->assertEquals(1, $beforeDelete - $afterDelete, 'Expecting 1 cache entries less.');
-
     }
-
 }
-

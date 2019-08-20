@@ -115,9 +115,12 @@ class Opus_Person extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Initialize model with the following fields:
@@ -186,7 +189,7 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       return $this->getName();
+        return $this->getName();
     }
 
     /**
@@ -200,12 +203,15 @@ class Opus_Person extends Opus_Model_AbstractDb
         // $documentsLinkTable = new Opus_Db_LinkPersonsDocuments();
         $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
         $documentsTable = Opus_Db_TableGateway::getInstance('Opus_Db_Documents');
-        $documents = array();
+        $documents = [];
         $select = $documentsLinkTable->select();
         $select->where('role=?', $role);
         foreach ($this->_primaryTableRow->findManyToManyRowset(
             $documentsTable,
-            $documentsLinkTable, null, null, $select
+            $documentsLinkTable,
+            null,
+            null,
+            $select
         ) as $document) {
             $documents[] = new Opus_Document($document->id);
         }
@@ -219,9 +225,8 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     public function getDocumentIds($role = null)
     {
-        if ($this->isNewRecord())
-        {
-            // TODO do more?
+        if ($this->isNewRecord()) {
+        // TODO do more?
             return;
         }
 
@@ -233,8 +238,7 @@ class Opus_Person extends Opus_Model_AbstractDb
             ->from('link_persons_documents', 'distinct(document_id)')
             ->where('person_id = ?', $this->getId());
 
-        if (!is_null($role))
-        {
+        if (! is_null($role)) {
             $select->where('role = ?', $role);
         }
 
@@ -256,7 +260,7 @@ class Opus_Person extends Opus_Model_AbstractDb
         $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
         $tablename = $documentsLinkTable->info(Zend_Db_Table::NAME);
         $db = $documentsLinkTable->getAdapter();
-        $select = $db->select()->from($tablename, array('person_id'))
+        $select = $db->select()->from($tablename, ['person_id'])
             ->where('role = ? ', $role);
         $personIds = $documentsLinkTable->getAdapter()->fetchCol($select);
 
@@ -341,8 +345,7 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $identityColumns = ['last_name', 'first_name', 'identifier_orcid', 'identifier_gnd', 'identifier_misc'];
 
-        $trimmedColumns = array_map(function($value)
-        {
+        $trimmedColumns = array_map(function ($value) {
             return "trim($value) as $value";
         }, $identityColumns);
 
@@ -354,7 +357,7 @@ class Opus_Person extends Opus_Model_AbstractDb
                 $identityColumns
             );
 
-        if (!is_null($role)) {
+        if (! is_null($role)) {
             $documentsLinkTable = Opus_Db_TableGateway::getInstance('Opus_Db_LinkPersonsDocuments');
 
             $select->join(
@@ -366,7 +369,7 @@ class Opus_Person extends Opus_Model_AbstractDb
             $select->where($database->quoteInto('link.role = ?', $role));
         }
 
-        if (!is_null($filter)) {
+        if (! is_null($filter)) {
             $select->where('last_name LIKE ? OR first_name LIKE ?', "%$filter%", "%$filter%");
         }
 
@@ -444,24 +447,22 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         self::addWherePerson($select, $person);
 
-        if (!is_null($state) && in_array($state,
-                ['published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted']
-            ))
-        {
+        if (! is_null($state) && in_array(
+            $state,
+            ['published', 'unpublished', 'inprogress', 'audited', 'restricted', 'deleted']
+        )) {
             $select->where('d.server_state = ?', $state);
         }
 
-        if (!is_null($role) && in_array($role,
-                ['author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter']
-            ))
-        {
+        if (! is_null($role) && in_array(
+            $role,
+            ['author', 'editor', 'contributor', 'referee', 'advisor', 'other', 'translator', 'submitter']
+        )) {
             $select->where('link.role = ?', $role);
         }
 
-        if (!is_null($sort) and in_array($sort, ['id', 'title', 'publicationDate', 'docType', 'author']))
-        {
-            switch ($sort)
-            {
+        if (! is_null($sort) and in_array($sort, ['id', 'title', 'publicationDate', 'docType', 'author'])) {
+            switch ($sort) {
                 case 'id':
                     $select->order('d.id' . ($order ? ' ASC' : ' DESC'));
                     break;
@@ -517,8 +518,7 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $rows = $table->fetchAll($select);
 
-        if (count($rows) === 0)
-        {
+        if (count($rows) === 0) {
             return null;
         }
 
@@ -571,7 +571,7 @@ class Opus_Person extends Opus_Model_AbstractDb
         );
 
         // TODO handle single document id value
-        if (!is_null($documents) && is_array($documents) && count($documents) > 0) {
+        if (! is_null($documents) && is_array($documents) && count($documents) > 0) {
             $select->join(
                 ['link' => 'link_persons_documents'],
                 'link.person_id = p.id',
@@ -607,7 +607,7 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $select->setIntegrityCheck(false);
 
-        if (!is_null($documents)) {
+        if (! is_null($documents)) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
@@ -654,7 +654,7 @@ class Opus_Person extends Opus_Model_AbstractDb
                 // TODO use
                 throw new Opus\Model\Exception("unknown field '$name' for update");
             } else {
-                if (!is_null($value)) {
+                if (! is_null($value)) {
                     $trimmed[$name] = trim($value);
                 } else {
                     $trimmed[$name] = null;
@@ -667,12 +667,12 @@ class Opus_Person extends Opus_Model_AbstractDb
         $personIds = self::getPersons($person, $documents);
         $documentIds = self::getDocuments($personIds, $documents);
 
-        if (!empty($personIds)) {
+        if (! empty($personIds)) {
             $table->update($changes, [
                 $database->quoteInto('id IN (?)', $personIds)
             ]);
 
-            if (!empty($documentIds)) {
+            if (! empty($documentIds)) {
                 $date = new Opus_Date();
                 $date->setNow();
 
@@ -700,14 +700,13 @@ class Opus_Person extends Opus_Model_AbstractDb
 
         $select->setIntegrityCheck(false);
 
-        if (!is_null($documents) && count($documents) > 0) {
+        if (! is_null($documents) && count($documents) > 0) {
             $select->where('link.document_id IN (?)', $documents);
         }
 
         $documentIds = $database->fetchCol($select);
 
         return $documentIds;
-
     }
 
     /**
@@ -718,7 +717,7 @@ class Opus_Person extends Opus_Model_AbstractDb
      */
     public static function convertChanges($changes)
     {
-        $columnChanges = array();
+        $columnChanges = [];
 
         foreach ($changes as $fieldName => $value) {
             $column = self::convertFieldnameToColumn($fieldName);
@@ -768,7 +767,7 @@ class Opus_Person extends Opus_Model_AbstractDb
             $criteria['IdentifierMisc'] = $person->getIdentifierMisc();
         }
 
-        if (!is_array($criteria)) {
+        if (! is_array($criteria)) {
             // TODO do some logging
             return false;
         }
@@ -782,7 +781,7 @@ class Opus_Person extends Opus_Model_AbstractDb
             $value = $this->getField($fieldName)->getValue();
 
             if (is_string($value)) {
-                if (stristr($value, $critValue) === FALSE) {
+                if (stristr($value, $critValue) === false) {
                     return false;
                 }
             } else {

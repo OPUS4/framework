@@ -42,7 +42,6 @@
  */
 class Opus_Db_LinkIprangesRoles extends Opus_Db_TableGateway
 {
-
     /**
      * DB table name.
      *

@@ -31,6 +31,19 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-class Opus_Doi_DataCiteXmlGenerationException extends Opus_Doi_DoiException {
+class Opus_Doi_DataCiteXmlGenerationException extends Opus_Doi_DoiException
+{
 
+    private $xmlErrors;
+
+    public function __construct($message, $xmlErrors = null)
+    {
+        parent::__construct($message);
+        $this->xmlErrors = $xmlErrors;
+    }
+
+    public function getXmlErrors()
+    {
+        return $this->xmlErrors;
+    }
 }

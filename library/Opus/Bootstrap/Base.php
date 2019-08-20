@@ -28,7 +28,7 @@
  * @package     Opus_Bootstrap
  * @author      Ralf Claussnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -48,6 +48,7 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
      * @return void
      *
      * TODO put into configuration file (custom DB adapter) and move code out of Bootstrap
+     * TODO this make configuration modifiable (as a side effect)
      */
     protected function _initDatabase()
     {
@@ -82,15 +83,14 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
 
             // Register the adapter within Zend_Registry.
             Zend_Registry::set('db_adapter', $db);
-        }
-        catch (Zend_Db_Adapter_Exception $e) {
+        } catch (Zend_Db_Adapter_Exception $e) {
             $logger->err($e);
             throw new Exception('OPUS Bootstrap Error: Could not connect to database.');
         }
 
         // Check database version
-        if (!Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
-            !Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
+        if (! Zend_Registry::isRegistered('opus.disableDatabaseVersionCheck') ||
+            ! Zend_Registry::get('opus.disableDatabaseVersionCheck')) {
             try {
                 $query = $db->query('SELECT version FROM schema_version');
 
@@ -103,16 +103,16 @@ class Opus_Bootstrap_Base extends \Opus\Bootstrap\Base
                     if ($version !== $expectedVersion) {
                         throw new Exception("Database version '$version' does not match required '$expectedVersion'.");
                     }
-                }
-                else {
+                } else {
                     throw new Exception(
                         'No database schema version found. Database is probably too old. Please update.'
                     );
                 }
-            }
-            catch (Zend_Db_Statement_Exception $e) {
+            } catch (Zend_Db_Statement_Exception $e) {
                 throw new Exception('Database schema is too old. Please update database.');
             }
         }
+
+        return $db;
     }
 }

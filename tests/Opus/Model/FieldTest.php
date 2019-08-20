@@ -41,26 +41,32 @@
  *
  * @group    FieldTest
  */
-class Opus_Model_FieldTest extends TestCase {
+class Opus_Model_FieldTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Date provider for invalid setMultiplicity() arguments test.
      *
      * @return array
      */
-    public function invalidSetMultiplicityValuesDataProvider() {
-        return array(
-            array('0'),array('1'),array(0),array(-1),array('a'),
-            array('z'),array(''),array(' '),array(true),array(false),
-            array(565676.234),array(-0.0435),array(new InvalidArgumentException()),
-            array(array(1,2,3,4))
-        );
+    public function invalidSetMultiplicityValuesDataProvider()
+    {
+        return [
+            ['0'],['1'],[0],[-1],['a'],
+            ['z'],[''],[' '],[true],[false],
+            [565676.234],[-0.0435],[new InvalidArgumentException()],
+            [[1,2,3,4]]
+        ];
     }
 
     /**
@@ -69,22 +75,23 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return array
      */
-    public function setterGetterCallDataProvider() {
-        return array(
-            array('Mandatory', 'true', true),
-            array('Mandatory', 0, false),
-            array('Mandatory', 'yes', true),
-            array('Mandatory', 'True', true),
-            array('Mandatory', false, false),
-            array('Textarea', 'true', true),
-            array('Textarea', 1, true),
-            array('Textarea', 'True', true),
-            array('Textarea', false, false),
-            array('Selection', 'true', true),
-            array('Selection', 1, true),
-            array('Selection', 'yes', true),
-            array('Selection', false, false),
-            );
+    public function setterGetterCallDataProvider()
+    {
+        return [
+            ['Mandatory', 'true', true],
+            ['Mandatory', 0, false],
+            ['Mandatory', 'yes', true],
+            ['Mandatory', 'True', true],
+            ['Mandatory', false, false],
+            ['Textarea', 'true', true],
+            ['Textarea', 1, true],
+            ['Textarea', 'True', true],
+            ['Textarea', false, false],
+            ['Selection', 'true', true],
+            ['Selection', 1, true],
+            ['Selection', 'yes', true],
+            ['Selection', false, false],
+        ];
     }
 
     /**
@@ -92,7 +99,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testNameOfValueClassCanBeRetrieved() {
+    public function testNameOfValueClassCanBeRetrieved()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setValueModelClass('Opus_Model_AbstractMock');
         $classname = $field->getValueModelClass();
@@ -105,7 +113,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testNameOfValueClassIsEmptyIfNoModelClassIsSet() {
+    public function testNameOfValueClassIsEmptyIfNoModelClassIsSet()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setValue('no_object');
         $classname = $field->getValueModelClass();
@@ -119,7 +128,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSinglevaluedFieldOnlyHasSingleValue() {
+    public function testSinglevaluedFieldOnlyHasSingleValue()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $result = $field->getValue();
@@ -133,7 +143,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testMultivaluedFieldOnlyHasArrayValue() {
+    public function testMultivaluedFieldOnlyHasArrayValue()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
         $result = $field->getValue();
@@ -145,7 +156,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSinglevaluedFieldMultiplicity() {
+    public function testSinglevaluedFieldMultiplicity()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $this->assertFalse($field->hasMultipleValues(), 'Field should not allow multiple values.');
@@ -157,11 +169,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSinglevaluedFieldTakesSingleValue() {
+    public function testSingleValuedFieldTakesSingleValue()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $this->setExpectedException('InvalidArgumentException');
-        $field->setValue(array('single', 'sungle', 'sangle'));
+        $field->setValue(['single', 'sungle', 'sangle']);
     }
 
     /**
@@ -172,7 +185,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @dataProvider invalidSetMultiplicityValuesDataProvider
      */
-    public function testInputValuesForMultiplicityAreIntegerOrStar($value) {
+    public function testInputValuesForMultiplicityAreIntegerOrStar($value)
+    {
         $this->setExpectedException('InvalidArgumentException');
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity($value);
@@ -184,10 +198,11 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testGetSpecificIndexFromMultivalueField() {
+    public function testGetSpecificIndexFromMultivalueField()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
-        $field->setValue(array(1,2,'Hallo'));
+        $field->setValue([1,2,'Hallo']);
         $this->assertEquals(1, $field->getValue(0), 'Wrong value on index 0.');
         $this->assertEquals(2, $field->getValue(1), 'Wrong value on index 1.');
         $this->assertEquals('Hallo', $field->getValue(2), 'Wrong value on index 2.');
@@ -198,7 +213,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagIsNotSetInitially() {
+    public function testModifiedFlagIsNotSetInitially()
+    {
         $field = new Opus_Model_Field('MyField');
         $result = $field->isModified();
         $this->assertFalse($result, 'Modified flag is initially true.');
@@ -210,7 +226,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagIsSetAfterSettingNewValue () {
+    public function testModifiedFlagIsSetAfterSettingNewValue()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setValue('MyValue');
         $after = $field->isModified();
@@ -222,7 +239,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagIsClearable() {
+    public function testModifiedFlagIsClearable()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setValue('MyValue');
         $field->clearModified();
@@ -236,7 +254,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagRemainsAfterSettingSameValueAgain() {
+    public function testModifiedFlagRemainsAfterSettingSameValueAgain()
+    {
         $field = new Opus_Model_Field('MyField');
         $before = $field->isModified();
         $field->setValue($field->getValue());
@@ -249,7 +268,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagCanBeTriggerdViaSetModified() {
+    public function testModifiedFlagCanBeTriggerdViaSetModified()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->clearModified();
         $field->setModified();
@@ -261,9 +281,10 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetDefault() {
+    public function testSetDefault()
+    {
         $field = new Opus_Model_Field('MyField');
-        $array = array('my', 'default', 'values');
+        $array = ['my', 'default', 'values'];
         $field->setDefault($array);
         $result = $field->getDefault();
         $this->assertEquals($array, $result, 'Wrong default value returned');
@@ -274,7 +295,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSelectionFlagClearsOtherFlags() {
+    public function testSelectionFlagClearsOtherFlags()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setCheckbox(true);
         $field->setTextarea(true);
@@ -290,7 +312,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testTextareaFlagClearsOtherFlags() {
+    public function testTextareaFlagClearsOtherFlags()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setCheckbox(true);
         $field->setSelection(true);
@@ -306,7 +329,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testCheckboxFlagClearsOtherFlags() {
+    public function testCheckboxFlagClearsOtherFlags()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setTextarea(true);
         $field->setSelection(true);
@@ -324,7 +348,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @dataProvider setterGetterCallDataProvider
      */
-    public function testSetterGetterTypeCastingInputValues($func, $input, $output) {
+    public function testSetterGetterTypeCastingInputValues($func, $input, $output)
+    {
         $field = new Opus_Model_Field('MyField');
 
         $set_callname = 'set' . $func;
@@ -343,7 +368,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testWeakComparisonForObjectReferences() {
+    public function testWeakComparisonForObjectReferences()
+    {
         $field = new Opus_Model_Field('MyField');
 
         $obj1 = new Opus_Model_Field('Message');
@@ -376,7 +402,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testStrongComparisionForNonObjectsValues() {
+    public function testStrongComparisionForNonObjectsValues()
+    {
         $field = new Opus_Model_Field('MyField');
 
         $val1 = true;
@@ -394,14 +421,15 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testAddingValueToMultivaluedFields() {
+    public function testAddingValueToMultivaluedFields()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
 
-        $field->setValue(array(1,2,3,4));
+        $field->setValue([1,2,3,4]);
         $field->addValue(15);
 
-        $this->assertEquals(array(1,2,3,4,15), $field->getValue(), 'Value has not been added.');
+        $this->assertEquals([1,2,3,4,15], $field->getValue(), 'Value has not been added.');
     }
 
     /**
@@ -409,14 +437,15 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testAddingArrayValuesToMultivaluedField() {
+    public function testAddingArrayValuesToMultivaluedField()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
 
-        $field->setValue(array(1,2,3,4));
-        $field->addValue(array(15,16,17));
+        $field->setValue([1,2,3,4]);
+        $field->addValue([15,16,17]);
 
-        $this->assertEquals(array(1,2,3,4,15,16,17), $field->getValue(), 'Values have not been added.');
+        $this->assertEquals([1,2,3,4,15,16,17], $field->getValue(), 'Values have not been added.');
     }
 
     /**
@@ -424,11 +453,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void.
      */
-    public function testAddingValuesToEmptyField() {
+    public function testAddingValuesToEmptyField()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
-        $field->addValue(array(15,16,17));
-        $this->assertEquals(array(15,16,17), $field->getValue(), 'Values have not been added.');
+        $field->addValue([15,16,17]);
+        $this->assertEquals([15,16,17], $field->getValue(), 'Values have not been added.');
     }
 
     /**
@@ -436,11 +466,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void.
      */
-    public function testAddingValuesToNonMultipleField() {
+    public function testAddingValuesToNonMultipleField()
+    {
         $this->setExpectedException('InvalidArgumentException');
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('1');
-        $field->addValue(array(15,16,17));
+        $field->addValue([15,16,17]);
     }
 
     /**
@@ -448,7 +479,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void.
      */
-    public function testAddingSingleValueToNonMultipleField() {
+    public function testAddingSingleValueToNonMultipleField()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(1);
         $field->addValue(15);
@@ -460,11 +492,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testAddingValuesSetsModifiedFlag() {
+    public function testAddingValuesSetsModifiedFlag()
+    {
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity('*');
         $field->clearModified();
-        $field->addValue(array(15,16,17));
+        $field->addValue([15,16,17]);
         $this->assertTrue($field->isModified(), 'Adding values should raise "modified" flag.');
     }
 
@@ -473,11 +506,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testAddingMoreValuesThenAllowedThrowsException() {
+    public function testAddingMoreValuesThenAllowedThrowsException()
+    {
         $this->setExpectedException('InvalidArgumentException');
         $field = new Opus_Model_Field('MyField');
         $field->setMultiplicity(3);
-        $field->addValue(array(15,16,17, 18));
+        $field->addValue([15,16,17, 18]);
     }
 
     /**
@@ -485,10 +519,11 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetMultivalueFieldToNull() {
+    public function testSetMultivalueFieldToNull()
+    {
         $field = new Opus_Model_Field('MultiValField');
         $field->setMultiplicity('*');
-        $field->setValue(array('a', 'b', 'c'));
+        $field->setValue(['a', 'b', 'c']);
         $field->setValue(null);
         $value = $field->getValue();
         $this->assertTrue(empty($value), 'Multivalue field not cleared after setting to null.');
@@ -500,7 +535,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetFieldValueToNullDoesNotTriggerDeleteWithNoDependentModel() {
+    public function testSetFieldValueToNullDoesNotTriggerDeleteWithNoDependentModel()
+    {
         $clazz = 'class ClassWithDeleteMethod { public $trigger = false; public function delete() { $this->trigger = true; } }';
         eval($clazz);
         $obj = new ClassWithDeleteMethod;
@@ -518,7 +554,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetDependentModelFieldToNullRemovesModelFromDatabase() {
+    public function testSetDependentModelFieldToNullRemovesModelFromDatabase()
+    {
         // create field referencing the mockup model
         $depmo = new Opus_Model_ModelDependentMock;
         $field = new Opus_Model_Field('ExternalModel');
@@ -538,7 +575,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetDependentModelMultivalueFieldToNullRemovesModelsFromDatabase() {
+    public function testSetDependentModelMultivalueFieldToNullRemovesModelsFromDatabase()
+    {
         // create field referencing the mockup models
         $depmo[] = new Opus_Model_ModelDependentMock;
         $depmo[] = new Opus_Model_ModelDependentMock;
@@ -563,7 +601,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testIsModifiedReturnsTrueIfReferencedModelHasBeenModified() {
+    public function testIsModifiedReturnsTrueIfReferencedModelHasBeenModified()
+    {
         $model = new Opus_Model_ModelAbstractDbMock();
         $model->addField(new Opus_Model_Field('FooField'));
 
@@ -585,7 +624,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testIsModifiedReturnsTrueIfArrayContainsModifiedModel() {
+    public function testIsModifiedReturnsTrueIfArrayContainsModifiedModel()
+    {
         $model1 = new Opus_Model_ModelAbstractDbMock();
         $model1->addField(new Opus_Model_Field('FooField'));
         $this->assertFalse($model1->isModified(), 'Model1 should not be marked as modified.');
@@ -597,7 +637,7 @@ class Opus_Model_FieldTest extends TestCase {
         $field = new Opus_Model_Field('myfield');
         $field->setMultiplicity('*')
             ->setValueModelClass(get_class($model1))
-            ->setValue(array($model1, $model2))
+            ->setValue([$model1, $model2])
             ->clearModified();
         $this->assertFalse($field->isModified(), 'Field should not be marked as modified.');
 
@@ -610,7 +650,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testValueOfUnexpectedTypeThrowsException() {
+    public function testValueOfUnexpectedTypeThrowsException()
+    {
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass('Zend_Date');
         $this->setExpectedException('Opus\Model\Exception');
@@ -622,15 +663,15 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testValueOfUncastableDataThrowsException() {
+    public function testValueOfUncastableDataThrowsException()
+    {
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass('Zend_Date');
 
         try {
             $field->setValue('Foo');
             $this->fail('Missing exception!');
-        }
-        catch (Opus\Model\Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
             $this->assertStringStartsWith("Failed to cast value 'Foo'", $ome->getMessage());
         }
     }
@@ -640,7 +681,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testSetterValueGetsCasted() {
+    public function testSetterValueGetsCasted()
+    {
         $field = new Opus_Model_Field('myfield');
         $field->setValueModelClass('Zend_Date');
         try {
@@ -659,11 +701,12 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testDeleteCollectsPendingOperations() {
+    public function testDeleteCollectsPendingOperations()
+    {
         // create field referencing the mockup model
         $depmo = new Opus_Model_ModelDependentMock;
 
-        $clazz ='
+        $clazz = '
             class Opus_Model_FieldTest_Inspector extends Opus_Model_Field {
                 public function getPendingDeletes() {
                     return $this->_pendingDeletes;
@@ -689,7 +732,8 @@ class Opus_Model_FieldTest extends TestCase {
      *
      * @return void
      */
-    public function testDoPendingDeletesLoopsModelsAndDoesDelete() {
+    public function testDoPendingDeletesLoopsModelsAndDoesDelete()
+    {
         // create field referencing the mockup models
         $depmo[] = new Opus_Model_ModelDependentMock;
         $depmo[] = new Opus_Model_ModelDependentMock;
@@ -710,13 +754,15 @@ class Opus_Model_FieldTest extends TestCase {
         $this->assertTrue($depmo[2]->doDeleteHasBeenCalled, 'Setting value to null does not delete referenced dependent models.');
     }
 
-    public function testSetAndGetOwningModelClass() {
+    public function testSetAndGetOwningModelClass()
+    {
         $field = new Opus_Model_Field('Test');
         $field->setOwningModelClass('Opus_Test');
         $this->assertEquals('Opus_Test', $field->getOwningModelClass());
     }
 
-    public function testSetBoolean() {
+    public function testSetBoolean()
+    {
         $field = new Opus_Model_Field('VisibleInOai');
 
         $field->setValue(false);
@@ -743,5 +789,4 @@ class Opus_Model_FieldTest extends TestCase {
         $this->assertEquals(true, $field->getValue());
         $this->assertInternalType('int', $field->getValue());
     }
-
 }

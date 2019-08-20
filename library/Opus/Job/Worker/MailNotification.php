@@ -37,7 +37,8 @@
 /**
  * Worker for sending out email notifications for newly published documents.
  */
-class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
+class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract
+{
 
     const LABEL = 'opus-mail-publish-notification';
     private $config = null;
@@ -50,7 +51,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
      *                                  und schlägt die E-Mail-Adressen nach; andernfalls werden E-Mail-
      *                                  Adressen erwartet in der Form wie sie Opus_Mail_SendMail erwartet
      */
-    public function __construct($logger = null, $lookupRecipients = true) {
+    public function __construct($logger = null, $lookupRecipients = true)
+    {
         $this->setLogger($logger);
         $this->config = Zend_Registry::get('Zend_Config');
         $this->lookupRecipients = $lookupRecipients;
@@ -61,7 +63,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
      *
      * @return string Message label.
      */
-    public function getActivationLabel() {
+    public function getActivationLabel()
+    {
         return self::LABEL;
     }
 
@@ -71,7 +74,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
      * @param Opus_Job $job Job description and attached data.
      * @return array Array of Jobs to be newly created.
      */
-    public function work(Opus_Job $job) {
+    public function work(Opus_Job $job)
+    {
         $data = $job->getData(true);
         $message = $data['message'];
         $subject = $data['subject'];
@@ -83,16 +87,15 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
         $replyToName = $this->_getReplyToName();
         $returnPath = $this->_getReturnPath();
 
-        if (!is_null($users) and !is_array($users)) {
-            $users = array($users);
+        if (! is_null($users) and ! is_array($users)) {
+            $users = [$users];
         }
 
-        $recipient = array();
+        $recipient = [];
         if ($this->lookupRecipients) {
             $this->_logger->debug(__CLASS__ . ': Resolving mail addresses for users = {"' . implode('", "', $users) . '"}');
             $recipient = $this->getRecipients($users);
-        }
-        else {
+        } else {
             $recipient = $users;
         }
 //        if (empty($recipient)) {
@@ -103,7 +106,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
         $mailSendMail = new Opus_Mail_SendMail();
 
         $this->_logger->info(__CLASS__ . ': Sending notification email...');
-        $this->_logger->debug(__CLASS__ . ': sender: ' . $from);            
+        $this->_logger->debug(__CLASS__ . ': sender: ' . $from);
         $mailSendMail->sendMail($from, $fromName, $subject, $message, $recipient, $replyTo, $replyToName, $returnPath);
 
         return true;
@@ -114,7 +117,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
      *
      * @return string
      */
-    protected function _getFrom() {
+    protected function _getFrom()
+    {
         if (isset($this->config->mail->opus->address)) {
             return $this->config->mail->opus->address;
         }
@@ -125,7 +129,8 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
      * Returns the 'from name' for notification.
      * @return string
      */
-    protected function _getFromName() {
+    protected function _getFromName()
+    {
         if (isset($this->config->mail->opus->name)) {
             return $this->config->mail->opus->name;
         }
@@ -134,8 +139,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
     protected function _getReplyTo()
     {
-        if (isset($this->config->mail->opus->replyTo))
-        {
+        if (isset($this->config->mail->opus->replyTo)) {
             return $this->config->mail->opus->replyTo;
         }
 
@@ -144,8 +148,7 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
     protected function _getReplyToName()
     {
-        if (isset($this->config->mail->opus->replyToName))
-        {
+        if (isset($this->config->mail->opus->replyToName)) {
             return $this->config->mail->opus->replyToName;
         }
 
@@ -154,22 +157,22 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
 
     protected function _getReturnPath()
     {
-        if (isset($this->config->mail->opus->returnPath))
-        {
+        if (isset($this->config->mail->opus->returnPath)) {
             return $this->config->mail->opus->returnPath;
         }
 
         return null;
     }
 
-    public function getRecipients($users = null) {
+    public function getRecipients($users = null)
+    {
 
-        if (!is_array($users)) {
-            $users = array($users);
+        if (! is_array($users)) {
+            $users = [$users];
         }
 
-        $allRecipients = array();
-        foreach ($users AS $user) {
+        $allRecipients = [];
+        foreach ($users as $user) {
             $account = Opus_Account::fetchAccountByLogin($user);
 
             if (is_null($account)) {
@@ -183,10 +186,10 @@ class Opus_Job_Worker_MailNotification extends Opus_Job_Worker_Abstract {
                 continue;
             }
 
-            $allRecipients[] = array(
+            $allRecipients[] = [
                 'name' => $account->getFirstName() . ' ' . $account->getLastName(),
                 'address' => $mail,
-            );
+            ];
         }
 
         return $allRecipients;

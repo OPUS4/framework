@@ -123,11 +123,12 @@ class Opus_LicenceTest extends TestCase
         sleep(1);
 
         $licence = new Opus_Licence($licenceId);
-        foreach($fields as $fieldName) {
+        foreach ($fields as $fieldName) {
             $oldValue = $licence->{'get' . $fieldName}();
             $licence->{'set' . $fieldName}(1);
             $this->assertNotEquals(
-                $licence->{'get' . $fieldName}(), $oldValue,
+                $licence->{'get' . $fieldName}(),
+                $oldValue,
                 'Expected different values before and after setting value'
             );
         }

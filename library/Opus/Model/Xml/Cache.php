@@ -61,11 +61,11 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 
         $xmlData = $this->getData($documentId, $xmlVersion);
 
-        if (!is_null($xmlData)) {
+        if (! is_null($xmlData)) {
             libxml_clear_errors();
             $result = $dom->loadXML($xmlData);
             $errors = libxml_get_errors();
-            if ($result === FALSE) {
+            if ($result === false) {
                 $errMsg = 'XML processing error for document with id ' . $documentId . "\n" .
                     'number of errors: ' . count($errors) . "\n";
                 foreach ($errors as $errnum => $error) {
@@ -113,9 +113,8 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 
         if ($rows->count() > 0) {
             $result = $rows->toArray();
-        }
-        else {
-            $result = array();
+        } else {
+            $result = [];
         }
 
         return $result;
@@ -158,8 +157,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
 
         if (null === $row) {
             $result = false;
-        }
-        else {
+        } else {
             $result = true;
         }
 
@@ -187,12 +185,12 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
             $this->remove($documentId, $xmlVersion);
         }
 
-        $newValue = array(
+        $newValue = [
             'document_id' => $documentId,
             'xml_version' => $xmlVersion,
             'server_date_modified' => $serverDateModified,
             'xml_data' => $xmlData->saveXML()
-        );
+        ];
 
         $this->_table->insert($newValue);
     }
@@ -232,7 +230,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      */
     public function removeAllEntriesWhereDocumentId($documentId)
     {
-        $where = array('document_id' => $documentId);
+        $where = ['document_id' => $documentId];
         $this->_table->deleteWhereArray($where);
     }
 

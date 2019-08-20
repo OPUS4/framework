@@ -33,7 +33,8 @@
 class Opus_Util_SqlFileTest extends TestCase
 {
 
-    public function testGetStatements() {
+    public function testGetStatements()
+    {
         $this->markTestIncomplete('not yet implemented');
         $sqlFile = new Opus_Util_SqlFile();
 
@@ -43,6 +44,4 @@ class Opus_Util_SqlFileTest extends TestCase
 
         // var_dump($statements);
     }
-
-
 }

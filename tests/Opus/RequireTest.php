@@ -28,7 +28,7 @@
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -41,7 +41,8 @@
  * @group RequireTest
  *
  */
-class Opus_RequireTest extends TestCase {
+class Opus_RequireTest extends TestCase
+{
 
     /**
      * Overwrite standard setUp method, no database connection needed.  Will
@@ -49,7 +50,8 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
     }
 
     /**
@@ -57,7 +59,8 @@ class Opus_RequireTest extends TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    public function tearDown()
+    {
     }
 
     /**
@@ -71,10 +74,10 @@ class Opus_RequireTest extends TestCase {
     {
         $path = APPLICATION_PATH . '/library/Opus/';
         $cmd = "find $path -type f -iname \"*php\"";
-        $classFiles = array();
+        $classFiles = [];
         exec($cmd, $classFiles);
 
-        foreach ($classFiles AS $file) {
+        foreach ($classFiles as $file) {
             require_once($file);
         }
     }
@@ -111,16 +114,19 @@ class Opus_RequireTest extends TestCase {
             'Opus_Search_Facet_Field',
             'Opus_Search_Result_Facet',
             'Opus_Search_Result_Match',
-            'Opus_Search_Filter_Simple'
+            'Opus_Search_Filter_Simple',
+            'Opus_Translate_DatabaseAdapter',
+            'Opus_Translate_DefaultAdapter',
+            'Opus_Doi_DataCiteXmlGenerationException'
         ];
 
-        $data = array();
+        $data = [];
 
-        foreach ($classes AS $class) {
+        foreach ($classes as $class) {
             if (in_array($class, $blacklist)) {
                 continue;
             }
-            $data[$class] = array($class);
+            $data[$class] = [$class];
         }
 
         return $data;
@@ -139,10 +145,9 @@ class Opus_RequireTest extends TestCase {
     public function testInstanciateTest($class)
     {
         try {
-           $object = new $class();
-        }
-        catch (Exception $e) {
-           $this->fail("Loading class $class failed: " . $e->getMessage());
+            new $class();
+        } catch (Exception $e) {
+            $this->fail("Loading class $class failed: " . $e->getMessage());
         }
     }
 }

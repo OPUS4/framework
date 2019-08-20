@@ -39,6 +39,7 @@
  * @package     Opus_Db
  *
  */
+
 class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
 {
 
@@ -59,7 +60,7 @@ class Opus_Db_DocumentStatistics extends Opus_Db_TableGateway
         'Documents' => [
             'columns' => 'document_id',
             'refTableClass' => 'Opus_Db_Documents',
-            'refColumns' => array('document_id', 'year', 'month', 'type')
+            'refColumns' => ['document_id', 'year', 'month', 'type']
         ]
     ];
 }

@@ -31,10 +31,10 @@
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
-interface Opus_Doi_Generator_DoiGeneratorInterface {
+interface Opus_Doi_Generator_DoiGeneratorInterface
+{
 
     public function generate($document);
 
     public function isLocal($doiValue);
-
 }

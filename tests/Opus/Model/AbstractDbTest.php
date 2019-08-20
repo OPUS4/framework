@@ -29,9 +29,8 @@
  * @author      Pascal-Nicolas Becker <becker@zib.de>
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -42,7 +41,8 @@
  *
  * @group AbstractDbTest
  */
-class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
+class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase
+{
 
     /**
      * Instance of the concrete table model for Opus_Model_ModelAbstractDb.
@@ -56,14 +56,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return array Array containing arrays of id and value pairs.
      */
-    public function abstractDataSetDataProvider() {
-        return array(
-        array(1, 'foobar'),
-        array(3, 'foo'),
-        array(4, 'bar'),
-        array(5, 'bla'),
-        array(8, 'blub')
-        );
+    public function abstractDataSetDataProvider()
+    {
+        return [
+            [1, 'foobar'],
+            [3, 'foo'],
+            [4, 'bar'],
+            [5, 'bla'],
+            [8, 'blub']
+        ];
     }
 
     /**
@@ -71,7 +72,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return PHPUnit_Extensions_Database_DB_IDatabaseConnection
      */
-    protected function getConnection() {
+    protected function getConnection()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $pdo = $dba->getConnection();
         $connection = $this->createDefaultDBConnection($pdo, null);
@@ -83,7 +85,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return PHPUnit_Extensions_Database_DataSet_IDataSet
      */
-    protected function getDataSet() {
+    protected function getDataSet()
+    {
         $dataset = $this->createFlatXMLDataSet(dirname(__FILE__) . '/AbstractDataSet.xml');
         return $dataset;
     }
@@ -94,7 +97,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function setUp() {
+    public function setUp()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
         $dba->query('CREATE TABLE testtable (
@@ -113,7 +117,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function tearDown() {
+    public function tearDown()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('DROP TABLE IF EXISTS testtable');
     }
@@ -124,7 +129,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testAddWithoutProperLinkModelClassThrowsException() {
+    public function testAddWithoutProperLinkModelClassThrowsException()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
         $this->setExpectedException('Opus\Model\Exception');
@@ -135,7 +141,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * Test if get on abstract model, defined as external field, throws an
      * exception.
      */
-    public function testGetAbstractModelInExternalFieldThrowsException() {
+    public function testGetAbstractModelInExternalFieldThrowsException()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningAbstractExternalField();
         $this->setExpectedException('Opus\Model\Exception');
@@ -148,7 +155,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testSetLinkModelFieldToNullRemovesLinkModel() {
+    public function testSetLinkModelFieldToNullRemovesLinkModel()
+    {
         $model = new Opus_Model_ModelDefiningExternalField;
 
         $abstractMock = new Opus_Model_ModelAbstractDbMock;
@@ -165,7 +173,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testLinkModelIsFieldValueWhenUsingThroughOption() {
+    public function testLinkModelIsFieldValueWhenUsingThroughOption()
+    {
         $model = new Opus_Model_ModelDefiningExternalField();
 
         $abstractMock = new Opus_Model_ModelAbstractDbMock;
@@ -181,7 +190,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testGetLinkedModelWhenQueryModel() {
+    public function testGetLinkedModelWhenQueryModel()
+    {
         // construct mockup class
         $clazzez = '
 
@@ -222,7 +232,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testGetMultipleLinkedModelWhenQueryModel() {
+    public function testGetMultipleLinkedModelWhenQueryModel()
+    {
         // construct mockup class
         $clazzez = '
 
@@ -270,10 +281,11 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @dataProvider abstractDataSetDataProvider
      */
-    public function testValueAfterLoadById($testtable_id, $value) {
+    public function testValueAfterLoadById($testtable_id, $value)
+    {
         $obj = new Opus_Model_ModelAbstractDb($testtable_id);
         $result = $obj->getValue();
-        $this->assertEquals($value,$result, "Expected Value to be $value, got '" . $result . "'");
+        $this->assertEquals($value, $result, "Expected Value to be $value, got '" . $result . "'");
     }
 
     /**
@@ -281,7 +293,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testChangeOfValueAndStore() {
+    public function testChangeOfValueAndStore()
+    {
         $obj = new Opus_Model_ModelAbstractDb(1);
         $obj->setValue('raboof');
         $obj->store();
@@ -295,12 +308,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testIfModelIsNotStoredWhenUnmodified() {
+    public function testIfModelIsNotStoredWhenUnmodified()
+    {
         // A record with id 1 is created by setUp() using AbstractDataSet.xml
         // So create a mocked Model to detect certain calls
-        $mock = $this->getMock('Opus_Model_ModelAbstractDb',
-            array('_storeInternalFields', '_storeExternalFields'),
-            array(1));
+        $mock = $this->getMock(
+            'Opus_Model_ModelAbstractDb',
+            ['_storeInternalFields', '_storeExternalFields'],
+            [1]
+        );
 
         // Clear modified flag just to be sure
         $mock->getField('Value')->clearModified();
@@ -318,7 +334,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testFieldsAreUnmodifiedWhenFreshFromDatabase() {
+    public function testFieldsAreUnmodifiedWhenFreshFromDatabase()
+    {
         // A record with id 1 is created by setUp() using AbstractDataSet.xml
         $mock = new Opus_Model_ModelAbstractDb(1);
         $field = $mock->getField('Value');
@@ -332,7 +349,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      * @return void
      *
      */
-    public function testFieldsModifiedStatusGetsClearedAfterStore() {
+    public function testFieldsModifiedStatusGetsClearedAfterStore()
+    {
         $clazz = '
             class testFieldsModifiedStatusGetsClearedAfterStore
                 extends Opus_Model_AbstractDb {
@@ -380,7 +398,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testDeletion() {
+    public function testDeletion()
+    {
         $obj = new Opus_Model_ModelAbstractDb(1);
         $preCount = $this->getConnection()->createDataSet()->getTable('testtable')->getRowCount();
         $obj->delete();
@@ -393,7 +412,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testDefaultDisplayNameIsReturned() {
+    public function testDefaultDisplayNameIsReturned()
+    {
         $obj = new Opus_Model_ModelAbstractDb(1);
         $result = $obj->getDisplayName();
         $this->assertEquals('Opus_Model_ModelAbstractDb#1', $result, 'Default display name not properly formed.');
@@ -405,7 +425,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase() {
+    public function testGetAllEntitiesReturnsEmptyArrayOnEmtpyDatabase()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('TRUNCATE testtable');
 
@@ -418,13 +439,17 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testGetAllEntities() {
+    public function testGetAllEntities()
+    {
         $dba = Zend_Db_Table::getDefaultAdapter();
         $dba->query('TRUNCATE testtable');
 
-        $entities[0] = new Opus_Model_ModelAbstractDb(); $entities[0]->setValue('SatisfyValidator');
-        $entities[1] = new Opus_Model_ModelAbstractDb(); $entities[1]->setValue('SatisfyValidator');
-        $entities[2] = new Opus_Model_ModelAbstractDb(); $entities[2]->setValue('SatisfyValidator');
+        $entities[0] = new Opus_Model_ModelAbstractDb();
+        $entities[0]->setValue('SatisfyValidator');
+        $entities[1] = new Opus_Model_ModelAbstractDb();
+        $entities[1]->setValue('SatisfyValidator');
+        $entities[2] = new Opus_Model_ModelAbstractDb();
+        $entities[2]->setValue('SatisfyValidator');
 
         foreach ($entities as $entity) {
             $entity->store();
@@ -443,13 +468,17 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testLazyExternalModelIsNotLoadedOnInitialization() {
+    public function testLazyExternalModelIsNotLoadedOnInitialization()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         // Query the mock
-        $this->assertNotContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn,
-                'The lazy external field got loaded.');
+        $this->assertNotContains(
+            'LazyExternalModel',
+            $mockup->loadExternalHasBeenCalledOn,
+            'The lazy external field got loaded.'
+        );
     }
 
     /**
@@ -459,12 +488,13 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingIsSuspendedUntilGetCall() {
+    public function testExternalModelLoadingIsSuspendedUntilGetCall()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         // Check that _loadExternal has not yet been called
-        $this->assertNotContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field does get loaded initially.');
+        $this->assertNotContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field does get loaded initially.');
     }
 
     /**
@@ -473,14 +503,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingTiggeredByGetFieldCall() {
+    public function testExternalModelLoadingTiggeredByGetFieldCall()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         $field = $mockup->getField('LazyExternalModel');
 
         // Check that _loadExternal has not yet been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after getField().');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after getField().');
         $this->assertNotNull($field, 'No field object returned.');
     }
 
@@ -489,7 +520,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingByGetFieldCallHappensOnlyOnce() {
+    public function testExternalModelLoadingByGetFieldCallHappensOnlyOnce()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
@@ -497,14 +529,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $field = $mockup->getField('LazyExternalModel');
 
         // Clear out mock up status
-        $mockup->loadExternalHasBeenCalledOn = array();
+        $mockup->loadExternalHasBeenCalledOn = [];
 
         // Second call to get should not call _loadExternal again.
         $field = $mockup->getField('LazyExternalModel');
 
 
         // Check that _loadExternal has not yet been called
-        $this->assertNotContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is called more than once.');
+        $this->assertNotContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is called more than once.');
     }
 
     /**
@@ -513,14 +545,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingTiggeredByGetCall() {
+    public function testExternalModelLoadingTiggeredByGetCall()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         $mockup->getLazyExternalModel();
 
         // Check that _loadExternal has been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after get call.');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after get call.');
     }
 
     /**
@@ -529,14 +562,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingTiggeredBySetCall() {
+    public function testExternalModelLoadingTiggeredBySetCall()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         $mockup->setLazyExternalModel(null);
 
         // Check that _loadExternal has been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after set call.');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after set call.');
     }
 
     /**
@@ -545,14 +579,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testExternalModelLoadingTiggeredByAddCall() {
+    public function testExternalModelLoadingTiggeredByAddCall()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         try {
             $mockup->addLazyExternalModel();
-        }
-        catch (Opus\Model\Exception $ex) {
+        } catch (Opus\Model\Exception $ex) {
             // Expect exception because of missing link model class
             $noop = 42;
         }
@@ -566,14 +600,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testToArrayCallTriggersLazyFetching() {
+    public function testToArrayCallTriggersLazyFetching()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         $mockup->toArray();
 
         // Check that _loadExternal has been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toArray() call.');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toArray() call.');
     }
 
     /**
@@ -581,14 +616,15 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testToXmlCallTriggersLazyFetching() {
+    public function testToXmlCallTriggersLazyFetching()
+    {
         // Build a mockup to observe calls to _loadExternal
         $mockup = new Opus_Model_ModelDefiningExternalField();
 
         $mockup->toXml();
 
         // Check that _loadExternal has been called
-        $this->assertContains('LazyExternalModel' ,$mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
+        $this->assertContains('LazyExternalModel', $mockup->loadExternalHasBeenCalledOn, 'The "lazy fetch" external field is not loaded after toXml() call.');
     }
 
     /**
@@ -596,7 +632,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testStoreIsIdempotend() {
+    public function testStoreIsIdempotend()
+    {
         // Create persistent model
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('Foo');
@@ -623,7 +660,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testStoreThrowsExceptionIfModelHasInvalidData() {
+    public function testStoreThrowsExceptionIfModelHasInvalidData()
+    {
         // Create persistent model
         $model = new Opus_Model_ModelAbstractDb;
 
@@ -642,7 +680,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testDontClearExternalFieldsModifiedFlagBeforeStoring() {
+    public function testDontClearExternalFieldsModifiedFlagBeforeStoring()
+    {
         // construct mockup class
         $clazz = '
             class testStoreClearsModifiedFlagOfInternalFieldsOnly
@@ -667,8 +706,11 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $model = new testStoreClearsModifiedFlagOfInternalFieldsOnly;
 
         // mock external field
-        $mockFieldExternalModel = $this->getMock('Opus_Model_Field',
-            array('clearModified'), array('ExternalField'));
+        $mockFieldExternalModel = $this->getMock(
+            'Opus_Model_Field',
+            ['clearModified'],
+            ['ExternalField']
+        );
         $model->addField($mockFieldExternalModel);
 
         // clear and set modified flags respectivly
@@ -688,7 +730,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testNewlyCreatedModelCanBeStoredWhenNotModified() {
+    public function testNewlyCreatedModelCanBeStoredWhenNotModified()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $id = $model->store();
         $this->assertNotNull($id, 'Expect newly created but unmodified model to be stored.');
@@ -699,7 +742,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testIsNewRecordIsFalseAfterStore() {
+    public function testIsNewRecordIsFalseAfterStore()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $id = $model->store();
         $this->assertFalse($model->isNewRecord(), 'Expect stored model not to be marked as new record.');
@@ -712,7 +756,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testIfStoreTwiceAttemptDoesNotExecuteASecondStore() {
+    public function testIfStoreTwiceAttemptDoesNotExecuteASecondStore()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $id = $model->store();
         $model->postStoreHasBeenCalled = false;
@@ -726,7 +771,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testParentIdGetPropagatedToDependentModelsOnLoading() {
+    public function testParentIdGetPropagatedToDependentModelsOnLoading()
+    {
         $clazz = '
             class testParentIdGetPropagatedToDependentModelsOnLoading
                 extends Opus_Model_AbstractDb {
@@ -755,7 +801,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testParentIdGetPropagatedToDependentModelsOnAddModel() {
+    public function testParentIdGetPropagatedToDependentModelsOnAddModel()
+    {
         $clazz = '
             class testParentIdGetPropagatedToDependentModelsOnAdd
                 extends Opus_Model_AbstractDb {
@@ -777,8 +824,10 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $this->assertNotNull($model->getId());
 
         $externalField = $model->addExternalField1();
-        $this->assertTrue($externalField->setParentIdHasBeenCalled,
-                'No parent id was set on adding dependent model.');
+        $this->assertTrue(
+            $externalField->setParentIdHasBeenCalled,
+            'No parent id was set on adding dependent model.'
+        );
     }
 
    /**
@@ -786,15 +835,16 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return array Method names.
      */
-    public function pluginCallnameProvider() {
-        return array(
-            array('store', 'preStore'),
-            array('store', 'postStore'),
-            array('store', 'postStoreInternal'),
-            array('store', 'postStoreExternal'),
+    public function pluginCallnameProvider()
+    {
+        return [
+            ['store', 'preStore'],
+            ['store', 'postStore'],
+            ['store', 'postStoreInternal'],
+            ['store', 'postStoreExternal'],
 //            array('delete', 'preDelete'), // only called for stored objects
 //            array('delete', 'postDelete'), // only called for stored objects
-        );
+        ];
     }
 
     /**
@@ -804,7 +854,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @dataProvider pluginCallnameProvider
      */
-    public function testRegisteredPluginGetsCalled($call, $expect) {
+    public function testRegisteredPluginGetsCalled($call, $expect)
+    {
         // create mock plugin to register method calls
         $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
@@ -812,7 +863,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
         $getsCalled = $plugin->expects($this->once())->method($expect);
 
         // create test model register plugin with it
-        $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
+        $model = new Opus_Model_ModelAbstractDb(null, null, [$plugin]);
 
         // need to clone object because it gets altered by store/delete calls
         $getsCalled->with($model);
@@ -826,7 +877,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testRegisteredPluginPreFetchGetsCalledOnCreation() {
+    public function testRegisteredPluginPreFetchGetsCalledOnCreation()
+    {
         // create mock plugin to register method calls
         $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
@@ -835,7 +887,7 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
                 ->method('preFetch');
 
         // create test model register plugin with it
-        $model = new Opus_Model_ModelAbstractDb(null, null, array($plugin));
+        $model = new Opus_Model_ModelAbstractDb(null, null, [$plugin]);
     }
 
     /**
@@ -843,7 +895,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testRegisteredPluginPostDeleteGetsCalledOnCreation() {
+    public function testRegisteredPluginPostDeleteGetsCalledOnCreation()
+    {
         // create mock plugin to register method calls
         $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin');
 
@@ -867,11 +920,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testUnregisterPluginByClassname() {
+    public function testUnregisterPluginByClassname()
+    {
         $model = new Opus_Model_ModelAbstractDb;
 
-        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin',
-                        array('postStoreInternal'));
+        $plugin = $this->getMock(
+            'Opus\Model\Plugin\AbstractPlugin',
+            ['postStoreInternal']
+        );
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -886,11 +942,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testUnregisterPluginByInstance() {
+    public function testUnregisterPluginByInstance()
+    {
         $model = new Opus_Model_ModelAbstractDb;
 
-        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin',
-                        array('postStoreInternal'));
+        $plugin = $this->getMock(
+            'Opus\Model\Plugin\AbstractPlugin',
+            ['postStoreInternal']
+        );
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -905,11 +964,14 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testUnregisteringPluginThatDoesNotExistShouldNotThrowException() {
+    public function testUnregisteringPluginThatDoesNotExistShouldNotThrowException()
+    {
         $model = new Opus_Model_ModelAbstractDb;
 
-        $plugin = $this->getMock('Opus\Model\Plugin\AbstractPlugin',
-                        array('postStoreInternal'));
+        $plugin = $this->getMock(
+            'Opus\Model\Plugin\AbstractPlugin',
+            ['postStoreInternal']
+        );
         $plugin->expects($this->never())
                 ->method('postStoreInternal');
 
@@ -924,7 +986,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagIsNotSetInitially() {
+    public function testModifiedFlagIsNotSetInitially()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $result = $model->isModified();
         $this->assertFalse($result, 'Modified flag is initially true.');
@@ -935,12 +998,12 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagCanBeTriggerdCallToSetMethod() {
+    public function testModifiedFlagCanBeTriggerdCallToSetMethod()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $model->getField('Value')->clearModified();
         $model->setValue('new value');
         $this->assertTrue($model->isModified(), 'Modified flag has not changed.');
-
     }
 
     /**
@@ -949,7 +1012,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagCanBeTriggerdByChangingSubmodel() {
+    public function testModifiedFlagCanBeTriggerdByChangingSubmodel()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $submodel = new Opus_Model_ModelAbstractDb;
         $field = new Opus_Model_Field('Submodel');
@@ -962,7 +1026,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         $this->assertTrue($model->getSubmodel()->isModified(), 'Modified flag has not changed for field.');
         $this->assertTrue($model->isModified(), 'Modified flag has not changed for model.');
-
     }
 
     /**
@@ -970,13 +1033,13 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testModifiedFlagIsClearable() {
+    public function testModifiedFlagIsClearable()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $model->setValue('new value');
         $model->getField('Value')->clearModified();
         $after = $model->isModified();
         $this->assertFalse($after, 'Modified flag has has not been cleared.');
-
     }
 
     /**
@@ -985,7 +1048,8 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testUpdateFromModelWithSameValuesRendersModelUnmodified() {
+    public function testUpdateFromModelWithSameValuesRendersModelUnmodified()
+    {
         $clazzname = 'Opus_Model_AbstractTest_MockModel_3';
         $clazz = 'class ' . $clazzname . ' extends Opus_Model_AbstractDb {
             protected static $_tableGatewayClass = \'Opus_Model_AbstractTableProvider\';
@@ -1011,7 +1075,6 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
 
         // check values
         $this->assertFalse($m1->isModified(), 'Modification flag has been triggered.');
-
     }
 
     /**
@@ -1020,11 +1083,11 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
      *
      * @return void
      */
-    public function testFieldsSetToUnmodifiedAfterInit() {
+    public function testFieldsSetToUnmodifiedAfterInit()
+    {
         $model = new Opus_Model_ModelAbstractDb;
         $field = $model->getField('Value');
         $this->assertFalse($field->isModified(), 'Modified flag has not been cleared.');
-
     }
 
     public function testValuesAreTrimmed()
@@ -1040,29 +1103,44 @@ class Opus_Model_AbstractDbTest extends PHPUnit_Extensions_Database_TestCase {
     /**
      * Test if a model retrieves its external fields in the right order
      */
-    public function testFieldsInitializedInWrongOrder() {
+    public function testFieldsInitializedInWrongOrder()
+    {
         $model = new Opus_Model_CheckFieldOrderDummyClass();
 
         $this->assertEquals('bar', $model->getBefore());
         $this->assertEquals('baz', $model->getAfter());
     }
 
-    public function testNameConversionMethods() {
-        $fieldnamesToColumns = array(
-            array('Type', 'type'),
-            array('Role', 'role'),
-            array('SortOrder', 'sort_order'),
-            array('LeftId', 'left_id'),
-        );
+    public function testNameConversionMethods()
+    {
+        $fieldnamesToColumns = [
+            ['Type', 'type'],
+            ['Role', 'role'],
+            ['SortOrder', 'sort_order'],
+            ['LeftId', 'left_id'],
+        ];
 
-        foreach ($fieldnamesToColumns AS $pair) {
+        foreach ($fieldnamesToColumns as $pair) {
             $fieldname = $pair[0];
             $colname   = $pair[1];
 
-            $this->assertEquals($colname,   Opus_Model_AbstractDb::convertFieldnameToColumn($fieldname));
+            $this->assertEquals($colname, Opus_Model_AbstractDb::convertFieldnameToColumn($fieldname));
             $this->assertEquals($fieldname, Opus_Model_AbstractDb::convertColumnToFieldname($colname));
         }
-
     }
 
+    public function testGetFieldMaxLength()
+    {
+        $this->assertEquals(191, Opus_Person::getFieldMaxLength('LastName'));
+    }
+
+    public function testGetFieldMaxLengthUnknownField()
+    {
+        $this->assertNull(Opus_Person::getFieldMaxLength('LastName2'));
+    }
+
+    public function testGetFieldMaxLengthForNumeric()
+    {
+        $this->assertNull(Opus_Document::getFieldMaxLength('Id'));
+    }
 }

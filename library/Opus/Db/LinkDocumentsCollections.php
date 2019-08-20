@@ -41,7 +41,6 @@
  */
 class Opus_Db_LinkDocumentsCollections extends Opus_Db_TableGateway
 {
-
     /**
      * DB table name.
      *

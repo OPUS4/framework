@@ -55,10 +55,9 @@ class Opus_Mail_SendMail
     {
         $config = Zend_Registry::get('Zend_Config');
         if (isset($config, $config->mail->opus)) {
-
             if (isset($config->mail->opus->transport) && $config->mail->opus->transport == 'file') {
                 // erlaubt das Speichern von E-Mails in Dateien, die im Verzeichnis mail.opus.file abgelegt werden
-                $options = array();
+                $options = [];
                 if (isset($config->mail->opus->file)) {
                     $options['path'] = $config->mail->opus->file;
                 }
@@ -111,9 +110,16 @@ class Opus_Mail_SendMail
      * @throws Opus_Mail_Exception Thrown if the from address is invalid.
      */
     public function sendMail(
-        $from, $fromName, $subject, $bodyText, $recipients, $replyTo = null, $replyToName = null, $returnPath = null
-    )
-    {
+        $from,
+        $fromName,
+        $subject,
+        $bodyText,
+        $recipients,
+        $replyTo = null,
+        $replyToName = null,
+        $returnPath = null
+    ) {
+
         $logger = Zend_Registry::get('Zend_Log');
 
         if (trim($from) === '') {
@@ -130,11 +136,11 @@ class Opus_Mail_SendMail
         $mail->setSubject($subject);
         $mail->setBodyText($bodyText);
 
-        if (!is_null($replyTo)) {
+        if (! is_null($replyTo)) {
             $mail->setReplyTo($replyTo, $replyToName);
         }
 
-        if (!is_null($returnPath)) {
+        if (! is_null($returnPath)) {
             $mail->setReturnPath($returnPath);
         }
 

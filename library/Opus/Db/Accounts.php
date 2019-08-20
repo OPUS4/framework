@@ -46,11 +46,14 @@ class Opus_Db_Accounts extends Opus_Db_TableGateway
      * @var string
      */
     protected $_name = 'accounts';
+
     /**
      * All dependant Tables,
      * i.e. those that contain a role_id as a foreign key.
      *
      * @var array $_dependantTables
      */
-    protected $_dependentTables = ['Opus_Db_LinkAccountsRoles'];
+    protected $_dependentTables = [
+        'Opus_Db_LinkAccountsRoles',
+    ];
 }

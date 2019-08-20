@@ -28,9 +28,9 @@
  * @package     Opus_Model
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
- * @copyright   Copyright (c) 2008, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -38,8 +38,11 @@
  *
  * @category Framework
  * @package  Opus_Model
+ *
+ * TODO remove presentation layer functions like setCheckbox etc.
  */
-class Opus_Model_Field implements Opus_Model_ModificationTracking {
+class Opus_Model_Field implements Opus_Model_ModificationTracking
+{
 
     /**
      * Hold validator.
@@ -153,7 +156,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @var array Associative array mapping object hashes to array('model' => $instance, 'token' => $deleteToken);
      */
-    protected $_pendingDeletes = array();
+    protected $_pendingDeletes = [];
 
 
     /**
@@ -167,7 +170,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @param string $name Internal name of the field.
      */
-    public function __construct($name) {
+    public function __construct($name)
+    {
         $this->_name = $name;
     }
 
@@ -176,7 +180,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return String Internal field name.
      */
-    public function getName() {
+    public function getName()
+    {
         return $this->_name;
     }
 
@@ -186,7 +191,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param Zend_Validate_Interface $validator A validator.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setValidator(Zend_Validate_Interface $validator) {
+    public function setValidator(Zend_Validate_Interface $validator)
+    {
         $this->_validator = $validator;
         return $this;
     }
@@ -196,7 +202,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Zend_Validate_Interface The fields validator if one is assigned.
      */
-    public function getValidator() {
+    public function getValidator()
+    {
         return $this->_validator;
     }
 
@@ -207,7 +214,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @throws InvalidArgumentException If $max is neither "*" nor an integer.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setMultiplicity($max) {
+    public function setMultiplicity($max)
+    {
         if ($max !== '*') {
             if ((is_int($max) === false) or ($max < 1)) {
                 throw new InvalidArgumentException('Only integer values > 1 or "*" allowed.');
@@ -223,7 +231,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return integer|string Upper limit for multiple values, either a number or "*" for infinity.
      */
-    public function getMultiplicity() {
+    public function getMultiplicity()
+    {
         return $this->_multiplicity;
     }
 
@@ -232,7 +241,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Boolean True, if field can have multiple values.
      */
-    public function hasMultipleValues() {
+    public function hasMultipleValues()
+    {
         return $this->_hasMultipleValues;
     }
 
@@ -243,7 +253,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param boolean $mandatory Set to true if the field shall be a required field.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setMandatory($mandatory) {
+    public function setMandatory($mandatory)
+    {
         $this->_mandatory = (bool) $mandatory;
         return $this;
     }
@@ -253,7 +264,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Boolean True, if the field is marked tobe mandatory.
      */
-    public function isMandatory() {
+    public function isMandatory()
+    {
         return $this->_mandatory;
     }
 
@@ -269,7 +281,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *         (an array is required but not given).
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setValue($value) {
+    public function setValue($value)
+    {
         // If the fields value is not going to change, leave.
         if (is_object($value) === true) {
             // Opus_Date objects can currently not be compared with "==" because it leads to a endless recursion,
@@ -284,12 +297,10 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
                 // weak comparison for objects
                 // TODO: DateTimeZone == DateTimeZone always returns true in weak equal check!  Why?
                 // TODO: Why weak comparisons? They are tricky in PHP.
-            }
-            else if ($value == $this->_value) {
+            } elseif ($value == $this->_value) {
                 return $this;
             }
-        }
-        else {
+        } else {
             // strong comparison for other values
             if ($value === $this->_value) {
                 return $this;
@@ -298,11 +309,9 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
         if (true === is_array($value) and 1 === count($value)) {
             $value = array_pop($value);
-        }
-        else if (true === is_array($value) and 0 === count($value)) {
+        } elseif (true === is_array($value) and 0 === count($value)) {
             $value = null;
-        }
-        else if (is_bool($value)) {
+        } elseif (is_bool($value)) {
             // make sure 'false' is not converted to '' (empty string), but 0 for database
             $value = (int)$value;
         }
@@ -310,8 +319,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         // if null is given, delete dependent objects
         if (null === $value) {
             $this->_deleteDependentModels();
-        }
-        else {
+        } else {
             // otherwise process the given value(s)
             $multiValueCondition = $this->hasMultipleValues();
             $arrayCondition = is_array($value);
@@ -326,7 +334,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             // arrayfy value
             $values = $value;
             if (false === $arrayCondition) {
-                $values = array($value);
+                $values = [$value];
             }
 
             // try to cast non-object values to model instance if valueModelClass is set
@@ -362,19 +370,25 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param array $values
      * @return void
      */
-    private function _fixSortOrder($values, $sortValue = 1) {
+    private function _fixSortOrder($values, $sortValue = 1)
+    {
         if (is_null($values)) {
             return;
         }
 
         $sortField = $this->_sortFieldName;
-        if (!is_string($sortField)) {
+        if (! is_string($sortField)) {
             return;
         }
 
-        $values = is_array($values) ? $values : array($values);
+        $values = is_array($values) ? $values : [$values];
+
         foreach ($values as $valueNew) {
-            $valueNew->getField($sortField)->setValue($sortValue);
+            $field = $valueNew->getField($sortField);
+            $oldSortValue = $field->getValue();
+            if ($oldSortValue != $sortValue) {
+                $field->setValue($sortValue);
+            }
             $sortValue++;
         }
     }
@@ -386,14 +400,15 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param array &$values Reference to value update set.
      * @return void
      */
-    private function _deleteUnreferencedDependentModels(array &$values) {
+    private function _deleteUnreferencedDependentModels(array &$values)
+    {
         // arrayfy field value for iteration
         $fvals = $this->_value;
         if (false === is_array($fvals)) {
-            $fvals = array($fvals);
+            $fvals = [$fvals];
         }
 
-        $nids = array();
+        $nids = [];
         if (false === is_null($this->_valueModelClass)) {
             foreach ($values as $val) {
                 if (false === $val instanceof Opus_Model_Dependent_Abstract
@@ -405,7 +420,7 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
         }
 
         // collect removal candidates
-        $removees = array();
+        $removees = [];
         foreach ($fvals as $victim) {
             if ($victim instanceof Opus_Model_Dependent_Abstract) {
                 $vid = $victim->getId();
@@ -423,7 +438,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return void
      */
-    private function _typeCheckValues(array $values) {
+    private function _typeCheckValues(array $values)
+    {
         if (is_null($this->_valueModelClass)) {
             return;
         }
@@ -433,34 +449,33 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
 
         // typecheck each array element
         foreach ($values as $v) {
-                // skip null values
-                if (null === $v) {
-                    continue;
-                }
+            // skip null values
+            if (null === $v) {
+                continue;
+            }
 
-                // values must be objects - should be checked before get_class.
-                if (false === is_object($v)) {
+            // values must be objects - should be checked before get_class.
+            if (false === is_object($v)) {
+                throw new Opus\Model\Exception(
+                    "Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})"
+                );
+            }
+
+            // determine actual type
+            if ($v instanceof Opus_Model_Dependent_Link_Abstract) {
+                $vtype = $v->getModelClass();
+            } else {
+                $vtype = get_class($v);
+            }
+
+            // perform typecheck
+            if ($vtype !== $etype) {
+                if (false === is_subclass_of($vtype, $etype)) {
                     throw new Opus\Model\Exception(
-                        "Expected object of type $etype but " . gettype($v) . ' given. ' . "(Field {$this->_name})"
+                        "Value of type $vtype given but expected $etype. (Field {$this->_name})"
                     );
                 }
-
-                // determine actual type
-                if ($v instanceof Opus_Model_Dependent_Link_Abstract) {
-                    $vtype = $v->getModelClass();
-                }
-                else {
-                    $vtype = get_class($v);
-                }
-
-                // perform typecheck
-                if ($vtype !== $etype) {
-                    if (false === is_subclass_of($vtype, $etype)) {
-                        throw new Opus\Model\Exception(
-                            "Value of type $vtype given but expected $etype. (Field {$this->_name})"
-                        );
-                    }
-                }
+            }
         }
     }
 
@@ -471,16 +486,17 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param array $removees (Optional) Array of Opus_Model_Dependent_Abstract instances to be deleted.
      * @return void
      */
-    private function _deleteDependentModels(array $removees = null) {
+    private function _deleteDependentModels(array $removees = null)
+    {
         if (null === $removees) {
-            $removees = is_array($this->_value) ? $this->_value : array($this->_value);
+            $removees = is_array($this->_value) ? $this->_value : [$this->_value];
         }
 
         foreach ($removees as $submodel) {
             if ($submodel instanceof Opus_Model_Dependent_Abstract) {
                 $token = $submodel->delete();
                 $objhash = spl_object_hash($submodel);
-                $this->_pendingDeletes[$objhash] = array('model' => $submodel, 'token' => $token);
+                $this->_pendingDeletes[$objhash] = ['model' => $submodel, 'token' => $token];
             }
         }
     }
@@ -490,7 +506,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return void
      */
-    public function doPendingDeleteOperations() {
+    public function doPendingDeleteOperations()
+    {
         foreach (array_values($this->_pendingDeletes) as $info) {
             $info['model']->doDelete($info['token']);
         }
@@ -506,7 +523,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param array $values Set of values.
      * @return array Set of new models of type _valueModelClass or the given values.
      */
-    private function _tryCastValuesToModel(array $values) {
+    private function _tryCastValuesToModel(array $values)
+    {
         if (is_null($this->_valueModelClass)) {
             return $values;
         }
@@ -522,7 +540,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             } catch (Exception $ex) {
                 throw new Opus\Model\Exception(
                     "Failed to cast value '$value' to class '{$this->_valueModelClass}'. (Field {$this->_name})",
-                    null, $ex
+                    null,
+                    $ex
                 );
             }
         }
@@ -539,22 +558,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @throws InvalidArgumentException If you try to access an index, that does not exists.
      * @return Mixed Whatever the value of the field might be.
      */
-    public function getValue($index = null) {
-
+    public function getValue($index = null)
+    {
         // wrap start value in array if multivalue option is set for this field
         $this->_value = $this->_wrapValueInArrayIfRequired($this->_value);
 
         // Caller requested a specific array index
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             if (true === is_array($this->_value)) {
                 if (true === isset($this->_value[$index])) {
                     return $this->_value[$index];
-                }
-                else {
+                } else {
                     throw new InvalidArgumentException('Unvalid index: ' . $index);
                 }
-            }
-            else {
+            } else {
                 throw new InvalidArgumentException('Invalid index (' . $index . '). Requested value is not an array.');
             }
         }
@@ -570,16 +587,17 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param mixed $value Arbitrary value.
      * @return mixed|array The parameter value, or an array holding the parameter value.
      */
-    private function _wrapValueInArrayIfRequired($value) {
-        if (is_array($value) or !$this->hasMultipleValues()) {
-           return $value;
+    private function _wrapValueInArrayIfRequired($value)
+    {
+        if (is_array($value) or ! $this->hasMultipleValues()) {
+            return $value;
         }
 
         if (is_null($value)) {
-           return array();
+            return [];
         }
 
-        return array($value);
+        return [$value];
     }
 
     /**
@@ -591,14 +609,13 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *         (f.e. multiplicity allows 2 values an both are set already).
      * @return Opus_Model_Field Fluent interface.
      */
-    public function addValue($value) {
-
+    public function addValue($value)
+    {
         if ($this->hasMultipleValues() === false) {
             // One cannot add an array of values to an single-multiplicity field
             if (is_array($value) or is_null($this->_value) === false) {
                 throw new InvalidArgumentException('Cannot add multiple values to ' . $this->_name);
-            }
-            else {
+            } else {
                 $this->setValue($value);
                 return $this;
             }
@@ -634,21 +651,20 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
             $sortField = $this->_sortFieldName;
 
             $sortValueMax = 0;
-            foreach ($this->_value AS $valueOld) {
+            foreach ($this->_value as $valueOld) {
                 $sortValue = $valueOld->getField($sortField)->getValue();
                 if ($sortValue > $sortValueMax) {
                     $sortValueMax = $sortValue;
                 }
             }
 
-            $this->_fixSortOrder($value, $sortValueMax+1);
+            $this->_fixSortOrder($value, $sortValueMax + 1);
         }
 
         // Add the value to the array
         if (is_array($value) === true) {
             $this->_value = array_merge($this->_value, $value);
-        }
-        else {
+        } else {
             $this->_value[] = $value;
         }
 
@@ -662,7 +678,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param mixed $value The field default value to be set.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setDefault($value) {
+    public function setDefault($value)
+    {
         $this->_default = $value;
         return $this;
     }
@@ -673,7 +690,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return mixed Whatever the default value of the field might be.
      */
-    public function getDefault() {
+    public function getDefault()
+    {
         return $this->_default;
     }
 
@@ -684,7 +702,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param boolean $value True, if the field can be displayed as a text box.
      * @return void
      */
-    public function setTextarea($value) {
+    public function setTextarea($value)
+    {
         $this->_textarea = (bool) $value;
         if ($this->_textarea === true) {
             $this->_checkbox = false;
@@ -697,7 +716,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Boolean True, if the field can be displayed as a text box.
      */
-    public function isTextarea() {
+    public function isTextarea()
+    {
         return $this->_textarea;
     }
 
@@ -710,7 +730,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *                       list.
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setSelection($value) {
+    public function setSelection($value)
+    {
         $this->_selection = (bool) $value;
         if ($this->_selection === true) {
             $this->_checkbox = false;
@@ -724,7 +745,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Boolean True, if the field can be displayed as a selection list.
      */
-    public function isSelection() {
+    public function isSelection()
+    {
         return $this->_selection;
     }
 
@@ -733,7 +755,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return string Class name or null if the value is not a model.
      */
-    public function getValueModelClass() {
+    public function getValueModelClass()
+    {
         return $this->_valueModelClass;
     }
 
@@ -743,7 +766,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param  string $classname The name of the class that is used as model for this field or null.
      * @return Opus_Model_Field Fluent interface.
      */
-    public function setValueModelClass($classname) {
+    public function setValueModelClass($classname)
+    {
         $this->_valueModelClass = $classname;
         return $this;
     }
@@ -753,7 +777,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return string Class name or null if the value is not a model.
      */
-    public function getLinkModelClass() {
+    public function getLinkModelClass()
+    {
         return $this->_linkModelClass;
     }
 
@@ -763,7 +788,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param  string $classname The name of the class that is used as model for this field or null.
      * @return Opus_Model_Field Fluent interface.
      */
-    public function setLinkModelClass($classname) {
+    public function setLinkModelClass($classname)
+    {
         $this->_linkModelClass = $classname;
         return $this;
     }
@@ -772,7 +798,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * Return the name of the model class that owns the field.
      * @return string Class name of the model that own the field or null.
      */
-    public function getOwningModelClass() {
+    public function getOwningModelClass()
+    {
         return $this->_owningModelClass;
     }
 
@@ -781,7 +808,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param string $classname The name of the class that owns the field.
      * @return Opus_Model_Field Fluent interface.
      */
-    public function setOwningModelClass($classname) {
+    public function setOwningModelClass($classname)
+    {
         $this->_owningModelClass = $classname;
         return $this;
     }
@@ -792,7 +820,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param  string $classname The field name used as model for sorting.
      * @return Opus_Model_Field Fluent interface.
      */
-    public function setSortFieldName($fieldname) {
+    public function setSortFieldName($fieldname)
+    {
         $this->_sortFieldName = $fieldname;
         return $this;
     }
@@ -802,14 +831,14 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return boolean
      */
-    public function isModified() {
+    public function isModified()
+    {
         if ($this->_value instanceof Opus_Model_ModificationTracking) {
             if (true === $this->_value->isModified()) {
                 $this->_modified = true;
             }
-        }
-        else if (is_array($this->_value)) {
-            foreach ($this->_value AS $value) {
+        } elseif (is_array($this->_value)) {
+            foreach ($this->_value as $value) {
                 if ($value instanceof Opus_Model_ModificationTracking) {
                     if (true === $value->isModified()) {
                         $this->_modified = true;
@@ -826,8 +855,26 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return void
      */
-    public function clearModified() {
+    public function clearModified()
+    {
         $this->_modified = false;
+        $this->clearModifiedOfValueModels();
+    }
+
+    /**
+     * Removes modified status from value objects.
+     */
+    protected function clearModifiedOfValueModels()
+    {
+        if ($this->_value instanceof Opus_Model_ModificationTracking) {
+            $this->_value->setModified(false);
+        } elseif (is_array($this->_value)) {
+            foreach ($this->_value as $value) {
+                if ($value instanceof Opus_Model_ModificationTracking) {
+                    $value->setModified(false);
+                }
+            }
+        }
     }
 
     /**
@@ -835,10 +882,10 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return void
      */
-    public function setModified() {
-        $this->_modified = true;
+    public function setModified($modified = true)
+    {
+        $this->_modified = $modified;
     }
-
 
     /**
      * Set the checkbox property. Override other properties if checkbox is
@@ -847,7 +894,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      * @param boolean $value True, if the field can be displayed as a checkbox
      * @return Opus_Model_Field Provide fluent interface.
      */
-    public function setCheckbox($value) {
+    public function setCheckbox($value)
+    {
         $this->_checkbox = (bool) $value;
         if ($this->_checkbox === true) {
             $this->_selection = false;
@@ -861,8 +909,8 @@ class Opus_Model_Field implements Opus_Model_ModificationTracking {
      *
      * @return Boolean True, if the field can be displayed as a checkbox.
      */
-    public function isCheckbox() {
+    public function isCheckbox()
+    {
         return $this->_checkbox;
     }
-
 }

@@ -28,9 +28,8 @@
  * @package     Opus_Model
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2008-2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -41,20 +40,26 @@
  *
  * @group       DependentLinkAbstractTest
  */
-class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
+class Opus_Model_Dependent_Link_AbstractTest extends TestCase
+{
 
     /**
      * Overwrite parent methods.
      */
-    public function setUp() {}
-    public function tearDown() {}
+    public function setUp()
+    {
+    }
+    public function tearDown()
+    {
+    }
 
     /**
      * Test querying the display name of a linked  model.
      *
      * @return void
      */
-    public function testGetDisplayNameThroughLink() {
+    public function testGetDisplayNameThroughLink()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel();
         $model->setDisplayName('AbstractTestMockDisplayName');
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
@@ -69,7 +74,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testGetModelClass() {
+    public function testGetModelClass()
+    {
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass('Opus_Model');
 
@@ -83,7 +89,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDescribeShowsAdditionalFieldsOfLinkModel() {
+    public function testDescribeShowsAdditionalFieldsOfLinkModel()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
@@ -100,7 +107,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDescribeCallReturnsFieldsOfLinkedModel() {
+    public function testDescribeCallReturnsFieldsOfLinkedModel()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $model->addField(new Opus_Model_Field('AField'));
 
@@ -118,7 +126,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDescribeAllCallReturnsFieldsOfLinkedModel() {
+    public function testDescribeAllCallReturnsFieldsOfLinkedModel()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $model->addField(new Opus_Model_Field('AField'));
 
@@ -138,7 +147,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testLinkModelFieldsCanBeAccessedViaGetAndSet() {
+    public function testLinkModelFieldsCanBeAccessedViaGetAndSet()
+    {
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->addField(new Opus_Model_Field('FieldValue'));
         $link->setFieldValue('FooBar');
@@ -150,7 +160,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testLinkedModelsFieldsCanBeAccessedViaGetAndSet() {
+    public function testLinkedModelsFieldsCanBeAccessedViaGetAndSet()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $model->addField(new Opus_Model_Field('AField'));
 
@@ -168,8 +179,9 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testLinkedModelsFieldsCanBeAccessedViaAdd() {
-        $model = $this->getMock('Opus_Model_Dependent_Link_AbstractTestModel', array('__call'));
+    public function testLinkedModelsFieldsCanBeAccessedViaAdd()
+    {
+        $model = $this->getMock('Opus_Model_Dependent_Link_AbstractTestModel', ['__call']);
         $model->addField(new Opus_Model_Field('Multi'));
 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
@@ -178,7 +190,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
 
         $model->expects($this->once())
             ->method('__call')
-            ->with($this->equalTo('addMulti'), array(null));
+            ->with($this->equalTo('addMulti'), [null]);
 
         $link->addMulti(null);
     }
@@ -188,7 +200,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
      *
      * @return void
      */
-    public function testDescribeUntunneledReturnsOnlyLinkFields() {
+    public function testDescribeUntunneledReturnsOnlyLinkFields()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
 
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
@@ -201,14 +214,15 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
         $this->assertEquals(1, count($result), 'Result should only have one array element.');
         $this->assertEquals('LinkField', $result[0], 'Result should contain only a field "LinkField"');
     }
-    
+
     /**
      * Test if the identifier of a newly created link model is null
      * if it has not been persisted yet.
      *
      * @return void
      */
-    public function testPrimaryKeyOfTransientLinkModelIsNull() {
+    public function testPrimaryKeyOfTransientLinkModelIsNull()
+    {
         if (false === class_exists('Opus_Model_Dependent_Link_Mock', false)) {
             eval('
                 class Opus_Model_Dependent_Link_Mock
@@ -226,7 +240,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
                 }
             ');
         }
-        
+
         if (false === class_exists('Opus_Model_Dependent_Link_MockTableGateway', false)) {
             eval('
                 class Opus_Model_Dependent_Link_MockTableGateway
@@ -243,7 +257,7 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
                 }
             ');
         }
-        
+
         $mockTableGateway = new Opus_Model_Dependent_Link_MockTableGateway;
         $link = new Opus_Model_Dependent_Link_Mock(null, $mockTableGateway);
 
@@ -251,40 +265,42 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
         $this->assertNull($link->getId(), 'Id of Link Model should be null if the Link Model is new,
             no matter what its primary key fields are set up to.');
     }
-    
+
     /**
     * Test if setting a model changes the modifification status of the link model.
     *
     * @return void
     */
-    public function testSettingAModelMarksLinkModelToBeModified() {
+    public function testSettingAModelMarksLinkModelToBeModified()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel();
         $model->setDisplayName('AbstractTestMockDisplayName');
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass(get_class($model));
         $link->setModel($model);
-        
+
         $this->assertTrue($link->isModified(), 'Call to setModel() does not set modification flag.');
     }
-    
+
     /**
      * Test if toArray() on a Opus_Model_Dependent_Link_Abstract instance
      * returns all fields of the linked Model and fields of the LinkModel as well.
      *
      * @return void
-     */   
-    public function testToArrayShowsLinkModelFields() {
+     */
+    public function testToArrayShowsLinkModelFields()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel;
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel;
         $link->setModelClass(get_class($model));
         $link->setModel($model);
-        
+
         $model->addField(new Opus_Model_Field('Value'));
         $model->setValue(4711);
-        
+
         $link->addField(new Opus_Model_Field('LinkModelField'));
         $link->setLinkModelField('Foo');
-    
+
         $result = $link->toArray();
         $this->assertArrayHasKey('Value', $result, 'Linked Model field is missing.');
         $this->assertArrayHasKey('LinkModelField', $result, 'LinkModel field is missing.');
@@ -293,7 +309,8 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
     /**
      * Regression test for OPUSVIER-2304.
      */
-    public function testIsValidChecksLinkedModel() {
+    public function testIsValidChecksLinkedModel()
+    {
         $model = new Opus_Model_Dependent_Link_AbstractTestModel();
         $link = new Opus_Model_Dependent_Link_AbstractTestLinkModel();
         $link->setModelClass(get_class($model));
@@ -305,6 +322,4 @@ class Opus_Model_Dependent_Link_AbstractTest extends TestCase {
 
         $this->assertFalse($link->isValid()); // model is not valid
     }
-
-    
 }

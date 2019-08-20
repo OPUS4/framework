@@ -27,12 +27,12 @@
  * @category    Framework
  * @package     Opus_Model_Xml
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2009-2014, OPUS 4 development team
+ * @copyright   Copyright (c) 2009-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
-abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy {
+abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
+{
 
     /**
      * Holds current configuration.
@@ -51,16 +51,17 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
     /**
      * Initiate class with a valid config object.
      */
-    public function __construct() {
+    public function __construct()
+    {
         $this->_config = new Opus_Model_Xml_Conf;
-
     }
 
     /**
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
      */
-    public function setDomDocument(DOMDocument $dom) {
+    public function setDomDocument(DOMDocument $dom)
+    {
         $this->_config->dom = $dom;
     }
 
@@ -76,7 +77,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @throws Opus\Model\Exception Thrown if the model reffered to by the elements name is unknown.
      * @return Opus_Model_Abstract Created model
      */
-    protected function _createModelFromElement(DOMElement $element, $classname = null) {
+    protected function _createModelFromElement(DOMElement $element, $classname = null)
+    {
         if (null === $classname) {
             $classname = $element->nodeName;
         }
@@ -102,7 +104,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @param Opus_Model_Abstract $model Model to link.
      * @return null|string Returns a string or null if no mapping is available
      */
-    protected function _createXlinkRef(Opus_Model_Abstract $model) {
+    protected function _createXlinkRef(Opus_Model_Abstract $model)
+    {
         // detect wether the model is persistent and shall be represented as xlink
         $uri = null;
 
@@ -116,12 +119,10 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         if (true === array_key_exists($valueModelClassName, $this->_config->resourceNameMap)) {
             // is the model a persisted database object?
             if ($model instanceof Opus_Model_AbstractDb) {
-
                 // return associated model id if $model is a link model
                 if ($model instanceof Opus_Model_Dependent_Link_Abstract) {
                     $modelId = $model->getLinkedModelId();
-                }
-                else {
+                } else {
                     $modelId = $model->getId();
                 }
 
@@ -144,24 +145,25 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @param boolean             $unTunneled Should only current (true) or all (false, default) fields shown.
      * @return void
      */
-    protected function _mapAttributes(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode,
-                                      $unTunneled = false) {
+    protected function _mapAttributes(
+        Opus_Model_Abstract $model,
+        DOMDocument $dom,
+        DOMNode $rootNode,
+        $unTunneled = false
+    ) {
 
-        if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Link_Abstract)) {
+        if ((true === $unTunneled) and ($model instanceof Opus_Model_Dependent_Link_Abstract)) {
             $fields = $model->describeUntunneled();
-        }
-        else if ((true === $unTunneled) and ($model instanceOf Opus_Model_Dependent_Abstract)) {
+        } elseif ((true === $unTunneled) and ($model instanceof Opus_Model_Dependent_Abstract)) {
             return; // short-circuit
-        }
-        else {
+        } else {
             $fields = $model->describe();
         }
 
         $excludeFields = $this->_config->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
-        }
-        else {
+        } else {
             $fieldsDiff = $fields;
         }
 
@@ -175,7 +177,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getDomDocument()
      */
-    public function getDomDocument() {
+    public function getDomDocument()
+    {
         if (null === $this->_config->model) {
             throw new Opus\Model\Exception('No Model given for serialization.');
         }
@@ -195,7 +198,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getModel()
      */
-    public function getModel() {
+    public function getModel()
+    {
         if (null !== $this->_config->dom) {
             $root = $this->_config->dom->getElementsByTagName('Opus')->item(0);
             if (null === $root) {
@@ -213,7 +217,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      *
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#getVersion()
      */
-    public function getVersion() {
+    public function getVersion()
+    {
         return floor($this->_version);
     }
 
@@ -221,7 +226,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setDomDocument()
      */
-    public function setup(Opus_Model_Xml_Conf $conf) {
+    public function setup(Opus_Model_Xml_Conf $conf)
+    {
         $this->_config = $conf;
     }
 
@@ -229,7 +235,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * (non-PHPdoc)
      * @see library/Opus/Model/Xml/Opus_Model_Xml_Strategy#setXml()
      */
-    public function setXml($xml) {
+    public function setXml($xml)
+    {
         $dom = new DOMDocument('1.0', 'UTF-8');
         $dom->preserveWhiteSpace = false;
         // Disable libxml error reporting because it generates warnings
@@ -249,7 +256,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         $this->setDomDocument($dom);
     }
 
-    public function getConfig() {
+    public function getConfig()
+    {
         return $this->_config;
     }
 
@@ -263,7 +271,8 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      *
      * FIXME: remove code duplication (duplicates Opus_Model_Xml_Version*)
      */
-    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode) {
+    protected function _mapField(Opus_Model_Field $field, DOMDocument $dom, DOMNode $rootNode)
+    {
         $modelClass = $field->getValueModelClass();
         $fieldValues = $field->getValue();
 
@@ -277,12 +286,11 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
 
         if (null === $modelClass) {
             $this->mapSimpleField($dom, $rootNode, $field);
-        }
-        else {
+        } else {
             $fieldName = $field->getName();
 
-            if (!is_array($fieldValues)) {
-                $fieldValues = array($fieldValues);
+            if (! is_array($fieldValues)) {
+                $fieldValues = [$fieldValues];
             }
 
             foreach ($fieldValues as $value) {
@@ -302,24 +310,24 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
                     $childNode->setAttribute('xlink:type', 'simple');
                     $childNode->setAttribute('xlink:href', $uri);
                     $this->_mapAttributes($value, $dom, $childNode, true);
-                }
-                else {
+                } else {
                     $this->_mapAttributes($value, $dom, $childNode);
                 }
             }
         }
     }
 
-    abstract function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field);
+    abstract public function mapSimpleField(DOMDocument $dom, DOMNode $rootNode, Opus_Model_Field $field);
 
-    public function getFieldValues($field) {
+    public function getFieldValues($field)
+    {
         $fieldValues = $field->getValue();
 
         // workaround for simple fields with multiple values
         if (true === $field->hasMultipleValues()) {
             $fieldValues = implode(',', $fieldValues);
         }
-        if ($fieldValues instanceOf DateTimeZone) {
+        if ($fieldValues instanceof DateTimeZone) {
             $fieldValues = $fieldValues->getName();
         }
 
@@ -334,13 +342,13 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
      * @param DOMNode             $rootNode Node where to add created structure.
      * @return void
      */
-    protected function _mapModel(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode) {
+    protected function _mapModel(Opus_Model_Abstract $model, DOMDocument $dom, DOMNode $rootNode)
+    {
         $fields = $model->describe();
         $excludeFields = $this->getConfig()->excludeFields;
         if (count($excludeFields) > 0) {
             $fieldsDiff = array_diff($fields, $excludeFields);
-        }
-        else {
+        } else {
             $fieldsDiff = $fields;
         }
 
@@ -353,12 +361,13 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         }
     }
 
-    protected function createFieldElement(DOMDocument $dom, $fieldName, $value) {
+    protected function createFieldElement(DOMDocument $dom, $fieldName, $value)
+    {
         return $dom->createElement($fieldName);
     }
 
-    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model) {
+    protected function createModelNode(DOMDocument $dom, Opus_Model_Abstract $model)
+    {
         return $dom->createElement(get_class($model));
     }
-
 }

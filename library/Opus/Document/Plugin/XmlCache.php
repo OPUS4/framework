@@ -45,7 +45,6 @@ class Opus_Document_Plugin_XmlCache extends Opus\Model\Plugin\AbstractPlugin
 
     use Opus\LoggingTrait;
 
-
     /**
      * Function is only called if document was modified.
      *

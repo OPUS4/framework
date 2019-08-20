@@ -40,7 +40,8 @@
  * @category Tests
  * @package Opus_Model
  */
-class Opus_Model_ModelAbstractWithoutId extends Opus_Model_Abstract {
+class Opus_Model_ModelAbstractWithoutId extends Opus_Model_Abstract
+{
 
     /**
      * Variable holds constructor parameter.
@@ -54,7 +55,8 @@ class Opus_Model_ModelAbstractWithoutId extends Opus_Model_Abstract {
      *
      * @param mixed $cons (Optional) Value to be passed.
      */
-    public function __construct($cons = 'default') {
+    public function __construct($cons = 'default')
+    {
         parent::__construct();
         $this->cons = $cons;
     }
@@ -64,11 +66,12 @@ class Opus_Model_ModelAbstractWithoutId extends Opus_Model_Abstract {
      *
      * @return void
      */
-    protected function _init() {
+    protected function _init()
+    {
         $value = new Opus_Model_Field('Value');
-        // trigger modified flag       
+        // trigger modified flag
         $value->setValue('test');
-        
+
         $this->addField($value);
     }
 }

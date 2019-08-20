@@ -58,7 +58,7 @@ class Opus_Db_AccessModules extends Opus_Db_TableGateway
     {
         $adapter = $this->getAdapter();
         $select = $adapter->select()
-            ->from($this->_name, array('module_name'))
+            ->from($this->_name, ['module_name'])
             ->where('role_id = ?', $role_id)
             ->order('module_name');
 

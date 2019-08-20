@@ -34,23 +34,27 @@
 
 /**
  * Mockup to simulate a persisted model.
- * 
+ *
  * @category Tests
  * @package Opus_Model
  */
-class Opus_Model_ModelAbstractDbMock extends Opus_Model_AbstractDb {
+class Opus_Model_ModelAbstractDbMock extends Opus_Model_AbstractDb
+{
 
-    public function __construct() {
+    public function __construct()
+    {
     }
-    
-    public function _init() {
+
+    public function _init()
+    {
     }
-    
-    public function delete() {
+
+    public function delete()
+    {
     }
-    
-    public function getId() {
+
+    public function getId()
+    {
         return 4711;
     }
-
 }

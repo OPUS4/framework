@@ -29,7 +29,7 @@
  * @author      Felix Ostrowski (ostrowski@hbz-nrw.de)
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Jens Schwidder <schwidder@zib.de>
- * @copyright   Copyright (c) 2008-2018, OPUS 4 development team
+ * @copyright   Copyright (c) 2008-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
  */
 
@@ -109,7 +109,7 @@ abstract class Opus_Model_Abstract
 
         // check if requested field is known
         $field = $this->getField($fieldname);
-        if (!isset($field)) {
+        if (! isset($field)) {
             throw new Opus\Model\Exception('Unknown field: ' . $fieldname);
         }
 
@@ -135,7 +135,6 @@ abstract class Opus_Model_Abstract
                 throw new Opus\Model\Exception('Unknown accessor function: ' . $accessor);
                 break;
         }
-
     }
 
     /**
@@ -148,7 +147,7 @@ abstract class Opus_Model_Abstract
      */
     protected function _getFieldValue(Opus_Model_Field $field, $index)
     {
-        if (!is_null($index)) {
+        if (! is_null($index)) {
             return $field->getValue($index);
         }
 
@@ -231,8 +230,7 @@ abstract class Opus_Model_Abstract
     {
         if (isset($this->_fields[$name])) {
             return $this->_fields[$name];
-        }
-        else {
+        } else {
             return null;
         }
     }
@@ -309,11 +307,10 @@ abstract class Opus_Model_Abstract
         $result = [];
 
         foreach (array_keys($this->_fields) as $fieldname) {
-
             $field = $this->_getField($fieldname);
             $fieldvalue = $field->getValue();
 
-            if (!$field->hasMultipleValues()) {
+            if (! $field->hasMultipleValues()) {
                 $fieldvalue = [$fieldvalue];
             }
 
@@ -322,16 +319,14 @@ abstract class Opus_Model_Abstract
             foreach ($fieldvalue as $value) {
                 if ($value instanceof Opus_Model_Abstract) {
                     $fieldvalues[] = $value->toArray();
-                }
-                else if ($value instanceOf Zend_Date) {
+                } elseif ($value instanceof Zend_Date) {
                     $fieldvalues[] = $value->toArray();
-                }
-                else {
+                } else {
                     $fieldvalues[] = $value;
                 }
             }
 
-            if (!$field->hasMultipleValues()) {
+            if (! $field->hasMultipleValues()) {
                 $fieldvalues = $fieldvalues[0];
             }
 
@@ -380,9 +375,9 @@ abstract class Opus_Model_Abstract
 
         $this->clearFields();
 
-        foreach($data as $fieldName => $values) {
+        foreach ($data as $fieldName => $values) {
             $field = $this->getField($fieldName);
-            if (!is_null($field)) {
+            if (! is_null($field)) {
                 $fieldModelClass = $field->getValueModelClass();
                 $linkModelClass = $field->getLinkModelClass();
 
@@ -394,7 +389,7 @@ abstract class Opus_Model_Abstract
                         foreach ($values as $modelValues) {
                             $model = new $fieldModelClass();
 
-                            if (!is_null($linkModelClass)) {
+                            if (! is_null($linkModelClass)) {
                                 $linkModel = new $linkModelClass();
                                 $linkModel->setModel($model);
                                 $model = $linkModel;
@@ -405,11 +400,10 @@ abstract class Opus_Model_Abstract
                         }
 
                         $field->setValue($models);
-                    }
-                    else {
+                    } else {
                         $model = new $fieldModelClass();
 
-                        if (!is_null($linkModelClass)) {
+                        if (! is_null($linkModelClass)) {
                             $linkModel = new $linkModelClass();
                             $linkModel->setModel($model);
                             $model = $linkModel;
@@ -465,11 +459,9 @@ abstract class Opus_Model_Abstract
 
         if ($xml instanceof DomDocument) {
             $customDeserializer->setDomDocument($xml);
-        }
-        else if (is_string($xml)) {
+        } elseif (is_string($xml)) {
             $customDeserializer->setXml($xml);
-        }
-        else {
+        } else {
             throw new Opus\Model\Exception('Either DomDocument or xml string must be passed.');
         }
 
@@ -577,7 +569,7 @@ abstract class Opus_Model_Abstract
      */
     public function clearFields()
     {
-        foreach($this->_fields as $fieldName => $field) {
+        foreach ($this->_fields as $fieldName => $field) {
             $field->setValue(null);
         }
     }

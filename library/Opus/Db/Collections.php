@@ -81,7 +81,6 @@ class Opus_Db_Collections extends Opus_Db_NestedSet
      */
     protected $_tree = 'role_id';
 
-
     /**
      * Map foreign keys in this table to the column in the table they originate
      * from
@@ -100,7 +99,6 @@ class Opus_Db_Collections extends Opus_Db_NestedSet
             'refColumns' => 'id'
         ]
     ];
-
 
     /**
      * All dependant Tables,

@@ -38,5 +38,6 @@
  * @category    Framework
  * @package     Opus_Identifier
  */
-class Opus_Identifier_UrnAlreadyExistsException extends Opus\Model\Exception {
+class Opus_Identifier_UrnAlreadyExistsException extends Opus\Model\Exception
+{
 }

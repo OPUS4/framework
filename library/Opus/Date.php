@@ -53,6 +53,7 @@
  *
  *
  * TODO remove Field objects
+ * TODO extend Opus_Date with functions to provide string appropriate for Locale
  *
  * @method void setYear(integer $year)
  * @method integer getYear()
@@ -117,17 +118,17 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         if ($value instanceof Zend_Date) {
             $this->setZendDate($value);
-        } else if ($value instanceof DateTime) {
+        } elseif ($value instanceof DateTime) {
             $this->setDateTime($value);
-        } else if (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
+        } elseif (is_string($value) and preg_match(self::TIMEDATE_REGEXP, $value)) {
             $this->setFromString($value);
-        } else if (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
+        } elseif (is_string($value) and preg_match(self::DATEONLY_REGEXP, $value)) {
             $this->setFromString($value);
-        } else if ($value instanceof Opus_Date) {
+        } elseif ($value instanceof Opus_Date) {
             $this->updateFrom($value);
-        } else if (is_integer($value)) {
+        } elseif (is_integer($value)) {
             $this->setTimestamp($value);
-        } else{
+        } else {
             $this->resetValues();
         }
     }
@@ -202,13 +203,13 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      */
     public function getDateTime($timezone = null)
     {
-        if (!$this->isValidDate()) {
+        if (! $this->isValidDate()) {
             return null;
         }
 
         $date = $this->__toString();
         if ($this->isDateOnly()) {
-            if (!is_null($timezone)) {
+            if (! is_null($timezone)) {
                 $date = substr($date, 0, 10) . 'T00:00:00' . $timezone;
                 return DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             } else {
@@ -218,7 +219,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         }
 
         $dateTime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
-        if (!is_null($timezone)) {
+        if (! is_null($timezone)) {
             if ($timezone === 'Z') {
                 $timezone = 'UTC';
             }
@@ -235,7 +236,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      */
     public function setDateTime($datetime)
     {
-        if (!$datetime instanceof DateTime) {
+        if (! $datetime instanceof DateTime) {
             throw new InvalidArgumentException('Invalid DateTime object.');
         }
 
@@ -316,7 +317,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         if (preg_match(self::TIMEDATE_REGEXP, $date)) {
             $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateTime($datetime);
-        } else if (preg_match(self::DATEONLY_REGEXP, $date)) {
+        } elseif (preg_match(self::DATEONLY_REGEXP, $date)) {
             $date = substr($date, 0, 10) . 'T00:00:00Z';
             $datetime = DateTime::createFromFormat('Y-m-d\TH:i:se', $date);
             $this->setDateOnly($datetime);
@@ -339,7 +340,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      * Creates Opus_Date object set to the time of creation.
      * @return Opus_Date
      */
-    static function getNow()
+    public static function getNow()
     {
         $date = new Opus_Date();
         $date->setNow();
@@ -360,7 +361,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     {
         $dateStr = sprintf(
             '%04d-%02d-%02d',
-            $this->values[self::FIELD_YEAR], $this->values[self::FIELD_MONTH], $this->values[self::FIELD_DAY]
+            $this->values[self::FIELD_YEAR],
+            $this->values[self::FIELD_MONTH],
+            $this->values[self::FIELD_DAY]
         );
         if ($this->isDateOnly()) {
             return $dateStr;
@@ -368,7 +371,9 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
 
         $timeStr = sprintf(
             '%02d:%02d:%02d',
-            $this->values[self::FIELD_HOUR], $this->values[self::FIELD_MINUTE], $this->values[self::FIELD_SECOND]
+            $this->values[self::FIELD_HOUR],
+            $this->values[self::FIELD_MINUTE],
+            $this->values[self::FIELD_SECOND]
         );
         $tzStr   = $this->values[self::FIELD_TIMEZONE];
         return $dateStr . "T" . $timeStr . $tzStr;
@@ -452,7 +457,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
             return 1;
         }
 
-        if (!$date instanceof Opus_Date) {
+        if (! $date instanceof Opus_Date) {
             $class = get_class();
             $dateClass = get_class($date);
             throw new Opus\Model\Exception("Cannot compare $dateClass with $class object.");
@@ -494,7 +499,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     public function getTimestamp()
     {
         $dateTime = $this->getDateTime('Z');
-        if (!is_null($dateTime)) {
+        if (! is_null($dateTime)) {
             return $dateTime->getTimestamp();
         } else {
             return null;
@@ -530,7 +535,8 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
      * @throws Opus_Security_Exception
      * @deprecated
      */
-    public function setUnixTimestamp($value) {
+    public function setUnixTimestamp($value)
+    {
         parent::setUnixTimestamp($value);
     }
 }

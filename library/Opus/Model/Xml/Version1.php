@@ -63,8 +63,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         if ($value instanceof Opus_Model_AbstractDb) {
             if ($value instanceof Opus_Model_Dependent_Link_Abstract) {
                 $modelId = $value->getLinkedModelId();
-            }
-            else {
+            } else {
                 $modelId = $value->getId();
             }
             // Ignore compound keys.
@@ -81,8 +80,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
 
         if ($model instanceof Opus_Model_AbstractDb) {
             $childNode->setAttribute('Id', $model->getId());
-        }
-        else if ($model instanceof Opus_Model_Filter and
+        } elseif ($model instanceof Opus_Model_Filter and
             $model->getModel() instanceof Opus_Model_AbstractDb) {
             $childNode->setAttribute('Id', $model->getId());
         }
@@ -108,12 +106,10 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             // multi-value internal fields should hold values concatenated because they have only one field in database
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
-
                 $callname = 'set' . $field->name;
                 if ($field->value === '') {
                     $model->$callname(null);
-                }
-                else {
+                } else {
                     $model->$callname($field->value);
                 }
             }
@@ -124,8 +120,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             $fieldName = $externalField->nodeName;
             if (in_array($fieldName, $fieldList) === false) {
                 throw new Opus\Model\Exception('Field ' . $fieldName . ' not defined');
-            }
-            else {
+            } else {
                 $modelclass = $model->getField($fieldName)->getValueModelClass();
             }
 
@@ -135,7 +130,6 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             $model->$callname($submodel);
         }
         return $model;
-
     }
 
     /**
@@ -160,18 +154,16 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
         foreach ($element->attributes as $field) {
             // ignore unknown attributes
             if (true === in_array($field->nodeName, $fieldList)) {
-
                 $callname = 'set' . $field->name;
                 if ($field->value === '') {
                     $model->$callname(null);
-                }
-                else {
+                } else {
                     $model->$callname($field->value);
                 }
             }
         }
 
-        $externalFields = array();
+        $externalFields = [];
         // collect all external field names
         foreach ($element->childNodes as $externalField) {
             $fieldName = $externalField->nodeName;
@@ -188,7 +180,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             $field = $model->getField($fieldName);
             $fieldValue = $field->getValue();
 
-            $subModels = array();
+            $subModels = [];
 
             $domElements = $element->getElementsByTagName($fieldName);
 
@@ -196,8 +188,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             foreach ($domElements as $domElement) {
                 if (false === is_array($fieldValue)) {
                     $submodel = $fieldValue;
-                }
-                else {
+                } else {
                     $submodel = $fieldValue[$i];
                 }
                 $subModels[] = $this->_updateModelFromXml($submodel, $domElement);
@@ -207,8 +198,7 @@ class Opus_Model_Xml_Version1 extends Opus_Model_Xml_VersionAbstract
             $callName = 'set' . $fieldName;
             if (1 === count($subModels)) {
                 $model->$callName($subModels[0]);
-            }
-            else {
+            } else {
                 $model->$callName($subModels);
             }
         }

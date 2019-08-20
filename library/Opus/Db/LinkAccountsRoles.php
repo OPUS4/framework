@@ -54,7 +54,7 @@ class Opus_Db_LinkAccountsRoles extends Opus_Db_TableGateway
      *
      * @var string
      */
-    protected $_primary = array('account_id', 'role_id');
+    protected $_primary = ['account_id', 'role_id'];
 
     /**
      * Map foreign keys in this table to the column in the table they originate

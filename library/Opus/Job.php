@@ -141,7 +141,7 @@ class Opus_Job extends Opus_Model_AbstractDb
     {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
-        if (!is_null($state)) {
+        if (! is_null($state)) {
             if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
@@ -164,7 +164,7 @@ class Opus_Job extends Opus_Model_AbstractDb
     {
         $table  = Opus_Db_TableGateway::getInstance(self::$_tableGatewayClass);
         $select = $table->select()->from($table, ['COUNT(id) AS count']);
-        if (!is_null($state)) {
+        if (! is_null($state)) {
             if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
@@ -189,7 +189,7 @@ class Opus_Job extends Opus_Model_AbstractDb
         $select = $table->select()
                 ->from($table, ['label', 'COUNT(id) AS count'])
                 ->group('label');
-        if (!is_null($state)) {
+        if (! is_null($state)) {
             if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
@@ -224,7 +224,7 @@ class Opus_Job extends Opus_Model_AbstractDb
      * @param string $state (optional) only retrieve jobs in given state
      * @return array Set of Opus_Job objects.
      */
-    public static function getByLabels(array $labels, $limit=null, $state = null)
+    public static function getByLabels(array $labels, $limit = null, $state = null)
     {
         if (count($labels) < 1) {
             return null;
@@ -235,7 +235,7 @@ class Opus_Job extends Opus_Model_AbstractDb
         foreach ($labels as $label) {
             $select->orWhere('label = ?', $label);
         }
-        if (!is_null($state)) {
+        if (! is_null($state)) {
             if ($state == Opus_Job::STATE_UNDEFINED) {
                 $select->where('state IS NULL');
             } else {
@@ -244,7 +244,7 @@ class Opus_Job extends Opus_Model_AbstractDb
         }
 
         $select->order('id');
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $select->limit($limit);
         }
         $rowset = $table->fetchAll($select);

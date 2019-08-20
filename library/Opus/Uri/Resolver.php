@@ -38,15 +38,14 @@
  * @category    Framework
  * @package     Opus_Uri
  */
-interface Opus_Uri_Resolver {
+interface Opus_Uri_Resolver
+{
 
     /**
-     * Get content of a represented resource. 
+     * Get content of a represented resource.
      *
-     * @param string $uri The URI pointing to a resource. 
+     * @param string $uri The URI pointing to a resource.
      * @return mixed A representation of the specified resource.
      */
     public function get($uri);
-
 }
-

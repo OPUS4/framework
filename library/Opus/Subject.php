@@ -131,11 +131,11 @@ class Opus_Subject extends Opus_Model_Dependent_Abstract
             ->order('value ASC')
             ->group(['value', 'external_key']);
 
-        if (!is_null($type)) {
+        if (! is_null($type)) {
             $select->where('type = ?', $type);
         }
 
-        if (!is_null($limit)) {
+        if (! is_null($limit)) {
             $select->limit($limit, 0);
         }
 

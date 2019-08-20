@@ -40,7 +40,8 @@
  * @category    Framework
  * @package     Opus_Model
  */
-class Opus_Model_Filter extends Opus_Model_Abstract {
+class Opus_Model_Filter extends Opus_Model_Abstract
+{
 
 
     /**
@@ -55,21 +56,22 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      *
      * @var array Array of fieldnames.
      */
-    private $_blacklist = array();
+    private $_blacklist = [];
 
     /**
      * List of fields to define sort order.
      *
      * @var array Array of fieldnames defining sort order.
      */
-    private $_sortorder = array();
+    private $_sortorder = [];
 
     /**
      * Just here to implement abstract interface.
      *
      * @see library/Opus/Model/Opus_Model_Abstract#_init()
      */
-    protected function _init() {
+    protected function _init()
+    {
     }
 
     /**
@@ -78,7 +80,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param Opus_Model_Abstract $model Filter source.
      * @return Opus_Model_Filter Fluent interface.
      */
-    public function setModel(Opus_Model_Abstract $model) {
+    public function setModel(Opus_Model_Abstract $model)
+    {
         $this->_model = $model;
         return $this;
     }
@@ -89,7 +92,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param array $list Array of fields that shall be filtered.
      * @return Opus_Model_Filter Fluent interface.
      */
-    public function setBlacklist(array $list) {
+    public function setBlacklist(array $list)
+    {
         $this->_blacklist = $list;
         return $this;
     }
@@ -100,7 +104,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param array $list Array of fields that shall be allowed to be accessed.
      * @return Opus_Model_Filter Fluent interface.
      */
-    public function setWhitelist(array $list) {
+    public function setWhitelist(array $list)
+    {
         $this->_blacklist = array_diff($this->_model->describe(), $list);
         return $this;
     }
@@ -111,7 +116,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param array $sort Array of field names specifying the order.
      * @return Opus_Model_Filter Fluent interface.
      */
-    public function setSortOrder(array $sort) {
+    public function setSortOrder(array $sort)
+    {
         $this->_sortorder = $sort;
         return $this;
     }
@@ -123,7 +129,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @see    Opus_Model_Abstract::_internalFields
      * @return array    List of fields
      */
-    public function describe() {
+    public function describe()
+    {
         $result = $this->_model->describe();
 
         // ensure sort order by removing all sorted fields from output
@@ -143,7 +150,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @throws Opus\Model\Exception If the requested field is hidden by the blacklist.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
-    public function getField($name) {
+    public function getField($name)
+    {
         if (in_array($name, $this->_blacklist)) {
             throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
         }
@@ -161,7 +169,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @throws Opus_Security_Exception  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
-    public function __call($name, array $arguments) {
+    public function __call($name, array $arguments)
+    {
         $fieldname = substr($name, 3);
         if (in_array($fieldname, $this->_blacklist)) {
             throw new Opus\Model\Exception('Requested field is hidden by the blacklist.');
@@ -170,8 +179,7 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
         foreach ($arguments as $i => $argument) {
             if (true === is_string($argument)) {
                 $argstring .= '\'' . $argument . '\',';
-            }
-            else {
+            } else {
                 $argstring .= '$arguments[' . $i . '],';
             }
         }
@@ -185,11 +193,12 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      *
      * @return array A (nested) array representation of the model.
      */
-    public function toArray() {
+    public function toArray()
+    {
         $modelArray = $this->_model->toArray();
 
         $filteredFields = $this->describe();
-        $result = array();
+        $result = [];
         foreach ($filteredFields as $filteredField) {
             $result[$filteredField] = $modelArray[$filteredField];
         }
@@ -205,9 +214,10 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      * @param bool $excludeEmptyFields If set to false, fields with empty values are included in the resulting DOM.
      * @return DomDocument A Dom representation of the model.
      */
-    public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true) {
+    public function toXml(array $excludeFields = null, $strategy = null, $excludeEmptyFields = true)
+    {
         if (is_null($excludeFields) === true) {
-            $excludeFields = array();
+            $excludeFields = [];
         }
         if (is_null($strategy) === true) {
             $strategy = new Opus_Model_Xml_Version1();
@@ -227,8 +237,8 @@ class Opus_Model_Filter extends Opus_Model_Abstract {
      *
      * @return Opus_Model_Abstract The filtered model.
      */
-    public function getModel() {
+    public function getModel()
+    {
         return $this->_model;
     }
-
 }

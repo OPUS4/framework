@@ -40,7 +40,6 @@
  */
 class Opus_Db_Jobs extends Opus_Db_TableGateway
 {
-
     /**
      * Table schema name.
      *

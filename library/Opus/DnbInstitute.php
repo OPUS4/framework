@@ -126,9 +126,12 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      *
      * @var array
      */
-    protected $_plugins = [
-        'Opus_Model_Plugin_InvalidateDocumentCache' => null,
-    ];
+    public function getDefaultPlugins()
+    {
+        return [
+            'Opus_Model_Plugin_InvalidateDocumentCache'
+        ];
+    }
 
     /**
      * Initialize model with the following fields:
@@ -182,8 +185,8 @@ class Opus_DnbInstitute extends Opus_Model_AbstractDb
      */
     public function getDisplayName()
     {
-       $departmentName = $this->getDepartment();
-       return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
+        $departmentName = $this->getDepartment();
+        return $this->getName().(empty($departmentName) ? '' : ', '.$departmentName);
     }
 
     /**
