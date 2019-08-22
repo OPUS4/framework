@@ -147,7 +147,7 @@ class Opus_CollectionRole extends Opus_Model_AbstractDb
     {
         // Attributes, which are defined by the database schema.
         $name = new Opus_Model_Field('Name');
-        $name->setMandatory(true)->setValidator(new Opus_Validate_CollectionRoleName());
+        $name->setMandatory(true)->setValidator(new Opus\Validate\CollectionRoleName());
         $this->addField($name);
 
         $oaiName = new Opus_Model_Field('OaiName');
