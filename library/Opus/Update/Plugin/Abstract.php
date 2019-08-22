@@ -48,15 +48,6 @@ abstract class Opus_Update_Plugin_Abstract
     private $_quietMode;
 
     /**
-     * Set logger for this class.
-     * @param Zend_Log $logger
-     */
-    public function setLogger($logger)
-    {
-        $this->_logger = $logger;
-    }
-
-    /**
      * Sets configuration.
      * @param $config Zend_Config
      */
