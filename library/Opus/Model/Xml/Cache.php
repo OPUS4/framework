@@ -317,7 +317,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
         $indexPlugin->postStore($doc);
     }
 
-    public function setIndexPluginClass($pluginClass)
+    public static function setIndexPluginClass($pluginClass)
     {
         self::$indexPluginClass = $pluginClass;
     }
