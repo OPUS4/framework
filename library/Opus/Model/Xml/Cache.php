@@ -38,6 +38,21 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
     private $_table = null;
 
     /**
+     * Perform document reindexing after a new cache entry is created
+     *
+     * @var bool
+     */
+    private $_reindexDocumentAfterAddingCacheEntry = true;
+
+    /**
+     * Plugin for updating the index.
+     * @var
+     *
+     * TODO this is a temporary hack - see _postPut below
+     */
+    private static $indexPluginClass;
+
+    /**
      *
      *
      * @return void
@@ -193,6 +208,8 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
         ];
 
         $this->_table->insert($newValue);
+
+        $this->_postPut($documentId);
     }
 
     /**
@@ -270,5 +287,39 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
         $select = $documentFinder->getSelectIds();
 
         $this->removeAllEntriesWhereSubSelect($select);
+    }
+
+    /**
+     * Post cache put hook. Functionality needed to keep
+     * document in a consistent state after cache update.
+     *
+     * @param int $documentId Id of document to process
+     *
+     * TODO cache and index should be indenpendent from each other (refactor)
+     *      Currently this is the easiest way to keep OPUS 4 working properly.
+     */
+    protected function _postPut($documentId)
+    {
+        if (!$this->_reindexDocumentAfterAddingCacheEntry && !is_null(self::$indexPluginClass)) {
+            return;
+        }
+
+        try {
+            $doc = new Opus_Document($documentId);
+        }
+        catch (Opus_Model_NotFoundException $e) {
+            // document requested for indexing does not longer exist: we could simply ignore this
+            return;
+        }
+
+        $pluginClass = self::$indexPluginClass;
+
+        $indexPlugin = new $pluginClass();
+        $indexPlugin->postStore($doc);
+    }
+
+    public function setIndexPluginClass($pluginClass)
+    {
+        self::$indexPluginClass = $pluginClass;
     }
 }
