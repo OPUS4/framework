@@ -253,6 +253,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             libxml_clear_errors();
             throw new Opus_Model_Exception($errmsg);
         }
+        libxml_use_internal_errors(false);
         $this->setDomDocument($dom);
     }
 

@@ -162,6 +162,8 @@ class Opus_Util_MetadataImport
         }
 
         $this->log('... OK');
+        libxml_use_internal_errors(false);
+        libxml_clear_errors();
         return $xml;
     }
 

@@ -53,6 +53,8 @@ class Opus_Util_MetadataImportXmlValidation
         if (! $this->xml->schemaValidate(__DIR__ . DIRECTORY_SEPARATOR . 'opus_import.xsd')) {
             throw new Opus_Util_MetadataImportInvalidXmlException(self::getErrorMessage());
         }
+        libxml_use_internal_errors(false);
+        libxml_clear_errors();
     }
 
 
