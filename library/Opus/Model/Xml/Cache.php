@@ -50,7 +50,7 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      *
      * TODO this is a temporary hack - see _postPut below
      */
-    private static $indexPluginClass;
+    private static $indexPluginClass = null;
 
     /**
      *
@@ -300,14 +300,13 @@ class Opus_Model_Xml_Cache implements \Opus\Model\Xml\XmlCacheInterface
      */
     protected function _postPut($documentId)
     {
-        if (!$this->_reindexDocumentAfterAddingCacheEntry && !is_null(self::$indexPluginClass)) {
+        if (! $this->_reindexDocumentAfterAddingCacheEntry || is_null(self::$indexPluginClass)) {
             return;
         }
 
         try {
             $doc = new Opus_Document($documentId);
-        }
-        catch (Opus_Model_NotFoundException $e) {
+        } catch (Opus_Model_NotFoundException $e) {
             // document requested for indexing does not longer exist: we could simply ignore this
             return;
         }
