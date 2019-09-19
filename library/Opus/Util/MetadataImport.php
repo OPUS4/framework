@@ -142,7 +142,7 @@ class Opus_Util_MetadataImport
     {
         // Enable user error handling while validating input
         libxml_clear_errors();
-        libxml_use_internal_errors(true);
+        $useInternalErrors = libxml_use_internal_errors(true);
 
         $this->log("Load XML ...");
         $xml = new DOMDocument();
@@ -162,7 +162,7 @@ class Opus_Util_MetadataImport
         }
 
         $this->log('... OK');
-        libxml_use_internal_errors(false);
+        libxml_use_internal_errors($useInternalErrors);
         libxml_clear_errors();
         return $xml;
     }

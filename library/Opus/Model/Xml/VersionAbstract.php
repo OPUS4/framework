@@ -242,7 +242,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
         // Disable libxml error reporting because it generates warnings
         // wich will be ignored in production but turned into an exception
         // in PHPUnit environments
-        libxml_use_internal_errors(true);
+        $useInternalErrors = libxml_use_internal_errors(true);
         $success = $dom->loadXml($xml);
         if (false === $success) {
             $errmsg = '';
@@ -253,7 +253,7 @@ abstract class Opus_Model_Xml_VersionAbstract implements Opus_Model_Xml_Strategy
             libxml_clear_errors();
             throw new Opus_Model_Exception($errmsg);
         }
-        libxml_use_internal_errors(false);
+        libxml_use_internal_errors($useInternalErrors);
         $this->setDomDocument($dom);
     }
 
