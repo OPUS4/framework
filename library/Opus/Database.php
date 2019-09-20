@@ -41,6 +41,8 @@
 class Opus_Database
 {
 
+    use \Opus\LoggingTrait;
+
     /**
      * Path to folder containing SQL files for updates.
      */

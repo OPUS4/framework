@@ -10,9 +10,9 @@
   "homepage": "http://opus4.kobv.de",
   "require": {
     "zendframework/zendframework1": "1.12.*",
-    "solarium/solarium": "3.4.*",
-    "opus4-repo/opus4-doi": "4.6.2",
-    "opus4-repo/opus4-common": "dev-master"
+    "solarium/solarium": "3.8.*",
+    "opus4-repo/opus4-common": "dev-master",
+    "opus4-repo/opus4-doi": "4.6.2"
   },
   "autoload": {
     "psr-0": {
@@ -30,14 +30,16 @@
     "phpunit/phpunit-selenium": "1.4.2",
     "doctrine/instantiator": "1.0.5",
     "phploc/phploc": "*",
+    "phpdocumentor/phpdocumentor": "2.*",
     "phpmd/phpmd" : "2.4.3",
     "sebastian/phpcpd": "*",
     "mayflower/php-codebrowser": "~1.1",
     "squizlabs/php_codesniffer": "2.7",
     "opus4-repo/codesniffer": "dev-master",
-    "opus4-repo/search": "dev-master",
     "zendframework/zend-coding-standard": "~1.0.0"
   },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
   "archive": {
     "exclude": ["/tests", "/nbproject"]
   },

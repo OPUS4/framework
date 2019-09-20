@@ -44,6 +44,8 @@
 abstract class Opus_Model_Abstract
 {
 
+    use \Opus\LoggingTrait;
+
     /**
      * Holds all fields of the domain model.
      *
@@ -60,11 +62,6 @@ abstract class Opus_Model_Abstract
      * @var array
      */
     protected $_internalFields = [];
-
-    /**
-     * Logger for class.
-     */
-    private $logger;
 
     /**
      * Call to _init().
@@ -88,7 +85,7 @@ abstract class Opus_Model_Abstract
      * @param string $name      Name of the method beeing called.
      * @param array  $arguments Arguments for function call.
      * @throws InvalidArgumentException When adding a link to a field without an argument.
-     * @throws Opus_Model_Exception     If an unknown field or method is requested.
+     * @throws Opus\Model\Exception     If an unknown field or method is requested.
      * @throws Opus_Security_Exception  If the current role has no permission for the requested operation.
      * @return mixed Might return a value if a getter method is called.
      */
@@ -113,12 +110,12 @@ abstract class Opus_Model_Abstract
         // check if requested field is known
         $field = $this->getField($fieldname);
         if (! isset($field)) {
-            throw new Opus_Model_Exception('Unknown field: ' . $fieldname);
+            throw new Opus\Model\Exception('Unknown field: ' . $fieldname);
         }
 
         // check if set/add has been called with an argument
         if ((false === $argumentGiven) and ($accessor === 'set')) {
-            throw new Opus_Model_Exception('Argument required for set() calls, none given.');
+            throw new Opus\Model\Exception('Argument required for set() calls, none given.');
         }
 
         switch ($accessor) {
@@ -135,7 +132,7 @@ abstract class Opus_Model_Abstract
                 break;
 
             default:
-                throw new Opus_Model_Exception('Unknown accessor function: ' . $accessor);
+                throw new Opus\Model\Exception('Unknown accessor function: ' . $accessor);
                 break;
         }
     }
@@ -183,7 +180,7 @@ abstract class Opus_Model_Abstract
         if (is_null($value)) {
             $modelclass = $field->getValueModelClass();
             if (is_null($modelclass)) {
-                throw new Opus_Model_Exception(
+                throw new Opus\Model\Exception(
                     'Add accessor without parameter currently only available for fields holding models.'
                 );
             }
@@ -212,13 +209,13 @@ abstract class Opus_Model_Abstract
      * Return a reference to an actual field but only allow access to public fields.
      *
      * @param string $name Name of the requested field.
-     * @throws Opus_Model_Exception If the field is internal.
+     * @throws Opus\Model\Exception If the field is internal.
      * @return Opus_Model_Field The requested field instance. If no such instance can be found, null is returned.
      */
     public function getField($name)
     {
         if (true === in_array($name, $this->_internalFields, true)) {
-            throw new Opus_Model_Exception('Access to internal field not allowed: ' . $name);
+            throw new Opus\Model\Exception('Access to internal field not allowed: ' . $name);
         }
         return $this->_getField($name);
     }
@@ -465,7 +462,7 @@ abstract class Opus_Model_Abstract
         } elseif (is_string($xml)) {
             $customDeserializer->setXml($xml);
         } else {
-            throw new Opus_Model_Exception('Either DomDocument or xml string must be passed.');
+            throw new Opus\Model\Exception('Either DomDocument or xml string must be passed.');
         }
 
         return $customDeserializer->getModel();
@@ -565,29 +562,6 @@ abstract class Opus_Model_Abstract
                 $myfield->setValue($fieldvalue);
             }
         }
-    }
-
-    /**
-     * Returns logger for this class.
-     * @return Zend_Log
-     * @throws Zend_Exception
-     */
-    public function getLogger()
-    {
-        if (is_null($this->logger)) {
-            $this->logger = Zend_Registry::get('Zend_Log');
-        }
-
-        return $this->logger;
-    }
-
-    /**
-     * Sets logger for this class.
-     * @param $logger Zend_Log
-     */
-    public function setLogger($logger)
-    {
-        $this->logger = $logger;
     }
 
     /**

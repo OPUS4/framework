@@ -27,7 +27,8 @@
  * @author      Henning Gerhardt (henning.gerhardt@slub-dresden.de)
  * @author      Julian Heise (heise@zib.de)
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2009-2010
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2009-2018
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
@@ -38,17 +39,18 @@
  *
  * @category    Framework
  * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @uses        Opus\Model\Plugin\AbstractPlugin
  */
-class Opus_Document_Plugin_IdentifierUrn extends Opus_Model_Plugin_Abstract implements \Opus\Model\Plugin\ServerStateChangeListener
+class Opus_Document_Plugin_IdentifierUrn extends Opus\Model\Plugin\AbstractPlugin implements \Opus\Model\Plugin\ServerStateChangeListener
 {
 
     /**
      * Generates a new URN for any document that has no URN assigned yet.
      * URN's are generated for Opus_Document instances only.
      */
-    public function postStoreInternal(Opus_Model_AbstractDb $model)
+    public function postStoreInternal(Opus\Model\ModelInterface $model)
     {
+
         $log = Zend_Registry::get('Zend_Log');
 
         if (! ($model instanceof Opus_Document)) {

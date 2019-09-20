@@ -27,9 +27,9 @@
  * @category    Tests
  * @package     Opus
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @author      Jens Schwidder <schwidder@zib.de>
+ * @copyright   Copyright (c) 2010-2019, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -72,7 +72,8 @@ class Opus_RequireTest extends TestCase
      */
     public function testRequire()
     {
-        $cmd = 'find ' . APPLICATION_PATH . '/library/Opus/ -type f -iname "*php"';
+        $path = APPLICATION_PATH . '/library/Opus/';
+        $cmd = "find $path -type f -iname \"*php\"";
         $classFiles = [];
         exec($cmd, $classFiles);
 
@@ -81,18 +82,10 @@ class Opus_RequireTest extends TestCase
         }
     }
 
-    /**
-     * Try to load all class files and instanciate objects.
-     *
-     * @return void
-     *
-     * Class files must be loaded (required_once) before the classes can be used.
-     * @depends testRequire
-     */
-    public function testInstanciateTest()
+    public function instanciateTestProvider()
     {
-        $cmd = 'find ' . APPLICATION_PATH
-            . '/library/Opus/ -type f -iname "*php" -print0 |xargs -r0 grep -hE "class[[:space:]]+Opus_" |cut -d" " -f 2 |grep Opus_';
+        $path = APPLICATION_PATH . '/library/Opus/';
+        $cmd = "find $path -type f -iname \"*php\" -print0 |xargs -r0 grep -hE \"class[[:space:]]+Opus_\" |cut -d\" \" -f 2 |grep Opus_";
         $classes = [];
         exec($cmd, $classes);
 
@@ -127,15 +120,34 @@ class Opus_RequireTest extends TestCase
             'Opus_Doi_DataCiteXmlGenerationException'
         ];
 
+        $data = [];
+
         foreach ($classes as $class) {
             if (in_array($class, $blacklist)) {
                 continue;
             }
-            try {
-                $object = new $class();
-            } catch (Exception $e) {
-                $this->fail("Loading class $class failed: " . $e->getMessage());
-            }
+            $data[$class] = [$class];
+        }
+
+        return $data;
+    }
+
+    /**
+     * Try to load all class files and instanciate objects.
+     *
+     * @return void
+     *
+     * Class files must be loaded (required_once) before the classes can be used.
+     * @depends testRequire
+     *
+     * @dataProvider instanciateTestProvider
+     */
+    public function testInstanciateTest($class)
+    {
+        try {
+            new $class();
+        } catch (Exception $e) {
+            $this->fail("Loading class $class failed: " . $e->getMessage());
         }
     }
 }

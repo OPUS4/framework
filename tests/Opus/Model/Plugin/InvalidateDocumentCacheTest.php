@@ -37,7 +37,7 @@
  *
  * @category    Framework
  * @package     Opus_Document_Plugin
- * @uses        Opus_Model_Plugin_Abstract
+ * @uses        Opus\Model\Plugin\AbstractPlugin
  */
 class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 {
@@ -56,20 +56,20 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $this->collectionRole->store();
         try {
             $this->collectionRole->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
 
         $this->collection = $this->collectionRole->addRootCollection();
         try {
             $this->collection->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
         $this->collection->setName('dummy');
         $this->collection->store();
     }
 
     /**
-     * @see {Opus_Model_Plugin_Interface::postStore}
+     * @see {Opus\Model\Plugin\PluginInterface::postStore}
      *
      * TODO split up into smaller tests
      */
@@ -107,7 +107,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         $author = new Opus_Person();
         try {
             $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
 
         $author->setFirstName('Karl');
@@ -207,7 +207,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         // unregister plugin if registered
         try {
             $title->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
         $title->setValue('Ein deutscher Titel');
         $title->setLanguage('deu');
@@ -265,7 +265,7 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
         // unregister plugin if registered
         try {
             $author->unregisterPlugin('Opus_Model_Plugin_InvalidateDocumentCache');
-        } catch (Opus_Model_Exception $ome) {
+        } catch (Opus\Model\Exception $ome) {
         }
         $author->setFirstName('Fritz');
         $author->store();
@@ -365,7 +365,6 @@ class Opus_Model_Plugin_InvalidateDocumentCacheTest extends TestCase
 
     public function testPreDeleteHasNoEffectIfModelNotStored()
     {
-
         $doc = new Opus_Document();
         $doc->setType("article")
                 ->setServerState('published');

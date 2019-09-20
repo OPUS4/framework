@@ -448,7 +448,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
     /**
      * Compares to another Opus_Date objekt.
      * @param $date2 Opus_Date object
-     * @throws Opus_Model_Exception
+     * @throws Opus\Model\Exception
      */
     public function compare($date)
     {
@@ -460,7 +460,7 @@ class Opus_Date extends Opus_Model_Abstract implements Opus_Model_Comparable
         if (! $date instanceof Opus_Date) {
             $class = get_class();
             $dateClass = get_class($date);
-            throw new Opus_Model_Exception("Cannot compare $dateClass with $class object.");
+            throw new Opus\Model\Exception("Cannot compare $dateClass with $class object.");
         }
 
         $thisDateTime = $this->getDateTime('Z');

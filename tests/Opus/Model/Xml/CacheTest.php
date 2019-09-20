@@ -15,10 +15,9 @@
  * @package     Opus_Model_Xml
  * @author      Ralf Claußnitzer (ralf.claussnitzer@slub-dresden.de)
  * @author      Henning Gerhardt <henning.gerhardt@slub-dresden.de>
- * @copyright   Copyright (c) 2009-2010
+ * @copyright   Copyright (c) 2009-2019
  *              Saechsische Landesbibliothek - Staats- und Universitaetsbibliothek Dresden (SLUB)
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -257,7 +256,7 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $dom = null;
         try {
             $dom = $cache->get($doc->getId(), '1.0');
-        } catch (Opus_Model_Exception $e) {
+        } catch (Opus\Model\Exception $e) {
             $this->assertNotNull($e);
             return;
         }
@@ -294,7 +293,6 @@ class Opus_Model_Xml_CacheTest extends TestCase
             $serverDateModified,
             $dom
         );
-
         $afterInput = $table->fetchAll()->count();
 
         $this->assertEquals($beforeInput + 1, $afterInput, 'Expecting one new cache entry.');
@@ -339,7 +337,7 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $table = new Opus_Db_DocumentXmlCache();
 
         $beforeRemove = $table->fetchAll()->count();
-        $cache->removeAllEntries();
+        $cache->clear();
         $afterRemove = $table->fetchAll()->count();
 
         $this->assertEquals($this->_maxEntries, $beforeRemove);
@@ -364,7 +362,7 @@ class Opus_Model_Xml_CacheTest extends TestCase
         $beforeRemove = $table->fetchAll()->count();
 
         $cache = new Opus_Model_Xml_Cache();
-        $cache->removeAllEntriesWhereDocumentId($documentId);
+        $cache->remove($documentId);
 
         $afterRemove = $table->fetchAll()->count();
 

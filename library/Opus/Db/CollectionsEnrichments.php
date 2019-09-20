@@ -27,9 +27,8 @@
  * @category    Framework
  * @package     Opus_Db
  * @author      Thoralf Klein <thoralf.klein@zib.de>
- * @copyright   Copyright (c) 2010, OPUS 4 development team
+ * @copyright   Copyright (c) 2010-2018, OPUS 4 development team
  * @license     http://www.gnu.org/licenses/gpl.html General Public License
- * @version     $Id$
  */
 
 /**
@@ -39,7 +38,6 @@
  * @package     Opus_Db
  *
  */
-
 class Opus_Db_CollectionsEnrichments extends Opus_Db_TableGateway
 {
 
@@ -57,10 +55,10 @@ class Opus_Db_CollectionsEnrichments extends Opus_Db_TableGateway
      * @var array $_referenceMap
      */
     protected $_referenceMap = [
-            'Collections' => [
-                'columns' => 'collection_id',
-                'refTableClass' => 'Opus_Db_Collections',
-                'refColumns' => 'id',
-                ],
-            ];
+        'Collections' => [
+            'columns' => 'collection_id',
+            'refTableClass' => 'Opus_Db_Collections',
+            'refColumns' => 'id'
+        ]
+    ];
 }
